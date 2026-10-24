@@ -10,7 +10,7 @@
 
 **Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.0, 2026-10-24.
 
-**Plan state:** Approved; M1 foundation, T05 inventory, T06 normalization, T07 eligible comparison, T08 ranking, T09 durable search orchestration, SSE and recovery, and T10 source-backed date prices are complete and independently reviewed. M2 continues with T11 recheck and referrals. Remaining product tasks and evidence are tracked below. The earlier date explorer is a completed throwaway interaction study, not implemented product code.
+**Plan state:** Approved; M1 foundation, T05 inventory, T06 normalization, T07 eligible comparison, T08 ranking, T09 durable search orchestration, SSE and recovery, T10 source-backed date prices, and T11 recheck/idempotent referrals are complete and independently reviewed. M2 comparison engine is complete; M3 begins with T13 shared WebGL rendering. Remaining product tasks and evidence are tracked below. The earlier date explorer is a completed throwaway interaction study, not implemented product code.
 
 **Delivery location:** This outputs directory contains the user-facing source documents. On repository creation, copy the spec to docs/superpowers/specs/2026-10-24-torobticket-design.md and this plan to docs/superpowers/plans/2026-10-24-torobticket-master-plan.md. Preserve the revision, task IDs, and decision authority, and rewrite the Spec link to ../specs/2026-10-24-torobticket-design.md.
 
@@ -297,6 +297,9 @@ cancelDatePrices(session: SessionContext, id: string, view: DatePriceQuery | str
 // T11 — apps/api/src/referrals/referral.service.ts
 prepareReferral(session: SessionContext, input: ReferralSelection): Promise<RecheckResult>;
 confirmReferral(session: SessionContext, input: ConfirmReferralInput): Promise<ReferralReceipt>;
+getReferral(session: SessionContext, id: string): Promise<ReferralReceipt>;
+// POST /api/v1/referrals/prepare, POST /confirm; GET /:id is read-only.
+// changed.previousQuote supplies old facts; intent.quote supplies accepted new facts.
 
 // T20 — apps/api/src/hotels/hotel.service.ts
 searchHotels(session: SessionContext, input: HotelSearchQuery): Promise<HotelSearchSnapshot>;
@@ -325,7 +328,7 @@ T09 implements the contract-only subscribeSearch lifecycle and its default same-
 
 Each row indexes the detailed checkbox steps in section 6. DONE requires independent review and recorded verification evidence.
 
-**Progress:** 35 tasks · 183 subtasks · 11 implementation tasks complete.
+**Progress:** 35 tasks · 183 subtasks · 12 implementation tasks complete.
 
 | Task | Subtasks | Dependencies | Status | Owner / evidence |
 |---|---|---|---|---|
@@ -339,7 +342,7 @@ Each row indexes the detailed checkbox steps in section 6. DONE requires indepen
 | [T08 — Deterministic ranking, factual explanations, and bounded suggestions](#t08) | T08.1 Pin exact sort and suggestion thresholds<br>T08.2 Run ranking tests red<br>T08.3 Implement comparators and factual reasons<br>T08.4 Implement contextual suggestion selection<br>T08.5 Verify and commit | T07 | DONE | implement_t08 / 2241795; independent review approved; domain226, root tests, affected40 and packaged ranking/facts/suggestion pass; docs/evidence/T08 |
 | [T09 — Search orchestration, persistent evidence, SSE, and recovery](#t09) | T09.1 Pin partial, race, and reconnect behavior<br>T09.2 Run orchestration tests red<br>T09.3 Implement bounded search runs<br>T09.4 Implement the stream and fallback<br>T09.5 Implement restart/cancel cleanup<br>T09.6 Verify and commit | T04, T06, T08 | DONE | implement_t09 / 4d6f595 + 40e1a14 + 3230073; independently reviewed; integration48/search16/client14, affected checks and packaged gateway/restart/audit/preservation pass; docs/evidence/T09 |
 | [T10 — Consistent date-price projection and scoped caching](#t10) | T10.1 Pin date/result equivalence<br>T10.2 Run projection tests red<br>T10.3 Implement bounded projection<br>T10.4 Implement cache identity and invalidation<br>T10.5 Verify and commit | T09 | DONE | implement_t10 / 0a39241 + 3dd0d0a; independent spec/quality approved, no blocking findings; domain239/client17/API66, root12+tools20, affected34 and packaged equivalence/cache/isolation/restart/preservation passed; docs/evidence/T10; T10-M1 readability retained |
-| [T11 — Recheck, quote versions, idempotent referrals, and handoff data](#t11) | T11.1 Pin changed-price and idempotency cases<br>T11.2 Run referral tests red<br>T11.3 Implement prepare and acceptance<br>T11.4 Implement atomic confirmation<br>T11.5 Verify and commit | T04, T07, T09 | TODO | Unassigned / — |
+| [T11 — Recheck, quote versions, idempotent referrals, and handoff data](#t11) | T11.1 Pin changed-price and idempotency cases<br>T11.2 Run referral tests red<br>T11.3 Implement prepare and acceptance<br>T11.4 Implement atomic confirmation<br>T11.5 Verify and commit | T04, T07, T09 | DONE | implement_t11 / 3abdd5e + cb77ce2 + 301119d; independently reviewed, I1 closed by scoped re-review; integration81/amended53, root12+tools20, affected34/16 and packaged ready/change/soldout/idempotency/restart/preservation pass; docs/evidence/T11 |
 | [T12 — Design tokens, accessible primitives, typography, and component gallery](#t12) | T12.1 Define the visual foundation<br>T12.2 Implement accessible primitives<br>T12.3 Pin interaction behavior<br>T12.4 Build the state gallery<br>T12.5 Verify and commit | T01 | DONE | implement_t12 / 6e0071c + 581f834; review clean; UI13 tests, browser28 audit/startup6/native race2 and builds passed |
 | [T13 — Shared WebGL renderer, typed uniforms, and graceful fallback](#t13) | T13.1 Define lifecycle behavior<br>T13.2 Build the shared host<br>T13.3 Implement uniforms and scheduling<br>T13.4 Implement fallback and recovery<br>T13.5 Verify and commit | T12 | TODO | Unassigned / — |
 | [T14 — Dotted geography and mode-specific route scenes](#t14) | T14.1 Pin geographic and route invariants<br>T14.2 Run geometry tests red<br>T14.3 Implement map and route shaders<br>T14.4 Implement camera and location primitives<br>T14.5 Verify and commit | T05, T13 | TODO | Unassigned / — |
@@ -370,7 +373,7 @@ Each row indexes the detailed checkbox steps in section 6. DONE requires indepen
 | Milestone | Tasks | Exit evidence |
 |---|---|---|
 | M1 — Runnable foundation and contracts | T01–T04, T12; early T29 | COMPLETE: independent task and cross-task review, final WebStorm builds/Docker startup verified; evidence in docs/evidence/M1-checkpoint and M1-handoff |
-| M2 — Credible comparison engine | T05–T11 | IN PROGRESS: T05–T10 complete and independently reviewed; T11 recheck/idempotent referrals pending. Evidence includes provider normalization, complete round trips, ranking, durable streams and shared date/result minima |
+| M2 — Credible comparison engine | T05–T11 | COMPLETE: T05–T11 independently reviewed. Provider normalization, complete round trips, ranking, durable streams, date/result equality and explicit versioned/idempotent referrals verified; T11 corrected lifecycle53 and packaged gateway/restart/preservation gates pass |
 | M3 — Signature search experience | T13–T18 | Wheel/calendar/chart/map linked to real API data; stable results and camera; compact desktop/mobile review |
 | M4 — Complete traveler flow | T19–T22 | Guest and simulated identity, saved searches, hotels/rooms/custom point, exact simulated provider handoff |
 | M5 — Inspectable admin | T23–T26 | Session-scoped controls actually alter pipeline; raw-to-normalized trace; mapping preview/replay; real referral evidence |
@@ -938,27 +941,30 @@ Run the three focused targets. Confirm incomplete total never yields a cheap cel
 - Consumes: SessionContext, provider recheck adapter, QuoteSnapshot, ReferralSelection/Intent/RecheckResult/Receipt.
 - Produces: prepareReferral and confirmReferral; RecheckRegistry handler interface for transport now and hotels in T20; immutable local handoff payload.
 
-- [ ] **T11.1 — Pin changed-price and idempotency cases**
+- [x] **T11.1 — Pin changed-price and idempotency cases**
 
 Test ready, changed total, changed baggage/refund terms, sold-out, expired/incomplete quote, expired intent, wrong accepted version, duplicate confirmation, and same idempotency key with a different payload. Assert B cannot prepare or view A's quote/referral.
 
-- [ ] **T11.2 — Run referral tests red**
+- [x] **T11.2 — Run referral tests red**
 
 Run pnpm nx run api:test-integration. A repeated confirm must not yield two ReferralEvent rows.
 
-- [ ] **T11.3 — Implement prepare and acceptance**
+- [x] **T11.3 — Implement prepare and acceptance**
 
 Call the relevant recheck handler; compare price and material conditions. Store a two-minute intent tied to session, selection, accepted version, and payload digest. A changed quote returns exact old/new facts for explicit acceptance.
 
-- [ ] **T11.4 — Implement atomic confirmation**
+- [x] **T11.4 — Implement atomic confirmation**
 
 Validate version/expiry/eligibility inside a transaction, enforce idempotency uniqueness, create one referral record, and return /provider-demo/:referralId. Revalidate or reject an intent invalidated by a later scenario revision. Refreshing a handoff never increments clicks.
 
-- [ ] **T11.5 — Verify and commit**
+- [x] **T11.5 — Verify and commit**
 
 Run integration tests with injected real clocks at TTL boundaries and concurrent duplicate confirmations. Assert exact whole-party payload and no booking/revenue event. Commit the referral engine.
 
 **Acceptance:** Every handoff is explicit, current, exactly traceable, and protected against stale acceptance or repeated clicks.
+
+**T11 checkpoint — 2026-10-24:** Complete at `3abdd5e` + report `cb77ce2` + lifecycle correction `301119d`. Independent full review found one Important I1: interrupted internal rechecks left provider evidence collecting. Three assertion RED cases reproduced it; shared transactional reconciliation now terminalizes unfinished children and preserves raw/terminal evidence. Fresh scoped re-review closed I1 with no new findings. Original integration81, amended four-file integration53, root12+tools20 and affected34/16 targets pass. Final packaged ready/changed/soldout, whole-party roundtrip, concurrent single-event confirmation, scoped404, read-only receipt, original-lineage/quote immutability, actual restart/replay and exact database/inventory preservation pass. Owned test resources and all probe namespaces are removed. Changed response includes exact previousQuote; registry supports transport now and hotel registration in T20. Explicit acceptance UI and provider page remain T17/T22; main rendering starts T13. Evidence: `docs/evidence/T11/`. Twelve of35 tasks are complete; T29 remains ACTIVE.
+
 
 ---
 
@@ -1806,7 +1812,7 @@ Run the recovery suite plus affected client/web tests. Confirm all actions work 
 - Consumes: Pinned toolchain, web/admin builds, API readiness, Prisma migrations/idempotent fixtures.
 - Produces: pnpm docker:up/down/reset scripts; production-style local containers; same-origin /, /admin, /api, /provider-demo routing; direct Compose fallback.
 
-**Packaging checkpoint:** Early packaging independently approved at `747c5f5` + `939bb44`; T05 rich seed and local geography are integrated and verified at `8081656`. Lifecycle, ordered initialization and runner are complete. Current assets and prior lifecycle checks are verified. T09 actual gateway SSE delivery, replay, interruption/retry and preservation are verified at `3230073`; T10 date-price equality/cache/restart and exact inventory preservation are also packaged-verified at `0a39241`. Future artwork and complete T33 acceptance remain pending. Parent T29 stays ACTIVE. Evidence: `docs/evidence/T29/`, `docs/evidence/T05/packaged/` `docs/evidence/T09/packaged/` and `docs/evidence/T10/packaged/`.
+**Packaging checkpoint:** Early packaging independently approved at `747c5f5` + `939bb44`; T05 rich seed and local geography are integrated and verified at `8081656`. Lifecycle, ordered initialization and runner are complete. Current assets and prior lifecycle checks are verified. T09 actual gateway SSE delivery, replay, interruption/retry and preservation are verified at `3230073`; T10 date-price equality/cache/restart and exact inventory preservation are also packaged-verified at `0a39241`; T11 referral/idempotency/restart and final data preservation are verified at `301119d`. Future artwork and complete T33 acceptance remain pending. Parent T29 stays ACTIVE. Evidence: `docs/evidence/T29/`, `docs/evidence/T05/packaged/` `docs/evidence/T09/packaged/` `docs/evidence/T10/packaged/` and `docs/evidence/T11/packaged/`.
 
 - [x] **T29.1 — Define container lifecycle**
 
