@@ -10,7 +10,7 @@
 
 **Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.0, 2026-10-24.
 
-**Plan state:** Approved; M1 foundation complete and independently reviewed. Remaining product tasks and evidence are tracked below. The earlier date explorer is a completed throwaway interaction study, not implemented product code.
+**Plan state:** Approved; M1 foundation and T05 inventory complete and independently reviewed. M2 comparison pipeline is in progress. Remaining product tasks and evidence are tracked below. The earlier date explorer is a completed throwaway interaction study, not implemented product code.
 
 **Delivery location:** This outputs directory contains the user-facing source documents. On repository creation, copy the spec to docs/superpowers/specs/2026-10-24-torobticket-design.md and this plan to docs/superpowers/plans/2026-10-24-torobticket-master-plan.md. Preserve the revision, task IDs, and decision authority, and rewrite the Spec link to ../specs/2026-10-24-torobticket-design.md.
 
@@ -308,7 +308,7 @@ Client helpers in libs/client: apiClient for typed REST; subscribeSearch for SSE
 
 Each row indexes the detailed checkbox steps in section 6. DONE requires independent review and recorded verification evidence.
 
-**Progress:** 35 tasks · 183 subtasks · 5 implementation tasks complete.
+**Progress:** 35 tasks · 183 subtasks · 6 implementation tasks complete.
 
 | Task | Subtasks | Dependencies | Status | Owner / evidence |
 |---|---|---|---|---|
@@ -316,7 +316,7 @@ Each row indexes the detailed checkbox steps in section 6. DONE requires indepen
 | [T02 — Runtime contracts and stable API vocabulary](#t02) | T02.1 Pin invalid-input behavior<br>T02.2 Run the contract tests red<br>T02.3 Implement schemas and exports<br>T02.4 Wire validation and errors<br>T02.5 Verify and commit | T01 | DONE | implement_t02 / 17a9d91; independent review approved; 88 tests, HTTP validation, lint, typechecks and builds passed |
 | [T03 — Money, local dates, party eligibility, and pure time rules](#t03) | T03.1 Specify arithmetic and boundary cases<br>T03.2 Run focused tests red<br>T03.3 Implement pure helpers<br>T03.4 Implement eligibility<br>T03.5 Verify and commit | T02 | DONE | implement_t03 / 932ded9; independent review approved; 85 domain tests and checks passed; process chronology disclosed in report |
 | [T04 — Database, isolated demo sessions, clocks, and lifecycle](#t04) | T04.1 Pin isolation and persistence behavior<br>T04.2 Run integration tests red<br>T04.3 Create schema and scoped repositories<br>T04.4 Implement lifecycle and clocks<br>T04.5 Verify and commit | T02 | DONE | implement_t04 / a0d055e + f7d5552; independent review clean; PostgreSQL isolation, transactions, recovery and compiled health checks passed |
-| [T05 — Curated catalog, geographic assets, and deterministic fixture generator](#t05) | T05.1 Define catalog invariants<br>T05.2 Run catalog tests red<br>T05.3 Author showcase data and source geometry<br>T05.4 Implement seeded generation<br>T05.5 Verify seeded inventory<br>T05.6 Review and commit | T03, T04 | TODO | Unassigned / — |
+| [T05 — Curated catalog, geographic assets, and deterministic fixture generator](#t05) | T05.1 Define catalog invariants<br>T05.2 Run catalog tests red<br>T05.3 Author showcase data and source geometry<br>T05.4 Implement seeded generation<br>T05.5 Verify seeded inventory<br>T05.6 Review and commit | T03, T04 | DONE | implement_t05 / ebbb773 + 8081656; independently approved; fixtures30/PG26, immutable seed twice, packaged catalog/assets verified; docs/evidence/T05 |
 | [T06 — Provider adapters, normalization traces, and controlled failures](#t06) | T06.1 Pin raw-format and fault cases<br>T06.2 Run adapter tests red<br>T06.3 Implement adapters and normalization<br>T06.4 Implement bounded scenario timing<br>T06.5 Verify and commit | T03, T05 | TODO | Unassigned / — |
 | [T07 — Journey grouping, fare eligibility, and complete round-trip quotes](#t07) | T07.1 Pin comparable and noncomparable cases<br>T07.2 Run grouping tests red<br>T07.3 Implement stable identity and fares<br>T07.4 Implement full-party and round-trip evaluation<br>T07.5 Verify and commit | T03, T06 | TODO | Unassigned / — |
 | [T08 — Deterministic ranking, factual explanations, and bounded suggestions](#t08) | T08.1 Pin exact sort and suggestion thresholds<br>T08.2 Run ranking tests red<br>T08.3 Implement comparators and factual reasons<br>T08.4 Implement contextual suggestion selection<br>T08.5 Verify and commit | T07 | TODO | Unassigned / — |
@@ -340,7 +340,7 @@ Each row indexes the detailed checkbox steps in section 6. DONE requires indepen
 | [T26 — Referral analytics and end-to-end provenance trail](#t26) | T26.1 Pin real metric counts<br>T26.2 Run analytics tests red<br>T26.3 Implement metrics and joins<br>T26.4 Implement the referral views<br>T26.5 Verify and commit | T11, T23, T24 | TODO | Unassigned / — |
 | [T27 — Flat artwork, coordinated motion, and all theme transitions](#t27) | T27.1 Author the visual assets<br>T27.2 Implement useful motion<br>T27.3 Implement theme coordination<br>T27.4 Verify motion and all palettes<br>T27.5 Review and commit | T12, T13, T14, T16, T17, T21 | TODO | Unassigned / — |
 | [T28 — Failure recovery and coherent state across features](#t28) | T28.1 Pin the scenario recovery matrix<br>T28.2 Run recovery cases red<br>T28.3 Implement recovery actions<br>T28.4 Reconcile stale selections<br>T28.5 Verify and commit | T09, T10, T16, T17, T18, T20, T21, T22, T24, T25 | TODO | Unassigned / — |
-| [T29 — Docker packaging, gateway, initialization, and one-command startup](#t29) | T29.1 Define container lifecycle<br>T29.2 Implement ordered initialization<br>T29.3 Implement gateway and assets<br>T29.4 Implement one-command runner<br>T29.5 Verify and commit | T01, T04, T05 | ACTIVE | implement_t29_early / early scope independently approved; final WebStorm one-command boot and HTTP/session checks passed; T05/T09/full assets/T33 acceptance pending |
+| [T29 — Docker packaging, gateway, initialization, and one-command startup](#t29) | T29.1 Define container lifecycle<br>T29.2 Implement ordered initialization<br>T29.3 Implement gateway and assets<br>T29.4 Implement one-command runner<br>T29.5 Verify and commit | T01, T04, T05 | ACTIVE | implement_t29_early / T05 rich seed/geography integrated and packaged runtime verified; real T09 SSE, future assets and T33 full acceptance pending |
 | [T30 — Complete behavioral regression and multi-reviewer acceptance](#t30) | T30.1 Build stable e2e fixtures<br>T30.2 Exercise the full matrix<br>T30.3 Exercise cross-feature journeys<br>T30.4 Exercise hostile timing and isolation<br>T30.5 Verify and commit | T19, T22, T24, T25, T26, T28, T29 | TODO | Unassigned / — |
 | [T31 — Accessibility, RTL, responsive behavior, and browser compatibility](#t31) | T31.1 Define representative coverage<br>T31.2 Run semantic checks<br>T31.3 Inspect visual accessibility<br>T31.4 Run browser coverage<br>T31.5 Fix, verify, and commit | T27, T28, T30 | TODO | Unassigned / — |
 | [T32 — Graphics performance, visual regression, and resource budgets](#t32) | T32.1 Capture controlled visual baselines<br>T32.2 Measure real interaction performance<br>T32.3 Measure bundles and idle work<br>T32.4 Stress lifecycle and fallbacks<br>T32.5 Verify and commit | T27, T28, T30 | TODO | Unassigned / — |
@@ -353,7 +353,7 @@ Each row indexes the detailed checkbox steps in section 6. DONE requires indepen
 | Milestone | Tasks | Exit evidence |
 |---|---|---|
 | M1 — Runnable foundation and contracts | T01–T04, T12; early T29 | COMPLETE: independent task and cross-task review, final WebStorm builds/Docker startup verified; evidence in docs/evidence/M1-checkpoint and M1-handoff |
-| M2 — Credible comparison engine | T05–T11 | Six provider contracts, round-trip/grouping invariants, rankings, calendar consistency, streamed failures, recheck/idempotency |
+| M2 — Credible comparison engine | T05–T11 | IN PROGRESS: T05 complete; T06–T11 pending. Six provider contracts, round-trip/grouping invariants, rankings, calendar consistency, streamed failures, recheck/idempotency |
 | M3 — Signature search experience | T13–T18 | Wheel/calendar/chart/map linked to real API data; stable results and camera; compact desktop/mobile review |
 | M4 — Complete traveler flow | T19–T22 | Guest and simulated identity, saved searches, hotels/rooms/custom point, exact simulated provider handoff |
 | M5 — Inspectable admin | T23–T26 | Session-scoped controls actually alter pipeline; raw-to-normalized trace; mapping preview/replay; real referral evidence |
@@ -363,9 +363,11 @@ Each row indexes the detailed checkbox steps in section 6. DONE requires indepen
 
 Recommended sequence: establish one working vertical slice early—session → one fixture provider → API search → one result → referral—while preserving the final contracts. Expand to all providers/modes, then polish the linked graphics, hotels, and admin. This is an implementation order, not a reduction of release scope.
 
-**M1 checkpoint — 2026-10-24:** Five full tasks are DONE; early T29 is reviewed and runnable while its parent stays ACTIVE. The project is checked out at `/Users/mahdizarei/WebstormProjects/torob-ticket` on `codex/foundation`, with the requested GitHub origin. Cross-task review fixes close clean-CI initialization, equivalent-anchor handling, shared test-database guards, tool-test coverage and README accuracy. Final-path frozen install, 36 source checks, normal regressions, one-command Docker boot and compiled HTTP checks pass. Next task: T05.
+**M1 checkpoint — 2026-10-24:** Five full tasks are DONE; early T29 is reviewed and runnable while its parent stays ACTIVE. The project is checked out at `/Users/mahdizarei/WebstormProjects/torob-ticket` on `codex/foundation`, with the requested GitHub origin. Cross-task review fixes close clean-CI initialization, equivalent-anchor handling, shared test-database guards, tool-test coverage and README accuracy. Final-path frozen install, 36 source checks, normal regressions, one-command Docker boot and compiled HTTP checks pass. T05 continues the next milestone.
 
-Early T29 packaging is intentional: validate build/health/seed assumptions as soon as the foundation exists, then repeat the clean-start gate after all features land. Storybook and test projects are development tools, not additional production services.
+**T05 checkpoint — 2026-10-24:** Rich deterministic inventory is complete at `ebbb773` + `8081656`: 22 cities, 90 places, 104 directed connections, six fictional providers, 308 hotels and 924 relative-night rate templates. Thirty fixture tests, 26 PostgreSQL/HTTP integration tests, normal regressions, seed idempotence and independent review/fix re-review pass. The packaged catalog, seed and geographic assets are verified through the running Docker gateway. Evidence: `docs/evidence/T05/`. Next task: T06.
+
+Early T29 packaging is intentional: validate build/health/seed assumptions as soon as the foundation exists, then repeat the clean-start gate after all features land. Storybook, test projects and the tagged seed-tool composition project are development tools, not additional production services.
 
 **Gate G1:** domain truth is testable before UI claims it.  
 **Gate G2:** the signature date/map/result interaction is reviewed before multiplying visual treatments.  
@@ -626,27 +628,27 @@ Run migrations against empty PostgreSQL, seed twice, and rerun api:test-integrat
 - Consumes: Canonical money/time helpers; DB seed entry; six provider IDs/capabilities and catalog requirements.
 - Produces: FixtureQuery, FixtureCase and fixtureCase(id); generateProviderRecords(input); versioned catalog seed; GET /api/v1/catalog; geographic assets and source/license manifest.
 
-- [ ] **T05.1 — Define catalog invariants**
+- [x] **T05.1 — Define catalog invariants**
 
 Create tests for all six hero searches, reverse routes, supported mode/scope edges, at least three providers per hero itinerary, and 12–20 hotels per covered destination. Assert no endpoint is offered without its transport/hotel fixtures. Add deterministic fixtures for every Review Focus case.
 
-- [ ] **T05.2 — Run catalog tests red**
+- [x] **T05.2 — Run catalog tests red**
 
 Run pnpm nx test fixtures. Confirm missing coverage and seed determinism fail before implementing the catalog.
 
-- [ ] **T05.3 — Author showcase data and source geometry**
+- [x] **T05.3 — Author showcase data and source geometry**
 
 Create 12 domestic and 10 international cities, place IDs/time zones, plausible fictional schedules, round trips, stop geometry, room inventories, and meaningful fare differences. Validate real geographic identifiers from authoritative sources; record licenses/provenance. Bundle local simplified map/landmark geometry.
 
-- [ ] **T05.4 — Implement seeded generation**
+- [x] **T05.4 — Implement seeded generation**
 
 Implement generateProviderRecords(FixtureQuery): RawProviderRecord[] with stable seed/anchor/scenario/mapping inputs. Delays must not alter values. Emit each provider's distinct raw shape. Include empty/no-match days, discontinuities, overnight connections, technical stops, currency aliases, and incomplete prices. Serve the catalog/capabilities through GET /api/v1/catalog; its endpoint options must derive from the same connection graph.
 
-- [ ] **T05.5 — Verify seeded inventory**
+- [x] **T05.5 — Verify seeded inventory**
 
 Assert repeated input yields equal records, different scenario revisions yield only intended changes, all graph endpoints work, no invalid time order exists, and all hero round trips are supplied by their providers. Run pnpm nx test fixtures, pnpm nx run api:test-integration for catalog coverage, and seed twice.
 
-- [ ] **T05.6 — Review and commit**
+- [x] **T05.6 — Review and commit**
 
 Inspect one sample search per mode/scope and one hotel catalog for coherent conditions and Persian labels. Save coverage counts and provenance to docs/evidence/T05/; commit fixtures and assets.
 
@@ -1784,13 +1786,13 @@ Run the recovery suite plus affected client/web tests. Confirm all actions work 
 - Consumes: Pinned toolchain, web/admin builds, API readiness, Prisma migrations/idempotent fixtures.
 - Produces: pnpm docker:up/down/reset scripts; production-style local containers; same-origin /, /admin, /api, /provider-demo routing; direct Compose fallback.
 
-**M1 checkpoint:** Early packaging independently approved at `747c5f5` + `939bb44`. Lifecycle and runner are complete. Ordered foundation initialization, current local assets, clean-volume/restart/session persistence and failure/recovery are verified; T05 rich fixtures, T09 real SSE, future geography/art and full T33 acceptance remain pending. Parent T29 stays ACTIVE. Evidence: `docs/evidence/T29/`.
+**Packaging checkpoint:** Early packaging independently approved at `747c5f5` + `939bb44`; T05 rich seed and local geography are integrated and verified at `8081656`. Lifecycle, ordered initialization and runner are complete. Current assets, prior clean-volume/restart/session persistence and failure/recovery are verified; T09 real SSE, future artwork and complete T33 acceptance remain pending. Parent T29 stays ACTIVE. Evidence: `docs/evidence/T29/` and `docs/evidence/T05/packaged/`.
 
 - [x] **T29.1 — Define container lifecycle**
 
 Use gateway/static frontend, API, PostgreSQL, and one-shot initializer services. Build all app assets inside Docker. Keep database/API ports internal by default; expose one configurable loopback demo port. Record supported arm64/amd64 build paths.
 
-- [ ] **T29.2 — Implement ordered initialization**
+- [x] **T29.2 — Implement ordered initialization**
 
 Wait for PostgreSQL health, then run migrations and versioned seed to successful completion before API readiness. Seed is idempotent. Startup never deletes a volume; reset is a separate explicit local command.
 
