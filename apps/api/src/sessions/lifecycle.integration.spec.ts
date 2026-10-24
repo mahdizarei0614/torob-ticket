@@ -1,9 +1,10 @@
 import 'reflect-metadata';
 import { Test } from '@nestjs/testing';
-import { Controller, Get, Inject, Param, Req, UseGuards, type INestApplication } from '@nestjs/common';
+import { Client } from 'pg';
+import { Controller, Get, Inject, Param, Post, Req, UseGuards, type INestApplication } from '@nestjs/common';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { SessionInfoSchema } from '@torob-ticket/contracts';
-import { createPrisma, SessionRepository, type PrismaClient } from '@torob-ticket/data-access';
+import { createPrisma, SearchRepository, SessionRepository, type PrismaClient } from '@torob-ticket/data-access';
 import { AppModule } from '../app.module';
 import { SystemRealClock } from '../common/clocks';
 import { SessionModule } from './session.module';
@@ -21,6 +22,14 @@ class ControlledRealClock extends SystemRealClock {
 @UseGuards(SessionGuard)
 class AuditHarness {
   constructor(@Inject(SessionService) private readonly sessions: SessionService) {}
+  @Post(':id/work')
+  async work(@Req() request: SessionRequest, @Param('id') abandonedId: string) {
+    const searches = new SearchRepository(this.sessions.database);
+    const scope = request.sessionContext!.scope;
+    const abandoned = await searches.get(scope, abandonedId);
+    const admitted = await searches.create(scope, { query: {}, clientGeneration: 'after-recovery', snapshot: { status: 'collecting' } }, this.sessions.realClock.now());
+    return { id: admitted.id, abandonedStatusAtAdmission: abandoned.status };
+  }
   @Get(':id')
   async read(@Req() request: SessionRequest, @Param('id') id: string) {
     try { return await this.sessions.repository.getAudit(request.sessionContext!.scope, id); }
@@ -121,6 +130,42 @@ describe('session isolation and lifecycle', () => {
     expect(await sessions.repository.getAudit(b.context.scope, bAudit.id)).toMatchObject({kind:'B'});
     await expect(sessions.repository.appendAudit(a.context.scope, 'late', {}, clock.now())).rejects.toMatchObject({code: 'SESSION_EXPIRED'});
     expect(await db.fixtureVersion.count({where: {id:'foundation-v1'}})).toBe(1);
+  });
+  it.each(['resume', 'guard'] as const)('reconciles recovered storage before existing-cookie %s admission', async entry => {
+    const a = await create();
+    const searches = new SearchRepository(db);
+    const abandoned = await searches.create(a.context.scope, { query: {}, clientGeneration: 'before-restart', snapshot: { status: 'collecting' } }, clock.now());
+    await app.close();
+
+    // Keep one administrative connection alive while real PostgreSQL rejects all
+    // new connections, including the restarted API's initial readiness check.
+    const adminUrl = new URL(process.env.TEST_DATABASE_URL!);
+    const databaseName = decodeURIComponent(adminUrl.pathname.slice(1));
+    adminUrl.pathname = '/postgres';
+    const admin = new Client({ connectionString: adminUrl.toString() });
+    await admin.connect();
+    const databaseIdentifier = '"' + databaseName.replaceAll('"', '""') + '"';
+    try {
+      await admin.query(`ALTER DATABASE ${databaseIdentifier} ALLOW_CONNECTIONS false`);
+      await start();
+      expect((await fetch(`${base}/api/health/live`)).status).toBe(200);
+    } finally {
+      await admin.query(`ALTER DATABASE ${databaseIdentifier} ALLOW_CONNECTIONS true`);
+      await admin.end();
+    }
+
+    // No readiness request or maintenance tick is allowed before admission.
+    if (entry === 'resume') {
+      expect((await post('session', {}, a.cookie)).status).toBe(201);
+      expect((await searches.get(a.context.scope, abandoned.id)).status).toBe('interrupted');
+    }
+    const response = await fetch(`${base}/api/test-audit/${abandoned.id}/work`, { method: 'POST', headers: { cookie: a.cookie } });
+    expect(response.status).toBe(201);
+    const admitted = await response.json() as { id: string; abandonedStatusAtAdmission: string };
+    expect(admitted.abandonedStatusAtAdmission).toBe('interrupted');
+    await sessions.maintenance();
+    expect((await searches.get(a.context.scope, admitted.id)).status).toBe('collecting');
+    expect(await db.searchEventRecord.count({ where: { sessionId: a.context.sessionId, searchId: abandoned.id } })).toBe(1);
   });
   it('restart preserves completed evidence, interrupts abandoned work, and cleans inactive sessions', async () => {
     const a = await create(); const expired = await create();

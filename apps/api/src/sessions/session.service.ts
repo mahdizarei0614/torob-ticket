@@ -93,6 +93,8 @@ export class SessionService implements OnApplicationBootstrap, OnModuleDestroy {
     const token = this.credential(request, response);
     if (!token) throw sessionError('SESSION_EXPIRED');
     try {
+      // Failed bootstrap must recover/reconcile before any resumed or guarded work.
+      if (!this.reconciled) await this.ensureReady();
       const context = this.context(await this.repository.resolveAndTouch(this.hash(token), this.realClock.now()));
       this.cookie(response, token, !!request.secure);
       return context;

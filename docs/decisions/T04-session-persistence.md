@@ -36,7 +36,9 @@ Initial mapping revision is the deterministic, session-scoped `mapping-v1`.
 A single API process owns work. Startup (or the first successful storage recovery
 before readiness) expires inactive sessions, changes abandoned collecting searches
 to interrupted, preserves their snapshot fields and appends one terminal event.
-Already completed evidence is unchanged. Readiness checks storage, successful
+Already completed evidence is unchanged. Existing-cookie authentication waits for
+the same initial reconciliation barrier after a failed bootstrap, before admitting
+resumed or guarded work. Readiness checks storage, successful
 required migrations and the foundation seed every time; liveness needs none of
 those. A 60-second maintenance timer removes expired sessions and aborts their
 controllers. Shutdown aborts registered work and closes the Prisma pool.
