@@ -15,3 +15,7 @@ Approved during T11 implementation on 2026-10-24. Scope remains demo comparison/
 - Provider status/outcome/error and actual raw trace evidence are persisted. Intent/version/audit finalization is atomic. Storage failures interrupt the operation or remain queued for readiness recovery. Read-only receipt refresh adds no clicks, booking, revenue or conversion events.
 
 Evidence and exact verification commands are in `docs/evidence/T11/task-11-report.md`. Independent review and packaged application verification belong to the controller's next stage.
+
+## Review correction I1
+
+The shared search termination transaction now reconciles any remaining `pending`, `running` or `collecting` provider rows after public snapshot projection. This includes internal recheck parents without a `providerStatuses` projection. Children use the existing cancellation vocabulary (`status: cancelled`, `reason: interrupted` or `cancelled` matching parent termination); other payload fields, raw/normalized evidence and already-terminal child results remain unchanged. The child updates, terminal event, termination audit and parent status commit atomically. Repeated recovery returns without additional writes once the parent is terminal. The same path serves service recovery, shutdown and startup; no provider operation is resumed.

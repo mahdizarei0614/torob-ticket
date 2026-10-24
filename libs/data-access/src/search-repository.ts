@@ -143,6 +143,14 @@ export class SearchRepository {
       const sequence = (last._max.sequence ?? 0) + 1;
       await tx.searchEventRecord.create({ data: { sessionId: scope.sessionId, searchId: id, sequence, payload: json({ searchId: id, clientGeneration: run.clientGeneration, sequence, type: 'terminal', payload: snapshot }), createdAt: now } });
     }
+    // Internal evidence parents can have no public providerStatuses projection.
+    // Reconcile only unfinished children, retaining every completed result and raw record.
+    const unfinishedProviders = await tx.providerRun.findMany({ where: { sessionId: scope.sessionId, searchId: id, status: { in: ['pending', 'running', 'collecting'] } } });
+    for (const provider of unfinishedProviders) {
+      await tx.providerRun.update({ where: { sessionId_id: { sessionId: scope.sessionId, id: provider.id } }, data: {
+        status: 'cancelled', payload: json({ ...(provider.payload as Prisma.JsonObject), status: 'cancelled', reason: status }),
+      } });
+    }
     await tx.auditEvent.create({ data: { sessionId: scope.sessionId, id: randomUUID(), kind: 'search-terminated', payload: json({ searchId: id, status, snapshot, priorProjectionRetained: true }), createdAt: now } });
     await tx.searchRun.update({ where: { sessionId_id: { sessionId: scope.sessionId, id } }, data: { status, snapshot: json(snapshot), updatedAt: now } });
   }

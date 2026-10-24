@@ -331,6 +331,16 @@ describe('fresh, scoped, atomic referrals', () => {
         expect(await sessions.database.referralIntent.count({ where: { sessionId: c.sessionId } })).toBe(0);
         expect(await sessions.database.quote.count({ where: { sessionId: c.sessionId, id: quote.quoteId } })).toBe(1);
         expect(await sessions.database.rawRecord.count({ where: { sessionId: c.sessionId, providerRun: { search: { snapshot: { path: ['kind'], equals: 'referral-recheck' } } } } })).toBeGreaterThan(0);
+        const parent = await sessions.database.searchRun.findFirstOrThrow({ where: { sessionId: c.sessionId, snapshot: { path: ['kind'], equals: 'referral-recheck' } } });
+        const child = await sessions.database.providerRun.findFirstOrThrow({ where: { sessionId: c.sessionId, searchId: parent.id } });
+        expect(parent.status).toBe('interrupted');
+        expect(child).toMatchObject({ status: 'cancelled', payload: { status: 'cancelled', reason: 'interrupted' } });
+        const eventsBefore = await sessions.database.searchEventRecord.count({ where: { sessionId: c.sessionId, searchId: parent.id } });
+        await search.repository.interrupt(c.scope, parent.id, now);
+        await sessions.ensureReady();
+        expect(await sessions.database.providerRun.findFirstOrThrow({ where: { sessionId: c.sessionId, searchId: parent.id } })).toEqual(child);
+        expect(await sessions.database.searchEventRecord.count({ where: { sessionId: c.sessionId, searchId: parent.id } })).toBe(eventsBefore);
+        expect(await sessions.database.providerRun.count({ where: { sessionId: c.sessionId, status: { in: ['pending', 'running', 'collecting'] } } })).toBe(0);
         expect(await referrals.prepareReferral(c, selection(quote))).toMatchObject({ status: 'ready' });
     });
     it('bounds real recheck timers and reconciles an abandoned evidence operation on API restart', async () => {
@@ -341,12 +351,33 @@ describe('fresh, scoped, atomic referrals', () => {
         expect(Date.now() - started).toBeLessThan(5000);
         const timed = await sessions.database.providerRun.findFirstOrThrow({ where: { sessionId: c.sessionId, search: { snapshot: { path: ['kind'], equals: 'referral-recheck' } } } });
         expect(timed.status).toBe('timeout');
+        await sessions.database.providerOverride.update({ where: { sessionId_providerId: { sessionId: c.sessionId, providerId: 'demo-provider-04' } }, data: { payload: { latencyMs: 0 } } });
         const abandoned = await referrals.repository.admit(c.scope, selection(quote), sessions.realClock);
+        const providerContext = await providers.createContext(c, abandoned.id, new AbortController().signal, new Date(now.getTime() + 5000), abandoned.operation.frozen);
+        const batch = await new MockProvider('demo-provider-04').recheck({ query, serviceKey: abandoned.operation.previous.itinerary.itineraryId, previous: abandoned.operation.previous }, providerContext);
+        expect(batch.status).toBe('success');
+        const rawBefore = await sessions.database.rawRecord.findMany({ where: { sessionId: c.sessionId, providerRun: { searchId: abandoned.id } }, orderBy: { id: 'asc' } });
+        expect(rawBefore.length).toBeGreaterThan(0);
+        expect(await sessions.database.providerRun.findFirstOrThrow({ where: { sessionId: c.sessionId, searchId: abandoned.id } })).toMatchObject({ status: 'collecting' });
+        // A mixed-state internal parent must retain an already-completed provider's evidence.
+        const otherBatch = await new MockProvider('demo-provider-01').search(query, providerContext);
+        expect(otherBatch.status).toBe('success');
+        const completedChild = await sessions.database.providerRun.update({ where: { sessionId_searchId_providerId: { sessionId: c.sessionId, searchId: abandoned.id, providerId: 'demo-provider-01' } }, data: { status: 'complete', payload: { providerId: 'demo-provider-01', status: 'complete', offerCount: otherBatch.records.length } } });
         const replacement = new SessionService(sessions.realClock);
         try {
             await replacement.ensureReady();
             const parent = await sessions.database.searchRun.findUniqueOrThrow({ where: { sessionId_id: { sessionId: c.sessionId, id: abandoned.id } } });
             expect(parent.status).toBe('interrupted');
+            const child = await sessions.database.providerRun.findUniqueOrThrow({ where: { sessionId_searchId_providerId: { sessionId: c.sessionId, searchId: abandoned.id, providerId: 'demo-provider-04' } } });
+            expect(child).toMatchObject({ status: 'cancelled', payload: { status: 'cancelled', reason: 'interrupted' } });
+            expect(await sessions.database.providerRun.findUniqueOrThrow({ where: { sessionId_id: { sessionId: c.sessionId, id: completedChild.id } } })).toEqual(completedChild);
+            expect(await sessions.database.rawRecord.findMany({ where: { sessionId: c.sessionId, providerRun: { searchId: abandoned.id, providerId: 'demo-provider-04' } }, orderBy: { id: 'asc' } })).toEqual(rawBefore);
+            await replacement.ensureReady();
+            await search.repository.interruptUnfinished(now);
+            await search.repository.interrupt(c.scope, abandoned.id, now);
+            expect(await sessions.database.providerRun.findUniqueOrThrow({ where: { sessionId_id: { sessionId: c.sessionId, id: child.id } } })).toEqual(child);
+            expect(await sessions.database.searchEventRecord.count({ where: { sessionId: c.sessionId, searchId: abandoned.id } })).toBe(1);
+            expect(await sessions.database.providerRun.count({ where: { sessionId: c.sessionId, searchId: abandoned.id, status: { in: ['pending', 'running', 'collecting'] } } })).toBe(0);
             expect(await sessions.database.referralIntent.count({ where: { sessionId: c.sessionId } })).toBe(0);
             await expect(search.getSearch(c, abandoned.id)).rejects.toMatchObject({ code: 'NOT_FOUND' });
         }
@@ -354,4 +385,41 @@ describe('fresh, scoped, atomic referrals', () => {
             await replacement.onModuleDestroy();
         }
     });
+    it('shutdown terminalizes provider evidence already committed by a recheck sink', async () => {
+        const { c, quote } = await setup();
+        let entered!: () => void;
+        const committed = new Promise<void>(resolve => { entered = resolve; });
+        class PausingProviderService extends ProviderService {
+            override async createContext(...args: Parameters<ProviderService['createContext']>) {
+                const context = await super.createContext(...args);
+                const sink = context.traceSink;
+                context.traceSink = async evidence => {
+                    await sink(evidence);
+                    entered();
+                    if (!context.signal.aborted) await new Promise<void>(resolve => context.signal.addEventListener('abort', () => resolve(), { once: true }));
+                };
+                return context;
+            }
+        }
+        const controlled = new ReferralService(sessions, new PausingProviderService(() => new SearchRepository(sessions.database), sessions.realClock));
+        const work = controlled.prepareReferral(c, selection(quote));
+        try {
+            await committed;
+            const parent = await sessions.database.searchRun.findFirstOrThrow({ where: { sessionId: c.sessionId, status: 'collecting', snapshot: { path: ['kind'], equals: 'referral-recheck' } } });
+            const rawBefore = await sessions.database.rawRecord.findMany({ where: { sessionId: c.sessionId, providerRun: { searchId: parent.id } } });
+            expect(rawBefore).toHaveLength(1);
+            await controlled.onModuleDestroy();
+            expect(await work).toMatchObject({ status: 'unavailable' });
+            expect(await sessions.database.searchRun.findUniqueOrThrow({ where: { sessionId_id: { sessionId: c.sessionId, id: parent.id } } })).toMatchObject({ status: 'interrupted' });
+            expect(await sessions.database.providerRun.findFirstOrThrow({ where: { sessionId: c.sessionId, searchId: parent.id } })).toMatchObject({ status: 'cancelled', payload: { status: 'cancelled', reason: 'interrupted' } });
+            expect(await sessions.database.rawRecord.findMany({ where: { sessionId: c.sessionId, providerRun: { searchId: parent.id } } })).toEqual(rawBefore);
+            expect(await sessions.database.referralIntent.count({ where: { sessionId: c.sessionId } })).toBe(0);
+            await search.repository.interrupt(c.scope, parent.id, now);
+            expect(await sessions.database.searchEventRecord.count({ where: { sessionId: c.sessionId, searchId: parent.id } })).toBe(1);
+        } finally {
+            await controlled.onModuleDestroy();
+            await work;
+        }
+    });
+
 });
