@@ -17,7 +17,7 @@ export const ReferralIntentSchema = z.strictObject({ intentId: IdSchema, selecti
 export type ReferralIntent = z.infer<typeof ReferralIntentSchema>;
 export const RecheckResultSchema = z.discriminatedUnion('status', [
   z.strictObject({ status: z.literal('ready'), intent: ReferralIntentSchema }),
-  z.strictObject({ status: z.literal('changed'), intent: ReferralIntentSchema, previousQuoteVersion: PositiveIntegerSchema, materialChanges: z.array(IdSchema).min(1) }),
+  z.strictObject({ status: z.literal('changed'), intent: ReferralIntentSchema, previousQuoteVersion: PositiveIntegerSchema, previousQuote: ReferralQuoteSchema, materialChanges: z.array(IdSchema).min(1) }),
   z.strictObject({ status: z.literal('unavailable'), reason: ApiErrorCodeSchema, retryable: z.boolean(), alternativeQuoteIds: z.array(IdSchema) }),
 ]);
 export type RecheckResult = z.infer<typeof RecheckResultSchema>;

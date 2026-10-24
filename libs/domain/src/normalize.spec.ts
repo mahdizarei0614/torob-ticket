@@ -70,3 +70,13 @@ describe('pure normalization with source provenance',()=>{
   });
 
 });
+
+it('keeps fare identity across fresh observations but separates source service, class and provider',()=>{
+  const first=normalizeRecord(record,context).offer!;
+  const next=normalizeRecord({...record,raw:{...record.raw,rawRecordId:'fresh-observation'},sourceRawRecordId:'fresh-source',amount:'110000'},context).offer!;
+  expect(next.offerId).not.toBe(first.offerId);
+  expect(next.fareId).toBe(first.fareId);
+  for(const changed of [{...record,serviceKey:'different-service'},{...record,classCode:'business'},{...record,raw:{...record.raw,providerId:'p2'}}]){
+    expect(normalizeRecord(changed,{...context,catalog:{...context.catalog,classChoices:[...context.catalog.classChoices,{code:'business',mode:'flight',name:'Business'}]}}).offer!.fareId).not.toBe(first.fareId);
+  }
+});

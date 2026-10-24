@@ -121,6 +121,8 @@ export class SearchRepository {
   }
   private async assertComparisonRun(tx: Prisma.TransactionClient, scope: DataScope, id: string) {
     if (await tx.datePriceRun.findUnique({ where: { sessionId_id: { sessionId: scope.sessionId, id } } })) throw new RepositoryError('NOT_FOUND');
+    const run = await tx.searchRun.findUnique({ where: { sessionId_id: { sessionId: scope.sessionId, id } } });
+    if ((run?.snapshot as Prisma.JsonObject | undefined)?.['kind'] === 'referral-recheck') throw new RepositoryError('NOT_FOUND');
   }
   private async terminate(tx: Prisma.TransactionClient, scope: DataScope, id: string, status: 'cancelled' | 'interrupted', now: Date) {
     const run = await tx.searchRun.findUnique({ where: { sessionId_id: { sessionId: scope.sessionId, id } } });

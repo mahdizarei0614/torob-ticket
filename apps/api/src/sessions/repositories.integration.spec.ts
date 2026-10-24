@@ -39,7 +39,7 @@ describe('scoped persistence and atomic evidence', () => {
     expect((await db.demoSession.findUniqueOrThrow({where:{id:a.sessionId}})).mappingRevision).toBe(revision.id);
     await expect(db.mappingRevision.update({where:{sessionId_id:{sessionId:a.sessionId,id:mapping}},data:{patch:{tampered:true}}})).rejects.toThrow(/append-only/);
   });
-  it('appends quote versions with ordered events atomically, rejects stale versions, and isolates referrals', async () => {
+  it('appends quote versions with ordered events atomically, rejects stale versions, and refuses incomplete quotes as referral authority', async () => {
     expect(data).toHaveProperty('SearchRepository'); expect(data).toHaveProperty('ReferralRepository');
     const searches = new data.SearchRepository(db);
     const referrals = new data.ReferralRepository(db);
@@ -53,16 +53,8 @@ describe('scoped persistence and atomic evidence', () => {
     expect((await db.searchEventRecord.findMany({where:{sessionId:a.sessionId,searchId:run.id},orderBy:{sequence:'asc'}})).map(row=>row.sequence)).toEqual([1,2]);
     expect((await db.quote.findUniqueOrThrow({where:{sessionId_id_version:{sessionId:a.sessionId,id:'quote',version:1}}})).payload).toEqual({price:100});
     await expect(db.quote.update({where:{sessionId_id_version:{sessionId:a.sessionId,id:'quote',version:1}},data:{payload:{price:1}}})).rejects.toThrow(/append-only/);
-    const intent = await referrals.createIntent(a,{quoteId:'quote',quoteVersion:2,payload:{selection:'quote'},expiresAt:new Date(now.getTime()+120000)},now);
-    await expect(referrals.getIntent(b,intent.id)).rejects.toMatchObject({code:'NOT_FOUND'});
-    const input = {intentId:intent.id,acceptedQuoteVersion:2,idempotencyKey:'one-click'};
-    const [first, second] = await Promise.all([referrals.confirm(a,input,{handoff:'exact'},now),referrals.confirm(a,input,{handoff:'exact'},now)]);
-    expect(first.id).toBe(second.id);
-    expect(await db.referralEvent.count({where:{sessionId:a.sessionId}})).toBe(1);
-    expect(await referrals.get(a,first.id)).toMatchObject({payload:{handoff:'exact'}});
-    await expect(referrals.get(b,first.id)).rejects.toMatchObject({code:'NOT_FOUND'});
-    await expect(referrals.confirm(a,{...input,acceptedQuoteVersion:1},{handoff:'exact'},now)).rejects.toMatchObject({code:'IDEMPOTENCY_CONFLICT'});
-    await expect(referrals.confirm(a,{...input,idempotencyKey:'expired'},{},new Date(now.getTime()+120000))).rejects.toMatchObject({code:'INTENT_EXPIRED'});
+    await expect(referrals.admit(a,{kind:'transport',quoteId:'quote',quoteVersion:2},{now:()=>now})).rejects.toMatchObject({code:'INCOMPLETE_PRICE'});
+    expect(await db.referralIntent.count({where:{sessionId:a.sessionId}})).toBe(0);
   });
   it('rolls back quote and mapping writes if their evidence append fails', async () => {
     const searches = new data.SearchRepository(db);

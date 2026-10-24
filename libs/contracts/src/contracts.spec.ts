@@ -183,7 +183,7 @@ describe('complete public evidence vocabulary', () => {
     ['HotelSchema', hotel], ['RoomAllocationSchema', allocation],
     ['RoomRateSchema', { roomRateId: 'rate1', hotelId: 'hotel1', providerId: 'p1', roomType: 'double', maxAdults: 2, maxChildren: 1, maxInfants: 1, infantCountsTowardOccupancy: unknown, nightlyPrices: [{ date: '2026-10-24', total: money, availableRooms: 1 }], terms: hotelTerms, provenance: [provenance] }],
     ['HotelQuoteSnapshotSchema', hotelQuote], ['HotelSearchSnapshotSchema', { hotelSearchId: 'hs1', query: hotelQuery, status: 'complete', hotels: [hotel], quotes: [hotelQuote], observedAt: instant }],
-    ['ReferralIntentSchema', intent], ['RecheckResultSchema', { status: 'changed', intent, previousQuoteVersion: 1, materialChanges: ['total'] }],
+    ['ReferralIntentSchema', intent], ['RecheckResultSchema', { status: 'changed', intent, previousQuoteVersion: 1, previousQuote: intent.quote, materialChanges: ['total'] }],
     ['ReferralReceiptSchema', { referralId: 'r1', intentId: 'intent1', selection, payload: transportPayload, confirmedAt: instant, handoffPath: '/provider-demo/r1' }],
     ['SessionInfoSchema', { seed: 42, anchorInstant: instant, scenario: 'normal', fixtureVersion: 'f1', catalogRevision: 'c1', mappingRevision: 'm1', scenarioRevision: 'sc1', expiresAt: '2026-10-25T08:00:00Z', identity }],
     ['NormalizationTraceSchema', trace], ['MappingPreviewSchema', { patch, valid: true, collisions: [], affectedRawRecordIds: ['raw1'], affectedSearchIds: ['s1'], issues: [] }],
