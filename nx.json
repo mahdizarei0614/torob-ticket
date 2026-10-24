@@ -15,7 +15,10 @@
       "{workspaceRoot}/tsconfig.base.json",
       "{workspaceRoot}/eslint.config.mjs",
       "{workspaceRoot}/pnpm-lock.yaml",
-      "{workspaceRoot}/vitest.config.mts"
+      "{workspaceRoot}/vitest.config.mts",
+      "{workspaceRoot}/prisma/**/*",
+      "{workspaceRoot}/prisma.config.ts",
+      "{workspaceRoot}/apps/api/vitest.integration.config.ts"
     ],
     "testGlobals": [
       "{workspaceRoot}/tools/test-setup.ts"

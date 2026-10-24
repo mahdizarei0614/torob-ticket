@@ -26,7 +26,7 @@ const boundaryRule = (testFile = false) => ['error', {
     : constraint)
 }];
 export default [
-  { ignores: ['node_modules/**', 'dist/**', '.nx/**', 'coverage/**', '.superpowers/**', 'playwright-report/**', 'test-results/**'] },
+  { ignores: ['node_modules/**', 'libs/data-access/src/generated/**', 'dist/**', '.nx/**', 'coverage/**', '.superpowers/**', 'playwright-report/**', 'test-results/**'] },
   ...tseslint.configs.recommended,
   {
     files: ['**/*.ts', '**/*.tsx'],

@@ -1,0 +1,261 @@
+generator client {
+  provider = "prisma-client"
+  output = "../libs/data-access/src/generated"
+  moduleFormat = "cjs"
+}
+datasource db {
+  provider = "postgresql"
+}
+model FixtureVersion {
+  id String @id
+  catalogRevision String
+  manifest Json
+  createdAt DateTime @db.Timestamptz(3)
+  places Place[]
+  hotels Hotel[]
+  sessions DemoSession[]
+  searches SearchRun[]
+  rawRecords RawRecord[]
+}
+model Place {
+  fixtureVersion String
+  id String
+  payload Json
+  fixture FixtureVersion @relation(fields: [fixtureVersion], references: [id])
+  @@id([fixtureVersion, id])
+}
+model Hotel {
+  fixtureVersion String
+  id String
+  payload Json
+  fixture FixtureVersion @relation(fields: [fixtureVersion], references: [id])
+  rates RoomRate[]
+  @@id([fixtureVersion, id])
+}
+model RoomRate {
+  fixtureVersion String
+  hotelId String
+  id String
+  payload Json
+  hotel Hotel @relation(fields: [fixtureVersion, hotelId], references: [fixtureVersion, id])
+  @@id([fixtureVersion, hotelId, id])
+}
+model DemoSession {
+  id String @id
+  credentialHash String @unique
+  seed BigInt
+  anchorInstant DateTime @db.Timestamptz(3)
+  scenario String
+  scenarioRevision String
+  fixtureVersion String
+  mappingRevision String
+  createdAt DateTime @db.Timestamptz(3)
+  lastSeenAt DateTime @db.Timestamptz(3)
+  expiresAt DateTime @db.Timestamptz(3)
+  fixture FixtureVersion @relation(fields: [fixtureVersion], references: [id])
+  overrides ProviderOverride[]
+  mappings MappingRevision[]
+  searches SearchRun[]
+  datePrices DatePriceRun[]
+  hotelSearches HotelSearchRun[]
+  intents ReferralIntent[]
+  referrals ReferralEvent[]
+  identity DemoIdentity?
+  savedSearches SavedSearch[]
+  audits AuditEvent[]
+  @@index([expiresAt])
+}
+model ProviderOverride {
+  sessionId String
+  providerId String
+  payload Json
+  session DemoSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  @@id([sessionId, providerId])
+}
+model MappingRevision {
+  sessionId String
+  id String
+  parentId String?
+  patch Json
+  createdAt DateTime @db.Timestamptz(3)
+  session DemoSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  searches SearchRun[]
+  decisions NormalizationDecision[]
+  parent MappingRevision? @relation("mapping_history", fields: [sessionId, parentId], references: [sessionId, id], onDelete: NoAction, onUpdate: NoAction, map: "MappingRevision_parent_fkey")
+  children MappingRevision[] @relation("mapping_history")
+  @@id([sessionId, id])
+}
+model SearchRun {
+  sessionId String
+  id String
+  predecessorId String?
+  clientGeneration String
+  query Json
+  status String
+  snapshot Json
+  mappingRevision String
+  fixtureVersion String
+  createdAt DateTime @db.Timestamptz(3)
+  updatedAt DateTime @db.Timestamptz(3)
+  session DemoSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  fixture FixtureVersion @relation(fields: [fixtureVersion], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  mapping MappingRevision @relation(fields: [sessionId, mappingRevision], references: [sessionId, id])
+  predecessor SearchRun? @relation("retries", fields: [sessionId, predecessorId], references: [sessionId, id])
+  retries SearchRun[] @relation("retries")
+  providers ProviderRun[]
+  events SearchEventRecord[]
+  offers OfferSnapshot[]
+  @@id([sessionId, id])
+  @@index([sessionId, status, createdAt])
+}
+model ProviderRun {
+  sessionId String
+  searchId String
+  id String
+  providerId String
+  status String
+  payload Json
+  search SearchRun @relation(fields: [sessionId, searchId], references: [sessionId, id], onDelete: Cascade)
+  records RawRecord[]
+  @@id([sessionId, id])
+  @@unique([sessionId, searchId, providerId])
+}
+model RawRecord {
+  sessionId String
+  id String
+  providerRunId String
+  sourceNamespace String
+  fixtureVersion String
+  observedAt DateTime @db.Timestamptz(3)
+  payload Json
+  fixture FixtureVersion @relation(fields: [fixtureVersion], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  providerRun ProviderRun @relation(fields: [sessionId, providerRunId], references: [sessionId, id], onDelete: Cascade)
+  decisions NormalizationDecision[]
+  @@id([sessionId, id])
+  @@index([sessionId, providerRunId])
+}
+model NormalizationDecision {
+  sessionId String
+  id String
+  rawRecordId String
+  mappingRevision String
+  payload Json
+  createdAt DateTime @db.Timestamptz(3)
+  mapping MappingRevision @relation(fields: [sessionId, mappingRevision], references: [sessionId, id], onDelete: NoAction, onUpdate: NoAction, map: "NormalizationDecision_mapping_fkey")
+  rawRecord RawRecord @relation(fields: [sessionId, rawRecordId], references: [sessionId, id], onDelete: Cascade)
+  @@id([sessionId, id])
+  @@index([sessionId, rawRecordId])
+}
+model OfferSnapshot {
+  sessionId String
+  id String
+  searchId String
+  payload Json
+  createdAt DateTime @db.Timestamptz(3)
+  search SearchRun @relation(fields: [sessionId, searchId], references: [sessionId, id], onDelete: Cascade)
+  quotes Quote[]
+  @@id([sessionId, id])
+  @@index([sessionId, searchId])
+}
+model Quote {
+  sessionId String
+  id String
+  version Int
+  offerId String?
+  hotelSearchId String?
+  payload Json
+  observedAt DateTime @db.Timestamptz(3)
+  expiresAt DateTime @db.Timestamptz(3)
+  offer OfferSnapshot? @relation(fields: [sessionId, offerId], references: [sessionId, id], onDelete: Cascade)
+  hotelSearch HotelSearchRun? @relation(fields: [sessionId, hotelSearchId], references: [sessionId, id], onDelete: Cascade)
+  intents ReferralIntent[]
+  @@id([sessionId, id, version])
+  @@index([sessionId, expiresAt])
+}
+model SearchEventRecord {
+  sessionId String
+  searchId String
+  sequence Int
+  payload Json
+  createdAt DateTime @db.Timestamptz(3)
+  search SearchRun @relation(fields: [sessionId, searchId], references: [sessionId, id], onDelete: Cascade)
+  @@id([sessionId, searchId, sequence])
+}
+model DatePriceRun {
+  sessionId String
+  id String
+  queryKey String
+  payload Json
+  createdAt DateTime @db.Timestamptz(3)
+  session DemoSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  @@id([sessionId, id])
+  @@index([sessionId, queryKey])
+}
+model HotelSearchRun {
+  sessionId String
+  id String
+  queryKey String
+  payload Json
+  createdAt DateTime @db.Timestamptz(3)
+  session DemoSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  quotes Quote[]
+  @@id([sessionId, id])
+  @@index([sessionId, queryKey])
+}
+model ReferralIntent {
+  sessionId String
+  id String
+  quoteId String
+  quoteVersion Int
+  payload Json
+  createdAt DateTime @db.Timestamptz(3)
+  expiresAt DateTime @db.Timestamptz(3)
+  session DemoSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  quote Quote @relation(fields: [sessionId, quoteId, quoteVersion], references: [sessionId, id, version], onDelete: Cascade)
+  events ReferralEvent[]
+  @@id([sessionId, id])
+  @@index([sessionId, expiresAt])
+}
+model ReferralEvent {
+  sessionId String
+  id String
+  intentId String
+  idempotencyKey String
+  payloadHash String
+  payload Json
+  createdAt DateTime @db.Timestamptz(3)
+  session DemoSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  intent ReferralIntent @relation(fields: [sessionId, intentId], references: [sessionId, id], onDelete: Cascade)
+  @@id([sessionId, id])
+  @@unique([sessionId, idempotencyKey])
+  @@index([sessionId, createdAt])
+}
+model DemoIdentity {
+  sessionId String @id
+  id String
+  payload Json
+  session DemoSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  savedSearches SavedSearch[]
+  @@unique([sessionId, id])
+}
+model SavedSearch {
+  sessionId String
+  id String
+  identityId String
+  payload Json
+  createdAt DateTime @db.Timestamptz(3)
+  session DemoSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  identity DemoIdentity @relation(fields: [sessionId, identityId], references: [sessionId, id], onDelete: Cascade)
+  @@id([sessionId, id])
+  @@index([sessionId, identityId])
+}
+model AuditEvent {
+  sessionId String
+  id String
+  kind String
+  payload Json
+  createdAt DateTime @db.Timestamptz(3)
+  session DemoSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  @@id([sessionId, id])
+  @@index([sessionId, createdAt])
+}

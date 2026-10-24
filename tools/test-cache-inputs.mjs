@@ -25,6 +25,10 @@ const check = (name, fn) => {
 };
 try {
   for (const file of ['package.json', 'nx.json', 'tsconfig.base.json', 'eslint.config.mjs', 'pnpm-lock.yaml', 'vitest.config.mts']) copyFileSync(file, join(root, file));
+  cpSync('prisma', join(root, 'prisma'), { recursive: true });
+  copyFileSync('prisma.config.ts', join(root, 'prisma.config.ts'));
+  mkdirSync(join(root, 'apps/api'), { recursive: true });
+  copyFileSync('apps/api/vitest.integration.config.ts', join(root, 'apps/api/vitest.integration.config.ts'));
   symlinkSync(resolve('node_modules'), join(root, 'node_modules'), 'dir');
   cpSync('apps/web', join(root, 'apps/web'), { recursive: true });
   cpSync('libs/client', join(root, 'libs/client'), { recursive: true });
@@ -53,6 +57,16 @@ try {
     assert.match(changed.output, /TS2322/);
     assert.equal(readFileSync(join(root, 'cache-consumer-runs'), 'utf8'), 'run\nrun\n');
     console.log('PASS: dependency-only export change invalidates cached consumer and exposes TS2322 (consumer executions 1 → 2).');
+  });
+  check('root Prisma schema invalidation', () => {
+    const before = readFileSync(join(root, 'cache-source-runs'), 'utf8');
+    assert.equal(run('cache-source:typecheck').status, 0);
+    assert.equal(readFileSync(join(root, 'cache-source-runs'), 'utf8'), before);
+    appendFileSync(join(root, 'prisma/schema.prisma'), '\n// cache invalidation probe\n');
+    const changed = run('cache-source:typecheck');
+    assert.equal(changed.status, 0, changed.output);
+    assert.equal(readFileSync(join(root, 'cache-source-runs'), 'utf8'), before + 'run\n');
+    console.log('PASS: root Prisma schema change invalidates a cached consumer check.');
   });
   check('root test setup invalidation', () => {
     const marker = join(root, 'setup-runs');

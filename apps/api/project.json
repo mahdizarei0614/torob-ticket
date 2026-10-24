@@ -18,7 +18,15 @@
       "executor": "nx:run-commands",
       "options": {
         "command": "tsc --noEmit -p apps/api/tsconfig.json"
-      }
+      },
+      "dependsOn": [
+        {
+          "target": "generate",
+          "projects": [
+            "data-access"
+          ]
+        }
+      ]
     },
     "build": {
       "executor": "nx:run-commands",
@@ -27,6 +35,14 @@
       },
       "outputs": [
         "{workspaceRoot}/dist/apps/api"
+      ],
+      "dependsOn": [
+        {
+          "target": "generate",
+          "projects": [
+            "data-access"
+          ]
+        }
       ]
     },
     "serve": {
@@ -42,13 +58,29 @@
       "executor": "nx:run-commands",
       "options": {
         "command": "vitest run --project api"
-      }
+      },
+      "dependsOn": [
+        {
+          "target": "generate",
+          "projects": [
+            "data-access"
+          ]
+        }
+      ]
     },
     "test-integration": {
       "executor": "nx:run-commands",
       "options": {
         "command": "vitest run --project api-integration"
-      }
+      },
+      "dependsOn": [
+        {
+          "target": "generate",
+          "projects": [
+            "data-access"
+          ]
+        }
+      ]
     }
   }
 }

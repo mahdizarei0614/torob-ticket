@@ -18,7 +18,10 @@
     "affected": "nx affected -t lint,typecheck,test,build",
     "generate:library": "node tools/generators/library/generate.mjs",
     "test:tools": "node tools/test-generator.mjs && node tools/test-cache-inputs.mjs",
-    "test:cache": "node tools/test-cache-inputs.mjs"
+    "test:cache": "node tools/test-cache-inputs.mjs",
+    "db:generate": "nx run data-access:generate",
+    "db:migrate": "prisma migrate deploy",
+    "db:seed": "nx run data-access:generate && prisma db seed"
   },
   "dependencies": {
     "@nestjs/common": "11.2.8",
@@ -38,7 +41,8 @@
     "zod": "4.6.7",
     "rxjs": "7.8.2",
     "reflect-metadata": "0.2.2",
-    "pg": "8.23.1"
+    "pg": "8.23.1",
+    "@prisma/adapter-pg": "7.10.1"
   },
   "devDependencies": {
     "nx": "23.3.1",

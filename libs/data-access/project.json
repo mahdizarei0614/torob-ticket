@@ -18,7 +18,10 @@
       "executor": "nx:run-commands",
       "options": {
         "command": "tsc --noEmit -p libs/data-access/tsconfig.json"
-      }
+      },
+      "dependsOn": [
+        "generate"
+      ]
     },
     "build": {
       "executor": "nx:run-commands",
@@ -27,13 +30,43 @@
       },
       "outputs": [
         "{workspaceRoot}/dist/libs/data-access"
+      ],
+      "dependsOn": [
+        "generate"
       ]
     },
     "test": {
       "executor": "nx:run-commands",
       "options": {
         "command": "vitest run --project server-libs libs/data-access --passWithNoTests"
+      },
+      "dependsOn": [
+        "generate"
+      ]
+    },
+    "generate": {
+      "executor": "nx:run-commands",
+      "cache": true,
+      "inputs": [
+        "{workspaceRoot}/prisma/schema.prisma",
+        "{workspaceRoot}/prisma.config.ts",
+        "{workspaceRoot}/pnpm-lock.yaml"
+      ],
+      "outputs": [
+        "{projectRoot}/src/generated"
+      ],
+      "options": {
+        "command": "prisma generate"
       }
     }
+  },
+  "namedInputs": {
+    "default": [
+      "{projectRoot}/**/*",
+      "!{projectRoot}/src/generated/**/*",
+      "sharedGlobals",
+      "{workspaceRoot}/prisma/**/*",
+      "{workspaceRoot}/prisma.config.ts"
+    ]
   }
 }
