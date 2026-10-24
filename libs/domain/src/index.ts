@@ -10,3 +10,8 @@ export * from './comparison/itinerary-key';
 export * from './comparison/quote-offer';
 export * from './comparison/round-trip';
 export * from './comparison/group-offers';
+export { rankGroups } from './comparison/rank-groups';
+export { explainGroup } from './comparison/explain-group';
+export type { ExplanationContext, CoverageEvidence, ComparisonIdentity, ComparisonSnapshot, QuoteReference } from './comparison/explain-group';
+export { chooseSuggestion } from './comparison/choose-suggestion';
+export type { SuggestionContext } from './comparison/choose-suggestion';

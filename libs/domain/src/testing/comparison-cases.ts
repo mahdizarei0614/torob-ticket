@@ -1,4 +1,4 @@
-import { FareConditionsSchema, type JourneyLeg, type Mode, type NormalizedOffer, type Party, type TransportSearchQuery } from '@torob-ticket/contracts';
+import { FareConditionsSchema, JourneyLegSchema, type JourneyLeg, type Mode, type NormalizedOffer, type Party, type TransportSearchQuery } from '@torob-ticket/contracts';
 import type { SourceFareEvidence } from '../normalization-types';
 
 export const comparisonPlaces = [
@@ -58,4 +58,120 @@ export function caseContext(...cases: ReturnType<typeof comparisonCase>[]): Comp
     policiesByProviderId: Object.fromEntries(cases.map(c => [c.offer.providerId, comparisonPolicy])),
     sourceByOfferId: Object.fromEntries(cases.map(c => [c.offer.offerId, { rawRecordId: c.offer.provenance[0]!.rawRecordId, source: c.source }])),
   };
+}
+
+import type { ComparisonGroup } from '@torob-ticket/contracts';
+import { groupOffers } from '../comparison/group-offers';
+
+/** A qualified domain group with a distinct service; amounts are whole-party IRR. */
+export function rankingGroup(groupId: string, amountRial: number, durationMinutes: number, connectionCount = 0): ComparisonGroup {
+  const data = comparisonCase();
+  data.offer.total = { amountRial, currency: 'IRR' };
+  data.offer.breakdown = [{ code: 'gross', amount: data.offer.total, mandatory: true }];
+  const group = groupOffers([data.offer], data.query, caseContext(data))[0]!;
+  group.groupId = groupId;
+  group.itinerary.itineraryId = groupId;
+  group.durationMinutes = durationMinutes;
+  group.connectionCount = connectionCount;
+  const quote = group.eligibleQuotes[0]!;
+  quote.quoteId = `${groupId}-quote`;
+  quote.itineraryId = groupId;
+  group.representativeQuoteId = quote.quoteId;
+  return group;
+}
+
+export function rankingTradeoffs() {
+  return {
+    groups: [
+      rankingGroup('z', 20000000, 180, 1),
+      rankingGroup('b', 20000000, 120, 1),
+      rankingGroup('a', 20000000, 120, 1),
+      rankingGroup('direct', 20000000, 120, 0),
+      rankingGroup('fast', 21000000, 60, 2),
+      rankingGroup('cheap', 19000000, 240, 2),
+      rankingGroup('slow-direct', 18000000, 300, 0),
+    ],
+    expected: {
+      cheapest: ['slow-direct', 'cheap', 'direct', 'a', 'b', 'z', 'fast'],
+      fastest: ['fast', 'direct', 'a', 'b', 'z', 'cheap', 'slow-direct'],
+      'fewest-connections': ['direct', 'slow-direct', 'a', 'b', 'z', 'fast', 'cheap'],
+    },
+  };
+}
+
+import type { ComparisonSnapshot, ExplanationContext } from '../comparison/explain-group';
+import type { SuggestionContext } from '../comparison/choose-suggestion';
+
+export function rankingSnapshot(groups: ComparisonGroup[]): ComparisonSnapshot {
+  return {
+    query: comparisonCase().query,
+    groups,
+    coverageEvidence: {
+      expectedProviderIds: ['provider-a', 'provider-b'],
+      providerStatuses: [
+        { providerId: 'provider-a', status: 'complete', offerCount: 12 },
+        { providerId: 'provider-b', status: 'complete', offerCount: 0 },
+      ],
+      collectionComplete: true,
+    },
+    identity: {
+      sessionId: 'session-a',
+      fixtureVersion: 'fixture-v1',
+      fixtureSeed: 'seed-a',
+      mappingRevision: 'mapping-v1',
+      scenarioRevision: 'scenario-v1',
+      policyRevision: 'policy-v1',
+      sourceRevisionsByProviderId: { 'provider-a': 'source-v1', 'provider-b': 'source-v1' },
+    },
+  };
+}
+
+export function explanationCase(): { group: ComparisonGroup; context: ExplanationContext } {
+  const baseline = rankingGroup('baseline', 20000000, 240, 2);
+  const group = rankingGroup('target', 22000000, 120, 0);
+  group.eligibleQuotes[0]!.conditions.outbound.checkedBaggageKg = { status: 'known', value: 30 };
+  return {
+    group,
+    context: {
+      ...rankingSnapshot([baseline, group]),
+      baseline: { groupId: 'baseline', quoteId: 'baseline-quote', quoteVersion: 1 },
+    },
+  };
+}
+
+export function suggestionCase(baselinePrice = 20000000, alternativePrice = 18000000, day = '2026-10-26'): SuggestionContext {
+  const current = rankingSnapshot([rankingGroup('baseline', baselinePrice, 240)]);
+  const alternative = rankingSnapshot([rankingGroup('alternative', alternativePrice, 240)]);
+  setSnapshotDates(alternative, day);
+  return { searchId: 'search-1', current, nearbyDates: [alternative] };
+}
+
+/** Keep date-suggestion examples attached to actual origin-local departures. */
+export function setSnapshotDates(snapshot: ComparisonSnapshot, departureDate: string, returnDate?: string): void {
+  snapshot.query.departureDate = departureDate;
+  snapshot.query.tripType = returnDate ? 'round-trip' : 'one-way';
+  snapshot.query.returnDate = returnDate;
+  const moveLeg = (leg: JourneyLeg, date: string) => {
+    const shift = Date.parse(`${date}T08:00:00Z`) - Date.parse(leg.segments[0]!.departureAt);
+    for (const segment of leg.segments) {
+      segment.departureAt = new Date(Date.parse(segment.departureAt) + shift).toISOString();
+      segment.arrivalAt = new Date(Date.parse(segment.arrivalAt) + shift).toISOString();
+    }
+  };
+  for (const group of snapshot.groups) {
+    moveLeg(group.itinerary.outbound, departureDate);
+    if (returnDate) {
+      const returnLeg = JourneyLegSchema.parse(group.itinerary.outbound);
+      for (const segment of returnLeg.segments) {
+        [segment.originPlaceId, segment.destinationPlaceId] = [segment.destinationPlaceId, segment.originPlaceId];
+        [segment.departureTimeZone, segment.arrivalTimeZone] = [segment.arrivalTimeZone, segment.departureTimeZone];
+      }
+      moveLeg(returnLeg, returnDate);
+      group.itinerary.return = returnLeg;
+      for (const quote of group.eligibleQuotes) quote.conditions.return = FareConditionsSchema.parse(quote.conditions).outbound;
+    } else {
+      delete group.itinerary.return;
+      for (const quote of group.eligibleQuotes) delete quote.conditions.return;
+    }
+  }
 }
