@@ -10,7 +10,7 @@
 
 **Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.0, 2026-10-24.
 
-**Plan state:** Approved; M1 foundation, T05 inventory, T06 normalization, T07 eligible comparison and T08 ranking, factual explanations and suggestions are complete and independently reviewed. M2 continues with T09 search orchestration and recovery. Remaining product tasks and evidence are tracked below. The earlier date explorer is a completed throwaway interaction study, not implemented product code.
+**Plan state:** Approved; M1 foundation, T05 inventory, T06 normalization, T07 eligible comparison, T08 ranking, and T09 durable search orchestration, SSE and recovery are complete and independently reviewed. M2 continues with T10 date-price exploration. Remaining product tasks and evidence are tracked below. The earlier date explorer is a completed throwaway interaction study, not implemented product code.
 
 **Delivery location:** This outputs directory contains the user-facing source documents. On repository creation, copy the spec to docs/superpowers/specs/2026-10-24-torobticket-design.md and this plan to docs/superpowers/plans/2026-10-24-torobticket-master-plan.md. Preserve the revision, task IDs, and decision authority, and rewrite the Spec link to ../specs/2026-10-24-torobticket-design.md.
 
@@ -278,9 +278,14 @@ chooseSuggestion(context: SuggestionContext): Suggestion | null;
 // T09 supplies server-owned context and preserves referenced snapshots/versions/observations.
 
 // T09 — apps/api/src/searches/search.service.ts
-startSearch(session: SessionContext, input: SearchRequest): Promise<SearchSnapshot>;
-getSearch(session: SessionContext, searchId: string): Promise<SearchSnapshot>;
-cancelSearch(session: SessionContext, searchId: string): Promise<void>;
+startSearch(session: SessionContext, input: SearchRequest, predecessorId?: string): Promise<SearchRecovery>;
+getSearch(session: SessionContext, searchId: string): Promise<SearchRecovery>;
+cancelSearch(session: SessionContext, searchId: string): Promise<SearchRecovery>;
+retrySearch(session: SessionContext, searchId: string, clientGeneration: string): Promise<SearchRecovery>;
+// SearchRecoverySchema binds {snapshot, sequence} atomically; SearchRequest optionally names supersedesSearchId.
+// GET /:id/events replays Last-Event-ID; all paths use server-resolved cookie scope.
+// T09 — libs/client/src/search-stream.ts
+subscribeSearch(options: SubscribeSearchOptions): () => void;
 
 // T10 — apps/api/src/date-prices/date-price.service.ts
 getDatePrices(session: SessionContext, input: DatePriceQuery): Promise<DatePriceSnapshot>;
@@ -297,7 +302,7 @@ FixtureQuery belongs to fixtures. ProviderContext/ProviderBatch/ProviderDateBatc
 
 T07 implemented context: ComparisonContext supplies a real clock, places, explicit offer-to-raw/source bindings and authored provider fare policies. Missing evidence cannot produce eligible quotes. QuoteEvaluation retains eligible/incomplete/rejected outcomes and policy revision. T09/T11 must preserve each persisted quote ID/version's original observedAt/expiresAt while regrouping; a fixed original operation observation is supported, and combining operations requires reusing existing quote snapshots. Domain does not load stored versions or decode raw dialects.
 
-Client helpers in libs/client: apiClient for typed REST; subscribeSearch for SSE; searchKey/datePriceKey/hotelKey for canonical query identities. Committed search/filter state is URL-serializable. Hover, dragging, modal draft dates, pinned route, and staged result updates belong to typed UI reducers; animation frames do not round-trip through global React state.
+T09 implements the contract-only subscribeSearch lifecycle and its default same-origin fetch transport. Remaining client composition helpers in libs/client: apiClient for typed REST; searchKey/datePriceKey/hotelKey for canonical query identities. Committed search/filter state is URL-serializable. Hover, dragging, modal draft dates, pinned route, and staged result updates belong to typed UI reducers; animation frames do not round-trip through global React state.
 
 ## 4. Execution and tracking rules
 
@@ -316,7 +321,7 @@ Client helpers in libs/client: apiClient for typed REST; subscribeSearch for SSE
 
 Each row indexes the detailed checkbox steps in section 6. DONE requires independent review and recorded verification evidence.
 
-**Progress:** 35 tasks · 183 subtasks · 9 implementation tasks complete.
+**Progress:** 35 tasks · 183 subtasks · 10 implementation tasks complete.
 
 | Task | Subtasks | Dependencies | Status | Owner / evidence |
 |---|---|---|---|---|
@@ -328,7 +333,7 @@ Each row indexes the detailed checkbox steps in section 6. DONE requires indepen
 | [T06 — Provider adapters, normalization traces, and controlled failures](#t06) | T06.1 Pin raw-format and fault cases<br>T06.2 Run adapter tests red<br>T06.3 Implement adapters and normalization<br>T06.4 Implement bounded scenario timing<br>T06.5 Verify and commit | T03, T05 | DONE | implement_t06 / 64ec3dc + 4b3f0ef; independently reviewed; domain97/adapters44/providerPG8, packaged migration/session/data preservation verified; docs/evidence/T06 |
 | [T07 — Journey grouping, fare eligibility, and complete round-trip quotes](#t07) | T07.1 Pin comparable and noncomparable cases<br>T07.2 Run grouping tests red<br>T07.3 Implement stable identity and fares<br>T07.4 Implement full-party and round-trip evaluation<br>T07.5 Verify and commit | T03, T06 | DONE | implement_t07 / 4557af6 + 95db776; independently reviewed; domain151/adapters59, amended32 checks and packaged12-hero comparison/inventory preservation verified; docs/evidence/T07 |
 | [T08 — Deterministic ranking, factual explanations, and bounded suggestions](#t08) | T08.1 Pin exact sort and suggestion thresholds<br>T08.2 Run ranking tests red<br>T08.3 Implement comparators and factual reasons<br>T08.4 Implement contextual suggestion selection<br>T08.5 Verify and commit | T07 | DONE | implement_t08 / 2241795; independent review approved; domain226, root tests, affected40 and packaged ranking/facts/suggestion pass; docs/evidence/T08 |
-| [T09 — Search orchestration, persistent evidence, SSE, and recovery](#t09) | T09.1 Pin partial, race, and reconnect behavior<br>T09.2 Run orchestration tests red<br>T09.3 Implement bounded search runs<br>T09.4 Implement the stream and fallback<br>T09.5 Implement restart/cancel cleanup<br>T09.6 Verify and commit | T04, T06, T08 | TODO | Unassigned / — |
+| [T09 — Search orchestration, persistent evidence, SSE, and recovery](#t09) | T09.1 Pin partial, race, and reconnect behavior<br>T09.2 Run orchestration tests red<br>T09.3 Implement bounded search runs<br>T09.4 Implement the stream and fallback<br>T09.5 Implement restart/cancel cleanup<br>T09.6 Verify and commit | T04, T06, T08 | DONE | implement_t09 / 4d6f595 + 40e1a14 + 3230073; independently reviewed; integration48/search16/client14, affected checks and packaged gateway/restart/audit/preservation pass; docs/evidence/T09 |
 | [T10 — Consistent date-price projection and scoped caching](#t10) | T10.1 Pin date/result equivalence<br>T10.2 Run projection tests red<br>T10.3 Implement bounded projection<br>T10.4 Implement cache identity and invalidation<br>T10.5 Verify and commit | T09 | TODO | Unassigned / — |
 | [T11 — Recheck, quote versions, idempotent referrals, and handoff data](#t11) | T11.1 Pin changed-price and idempotency cases<br>T11.2 Run referral tests red<br>T11.3 Implement prepare and acceptance<br>T11.4 Implement atomic confirmation<br>T11.5 Verify and commit | T04, T07, T09 | TODO | Unassigned / — |
 | [T12 — Design tokens, accessible primitives, typography, and component gallery](#t12) | T12.1 Define the visual foundation<br>T12.2 Implement accessible primitives<br>T12.3 Pin interaction behavior<br>T12.4 Build the state gallery<br>T12.5 Verify and commit | T01 | DONE | implement_t12 / 6e0071c + 581f834; review clean; UI13 tests, browser28 audit/startup6/native race2 and builds passed |
@@ -832,27 +837,27 @@ Run domain tests including equal-price, equal-time, zero eligible groups, asymme
 - Consumes: SessionContext/repositories, ProviderAdapter registry, grouping/ranking/explanations, SearchRequest/Event/Snapshot.
 - Produces: startSearch/getSearch/cancelSearch; ordered event replay and snapshot fallback; subscribeSearch(options): unsubscribe; complete provider/run/source audit trail.
 
-- [ ] **T09.1 — Pin partial, race, and reconnect behavior**
+- [x] **T09.1 — Pin partial, race, and reconnect behavior**
 
 Create integration cases with one slow provider, one timeout, all failures, zero offers, cancellation, duplicate event delivery, and reconnect after sequence N. Assert monotonic IDs, correct coverage, no lost final snapshot, and session isolation. Assert stale clientGeneration events are ignored.
 
-- [ ] **T09.2 — Run orchestration tests red**
+- [x] **T09.2 — Run orchestration tests red**
 
 Run pnpm nx run api:test-integration and pnpm nx test client. Expected failures must exercise event ordering and lifecycle, not just missing routes.
 
-- [ ] **T09.3 — Implement bounded search runs**
+- [x] **T09.3 — Implement bounded search runs**
 
 Persist the run before starting work. Apply provider concurrency two and session active-search limit two. Record raw payload, normalized decisions, quotes, coverage, and versioned snapshots transactionally. Distinguish complete/partial/empty/failed/cancelled/interrupted statuses.
 
-- [ ] **T09.4 — Implement the stream and fallback**
+- [x] **T09.4 — Implement the stream and fallback**
 
 Serve ordered SSE with heartbeat, scoped authorization, Last-Event-ID replay, terminal close, and snapshot recovery on a sequence gap. Client reconnect uses a bounded retry policy, then polls the snapshot endpoint; never replay events into a different generation.
 
-- [ ] **T09.5 — Implement restart/cancel cleanup**
+- [x] **T09.5 — Implement restart/cancel cleanup**
 
 Cancel superseded work best-effort; abort timers and provider work on reset. A transient SSE disconnect does not erase a run; its deadline still bounds completion. On API restart mark unfinished work interrupted and expose a new-search retry.
 
-- [ ] **T09.6 — Verify and commit**
+- [x] **T09.6 — Verify and commit**
 
 Run api integration/client tests with a PostgreSQL restart case, session limit case, and normal delay schedule. Confirm terminal events, no hanging streams/timers, complete evidence, and independent A/B sessions. Commit search orchestration.
 
@@ -1794,7 +1799,7 @@ Run the recovery suite plus affected client/web tests. Confirm all actions work 
 - Consumes: Pinned toolchain, web/admin builds, API readiness, Prisma migrations/idempotent fixtures.
 - Produces: pnpm docker:up/down/reset scripts; production-style local containers; same-origin /, /admin, /api, /provider-demo routing; direct Compose fallback.
 
-**Packaging checkpoint:** Early packaging independently approved at `747c5f5` + `939bb44`; T05 rich seed and local geography are integrated and verified at `8081656`. Lifecycle, ordered initialization and runner are complete. Current assets, prior clean-volume/restart/session persistence and failure/recovery are verified; T09 real SSE, future artwork and complete T33 acceptance remain pending. Parent T29 stays ACTIVE. Evidence: `docs/evidence/T29/` and `docs/evidence/T05/packaged/`.
+**Packaging checkpoint:** Early packaging independently approved at `747c5f5` + `939bb44`; T05 rich seed and local geography are integrated and verified at `8081656`. Lifecycle, ordered initialization and runner are complete. Current assets and prior lifecycle checks are verified. T09 actual gateway SSE delivery, replay, interruption/retry and preservation are verified at `3230073`; future artwork and complete T33 acceptance remain pending. Parent T29 stays ACTIVE. Evidence: `docs/evidence/T29/`, `docs/evidence/T05/packaged/` and `docs/evidence/T09/packaged/`.
 
 - [x] **T29.1 — Define container lifecycle**
 
