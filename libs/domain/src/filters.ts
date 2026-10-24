@@ -1,4 +1,5 @@
 import { MoneySchema, type NormalizedOffer, type TransportSearchQuery } from '@torob-ticket/contracts';
+import { hasSupportedSegmentModes, journeyConnectionCount } from './comparison/round-trip';
 import { localDateAt, matchesDepartureWindow } from './time';
 
 /** Consumes normalized eligibility; provider policy/age validation precedes this. */
@@ -22,10 +23,10 @@ export function matchesEligibility(offer: NormalizedOffer, query: TransportSearc
   if (filters.budgetMaxRial !== undefined && offer.total!.amountRial > filters.budgetMaxRial) return false;
   if (filters.providerIds?.length && !filters.providerIds.includes(offer.providerId)) return false;
   const segments = legs.flatMap(leg => leg.segments);
-  if (segments.some(segment => segment.mode !== query.mode)) return false;
-  if (filters.operatorIds?.length && segments.some(segment => !filters.operatorIds!.includes(segment.operatorId))) return false;
+  if (legs.some(leg => !hasSupportedSegmentModes(leg, query.mode))) return false;
+  if (filters.operatorIds?.length && segments.filter(segment => segment.mode === query.mode).some(segment => !filters.operatorIds!.includes(segment.operatorId))) return false;
   if (filters.departureWindow && !matchesDepartureWindow(outboundDeparture.departureAt, outboundDeparture.departureTimeZone, filters.departureWindow)) return false;
-  const stopsOrTransfers = legs.reduce((count, leg) => count + leg.stops.filter(stop => query.mode === 'flight' || stop.vehicleChange).length, 0);
+  const stopsOrTransfers = journeyConnectionCount(offer.itinerary);
   if (filters.maxStopsOrTransfers !== undefined && stopsOrTransfers > filters.maxStopsOrTransfers) return false;
   if (filters.refundableOnly && conditions.some(terms => terms.refundable.status !== 'known' || !terms.refundable.value)) return false;
   if (filters.checkedBaggageMinKg !== undefined && conditions.some(terms => terms.checkedBaggageKg.status !== 'known' || terms.checkedBaggageKg.value < filters.checkedBaggageMinKg!)) return false;

@@ -1,21 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import type { EligibilityFilters, JourneyLeg, Mode, NormalizedOffer, TransportSearchQuery } from '@torob-ticket/contracts';
+import type { EligibilityFilters, Mode, NormalizedOffer, TransportSearchQuery } from '@torob-ticket/contracts';
 import { matchesEligibility } from './filters';
+import { addAirportTransfer, comparisonCase } from './testing/comparison-cases';
 
 function example(mode: Mode = 'flight'): { offer: NormalizedOffer; query: TransportSearchQuery } {
-  const outbound: JourneyLeg = {
-    segments: [{ segmentId: 's1', mode, serviceId: 'F1', operatorId: 'operator-a', originPlaceId: 'o', destinationPlaceId: 'd', departureAt: '2026-10-24T22:00:00Z', arrivalAt: '2026-10-25T00:00:00Z', departureTimeZone: 'Asia/Tehran', arrivalTimeZone: 'Asia/Dubai' }], stops: [],
-  };
-  return {
-    query: { mode, scope: 'international', tripType: 'one-way', originCityId: 'origin', destinationCityId: 'destination', departureDate: '2026-10-25', party: { adults: 2, children: 0, infants: 0 }, classCode: 'economy', filters: {}, sort: 'cheapest' },
-    offer: {
-      offerId: 'offer', providerId: 'provider-a', fareId: 'fare', itinerary: { itineraryId: 'itinerary', mode, originPlaceId: 'o', destinationPlaceId: 'd', outbound },
-      conditions: { outbound: { classCode: 'economy', checkedBaggageKg: { status: 'known', value: 20 }, cabinBaggageKg: { status: 'unknown', reason: 'missing' }, refundable: { status: 'known', value: true }, cancellation: { status: 'unknown', reason: 'missing' }, seatOrBerth: { status: 'unknown', reason: 'missing' }, materialTerms: [] } },
-      total: { amountRial: 20000000, currency: 'IRR' }, breakdown: [{ code: 'whole-party', amount: { amountRial: 20000000, currency: 'IRR' }, mandatory: true }],
-      completeness: { status: 'complete' }, eligibility: { status: 'eligible' }, availability: { status: 'known', value: true },
-      observedAt: '2026-10-24T00:00:00Z', provenance: [{ rawRecordId: 'raw', sourceNamespace: 'demo', sourceValue: '20000000', sourceRevision: '1', mappingRevision: '1', fixtureVersion: '1' }], issues: [],
-    },
-  };
+  const example = comparisonCase(mode);
+  example.offer.eligibility = { status: 'eligible' };
+  return example;
 }
 
 describe('eligible whole-party offer predicates', () => {
@@ -122,4 +113,16 @@ describe('eligible whole-party offer predicates', () => {
     offer.itinerary.return.segments[0]!.departureAt = '2026-10-24T23:30:00Z';
     expect(matchesEligibility(offer, roundTrip)).toBe(false);
   });
+});
+
+// The integration must admit an explicitly supplied airport transfer, but never infer one.
+it('accepts the provider-supplied bus airport transfer inside a flight itinerary', () => {
+  const { offer, query } = comparisonCase();
+  offer.eligibility = { status: 'eligible' };
+  addAirportTransfer(offer);
+  expect(matchesEligibility(offer, query)).toBe(true);
+  expect(matchesEligibility(offer, { ...query, filters: { operatorIds: ['operator-a'] } })).toBe(true);
+  expect(matchesEligibility(offer, { ...query, filters: { operatorIds: ['transfer-operator'] } })).toBe(false);
+  offer.itinerary.outbound.stops = [];
+  expect(matchesEligibility(offer, query)).toBe(false);
 });

@@ -6,3 +6,7 @@ export * from './clocks';
 export * from './normalization-types';
 export * from './normalize';
 export * from './aliases';
+export * from './comparison/itinerary-key';
+export * from './comparison/quote-offer';
+export * from './comparison/round-trip';
+export * from './comparison/group-offers';
