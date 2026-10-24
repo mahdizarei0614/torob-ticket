@@ -41,6 +41,32 @@ describe('scoped provider evidence on PostgreSQL',()=>{
     expect(new Set(batches.map(b=>b.records[0]!.raw.rawRecordId)).size).toBe(3);
     expect(new Set(batches.map(b=>b.records[0]!.sourceRawRecordId)).size).toBe(1);
   });
+  it('persists repeated date batches once per date with scoped, unambiguous evidence links',async()=>{
+    const transport={...query,tripType:'round-trip' as const,returnDate:'2026-10-29'};
+    const allRawIds=new Set<string>();
+    for(const c of contexts) {
+      const search=await searches.create(c.scope,{query:transport,clientGeneration:randomUUID(),snapshot:{}},now);
+      const ctx=await service.createContext(c,search.id,new AbortController().signal,new Date(now.getTime()+5000));
+      ctx.overrides={'demo-provider-01':{latencyMs:0}};
+      const batch=await new MockProvider('demo-provider-01').dateInventory({query:transport,leg:'outbound',dates:['2026-10-26','2026-10-25','2026-10-26','2026-10-27','2026-10-25'],clientGeneration:'duplicate-dates'},ctx);
+      expect(batch.status).toBe('success');
+      expect(batch.dates.map(d=>d.date)).toEqual(['2026-10-26','2026-10-25','2026-10-27']);
+      const records=batch.dates.flatMap(d=>d.batch.records);expect(records).toHaveLength(9);
+      expect(await db.rawRecord.count({where:{sessionId:c.sessionId,providerRun:{searchId:search.id}}})).toBe(9);
+      expect(await db.normalizationDecision.count({where:{sessionId:c.sessionId,rawRecord:{providerRun:{searchId:search.id}}}})).toBe(9);
+      expect(await db.offerSnapshot.count({where:{sessionId:c.sessionId,searchId:search.id}})).toBe(9);
+      for(const record of records) {
+        expect(allRawIds.has(record.raw.rawRecordId)).toBe(false);allRawIds.add(record.raw.rawRecordId);
+        const decision=await db.normalizationDecision.findUniqueOrThrow({where:{sessionId_id:{sessionId:c.sessionId,id:record.trace.traceId}}});
+        expect(decision.rawRecordId).toBe(record.raw.rawRecordId);expect(decision.payload).toMatchObject({rawRecordId:record.raw.rawRecordId,offerId:record.offer!.offerId});
+        const saved=await db.offerSnapshot.findUniqueOrThrow({where:{sessionId_id:{sessionId:c.sessionId,id:record.offer!.offerId}}});
+        expect(saved.searchId).toBe(search.id);
+        expect(saved.payload).toMatchObject({offer:{offerId:record.offer!.offerId,provenance:[{rawRecordId:record.raw.rawRecordId}]}});
+        expect(record.offer!.itinerary.return!.segments[0]!.departureAt.startsWith('2026-10-29')).toBe(true);
+      }
+    }
+    expect(allRawIds.size).toBe(18);
+  });
   it('rejects cross-session run lookup and freezes mapping snapshots at the run revision',async()=>{
     const a=contexts[0]!;const b=contexts[1]!;const search=await run(a);
     await expect(service.createContext(b,search.id,new AbortController().signal,new Date(now.getTime()+5000))).rejects.toMatchObject({code:'NOT_FOUND'});

@@ -49,4 +49,24 @@ describe('pure normalization with source provenance',()=>{
     expect(normalizeRecord(broken,context).trace.outcome).toBe('rejected');
   });
 
+  it.each([
+    {name:'same-day',departureAt:'2026-10-25T05:00:00Z',arrivalAt:'2026-10-25T06:00:00Z',returnDeparture:'2026-10-25T05:59:59Z',returnArrival:'2026-10-25T07:00:00Z',returnDate:'2026-10-25'},
+    {name:'overnight',departureAt:'2026-10-25T20:00:00Z',arrivalAt:'2026-10-26T02:00:00Z',returnDeparture:'2026-10-26T01:59:59Z',returnArrival:'2026-10-26T03:00:00Z',returnDate:'2026-10-26'},
+  ])('rejects a $name return that departs before outbound arrival',times=>{
+    const roundTrip=structuredClone(record);
+    roundTrip.outbound.segments[0]={...roundTrip.outbound.segments[0]!,departureAt:times.departureAt,arrivalAt:times.arrivalAt};
+    roundTrip.inbound={segments:[{...roundTrip.outbound.segments[0]!,segmentId:'return-segment',serviceId:'return-service',originPlaceId:'mhd',destinationPlaceId:'thr',departureAt:times.returnDeparture,arrivalAt:times.returnArrival}],stops:[]};
+    const result=normalizeRecord(roundTrip,{...context,query:{...context.query,tripType:'round-trip',returnDate:times.returnDate}});
+    expect(result.trace.outcome).toBe('rejected');
+    expect(result.offer).toBeUndefined();
+    expect(result.trace.issues).toContainEqual({code:'RETURN_BEFORE_OUTBOUND_ARRIVAL',fieldPath:['inbound','segments',0,'departureAt'],severity:'rejected',rawRecordId:'instance-1'});
+  });
+  it.each(['2026-10-25T06:00:00Z','2026-10-25T06:00:01Z'])('accepts same-day return departure at or after arrival: %s',departureAt=>{
+    const roundTrip=structuredClone(record);
+    roundTrip.inbound={segments:[{...roundTrip.outbound.segments[0]!,segmentId:'return-segment',serviceId:'return-service',originPlaceId:'mhd',destinationPlaceId:'thr',departureAt,arrivalAt:'2026-10-25T07:00:00Z'}],stops:[]};
+    const result=normalizeRecord(roundTrip,{...context,query:{...context.query,tripType:'round-trip',returnDate:'2026-10-25'}});
+    expect(result.trace.outcome).toBe('accepted');
+    expect(result.offer?.itinerary.return?.segments[0]?.departureAt).toBe(departureAt);
+  });
+
 });

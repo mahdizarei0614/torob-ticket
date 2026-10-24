@@ -6,8 +6,8 @@ import type { DecodedProviderRecord, NormalizationContext, NormalizationResult }
 export function normalizeRecord(r:DecodedProviderRecord,c:NormalizationContext):NormalizationResult {
   const trace:NormalizationTrace={traceId:`trace-${r.raw.rawRecordId}`,rawRecordId:r.raw.rawRecordId,mappingRevision:c.mappingRevision,outcome:'accepted',decisions:[],issues:[],observedAt:c.realClock.now().toISOString()};
   const decision=(field:string,ruleCode:string,sourceValue:unknown,normalizedValue?:unknown)=>trace.decisions.push({fieldPath:field.split('.'),ruleCode,sourceValue,...(normalizedValue===undefined?{}:{normalizedValue})});
-  const reject=(code:string,field:string,outcome:'rejected'|'ambiguous'='rejected'):NormalizationResult=>{
-    trace.outcome=outcome; trace.issues.push({code,fieldPath:field.split('.'),severity:outcome,rawRecordId:r.raw.rawRecordId}); return {trace};
+  const reject=(code:string,field:string|(string|number)[],outcome:'rejected'|'ambiguous'='rejected'):NormalizationResult=>{
+    trace.outcome=outcome; trace.issues.push({code,fieldPath:typeof field==='string'?field.split('.'):field,severity:outcome,rawRecordId:r.raw.rawRecordId}); return {trace};
   };
   decision('source','source-provenance',{sourceRawRecordId:r.sourceRawRecordId,sourceRevision:r.sourceRevision,fixtureVersion:r.fixtureVersion,mappingRevision:r.mappingRevision});
   if(r.fixtureVersion!==r.raw.fixtureVersion||r.fixtureVersion!==c.catalog.fixtureVersion||r.mappingRevision!==c.mappingRevision) return reject('REVISION_MISMATCH','source');
@@ -35,6 +35,9 @@ export function normalizeRecord(r:DecodedProviderRecord,c:NormalizationContext):
     if(c.catalog.places.find(p=>p.id===first.originPlaceId)?.cityId!==origin||c.catalog.places.find(p=>p.id===last.destinationPlaceId)?.cityId!==destination) return reject('ENDPOINT_MISMATCH','outbound');
     if(localDateAt(first.departureAt,first.departureTimeZone)!==(index===0?c.query.departureDate:c.query.returnDate)) return reject('DATE_MISMATCH','outbound');
     decision(index===0?'outbound':'inbound','preserve-supplied-schedule',leg,leg);
+  }
+  if(r.inbound && Date.parse(r.inbound.segments[0]!.departureAt)<Date.parse(r.outbound.segments.at(-1)!.arrivalAt)) {
+    return reject('RETURN_BEFORE_OUTBOUND_ARRIVAL',['inbound','segments',0,'departureAt']);
   }
   const unit=r.unit==='IRR'||r.unit==='ریال'?'IRR':r.unit==='TOMAN'||r.unit==='تومان'?'TOMAN':undefined;
   if(!unit) return reject('AMBIGUOUS_MONEY_UNIT','unit');

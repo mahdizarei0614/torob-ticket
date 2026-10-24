@@ -81,7 +81,7 @@ export class MockProvider implements ProviderAdapter {
       const parsed=DatePriceQuerySchema.parse(query);
       return await this.run(c,async check=>{
         const dates:ProviderDateBatch['dates']=[];
-        for(const date of parsed.dates) {
+        for(const date of new Set(parsed.dates)) {
           check();const transport={...parsed.query,...parsed.leg==='outbound'?{departureDate:date}:{returnDate:date}};
           try { dates.push({date,batch:await this.collect(TransportSearchQuerySchema.parse(transport),c,'search',check)}); }
           catch(error) { if(error instanceof OperationFailure) throw error;dates.push({date,batch:{providerId:this.providerId,records:[],...this.failure(error)}}); }

@@ -92,6 +92,29 @@ describe('six provider operation behavior',()=>{
     expect(result.status).toBe('success');expect(result.dates).toHaveLength(3);expect(result.dates.every(d=>d.batch.records.length>0)).toBe(true);
     expect(result.dates.every(d=>d.batch.records.every(r=>r.offer?.itinerary.return?.segments[0]?.departureAt.startsWith('2026-10-29')))).toBe(true);
   });
+  it('deduplicates repeated dates in first-seen order within one timed evidence batch',async()=>{
+    const rawIds=new Set<string>();const traceIds=new Set<string>();const offerIds=new Set<string>();
+    const evidence:ProviderEvidence[]=[];
+    const ctx=context({traceSink:async record=>{
+      const offer=record.offer!;
+      if(rawIds.has(record.raw.rawRecordId)||traceIds.has(record.trace.traceId)||offerIds.has(offer.offerId)) throw new Error('duplicate evidence primary key');
+      expect(record.trace.rawRecordId).toBe(record.raw.rawRecordId);
+      expect(record.trace.offerId).toBe(offer.offerId);
+      expect(offer.provenance.every(p=>p.rawRecordId===record.raw.rawRecordId)).toBe(true);
+      rawIds.add(record.raw.rawRecordId);traceIds.add(record.trace.traceId);offerIds.add(offer.offerId);evidence.push(record);
+    }});
+    let completed=false;
+    const query={...base.query,tripType:'round-trip' as const,returnDate:'2026-10-29'};
+    const pending=mockRegistry[0]!.dateInventory({query,leg:'outbound',dates:['2026-10-26','2026-10-25','2026-10-26','2026-10-27','2026-10-25'],clientGeneration:'repeated-dates'},ctx).then(batch=>{completed=true;return batch;});
+    await vi.advanceTimersByTimeAsync(149);expect(completed).toBe(false);
+    await vi.advanceTimersByTimeAsync(1);expect(completed).toBe(true);
+    const result=await pending;
+    expect(result.status).toBe('success');
+    expect(result.dates.map(d=>d.date)).toEqual(['2026-10-26','2026-10-25','2026-10-27']);
+    expect(result.dates.every(d=>d.batch.status==='success'&&d.batch.records.length===3)).toBe(true);
+    expect(evidence).toHaveLength(9);expect(rawIds.size).toBe(9);expect(traceIds.size).toBe(9);expect(offerIds.size).toBe(9);
+    expect(evidence.every(r=>r.offer?.itinerary.return?.segments[0]?.departureAt.startsWith('2026-10-29'))).toBe(true);
+  });
   it('honors exact delay/deadline boundaries and slow-provider configuration',async()=>{
     let settled=false;
     const promise=mockRegistry[3]!.search(base.query,context({scenario:'slow-provider'})).then(r=>{settled=true;return r;});
