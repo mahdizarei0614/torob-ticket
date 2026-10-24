@@ -95,6 +95,8 @@ describe('event, price, and evidence unions', () => {
   it('represents missing price distinctly and requires evidence for priced cells', () => {
     const base = { date: '2026-10-24' };
     expect(accepts('DatePriceCellSchema', { ...base, status: 'checking' })).toBe(true);
+    expect(accepts('DatePriceCellSchema', { ...base, status: 'invalid-date-pair', reason: 'return-before-departure' })).toBe(true);
+    expect(accepts('DatePriceCellSchema', { ...base, status: 'invalid-date-pair', reason: 'retry' })).toBe(false);
     expect(accepts('DatePriceCellSchema', { ...base, status: 'unavailable', reason: 'incomplete-price', retryable: false, coverage })).toBe(true);
     expect(accepts('DatePriceCellSchema', { ...base, status: 'priced', minimum: { amountRial: 100, currency: 'IRR' }, quoteIds: ['q1'], offerIds: ['o1'], coverage, observedAt: instant })).toBe(true);
     expect(accepts('DatePriceCellSchema', { ...base, status: 'priced', minimum: null })).toBe(false);

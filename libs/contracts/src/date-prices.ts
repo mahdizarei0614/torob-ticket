@@ -8,6 +8,8 @@ export type DatePriceQuery = z.infer<typeof DatePriceQuerySchema>;
 export const DatePriceCellSchema = z.discriminatedUnion('status', [
   z.strictObject({ date: LocalDateSchema, status: z.literal('priced'), minimum: MoneySchema, quoteIds: z.array(IdSchema).min(1), offerIds: z.array(IdSchema).min(1), coverage: CoverageSchema, observedAt: ISOInstantSchema }),
   z.strictObject({ date: LocalDateSchema, status: z.literal('checking') }),
+  // Disabled until the user reselects the opposite leg; this is not a retrieval failure.
+  z.strictObject({ date: LocalDateSchema, status: z.literal('invalid-date-pair'), reason: z.literal('return-before-departure') }),
   z.strictObject({ date: LocalDateSchema, status: z.literal('no-match'), coverage: CoverageSchema.refine(coverage => coverage.complete && coverage.successfulProviderIds.length > 0 && coverage.failedProviderIds.length === 0 && coverage.pendingProviderIds.length === 0 && coverage.expectedProviderIds.every(id => coverage.successfulProviderIds.includes(id)), 'adequate-successful-coverage-required') }),
   z.strictObject({ date: LocalDateSchema, status: z.literal('outside-coverage') }),
   z.strictObject({ date: LocalDateSchema, status: z.literal('unavailable'), reason: z.enum(['retrieval-failed', 'incomplete-price', 'interrupted']), retryable: z.boolean(), coverage: CoverageSchema }),

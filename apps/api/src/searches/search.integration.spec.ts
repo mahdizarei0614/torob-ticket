@@ -31,7 +31,7 @@ import { SessionService } from '../sessions/session.service';
 import type { SessionContext } from '../sessions/session-context';
 import { ProviderService } from '../providers/provider.service';
 import { SearchService } from './search.service';
-import { execFileSync } from 'node:child_process';
+import { restartOwnedTestDatabase } from '../../test/restart-owned-database';
 const query: TransportSearchQuery = { mode: 'flight', scope: 'domestic', tripType: 'one-way', originCityId: 'tehran', destinationCityId: 'mashhad', departureDate: '2026-10-25', party: { adults: 1, children: 0, infants: 0 }, classCode: 'economy', filters: {}, sort: 'cheapest' };
 const deferred = () => { let resolve!: () => void; const promise = new Promise<void>(done => { resolve = done; }); return { promise, resolve }; };
 describe('durable progressive searches', () => {
@@ -238,11 +238,7 @@ describe('durable progressive searches', () => {
     const id = randomUUID();
     const unfinished = { ...prior.snapshot, searchId: id, clientGeneration: 'crashed', status: 'collecting', groups: [], providerStatuses: prior.snapshot.providerStatuses.map(row => ({ ...row, status: 'running' })), coverage: { ...prior.snapshot.coverage, complete: false, successfulProviderIds: [], pendingProviderIds: prior.snapshot.coverage.expectedProviderIds } };
     await service.repository.create(a.scope, { query, clientGeneration: 'crashed', snapshot: JSON.parse(JSON.stringify(unfinished)) }, new Date(), { id });
-    const owned = process.env.T09_TEST_CONTAINER;
-    expect(owned).toBe('torobticket-t09-test');
-    const label = execFileSync('docker', ['inspect', '--format', '{{index .Config.Labels "torobticket.owner"}}', owned!], { encoding: 'utf8' }).trim();
-    expect(label).toBe('t09');
-    execFileSync('docker', ['restart', owned!], { stdio: 'pipe' });
+    restartOwnedTestDatabase();
     await expect.poll(async () => { try { await sessions.database.$queryRaw`SELECT 1`; return true; } catch { return false; } }, { timeout: 10000, interval: 100 }).toBe(true);
     const replacement = new SessionService(new SystemRealClock()); await replacement.ensureReady();
     expect(await service.getSearch(a, completed.snapshot.searchId)).toEqual(prior);

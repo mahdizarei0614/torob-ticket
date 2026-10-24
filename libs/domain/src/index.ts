@@ -15,3 +15,5 @@ export { explainGroup, comparisonCoverage } from './comparison/explain-group';
 export type { ExplanationContext, CoverageEvidence, ComparisonIdentity, ComparisonSnapshot, QuoteReference } from './comparison/explain-group';
 export { chooseSuggestion } from './comparison/choose-suggestion';
 export type { SuggestionContext } from './comparison/choose-suggestion';
+export * from './query-identity';
+export * from './comparison/project-date-prices';

@@ -29,18 +29,7 @@ export class SearchRepository {
     return scopedTransaction(this.db,scope,async tx=>{
       const run=await tx.searchRun.findUnique({where:{sessionId_id:{sessionId:scope.sessionId,id:searchId}}});
       if(!run) throw new RepositoryError('NOT_FOUND');
-      const session=await tx.demoSession.findUniqueOrThrow({where:{id:scope.sessionId},include:{fixture:true,identity:true}});
-      const fixture=await tx.fixtureVersion.findUniqueOrThrow({where:{id:run.fixtureVersion}});
-      const mappings:Prisma.JsonValue[]=[];const seen=new Set<string>();let id:string|null=run.mappingRevision;
-      while(id) {
-        if(seen.has(id)) throw new RepositoryError('MAPPING_COLLISION');
-        seen.add(id);
-        const mapping: {patch:Prisma.JsonValue;parentId:string|null}|null=await tx.mappingRevision.findUnique({where:{sessionId_id:{sessionId:scope.sessionId,id}}});
-        if(!mapping) throw new RepositoryError('MAPPING_COLLISION');
-        mappings.unshift(mapping.patch);id=mapping.parentId;
-      }
-      const overrides=await tx.providerOverride.findMany({where:{sessionId:scope.sessionId}});
-      return {run,info:{...sessionInfo(session),fixtureVersion:run.fixtureVersion,catalogRevision:fixture.catalogRevision,mappingRevision:run.mappingRevision},mappings,overrides};
+      return readProviderContext(tx, scope, run);
     });
   }
   appendNormalizationEvidence(scope:DataScope,input:AppendNormalizationEvidence) {
@@ -59,8 +48,10 @@ export class SearchRepository {
   }
   create(scope: DataScope, input: CreateSearchRun, now: Date, options: { enforceLimit?: boolean; id?: string; supersedesSearchId?: string } = {}) {
     return scopedTransaction(this.db, scope, async tx => {
+      if (options.supersedesSearchId) await this.assertComparisonRun(tx, scope, options.supersedesSearchId);
       if (options.supersedesSearchId) await this.terminate(tx, scope, options.supersedesSearchId, 'cancelled', now);
       if (options.enforceLimit && await tx.searchRun.count({ where: { sessionId: scope.sessionId, status: 'collecting' } }) >= 2) throw new RepositoryError('SEARCH_LIMIT');
+      if (input.predecessorId) await this.assertComparisonRun(tx, scope, input.predecessorId);
       if (input.predecessorId && !await tx.searchRun.findUnique({ where: { sessionId_id: { sessionId: scope.sessionId, id: input.predecessorId } } })) throw new RepositoryError('NOT_FOUND');
       const session = await tx.demoSession.findUniqueOrThrow({ where: { id: scope.sessionId } });
       return tx.searchRun.create({ data: { sessionId: scope.sessionId, id: options.id ?? randomUUID(), ...input, status: 'collecting', mappingRevision: session.mappingRevision, fixtureVersion: session.fixtureVersion, createdAt: now, updatedAt: now } });
@@ -76,6 +67,7 @@ export class SearchRepository {
   /** All readers use the same lock as projection writers: cursor and snapshot cannot tear. */
   read(scope: DataScope, id: string, after = 0) {
     return scopedTransaction(this.db, scope, async tx => {
+      await this.assertComparisonRun(tx, scope, id);
       const run = await tx.searchRun.findUnique({ where: { sessionId_id: { sessionId: scope.sessionId, id } } });
       if (!run) throw new RepositoryError('NOT_FOUND');
       const last = await tx.searchEventRecord.aggregate({ where: { sessionId: scope.sessionId, searchId: id }, _max: { sequence: true } });
@@ -127,6 +119,9 @@ export class SearchRepository {
     const payload = SearchEventSchema.parse({ ...value, searchId, clientGeneration, sequence });
     await tx.searchEventRecord.create({ data: { sessionId: scope.sessionId, searchId, sequence, payload: json(payload), createdAt: now } });
   }
+  private async assertComparisonRun(tx: Prisma.TransactionClient, scope: DataScope, id: string) {
+    if (await tx.datePriceRun.findUnique({ where: { sessionId_id: { sessionId: scope.sessionId, id } } })) throw new RepositoryError('NOT_FOUND');
+  }
   private async terminate(tx: Prisma.TransactionClient, scope: DataScope, id: string, status: 'cancelled' | 'interrupted', now: Date) {
     const run = await tx.searchRun.findUnique({ where: { sessionId_id: { sessionId: scope.sessionId, id } } });
     if (!run) throw new RepositoryError('NOT_FOUND');
@@ -150,7 +145,7 @@ export class SearchRepository {
     await tx.searchRun.update({ where: { sessionId_id: { sessionId: scope.sessionId, id } }, data: { status, snapshot: json(snapshot), updatedAt: now } });
   }
   cancel(scope: DataScope, id: string, now: Date) {
-    return scopedTransaction(this.db, scope, tx => this.terminate(tx, scope, id, 'cancelled', now));
+    return scopedTransaction(this.db, scope, async tx => { await this.assertComparisonRun(tx, scope, id); return this.terminate(tx, scope, id, 'cancelled', now); });
   }
   interrupt(scope: DataScope, id: string, now: Date) {
     return scopedTransaction(this.db, scope, tx => this.terminate(tx, scope, id, 'interrupted', now));
@@ -190,3 +185,23 @@ export interface ProjectionResult {
   quotes: { offerId: string; quote: QuoteSnapshot }[];
   audit: Record<string, unknown>;
 }
+
+/** A frozen read performed under the caller's scoped transaction. */
+export async function readProviderContext(tx: Prisma.TransactionClient, scope: DataScope, run: { fixtureVersion: string; mappingRevision: string }) {
+  const session = await tx.demoSession.findUniqueOrThrow({ where: { id: scope.sessionId }, include: { fixture: true, identity: true } });
+  const fixture = await tx.fixtureVersion.findUniqueOrThrow({ where: { id: run.fixtureVersion } });
+  const mappings: Prisma.JsonValue[] = [];
+  const seen = new Set<string>();
+  let id: string | null = run.mappingRevision;
+  while (id) {
+    if (seen.has(id)) throw new RepositoryError('MAPPING_COLLISION');
+    seen.add(id);
+    const mapping: { patch: Prisma.JsonValue; parentId: string | null } | null = await tx.mappingRevision.findUnique({ where: { sessionId_id: { sessionId: scope.sessionId, id } } });
+    if (!mapping) throw new RepositoryError('MAPPING_COLLISION');
+    mappings.unshift(mapping.patch);
+    id = mapping.parentId;
+  }
+  const overrides = await tx.providerOverride.findMany({ where: { sessionId: scope.sessionId } });
+  return { info: { ...sessionInfo(session), fixtureVersion: run.fixtureVersion, catalogRevision: fixture.catalogRevision, mappingRevision: run.mappingRevision }, mappings, overrides };
+}
+export type ProviderContextSnapshot = Awaited<ReturnType<typeof readProviderContext>>;

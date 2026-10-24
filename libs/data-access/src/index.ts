@@ -3,3 +3,4 @@ export * from './scope';
 export * from './session-repository';
 export * from './search-repository';
 export * from './referral-repository';
+export * from './date-price-repository';
