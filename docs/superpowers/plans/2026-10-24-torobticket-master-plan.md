@@ -10,7 +10,7 @@
 
 **Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.0, 2026-10-24.
 
-**Plan state:** Approved; M1 foundation, T05 inventory, T06 normalization and T07 eligible comparison are complete and independently reviewed. M2 continues with T08 ranking and explanations. Remaining product tasks and evidence are tracked below. The earlier date explorer is a completed throwaway interaction study, not implemented product code.
+**Plan state:** Approved; M1 foundation, T05 inventory, T06 normalization, T07 eligible comparison and T08 ranking, factual explanations and suggestions are complete and independently reviewed. M2 continues with T09 search orchestration and recovery. Remaining product tasks and evidence are tracked below. The earlier date explorer is a completed throwaway interaction study, not implemented product code.
 
 **Delivery location:** This outputs directory contains the user-facing source documents. On repository creation, copy the spec to docs/superpowers/specs/2026-10-24-torobticket-design.md and this plan to docs/superpowers/plans/2026-10-24-torobticket-master-plan.md. Preserve the revision, task IDs, and decision authority, and rewrite the Spec link to ../specs/2026-10-24-torobticket-design.md.
 
@@ -268,9 +268,14 @@ normalizeRecord(record: DecodedProviderRecord, context: NormalizationContext): N
 // T07/T08 — libs/domain/src/comparison/
 quoteOffer(offer: NormalizedOffer, query: TransportSearchQuery, context: ComparisonContext): QuoteEvaluation;
 groupOffers(offers: NormalizedOffer[], query: TransportSearchQuery, context: ComparisonContext): ComparisonGroup[];
-rankGroups(groups: ComparisonGroup[], sort: SortOrder): ComparisonGroup[];
+rankGroups(groups: readonly ComparisonGroup[], sort?: SortOrder): ComparisonGroup[];
 explainGroup(group: ComparisonGroup, context: ExplanationContext): Explanation[];
 chooseSuggestion(context: SuggestionContext): Suggestion | null;
+// T08 contexts bind current filtered groups/query, exact quote IDs/versions,
+// expected-provider/status evidence and frozen session/fixture/revision identity.
+// Suggestions require matching all-success completed coverage; query sort is not price identity.
+// Delta: amount=alternative-baseline; minutes=baseline-alternative; ratio=alternative/baseline.
+// T09 supplies server-owned context and preserves referenced snapshots/versions/observations.
 
 // T09 — apps/api/src/searches/search.service.ts
 startSearch(session: SessionContext, input: SearchRequest): Promise<SearchSnapshot>;
@@ -311,7 +316,7 @@ Client helpers in libs/client: apiClient for typed REST; subscribeSearch for SSE
 
 Each row indexes the detailed checkbox steps in section 6. DONE requires independent review and recorded verification evidence.
 
-**Progress:** 35 tasks · 183 subtasks · 8 implementation tasks complete.
+**Progress:** 35 tasks · 183 subtasks · 9 implementation tasks complete.
 
 | Task | Subtasks | Dependencies | Status | Owner / evidence |
 |---|---|---|---|---|
@@ -322,7 +327,7 @@ Each row indexes the detailed checkbox steps in section 6. DONE requires indepen
 | [T05 — Curated catalog, geographic assets, and deterministic fixture generator](#t05) | T05.1 Define catalog invariants<br>T05.2 Run catalog tests red<br>T05.3 Author showcase data and source geometry<br>T05.4 Implement seeded generation<br>T05.5 Verify seeded inventory<br>T05.6 Review and commit | T03, T04 | DONE | implement_t05 / ebbb773 + 8081656; independently approved; fixtures30/PG26, immutable seed twice, packaged catalog/assets verified; docs/evidence/T05 |
 | [T06 — Provider adapters, normalization traces, and controlled failures](#t06) | T06.1 Pin raw-format and fault cases<br>T06.2 Run adapter tests red<br>T06.3 Implement adapters and normalization<br>T06.4 Implement bounded scenario timing<br>T06.5 Verify and commit | T03, T05 | DONE | implement_t06 / 64ec3dc + 4b3f0ef; independently reviewed; domain97/adapters44/providerPG8, packaged migration/session/data preservation verified; docs/evidence/T06 |
 | [T07 — Journey grouping, fare eligibility, and complete round-trip quotes](#t07) | T07.1 Pin comparable and noncomparable cases<br>T07.2 Run grouping tests red<br>T07.3 Implement stable identity and fares<br>T07.4 Implement full-party and round-trip evaluation<br>T07.5 Verify and commit | T03, T06 | DONE | implement_t07 / 4557af6 + 95db776; independently reviewed; domain151/adapters59, amended32 checks and packaged12-hero comparison/inventory preservation verified; docs/evidence/T07 |
-| [T08 — Deterministic ranking, factual explanations, and bounded suggestions](#t08) | T08.1 Pin exact sort and suggestion thresholds<br>T08.2 Run ranking tests red<br>T08.3 Implement comparators and factual reasons<br>T08.4 Implement contextual suggestion selection<br>T08.5 Verify and commit | T07 | TODO | Unassigned / — |
+| [T08 — Deterministic ranking, factual explanations, and bounded suggestions](#t08) | T08.1 Pin exact sort and suggestion thresholds<br>T08.2 Run ranking tests red<br>T08.3 Implement comparators and factual reasons<br>T08.4 Implement contextual suggestion selection<br>T08.5 Verify and commit | T07 | DONE | implement_t08 / 2241795; independent review approved; domain226, root tests, affected40 and packaged ranking/facts/suggestion pass; docs/evidence/T08 |
 | [T09 — Search orchestration, persistent evidence, SSE, and recovery](#t09) | T09.1 Pin partial, race, and reconnect behavior<br>T09.2 Run orchestration tests red<br>T09.3 Implement bounded search runs<br>T09.4 Implement the stream and fallback<br>T09.5 Implement restart/cancel cleanup<br>T09.6 Verify and commit | T04, T06, T08 | TODO | Unassigned / — |
 | [T10 — Consistent date-price projection and scoped caching](#t10) | T10.1 Pin date/result equivalence<br>T10.2 Run projection tests red<br>T10.3 Implement bounded projection<br>T10.4 Implement cache identity and invalidation<br>T10.5 Verify and commit | T09 | TODO | Unassigned / — |
 | [T11 — Recheck, quote versions, idempotent referrals, and handoff data](#t11) | T11.1 Pin changed-price and idempotency cases<br>T11.2 Run referral tests red<br>T11.3 Implement prepare and acceptance<br>T11.4 Implement atomic confirmation<br>T11.5 Verify and commit | T04, T07, T09 | TODO | Unassigned / — |
@@ -774,29 +779,29 @@ Run pnpm nx test domain. Confirm exact totals, stable grouping under shuffled in
 - Consumes: ComparisonGroup with eligible representative quote and computed duration/connection counts.
 - Produces: rankGroups; explainGroup; chooseSuggestion; ExplanationContext/SuggestionContext with baseline IDs, numeric facts, and coverage.
 
-- [ ] **T08.1 — Pin exact sort and suggestion thresholds**
+- [x] **T08.1 — Pin exact sort and suggestion thresholds**
 
 Extend domain-local comparison-cases.ts with ranking tradeoffs. Assert all primary/tie orders, stable ID final tie, shuffled input determinism, incomplete-price exclusion, round-trip duration, ground dwell vs transfers, and no suggestion below either savings threshold. Construct belowThresholdContext from complete quotes saving 9.9% despite saving more than 200,000 toman.
 
 ~~~ts
-expect(rankGroups(caseData.groups, 'cheapest').map(g => g.itinerary.id)).toEqual(caseData.expected.cheapestIds);
+expect(rankGroups(caseData.groups, 'cheapest').map(g => g.groupId)).toEqual(caseData.expected.cheapestIds);
 expect(chooseSuggestion(belowThresholdContext)).toBeNull();
 ~~~
 Also test a zero-priced baseline without division-by-zero or a fabricated percentage.
 
-- [ ] **T08.2 — Run ranking tests red**
+- [x] **T08.2 — Run ranking tests red**
 
 Run pnpm nx test domain. Verify a wrong tie-break order and a fabricated coverage claim would fail.
 
-- [ ] **T08.3 — Implement comparators and factual reasons**
+- [x] **T08.3 — Implement comparators and factual reasons**
 
 Use integer amounts/durations and stable IDs. Emit structured reason codes and facts for UI localization. Compute provider coverage from the current search, and label incomplete collection as provisional.
 
-- [ ] **T08.4 — Implement contextual suggestion selection**
+- [x] **T08.4 — Implement contextual suggestion selection**
 
 Compare only equivalent party/filters/opposite-leg conditions and completed coverage. Apply the exact ±3-day /10% /200,000-toman or 90-minute /10%-premium rules, one result maximum, and the specified tie breaks. Do not call a model.
 
-- [ ] **T08.5 — Verify and commit**
+- [x] **T08.5 — Verify and commit**
 
 Run domain tests including equal-price, equal-time, zero eligible groups, asymmetric round trips, and missing-data cases. Confirm explanations can be independently recomputed from their referenced quotes. Commit ranking.
 
