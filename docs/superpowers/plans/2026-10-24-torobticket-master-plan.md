@@ -308,12 +308,12 @@ Client helpers in libs/client: apiClient for typed REST; subscribeSearch for SSE
 
 Each row indexes the detailed checkbox steps in section 6. DONE requires independent review and recorded verification evidence.
 
-**Progress:** 35 tasks · 183 subtasks · 1 implementation tasks complete.
+**Progress:** 35 tasks · 183 subtasks · 2 implementation tasks complete.
 
 | Task | Subtasks | Dependencies | Status | Owner / evidence |
 |---|---|---|---|---|
 | [T01 — Runnable Nx foundation and dependency boundaries](#t01) | T01.1 Pin compatible tooling<br>T01.2 Create the minimal workspace<br>T01.3 Enforce imports<br>T01.4 Establish verification targets<br>T01.5 Verify and commit | None | DONE | implement_t01 / 6600079 + 6db0420; independent review clean; builds, PostgreSQL, browser smoke, boundaries and regressions passed |
-| [T02 — Runtime contracts and stable API vocabulary](#t02) | T02.1 Pin invalid-input behavior<br>T02.2 Run the contract tests red<br>T02.3 Implement schemas and exports<br>T02.4 Wire validation and errors<br>T02.5 Verify and commit | T01 | TODO | Unassigned / — |
+| [T02 — Runtime contracts and stable API vocabulary](#t02) | T02.1 Pin invalid-input behavior<br>T02.2 Run the contract tests red<br>T02.3 Implement schemas and exports<br>T02.4 Wire validation and errors<br>T02.5 Verify and commit | T01 | DONE | implement_t02 / 17a9d91; independent review approved; 88 tests, HTTP validation, lint, typechecks and builds passed |
 | [T03 — Money, local dates, party eligibility, and pure time rules](#t03) | T03.1 Specify arithmetic and boundary cases<br>T03.2 Run focused tests red<br>T03.3 Implement pure helpers<br>T03.4 Implement eligibility<br>T03.5 Verify and commit | T02 | TODO | Unassigned / — |
 | [T04 — Database, isolated demo sessions, clocks, and lifecycle](#t04) | T04.1 Pin isolation and persistence behavior<br>T04.2 Run integration tests red<br>T04.3 Create schema and scoped repositories<br>T04.4 Implement lifecycle and clocks<br>T04.5 Verify and commit | T02 | TODO | Unassigned / — |
 | [T05 — Curated catalog, geographic assets, and deterministic fixture generator](#t05) | T05.1 Define catalog invariants<br>T05.2 Run catalog tests red<br>T05.3 Author showcase data and source geometry<br>T05.4 Implement seeded generation<br>T05.5 Verify seeded inventory<br>T05.6 Review and commit | T03, T04 | TODO | Unassigned / — |
@@ -454,7 +454,7 @@ Run pnpm nx run-many -t lint,typecheck,build --projects=web,admin,api and the in
 - Consumes: Public contract inventory, API table, error codes, and default values in this plan.
 - Produces: Zod schemas and inferred types for every listed DTO; structured ApiError; validation pipe; validSearchInput test factory.
 
-- [ ] **T02.1 — Pin invalid-input behavior**
+- [x] **T02.1 — Pin invalid-input behavior**
 
 Create contracts.spec.ts and validSearchInput in test-inputs.ts. Assert invalid types, dates, party bounds, money, coordinates, event discriminants, and missing return date are rejected.
 
@@ -464,19 +464,19 @@ expect(TransportSearchQuerySchema.safeParse({...validSearchInput(), tripType: 'r
 expect(GeoPointSchema.safeParse({latitude: 91, longitude: 0}).success).toBe(false);
 ~~~
 
-- [ ] **T02.2 — Run the contract tests red**
+- [x] **T02.2 — Run the contract tests red**
 
 Run pnpm nx test contracts. Confirm failures name the missing schema behavior rather than a broken test environment.
 
-- [ ] **T02.3 — Implement schemas and exports**
+- [x] **T02.3 — Implement schemas and exports**
 
 Define all exact fields in section 3, including completeness/unknown unions, per-leg fare terms, hotel allocations, provenance, quote versions, session info, and admin patches. Validate safe integers and actual calendar dates, not only string patterns.
 
-- [ ] **T02.4 — Wire validation and errors**
+- [x] **T02.4 — Wire validation and errors**
 
 Implement ZodValidationPipe(schema) and map validation failures to ApiError with code, field paths, retryable, and requestId. Reject unknown command fields where they could alter behavior.
 
-- [ ] **T02.5 — Verify and commit**
+- [x] **T02.5 — Verify and commit**
 
 Run pnpm nx test contracts and pnpm nx run-many -t typecheck --projects=contracts,api,web,admin. Expect all schemas to pass their valid/invalid cases. Commit the contract baseline.
 
