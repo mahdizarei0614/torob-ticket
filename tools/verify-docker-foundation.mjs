@@ -76,8 +76,8 @@ assert.equal(sessionRows(), persistedRows, 'Same persisted session row id and cr
 console.log('PASS current session cookie, stable state and DB row identity persisted after full container recreation; inactivity expiry renewed');
 const counts = spawnSync('docker', ['compose', 'exec', '-T', 'database', 'psql', '-U', 'torobticket', '-d', 'torobticket', '-Atc', 'SELECT count(*) FROM "FixtureVersion"; SELECT count(*) FROM "_prisma_migrations";'], { encoding: 'utf8' });
 assert.equal(counts.status, 0, counts.stderr);
-assert.equal(counts.stdout.trim(), '2\n1');
-console.log('PASS repeated initialization: two immutable fixture roots (foundation/showcase) and one completed migration');
+assert.equal(counts.stdout.trim(), '2\n2');
+console.log('PASS repeated initialization: two immutable fixture roots (foundation/showcase) and two completed migrations');
 command(['docker', 'compose', 'ps', '--all']);
 command(['docker', 'compose', 'exec', '-T', 'api', 'node', '-p', 'process.version + " " + process.arch']);
 command(['docker', 'compose', 'exec', '-T', 'api', 'openssl', 'version']);
