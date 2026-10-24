@@ -1,0 +1,54 @@
+{
+  "name": "api",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/api/src",
+  "projectType": "application",
+  "tags": [
+    "scope:server",
+    "type:app"
+  ],
+  "targets": {
+    "lint": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "eslint apps/api"
+      }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc --noEmit -p apps/api/tsconfig.json"
+      }
+    },
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc -p apps/api/tsconfig.build.json && tsc-alias -p apps/api/tsconfig.build.json"
+      },
+      "outputs": [
+        "{workspaceRoot}/dist/apps/api"
+      ]
+    },
+    "serve": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "node --watch dist/apps/api/apps/api/src/main.js"
+      },
+      "dependsOn": [
+        "build"
+      ]
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "vitest run --project api"
+      }
+    },
+    "test-integration": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "vitest run --project api-integration"
+      }
+    }
+  }
+}

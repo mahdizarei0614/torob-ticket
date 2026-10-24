@@ -1,0 +1,39 @@
+{
+  "name": "fixtures",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/fixtures/src",
+  "projectType": "library",
+  "tags": [
+    "scope:server",
+    "type:fixtures"
+  ],
+  "targets": {
+    "lint": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "eslint libs/fixtures"
+      }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc --noEmit -p libs/fixtures/tsconfig.json"
+      }
+    },
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc -p libs/fixtures/tsconfig.json --noEmit false --declaration --emitDeclarationOnly --outDir dist/libs/fixtures"
+      },
+      "outputs": [
+        "{workspaceRoot}/dist/libs/fixtures"
+      ]
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "vitest run --project server-libs libs/fixtures --passWithNoTests"
+      }
+    }
+  }
+}

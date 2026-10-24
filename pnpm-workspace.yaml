@@ -1,0 +1,31 @@
+packages:
+  - '.'
+saveExact: true
+engineStrict: true
+autoInstallPeers: false
+minimumReleaseAgeExclude:
+  - '@nestjs/common@11.2.8'
+  - '@nestjs/core@11.2.8'
+  - '@nestjs/platform-express@11.2.8'
+  - '@nestjs/testing@11.2.8'
+  - '@nx/devkit@23.3.1'
+  - '@nx/eslint-plugin@23.3.1'
+  - '@nx/js@23.3.1'
+  - '@nx/nx-darwin-arm64@23.3.1'
+  - '@nx/nx-darwin-x64@23.3.1'
+  - '@nx/nx-freebsd-x64@23.3.1'
+  - '@nx/nx-linux-arm-gnueabihf@23.3.1'
+  - '@nx/nx-linux-arm64-gnu@23.3.1'
+  - '@nx/nx-linux-arm64-musl@23.3.1'
+  - '@nx/nx-linux-x64-gnu@23.3.1'
+  - '@nx/nx-linux-x64-musl@23.3.1'
+  - '@nx/nx-win32-arm64-msvc@23.3.1'
+  - '@nx/nx-win32-x64-msvc@23.3.1'
+  - '@nx/workspace@23.3.1'
+  - nx@23.3.1
+allowBuilds:
+  '@nestjs/core@11.2.8': true
+  '@prisma/engines@7.10.1': true
+  nx@23.3.1: true
+  prisma@7.10.1: true
+verifyDepsBeforeRun: error

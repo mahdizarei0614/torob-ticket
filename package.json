@@ -1,0 +1,72 @@
+{
+  "name": "@torob-ticket/workspace",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@11.9.0",
+  "engines": {
+    "node": "24.17.0",
+    "pnpm": "11.9.0"
+  },
+  "scripts": {
+    "start": "nx run-many -t serve --projects=web,admin,api --parallel=3",
+    "lint": "nx run-many -t lint",
+    "typecheck": "nx run-many -t typecheck",
+    "build": "nx run-many -t build --projects=web,admin,api",
+    "test": "node tools/test-generator.mjs && nx run-many -t test",
+    "verify": "nx run-many -t lint,typecheck,test,build",
+    "verify:boundaries": "node tools/verify-boundaries.mjs",
+    "affected": "nx affected -t lint,typecheck,test,build",
+    "generate:library": "node tools/generators/library/generate.mjs",
+    "test:tools": "node tools/test-generator.mjs"
+  },
+  "dependencies": {
+    "@nestjs/common": "11.2.8",
+    "@nestjs/core": "11.2.8",
+    "@nestjs/platform-express": "11.2.8",
+    "@prisma/client": "7.10.1",
+    "@react-three/fiber": "9.8.2",
+    "@react-three/drei": "10.7.9",
+    "@tanstack/react-query": "5.104.5",
+    "@internationalized/date": "3.12.4",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "react-router": "8.5.0",
+    "react-aria-components": "1.22.1",
+    "three": "0.186.1",
+    "motion": "14.6.0",
+    "zod": "4.6.7",
+    "rxjs": "7.8.2",
+    "reflect-metadata": "0.2.2",
+    "pg": "8.23.1"
+  },
+  "devDependencies": {
+    "nx": "23.3.1",
+    "@nx/devkit": "23.3.1",
+    "@nx/js": "23.3.1",
+    "@nx/eslint-plugin": "23.3.1",
+    "@nestjs/testing": "11.2.8",
+    "typescript": "5.9.3",
+    "vite": "8.3.5",
+    "vitest": "5.0.5",
+    "@vitejs/plugin-react": "5.2.0",
+    "eslint": "10.13.0",
+    "typescript-eslint": "8.72.0",
+    "eslint-config-prettier": "10.1.8",
+    "@playwright/test": "1.64.1",
+    "@types/node": "24.10.1",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@types/three": "0.186.0",
+    "@types/pg": "8.23.1",
+    "jsdom": "26.1.0",
+    "@testing-library/react": "16.3.3",
+    "@testing-library/dom": "10.4.2",
+    "@testing-library/jest-dom": "7.0.1",
+    "prisma": "7.10.1",
+    "@typescript-eslint/parser": "8.72.0",
+    "tsc-alias": "1.9.9"
+  },
+  "nx": {
+    "includedScripts": []
+  }
+}

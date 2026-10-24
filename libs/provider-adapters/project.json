@@ -1,0 +1,39 @@
+{
+  "name": "provider-adapters",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/provider-adapters/src",
+  "projectType": "library",
+  "tags": [
+    "scope:server",
+    "type:provider"
+  ],
+  "targets": {
+    "lint": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "eslint libs/provider-adapters"
+      }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc --noEmit -p libs/provider-adapters/tsconfig.json"
+      }
+    },
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc -p libs/provider-adapters/tsconfig.json --noEmit false --declaration --emitDeclarationOnly --outDir dist/libs/provider-adapters"
+      },
+      "outputs": [
+        "{workspaceRoot}/dist/libs/provider-adapters"
+      ]
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "vitest run --project server-libs libs/provider-adapters --passWithNoTests"
+      }
+    }
+  }
+}

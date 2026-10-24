@@ -1,0 +1,35 @@
+{
+  "name": "e2e",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "tests/e2e/src",
+  "projectType": "application",
+  "tags": [
+    "scope:server",
+    "type:test"
+  ],
+  "implicitDependencies": [
+    "web",
+    "admin",
+    "api"
+  ],
+  "targets": {
+    "lint": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "eslint tests/e2e"
+      }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc --noEmit -p tests/e2e/tsconfig.json"
+      }
+    },
+    "e2e": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "playwright test --config tests/e2e/playwright.config.ts"
+      }
+    }
+  }
+}

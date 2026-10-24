@@ -1,0 +1,39 @@
+{
+  "name": "graphics",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/graphics/src",
+  "projectType": "library",
+  "tags": [
+    "scope:shared",
+    "type:graphics"
+  ],
+  "targets": {
+    "lint": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "eslint libs/graphics"
+      }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc --noEmit -p libs/graphics/tsconfig.json"
+      }
+    },
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc -p libs/graphics/tsconfig.json --noEmit false --declaration --emitDeclarationOnly --outDir dist/libs/graphics"
+      },
+      "outputs": [
+        "{workspaceRoot}/dist/libs/graphics"
+      ]
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "vitest run --project ui libs/graphics --passWithNoTests"
+      }
+    }
+  }
+}

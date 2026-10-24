@@ -1,0 +1,53 @@
+name: Verify affected projects
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17.11-bookworm
+        env:
+          POSTGRES_USER: torobticket_test
+          POSTGRES_PASSWORD: local_ci_only
+          POSTGRES_DB: torobticket_test
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd 'pg_isready -U torobticket_test -d torobticket_test'
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      NX_DAEMON: 'false'
+      TEST_DATABASE_URL: postgresql://torobticket_test:local_ci_only@127.0.0.1:5432/torobticket_test
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version-file: .nvmrc
+          package-manager-cache: false
+      - uses: pnpm/action-setup@f520eceda224fe1a4aed5a2a27a194379a409996 # v6
+        with:
+          version: 11.9.0
+          cache: true
+      - run: pnpm install --frozen-lockfile
+      - run: |
+          if [ '${{ github.event_name }}' = 'pull_request' ]; then
+            echo 'NX_BASE=origin/${{ github.base_ref }}' >> "$GITHUB_ENV"
+          elif git rev-parse HEAD~1 >/dev/null 2>&1; then
+            echo 'NX_BASE=HEAD~1' >> "$GITHUB_ENV"
+          else
+            echo 'NX_BASE=' >> "$GITHUB_ENV"
+          fi
+      - run: |
+          if [ -n "$NX_BASE" ]; then
+            pnpm nx affected -t lint,typecheck,test,build --base="$NX_BASE" --head=HEAD
+          else
+            pnpm nx run-many -t lint,typecheck,test,build
+          fi
+      - run: pnpm test:tools
+      - run: pnpm verify:boundaries
+      - run: pnpm nx run api:test-integration
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm nx e2e e2e

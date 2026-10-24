@@ -1,0 +1,68 @@
+{
+  "$schema": "./node_modules/nx/schemas/nx-schema.json",
+  "defaultBase": "main",
+  "namedInputs": {
+    "default": [
+      "{projectRoot}/**/*",
+      "sharedGlobals"
+    ],
+    "production": [
+      "default",
+      "!{projectRoot}/**/*.spec.*",
+      "!{projectRoot}/**/*.test.*"
+    ],
+    "sharedGlobals": [
+      "{workspaceRoot}/tsconfig.base.json",
+      "{workspaceRoot}/eslint.config.mjs",
+      "{workspaceRoot}/pnpm-lock.yaml",
+      "{workspaceRoot}/vitest.config.mts"
+    ]
+  },
+  "targetDefaults": {
+    "lint": {
+      "cache": true,
+      "inputs": [
+        "default"
+      ]
+    },
+    "typecheck": {
+      "cache": true,
+      "dependsOn": [
+        "^typecheck"
+      ],
+      "inputs": [
+        "default"
+      ]
+    },
+    "build": {
+      "cache": true,
+      "dependsOn": [
+        "^build"
+      ],
+      "inputs": [
+        "production",
+        "^production"
+      ]
+    },
+    "test": {
+      "cache": true,
+      "inputs": [
+        "default",
+        "^production"
+      ]
+    },
+    "test-integration": {
+      "cache": false
+    },
+    "e2e": {
+      "cache": false
+    }
+  },
+  "generators": {
+    "@nx/js:library": {
+      "unitTestRunner": "vitest",
+      "linter": "eslint",
+      "strict": true
+    }
+  }
+}

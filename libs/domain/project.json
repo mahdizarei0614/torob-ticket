@@ -1,0 +1,39 @@
+{
+  "name": "domain",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/domain/src",
+  "projectType": "library",
+  "tags": [
+    "scope:shared",
+    "type:domain"
+  ],
+  "targets": {
+    "lint": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "eslint libs/domain"
+      }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc --noEmit -p libs/domain/tsconfig.json"
+      }
+    },
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc -p libs/domain/tsconfig.json --noEmit false --declaration --emitDeclarationOnly --outDir dist/libs/domain"
+      },
+      "outputs": [
+        "{workspaceRoot}/dist/libs/domain"
+      ]
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "vitest run --project pure libs/domain --passWithNoTests"
+      }
+    }
+  }
+}
