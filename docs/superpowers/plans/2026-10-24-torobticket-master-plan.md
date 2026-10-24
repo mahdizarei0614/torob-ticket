@@ -10,7 +10,7 @@
 
 **Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.0, 2026-10-24.
 
-**Plan state:** Approved; M1 foundation, T05 inventory and T06 provider normalization are complete and independently reviewed. M2 comparison pipeline continues with T07. Remaining product tasks and evidence are tracked below. The earlier date explorer is a completed throwaway interaction study, not implemented product code.
+**Plan state:** Approved; M1 foundation, T05 inventory, T06 normalization and T07 eligible comparison are complete and independently reviewed. M2 continues with T08 ranking and explanations. Remaining product tasks and evidence are tracked below. The earlier date explorer is a completed throwaway interaction study, not implemented product code.
 
 **Delivery location:** This outputs directory contains the user-facing source documents. On repository creation, copy the spec to docs/superpowers/specs/2026-10-24-torobticket-design.md and this plan to docs/superpowers/plans/2026-10-24-torobticket-master-plan.md. Preserve the revision, task IDs, and decision authority, and rewrite the Spec link to ../specs/2026-10-24-torobticket-design.md.
 
@@ -266,7 +266,8 @@ decodeRawRecord(record: RawProviderRecord): DecodedProviderRecord;
 normalizeRecord(record: DecodedProviderRecord, context: NormalizationContext): NormalizationResult;
 
 // T07/T08 — libs/domain/src/comparison/
-groupOffers(offers: NormalizedOffer[], query: TransportSearchQuery): ComparisonGroup[];
+quoteOffer(offer: NormalizedOffer, query: TransportSearchQuery, context: ComparisonContext): QuoteEvaluation;
+groupOffers(offers: NormalizedOffer[], query: TransportSearchQuery, context: ComparisonContext): ComparisonGroup[];
 rankGroups(groups: ComparisonGroup[], sort: SortOrder): ComparisonGroup[];
 explainGroup(group: ComparisonGroup, context: ExplanationContext): Explanation[];
 chooseSuggestion(context: SuggestionContext): Suggestion | null;
@@ -287,7 +288,9 @@ confirmReferral(session: SessionContext, input: ConfirmReferralInput): Promise<R
 searchHotels(session: SessionContext, input: HotelSearchQuery): Promise<HotelSearchSnapshot>;
 ~~~
 
-FixtureQuery belongs to fixtures. ProviderContext/ProviderBatch/ProviderDateBatch/ProviderQuoteSelection/ProviderRecheck belong to provider-adapters. DecodedProviderRecord/NormalizationContext/NormalizationResult/ExplanationContext/SuggestionContext belong to domain. These are not public wire contracts. DecodedProviderRecord retains rawRecordId and source provenance plus structurally decoded field candidates; normalizeRecord resolves identities, units, and conditions from those candidates. Malformed raw decoding also emits a persisted rejection trace. SessionContext is a backend-scoped type defined in T04. Each task must export the exact interfaces it owns before dependent work begins.
+FixtureQuery belongs to fixtures. ProviderContext/ProviderBatch/ProviderDateBatch/ProviderQuoteSelection/ProviderRecheck belong to provider-adapters. DecodedProviderRecord/NormalizationContext/NormalizationResult/SourceFareEvidence/BoundSourceFareEvidence/ComparisonContext/ProviderFarePolicy/QuoteEvaluation/ExplanationContext/SuggestionContext belong to domain. These are not public wire contracts. DecodedProviderRecord retains rawRecordId and source provenance plus structurally decoded field candidates; normalizeRecord resolves identities, units, and conditions from those candidates. Malformed raw decoding also emits a persisted rejection trace. SessionContext is a backend-scoped type defined in T04. Each task must export the exact interfaces it owns before dependent work begins.
+
+T07 implemented context: ComparisonContext supplies a real clock, places, explicit offer-to-raw/source bindings and authored provider fare policies. Missing evidence cannot produce eligible quotes. QuoteEvaluation retains eligible/incomplete/rejected outcomes and policy revision. T09/T11 must preserve each persisted quote ID/version's original observedAt/expiresAt while regrouping; a fixed original operation observation is supported, and combining operations requires reusing existing quote snapshots. Domain does not load stored versions or decode raw dialects.
 
 Client helpers in libs/client: apiClient for typed REST; subscribeSearch for SSE; searchKey/datePriceKey/hotelKey for canonical query identities. Committed search/filter state is URL-serializable. Hover, dragging, modal draft dates, pinned route, and staged result updates belong to typed UI reducers; animation frames do not round-trip through global React state.
 
@@ -308,7 +311,7 @@ Client helpers in libs/client: apiClient for typed REST; subscribeSearch for SSE
 
 Each row indexes the detailed checkbox steps in section 6. DONE requires independent review and recorded verification evidence.
 
-**Progress:** 35 tasks · 183 subtasks · 7 implementation tasks complete.
+**Progress:** 35 tasks · 183 subtasks · 8 implementation tasks complete.
 
 | Task | Subtasks | Dependencies | Status | Owner / evidence |
 |---|---|---|---|---|
@@ -318,7 +321,7 @@ Each row indexes the detailed checkbox steps in section 6. DONE requires indepen
 | [T04 — Database, isolated demo sessions, clocks, and lifecycle](#t04) | T04.1 Pin isolation and persistence behavior<br>T04.2 Run integration tests red<br>T04.3 Create schema and scoped repositories<br>T04.4 Implement lifecycle and clocks<br>T04.5 Verify and commit | T02 | DONE | implement_t04 / a0d055e + f7d5552; independent review clean; PostgreSQL isolation, transactions, recovery and compiled health checks passed |
 | [T05 — Curated catalog, geographic assets, and deterministic fixture generator](#t05) | T05.1 Define catalog invariants<br>T05.2 Run catalog tests red<br>T05.3 Author showcase data and source geometry<br>T05.4 Implement seeded generation<br>T05.5 Verify seeded inventory<br>T05.6 Review and commit | T03, T04 | DONE | implement_t05 / ebbb773 + 8081656; independently approved; fixtures30/PG26, immutable seed twice, packaged catalog/assets verified; docs/evidence/T05 |
 | [T06 — Provider adapters, normalization traces, and controlled failures](#t06) | T06.1 Pin raw-format and fault cases<br>T06.2 Run adapter tests red<br>T06.3 Implement adapters and normalization<br>T06.4 Implement bounded scenario timing<br>T06.5 Verify and commit | T03, T05 | DONE | implement_t06 / 64ec3dc + 4b3f0ef; independently reviewed; domain97/adapters44/providerPG8, packaged migration/session/data preservation verified; docs/evidence/T06 |
-| [T07 — Journey grouping, fare eligibility, and complete round-trip quotes](#t07) | T07.1 Pin comparable and noncomparable cases<br>T07.2 Run grouping tests red<br>T07.3 Implement stable identity and fares<br>T07.4 Implement full-party and round-trip evaluation<br>T07.5 Verify and commit | T03, T06 | TODO | Unassigned / — |
+| [T07 — Journey grouping, fare eligibility, and complete round-trip quotes](#t07) | T07.1 Pin comparable and noncomparable cases<br>T07.2 Run grouping tests red<br>T07.3 Implement stable identity and fares<br>T07.4 Implement full-party and round-trip evaluation<br>T07.5 Verify and commit | T03, T06 | DONE | implement_t07 / 4557af6 + 95db776; independently reviewed; domain151/adapters59, amended32 checks and packaged12-hero comparison/inventory preservation verified; docs/evidence/T07 |
 | [T08 — Deterministic ranking, factual explanations, and bounded suggestions](#t08) | T08.1 Pin exact sort and suggestion thresholds<br>T08.2 Run ranking tests red<br>T08.3 Implement comparators and factual reasons<br>T08.4 Implement contextual suggestion selection<br>T08.5 Verify and commit | T07 | TODO | Unassigned / — |
 | [T09 — Search orchestration, persistent evidence, SSE, and recovery](#t09) | T09.1 Pin partial, race, and reconnect behavior<br>T09.2 Run orchestration tests red<br>T09.3 Implement bounded search runs<br>T09.4 Implement the stream and fallback<br>T09.5 Implement restart/cancel cleanup<br>T09.6 Verify and commit | T04, T06, T08 | TODO | Unassigned / — |
 | [T10 — Consistent date-price projection and scoped caching](#t10) | T10.1 Pin date/result equivalence<br>T10.2 Run projection tests red<br>T10.3 Implement bounded projection<br>T10.4 Implement cache identity and invalidation<br>T10.5 Verify and commit | T09 | TODO | Unassigned / — |
@@ -340,7 +343,7 @@ Each row indexes the detailed checkbox steps in section 6. DONE requires indepen
 | [T26 — Referral analytics and end-to-end provenance trail](#t26) | T26.1 Pin real metric counts<br>T26.2 Run analytics tests red<br>T26.3 Implement metrics and joins<br>T26.4 Implement the referral views<br>T26.5 Verify and commit | T11, T23, T24 | TODO | Unassigned / — |
 | [T27 — Flat artwork, coordinated motion, and all theme transitions](#t27) | T27.1 Author the visual assets<br>T27.2 Implement useful motion<br>T27.3 Implement theme coordination<br>T27.4 Verify motion and all palettes<br>T27.5 Review and commit | T12, T13, T14, T16, T17, T21 | TODO | Unassigned / — |
 | [T28 — Failure recovery and coherent state across features](#t28) | T28.1 Pin the scenario recovery matrix<br>T28.2 Run recovery cases red<br>T28.3 Implement recovery actions<br>T28.4 Reconcile stale selections<br>T28.5 Verify and commit | T09, T10, T16, T17, T18, T20, T21, T22, T24, T25 | TODO | Unassigned / — |
-| [T29 — Docker packaging, gateway, initialization, and one-command startup](#t29) | T29.1 Define container lifecycle<br>T29.2 Implement ordered initialization<br>T29.3 Implement gateway and assets<br>T29.4 Implement one-command runner<br>T29.5 Verify and commit | T01, T04, T05 | ACTIVE | implement_t29_early / T05 rich seed/geography and T06 migration integrated; packaged startup/session/data preservation verified; real T09 SSE, future assets and T33 full acceptance pending |
+| [T29 — Docker packaging, gateway, initialization, and one-command startup](#t29) | T29.1 Define container lifecycle<br>T29.2 Implement ordered initialization<br>T29.3 Implement gateway and assets<br>T29.4 Implement one-command runner<br>T29.5 Verify and commit | T01, T04, T05 | ACTIVE | implement_t29_early / T05 inventory/T06 migration/T07 comparison integrated; packaged startup, compiled comparison and data preservation verified; real T09 SSE, future assets and T33 full acceptance pending |
 | [T30 — Complete behavioral regression and multi-reviewer acceptance](#t30) | T30.1 Build stable e2e fixtures<br>T30.2 Exercise the full matrix<br>T30.3 Exercise cross-feature journeys<br>T30.4 Exercise hostile timing and isolation<br>T30.5 Verify and commit | T19, T22, T24, T25, T26, T28, T29 | TODO | Unassigned / — |
 | [T31 — Accessibility, RTL, responsive behavior, and browser compatibility](#t31) | T31.1 Define representative coverage<br>T31.2 Run semantic checks<br>T31.3 Inspect visual accessibility<br>T31.4 Run browser coverage<br>T31.5 Fix, verify, and commit | T27, T28, T30 | TODO | Unassigned / — |
 | [T32 — Graphics performance, visual regression, and resource budgets](#t32) | T32.1 Capture controlled visual baselines<br>T32.2 Measure real interaction performance<br>T32.3 Measure bundles and idle work<br>T32.4 Stress lifecycle and fallbacks<br>T32.5 Verify and commit | T27, T28, T30 | TODO | Unassigned / — |
@@ -724,26 +727,26 @@ Run provider-adapters/domain tests with fake clocks for timing and the seeded ra
 
 **Interfaces:**
 
-- Consumes: NormalizedOffer with raw/clock/revision provenance; TransportSearchQuery; pure filters and money/time.
-- Produces: itineraryKey; quoteOffer(offer, query); groupOffers(offers, query); complete same-provider round-trip validation; ComparisonGroup and QuoteSnapshot.
+- Consumes: NormalizedOffer with provenance; bound SourceFareEvidence; explicit ProviderFarePolicy/places/real clock through ComparisonContext; TransportSearchQuery; pure filters and money/time.
+- Produces: itineraryKey; quoteOffer(offer, query, context): QuoteEvaluation; groupOffers(offers, query, context): ComparisonGroup[]; complete same-provider round-trip validation and QuoteSnapshot.
 
-- [ ] **T07.1 — Pin comparable and noncomparable cases**
+- [x] **T07.1 — Pin comparable and noncomparable cases**
 
 Construct small domain-local cases in testing/comparison-cases.ts for same-journey-different-provider, airport-change, baggage-variant, incomplete-roundtrip, ground-dwell, and same-day-return. Do not import the fixtures library into domain tests. Assert two providers group, distinct airports do not, fare terms stay visible, and return timing can be same-day when valid.
 
-- [ ] **T07.2 — Run grouping tests red**
+- [x] **T07.2 — Run grouping tests red**
 
 Run pnpm nx test domain. Assert specifically that an unrelated outbound/return pair cannot become a complete quote.
 
-- [ ] **T07.3 — Implement stable identity and fares**
+- [x] **T07.3 — Implement stable identity and fares**
 
 Key itinerary identity by canonical service, segment sequence, locations, instants, and direction. Exclude provider price from the journey key. Preserve distinct fare IDs/conditions. Derive deterministic quote IDs from source/query/revision and use supplied observedAt for TTL.
 
-- [ ] **T07.4 — Implement full-party and round-trip evaluation**
+- [x] **T07.4 — Implement full-party and round-trip evaluation**
 
 Apply rate/seat/age rules to the whole party, mandatory fee completeness, and both legs. Validate time ordering including transfers; sum travel durations without destination stay. Distinguish ground dwell from vehicle transfers and count flight stops explicitly.
 
-- [ ] **T07.5 — Verify and commit**
+- [x] **T07.5 — Verify and commit**
 
 Run pnpm nx test domain. Confirm exact totals, stable grouping under shuffled input, no cross-provider fabricated return, same-day return acceptance/rejection by actual timing, and incomplete offers excluded from the representative quote. Commit the comparison model.
 
