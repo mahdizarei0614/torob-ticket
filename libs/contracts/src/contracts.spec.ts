@@ -64,6 +64,14 @@ describe('search commands', () => {
     expect(a.success).toBe(true); expect(b.data).toEqual(a.data);
     expect(accepts('EligibilityFiltersSchema', { departureWindow: { startMinute: 1380, endMinute: 120 } })).toBe(true);
   });
+  it('accepts only explicit supersession and an atomic nonnegative recovery cursor', () => {
+    expect(accepts('SearchRequestSchema', { query: validSearchInput(), clientGeneration: 'g', supersedesSearchId: 'previous' })).toBe(true);
+    expect(accepts('SearchRequestSchema', { query: validSearchInput(), clientGeneration: 'g', supersedesSearchId: '' })).toBe(false);
+    expect(accepts('SearchRecoverySchema', { snapshot, sequence: 0 })).toBe(true);
+    expect(accepts('SearchRecoverySchema', { snapshot, sequence: -1 })).toBe(false);
+    expect(accepts('SearchRecoverySchema', { snapshot, sequence: 1.5 })).toBe(false);
+    expect(accepts('SearchRecoverySchema', { snapshot })).toBe(false);
+  });
   it('requires a generation and rejects a session selector', () => {
     expect(accepts('SearchRequestSchema', { query: validSearchInput(), clientGeneration: 'g1' })).toBe(true);
     expect(accepts('SearchRequestSchema', { query: validSearchInput(), clientGeneration: '', sessionId: 'other' })).toBe(false);

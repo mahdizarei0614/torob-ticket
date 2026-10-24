@@ -23,7 +23,7 @@ export const TransportSearchQuerySchema = z.strictObject({
   if (query.returnDate && query.returnDate < query.departureDate) ctx.addIssue({ code: 'custom', path: ['returnDate'], message: 'return-before-departure' });
 });
 export type TransportSearchQuery = z.infer<typeof TransportSearchQuerySchema>;
-export const SearchRequestSchema = z.strictObject({ query: TransportSearchQuerySchema, clientGeneration: IdSchema });
+export const SearchRequestSchema = z.strictObject({ query: TransportSearchQuerySchema, clientGeneration: IdSchema, supersedesSearchId: IdSchema.optional() });
 export type SearchRequest = z.infer<typeof SearchRequestSchema>;
 export const SearchStatusSchema = z.enum(['collecting', 'complete', 'partial', 'empty', 'failed', 'cancelled', 'interrupted']);
 export type SearchStatus = z.infer<typeof SearchStatusSchema>;
@@ -46,3 +46,7 @@ export const SearchEventSchema = z.discriminatedUnion('type', [
   if (event.payload.clientGeneration !== event.clientGeneration) ctx.addIssue({ code: 'custom', path: ['payload', 'clientGeneration'], message: 'event-generation-mismatch' });
 });
 export type SearchEvent = z.infer<typeof SearchEventSchema>;
+
+/** Atomic snapshot and the last event sequence incorporated in its projection. */
+export const SearchRecoverySchema = z.strictObject({ snapshot: SearchSnapshotSchema, sequence: NonnegativeIntegerSchema });
+export type SearchRecovery = z.infer<typeof SearchRecoverySchema>;

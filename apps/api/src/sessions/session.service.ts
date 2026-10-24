@@ -1,7 +1,7 @@
 import { HttpException, Injectable, Inject, type OnApplicationBootstrap, type OnModuleDestroy } from '@nestjs/common';
 import { createHash, randomBytes, randomUUID } from 'node:crypto';
 import type { ApiErrorCode, CreateDemoSessionInput } from '@torob-ticket/contracts';
-import { createPrisma, checkDatabaseReady, RepositoryError, SessionRepository, sessionInfo, type PrismaClient, type SessionRecord } from '@torob-ticket/data-access';
+import { createPrisma, checkDatabaseReady, RepositoryError, SearchRepository, SessionRepository, sessionInfo, type PrismaClient, type SessionRecord } from '@torob-ticket/data-access';
 import { fixtureIdentity } from '@torob-ticket/fixtures';
 import { FrozenDemoClock, SystemRealClock } from '../common/clocks';
 import type { CookieResponse, SessionContext, SessionRequest } from './session-context';
@@ -10,7 +10,7 @@ export function sessionError(code: ApiErrorCode, status = 401) {
   return new HttpException({ code, fieldPaths: [], retryable: false, requestId: randomUUID() }, status);
 }
 export function repositoryHttpError(error: unknown): never {
-  if (error instanceof RepositoryError) throw sessionError(error.code, error.code === 'NOT_FOUND' ? 404 : error.code === 'SESSION_EXPIRED' ? 401 : 409);
+  if (error instanceof RepositoryError) throw error.code === 'SEARCH_LIMIT' ? new HttpException({ code: error.code, fieldPaths: [], retryable: true, requestId: randomUUID() }, 429) : sessionError(error.code, error.code === 'NOT_FOUND' ? 404 : error.code === 'SESSION_EXPIRED' ? 401 : 409);
   throw error;
 }
 @Injectable()
@@ -19,6 +19,8 @@ export class SessionService implements OnApplicationBootstrap, OnModuleDestroy {
   private reconciled = false;
   private initializing?: Promise<void>;
   private timer?: ReturnType<typeof setInterval>;
+  private readonly recoveries = new Set<() => Promise<void>>();
+  private readonly pendingWork = new Set<Promise<void>>();
   private readonly controllers = new Map<string, Set<AbortController>>();
   constructor(@Inject(SystemRealClock) readonly realClock: SystemRealClock) {}
   get database(): PrismaClient {
@@ -33,7 +35,8 @@ export class SessionService implements OnApplicationBootstrap, OnModuleDestroy {
   }
   async onModuleDestroy() {
     clearInterval(this.timer);
-    for (const id of this.controllers.keys()) this.cancelSession(id);
+    for (const id of this.controllers.keys()) this.cancelSession(id, 'shutdown');
+    await Promise.allSettled([...this.pendingWork]);
     await this.initializing?.catch(() => undefined);
     await this.db?.$disconnect();
   }
@@ -43,31 +46,28 @@ export class SessionService implements OnApplicationBootstrap, OnModuleDestroy {
       await checkDatabaseReady(this.database, fixtureIdentity);
       if (!this.reconciled) {
         await this.cleanup();
-        // T09 consumes persisted snapshots; update their terminal state together.
-        const runs = await this.database.searchRun.findMany({ where: { status: 'collecting' } });
-        for (const run of runs) {
-          await this.database.$transaction(async tx => {
-            const updated = await tx.searchRun.updateMany({ where: { sessionId: run.sessionId, id: run.id, status: 'collecting' }, data: { status: 'interrupted', snapshot: { ...(typeof run.snapshot === 'object' && run.snapshot !== null && !Array.isArray(run.snapshot) ? run.snapshot : {}), status: 'interrupted' }, updatedAt: this.realClock.now() } });
-            if (!updated.count) return;
-            const last = await tx.searchEventRecord.aggregate({ where: { sessionId: run.sessionId, searchId: run.id }, _max: { sequence: true } });
-            await tx.searchEventRecord.create({ data: { sessionId: run.sessionId, searchId: run.id, sequence: (last._max.sequence ?? 0) + 1, payload: { searchId: run.id, clientGeneration: run.clientGeneration, sequence: (last._max.sequence ?? 0) + 1, type: 'terminal', payload: { ...(typeof run.snapshot === 'object' && run.snapshot !== null && !Array.isArray(run.snapshot) ? run.snapshot : {}), status: 'interrupted' } }, createdAt: this.realClock.now() } });
-          });
-        }
+        await new SearchRepository(this.database).interruptUnfinished(this.realClock.now());
         this.reconciled = true;
       }
+      for (const recovery of this.recoveries) await recovery();
     })();
     try { await this.initializing; } finally { this.initializing = undefined; }
   }
   async maintenance() { await this.ensureReady(); await this.cleanup(); }
   private async cleanup() { for (const id of await this.repository.cleanup(this.realClock.now())) this.cancelSession(id); }
+  registerRecovery(recovery: () => Promise<void>): () => void {
+    this.recoveries.add(recovery);
+    return () => { this.recoveries.delete(recovery); };
+  }
   /** Every active search registers its controller and releases it on completion. */
-  registerController(context: SessionContext, controller: AbortController): () => void {
+  registerController(context: SessionContext, controller: AbortController, done?: Promise<void>): () => void {
+    if (done) this.pendingWork.add(done);
     const set = this.controllers.get(context.sessionId) ?? new Set<AbortController>();
     set.add(controller); this.controllers.set(context.sessionId, set);
-    return () => { set.delete(controller); if (!set.size) this.controllers.delete(context.sessionId); };
+    return () => { if (done) this.pendingWork.delete(done); set.delete(controller); if (!set.size) this.controllers.delete(context.sessionId); };
   }
-  private cancelSession(id: string) {
-    for (const controller of this.controllers.get(id) ?? []) controller.abort();
+  private cancelSession(id: string, reason?: string) {
+    for (const controller of this.controllers.get(id) ?? []) controller.abort(reason);
     this.controllers.delete(id);
   }
   private context(row: SessionRecord): SessionContext {
