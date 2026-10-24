@@ -22,6 +22,61 @@ export function journeyDurationMinutes(itinerary: Itinerary): number {
   return Math.ceil(minutes);
 }
 
+interface StopBoundary {
+  placeId: string;
+  arrival: number;
+  departure: number;
+  requiresVehicleChange: boolean;
+  requiresGroundTransfer: boolean;
+}
+
+/** Return an earliest feasible bound without filling in omitted source timestamps. */
+function stopCompletion(stop: JourneyLeg['stops'][number], previousDeparture: number, legEnd: number, boundary?: StopBoundary): number | undefined {
+  const arrival = boundary?.arrival ?? (stop.arrivalAt ? Date.parse(stop.arrivalAt) : undefined);
+  const departure = boundary?.departure ?? (stop.departureAt ? Date.parse(stop.departureAt) : undefined);
+  const waitMilliseconds = stop.waitMinutes * 60000;
+  const earliestArrival = arrival ?? (departure === undefined ? previousDeparture : departure - waitMilliseconds);
+  const earliestDeparture = departure ?? earliestArrival + waitMilliseconds;
+  const fitsSourceOrder = earliestArrival >= previousDeparture;
+  const fitsKnownWait = earliestDeparture - earliestArrival === waitMilliseconds;
+  return fitsSourceOrder && fitsKnownWait && earliestDeparture <= legEnd ? earliestDeparture : undefined;
+}
+
+function matchesStopBoundary(stop: JourneyLeg['stops'][number], boundary: StopBoundary): boolean {
+  return stop.placeId === boundary.placeId &&
+    (!stop.arrivalAt || Date.parse(stop.arrivalAt) === boundary.arrival) &&
+    (!stop.departureAt || Date.parse(stop.departureAt) === boundary.departure) &&
+    (!boundary.requiresVehicleChange || stop.vehicleChange) &&
+    (!boundary.requiresGroundTransfer || stop.kind === 'ground-transfer' && stop.vehicleChange);
+}
+
+/** Match distinct junctions in source order, allowing genuinely optional stop times. */
+function validateStopSequence(leg: JourneyLeg, junctions: StopBoundary[], knownPlaceIds: ReadonlySet<string>): string[] {
+  const legStart = Date.parse(leg.segments[0]!.departureAt);
+  const legEnd = Date.parse(leg.segments.at(-1)!.arrivalAt);
+  let earliestByMatchedCount = new Map([[0, legStart]]);
+  for (const stop of leg.stops) {
+    if (!knownPlaceIds.has(stop.placeId)) return ['UNKNOWN_STOP_PLACE'];
+    if (stop.waitMinutes > (legEnd - legStart) / 60000) return ['INVALID_STOP_TIMING'];
+    const next = new Map<number, number>();
+    const retainEarliest = (matchedCount: number, completion: number | undefined) => {
+      if (completion !== undefined) next.set(matchedCount, Math.min(next.get(matchedCount) ?? completion, completion));
+    };
+    for (const [matchedCount, previousDeparture] of earliestByMatchedCount) {
+      retainEarliest(matchedCount, stopCompletion(stop, previousDeparture, legEnd));
+      const boundary = junctions[matchedCount];
+      if (boundary && matchesStopBoundary(stop, boundary)) {
+        retainEarliest(matchedCount + 1, stopCompletion(stop, previousDeparture, legEnd, boundary));
+      }
+    }
+    if (!next.size) return ['INVALID_STOP_TIMING'];
+    // For the same number of matched junctions, an earlier completion dominates a later one.
+    // At most junctions.length + 1 states survive; no sorting, recursion, or source mutation.
+    earliestByMatchedCount = next;
+  }
+  return earliestByMatchedCount.has(junctions.length) ? [] : ['MISSING_CONNECTION_EVIDENCE'];
+}
+
 /** Validate a single supplied provider itinerary. No outbound/return combination is performed. */
 export function validateCompleteJourney(
   offer: NormalizedOffer,
@@ -48,6 +103,7 @@ export function validateCompleteJourney(
     if (direction === 0 && !matchingPlaces) return ['ENDPOINT_MISMATCH'];
     const requestedDate = direction === 0 ? query.departureDate : query.returnDate;
     if (localDateAt(first.departureAt, first.departureTimeZone) !== requestedDate) return ['DATE_MISMATCH'];
+    const junctions: StopBoundary[] = [];
     for (const [index, segment] of leg.segments.entries()) {
       const origin = placeById.get(segment.originPlaceId);
       const destination = placeById.get(segment.destinationPlaceId);
@@ -57,27 +113,16 @@ export function validateCompleteJourney(
       if (!previous) continue;
       const continuous = previous.destinationPlaceId === segment.originPlaceId && Date.parse(previous.arrivalAt) <= Date.parse(segment.departureAt);
       if (!continuous) return ['DISCONTINUOUS_JOURNEY'];
-      const waitMinutes = elapsedMinutes(previous.arrivalAt, segment.departureAt);
-      const junction = leg.stops.find(stop => stop.placeId === segment.originPlaceId &&
-        stop.waitMinutes === waitMinutes && (!stop.arrivalAt || Date.parse(stop.arrivalAt) === Date.parse(previous.arrivalAt)) &&
-        (!stop.departureAt || Date.parse(stop.departureAt) === Date.parse(segment.departureAt)));
-      if (!junction) return ['MISSING_CONNECTION_EVIDENCE'];
-      const serviceChanges = previous.serviceId !== segment.serviceId || previous.operatorId !== segment.operatorId;
-      if (serviceChanges && !junction.vehicleChange) return ['MISSING_VEHICLE_CHANGE'];
-      if (segment.mode !== query.mode && (junction.kind !== 'ground-transfer' || !junction.vehicleChange)) return ['MISSING_TRANSFER_EVIDENCE'];
+      junctions.push({
+        placeId: segment.originPlaceId,
+        arrival: Date.parse(previous.arrivalAt),
+        departure: Date.parse(segment.departureAt),
+        requiresVehicleChange: previous.serviceId !== segment.serviceId || previous.operatorId !== segment.operatorId,
+        requiresGroundTransfer: segment.mode !== query.mode,
+      });
     }
-    const legStart = Date.parse(first.departureAt);
-    const legEnd = Date.parse(last.arrivalAt);
-    for (const stop of leg.stops) {
-      if (!placeById.has(stop.placeId)) return ['UNKNOWN_STOP_PLACE'];
-      const suppliedTimes = [stop.arrivalAt, stop.departureAt].filter((instant): instant is string => Boolean(instant));
-      const timeOutsideLeg = suppliedTimes.some(instant => Date.parse(instant) < legStart || Date.parse(instant) > legEnd);
-      if (stop.waitMinutes > (legEnd - legStart) / 60000 || timeOutsideLeg) return ['INVALID_STOP_TIMING'];
-      if (stop.arrivalAt && stop.departureAt) {
-        const ordered = Date.parse(stop.departureAt) >= Date.parse(stop.arrivalAt);
-        if (!ordered || elapsedMinutes(stop.arrivalAt, stop.departureAt) !== stop.waitMinutes) return ['INVALID_STOP_TIMING'];
-      }
-    }
+    const stopReasons = validateStopSequence(leg, junctions, new Set(placeById.keys()));
+    if (stopReasons.length) return stopReasons;
   }
   const returnDeparture = itinerary.return?.segments[0];
   const outboundArrival = itinerary.outbound.segments.at(-1)!;

@@ -98,3 +98,133 @@ it('rounds fractional comparison minutes once after summing both directions', ()
   addReturn(c.offer, c.query, '2026-10-25T06:00:00Z', '2026-10-25T08:00:30Z');
   expect(groupOffers([c.offer], c.query, caseContext(c))[0]!.durationMinutes).toBe(241);
 });
+
+describe('supplied cross-stop chronology', () => {
+  const technicalStop = (placeId: string, waitMinutes: number, arrivalAt?: string, departureAt?: string) => ({
+    placeId,
+    kind: 'technical-stop' as const,
+    waitMinutes,
+    vehicleChange: false,
+    ...(arrivalAt ? { arrivalAt } : {}),
+    ...(departureAt ? { departureAt } : {}),
+  });
+
+  it.each([
+    ['combined dwell exceeds leg', '2026-10-24T22:00:00Z', '2026-10-24T23:30:00Z', '2026-10-24T22:30:00Z', '2026-10-25T00:00:00Z', 90],
+    ['combined dwell fits leg', '2026-10-24T22:10:00Z', '2026-10-24T22:40:00Z', '2026-10-24T22:30:00Z', '2026-10-24T23:00:00Z', 30],
+  ] as const)('rejects simultaneous occupancy at different places when %s', (_label, firstArrival, firstDeparture, secondArrival, secondDeparture, wait) => {
+    const c = comparisonCase();
+    c.offer.itinerary.outbound.stops = [
+      technicalStop('mid', wait, firstArrival, firstDeparture),
+      technicalStop('d2', wait, secondArrival, secondDeparture),
+    ];
+    expect(quoteOffer(c.offer, c.query, caseContext(c)).status).toBe('rejected');
+    expect(groupOffers([c.offer], c.query, caseContext(c))).toEqual([]);
+  });
+
+  it.each(['2026-10-24T22:40:00Z', '2026-10-24T22:50:00Z'])('accepts sequential technical stops with the second starting at %s', secondArrival => {
+    const c = comparisonCase();
+    const secondDeparture = secondArrival === '2026-10-24T22:40:00Z' ? '2026-10-24T23:10:00Z' : '2026-10-24T23:20:00Z';
+    c.offer.itinerary.outbound.stops = [
+      technicalStop('mid', 30, '2026-10-24T22:10:00Z', '2026-10-24T22:40:00Z'),
+      technicalStop('d2', 30, secondArrival, secondDeparture),
+    ];
+    const original = structuredClone(c.offer.itinerary.outbound.stops);
+    const groups = groupOffers([c.offer], c.query, caseContext(c));
+    expect(groups).toHaveLength(1);
+    expect(groups[0]!.durationMinutes).toBe(120);
+    expect(groups[0]!.itinerary.outbound.stops).toEqual(original);
+  });
+
+  it('rejects a reversed supplied order rather than sorting it into a valid timeline', () => {
+    const c = comparisonCase();
+    c.offer.itinerary.outbound.stops = [
+      technicalStop('d2', 30, '2026-10-24T23:00:00Z', '2026-10-24T23:30:00Z'),
+      technicalStop('mid', 30, '2026-10-24T22:10:00Z', '2026-10-24T22:40:00Z'),
+    ];
+    const original = structuredClone(c.offer.itinerary.outbound.stops);
+    expect(quoteOffer(c.offer, c.query, caseContext(c)).status).toBe('rejected');
+    expect(c.offer.itinerary.outbound.stops).toEqual(original);
+  });
+
+  it('applies the cross-stop guard to the return direction', () => {
+    const c = comparisonCase();
+    addReturn(c.offer, c.query);
+    c.offer.itinerary.return!.stops = [
+      technicalStop('mid', 30, '2026-10-25T06:10:00Z', '2026-10-25T06:40:00Z'),
+      technicalStop('d2', 30, '2026-10-25T06:30:00Z', '2026-10-25T07:00:00Z'),
+    ];
+    expect(quoteOffer(c.offer, c.query, caseContext(c)).status).toBe('rejected');
+  });
+
+  it('preserves feasible optional and partial timestamps without authoring missing values', () => {
+    const c = comparisonCase();
+    c.offer.itinerary.outbound.stops = [
+      technicalStop('mid', 20, undefined, '2026-10-24T22:30:00Z'),
+      technicalStop('d2', 10),
+      technicalStop('mid', 20, '2026-10-24T23:00:00Z'),
+      technicalStop('d2', 10, undefined, '2026-10-24T23:40:00Z'),
+    ];
+    const original = structuredClone(c.offer.itinerary.outbound.stops);
+    const groups = groupOffers([c.offer], c.query, caseContext(c));
+    expect(groups).toHaveLength(1);
+    expect(groups[0]!.itinerary.outbound.stops).toEqual(original);
+    expect(c.offer.itinerary.outbound.stops).toEqual(original);
+    expect(groups[0]!.itinerary.outbound.stops[1]).not.toHaveProperty('arrivalAt');
+    expect(groups[0]!.itinerary.outbound.stops[1]).not.toHaveProperty('departureAt');
+  });
+
+  it.each([
+    ['unknown waits exceed whole leg', [technicalStop('mid', 70), technicalStop('d2', 60)]],
+    ['unknown wait cannot fit before a known arrival', [technicalStop('mid', 40), technicalStop('d2', 20, '2026-10-24T22:30:00Z')]],
+    ['unknown wait cannot fit before a partial departure', [technicalStop('mid', 30), technicalStop('d2', 20, undefined, '2026-10-24T22:40:00Z')]],
+    ['arrival-only wait exceeds remaining leg', [technicalStop('mid', 30, '2026-10-24T23:40:00Z')]],
+    ['departure-only wait starts before leg', [technicalStop('mid', 30, undefined, '2026-10-24T22:20:00Z')]],
+  ])('rejects known dwell that cannot fit its available bounds: %s', (_label, stops) => {
+    const c = comparisonCase();
+    c.offer.itinerary.outbound.stops = stops;
+    expect(quoteOffer(c.offer, c.query, caseContext(c)).status).toBe('rejected');
+  });
+
+  it('uses known segment-junction bounds even when the stop omits its timestamps', () => {
+    const c = comparisonCase();
+    addAirportTransfer(c.offer);
+    const transfer = c.offer.itinerary.outbound.stops[0]!;
+    delete transfer.arrivalAt;
+    delete transfer.departureAt;
+    c.offer.itinerary.outbound.stops.push(technicalStop('mid', 10, '2026-10-24T23:00:00Z', '2026-10-24T23:10:00Z'));
+    expect(quoteOffer(c.offer, c.query, caseContext(c)).status).toBe('rejected');
+    c.offer.itinerary.outbound.stops.reverse();
+    const groups = groupOffers([c.offer], c.query, caseContext(c));
+    expect(groups).toHaveLength(1);
+    expect(groups[0]!.itinerary.outbound.stops[1]).not.toHaveProperty('arrivalAt');
+    expect(groups[0]!.itinerary.outbound.stops[1]).not.toHaveProperty('departureAt');
+  });
+
+  it('retains a feasible sequence when a later untimed stop is the matching segment junction', () => {
+    const c = comparisonCase();
+    const first = c.offer.itinerary.outbound.segments[0]!;
+    first.destinationPlaceId = 'mid';
+    first.arrivalAt = '2026-10-24T23:00:00Z';
+    first.arrivalTimeZone = 'Asia/Tehran';
+    c.offer.itinerary.outbound.segments.push({
+      ...first,
+      segmentId: 'onward',
+      originPlaceId: 'mid',
+      destinationPlaceId: 'd',
+      departureAt: '2026-10-24T23:30:00Z',
+      arrivalAt: '2026-10-25T00:00:00Z',
+      arrivalTimeZone: 'Asia/Dubai',
+    });
+    c.offer.itinerary.outbound.stops = [
+      technicalStop('mid', 30),
+      technicalStop('d2', 10, '2026-10-24T22:40:00Z', '2026-10-24T22:50:00Z'),
+      technicalStop('mid', 30),
+    ];
+    const original = structuredClone(c.offer.itinerary.outbound.stops);
+    const groups = groupOffers([c.offer], c.query, caseContext(c));
+    expect(groups).toHaveLength(1);
+    expect(groups[0]!.itinerary.outbound.stops).toEqual(original);
+  });
+
+});
