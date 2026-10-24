@@ -10,7 +10,7 @@
 
 **Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.0, 2026-10-24.
 
-**Plan state:** Approved; foundation implementation in progress. Task status and evidence are tracked below. The earlier date explorer is a completed throwaway interaction study, not implemented product code.
+**Plan state:** Approved; M1 foundation complete and independently reviewed. Remaining product tasks and evidence are tracked below. The earlier date explorer is a completed throwaway interaction study, not implemented product code.
 
 **Delivery location:** This outputs directory contains the user-facing source documents. On repository creation, copy the spec to docs/superpowers/specs/2026-10-24-torobticket-design.md and this plan to docs/superpowers/plans/2026-10-24-torobticket-master-plan.md. Preserve the revision, task IDs, and decision authority, and rewrite the Spec link to ../specs/2026-10-24-torobticket-design.md.
 
@@ -340,7 +340,7 @@ Each row indexes the detailed checkbox steps in section 6. DONE requires indepen
 | [T26 — Referral analytics and end-to-end provenance trail](#t26) | T26.1 Pin real metric counts<br>T26.2 Run analytics tests red<br>T26.3 Implement metrics and joins<br>T26.4 Implement the referral views<br>T26.5 Verify and commit | T11, T23, T24 | TODO | Unassigned / — |
 | [T27 — Flat artwork, coordinated motion, and all theme transitions](#t27) | T27.1 Author the visual assets<br>T27.2 Implement useful motion<br>T27.3 Implement theme coordination<br>T27.4 Verify motion and all palettes<br>T27.5 Review and commit | T12, T13, T14, T16, T17, T21 | TODO | Unassigned / — |
 | [T28 — Failure recovery and coherent state across features](#t28) | T28.1 Pin the scenario recovery matrix<br>T28.2 Run recovery cases red<br>T28.3 Implement recovery actions<br>T28.4 Reconcile stale selections<br>T28.5 Verify and commit | T09, T10, T16, T17, T18, T20, T21, T22, T24, T25 | TODO | Unassigned / — |
-| [T29 — Docker packaging, gateway, initialization, and one-command startup](#t29) | T29.1 Define container lifecycle<br>T29.2 Implement ordered initialization<br>T29.3 Implement gateway and assets<br>T29.4 Implement one-command runner<br>T29.5 Verify and commit | T01, T04, T05 | ACTIVE | implement_t29_early / 747c5f5 + 939bb44; early packaging independently approved; clean Docker boot, persistence and failure recovery passed; T05/T09/full assets acceptance pending |
+| [T29 — Docker packaging, gateway, initialization, and one-command startup](#t29) | T29.1 Define container lifecycle<br>T29.2 Implement ordered initialization<br>T29.3 Implement gateway and assets<br>T29.4 Implement one-command runner<br>T29.5 Verify and commit | T01, T04, T05 | ACTIVE | implement_t29_early / early scope independently approved; final WebStorm one-command boot and HTTP/session checks passed; T05/T09/full assets/T33 acceptance pending |
 | [T30 — Complete behavioral regression and multi-reviewer acceptance](#t30) | T30.1 Build stable e2e fixtures<br>T30.2 Exercise the full matrix<br>T30.3 Exercise cross-feature journeys<br>T30.4 Exercise hostile timing and isolation<br>T30.5 Verify and commit | T19, T22, T24, T25, T26, T28, T29 | TODO | Unassigned / — |
 | [T31 — Accessibility, RTL, responsive behavior, and browser compatibility](#t31) | T31.1 Define representative coverage<br>T31.2 Run semantic checks<br>T31.3 Inspect visual accessibility<br>T31.4 Run browser coverage<br>T31.5 Fix, verify, and commit | T27, T28, T30 | TODO | Unassigned / — |
 | [T32 — Graphics performance, visual regression, and resource budgets](#t32) | T32.1 Capture controlled visual baselines<br>T32.2 Measure real interaction performance<br>T32.3 Measure bundles and idle work<br>T32.4 Stress lifecycle and fallbacks<br>T32.5 Verify and commit | T27, T28, T30 | TODO | Unassigned / — |
@@ -352,7 +352,7 @@ Each row indexes the detailed checkbox steps in section 6. DONE requires indepen
 
 | Milestone | Tasks | Exit evidence |
 |---|---|---|
-| M1 — Runnable foundation and contracts | T01–T04, T12; early T29 | Three app builds, enforced boundaries, runtime schemas, scoped DB/session tests, token/component gallery |
+| M1 — Runnable foundation and contracts | T01–T04, T12; early T29 | COMPLETE: independent task and cross-task review, final WebStorm builds/Docker startup verified; evidence in docs/evidence/M1-checkpoint and M1-handoff |
 | M2 — Credible comparison engine | T05–T11 | Six provider contracts, round-trip/grouping invariants, rankings, calendar consistency, streamed failures, recheck/idempotency |
 | M3 — Signature search experience | T13–T18 | Wheel/calendar/chart/map linked to real API data; stable results and camera; compact desktop/mobile review |
 | M4 — Complete traveler flow | T19–T22 | Guest and simulated identity, saved searches, hotels/rooms/custom point, exact simulated provider handoff |
@@ -362,6 +362,8 @@ Each row indexes the detailed checkbox steps in section 6. DONE requires indepen
 | M8 — Reviewer handoff | T34–T35 | <5-minute timed walkthrough script, honest AI evidence, final independent review, no unresolved critical/high-impact defects |
 
 Recommended sequence: establish one working vertical slice early—session → one fixture provider → API search → one result → referral—while preserving the final contracts. Expand to all providers/modes, then polish the linked graphics, hotels, and admin. This is an implementation order, not a reduction of release scope.
+
+**M1 checkpoint — 2026-10-24:** Five full tasks are DONE; early T29 is reviewed and runnable while its parent stays ACTIVE. The project is checked out at `/Users/mahdizarei/WebstormProjects/torob-ticket` on `codex/foundation`, with the requested GitHub origin. Cross-task review fixes close clean-CI initialization, equivalent-anchor handling, shared test-database guards, tool-test coverage and README accuracy. Final-path frozen install, 36 source checks, normal regressions, one-command Docker boot and compiled HTTP checks pass. Next task: T05.
 
 Early T29 packaging is intentional: validate build/health/seed assumptions as soon as the foundation exists, then repeat the clean-start gate after all features land. Storybook and test projects are development tools, not additional production services.
 
