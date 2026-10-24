@@ -22,6 +22,9 @@
     ],
     "testGlobals": [
       "{workspaceRoot}/tools/test-setup.ts"
+    ],
+    "uiAssets": [
+      "{workspaceRoot}/assets/**/*"
     ]
   },
   "targetDefaults": {

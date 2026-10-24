@@ -12,7 +12,7 @@
     "lint": "nx run-many -t lint",
     "typecheck": "nx run-many -t typecheck",
     "build": "nx run-many -t build --projects=web,admin,api",
-    "test": "node tools/test-generator.mjs && node tools/test-cache-inputs.mjs && nx run-many -t test",
+    "test": "node tools/test-generator.mjs && node tools/test-cache-inputs.mjs && node tools/test-ui-asset-inputs.mjs && nx run-many -t test",
     "verify": "nx run-many -t lint,typecheck,test,build",
     "verify:boundaries": "node tools/verify-boundaries.mjs",
     "affected": "nx affected -t lint,typecheck,test,build",
@@ -69,7 +69,10 @@
     "@testing-library/jest-dom": "7.0.1",
     "prisma": "7.10.1",
     "@typescript-eslint/parser": "8.72.0",
-    "tsc-alias": "1.9.9"
+    "tsc-alias": "1.9.9",
+    "storybook": "10.6.3",
+    "@storybook/react-vite": "10.6.3",
+    "@testing-library/user-event": "14.6.8"
   },
   "nx": {
     "includedScripts": []

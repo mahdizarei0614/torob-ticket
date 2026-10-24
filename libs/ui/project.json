@@ -23,7 +23,7 @@
     "build": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "tsc -p libs/ui/tsconfig.json --noEmit false --declaration --emitDeclarationOnly --outDir dist/libs/ui"
+        "command": "tsc -p libs/ui/tsconfig.json --noEmit false --declaration --emitDeclarationOnly --outDir dist/libs/ui && vite build --config libs/ui/vite.config.mts"
       },
       "outputs": [
         "{workspaceRoot}/dist/libs/ui"
@@ -34,6 +34,34 @@
       "options": {
         "command": "vitest run --project ui libs/ui --passWithNoTests"
       }
+    },
+    "build-storybook": {
+      "executor": "nx:run-commands",
+      "cache": true,
+      "inputs": [
+        "production",
+        "^production"
+      ],
+      "outputs": [
+        "{workspaceRoot}/dist/storybook/ui"
+      ],
+      "options": {
+        "command": "storybook build --config-dir libs/ui/.storybook --output-dir dist/storybook/ui --disable-telemetry"
+      }
+    },
+    "storybook": {
+      "executor": "nx:run-commands",
+      "cache": false,
+      "options": {
+        "command": "storybook dev --config-dir libs/ui/.storybook --host 127.0.0.1 --port 4400 --no-open --disable-telemetry"
+      }
     }
+  },
+  "namedInputs": {
+    "default": [
+      "{projectRoot}/**/*",
+      "sharedGlobals",
+      "uiAssets"
+    ]
   }
 }

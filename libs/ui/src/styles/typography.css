@@ -1,0 +1,32 @@
+@font-face {
+  font-family: 'Vazirmatn';
+  src: url('../../../../assets/fonts/Vazirmatn-wght.woff2?no-inline') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Inter';
+  src: url('../../../../assets/fonts/InterVariable.woff2?no-inline') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+body {
+  font-family: var(--font-fa);
+  font-size: var(--text-sm);
+  line-height: 1.65;
+}
+[lang='fa'] {
+  font-family: var(--font-fa);
+}
+[lang='en'],
+[data-code] {
+  font-family: var(--font-en);
+}
+[data-code] {
+  direction: ltr;
+  unicode-bidi: isolate;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.035em;
+}

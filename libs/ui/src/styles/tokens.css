@@ -1,0 +1,182 @@
+/* Authored colors live here only. Transport is signalled by words/icons as well as hue. */
+:root,
+[data-appearance] {
+  --font-fa: 'Vazirmatn', sans-serif;
+  --font-en: 'Inter', sans-serif;
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-md: 1rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.5rem;
+  --text-price: clamp(1.5rem, 3vw, 1.875rem);
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --radius-sm: 0.375rem;
+  --radius-md: 0.625rem;
+  --radius-lg: 1rem;
+  --radius-pill: 99rem;
+  --control-size: 2.75rem;
+  --focus-width: 3px;
+  --motion-fast: 140ms;
+  --color-clear: transparent;
+  --surface: #ffffff;
+  --canvas: #f4f6f8;
+  --surface-raised: #ffffff;
+  --surface-subtle: #e9eef3;
+  --text: #182b3a;
+  --text-muted: #4d6171;
+  --border: #cbd5de;
+  --border-strong: #718394;
+  --disabled-bg: #e9eef3;
+  --disabled-text: #687a89;
+  --focus: #7144ce;
+  --success: #176a43;
+  --success-bg: #e5f4eb;
+  --warning: #805400;
+  --warning-bg: #fff2d4;
+  --danger: #b62a37;
+  --danger-bg: #ffeaec;
+  --info: #215ca3;
+  --info-bg: #e8f1ff;
+  --overlay: #11213399;
+  --shadow-color: #142b3a1f;
+  --elevation: 0 8px 32px var(--shadow-color);
+  --accent: #1459bd;
+  --accent-hover: #0c469d;
+  --accent-soft: #e7f0ff;
+  --on-accent: #ffffff;
+  --icon: var(--text-muted);
+  --icon-active: var(--accent);
+  --scene-background: var(--canvas);
+  --scene-dot: var(--border-strong);
+  --scene-route: var(--accent);
+  --scene-route-muted: var(--text-muted);
+  --scene-highlight: var(--accent-soft);
+  --chart-line: var(--accent);
+  --chart-grid: var(--border);
+  --chart-marker: var(--accent);
+  color-scheme: light;
+}
+[data-appearance='dark'] {
+  --surface: #152633;
+  --canvas: #0e1b25;
+  --surface-raised: #1c3040;
+  --surface-subtle: #243b4d;
+  --text: #edf3f7;
+  --text-muted: #b3c4d2;
+  --border: #385063;
+  --border-strong: #718a9c;
+  --disabled-bg: #243b4d;
+  --disabled-text: #8ba2b3;
+  --focus: #e2b6ff;
+  --success: #7fddb0;
+  --success-bg: #173f32;
+  --warning: #efcc79;
+  --warning-bg: #40371e;
+  --danger: #ff9fa9;
+  --danger-bg: #492933;
+  --info: #9bc6ff;
+  --info-bg: #203b58;
+  --overlay: #020b14bb;
+  --shadow-color: #00000040;
+  --accent: #8bbcff;
+  --accent-hover: #b2d3ff;
+  --accent-soft: #203b58;
+  --on-accent: #10243b;
+  color-scheme: dark;
+}
+[data-mode='train'][data-appearance='light'] {
+  --canvas: #f1f7f3;
+  --surface: #fbfefc;
+  --surface-raised: #ffffff;
+  --surface-subtle: #e4f0e8;
+  --text: #193326;
+  --text-muted: #4d6959;
+  --border: #c5dacd;
+  --border-strong: #6e8a79;
+  --disabled-bg: #e4f0e8;
+  --disabled-text: #65816f;
+  --accent: #116a48;
+  --accent-hover: #0a5337;
+  --accent-soft: #e2f2e9;
+  --on-accent: #ffffff;
+}
+[data-mode='train'][data-appearance='dark'] {
+  --canvas: #0d211a;
+  --surface: #142e24;
+  --surface-raised: #1b3b2e;
+  --surface-subtle: #234a39;
+  --text: #e9f6ef;
+  --text-muted: #b0ccbd;
+  --border: #365b49;
+  --border-strong: #729782;
+  --disabled-bg: #234a39;
+  --disabled-text: #90ae9e;
+  --accent: #79d9ac;
+  --accent-hover: #a0e9c4;
+  --accent-soft: #173f32;
+  --on-accent: #0e3023;
+}
+[data-mode='bus'][data-appearance='light'] {
+  --canvas: #faf3f3;
+  --surface: #fffdfd;
+  --surface-raised: #ffffff;
+  --surface-subtle: #f4e7e9;
+  --text: #3a2026;
+  --text-muted: #76515b;
+  --border: #e3cdd2;
+  --border-strong: #a87782;
+  --disabled-bg: #f4e7e9;
+  --disabled-text: #94717c;
+  --accent: #b12d3d;
+  --accent-hover: #922132;
+  --accent-soft: #ffeaed;
+  --on-accent: #ffffff;
+}
+[data-mode='bus'][data-appearance='dark'] {
+  --canvas: #241216;
+  --surface: #321e24;
+  --surface-raised: #40282f;
+  --surface-subtle: #4c303a;
+  --text: #fbeef1;
+  --text-muted: #d3b7c0;
+  --border: #63424d;
+  --border-strong: #a77e8b;
+  --disabled-bg: #4c303a;
+  --disabled-text: #b794a0;
+  --accent: #ff9ca7;
+  --accent-hover: #ffbbc2;
+  --accent-soft: #492933;
+  --on-accent: #3d1420;
+}
+/* Admin intentionally uses neutral surfaces and the flight/blue accent family. */
+[data-variant='admin'] {
+  --font-body: var(--font-en);
+}
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-fast: 0ms;
+  }
+}
+@media (forced-colors: active) {
+  :root,
+  html[data-mode][data-appearance] {
+    --focus: Highlight;
+    --border-strong: ButtonText;
+    --accent: LinkText;
+    --on-accent: Canvas;
+    --text: CanvasText;
+    --surface: Canvas;
+    --canvas: Canvas;
+  }
+}
