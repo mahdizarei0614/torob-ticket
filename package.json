@@ -17,7 +17,7 @@
     "verify:boundaries": "node tools/verify-boundaries.mjs",
     "affected": "nx affected -t lint,typecheck,test,build",
     "generate:library": "node tools/generators/library/generate.mjs",
-    "test:tools": "node --test tools/test-docker-runner.mjs tools/test-test-database.mjs && node tools/test-generator.mjs && node tools/test-cache-inputs.mjs && node tools/test-ui-asset-inputs.mjs",
+    "test:tools": "node --test tools/test-docker-runner.mjs tools/test-test-database.mjs && node tools/test-generator.mjs && node tools/test-cache-inputs.mjs && node tools/test-ui-asset-inputs.mjs && node tools/test-fixture-asset-inputs.mjs",
     "test:cache": "node tools/test-cache-inputs.mjs",
     "db:generate": "nx run data-access:generate",
     "db:migrate": "prisma migrate deploy",

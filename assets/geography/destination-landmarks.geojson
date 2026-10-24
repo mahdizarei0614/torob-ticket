@@ -1,0 +1,6121 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tehran-landmark",
+        "cityId": "tehran",
+        "name": "مرکز شهر تهران",
+        "kind": "landmark",
+        "source": "Natural Earth populated places"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          51.422398,
+          35.673889
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tehran-extent",
+        "cityId": "tehran",
+        "kind": "illustrative-destination-extent",
+        "fictional": true,
+        "navigation": false
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              51.102199,
+              35.3661
+            ],
+            [
+              51.484398,
+              35.3661
+            ],
+            [
+              51.484398,
+              35.740889
+            ],
+            [
+              51.102199,
+              35.740889
+            ],
+            [
+              51.102199,
+              35.3661
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tehran-hotel-01",
+        "cityId": "tehran",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          51.408398,
+          35.664889
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tehran-hotel-02",
+        "cityId": "tehran",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          51.415398,
+          35.664889
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tehran-hotel-03",
+        "cityId": "tehran",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          51.422398,
+          35.664889
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tehran-hotel-04",
+        "cityId": "tehran",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          51.429398,
+          35.664889
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tehran-hotel-05",
+        "cityId": "tehran",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          51.436398,
+          35.664889
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tehran-hotel-06",
+        "cityId": "tehran",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          51.408398,
+          35.673889
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tehran-hotel-07",
+        "cityId": "tehran",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          51.415398,
+          35.673889
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tehran-hotel-08",
+        "cityId": "tehran",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          51.422398,
+          35.673889
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tehran-hotel-09",
+        "cityId": "tehran",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          51.429398,
+          35.673889
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tehran-hotel-10",
+        "cityId": "tehran",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          51.436398,
+          35.673889
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tehran-hotel-11",
+        "cityId": "tehran",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          51.408398,
+          35.682889
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tehran-hotel-12",
+        "cityId": "tehran",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          51.415398,
+          35.682889
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tehran-hotel-13",
+        "cityId": "tehran",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          51.422398,
+          35.682889
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tehran-hotel-14",
+        "cityId": "tehran",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          51.429398,
+          35.682889
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "mashhad-landmark",
+        "cityId": "mashhad",
+        "name": "مرکز شهر مشهد",
+        "kind": "landmark",
+        "source": "Natural Earth populated places"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          59.568051,
+          36.271966
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "mashhad-extent",
+        "cityId": "mashhad",
+        "kind": "illustrative-destination-extent",
+        "fictional": true,
+        "navigation": false
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              59.510051,
+              36.184821
+            ],
+            [
+              59.692949,
+              36.184821
+            ],
+            [
+              59.692949,
+              36.338966
+            ],
+            [
+              59.510051,
+              36.338966
+            ],
+            [
+              59.510051,
+              36.184821
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "mashhad-hotel-01",
+        "cityId": "mashhad",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          59.554051,
+          36.262966
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "mashhad-hotel-02",
+        "cityId": "mashhad",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          59.561051,
+          36.262966
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "mashhad-hotel-03",
+        "cityId": "mashhad",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          59.568051,
+          36.262966
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "mashhad-hotel-04",
+        "cityId": "mashhad",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          59.575051,
+          36.262966
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "mashhad-hotel-05",
+        "cityId": "mashhad",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          59.582051,
+          36.262966
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "mashhad-hotel-06",
+        "cityId": "mashhad",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          59.554051,
+          36.271966
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "mashhad-hotel-07",
+        "cityId": "mashhad",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          59.561051,
+          36.271966
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "mashhad-hotel-08",
+        "cityId": "mashhad",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          59.568051,
+          36.271966
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "mashhad-hotel-09",
+        "cityId": "mashhad",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          59.575051,
+          36.271966
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "mashhad-hotel-10",
+        "cityId": "mashhad",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          59.582051,
+          36.271966
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "mashhad-hotel-11",
+        "cityId": "mashhad",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          59.554051,
+          36.280966
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "mashhad-hotel-12",
+        "cityId": "mashhad",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          59.561051,
+          36.280966
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "mashhad-hotel-13",
+        "cityId": "mashhad",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          59.568051,
+          36.280966
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "mashhad-hotel-14",
+        "cityId": "mashhad",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          59.575051,
+          36.280966
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "isfahan-landmark",
+        "cityId": "isfahan",
+        "name": "مرکز شهر اصفهان",
+        "kind": "landmark",
+        "source": "Natural Earth populated places"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          51.698092,
+          32.701951
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "isfahan-extent",
+        "cityId": "isfahan",
+        "kind": "illustrative-destination-extent",
+        "fictional": true,
+        "navigation": false
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              51.640092,
+              32.639951
+            ],
+            [
+              51.933877,
+              32.639951
+            ],
+            [
+              51.933877,
+              32.805142
+            ],
+            [
+              51.640092,
+              32.805142
+            ],
+            [
+              51.640092,
+              32.639951
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "isfahan-hotel-01",
+        "cityId": "isfahan",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          51.684092,
+          32.692951
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "isfahan-hotel-02",
+        "cityId": "isfahan",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          51.691092,
+          32.692951
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "isfahan-hotel-03",
+        "cityId": "isfahan",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          51.698092,
+          32.692951
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "isfahan-hotel-04",
+        "cityId": "isfahan",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          51.705092,
+          32.692951
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "isfahan-hotel-05",
+        "cityId": "isfahan",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          51.712092,
+          32.692951
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "isfahan-hotel-06",
+        "cityId": "isfahan",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          51.684092,
+          32.701951
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "isfahan-hotel-07",
+        "cityId": "isfahan",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          51.691092,
+          32.701951
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "isfahan-hotel-08",
+        "cityId": "isfahan",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          51.698092,
+          32.701951
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "isfahan-hotel-09",
+        "cityId": "isfahan",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          51.705092,
+          32.701951
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "isfahan-hotel-10",
+        "cityId": "isfahan",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          51.712092,
+          32.701951
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "isfahan-hotel-11",
+        "cityId": "isfahan",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          51.684092,
+          32.710951
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "isfahan-hotel-12",
+        "cityId": "isfahan",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          51.691092,
+          32.710951
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "isfahan-hotel-13",
+        "cityId": "isfahan",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          51.698092,
+          32.710951
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "isfahan-hotel-14",
+        "cityId": "isfahan",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          51.705092,
+          32.710951
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "shiraz-landmark",
+        "cityId": "shiraz",
+        "name": "مرکز شهر شیراز",
+        "kind": "landmark",
+        "source": "Natural Earth populated places"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          52.568065,
+          29.631906
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "shiraz-extent",
+        "cityId": "shiraz",
+        "kind": "illustrative-destination-extent",
+        "fictional": true,
+        "navigation": false
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              52.510065,
+              29.4892
+            ],
+            [
+              52.639802,
+              29.4892
+            ],
+            [
+              52.639802,
+              29.698906
+            ],
+            [
+              52.510065,
+              29.698906
+            ],
+            [
+              52.510065,
+              29.4892
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "shiraz-hotel-01",
+        "cityId": "shiraz",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          52.554065,
+          29.622906
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "shiraz-hotel-02",
+        "cityId": "shiraz",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          52.561065,
+          29.622906
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "shiraz-hotel-03",
+        "cityId": "shiraz",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          52.568065,
+          29.622906
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "shiraz-hotel-04",
+        "cityId": "shiraz",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          52.575065,
+          29.622906
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "shiraz-hotel-05",
+        "cityId": "shiraz",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          52.582065,
+          29.622906
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "shiraz-hotel-06",
+        "cityId": "shiraz",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          52.554065,
+          29.631906
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "shiraz-hotel-07",
+        "cityId": "shiraz",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          52.561065,
+          29.631906
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "shiraz-hotel-08",
+        "cityId": "shiraz",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          52.568065,
+          29.631906
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "shiraz-hotel-09",
+        "cityId": "shiraz",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          52.575065,
+          29.631906
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "shiraz-hotel-10",
+        "cityId": "shiraz",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          52.582065,
+          29.631906
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "shiraz-hotel-11",
+        "cityId": "shiraz",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          52.554065,
+          29.640906
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "shiraz-hotel-12",
+        "cityId": "shiraz",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          52.561065,
+          29.640906
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "shiraz-hotel-13",
+        "cityId": "shiraz",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          52.568065,
+          29.640906
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "shiraz-hotel-14",
+        "cityId": "shiraz",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          52.575065,
+          29.640906
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tabriz-landmark",
+        "cityId": "tabriz",
+        "name": "مرکز شهر تبریز",
+        "kind": "landmark",
+        "source": "Natural Earth populated places"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          46.2993,
+          38.088237
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tabriz-extent",
+        "cityId": "tabriz",
+        "kind": "illustrative-destination-extent",
+        "fictional": true,
+        "navigation": false
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              46.185001,
+              38.026237
+            ],
+            [
+              46.3613,
+              38.026237
+            ],
+            [
+              46.3613,
+              38.1839
+            ],
+            [
+              46.185001,
+              38.1839
+            ],
+            [
+              46.185001,
+              38.026237
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tabriz-hotel-01",
+        "cityId": "tabriz",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          46.2853,
+          38.079237
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tabriz-hotel-02",
+        "cityId": "tabriz",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          46.2923,
+          38.079237
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tabriz-hotel-03",
+        "cityId": "tabriz",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          46.2993,
+          38.079237
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tabriz-hotel-04",
+        "cityId": "tabriz",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          46.3063,
+          38.079237
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tabriz-hotel-05",
+        "cityId": "tabriz",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          46.3133,
+          38.079237
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tabriz-hotel-06",
+        "cityId": "tabriz",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          46.2853,
+          38.088237
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tabriz-hotel-07",
+        "cityId": "tabriz",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          46.2923,
+          38.088237
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tabriz-hotel-08",
+        "cityId": "tabriz",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          46.2993,
+          38.088237
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tabriz-hotel-09",
+        "cityId": "tabriz",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          46.3063,
+          38.088237
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tabriz-hotel-10",
+        "cityId": "tabriz",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          46.3133,
+          38.088237
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tabriz-hotel-11",
+        "cityId": "tabriz",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          46.2853,
+          38.097237
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tabriz-hotel-12",
+        "cityId": "tabriz",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          46.2923,
+          38.097237
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tabriz-hotel-13",
+        "cityId": "tabriz",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          46.2993,
+          38.097237
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tabriz-hotel-14",
+        "cityId": "tabriz",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          46.3063,
+          38.097237
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "rasht-landmark",
+        "cityId": "rasht",
+        "name": "مرکز شهر رشت",
+        "kind": "landmark",
+        "source": "Natural Earth populated places"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          49.629983,
+          37.299983
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "rasht-extent",
+        "cityId": "rasht",
+        "kind": "illustrative-destination-extent",
+        "fictional": true,
+        "navigation": false
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              49.567778,
+              37.237983
+            ],
+            [
+              49.691983,
+              37.237983
+            ],
+            [
+              49.691983,
+              37.373333
+            ],
+            [
+              49.567778,
+              37.373333
+            ],
+            [
+              49.567778,
+              37.237983
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "rasht-hotel-01",
+        "cityId": "rasht",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          49.615983,
+          37.290983
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "rasht-hotel-02",
+        "cityId": "rasht",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          49.622983,
+          37.290983
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "rasht-hotel-03",
+        "cityId": "rasht",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          49.629983,
+          37.290983
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "rasht-hotel-04",
+        "cityId": "rasht",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          49.636983,
+          37.290983
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "rasht-hotel-05",
+        "cityId": "rasht",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          49.643983,
+          37.290983
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "rasht-hotel-06",
+        "cityId": "rasht",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          49.615983,
+          37.299983
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "rasht-hotel-07",
+        "cityId": "rasht",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          49.622983,
+          37.299983
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "rasht-hotel-08",
+        "cityId": "rasht",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          49.629983,
+          37.299983
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "rasht-hotel-09",
+        "cityId": "rasht",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          49.636983,
+          37.299983
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "rasht-hotel-10",
+        "cityId": "rasht",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          49.643983,
+          37.299983
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "rasht-hotel-11",
+        "cityId": "rasht",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          49.615983,
+          37.308983
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "rasht-hotel-12",
+        "cityId": "rasht",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          49.622983,
+          37.308983
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "rasht-hotel-13",
+        "cityId": "rasht",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          49.629983,
+          37.308983
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "rasht-hotel-14",
+        "cityId": "rasht",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          49.636983,
+          37.308983
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "yazd-landmark",
+        "cityId": "yazd",
+        "name": "مرکز شهر یزد",
+        "kind": "landmark",
+        "source": "Natural Earth populated places"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.370004,
+          31.920053
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "yazd-extent",
+        "cityId": "yazd",
+        "kind": "illustrative-destination-extent",
+        "fictional": true,
+        "navigation": false
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              54.226501,
+              31.8549
+            ],
+            [
+              54.432004,
+              31.8549
+            ],
+            [
+              54.432004,
+              31.987053
+            ],
+            [
+              54.226501,
+              31.987053
+            ],
+            [
+              54.226501,
+              31.8549
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "yazd-hotel-01",
+        "cityId": "yazd",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.356004,
+          31.911053
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "yazd-hotel-02",
+        "cityId": "yazd",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.363004,
+          31.911053
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "yazd-hotel-03",
+        "cityId": "yazd",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.370004,
+          31.911053
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "yazd-hotel-04",
+        "cityId": "yazd",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.377004,
+          31.911053
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "yazd-hotel-05",
+        "cityId": "yazd",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.384004,
+          31.911053
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "yazd-hotel-06",
+        "cityId": "yazd",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.356004,
+          31.920053
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "yazd-hotel-07",
+        "cityId": "yazd",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.363004,
+          31.920053
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "yazd-hotel-08",
+        "cityId": "yazd",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.370004,
+          31.920053
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "yazd-hotel-09",
+        "cityId": "yazd",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.377004,
+          31.920053
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "yazd-hotel-10",
+        "cityId": "yazd",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.384004,
+          31.920053
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "yazd-hotel-11",
+        "cityId": "yazd",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.356004,
+          31.929053
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "yazd-hotel-12",
+        "cityId": "yazd",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.363004,
+          31.929053
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "yazd-hotel-13",
+        "cityId": "yazd",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.370004,
+          31.929053
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "yazd-hotel-14",
+        "cityId": "yazd",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          54.377004,
+          31.929053
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "ahvaz-landmark",
+        "cityId": "ahvaz",
+        "name": "مرکز شهر اهواز",
+        "kind": "landmark",
+        "source": "Natural Earth populated places"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          48.718067,
+          31.281934
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "ahvaz-extent",
+        "cityId": "ahvaz",
+        "kind": "illustrative-destination-extent",
+        "fictional": true,
+        "navigation": false
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              48.660067,
+              31.219934
+            ],
+            [
+              48.813789,
+              31.219934
+            ],
+            [
+              48.813789,
+              31.3864
+            ],
+            [
+              48.660067,
+              31.3864
+            ],
+            [
+              48.660067,
+              31.219934
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "ahvaz-hotel-01",
+        "cityId": "ahvaz",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          48.704067,
+          31.272934
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "ahvaz-hotel-02",
+        "cityId": "ahvaz",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          48.711067,
+          31.272934
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "ahvaz-hotel-03",
+        "cityId": "ahvaz",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          48.718067,
+          31.272934
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "ahvaz-hotel-04",
+        "cityId": "ahvaz",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          48.725067,
+          31.272934
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "ahvaz-hotel-05",
+        "cityId": "ahvaz",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          48.732067,
+          31.272934
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "ahvaz-hotel-06",
+        "cityId": "ahvaz",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          48.704067,
+          31.281934
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "ahvaz-hotel-07",
+        "cityId": "ahvaz",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          48.711067,
+          31.281934
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "ahvaz-hotel-08",
+        "cityId": "ahvaz",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          48.718067,
+          31.281934
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "ahvaz-hotel-09",
+        "cityId": "ahvaz",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          48.725067,
+          31.281934
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "ahvaz-hotel-10",
+        "cityId": "ahvaz",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          48.732067,
+          31.281934
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "ahvaz-hotel-11",
+        "cityId": "ahvaz",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          48.704067,
+          31.290934
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "ahvaz-hotel-12",
+        "cityId": "ahvaz",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          48.711067,
+          31.290934
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "ahvaz-hotel-13",
+        "cityId": "ahvaz",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          48.718067,
+          31.290934
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "ahvaz-hotel-14",
+        "cityId": "ahvaz",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          48.725067,
+          31.290934
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "bandar-abbas-landmark",
+        "cityId": "bandar-abbas",
+        "name": "مرکز شهر بندرعباس",
+        "kind": "landmark",
+        "source": "Natural Earth populated places"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          56.272135,
+          27.20406
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "bandar-abbas-extent",
+        "cityId": "bandar-abbas",
+        "kind": "illustrative-destination-extent",
+        "fictional": true,
+        "navigation": false
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              56.214135,
+              27.14206
+            ],
+            [
+              56.4278,
+              27.14206
+            ],
+            [
+              56.4278,
+              27.27106
+            ],
+            [
+              56.214135,
+              27.27106
+            ],
+            [
+              56.214135,
+              27.14206
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "bandar-abbas-hotel-01",
+        "cityId": "bandar-abbas",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          56.258135,
+          27.19506
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "bandar-abbas-hotel-02",
+        "cityId": "bandar-abbas",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          56.265135,
+          27.19506
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "bandar-abbas-hotel-03",
+        "cityId": "bandar-abbas",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          56.272135,
+          27.19506
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "bandar-abbas-hotel-04",
+        "cityId": "bandar-abbas",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          56.279135,
+          27.19506
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "bandar-abbas-hotel-05",
+        "cityId": "bandar-abbas",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          56.286135,
+          27.19506
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "bandar-abbas-hotel-06",
+        "cityId": "bandar-abbas",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          56.258135,
+          27.20406
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "bandar-abbas-hotel-07",
+        "cityId": "bandar-abbas",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          56.265135,
+          27.20406
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "bandar-abbas-hotel-08",
+        "cityId": "bandar-abbas",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          56.272135,
+          27.20406
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "bandar-abbas-hotel-09",
+        "cityId": "bandar-abbas",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          56.279135,
+          27.20406
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "bandar-abbas-hotel-10",
+        "cityId": "bandar-abbas",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          56.286135,
+          27.20406
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "bandar-abbas-hotel-11",
+        "cityId": "bandar-abbas",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          56.258135,
+          27.21306
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "bandar-abbas-hotel-12",
+        "cityId": "bandar-abbas",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          56.265135,
+          27.21306
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "bandar-abbas-hotel-13",
+        "cityId": "bandar-abbas",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          56.272135,
+          27.21306
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "bandar-abbas-hotel-14",
+        "cityId": "bandar-abbas",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          56.279135,
+          27.21306
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "kerman-landmark",
+        "cityId": "kerman",
+        "name": "مرکز شهر کرمان",
+        "kind": "landmark",
+        "source": "Natural Earth populated places"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          57.080019,
+          30.299997
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "kerman-extent",
+        "cityId": "kerman",
+        "kind": "illustrative-destination-extent",
+        "fictional": true,
+        "navigation": false
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              56.899692,
+              30.221276
+            ],
+            [
+              57.142019,
+              30.221276
+            ],
+            [
+              57.142019,
+              30.366997
+            ],
+            [
+              56.899692,
+              30.366997
+            ],
+            [
+              56.899692,
+              30.221276
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "kerman-hotel-01",
+        "cityId": "kerman",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          57.066019,
+          30.290997
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "kerman-hotel-02",
+        "cityId": "kerman",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          57.073019,
+          30.290997
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "kerman-hotel-03",
+        "cityId": "kerman",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          57.080019,
+          30.290997
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "kerman-hotel-04",
+        "cityId": "kerman",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          57.087019,
+          30.290997
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "kerman-hotel-05",
+        "cityId": "kerman",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          57.094019,
+          30.290997
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "kerman-hotel-06",
+        "cityId": "kerman",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          57.066019,
+          30.299997
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "kerman-hotel-07",
+        "cityId": "kerman",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          57.073019,
+          30.299997
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "kerman-hotel-08",
+        "cityId": "kerman",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          57.080019,
+          30.299997
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "kerman-hotel-09",
+        "cityId": "kerman",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          57.087019,
+          30.299997
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "kerman-hotel-10",
+        "cityId": "kerman",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          57.094019,
+          30.299997
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "kerman-hotel-11",
+        "cityId": "kerman",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          57.066019,
+          30.308997
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "kerman-hotel-12",
+        "cityId": "kerman",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          57.073019,
+          30.308997
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "kerman-hotel-13",
+        "cityId": "kerman",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          57.080019,
+          30.308997
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "kerman-hotel-14",
+        "cityId": "kerman",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          57.087019,
+          30.308997
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "hamadan-landmark",
+        "cityId": "hamadan",
+        "name": "مرکز شهر همدان",
+        "kind": "landmark",
+        "source": "Natural Earth populated places"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          48.515013,
+          34.796027
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "hamadan-extent",
+        "cityId": "hamadan",
+        "kind": "illustrative-destination-extent",
+        "fictional": true,
+        "navigation": false
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              48.457013,
+              34.734027
+            ],
+            [
+              48.61069,
+              34.734027
+            ],
+            [
+              48.61069,
+              34.916416
+            ],
+            [
+              48.457013,
+              34.916416
+            ],
+            [
+              48.457013,
+              34.734027
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "hamadan-hotel-01",
+        "cityId": "hamadan",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          48.501013,
+          34.787027
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "hamadan-hotel-02",
+        "cityId": "hamadan",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          48.508013,
+          34.787027
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "hamadan-hotel-03",
+        "cityId": "hamadan",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          48.515013,
+          34.787027
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "hamadan-hotel-04",
+        "cityId": "hamadan",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          48.522013,
+          34.787027
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "hamadan-hotel-05",
+        "cityId": "hamadan",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          48.529013,
+          34.787027
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "hamadan-hotel-06",
+        "cityId": "hamadan",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          48.501013,
+          34.796027
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "hamadan-hotel-07",
+        "cityId": "hamadan",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          48.508013,
+          34.796027
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "hamadan-hotel-08",
+        "cityId": "hamadan",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          48.515013,
+          34.796027
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "hamadan-hotel-09",
+        "cityId": "hamadan",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          48.522013,
+          34.796027
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "hamadan-hotel-10",
+        "cityId": "hamadan",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          48.529013,
+          34.796027
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "hamadan-hotel-11",
+        "cityId": "hamadan",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          48.501013,
+          34.805027
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "hamadan-hotel-12",
+        "cityId": "hamadan",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          48.508013,
+          34.805027
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "hamadan-hotel-13",
+        "cityId": "hamadan",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          48.515013,
+          34.805027
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "hamadan-hotel-14",
+        "cityId": "hamadan",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          48.522013,
+          34.805027
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "kermanshah-landmark",
+        "cityId": "kermanshah",
+        "name": "مرکز شهر کرمانشاه",
+        "kind": "landmark",
+        "source": "Natural Earth populated places"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          47.058065,
+          34.381952
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "kermanshah-extent",
+        "cityId": "kermanshah",
+        "kind": "illustrative-destination-extent",
+        "fictional": true,
+        "navigation": false
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              47.000065,
+              34.295901
+            ],
+            [
+              47.2081,
+              34.295901
+            ],
+            [
+              47.2081,
+              34.448952
+            ],
+            [
+              47.000065,
+              34.448952
+            ],
+            [
+              47.000065,
+              34.295901
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "kermanshah-hotel-01",
+        "cityId": "kermanshah",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          47.044065,
+          34.372952
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "kermanshah-hotel-02",
+        "cityId": "kermanshah",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          47.051065,
+          34.372952
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "kermanshah-hotel-03",
+        "cityId": "kermanshah",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          47.058065,
+          34.372952
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "kermanshah-hotel-04",
+        "cityId": "kermanshah",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          47.065065,
+          34.372952
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "kermanshah-hotel-05",
+        "cityId": "kermanshah",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          47.072065,
+          34.372952
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "kermanshah-hotel-06",
+        "cityId": "kermanshah",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          47.044065,
+          34.381952
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "kermanshah-hotel-07",
+        "cityId": "kermanshah",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          47.051065,
+          34.381952
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "kermanshah-hotel-08",
+        "cityId": "kermanshah",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          47.058065,
+          34.381952
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "kermanshah-hotel-09",
+        "cityId": "kermanshah",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          47.065065,
+          34.381952
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "kermanshah-hotel-10",
+        "cityId": "kermanshah",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          47.072065,
+          34.381952
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "kermanshah-hotel-11",
+        "cityId": "kermanshah",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          47.044065,
+          34.390952
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "kermanshah-hotel-12",
+        "cityId": "kermanshah",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          47.051065,
+          34.390952
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "kermanshah-hotel-13",
+        "cityId": "kermanshah",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          47.058065,
+          34.390952
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "kermanshah-hotel-14",
+        "cityId": "kermanshah",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          47.065065,
+          34.390952
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "istanbul-landmark",
+        "cityId": "istanbul",
+        "name": "مرکز شهر استانبول",
+        "kind": "landmark",
+        "source": "Natural Earth populated places"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          28.974277,
+          41.017602
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "istanbul-extent",
+        "cityId": "istanbul",
+        "kind": "illustrative-destination-extent",
+        "fictional": true,
+        "navigation": false
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              28.682136,
+              40.848602
+            ],
+            [
+              29.3592,
+              40.848602
+            ],
+            [
+              29.3592,
+              41.324874
+            ],
+            [
+              28.682136,
+              41.324874
+            ],
+            [
+              28.682136,
+              40.848602
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "istanbul-hotel-01",
+        "cityId": "istanbul",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          28.960277,
+          41.008602
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "istanbul-hotel-02",
+        "cityId": "istanbul",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          28.967277,
+          41.008602
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "istanbul-hotel-03",
+        "cityId": "istanbul",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          28.974277,
+          41.008602
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "istanbul-hotel-04",
+        "cityId": "istanbul",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          28.981277,
+          41.008602
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "istanbul-hotel-05",
+        "cityId": "istanbul",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          28.988277,
+          41.008602
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "istanbul-hotel-06",
+        "cityId": "istanbul",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          28.960277,
+          41.017602
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "istanbul-hotel-07",
+        "cityId": "istanbul",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          28.967277,
+          41.017602
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "istanbul-hotel-08",
+        "cityId": "istanbul",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          28.974277,
+          41.017602
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "istanbul-hotel-09",
+        "cityId": "istanbul",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          28.981277,
+          41.017602
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "istanbul-hotel-10",
+        "cityId": "istanbul",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          28.988277,
+          41.017602
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "istanbul-hotel-11",
+        "cityId": "istanbul",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          28.960277,
+          41.026602
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "istanbul-hotel-12",
+        "cityId": "istanbul",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          28.967277,
+          41.026602
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "istanbul-hotel-13",
+        "cityId": "istanbul",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          28.974277,
+          41.026602
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "istanbul-hotel-14",
+        "cityId": "istanbul",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          28.981277,
+          41.026602
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "van-landmark",
+        "cityId": "van",
+        "name": "مرکز شهر وان",
+        "kind": "landmark",
+        "source": "Natural Earth populated places"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          43.399976,
+          38.49544
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "van-extent",
+        "cityId": "van",
+        "kind": "illustrative-destination-extent",
+        "fictional": true,
+        "navigation": false
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              43.282298,
+              38.418201
+            ],
+            [
+              43.461976,
+              38.418201
+            ],
+            [
+              43.461976,
+              38.56244
+            ],
+            [
+              43.282298,
+              38.56244
+            ],
+            [
+              43.282298,
+              38.418201
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "van-hotel-01",
+        "cityId": "van",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          43.385976,
+          38.48644
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "van-hotel-02",
+        "cityId": "van",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          43.392976,
+          38.48644
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "van-hotel-03",
+        "cityId": "van",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          43.399976,
+          38.48644
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "van-hotel-04",
+        "cityId": "van",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          43.406976,
+          38.48644
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "van-hotel-05",
+        "cityId": "van",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          43.413976,
+          38.48644
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "van-hotel-06",
+        "cityId": "van",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          43.385976,
+          38.49544
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "van-hotel-07",
+        "cityId": "van",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          43.392976,
+          38.49544
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "van-hotel-08",
+        "cityId": "van",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          43.399976,
+          38.49544
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "van-hotel-09",
+        "cityId": "van",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          43.406976,
+          38.49544
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "van-hotel-10",
+        "cityId": "van",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          43.413976,
+          38.49544
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "van-hotel-11",
+        "cityId": "van",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          43.385976,
+          38.50444
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "van-hotel-12",
+        "cityId": "van",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          43.392976,
+          38.50444
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "van-hotel-13",
+        "cityId": "van",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          43.399976,
+          38.50444
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "van-hotel-14",
+        "cityId": "van",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          43.406976,
+          38.50444
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "yerevan-landmark",
+        "cityId": "yerevan",
+        "name": "مرکز شهر ایروان",
+        "kind": "landmark",
+        "source": "Natural Earth populated places"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          44.511606,
+          40.183097
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "yerevan-extent",
+        "cityId": "yerevan",
+        "kind": "illustrative-destination-extent",
+        "fictional": true,
+        "navigation": false
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              44.347887,
+              40.098941
+            ],
+            [
+              44.573606,
+              40.098941
+            ],
+            [
+              44.573606,
+              40.250097
+            ],
+            [
+              44.347887,
+              40.250097
+            ],
+            [
+              44.347887,
+              40.098941
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "yerevan-hotel-01",
+        "cityId": "yerevan",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          44.497606,
+          40.174097
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "yerevan-hotel-02",
+        "cityId": "yerevan",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          44.504606,
+          40.174097
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "yerevan-hotel-03",
+        "cityId": "yerevan",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          44.511606,
+          40.174097
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "yerevan-hotel-04",
+        "cityId": "yerevan",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          44.518606,
+          40.174097
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "yerevan-hotel-05",
+        "cityId": "yerevan",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          44.525606,
+          40.174097
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "yerevan-hotel-06",
+        "cityId": "yerevan",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          44.497606,
+          40.183097
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "yerevan-hotel-07",
+        "cityId": "yerevan",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          44.504606,
+          40.183097
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "yerevan-hotel-08",
+        "cityId": "yerevan",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          44.511606,
+          40.183097
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "yerevan-hotel-09",
+        "cityId": "yerevan",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          44.518606,
+          40.183097
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "yerevan-hotel-10",
+        "cityId": "yerevan",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          44.525606,
+          40.183097
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "yerevan-hotel-11",
+        "cityId": "yerevan",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          44.497606,
+          40.192097
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "yerevan-hotel-12",
+        "cityId": "yerevan",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          44.504606,
+          40.192097
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "yerevan-hotel-13",
+        "cityId": "yerevan",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          44.511606,
+          40.192097
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "yerevan-hotel-14",
+        "cityId": "yerevan",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          44.518606,
+          40.192097
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "dubai-landmark",
+        "cityId": "dubai",
+        "name": "مرکز شهر دبی",
+        "kind": "landmark",
+        "source": "Natural Earth populated places"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          55.286946,
+          25.214912
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "dubai-extent",
+        "cityId": "dubai",
+        "kind": "illustrative-destination-extent",
+        "fictional": true,
+        "navigation": false
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              55.228946,
+              25.152912
+            ],
+            [
+              55.420992,
+              25.152912
+            ],
+            [
+              55.420992,
+              25.29979
+            ],
+            [
+              55.228946,
+              25.29979
+            ],
+            [
+              55.228946,
+              25.152912
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "dubai-hotel-01",
+        "cityId": "dubai",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          55.272946,
+          25.205912
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "dubai-hotel-02",
+        "cityId": "dubai",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          55.279946,
+          25.205912
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "dubai-hotel-03",
+        "cityId": "dubai",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          55.286946,
+          25.205912
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "dubai-hotel-04",
+        "cityId": "dubai",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          55.293946,
+          25.205912
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "dubai-hotel-05",
+        "cityId": "dubai",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          55.300946,
+          25.205912
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "dubai-hotel-06",
+        "cityId": "dubai",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          55.272946,
+          25.214912
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "dubai-hotel-07",
+        "cityId": "dubai",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          55.279946,
+          25.214912
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "dubai-hotel-08",
+        "cityId": "dubai",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          55.286946,
+          25.214912
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "dubai-hotel-09",
+        "cityId": "dubai",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          55.293946,
+          25.214912
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "dubai-hotel-10",
+        "cityId": "dubai",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          55.300946,
+          25.214912
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "dubai-hotel-11",
+        "cityId": "dubai",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          55.272946,
+          25.223912
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "dubai-hotel-12",
+        "cityId": "dubai",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          55.279946,
+          25.223912
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "dubai-hotel-13",
+        "cityId": "dubai",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          55.286946,
+          25.223912
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "dubai-hotel-14",
+        "cityId": "dubai",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          55.293946,
+          25.223912
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tbilisi-landmark",
+        "cityId": "tbilisi",
+        "name": "مرکز شهر تفلیس",
+        "kind": "landmark",
+        "source": "Natural Earth populated places"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          44.78885,
+          41.726956
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tbilisi-extent",
+        "cityId": "tbilisi",
+        "kind": "illustrative-destination-extent",
+        "fictional": true,
+        "navigation": false
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              44.73085,
+              41.619201
+            ],
+            [
+              45.0047,
+              41.619201
+            ],
+            [
+              45.0047,
+              41.793956
+            ],
+            [
+              44.73085,
+              41.793956
+            ],
+            [
+              44.73085,
+              41.619201
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tbilisi-hotel-01",
+        "cityId": "tbilisi",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          44.77485,
+          41.717956
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tbilisi-hotel-02",
+        "cityId": "tbilisi",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          44.78185,
+          41.717956
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tbilisi-hotel-03",
+        "cityId": "tbilisi",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          44.78885,
+          41.717956
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tbilisi-hotel-04",
+        "cityId": "tbilisi",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          44.79585,
+          41.717956
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tbilisi-hotel-05",
+        "cityId": "tbilisi",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          44.80285,
+          41.717956
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tbilisi-hotel-06",
+        "cityId": "tbilisi",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          44.77485,
+          41.726956
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tbilisi-hotel-07",
+        "cityId": "tbilisi",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          44.78185,
+          41.726956
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tbilisi-hotel-08",
+        "cityId": "tbilisi",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          44.78885,
+          41.726956
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tbilisi-hotel-09",
+        "cityId": "tbilisi",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          44.79585,
+          41.726956
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tbilisi-hotel-10",
+        "cityId": "tbilisi",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          44.80285,
+          41.726956
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tbilisi-hotel-11",
+        "cityId": "tbilisi",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          44.77485,
+          41.735956
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tbilisi-hotel-12",
+        "cityId": "tbilisi",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          44.78185,
+          41.735956
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tbilisi-hotel-13",
+        "cityId": "tbilisi",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          44.78885,
+          41.735956
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tbilisi-hotel-14",
+        "cityId": "tbilisi",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          44.79585,
+          41.735956
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "baku-landmark",
+        "cityId": "baku",
+        "name": "مرکز شهر باکو",
+        "kind": "landmark",
+        "source": "Natural Earth populated places"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          49.860271,
+          40.397218
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "baku-extent",
+        "cityId": "baku",
+        "kind": "illustrative-destination-extent",
+        "fictional": true,
+        "navigation": false
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              49.802271,
+              40.335218
+            ],
+            [
+              50.100931,
+              40.335218
+            ],
+            [
+              50.100931,
+              40.52278
+            ],
+            [
+              49.802271,
+              40.52278
+            ],
+            [
+              49.802271,
+              40.335218
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "baku-hotel-01",
+        "cityId": "baku",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          49.846271,
+          40.388218
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "baku-hotel-02",
+        "cityId": "baku",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          49.853271,
+          40.388218
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "baku-hotel-03",
+        "cityId": "baku",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          49.860271,
+          40.388218
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "baku-hotel-04",
+        "cityId": "baku",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          49.867271,
+          40.388218
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "baku-hotel-05",
+        "cityId": "baku",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          49.874271,
+          40.388218
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "baku-hotel-06",
+        "cityId": "baku",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          49.846271,
+          40.397218
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "baku-hotel-07",
+        "cityId": "baku",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          49.853271,
+          40.397218
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "baku-hotel-08",
+        "cityId": "baku",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          49.860271,
+          40.397218
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "baku-hotel-09",
+        "cityId": "baku",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          49.867271,
+          40.397218
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "baku-hotel-10",
+        "cityId": "baku",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          49.874271,
+          40.397218
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "baku-hotel-11",
+        "cityId": "baku",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          49.846271,
+          40.406218
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "baku-hotel-12",
+        "cityId": "baku",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          49.853271,
+          40.406218
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "baku-hotel-13",
+        "cityId": "baku",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          49.860271,
+          40.406218
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "baku-hotel-14",
+        "cityId": "baku",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          49.867271,
+          40.406218
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "ankara-landmark",
+        "cityId": "ankara",
+        "name": "مرکز شهر آنکارا",
+        "kind": "landmark",
+        "source": "Natural Earth populated places"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          32.862446,
+          39.929184
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "ankara-extent",
+        "cityId": "ankara",
+        "kind": "illustrative-destination-extent",
+        "fictional": true,
+        "navigation": false
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              32.804446,
+              39.867184
+            ],
+            [
+              33.045098,
+              39.867184
+            ],
+            [
+              33.045098,
+              40.178101
+            ],
+            [
+              32.804446,
+              40.178101
+            ],
+            [
+              32.804446,
+              39.867184
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "ankara-hotel-01",
+        "cityId": "ankara",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          32.848446,
+          39.920184
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "ankara-hotel-02",
+        "cityId": "ankara",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          32.855446,
+          39.920184
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "ankara-hotel-03",
+        "cityId": "ankara",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          32.862446,
+          39.920184
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "ankara-hotel-04",
+        "cityId": "ankara",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          32.869446,
+          39.920184
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "ankara-hotel-05",
+        "cityId": "ankara",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          32.876446,
+          39.920184
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "ankara-hotel-06",
+        "cityId": "ankara",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          32.848446,
+          39.929184
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "ankara-hotel-07",
+        "cityId": "ankara",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          32.855446,
+          39.929184
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "ankara-hotel-08",
+        "cityId": "ankara",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          32.862446,
+          39.929184
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "ankara-hotel-09",
+        "cityId": "ankara",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          32.869446,
+          39.929184
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "ankara-hotel-10",
+        "cityId": "ankara",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          32.876446,
+          39.929184
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "ankara-hotel-11",
+        "cityId": "ankara",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          32.848446,
+          39.938184
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "ankara-hotel-12",
+        "cityId": "ankara",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          32.855446,
+          39.938184
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "ankara-hotel-13",
+        "cityId": "ankara",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          32.862446,
+          39.938184
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "ankara-hotel-14",
+        "cityId": "ankara",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          32.869446,
+          39.938184
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "doha-landmark",
+        "cityId": "doha",
+        "name": "مرکز شهر دوحه",
+        "kind": "landmark",
+        "source": "Natural Earth populated places"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          51.532968,
+          25.286556
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "doha-extent",
+        "cityId": "doha",
+        "kind": "illustrative-destination-extent",
+        "fictional": true,
+        "navigation": false
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              51.474968,
+              25.223056
+            ],
+            [
+              51.658056,
+              25.223056
+            ],
+            [
+              51.658056,
+              25.353556
+            ],
+            [
+              51.474968,
+              25.353556
+            ],
+            [
+              51.474968,
+              25.223056
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "doha-hotel-01",
+        "cityId": "doha",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          51.518968,
+          25.277556
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "doha-hotel-02",
+        "cityId": "doha",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          51.525968,
+          25.277556
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "doha-hotel-03",
+        "cityId": "doha",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          51.532968,
+          25.277556
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "doha-hotel-04",
+        "cityId": "doha",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          51.539968,
+          25.277556
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "doha-hotel-05",
+        "cityId": "doha",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          51.546968,
+          25.277556
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "doha-hotel-06",
+        "cityId": "doha",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          51.518968,
+          25.286556
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "doha-hotel-07",
+        "cityId": "doha",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          51.525968,
+          25.286556
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "doha-hotel-08",
+        "cityId": "doha",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          51.532968,
+          25.286556
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "doha-hotel-09",
+        "cityId": "doha",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          51.539968,
+          25.286556
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "doha-hotel-10",
+        "cityId": "doha",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          51.546968,
+          25.286556
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "doha-hotel-11",
+        "cityId": "doha",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          51.518968,
+          25.295556
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "doha-hotel-12",
+        "cityId": "doha",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          51.525968,
+          25.295556
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "doha-hotel-13",
+        "cityId": "doha",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          51.532968,
+          25.295556
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "doha-hotel-14",
+        "cityId": "doha",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          51.539968,
+          25.295556
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "muscat-landmark",
+        "cityId": "muscat",
+        "name": "مرکز شهر مسقط",
+        "kind": "landmark",
+        "source": "Natural Earth populated places"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.378311,
+          23.585179
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "muscat-extent",
+        "cityId": "muscat",
+        "kind": "illustrative-destination-extent",
+        "fictional": true,
+        "navigation": false
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              58.235268,
+              23.523179
+            ],
+            [
+              58.440311,
+              23.523179
+            ],
+            [
+              58.440311,
+              23.652179
+            ],
+            [
+              58.235268,
+              23.652179
+            ],
+            [
+              58.235268,
+              23.523179
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "muscat-hotel-01",
+        "cityId": "muscat",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.364311,
+          23.576179
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "muscat-hotel-02",
+        "cityId": "muscat",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.371311,
+          23.576179
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "muscat-hotel-03",
+        "cityId": "muscat",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.378311,
+          23.576179
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "muscat-hotel-04",
+        "cityId": "muscat",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.385311,
+          23.576179
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "muscat-hotel-05",
+        "cityId": "muscat",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.392311,
+          23.576179
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "muscat-hotel-06",
+        "cityId": "muscat",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.364311,
+          23.585179
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "muscat-hotel-07",
+        "cityId": "muscat",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.371311,
+          23.585179
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "muscat-hotel-08",
+        "cityId": "muscat",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.378311,
+          23.585179
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "muscat-hotel-09",
+        "cityId": "muscat",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.385311,
+          23.585179
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "muscat-hotel-10",
+        "cityId": "muscat",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.392311,
+          23.585179
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "muscat-hotel-11",
+        "cityId": "muscat",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.364311,
+          23.594179
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "muscat-hotel-12",
+        "cityId": "muscat",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.371311,
+          23.594179
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "muscat-hotel-13",
+        "cityId": "muscat",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.378311,
+          23.594179
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "muscat-hotel-14",
+        "cityId": "muscat",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          58.385311,
+          23.594179
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "moscow-landmark",
+        "cityId": "moscow",
+        "name": "مرکز شهر مسکو",
+        "kind": "landmark",
+        "source": "Natural Earth populated places"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          37.613577,
+          55.75411
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "moscow-extent",
+        "cityId": "moscow",
+        "kind": "illustrative-destination-extent",
+        "fictional": true,
+        "navigation": false
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              37.336677,
+              55.69211
+            ],
+            [
+              37.675577,
+              55.69211
+            ],
+            [
+              37.675577,
+              56.027486
+            ],
+            [
+              37.336677,
+              56.027486
+            ],
+            [
+              37.336677,
+              55.69211
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "moscow-hotel-01",
+        "cityId": "moscow",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          37.599577,
+          55.74511
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "moscow-hotel-02",
+        "cityId": "moscow",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          37.606577,
+          55.74511
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "moscow-hotel-03",
+        "cityId": "moscow",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          37.613577,
+          55.74511
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "moscow-hotel-04",
+        "cityId": "moscow",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          37.620577,
+          55.74511
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "moscow-hotel-05",
+        "cityId": "moscow",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          37.627577,
+          55.74511
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "moscow-hotel-06",
+        "cityId": "moscow",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          37.599577,
+          55.75411
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "moscow-hotel-07",
+        "cityId": "moscow",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          37.606577,
+          55.75411
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "moscow-hotel-08",
+        "cityId": "moscow",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          37.613577,
+          55.75411
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "moscow-hotel-09",
+        "cityId": "moscow",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          37.620577,
+          55.75411
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "moscow-hotel-10",
+        "cityId": "moscow",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          37.627577,
+          55.75411
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "moscow-hotel-11",
+        "cityId": "moscow",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          37.599577,
+          55.76311
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "moscow-hotel-12",
+        "cityId": "moscow",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          37.606577,
+          55.76311
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "moscow-hotel-13",
+        "cityId": "moscow",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          37.613577,
+          55.76311
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "moscow-hotel-14",
+        "cityId": "moscow",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          37.620577,
+          55.76311
+        ]
+      }
+    }
+  ]
+}

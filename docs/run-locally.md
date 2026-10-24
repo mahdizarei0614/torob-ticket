@@ -78,10 +78,13 @@ unhashed local fonts require revalidation. Missing font/script assets return
 
 ## Current foundation scope and verification
 
-The seed contains only `foundation-v1`; rich catalog inventory is authored in
-T05. The consumer/admin currently expose their approved foundation UI. Real
-searches, search SSE first-event/replay behavior (T09), geographic data, art and
-later product routes remain pending integration. Gateway streaming configuration
+The seed preserves `foundation-v1` and adds immutable `showcase-v1` / `catalog-v1`
+inventory: 22 cities, 104 directed connections, 308 hotels and 924 relative room
+templates. New sessions receive this catalog through guarded `GET /api/v1/catalog`;
+legacy sessions remain on their empty foundation catalog until reset. Geographic
+assets are bundled locally with provenance. The consumer/admin still expose their
+approved foundation UI; transport searches, SSE first-event/replay behavior (T09),
+map rendering, art and later product routes remain pending integration. Gateway streaming configuration
 is present; foundation 404 checks are not evidence of a working search stream.
 Full T29 stays active; repeat complete demo acceptance in T33.
 
@@ -96,3 +99,9 @@ COMPOSE_PROJECT_NAME=torobticket-t29-review pnpm docker:reset
 The verification checks HTTP routing/cache/local asset bytes, real live/ready
 responses, JSON errors and current-session persistence after complete container
 recreation. It accepts only explicitly named `torobticket-t29-*` projects.
+
+T05 catalog database checks use an explicit owned disposable database ending in
+`_test`. After `pnpm nx run api:test-integration`, run
+`node tools/verify-fixture-seed.mjs` with the same `TEST_DATABASE_URL` to execute
+the real seed twice and verify unchanged immutable payload hashes and counts.
+These checks do not prove the complete demo or deployment.

@@ -1,0 +1,55 @@
+{
+  "revision": "geography-v1",
+  "retrievedOn": "2026-10-24",
+  "sources": [
+    {
+      "name": "Natural Earth countries",
+      "url": "https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_admin_0_countries.geojson",
+      "license": "Public domain",
+      "licenseUrl": "https://www.naturalearthdata.com/about/terms-of-use/",
+      "sha256": "6866c877d39cba9c357620878839b336d569f8c662d3cfab4cb1dbe2d39c977f"
+    },
+    {
+      "name": "Natural Earth populated places",
+      "url": "https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_10m_populated_places_simple.geojson",
+      "license": "Public domain",
+      "licenseUrl": "https://www.naturalearthdata.com/about/terms-of-use/",
+      "sha256": "fd3fa867a320cbd5c5b6bb5bc550afeec2939fb2cef688e508007282a55ac42f"
+    },
+    {
+      "name": "OurAirports",
+      "url": "https://davidmegginson.github.io/ourairports-data/airports.csv",
+      "license": "Public domain",
+      "licenseUrl": "https://ourairports.com/data/",
+      "sha256": "a19e9690fc3bffa8c0af18c4de9a6c8e711e64d4647837c58c12269fe348cf17"
+    },
+    {
+      "name": "IANA aliases",
+      "url": "https://data.iana.org/time-zones/tzdb/backward",
+      "license": "Public domain",
+      "licenseUrl": "https://data.iana.org/time-zones/tzdb/LICENSE",
+      "sha256": "b8296b9ef1ece72d813878132c0f17e2c52b26af6004eeb9c37d049b64cd9401"
+    },
+    {
+      "name": "IANA zones",
+      "url": "https://data.iana.org/time-zones/tzdb/zone1970.tab",
+      "license": "Public domain",
+      "licenseUrl": "https://data.iana.org/time-zones/tzdb/LICENSE",
+      "sha256": "5f23781702bf51408ff1581daa109ab3b9257fb433b1554e579d92172892c0cf"
+    }
+  ],
+  "transformations": [
+    "Natural Earth 110m country polygons: retain full topology, reduce coordinate precision to four decimals; subset IR for Iran. Preserve antimeridian-separated polygons.",
+    "Natural Earth city points: select 22 populated places, translate labels, assign curated IANA zones.",
+    "OurAirports: select 24 IATA/ICAO identifiers and coordinates; no operational schedule claim.",
+    "Rail and bus places are fictional points near city centers, with stable local IDs, no invented real station codes.",
+    "Destination extent rectangles enclose all sourced arrival references and accommodation markers; they are illustrative display bounds, not municipal boundaries. Landmarks are sourced city reference centers; accommodation markers and all hotels are fictional.",
+    "All transport paths, operators, services, timetables, prices, and room inventory are authored fiction. No navigation, live data, or actual hotel policy implied."
+  ],
+  "attribution": "Made with Natural Earth. Airport data from OurAirports. Time zone identifiers from IANA tzdb.",
+  "localAssets": [
+    "geography/world.geojson",
+    "geography/iran.geojson",
+    "geography/destination-landmarks.geojson"
+  ]
+}

@@ -2,6 +2,7 @@ import { HttpException, Injectable, Inject, type OnApplicationBootstrap, type On
 import { createHash, randomBytes, randomUUID } from 'node:crypto';
 import type { ApiErrorCode, CreateDemoSessionInput } from '@torob-ticket/contracts';
 import { createPrisma, checkDatabaseReady, RepositoryError, SessionRepository, sessionInfo, type PrismaClient, type SessionRecord } from '@torob-ticket/data-access';
+import { fixtureIdentity } from '@torob-ticket/fixtures';
 import { FrozenDemoClock, SystemRealClock } from '../common/clocks';
 import type { CookieResponse, SessionContext, SessionRequest } from './session-context';
 export const SESSION_COOKIE = 'torob_demo';
@@ -24,7 +25,7 @@ export class SessionService implements OnApplicationBootstrap, OnModuleDestroy {
     if (!this.db) this.db = createPrisma(process.env.DATABASE_URL ?? '');
     return this.db;
   }
-  get repository() { return new SessionRepository(this.database); }
+  get repository() { return new SessionRepository(this.database, fixtureIdentity); }
   async onApplicationBootstrap() {
     await this.ensureReady().catch(() => { /* Liveness stays available; readiness reports storage failure. */ });
     this.timer = setInterval(() => { void this.maintenance().catch(() => { /* Readiness probes expose storage outages. */ }); }, 60000);
@@ -39,7 +40,7 @@ export class SessionService implements OnApplicationBootstrap, OnModuleDestroy {
   async ensureReady() {
     if (this.initializing) return this.initializing;
     this.initializing = (async () => {
-      await checkDatabaseReady(this.database);
+      await checkDatabaseReady(this.database, fixtureIdentity);
       if (!this.reconciled) {
         await this.cleanup();
         // T09 consumes persisted snapshots; update their terminal state together.

@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { DemoIdentitySchema, type CreateDemoSessionInput, type SessionInfo } from '@torob-ticket/contracts';
 import type { Prisma, PrismaClient } from './generated/client';
-import { FOUNDATION_FIXTURE_VERSION } from './prisma';
+import { FOUNDATION_IDENTITY, type FixtureIdentity } from './prisma';
 import { RepositoryError, scopedTransaction, type DataScope } from './scope';
 export const SESSION_INACTIVITY_MS = 24 * 60 * 60 * 1000;
 const sessionInclude = { fixture: true, identity: true } as const;
@@ -10,11 +10,11 @@ export function sessionInfo(row: SessionRecord): SessionInfo {
   return { seed: Number(row.seed), anchorInstant: row.anchorInstant.toISOString(), scenario: row.scenario as SessionInfo['scenario'], fixtureVersion: row.fixtureVersion, catalogRevision: row.fixture.catalogRevision, mappingRevision: row.mappingRevision, scenarioRevision: row.scenarioRevision, expiresAt: row.expiresAt.toISOString(), identity: row.identity ? DemoIdentitySchema.parse(row.identity.payload) : null };
 }
 export class SessionRepository {
-  constructor(private readonly db: PrismaClient) {}
+  constructor(private readonly db: PrismaClient, private readonly fixture:FixtureIdentity=FOUNDATION_IDENTITY) {}
   private async insert(tx: Prisma.TransactionClient, credentialHash: string, input: CreateDemoSessionInput, now: Date) {
     const id = randomUUID();
     const mappingRevision = 'mapping-v1';
-    return tx.demoSession.create({ data: { id, credentialHash, seed: BigInt(input.seed ?? 20261024), anchorInstant: new Date(input.anchorInstant ?? now.toISOString()), scenario: input.scenario ?? 'normal', scenarioRevision: 'scenario-v1', fixtureVersion: FOUNDATION_FIXTURE_VERSION, mappingRevision, createdAt: now, lastSeenAt: now, expiresAt: new Date(now.getTime() + SESSION_INACTIVITY_MS), mappings: { create: { id: mappingRevision, patch: {}, createdAt: now } } }, include: sessionInclude });
+    return tx.demoSession.create({ data: { id, credentialHash, seed: BigInt(input.seed ?? 20261024), anchorInstant: new Date(input.anchorInstant ?? now.toISOString()), scenario: input.scenario ?? 'normal', scenarioRevision: 'scenario-v1', fixtureVersion: this.fixture.fixtureVersion, mappingRevision, createdAt: now, lastSeenAt: now, expiresAt: new Date(now.getTime() + SESSION_INACTIVITY_MS), mappings: { create: { id: mappingRevision, patch: {}, createdAt: now } } }, include: sessionInclude });
   }
   create(credentialHash: string, input: CreateDemoSessionInput, now: Date) {
     return this.db.$transaction(tx => this.insert(tx, credentialHash, input, now));

@@ -1,0 +1,15 @@
+{
+  "name": "fixture-tools",
+  "$schema": "../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "tools",
+  "projectType": "library",
+  "tags": ["scope:server", "type:app"],
+  "targets": {
+    "lint": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "eslint tools/seed-fixtures.ts tools/verify-fixture-seed.mjs tools/test-fixture-asset-inputs.mjs"
+      }
+    }
+  }
+}

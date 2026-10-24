@@ -1,6 +1,6 @@
 # TorobTicket
 
-A demo-only Persian travel comparison product. This foundation contains two React/Vite applications, a Nest API, and eight bounded libraries. The current foundation includes PostgreSQL persistence, isolated reviewer sessions, contract/domain primitives, an RTL design system and gallery, and early one-command Docker packaging. Provider/search comparison journeys and the full demo remain later tasks.
+A demo-only Persian travel comparison product. This foundation contains two React/Vite applications, a Nest API, and eight bounded libraries. The current foundation includes PostgreSQL persistence, isolated reviewer sessions, contract/domain primitives, an RTL design system and gallery, early one-command Docker packaging, and the T05 versioned fictional catalog. Provider/search comparison journeys and the full demo remain later tasks.
 
 ## Local development
 
@@ -13,7 +13,7 @@ pnpm start
 
 Consumer: http://127.0.0.1:4300/ · Admin: http://127.0.0.1:4301/admin/ · API liveness: http://127.0.0.1:4302/api/health/live.
 
-The development frontends proxy `/api` to Nest. For the packaged same-origin gateway, database initialization, and one-command startup, see [Run locally](docs/run-locally.md). Liveness confirms the API process responds; `/api/health/ready` additionally checks the database, required migration, foundation seed, and initial reconciliation. Direct development requires a PostgreSQL `DATABASE_URL`, followed by `pnpm db:generate`, `pnpm db:migrate`, and `pnpm db:seed` before database-backed routes are usable.
+The development frontends proxy `/api` to Nest. For the packaged same-origin gateway, database initialization, and one-command startup, see [Run locally](docs/run-locally.md). Liveness confirms the API process responds; `/api/health/ready` additionally checks the database, required migration, active showcase seed, and initial reconciliation. Direct development requires a PostgreSQL `DATABASE_URL`, followed by `pnpm db:generate`, `pnpm db:migrate`, and `pnpm db:seed` before database-backed routes are usable.
 
 ## Verification
 
@@ -34,7 +34,7 @@ Real PostgreSQL integration checks require an **owned disposable PostgreSQL data
 TEST_DATABASE_URL=postgresql://USER:PASSWORD@127.0.0.1:5432/torobticket_test pnpm nx run api:test-integration
 ```
 
-The target first runs uncached `api:test-db-setup`: validate `TEST_DATABASE_URL`, generate the Prisma client, deploy migrations, then apply the idempotent foundation seed. Setup assigns the verified test URL to the Prisma child processes and never falls back to `DATABASE_URL`. Both setup and every integration entrypoint validate before connecting. Tests cover real HTTP session creation/resume/reset, cookie isolation, readiness/recovery, scoped repositories, immutable evidence, and transaction rollback. Missing/unsafe URLs, unreachable PostgreSQL, or initialization failures fail the run rather than skipping it. To initialize separately, use the same test URL with `pnpm db:setup-test`; direct Vitest runs require that initialization first.
+The target first runs uncached `api:test-db-setup`: validate `TEST_DATABASE_URL`, generate the Prisma client, deploy migrations, then apply the idempotent foundation and showcase seeds. Setup assigns the verified test URL to the Prisma child processes and never falls back to `DATABASE_URL`. Both setup and every integration entrypoint validate before connecting. Tests cover real HTTP session creation/resume/reset, cookie isolation, readiness/recovery, scoped repositories, immutable evidence, transaction rollback, the guarded catalog, and legacy-session version preservation. Missing/unsafe URLs, unreachable PostgreSQL, or initialization failures fail the run rather than skipping it. To initialize separately, use the same test URL with `pnpm db:setup-test`; direct Vitest runs require that initialization first.
 
 Session anchor inputs use UTC seconds with optional 1–3 fractional digits. Equivalent spellings resume the same session; stored/returned anchors use canonical milliseconds. Finer precision is rejected rather than truncated.
 
@@ -56,3 +56,18 @@ The generator refuses existing names and invalid scope/type combinations. Add it
 See the approved specification in `docs/superpowers/specs`, task verification in `docs/evidence/T01`, and architecture decisions in `docs/decisions`.
 
 Verification regressions exercise real Nx cache hits in disposable workspaces: dependency export changes invalidate consumer typechecks, and root test-setup changes invalidate UI tests. `pnpm test` and CI `test:tools` include those checks. The boundary verifier checks production Vitest rejection, unit-test allowance, and retained server-import restrictions. Library scaffolding checks all Nx project names, including applications, before writing a new library.
+
+## Deterministic showcase catalog
+
+T05 supplies 22 cities, 104 directed mode/scope connections, six fictional providers,
+308 fictional hotels and 924 relative room-rate templates. New sessions use
+`showcase-v1` / `catalog-v1`; `GET /api/v1/catalog` requires the session cookie.
+Legacy foundation sessions retain an explicitly empty catalog until reset.
+`generateProviderRecords(FixtureQuery)` and `fixtureCase(id)` are server-only
+fixture interfaces; transport search and provider adapters remain future work.
+
+Local geographic assets and their primary-source licenses are recorded in
+[assets/provenance.json](assets/provenance.json). Schedules, providers, hotels,
+station/terminal points and destination display extents are fictional or
+illustrative. For coverage, source extracts and checks see
+[the T05 evidence](docs/evidence/T05/README.md).

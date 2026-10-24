@@ -12,7 +12,7 @@ RUN pnpm install --frozen-lockfile --fetch-timeout=300000
 FROM dependencies AS build
 COPY . .
 ENV NX_DAEMON=false NX_ISOLATE_PLUGINS=false NX_TUI=false
-RUN pnpm build && pnpm exec tsc -p prisma/tsconfig.json
+RUN pnpm build && pnpm exec tsc -p prisma/tsconfig.json && pnpm exec tsc-alias -p prisma/tsconfig.json
 
 FROM build AS initializer
 ENV NODE_ENV=production

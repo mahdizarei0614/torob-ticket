@@ -76,9 +76,9 @@ assert.equal(sessionRows(), persistedRows, 'Same persisted session row id and cr
 console.log('PASS current session cookie, stable state and DB row identity persisted after full container recreation; inactivity expiry renewed');
 const counts = spawnSync('docker', ['compose', 'exec', '-T', 'database', 'psql', '-U', 'torobticket', '-d', 'torobticket', '-Atc', 'SELECT count(*) FROM "FixtureVersion"; SELECT count(*) FROM "_prisma_migrations";'], { encoding: 'utf8' });
 assert.equal(counts.status, 0, counts.stderr);
-assert.equal(counts.stdout.trim(), '1\n1');
-console.log('PASS repeated initialization: exactly one immutable foundation fixture and one completed migration');
+assert.equal(counts.stdout.trim(), '2\n1');
+console.log('PASS repeated initialization: two immutable fixture roots (foundation/showcase) and one completed migration');
 command(['docker', 'compose', 'ps', '--all']);
 command(['docker', 'compose', 'exec', '-T', 'api', 'node', '-p', 'process.version + " " + process.arch']);
 command(['docker', 'compose', 'exec', '-T', 'api', 'openssl', 'version']);
-console.log('PASS early foundation acceptance; T05 inventory, T09 SSE, geography/art and full T33 remain pending.');
+console.log('PASS early foundation acceptance; T05 inventory is seeded; search/SSE, map rendering/art and full T33 remain pending.');
