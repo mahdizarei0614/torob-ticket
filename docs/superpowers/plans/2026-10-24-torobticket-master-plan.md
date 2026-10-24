@@ -10,7 +10,7 @@
 
 **Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.0, 2026-10-24.
 
-**Plan state:** Ready for implementation review. All product implementation tasks are TODO. The earlier date explorer is a completed throwaway interaction study, not implemented product code.
+**Plan state:** Approved; foundation implementation in progress. Task status and evidence are tracked below. The earlier date explorer is a completed throwaway interaction study, not implemented product code.
 
 **Delivery location:** This outputs directory contains the user-facing source documents. On repository creation, copy the spec to docs/superpowers/specs/2026-10-24-torobticket-design.md and this plan to docs/superpowers/plans/2026-10-24-torobticket-master-plan.md. Preserve the revision, task IDs, and decision authority, and rewrite the Spec link to ../specs/2026-10-24-torobticket-design.md.
 
@@ -306,13 +306,13 @@ Client helpers in libs/client: apiClient for typed REST; subscribeSearch for SSE
 
 ### Master task and subtask table
 
-Each row indexes the detailed checkbox steps in section 6. All statuses currently mean “not implemented.”
+Each row indexes the detailed checkbox steps in section 6. DONE requires independent review and recorded verification evidence.
 
-**Baseline:** 35 tasks · 183 subtasks · 0 implementation tasks complete.
+**Progress:** 35 tasks · 183 subtasks · 1 implementation tasks complete.
 
 | Task | Subtasks | Dependencies | Status | Owner / evidence |
 |---|---|---|---|---|
-| [T01 — Runnable Nx foundation and dependency boundaries](#t01) | T01.1 Pin compatible tooling<br>T01.2 Create the minimal workspace<br>T01.3 Enforce imports<br>T01.4 Establish verification targets<br>T01.5 Verify and commit | None | TODO | Unassigned / — |
+| [T01 — Runnable Nx foundation and dependency boundaries](#t01) | T01.1 Pin compatible tooling<br>T01.2 Create the minimal workspace<br>T01.3 Enforce imports<br>T01.4 Establish verification targets<br>T01.5 Verify and commit | None | DONE | implement_t01 / 6600079 + 6db0420; independent review clean; builds, PostgreSQL, browser smoke, boundaries and regressions passed |
 | [T02 — Runtime contracts and stable API vocabulary](#t02) | T02.1 Pin invalid-input behavior<br>T02.2 Run the contract tests red<br>T02.3 Implement schemas and exports<br>T02.4 Wire validation and errors<br>T02.5 Verify and commit | T01 | TODO | Unassigned / — |
 | [T03 — Money, local dates, party eligibility, and pure time rules](#t03) | T03.1 Specify arithmetic and boundary cases<br>T03.2 Run focused tests red<br>T03.3 Implement pure helpers<br>T03.4 Implement eligibility<br>T03.5 Verify and commit | T02 | TODO | Unassigned / — |
 | [T04 — Database, isolated demo sessions, clocks, and lifecycle](#t04) | T04.1 Pin isolation and persistence behavior<br>T04.2 Run integration tests red<br>T04.3 Create schema and scoped repositories<br>T04.4 Implement lifecycle and clocks<br>T04.5 Verify and commit | T02 | TODO | Unassigned / — |
@@ -403,23 +403,23 @@ Early T29 packaging is intentional: validate build/health/seed assumptions as so
 - Consumes: Approved Option A and the global constraints.
 - Produces: Buildable Nx projects web/admin/api; test project e2e; reusable library generators; standard lint/typecheck/build/test targets and API test-integration target.
 
-- [ ] **T01.1 — Pin compatible tooling**
+- [x] **T01.1 — Pin compatible tooling**
 
 Check current Nx/React/Nest/R3F/Prisma/Node LTS compatibility from official sources. Record exact versions and container architecture support in 0001-foundation.md; pin pnpm and commit its lockfile.
 
-- [ ] **T01.2 — Create the minimal workspace**
+- [x] **T01.2 — Create the minimal workspace**
 
 Scaffold the three applications and the shared library projects in section 3. Render a minimal semantic web/admin page and API health endpoint. Use normal repository initialization only after checking the destination and existing user files.
 
-- [ ] **T01.3 — Enforce imports**
+- [x] **T01.3 — Enforce imports**
 
 Apply the documented Nx tags. Deliberately attempt a web → data-access import in a temporary verification file; lint must reject it. Remove the temporary violation after recording evidence.
 
-- [ ] **T01.4 — Establish verification targets**
+- [x] **T01.4 — Establish verification targets**
 
 Configure Vitest for pure/client/UI units, API unit and real-PostgreSQL integration targets, Playwright e2e, and CI lint/typecheck/test/build. Use Nx affected checks for changes and a full release target later.
 
-- [ ] **T01.5 — Verify and commit**
+- [x] **T01.5 — Verify and commit**
 
 Run pnpm nx run-many -t lint,typecheck,build --projects=web,admin,api and the initial focused tests. Expect three successful builds and no boundary violations. Record exact commands in docs/evidence/T01/ and commit the foundation.
 
