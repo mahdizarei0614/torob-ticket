@@ -308,7 +308,7 @@ Client helpers in libs/client: apiClient for typed REST; subscribeSearch for SSE
 
 Each row indexes the detailed checkbox steps in section 6. DONE requires independent review and recorded verification evidence.
 
-**Progress:** 35 tasks · 183 subtasks · 4 implementation tasks complete.
+**Progress:** 35 tasks · 183 subtasks · 5 implementation tasks complete.
 
 | Task | Subtasks | Dependencies | Status | Owner / evidence |
 |---|---|---|---|---|
@@ -323,7 +323,7 @@ Each row indexes the detailed checkbox steps in section 6. DONE requires indepen
 | [T09 — Search orchestration, persistent evidence, SSE, and recovery](#t09) | T09.1 Pin partial, race, and reconnect behavior<br>T09.2 Run orchestration tests red<br>T09.3 Implement bounded search runs<br>T09.4 Implement the stream and fallback<br>T09.5 Implement restart/cancel cleanup<br>T09.6 Verify and commit | T04, T06, T08 | TODO | Unassigned / — |
 | [T10 — Consistent date-price projection and scoped caching](#t10) | T10.1 Pin date/result equivalence<br>T10.2 Run projection tests red<br>T10.3 Implement bounded projection<br>T10.4 Implement cache identity and invalidation<br>T10.5 Verify and commit | T09 | TODO | Unassigned / — |
 | [T11 — Recheck, quote versions, idempotent referrals, and handoff data](#t11) | T11.1 Pin changed-price and idempotency cases<br>T11.2 Run referral tests red<br>T11.3 Implement prepare and acceptance<br>T11.4 Implement atomic confirmation<br>T11.5 Verify and commit | T04, T07, T09 | TODO | Unassigned / — |
-| [T12 — Design tokens, accessible primitives, typography, and component gallery](#t12) | T12.1 Define the visual foundation<br>T12.2 Implement accessible primitives<br>T12.3 Pin interaction behavior<br>T12.4 Build the state gallery<br>T12.5 Verify and commit | T01 | TODO | Unassigned / — |
+| [T12 — Design tokens, accessible primitives, typography, and component gallery](#t12) | T12.1 Define the visual foundation<br>T12.2 Implement accessible primitives<br>T12.3 Pin interaction behavior<br>T12.4 Build the state gallery<br>T12.5 Verify and commit | T01 | DONE | implement_t12 / 6e0071c + 581f834; review clean; UI13 tests, browser28 audit/startup6/native race2 and builds passed |
 | [T13 — Shared WebGL renderer, typed uniforms, and graceful fallback](#t13) | T13.1 Define lifecycle behavior<br>T13.2 Build the shared host<br>T13.3 Implement uniforms and scheduling<br>T13.4 Implement fallback and recovery<br>T13.5 Verify and commit | T12 | TODO | Unassigned / — |
 | [T14 — Dotted geography and mode-specific route scenes](#t14) | T14.1 Pin geographic and route invariants<br>T14.2 Run geometry tests red<br>T14.3 Implement map and route shaders<br>T14.4 Implement camera and location primitives<br>T14.5 Verify and commit | T05, T13 | TODO | Unassigned / — |
 | [T15 — Consumer shell, search composer, URL state, and reviewer entry](#t15) | T15.1 Pin query and navigation behavior<br>T15.2 Run state tests red<br>T15.3 Implement shell and composer<br>T15.4 Implement state ownership<br>T15.5 Implement reviewer entry<br>T15.6 Verify and commit | T02, T04, T05, T12 | TODO | Unassigned / — |
@@ -967,23 +967,23 @@ Run integration tests with injected real clocks at TTL boundaries and concurrent
 - Consumes: Palette, layout, typography, focus, and language constraints.
 - Produces: ThemeProvider/useTheme; shared React Aria-based Button/SegmentedControl/ComboBox/Dialog/Tooltip/Status/Price; six semantic token sets; local fonts and Storybook target.
 
-- [ ] **T12.1 — Define the visual foundation**
+- [x] **T12.1 — Define the visual foundation**
 
 Create a compact type/spacing/radius/elevation scale, semantic color inventory, six transport/appearance palettes, English admin variant, and flat icon rules. Map all authored colors to tokens, including status, focus, border, SVG, and future shader uniforms.
 
-- [ ] **T12.2 — Implement accessible primitives**
+- [x] **T12.2 — Implement accessible primitives**
 
 Use React Aria semantics and local Vazirmatn/Inter assets. Keep component APIs controlled and language-aware. Define accessible labels, hit targets, loading/disabled/error states, focus return, and LTR code wrappers.
 
-- [ ] **T12.3 — Pin interaction behavior**
+- [x] **T12.3 — Pin interaction behavior**
 
 Test keyboard combobox selection, segmented controls, tooltip focus, modal escape/focus containment/return, and Price whole-total labels. Verify an unmounted dialog cannot steal focus. Use Testing Library assertions on user behavior rather than class names.
 
-- [ ] **T12.4 — Build the state gallery**
+- [x] **T12.4 — Build the state gallery**
 
 Create Storybook examples for every state in all palettes and Persian/English. Inspect 390 px and 1440 px layouts. The initial gallery is a design review surface, not a production route.
 
-- [ ] **T12.5 — Verify and commit**
+- [x] **T12.5 — Verify and commit**
 
 Run pnpm nx test ui, pnpm nx build ui, and pnpm nx run ui:build-storybook. Inspect contrast/focus and verify no remote font fetch. Commit tokens/primitives with visual evidence.
 

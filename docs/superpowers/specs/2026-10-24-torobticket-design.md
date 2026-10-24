@@ -243,7 +243,7 @@ Same-origin gateway routes / to web, /admin to admin, /api to NestJS, and /provi
 
 ## 12. Rendering, design, and accessibility
 
-Use React Aria primitives, custom CSS Modules, and semantic CSS variables for all authored UI colors, SVG fills/strokes, chart colors, focus states, and shader uniforms. Avoid hardcoded component colors. Transport × appearance yields plane blue, train green, and bus red in dark/light versions. Admin uses the shared neutral/blue token family.
+Use React Aria primitives, custom CSS Modules, and semantic CSS variables for all authored UI colors, SVG fills/strokes, chart colors, focus states, and shader uniforms. Avoid hardcoded component colors. Transport × appearance yields plane blue, train green, and bus red in dark/light versions. The canvas and surface families carry the transport hue: very dark blue for flights, dark green for trains, dark red for buses, with corresponding restrained light palettes. Admin uses the shared neutral/blue token family.
 
 Local font defaults are Vazirmatn for Persian and Inter for English; verify and bundle font licenses. The visual reference is compact comparison UI with clear hierarchy, not a dashboard template. Density must not remove readable price conditions or focus targets.
 
