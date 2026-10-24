@@ -308,14 +308,14 @@ Client helpers in libs/client: apiClient for typed REST; subscribeSearch for SSE
 
 Each row indexes the detailed checkbox steps in section 6. DONE requires independent review and recorded verification evidence.
 
-**Progress:** 35 tasks · 183 subtasks · 3 implementation tasks complete.
+**Progress:** 35 tasks · 183 subtasks · 4 implementation tasks complete.
 
 | Task | Subtasks | Dependencies | Status | Owner / evidence |
 |---|---|---|---|---|
 | [T01 — Runnable Nx foundation and dependency boundaries](#t01) | T01.1 Pin compatible tooling<br>T01.2 Create the minimal workspace<br>T01.3 Enforce imports<br>T01.4 Establish verification targets<br>T01.5 Verify and commit | None | DONE | implement_t01 / 6600079 + 6db0420; independent review clean; builds, PostgreSQL, browser smoke, boundaries and regressions passed |
 | [T02 — Runtime contracts and stable API vocabulary](#t02) | T02.1 Pin invalid-input behavior<br>T02.2 Run the contract tests red<br>T02.3 Implement schemas and exports<br>T02.4 Wire validation and errors<br>T02.5 Verify and commit | T01 | DONE | implement_t02 / 17a9d91; independent review approved; 88 tests, HTTP validation, lint, typechecks and builds passed |
 | [T03 — Money, local dates, party eligibility, and pure time rules](#t03) | T03.1 Specify arithmetic and boundary cases<br>T03.2 Run focused tests red<br>T03.3 Implement pure helpers<br>T03.4 Implement eligibility<br>T03.5 Verify and commit | T02 | DONE | implement_t03 / 932ded9; independent review approved; 85 domain tests and checks passed; process chronology disclosed in report |
-| [T04 — Database, isolated demo sessions, clocks, and lifecycle](#t04) | T04.1 Pin isolation and persistence behavior<br>T04.2 Run integration tests red<br>T04.3 Create schema and scoped repositories<br>T04.4 Implement lifecycle and clocks<br>T04.5 Verify and commit | T02 | TODO | Unassigned / — |
+| [T04 — Database, isolated demo sessions, clocks, and lifecycle](#t04) | T04.1 Pin isolation and persistence behavior<br>T04.2 Run integration tests red<br>T04.3 Create schema and scoped repositories<br>T04.4 Implement lifecycle and clocks<br>T04.5 Verify and commit | T02 | DONE | implement_t04 / a0d055e + f7d5552; independent review clean; PostgreSQL isolation, transactions, recovery and compiled health checks passed |
 | [T05 — Curated catalog, geographic assets, and deterministic fixture generator](#t05) | T05.1 Define catalog invariants<br>T05.2 Run catalog tests red<br>T05.3 Author showcase data and source geometry<br>T05.4 Implement seeded generation<br>T05.5 Verify seeded inventory<br>T05.6 Review and commit | T03, T04 | TODO | Unassigned / — |
 | [T06 — Provider adapters, normalization traces, and controlled failures](#t06) | T06.1 Pin raw-format and fault cases<br>T06.2 Run adapter tests red<br>T06.3 Implement adapters and normalization<br>T06.4 Implement bounded scenario timing<br>T06.5 Verify and commit | T03, T05 | TODO | Unassigned / — |
 | [T07 — Journey grouping, fare eligibility, and complete round-trip quotes](#t07) | T07.1 Pin comparable and noncomparable cases<br>T07.2 Run grouping tests red<br>T07.3 Implement stable identity and fares<br>T07.4 Implement full-party and round-trip evaluation<br>T07.5 Verify and commit | T03, T06 | TODO | Unassigned / — |
@@ -567,23 +567,23 @@ Run pnpm nx test domain and pnpm nx typecheck domain. Include infant/adult ratio
 - Consumes: SessionInfo and public DTOs; entity/index inventory in section 3.
 - Produces: Backend SessionContext; data-access-owned DataScope; pure domain-owned DemoClock/RealClock interfaces and API implementations; create/resume/reset session endpoints; scoped repositories; idempotent seed lifecycle.
 
-- [ ] **T04.1 — Pin isolation and persistence behavior**
+- [x] **T04.1 — Pin isolation and persistence behavior**
 
 Use a real disposable PostgreSQL database. Create two cookie jars; create a search/audit record in A. Assert B receives NOT_FOUND for A's IDs, cannot reset A, and cannot choose sessionId in a payload. Assert restart preserves completed evidence and expires inactive sessions.
 
-- [ ] **T04.2 — Run integration tests red**
+- [x] **T04.2 — Run integration tests red**
 
 Run pnpm nx run api:test-integration with the test database. Expect missing session/repository behavior; never point this target at a user's unrelated database.
 
-- [ ] **T04.3 — Create schema and scoped repositories**
+- [x] **T04.3 — Create schema and scoped repositories**
 
 Create the listed entities, session-owned indexes, unique keys, foreign keys, immutable source revisions, and transactional helpers. Keep canonical fixture records global/immutable and mutations session-scoped. Repository methods accept DataScope built from the guard-resolved sessionId; never import API application classes into data-access.
 
-- [ ] **T04.4 — Implement lifecycle and clocks**
+- [x] **T04.4 — Implement lifecycle and clocks**
 
 Implement HttpOnly same-origin cookie sessions, 24-hour inactivity expiry, frozen demo time plus real event/expiry time, cleanup, reset, and API startup reconciliation of collecting searches to interrupted. Reset cancels only that session's active controllers.
 
-- [ ] **T04.5 — Verify and commit**
+- [x] **T04.5 — Verify and commit**
 
 Run migrations against empty PostgreSQL, seed twice, and rerun api:test-integration. Expect no duplicate fixture roots, isolated sessions, preserved history on restart, and deterministic recorded clocks. Commit schema and lifecycle.
 
