@@ -75,3 +75,68 @@ it('includes a true overnight connection with a vehicle change and a midnight-cr
   const connection=records.flatMap(legs).flatMap(l=>l.stops).find(s=>s.kind==='connection'&&s.vehicleChange&&localDateAt(s.departureAt!,'Asia/Tehran')>localDateAt(s.arrivalAt!,'Asia/Tehran'));
   expect(connection).toBeDefined();expect(connection?.waitMinutes).toBeGreaterThanOrEqual(120);
 });
+
+function assertStableSegmentIdentities(records: RawProviderRecord[]): void {
+  const identities = new Map<string, unknown>();
+  let reused = 0;
+  for (const segment of records.flatMap(legs).flatMap(leg => leg.segments)) {
+    const facts = {
+      serviceId: segment.serviceId,
+      mode: segment.mode,
+      originPlaceId: segment.originPlaceId,
+      destinationPlaceId: segment.destinationPlaceId,
+      departureAt: segment.departureAt,
+      arrivalAt: segment.arrivalAt,
+    };
+    if (identities.has(segment.segmentId)) {
+      reused++;
+      expect(facts, `Segment identity collision: ${segment.segmentId}`).toEqual(identities.get(segment.segmentId));
+    } else identities.set(segment.segmentId, facts);
+  }
+  // The same service must still be recognized across multiple providers.
+  expect(reused).toBeGreaterThan(0);
+}
+
+it('retains endpoints and UTC times for identical dated segment IDs across all query roles', () => {
+  const records: RawProviderRecord[] = [];
+  for (const route of connections) {
+    const roundTrip = input(route);
+    records.push(...generateProviderRecords(roundTrip));
+    for (const departureDate of ['2026-10-24', '2026-10-27']) {
+      records.push(...generateProviderRecords({
+        ...roundTrip,
+        query: { ...roundTrip.query, tripType: 'one-way', departureDate, returnDate: undefined },
+      }));
+    }
+  }
+  assertStableSegmentIdentities(records);
+});
+
+it('distinguishes morning and evening service departures while preserving seller-independent identity', () => {
+  const roundTrip = input({ ...heroSearches[0]!, originCityId: 'tehran' });
+  const returnSegment = legs(generateProviderRecords(roundTrip)[0]!)[1]!.segments[0]!;
+  const standalone = generateProviderRecords({
+    ...roundTrip,
+    query: { ...roundTrip.query, originCityId: 'mashhad', destinationCityId: 'tehran', tripType: 'one-way', departureDate: '2026-10-27', returnDate: undefined },
+  });
+  const morning = legs(standalone[0]!)[0]!.segments[0]!;
+  expect(morning.departureAt).toBe('2026-10-27T03:30:00.000Z');
+  expect(returnSegment.departureAt).toBe('2026-10-27T15:30:00.000Z');
+  expect(morning.serviceId).not.toBe(returnSegment.serviceId);
+  expect(morning.segmentId).not.toBe(returnSegment.segmentId);
+  const sameServiceAcrossProviders = standalone.filter((_, index) => index % 3 === 0).map(record => legs(record)[0]!.segments[0]!);
+  expect(new Set(sameServiceAcrossProviders.map(segment => segment.serviceId)).size).toBe(1);
+  expect(new Set(sameServiceAcrossProviders.map(segment => segment.segmentId)).size).toBe(1);
+});
+
+it('retains stable ground-transfer and changed-airport identities across dates and service variants', () => {
+  const airportCase = fixtureCase('airport-change').inputs[0]!;
+  const records: RawProviderRecord[] = [];
+  for (const departureDate of ['2026-10-24', '2026-10-25']) {
+    const changed = { ...airportCase, query: { ...airportCase.query, departureDate } };
+    records.push(...generateProviderRecords(changed));
+    records.push(...generateProviderRecords({ ...changed, caseId: undefined }));
+  }
+  expect(records.flatMap(legs).flatMap(leg => leg.segments).filter(segment => segment.mode === 'bus').length).toBeGreaterThan(3);
+  assertStableSegmentIdentities(records);
+});

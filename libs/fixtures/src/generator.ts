@@ -6,7 +6,7 @@ import { cities } from './catalog/cities';
 import { connections } from './catalog/connections';
 import { classChoices, providers } from './catalog/providers';
 import { fixtureIdentity } from './identity';
-import { appendAirportTransfer, journey } from './schedules';
+import { appendAirportTransfer, journey, withDeparturePlace } from './schedules';
 import { rawShape } from './raw-shapes';
 import type { FixtureQuery } from './fixture-query';
 export type { FixtureQuery } from './fixture-query';
@@ -53,7 +53,7 @@ export function generateProviderRecords(input:FixtureQuery):RawProviderRecord[] 
       const incomplete=variant===2&&(p===3||p===5)||scenario==='conflicting-data'&&p===2&&variant===0;
       if(input.caseId==='airport-change'&&outbound.segments.at(-1)?.destinationPlaceId==='ist') {
         appendAirportTransfer(outbound, 'ist', 'saw');
-        if(inbound?.segments[0]) inbound.segments[0].originPlaceId='saw';
+        if(inbound?.segments[0]) inbound.segments[0]=withDeparturePlace(inbound.segments[0],'saw');
       }
       if(inbound&&Date.parse(inbound.segments[0]!.departureAt)<=Date.parse(outbound.segments.at(-1)!.arrivalAt)) continue;
       const payload=rawShape(p,{serviceKey,outbound,inbound:input.caseId==='incomplete-round-trip'?undefined:inbound,originAlias:p===2?'  '+origin.name.replace(/ی/g,'ي').replace(/ک/g,'ك')+'  ':origin.name,destinationAlias:p===3&&destination.id==='istanbul'?'Istanbul / استانبول':destination.name,classCode:query.classCode,value:amountRial/divisor,unit,mandatoryFees:incomplete?null:120000*(query.party.adults+query.party.children)/divisor,baggageKg:p===2?null:query.mode==='flight'?p===4?30:20:20,refundable:p===3?null:p===4||variant===1,available:!(scenario==='sold-out'&&input.phase==='recheck'&&p===4&&variant===0||p===6&&variant===2),seats:variant===2?1:9,party:{adults:query.party.adults,children:query.party.children,infants:query.party.infants},revision:{fixtureVersion:input.fixtureVersion,mappingRevision:input.mappingRevision,sourceRevision:'source-v1'}});

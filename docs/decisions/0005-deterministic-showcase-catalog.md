@@ -41,3 +41,12 @@ passing results.
 not a fourth shipping application or service. Production build/start lists remain
 web/admin/api, existing boundary constraints remain unchanged, and tool regression
 tests still run once through the root test command.
+
+## Review correction: dated service and segment identities
+
+I1 requires a generated ID to retain schedule meaning across standalone, reverse
+and round-trip queries. A service ID therefore includes its dated UTC departure
+slot; the segment ID hashes the service, mode, operator, endpoints, UTC instants
+and zones. Ground transfers follow the same rule. Airport-change fixtures assign
+a new identity when changing a departure airport. The identity is independent of
+provider and fare terms; valid same-day return selection is unchanged.
