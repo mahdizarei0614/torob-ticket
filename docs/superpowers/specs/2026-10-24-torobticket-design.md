@@ -65,7 +65,7 @@ Changing mode preserves compatible cities and dates. An incompatible destination
 
 **Defaults:** Initial party is one adult; require at least one adult; limit total travelers to nine and infants to the adult count. Mock providers own their age/seat rules. Collect ages only when needed to determine a fare or hotel room; do not collect passenger names, passports, or dates of birth. A hotel age is age at check-in and is not silently inferred from a transport age at a different date.
 
-**Default filter set:** budget, departure time window, operator/provider, mode-specific class, maximum flight stops or ground transfers, refundable-only, and a flight checked-baggage requirement. Unknown conditions never satisfy an affirmative requirement. A condition is shown as unknown instead of invented.
+**Default filter set:** budget, departure time window, operator/provider, mode-specific class, maximum flight stops or ground transfers, refundable-only, and a flight checked-baggage requirement. Unknown conditions never satisfy an affirmative requirement. A condition is shown as unknown instead of invented. The single departure-time window constrains the outbound departure in its origin time zone and is labeled outbound for round trips. The maximum stops/transfers filter uses the complete-trip count (both directions for round trips), with that total explicit in its label.
 
 Prices are the eligible total for the whole party and include all known mandatory charges. A visible breakdown explains the total. Offers with incomplete mandatory totals may appear in a separate incomplete-price state; they cannot win a lowest-price claim or be referred as a final priced offer.
 

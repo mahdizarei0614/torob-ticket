@@ -191,7 +191,7 @@ type ConfirmReferralInput = {
 
 The source schemas must discriminate event type/payload together; the abbreviated inventory above is not permission to accept an incorrect payload. Use schema inference rather than manually maintaining duplicate wire interfaces. CatalogSnapshot includes fixtureVersion, catalogRevision, cities, places, supported connections by mode/scope, class choices, and provider capabilities. Temporary provider outages do not remove a structurally supported route from that catalog.
 
-EligibilityFilters contains optional budgetMaxRial, departureWindow with startMinute/endMinute, providerIds, operatorIds, maxStopsOrTransfers, checkedBaggageMinKg, and refundableOnly. Define whether an absent filter differs from an empty list: absent/empty provider/operator lists both mean unrestricted and normalize to the same key. A departure window can cross midnight and is evaluated in the departure location's time zone.
+EligibilityFilters contains optional budgetMaxRial, departureWindow with startMinute/endMinute, providerIds, operatorIds, maxStopsOrTransfers, checkedBaggageMinKg, and refundableOnly. Define whether an absent filter differs from an empty list: absent/empty provider/operator lists both mean unrestricted and normalize to the same key. A departure window can cross midnight and constrains the outbound departure in its origin location's time zone. Round-trip labels explicitly say outbound; maximum stops/transfers applies to the complete-trip count and is labeled total for round trips.
 
 Itinerary contains mode, origin/destination place IDs, outbound JourneyLeg, and an optional return JourneyLeg. A leg has ordered segments; stops identify connection/dwell/technical-stop/ground-transfer, wait minutes, and whether a vehicle change occurs. Segment timestamps use instants plus location time zone IDs. FareConditions retain per-leg differences. QuoteSnapshot includes quoteId, version, itineraryId, fareId, providerId, total, breakdown, completeness, eligibility, observedAt, expiresAt, and source/mapping/fixture revisions.
 
@@ -308,13 +308,13 @@ Client helpers in libs/client: apiClient for typed REST; subscribeSearch for SSE
 
 Each row indexes the detailed checkbox steps in section 6. DONE requires independent review and recorded verification evidence.
 
-**Progress:** 35 tasks · 183 subtasks · 2 implementation tasks complete.
+**Progress:** 35 tasks · 183 subtasks · 3 implementation tasks complete.
 
 | Task | Subtasks | Dependencies | Status | Owner / evidence |
 |---|---|---|---|---|
 | [T01 — Runnable Nx foundation and dependency boundaries](#t01) | T01.1 Pin compatible tooling<br>T01.2 Create the minimal workspace<br>T01.3 Enforce imports<br>T01.4 Establish verification targets<br>T01.5 Verify and commit | None | DONE | implement_t01 / 6600079 + 6db0420; independent review clean; builds, PostgreSQL, browser smoke, boundaries and regressions passed |
 | [T02 — Runtime contracts and stable API vocabulary](#t02) | T02.1 Pin invalid-input behavior<br>T02.2 Run the contract tests red<br>T02.3 Implement schemas and exports<br>T02.4 Wire validation and errors<br>T02.5 Verify and commit | T01 | DONE | implement_t02 / 17a9d91; independent review approved; 88 tests, HTTP validation, lint, typechecks and builds passed |
-| [T03 — Money, local dates, party eligibility, and pure time rules](#t03) | T03.1 Specify arithmetic and boundary cases<br>T03.2 Run focused tests red<br>T03.3 Implement pure helpers<br>T03.4 Implement eligibility<br>T03.5 Verify and commit | T02 | TODO | Unassigned / — |
+| [T03 — Money, local dates, party eligibility, and pure time rules](#t03) | T03.1 Specify arithmetic and boundary cases<br>T03.2 Run focused tests red<br>T03.3 Implement pure helpers<br>T03.4 Implement eligibility<br>T03.5 Verify and commit | T02 | DONE | implement_t03 / 932ded9; independent review approved; 85 domain tests and checks passed; process chronology disclosed in report |
 | [T04 — Database, isolated demo sessions, clocks, and lifecycle](#t04) | T04.1 Pin isolation and persistence behavior<br>T04.2 Run integration tests red<br>T04.3 Create schema and scoped repositories<br>T04.4 Implement lifecycle and clocks<br>T04.5 Verify and commit | T02 | TODO | Unassigned / — |
 | [T05 — Curated catalog, geographic assets, and deterministic fixture generator](#t05) | T05.1 Define catalog invariants<br>T05.2 Run catalog tests red<br>T05.3 Author showcase data and source geometry<br>T05.4 Implement seeded generation<br>T05.5 Verify seeded inventory<br>T05.6 Review and commit | T03, T04 | TODO | Unassigned / — |
 | [T06 — Provider adapters, normalization traces, and controlled failures](#t06) | T06.1 Pin raw-format and fault cases<br>T06.2 Run adapter tests red<br>T06.3 Implement adapters and normalization<br>T06.4 Implement bounded scenario timing<br>T06.5 Verify and commit | T03, T05 | TODO | Unassigned / — |
@@ -506,7 +506,7 @@ Run pnpm nx test contracts and pnpm nx run-many -t typecheck --projects=contract
 - Consumes: Money, LocalDate, Party, EligibilityFilters, ISOInstant and Mode from contracts.
 - Produces: normalizeMoney; formatTomanParts; toGregorianDate; elapsedMinutes; validateParty(party, policy); matchesEligibility(offer, query).
 
-- [ ] **T03.1 — Specify arithmetic and boundary cases**
+- [x] **T03.1 — Specify arithmetic and boundary cases**
 
 Pin rial/toman conversion, ambiguous units, unsafe numbers, Persian leap days, UTC/local-day distinctions, overnight intervals, midnight-spanning departure windows, and provider-specific age rules.
 
@@ -517,19 +517,19 @@ expect(toGregorianDate('1399-12-30', 'persian')).toBe('2021-03-20');
 expect(elapsedMinutes('2026-10-24T23:30:00Z', '2026-10-25T01:00:00Z')).toBe(90);
 ~~~
 
-- [ ] **T03.2 — Run focused tests red**
+- [x] **T03.2 — Run focused tests red**
 
 Run pnpm nx test domain. Confirm the specific rule failures before implementing them.
 
-- [ ] **T03.3 — Implement pure helpers**
+- [x] **T03.3 — Implement pure helpers**
 
 Use @internationalized/date and Intl behind time.ts. Inject clocks at orchestration boundaries. Keep whole-party amounts as safe integers, source units explicit, and date-only values independent of instants.
 
-- [ ] **T03.4 — Implement eligibility**
+- [x] **T03.4 — Implement eligibility**
 
 Apply class, known mandatory total, budget, local departure window, provider/operator, stops/transfers, refundability, and baggage predicates. Unknown conditions fail affirmative filters. Reject age-dependent queries with AGE_REQUIRED rather than guessing.
 
-- [ ] **T03.5 — Verify and commit**
+- [x] **T03.5 — Verify and commit**
 
 Run pnpm nx test domain and pnpm nx typecheck domain. Include infant/adult ratios, maximum nine travelers, unknown baggage, and budget equal-to-boundary cases. Commit the pure rules.
 
