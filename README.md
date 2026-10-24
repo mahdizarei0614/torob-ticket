@@ -20,6 +20,7 @@ The development frontends proxy `/api` to Nest. The eventual same-origin gateway
 ```sh
 pnpm nx run-many -t lint,typecheck,build --projects=web,admin,api
 pnpm test
+pnpm test:cache
 pnpm verify:boundaries
 pnpm exec playwright install chromium
 pnpm nx e2e e2e
@@ -52,3 +53,5 @@ pnpm generate:library example-repository data server
 The generator refuses existing names and invalid scope/type combinations. Add its first behavior test alongside the implementation. The aligned installed `@nx/js` generator is also available (`pnpm nx g @nx/js:library --help`) for larger standard scaffolds; use the documented tags and verify boundaries afterward.
 
 See the approved specification in `docs/superpowers/specs`, task verification in `docs/evidence/T01`, and architecture decisions in `docs/decisions`.
+
+Verification regressions exercise real Nx cache hits in disposable workspaces: dependency export changes invalidate consumer typechecks, and root test-setup changes invalidate UI tests. `pnpm test` and CI `test:tools` include those checks. The boundary verifier checks production Vitest rejection, unit-test allowance, and retained server-import restrictions. Library scaffolding checks all Nx project names, including applications, before writing a new library.

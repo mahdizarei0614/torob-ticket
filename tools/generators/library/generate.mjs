@@ -1,5 +1,6 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { createProjectGraphAsync } from '@nx/devkit';
 const [name, type, scope = 'shared'] = process.argv.slice(2);
 const allowedTypes = ['contracts', 'domain', 'data', 'ui', 'graphics', 'fixtures', 'provider'];
 const allowedScopes = ['shared', 'server'];
@@ -12,6 +13,7 @@ const root = `libs/${name}`;
 const configPath = resolve('tsconfig.base.json');
 const base = JSON.parse(readFileSync(configPath, 'utf8'));
 if (existsSync(root) || base.compilerOptions.paths[`@torob-ticket/${name}`]) throw new Error('Library already exists; refusing to overwrite.');
+if ((await createProjectGraphAsync()).nodes[name]) throw new Error(`Nx project name '${name}' already exists; refusing to create a duplicate.`);
 const group = ['ui', 'graphics'].includes(type) ? 'ui' : scope === 'server' ? 'server-libs' : 'pure';
 const vitestPath = resolve('vitest.config.mts');
 const vitestSource = readFileSync(vitestPath, 'utf8');

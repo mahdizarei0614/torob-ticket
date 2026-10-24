@@ -16,6 +16,9 @@
       "{workspaceRoot}/eslint.config.mjs",
       "{workspaceRoot}/pnpm-lock.yaml",
       "{workspaceRoot}/vitest.config.mts"
+    ],
+    "testGlobals": [
+      "{workspaceRoot}/tools/test-setup.ts"
     ]
   },
   "targetDefaults": {
@@ -31,7 +34,8 @@
         "^typecheck"
       ],
       "inputs": [
-        "default"
+        "default",
+        "^production"
       ]
     },
     "build": {
@@ -48,7 +52,8 @@
       "cache": true,
       "inputs": [
         "default",
-        "^production"
+        "^production",
+        "testGlobals"
       ]
     },
     "test-integration": {
