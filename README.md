@@ -1,6 +1,6 @@
 # TorobTicket
 
-A demo-only Persian travel comparison product. This foundation contains two React/Vite applications, a Nest API, and eight bounded libraries. The current foundation includes PostgreSQL persistence, isolated reviewer sessions, contract/domain primitives, an RTL design system and gallery, early one-command Docker packaging, and the T05 versioned fictional catalog. Provider/search comparison journeys and the full demo remain later tasks.
+A demo-only Persian travel comparison product. This foundation contains two React/Vite applications, a Nest API, and eight bounded libraries. The current foundation includes PostgreSQL persistence, isolated reviewer sessions, contract/domain primitives, an RTL design system and gallery, early one-command Docker packaging, and the T05 versioned fictional catalog. The backend also includes T06 normalization, T07 eligible complete quotes, T08 ranking/explanations, T09 durable searches/SSE/recovery and T10 source-backed date prices with isolated caching. Consumer search/date interfaces, recheck/referrals and the full demo remain later tasks.
 
 ## Local development
 

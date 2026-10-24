@@ -10,7 +10,7 @@
 
 **Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.0, 2026-10-24.
 
-**Plan state:** Approved; M1 foundation, T05 inventory, T06 normalization, T07 eligible comparison, T08 ranking, and T09 durable search orchestration, SSE and recovery are complete and independently reviewed. M2 continues with T10 date-price exploration. Remaining product tasks and evidence are tracked below. The earlier date explorer is a completed throwaway interaction study, not implemented product code.
+**Plan state:** Approved; M1 foundation, T05 inventory, T06 normalization, T07 eligible comparison, T08 ranking, T09 durable search orchestration, SSE and recovery, and T10 source-backed date prices are complete and independently reviewed. M2 continues with T11 recheck and referrals. Remaining product tasks and evidence are tracked below. The earlier date explorer is a completed throwaway interaction study, not implemented product code.
 
 **Delivery location:** This outputs directory contains the user-facing source documents. On repository creation, copy the spec to docs/superpowers/specs/2026-10-24-torobticket-design.md and this plan to docs/superpowers/plans/2026-10-24-torobticket-master-plan.md. Preserve the revision, task IDs, and decision authority, and rewrite the Spec link to ../specs/2026-10-24-torobticket-design.md.
 
@@ -288,7 +288,11 @@ retrySearch(session: SessionContext, searchId: string, clientGeneration: string)
 subscribeSearch(options: SubscribeSearchOptions): () => void;
 
 // T10 — apps/api/src/date-prices/date-price.service.ts
-getDatePrices(session: SessionContext, input: DatePriceQuery): Promise<DatePriceSnapshot>;
+startDatePrices(session: SessionContext, input: DatePriceQuery): Promise<DatePriceSnapshot>;
+getDatePrices(session: SessionContext, id: string, view: DatePriceQuery | string): Promise<DatePriceSnapshot>;
+cancelDatePrices(session: SessionContext, id: string, view: DatePriceQuery | string): Promise<DatePriceSnapshot>;
+// POST /api/v1/date-prices; GET/DELETE /:id require clientGeneration.
+// HTTP query view is canonical; generation remaps, quote observation/expiry never refresh.
 
 // T11 — apps/api/src/referrals/referral.service.ts
 prepareReferral(session: SessionContext, input: ReferralSelection): Promise<RecheckResult>;
@@ -302,7 +306,7 @@ FixtureQuery belongs to fixtures. ProviderContext/ProviderBatch/ProviderDateBatc
 
 T07 implemented context: ComparisonContext supplies a real clock, places, explicit offer-to-raw/source bindings and authored provider fare policies. Missing evidence cannot produce eligible quotes. QuoteEvaluation retains eligible/incomplete/rejected outcomes and policy revision. T09/T11 must preserve each persisted quote ID/version's original observedAt/expiresAt while regrouping; a fixed original operation observation is supported, and combining operations requires reusing existing quote snapshots. Domain does not load stored versions or decode raw dialects.
 
-T09 implements the contract-only subscribeSearch lifecycle and its default same-origin fetch transport. Remaining client composition helpers in libs/client: apiClient for typed REST; searchKey/datePriceKey/hotelKey for canonical query identities. Committed search/filter state is URL-serializable. Hover, dragging, modal draft dates, pinned route, and staged result updates belong to typed UI reducers; animation frames do not round-trip through global React state.
+T09 implements the contract-only subscribeSearch lifecycle and its default same-origin fetch transport. T10 implements searchKey/datePriceKey/hotelKey as browser-safe wrappers around shared pure identity logic. The remaining client composition helper is apiClient for typed REST. Committed search/filter state is URL-serializable. Hover, dragging, modal draft dates, pinned route, and staged result updates belong to typed UI reducers; animation frames do not round-trip through global React state.
 
 ## 4. Execution and tracking rules
 
@@ -321,7 +325,7 @@ T09 implements the contract-only subscribeSearch lifecycle and its default same-
 
 Each row indexes the detailed checkbox steps in section 6. DONE requires independent review and recorded verification evidence.
 
-**Progress:** 35 tasks · 183 subtasks · 10 implementation tasks complete.
+**Progress:** 35 tasks · 183 subtasks · 11 implementation tasks complete.
 
 | Task | Subtasks | Dependencies | Status | Owner / evidence |
 |---|---|---|---|---|
@@ -334,7 +338,7 @@ Each row indexes the detailed checkbox steps in section 6. DONE requires indepen
 | [T07 — Journey grouping, fare eligibility, and complete round-trip quotes](#t07) | T07.1 Pin comparable and noncomparable cases<br>T07.2 Run grouping tests red<br>T07.3 Implement stable identity and fares<br>T07.4 Implement full-party and round-trip evaluation<br>T07.5 Verify and commit | T03, T06 | DONE | implement_t07 / 4557af6 + 95db776; independently reviewed; domain151/adapters59, amended32 checks and packaged12-hero comparison/inventory preservation verified; docs/evidence/T07 |
 | [T08 — Deterministic ranking, factual explanations, and bounded suggestions](#t08) | T08.1 Pin exact sort and suggestion thresholds<br>T08.2 Run ranking tests red<br>T08.3 Implement comparators and factual reasons<br>T08.4 Implement contextual suggestion selection<br>T08.5 Verify and commit | T07 | DONE | implement_t08 / 2241795; independent review approved; domain226, root tests, affected40 and packaged ranking/facts/suggestion pass; docs/evidence/T08 |
 | [T09 — Search orchestration, persistent evidence, SSE, and recovery](#t09) | T09.1 Pin partial, race, and reconnect behavior<br>T09.2 Run orchestration tests red<br>T09.3 Implement bounded search runs<br>T09.4 Implement the stream and fallback<br>T09.5 Implement restart/cancel cleanup<br>T09.6 Verify and commit | T04, T06, T08 | DONE | implement_t09 / 4d6f595 + 40e1a14 + 3230073; independently reviewed; integration48/search16/client14, affected checks and packaged gateway/restart/audit/preservation pass; docs/evidence/T09 |
-| [T10 — Consistent date-price projection and scoped caching](#t10) | T10.1 Pin date/result equivalence<br>T10.2 Run projection tests red<br>T10.3 Implement bounded projection<br>T10.4 Implement cache identity and invalidation<br>T10.5 Verify and commit | T09 | TODO | Unassigned / — |
+| [T10 — Consistent date-price projection and scoped caching](#t10) | T10.1 Pin date/result equivalence<br>T10.2 Run projection tests red<br>T10.3 Implement bounded projection<br>T10.4 Implement cache identity and invalidation<br>T10.5 Verify and commit | T09 | DONE | implement_t10 / 0a39241 + 3dd0d0a; independent spec/quality approved, no blocking findings; domain239/client17/API66, root12+tools20, affected34 and packaged equivalence/cache/isolation/restart/preservation passed; docs/evidence/T10; T10-M1 readability retained |
 | [T11 — Recheck, quote versions, idempotent referrals, and handoff data](#t11) | T11.1 Pin changed-price and idempotency cases<br>T11.2 Run referral tests red<br>T11.3 Implement prepare and acceptance<br>T11.4 Implement atomic confirmation<br>T11.5 Verify and commit | T04, T07, T09 | TODO | Unassigned / — |
 | [T12 — Design tokens, accessible primitives, typography, and component gallery](#t12) | T12.1 Define the visual foundation<br>T12.2 Implement accessible primitives<br>T12.3 Pin interaction behavior<br>T12.4 Build the state gallery<br>T12.5 Verify and commit | T01 | DONE | implement_t12 / 6e0071c + 581f834; review clean; UI13 tests, browser28 audit/startup6/native race2 and builds passed |
 | [T13 — Shared WebGL renderer, typed uniforms, and graceful fallback](#t13) | T13.1 Define lifecycle behavior<br>T13.2 Build the shared host<br>T13.3 Implement uniforms and scheduling<br>T13.4 Implement fallback and recovery<br>T13.5 Verify and commit | T12 | TODO | Unassigned / — |
@@ -366,7 +370,7 @@ Each row indexes the detailed checkbox steps in section 6. DONE requires indepen
 | Milestone | Tasks | Exit evidence |
 |---|---|---|
 | M1 — Runnable foundation and contracts | T01–T04, T12; early T29 | COMPLETE: independent task and cross-task review, final WebStorm builds/Docker startup verified; evidence in docs/evidence/M1-checkpoint and M1-handoff |
-| M2 — Credible comparison engine | T05–T11 | IN PROGRESS: T05 complete; T06–T11 pending. Six provider contracts, round-trip/grouping invariants, rankings, calendar consistency, streamed failures, recheck/idempotency |
+| M2 — Credible comparison engine | T05–T11 | IN PROGRESS: T05–T10 complete and independently reviewed; T11 recheck/idempotent referrals pending. Evidence includes provider normalization, complete round trips, ranking, durable streams and shared date/result minima |
 | M3 — Signature search experience | T13–T18 | Wheel/calendar/chart/map linked to real API data; stable results and camera; compact desktop/mobile review |
 | M4 — Complete traveler flow | T19–T22 | Guest and simulated identity, saved searches, hotels/rooms/custom point, exact simulated provider handoff |
 | M5 — Inspectable admin | T23–T26 | Session-scoped controls actually alter pipeline; raw-to-normalized trace; mapping preview/replay; real referral evidence |
@@ -887,27 +891,30 @@ Run api integration/client tests with a PostgreSQL restart case, session limit c
 - Consumes: Provider dateInventory, shared normalization/grouping/eligibility pipeline, DatePriceQuery/Cell/Snapshot.
 - Produces: getDatePrices; projectDatePrices; datePriceKey/searchKey/hotelKey; checking/snapshot polling endpoints.
 
-- [ ] **T10.1 — Pin date/result equivalence**
+- [x] **T10.1 — Pin date/result equivalence**
 
 For representative dates and every transport mode, assert each priced cell equals the minimum eligible complete result under the same query. Add round-trip fixed-opposite-leg, filter/party changes, missing provider, mapping revision, same-day return, and no-match/outside-coverage cases. Terminal provider failure or incomplete prices must yield unavailable rather than false no-match or perpetual checking.
 
-- [ ] **T10.2 — Run projection tests red**
+- [x] **T10.2 — Run projection tests red**
 
 Run pnpm nx test domain, pnpm nx test client, and pnpm nx run api:test-integration. Assert sorting alone does not alter date minima.
 
-- [ ] **T10.3 — Implement bounded projection**
+- [x] **T10.3 — Implement bounded projection**
 
 Fetch a provider's date inventory in one batched mock operation, normalize and evaluate with the same rules as selected-date searches. Do not issue ninety deliberately delayed searches. Return checking cells while work is incomplete and explicit coverage with priced cells.
 
-- [ ] **T10.4 — Implement cache identity and invalidation**
+- [x] **T10.4 — Implement cache identity and invalidation**
 
 Normalize query keys over mode/scope/route/dates/party/ages/class/eligibility plus seed, anchor, scenario, provider override, and mapping revisions. Scope mutable cache state by session. Default snapshot freshness is 60 seconds; edits/reset invalidate affected entries.
 
-- [ ] **T10.5 — Verify and commit**
+- [x] **T10.5 — Verify and commit**
 
 Run the three focused targets. Confirm incomplete total never yields a cheap cell, gaps remain null-state values, changing cheapest/fastest does not refetch minima, and another session's scenario cannot contaminate cached cells. Commit date projection.
 
 **Acceptance:** Wheel, chart, calendar, and results share the same price meaning and cannot disagree because of a separate mock algorithm.
+
+**T10 checkpoint — 2026-10-24:** Complete at source `0a39241` + report `3dd0d0a`; independent spec and quality review approved, no blocking findings. Domain239/client17/API66, root12 test targets plus20 tool checks, affected34 validation targets and packaged HTTP price equivalence/cache/isolation/reset/restart/preservation pass. Date retrieval uses one batched operation per participating provider and immutable same-ID internal evidence parents, shared max2 admission and frozen server context. Canonical responses and strict60s real freshness preserve price meaning; retryable unavailable snapshots permit a useful fresh retry. Test resources and exact probe namespaces are removed. Nonblocking T10-M1 persistence readability remains for next touch/final review. Evidence: `docs/evidence/T10/`. The visible wheel/calendar/GLSL chart remains T16; next task is T11.
+
 
 ---
 
@@ -1799,7 +1806,7 @@ Run the recovery suite plus affected client/web tests. Confirm all actions work 
 - Consumes: Pinned toolchain, web/admin builds, API readiness, Prisma migrations/idempotent fixtures.
 - Produces: pnpm docker:up/down/reset scripts; production-style local containers; same-origin /, /admin, /api, /provider-demo routing; direct Compose fallback.
 
-**Packaging checkpoint:** Early packaging independently approved at `747c5f5` + `939bb44`; T05 rich seed and local geography are integrated and verified at `8081656`. Lifecycle, ordered initialization and runner are complete. Current assets and prior lifecycle checks are verified. T09 actual gateway SSE delivery, replay, interruption/retry and preservation are verified at `3230073`; future artwork and complete T33 acceptance remain pending. Parent T29 stays ACTIVE. Evidence: `docs/evidence/T29/`, `docs/evidence/T05/packaged/` and `docs/evidence/T09/packaged/`.
+**Packaging checkpoint:** Early packaging independently approved at `747c5f5` + `939bb44`; T05 rich seed and local geography are integrated and verified at `8081656`. Lifecycle, ordered initialization and runner are complete. Current assets and prior lifecycle checks are verified. T09 actual gateway SSE delivery, replay, interruption/retry and preservation are verified at `3230073`; T10 date-price equality/cache/restart and exact inventory preservation are also packaged-verified at `0a39241`. Future artwork and complete T33 acceptance remain pending. Parent T29 stays ACTIVE. Evidence: `docs/evidence/T29/`, `docs/evidence/T05/packaged/` `docs/evidence/T09/packaged/` and `docs/evidence/T10/packaged/`.
 
 - [x] **T29.1 — Define container lifecycle**
 
