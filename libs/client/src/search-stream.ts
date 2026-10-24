@@ -33,7 +33,13 @@ export const searchTransport: SearchTransport = {
       clearTimeout(connectionTimeout);
       signal.removeEventListener('abort', abortConnection);
     }
-    if (!response.ok || !response.body || !response.headers.get('content-type')?.includes('text/event-stream')) throw new Error('search-stream-unavailable');
+    if (!response.ok || !response.body || !response.headers.get('content-type')?.includes('text/event-stream')) {
+      // Headers detached the parent forwarding listener; rejected responses never
+      // enter reader cleanup, so release their fetch and body here.
+      connection.abort();
+      void response.body?.cancel().catch(() => undefined);
+      throw new Error('search-stream-unavailable');
+    }
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
     let buffer = '';

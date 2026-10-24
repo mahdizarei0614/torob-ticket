@@ -167,3 +167,44 @@ it('unsubscribe before SSE headers clears the deadline and detaches the forwardi
     expect(removed.mock.calls.some(call => call[0] === type && call[1] === listener)).toBe(true);
   }
 });
+it.each([
+  { status: 502, mime: 'text/event-stream' },
+  { status: 200, mime: 'text/html' },
+])('cancels rejected streaming response $status/$mime before terminal recovery and unsubscribe', async ({ status, mime }) => {
+  vi.useFakeTimers();
+  const added = vi.spyOn(AbortSignal.prototype, 'addEventListener');
+  const removed = vi.spyOn(AbortSignal.prototype, 'removeEventListener');
+  let fetchSignal!: AbortSignal;
+  let bodyCancelled = 0;
+  let snapshotRequests = 0;
+  const snapshots: SearchRecovery[] = [];
+  vi.stubGlobal('fetch', async (url: string, init: RequestInit) => {
+    if (url.endsWith('/events')) {
+      fetchSignal = init.signal!;
+      return new Response(new ReadableStream({ cancel() { bodyCancelled++; } }), {
+        status, headers: { 'content-type': mime },
+      });
+    }
+    snapshotRequests++;
+    return new Response(JSON.stringify(recovery(3, 'complete')), { headers: { 'content-type': 'application/json' } });
+  });
+  const stop = subscribeSearch({ searchId: 'search', clientGeneration: 'g', onEvent: () => undefined, onSnapshot: value => snapshots.push(value) });
+  try {
+    await vi.runAllTimersAsync();
+    expect(snapshots).toEqual([recovery(3, 'complete')]);
+    expect(snapshotRequests).toBe(1);
+    expect(fetchSignal.aborted).toBe(true);
+    expect(bodyCancelled).toBe(1);
+    stop();
+    await vi.runAllTimersAsync();
+    expect(vi.getTimerCount()).toBe(0);
+    const forwarding = added.mock.calls.map((call, index) => ({ call, target: added.mock.contexts[index] }))
+      .filter(({ call }) => call[0] === 'abort' && typeof call[1] === 'function' && call[1].name === 'abortConnection');
+    expect(forwarding).toHaveLength(1);
+    for (const { call, target } of forwarding) {
+      expect(removed.mock.calls.some((removal, index) => removed.mock.contexts[index] === target && removal[0] === 'abort' && removal[1] === call[1])).toBe(true);
+    }
+  } finally {
+    stop(); await vi.runAllTimersAsync(); added.mockRestore(); removed.mockRestore();
+  }
+});
