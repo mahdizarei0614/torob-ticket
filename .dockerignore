@@ -1,0 +1,13 @@
+node_modules
+.nx
+dist
+.git
+.superpowers
+.worktrees
+.env
+.env.*
+docs/evidence
+coverage
+playwright-report
+test-results
+libs/data-access/src/generated

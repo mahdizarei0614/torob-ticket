@@ -1,0 +1,54 @@
+{
+	auto_https off
+	admin off
+}
+:80 {
+	# API errors remain JSON. No SPA fallback or response buffering here.
+	@api path /api /api/*
+	handle @api {
+		reverse_proxy api:4302 {
+			flush_interval -1
+		}
+	}
+	redir /admin /admin/ 308
+	handle_path /admin/* {
+		root * /srv/admin
+		@hashed path_regexp hashed ^/assets/.+-[A-Za-z0-9_-]{8,}\.[^/]+$
+		header ?Cache-Control "no-cache"
+		header @hashed Cache-Control "public, max-age=31536000, immutable"
+		# Missing asset URLs must not receive an HTML document.
+		handle /assets/* {
+			file_server
+		}
+		handle /fonts/* {
+			file_server
+		}
+		handle /theme-init.js {
+			file_server
+		}
+		handle {
+			try_files {path} /index.html
+			file_server
+		}
+	}
+	# /provider-demo is a consumer SPA route; its business view arrives later.
+	handle {
+		root * /srv/web
+		@hashed path_regexp hashed_web ^/assets/.+-[A-Za-z0-9_-]{8,}\.[^/]+$
+		header ?Cache-Control "no-cache"
+		header @hashed Cache-Control "public, max-age=31536000, immutable"
+		handle /assets/* {
+			file_server
+		}
+		handle /fonts/* {
+			file_server
+		}
+		handle /theme-init.js {
+			file_server
+		}
+		handle {
+			try_files {path} /index.html
+			file_server
+		}
+	}
+}

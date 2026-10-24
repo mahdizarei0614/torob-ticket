@@ -1,0 +1,61 @@
+name: torobticket
+services:
+  database:
+    image: postgres:17.11-bookworm@sha256:858bb5e98eed02eb8cafbcdc007f9a65d1b613972028944a8ec2133ccaf80d27
+    environment:
+      POSTGRES_DB: torobticket
+      POSTGRES_USER: torobticket
+      POSTGRES_PASSWORD: local-demo-only
+    volumes:
+      - database:/var/lib/postgresql/data
+    healthcheck:
+      test: [CMD-SHELL, 'pg_isready -h 127.0.0.1 -U torobticket -d torobticket']
+      interval: 2s
+      timeout: 3s
+      retries: 30
+  initializer:
+    build:
+      context: .
+      dockerfile: infra/Dockerfile
+      target: initializer
+    environment:
+      DATABASE_URL: postgresql://torobticket:local-demo-only@database:5432/torobticket
+    depends_on:
+      database:
+        condition: service_healthy
+    restart: 'no'
+  api:
+    build:
+      context: .
+      dockerfile: infra/Dockerfile
+      target: api
+    environment:
+      DATABASE_URL: postgresql://torobticket:local-demo-only@database:5432/torobticket
+    depends_on:
+      initializer:
+        condition: service_completed_successfully
+      database:
+        condition: service_healthy
+    healthcheck:
+      test: [CMD, node, infra/healthcheck.mjs]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+      start_period: 5s
+  gateway:
+    build:
+      context: .
+      dockerfile: infra/Dockerfile
+      target: gateway
+    ports:
+      - '127.0.0.1:${TOROBTICKET_PORT:-4300}:80'
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: [CMD, wget, -q, --spider, 'http://127.0.0.1/api/health/ready']
+      interval: 2s
+      timeout: 5s
+      retries: 30
+volumes:
+  database:
