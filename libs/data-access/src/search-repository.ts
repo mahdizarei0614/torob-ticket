@@ -106,7 +106,16 @@ export class SearchRepository {
       for (const row of snapshot.providerStatuses) await tx.providerRun.upsert({ where: { sessionId_searchId_providerId: { sessionId: scope.sessionId, searchId: id, providerId: row.providerId } }, create: { sessionId: scope.sessionId, searchId: id, id: randomUUID(), providerId: row.providerId, status: row.status, payload: json(row) }, update: { status: row.status, payload: json(row) } });
       for (const item of result.quotes) await tx.quote.upsert({ where: { sessionId_id_version: { sessionId: scope.sessionId, id: item.quote.quoteId, version: item.quote.version } }, create: { sessionId: scope.sessionId, id: item.quote.quoteId, version: item.quote.version, offerId: item.offerId, payload: json(item.quote), observedAt: new Date(item.quote.observedAt), expiresAt: new Date(item.quote.expiresAt) }, update: {} });
       await tx.auditEvent.create({ data: { sessionId: scope.sessionId, id: randomUUID(), kind: 'search-projection', payload: json({ searchId: id, ...result.audit }), createdAt: now } });
-      if (provider) await this.event(tx, scope, id, snapshot.clientGeneration, { type: 'provider-status', payload: provider }, now);
+      if (provider) {
+        // The projection derives actual committed offer counts, including records
+        // retained before a failed batch. Publish that same validated row.
+        const derivedProvider = snapshot.providerStatuses.find(row => row.providerId === provider.providerId);
+        if (!derivedProvider) throw new RepositoryError('INVALID_QUERY');
+        await this.event(tx, scope, id, snapshot.clientGeneration, {
+          type: 'provider-status',
+          payload: derivedProvider,
+        }, now);
+      }
       await this.event(tx, scope, id, snapshot.clientGeneration, { type: snapshot.status === 'collecting' ? 'snapshot' : 'terminal', payload: snapshot }, now);
       await tx.searchRun.update({ where: { sessionId_id: { sessionId: scope.sessionId, id } }, data: { snapshot: json(snapshot), status: snapshot.status, updatedAt: now } });
       return snapshot;

@@ -146,6 +146,19 @@ describe('durable progressive searches', () => {
     await expect.poll(async () => (await controlled.getSearch(a, run.snapshot.searchId)).snapshot.status, { timeout: 5000 }).toBe('partial');
     const result = await controlled.getSearch(a, run.snapshot.searchId);
     expect(result.snapshot.providerStatuses).toEqual([expect.objectContaining({ status: 'failed', offerCount: 1, reason: 'TRACE_SINK_FAILED' })]);
+    const replay = await controlled.repository.read(a.scope, run.snapshot.searchId);
+    const failedEvent = replay.events.find(event => event.type === 'provider-status' && event.payload.status === 'failed');
+    expect(failedEvent).toBeDefined();
+    const matchingProjection = replay.events.find(event => event.sequence === failedEvent!.sequence + 1);
+    expect(matchingProjection?.type).toBe('snapshot');
+    if (matchingProjection?.type !== 'snapshot') throw new Error('Expected atomic status projection');
+    const derivedStatus = matchingProjection.payload.providerStatuses.find(row => row.providerId === 'demo-provider-01');
+    const savedProvider = await sessions.database.providerRun.findUniqueOrThrow({ where: { sessionId_searchId_providerId: { sessionId: a.sessionId, searchId: run.snapshot.searchId, providerId: 'demo-provider-01' } } });
+    expect(failedEvent!.payload).toEqual(derivedStatus);
+    expect(failedEvent!.payload).toEqual(result.snapshot.providerStatuses[0]);
+    expect(failedEvent!.payload).toEqual(savedProvider.payload);
+    expect(replay.events.map(event => event.sequence)).toEqual(replay.events.map((_, index) => index + 1));
+
     expect(await sessions.database.rawRecord.count({ where: { sessionId: a.sessionId } })).toBe(1);
     expect(await sessions.database.normalizationDecision.count({ where: { sessionId: a.sessionId } })).toBe(1);
     expect(await sessions.database.quote.count({ where: { sessionId: a.sessionId } })).toBe(1);

@@ -15,7 +15,24 @@ export interface SubscribeSearchOptions {
 /** Same-origin cookie transport. Fetch permits explicit Last-Event-ID and cancellation. */
 export const searchTransport: SearchTransport = {
   async stream(id, after, signal, emit) {
-    const response = await fetch(`/api/v1/searches/${encodeURIComponent(id)}/events`, { credentials: 'same-origin', headers: { Accept: 'text/event-stream', 'Last-Event-ID': String(after) }, signal });
+    // Bound connection establishment separately; healthy response bodies retain
+    // their existing idle timeout rather than a five-second total lifetime.
+    const connection = new AbortController();
+    const abortConnection = () => connection.abort();
+    signal.addEventListener('abort', abortConnection, { once: true });
+    if (signal.aborted) abortConnection();
+    const connectionTimeout = setTimeout(abortConnection, 5000);
+    let response: Response;
+    try {
+      response = await fetch(`/api/v1/searches/${encodeURIComponent(id)}/events`, {
+        credentials: 'same-origin',
+        headers: { Accept: 'text/event-stream', 'Last-Event-ID': String(after) },
+        signal: connection.signal,
+      });
+    } finally {
+      clearTimeout(connectionTimeout);
+      signal.removeEventListener('abort', abortConnection);
+    }
     if (!response.ok || !response.body || !response.headers.get('content-type')?.includes('text/event-stream')) throw new Error('search-stream-unavailable');
     const reader = response.body.getReader();
     const decoder = new TextDecoder();

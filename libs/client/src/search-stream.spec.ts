@@ -66,7 +66,7 @@ it('real fetch transport handles split SSE frames, heartbeats and validates Last
   const received: unknown[] = []; const signal = new AbortController().signal;
   await searchTransport.stream('search', 0, signal, value => received.push(value));
   expect(received).toEqual([event(1)]);
-  expect(requested[0]).toEqual(['/api/v1/searches/search/events', { credentials: 'same-origin', headers: { Accept: 'text/event-stream', 'Last-Event-ID': '0' }, signal }]);
+  expect(requested[0]).toEqual(['/api/v1/searches/search/events', { credentials: 'same-origin', headers: { Accept: 'text/event-stream', 'Last-Event-ID': '0' }, signal: expect.any(AbortSignal) }]);
 });
 it('polling still delivers terminal state when only the event callback is supplied', async () => {
   vi.useFakeTimers(); const received: SearchEvent[] = [];
@@ -90,4 +90,80 @@ it('bounds a stalled snapshot request and unsubscribe clears its recovery timeou
   await vi.advanceTimersByTimeAsync(5000);
   expect(requests[0]?.aborted).toBe(true);
   stop(); await vi.runAllTimersAsync(); expect(vi.getTimerCount()).toBe(0);
+});
+it('times out stalled SSE headers, recovers, retries and cancels the next connection on unsubscribe', async () => {
+  vi.useFakeTimers();
+  const connections: AbortSignal[] = [];
+  const snapshots: SearchRecovery[] = [];
+  let snapshotRequests = 0;
+  vi.stubGlobal('fetch', async (url: string, init: RequestInit) => {
+    if (!url.endsWith('/events')) {
+      snapshotRequests++;
+      return new Response(JSON.stringify(recovery(3)), { headers: { 'content-type': 'application/json' } });
+    }
+    const signal = init.signal!;
+    connections.push(signal);
+    return new Promise<Response>((_resolve, reject) => {
+      signal.addEventListener('abort', () => reject(new Error('connection-aborted')), { once: true });
+    });
+  });
+  const stop = subscribeSearch({ searchId: 'search', clientGeneration: 'g', onEvent: () => undefined, onSnapshot: value => snapshots.push(value) });
+  try {
+    await vi.advanceTimersByTimeAsync(4999);
+    expect(connections).toHaveLength(1);
+    expect(connections[0]!.aborted).toBe(false);
+    expect(snapshotRequests).toBe(0);
+    await vi.advanceTimersByTimeAsync(1);
+    expect(connections[0]!.aborted).toBe(true);
+    expect(snapshots).toEqual([recovery(3)]);
+    await vi.advanceTimersByTimeAsync(250);
+    expect(connections).toHaveLength(2);
+    expect(connections[1]!.aborted).toBe(false);
+  } finally { stop(); await vi.runAllTimersAsync(); }
+  expect(connections.every(signal => signal.aborted)).toBe(true);
+  expect(snapshotRequests).toBe(1);
+  expect(vi.getTimerCount()).toBe(0);
+});
+it('clears the connection deadline on headers while preserving the twenty-second body idle window', async () => {
+  vi.useFakeTimers();
+  const controller = new AbortController();
+  const added = vi.spyOn(controller.signal, 'addEventListener');
+  const removed = vi.spyOn(controller.signal, 'removeEventListener');
+  let connectionSignal!: AbortSignal;
+  let cancelled = false;
+  let settled = false;
+  vi.stubGlobal('fetch', async (_url: string, init: RequestInit) => {
+    connectionSignal = init.signal!;
+    return new Response(new ReadableStream({ cancel() { cancelled = true; } }), { headers: { 'content-type': 'text/event-stream' } });
+  });
+  const running = searchTransport.stream('search', 0, controller.signal, () => undefined).finally(() => { settled = true; });
+  await vi.advanceTimersByTimeAsync(5000);
+  expect(connectionSignal.aborted).toBe(false);
+  expect(settled).toBe(false);
+  await vi.advanceTimersByTimeAsync(14999);
+  expect(settled).toBe(false);
+  await vi.advanceTimersByTimeAsync(1);
+  await running;
+  expect(cancelled).toBe(true);
+  expect(vi.getTimerCount()).toBe(0);
+  for (const [type, listener] of added.mock.calls) if (type === 'abort') {
+    expect(removed.mock.calls.some(call => call[0] === type && call[1] === listener)).toBe(true);
+  }
+});
+it('unsubscribe before SSE headers clears the deadline and detaches the forwarding listener', async () => {
+  vi.useFakeTimers();
+  const controller = new AbortController();
+  const added = vi.spyOn(controller.signal, 'addEventListener');
+  const removed = vi.spyOn(controller.signal, 'removeEventListener');
+  vi.stubGlobal('fetch', async (_url: string, init: RequestInit) => new Promise<Response>((_resolve, reject) => {
+    init.signal!.addEventListener('abort', () => reject(new Error('connection-aborted')), { once: true });
+  }));
+  const running = searchTransport.stream('search', 0, controller.signal, () => undefined).catch(error => error);
+  controller.abort();
+  expect(await running).toBeInstanceOf(Error);
+  await vi.runAllTimersAsync();
+  expect(vi.getTimerCount()).toBe(0);
+  for (const [type, listener] of added.mock.calls) if (type === 'abort') {
+    expect(removed.mock.calls.some(call => call[0] === type && call[1] === listener)).toBe(true);
+  }
 });

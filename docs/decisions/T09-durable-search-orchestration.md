@@ -49,3 +49,9 @@ A persistence failure aborts and settles both provider workers, then attempts an
 ## Downstream boundaries
 
 T10 owns nearby-date inventory composition. T11 owns fresh recheck versions and referrals. Consumer ordering/focus staging and localized UI remain later tasks. Test container and actual default-gateway packaged verification are independent evidence states. No publication or production readiness claim follows from these tests.
+
+## Independent review fix round 1
+
+The default SSE fetch now has a separate cancellable5000ms connection deadline covering the initial await for headers. On headers/failure/unsubscribe it clears that deadline and removes the forwarding listener. This does not change the20000ms body idle timeout or5000ms snapshot request timeout. A stalled connection therefore enters existing recovery/retry/polling instead of waiting forever.
+
+Provider-status events use the corresponding row from the validated derived snapshot, matching the persisted ProviderRun payload. Incoming adapter batch counts are not authoritative after partial trace-sink failure: a committed offer remains counted even when later delivery fails. Event/status/snapshot writes retain their existing transaction and ordered sequences.
