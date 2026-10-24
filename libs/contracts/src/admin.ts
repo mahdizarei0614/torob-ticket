@@ -5,7 +5,9 @@ import { ProviderStatusSchema, SearchSnapshotSchema } from './search';
 
 export const DemoScenarioSchema = z.enum(['normal', 'slow-provider', 'provider-timeout', 'price-change', 'sold-out', 'conflicting-data', 'no-eligible-results']);
 export type DemoScenario = z.infer<typeof DemoScenarioSchema>;
-export const CreateDemoSessionInputSchema = z.strictObject({ seed: NonnegativeIntegerSchema.optional(), anchorInstant: ISOInstantSchema.optional(), scenario: DemoScenarioSchema.optional() });
+/** Session anchors preserve seconds and 1–3 fractional digits exactly in Date/PostgreSQL milliseconds. */
+const SessionAnchorSchema = ISOInstantSchema.refine(value => /T\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?Z$/.test(value), 'session-anchor-requires-second-to-millisecond-precision');
+export const CreateDemoSessionInputSchema = z.strictObject({ seed: NonnegativeIntegerSchema.optional(), anchorInstant: SessionAnchorSchema.optional(), scenario: DemoScenarioSchema.optional() });
 export type CreateDemoSessionInput = z.infer<typeof CreateDemoSessionInputSchema>;
 export const SessionInfoSchema = z.strictObject({ seed: NonnegativeIntegerSchema, anchorInstant: ISOInstantSchema, scenario: DemoScenarioSchema, fixtureVersion: IdSchema, catalogRevision: IdSchema, mappingRevision: IdSchema, scenarioRevision: IdSchema, expiresAt: ISOInstantSchema, identity: DemoIdentitySchema.nullable() });
 export type SessionInfo = z.infer<typeof SessionInfoSchema>;

@@ -104,7 +104,7 @@ export class SessionService implements OnApplicationBootstrap, OnModuleDestroy {
     this.assertNoSessionSelector(request);
     if (this.credential(request, response)) {
       const context = await this.authenticate(request, response);
-      if (input.seed !== undefined && input.seed !== context.info.seed || input.anchorInstant !== undefined && input.anchorInstant !== context.info.anchorInstant || input.scenario !== undefined && input.scenario !== context.info.scenario) throw sessionError('INVALID_QUERY', 409);
+      if (input.seed !== undefined && input.seed !== context.info.seed || input.anchorInstant !== undefined && Date.parse(input.anchorInstant) !== Date.parse(context.info.anchorInstant) || input.scenario !== undefined && input.scenario !== context.info.scenario) throw sessionError('INVALID_QUERY', 409);
       return context.info;
     }
     await this.ensureReady();

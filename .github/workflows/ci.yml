@@ -48,6 +48,7 @@ jobs:
           fi
       - run: pnpm test:tools
       - run: pnpm verify:boundaries
-      - run: pnpm nx run api:test-integration
+      - name: Initialize the dedicated test database and run persistence checks
+        run: pnpm nx run api:test-integration
       - run: pnpm exec playwright install --with-deps chromium
       - run: pnpm nx e2e e2e

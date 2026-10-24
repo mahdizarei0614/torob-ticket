@@ -1,9 +1,9 @@
+import { requireTestDatabaseUrl } from './test-database.cjs';
 import { Client } from 'pg';
 import { describe, expect, it } from 'vitest';
 describe('real PostgreSQL integration harness', () => {
   it('round-trips typed parameters and rolls back transaction-local state', async () => {
-    const connectionString = process.env.TEST_DATABASE_URL;
-    if (!connectionString) throw new Error('Set TEST_DATABASE_URL to a dedicated PostgreSQL test database; no in-memory substitute is used.');
+    const connectionString = requireTestDatabaseUrl(process.env.TEST_DATABASE_URL);
     const client = new Client({ connectionString, connectionTimeoutMillis: 5000 });
     await client.connect();
     try {

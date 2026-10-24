@@ -216,3 +216,16 @@ describe('complete public evidence vocabulary', () => {
     expect(schema('NormalizationTraceSchema').safeParse(trace).data).toEqual(trace);
   });
 });
+
+
+describe('session anchor storage precision', () => {
+  it.each(['2026-10-24T00:00:00Z', '2026-10-24T00:00:00.0Z', '2026-10-24T00:00:00.12Z', '2026-10-24T00:00:00.123Z'])('accepts UTC anchor with seconds through millisecond precision %s', anchorInstant => {
+    expect(accepts('CreateDemoSessionInputSchema', { anchorInstant })).toBe(true);
+  });
+  it.each(['2026-10-24T00:00Z', '2026-10-24T00:00:00.0001Z', '2026-10-24T00:00:00.1230Z', '2026-10-24T00:00:00.123456Z', '2026-10-24T00:00:00+00:00', '2026-02-30T00:00:00Z'])('rejects unsupported session anchor %s', anchorInstant => {
+    expect(accepts('CreateDemoSessionInputSchema', { anchorInstant })).toBe(false);
+  });
+  it('preserves higher precision for unrelated wire instants', () => {
+    expect(accepts('ISOInstantSchema', '2026-10-24T00:00:00.123456Z')).toBe(true);
+  });
+});

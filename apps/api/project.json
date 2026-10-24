@@ -74,13 +74,15 @@
         "command": "vitest run --project api-integration"
       },
       "dependsOn": [
-        {
-          "target": "generate",
-          "projects": [
-            "data-access"
-          ]
-        }
+        "test-db-setup"
       ]
+    },
+    "test-db-setup": {
+      "executor": "nx:run-commands",
+      "cache": false,
+      "options": {
+        "command": "node tools/setup-test-database.mjs"
+      }
     }
   }
 }

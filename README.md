@@ -1,6 +1,6 @@
 # TorobTicket
 
-A demo-only Persian travel comparison product. This foundation contains two React/Vite applications, a Nest API, and eight bounded libraries. Comparison, providers, persistence, sessions, and the design system are implemented in subsequent tasks.
+A demo-only Persian travel comparison product. This foundation contains two React/Vite applications, a Nest API, and eight bounded libraries. The current foundation includes PostgreSQL persistence, isolated reviewer sessions, contract/domain primitives, an RTL design system and gallery, and early one-command Docker packaging. Provider/search comparison journeys and the full demo remain later tasks.
 
 ## Local development
 
@@ -13,31 +13,32 @@ pnpm start
 
 Consumer: http://127.0.0.1:4300/ · Admin: http://127.0.0.1:4301/admin/ · API liveness: http://127.0.0.1:4302/api/health/live.
 
-The development frontends proxy `/api` to Nest. The eventual same-origin gateway will host admin at `/admin/` on the consumer origin; until that packaging task, open the separate admin URL above. Liveness confirms the API process responds; it makes no database/readiness claim. Database-backed readiness and one-command Docker startup belong to the persistence and packaging tasks.
+The development frontends proxy `/api` to Nest. For the packaged same-origin gateway, database initialization, and one-command startup, see [Run locally](docs/run-locally.md). Liveness confirms the API process responds; `/api/health/ready` additionally checks the database, required migration, foundation seed, and initial reconciliation. Direct development requires a PostgreSQL `DATABASE_URL`, followed by `pnpm db:generate`, `pnpm db:migrate`, and `pnpm db:seed` before database-backed routes are usable.
 
 ## Verification
 
 ```sh
 pnpm nx run-many -t lint,typecheck,build --projects=web,admin,api
 pnpm test
-pnpm test:cache
 pnpm verify:boundaries
 pnpm exec playwright install chromium
 pnpm nx e2e e2e
 pnpm nx run-many -t lint,typecheck,build
 ```
 
-`pnpm test` runs every current application unit suite. Vitest's root configuration also defines pure/client, UI, and server-library environments; empty library targets report no tests until their owning task introduces behavior. Empty libraries contain no placeholder tests. Set `PLAYWRIGHT_CHANNEL=chrome` to use an already installed Chrome instead of bundled Chromium. E2E starts and stops its own three local servers; their ports must be available.
+`pnpm test` runs the common standalone tool checks (`pnpm test:tools`) once, then all current Nx unit suites. Vitest defines application, pure/client, UI, and server-library environments; empty library targets report no tests until their owning task introduces behavior. Empty libraries contain no placeholder tests. Set `PLAYWRIGHT_CHANNEL=chrome` to use an already installed Chrome instead of bundled Chromium. E2E starts and stops its own three local servers; their ports must be available.
 
-Real PostgreSQL integration checks use a **dedicated disposable test database** with no schema requirements:
+Real PostgreSQL integration checks require an **owned disposable PostgreSQL database**. Its simple database name must end in `_test`; the explicit PostgreSQL URL must have a host and no query parameters or fragment. Never point these tests at shared or valuable data: they exercise cleanup, schema constraints, and database connection recovery.
 
 ```sh
-TEST_DATABASE_URL=postgresql://USER:PASSWORD@127.0.0.1:5432/TEST_DATABASE pnpm nx run api:test-integration
+TEST_DATABASE_URL=postgresql://USER:PASSWORD@127.0.0.1:5432/torobticket_test pnpm nx run api:test-integration
 ```
 
-The target fails explicitly if the URL is missing or PostgreSQL is unreachable. It does not substitute an in-memory database or silently skip tests. It verifies a parameterized query and transaction rollback; product schema/session checks are added by the persistence task.
+The target first runs uncached `api:test-db-setup`: validate `TEST_DATABASE_URL`, generate the Prisma client, deploy migrations, then apply the idempotent foundation seed. Setup assigns the verified test URL to the Prisma child processes and never falls back to `DATABASE_URL`. Both setup and every integration entrypoint validate before connecting. Tests cover real HTTP session creation/resume/reset, cookie isolation, readiness/recovery, scoped repositories, immutable evidence, and transaction rollback. Missing/unsafe URLs, unreachable PostgreSQL, or initialization failures fail the run rather than skipping it. To initialize separately, use the same test URL with `pnpm db:setup-test`; direct Vitest runs require that initialization first.
 
-For changed projects, use `pnpm nx affected -t lint,typecheck,test,build --base=main --head=HEAD`, with the appropriate existing base ref. CI chooses the PR base or preceding commit and falls back to all projects on the first commit. `pnpm verify` runs all currently defined targets; a dedicated full release pipeline belongs to packaging.
+Session anchor inputs use UTC seconds with optional 1–3 fractional digits. Equivalent spellings resume the same session; stored/returned anchors use canonical milliseconds. Finer precision is rejected rather than truncated.
+
+For changed projects, use `pnpm nx affected -t lint,typecheck,test,build --base=main --head=HEAD`, with the appropriate existing base ref. CI chooses the PR base or preceding commit and falls back to all projects on the first commit. `pnpm verify` runs the lint/typecheck/unit/build targets; integration and browser commands above remain separate. Remote GitHub CI and full-demo release acceptance are not established by local checks.
 
 ## Libraries and boundaries
 

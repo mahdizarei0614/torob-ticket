@@ -1,3 +1,4 @@
+import { requireTestDatabaseUrl } from '../../test/test-database.cjs';
 import { createHash, randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import * as data from '@torob-ticket/data-access';
@@ -10,8 +11,7 @@ describe('scoped persistence and atomic evidence', () => {
   let mapping: string;
   const now = new Date('2026-10-24T14:00:00.000Z');
   beforeAll(async () => {
-    const url = process.env.TEST_DATABASE_URL;
-    if (!url || !new URL(url).pathname.endsWith('_test')) throw new Error('Dedicated *_test PostgreSQL database required');
+    const url = requireTestDatabaseUrl(process.env.TEST_DATABASE_URL);
     db = data.createPrisma(url);
     const repo = new data.SessionRepository(db);
     const sa = await repo.create(createHash('sha256').update(randomUUID()).digest('hex'), {seed:5}, now);

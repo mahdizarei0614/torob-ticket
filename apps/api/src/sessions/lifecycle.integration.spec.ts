@@ -1,3 +1,4 @@
+import { requireTestDatabaseUrl } from '../../test/test-database.cjs';
 import 'reflect-metadata';
 import { Test } from '@nestjs/testing';
 import { Client } from 'pg';
@@ -62,8 +63,7 @@ describe('session isolation and lifecycle', () => {
     return {cookie, info, context};
   }
   beforeAll(async () => {
-    const url = process.env.TEST_DATABASE_URL;
-    if (!url || !new URL(url).pathname.endsWith('_test')) throw new Error('Dedicated *_test PostgreSQL database required');
+    const url = requireTestDatabaseUrl(process.env.TEST_DATABASE_URL);
     process.env.DATABASE_URL = url; db = createPrisma(url); await start();
   });
   afterAll(async () => {
@@ -139,7 +139,7 @@ describe('session isolation and lifecycle', () => {
 
     // Keep one administrative connection alive while real PostgreSQL rejects all
     // new connections, including the restarted API's initial readiness check.
-    const adminUrl = new URL(process.env.TEST_DATABASE_URL!);
+    const adminUrl = new URL(requireTestDatabaseUrl(process.env.TEST_DATABASE_URL));
     const databaseName = decodeURIComponent(adminUrl.pathname.slice(1));
     adminUrl.pathname = '/postgres';
     const admin = new Client({ connectionString: adminUrl.toString() });
