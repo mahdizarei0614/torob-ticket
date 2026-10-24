@@ -340,7 +340,7 @@ Each row indexes the detailed checkbox steps in section 6. DONE requires indepen
 | [T26 — Referral analytics and end-to-end provenance trail](#t26) | T26.1 Pin real metric counts<br>T26.2 Run analytics tests red<br>T26.3 Implement metrics and joins<br>T26.4 Implement the referral views<br>T26.5 Verify and commit | T11, T23, T24 | TODO | Unassigned / — |
 | [T27 — Flat artwork, coordinated motion, and all theme transitions](#t27) | T27.1 Author the visual assets<br>T27.2 Implement useful motion<br>T27.3 Implement theme coordination<br>T27.4 Verify motion and all palettes<br>T27.5 Review and commit | T12, T13, T14, T16, T17, T21 | TODO | Unassigned / — |
 | [T28 — Failure recovery and coherent state across features](#t28) | T28.1 Pin the scenario recovery matrix<br>T28.2 Run recovery cases red<br>T28.3 Implement recovery actions<br>T28.4 Reconcile stale selections<br>T28.5 Verify and commit | T09, T10, T16, T17, T18, T20, T21, T22, T24, T25 | TODO | Unassigned / — |
-| [T29 — Docker packaging, gateway, initialization, and one-command startup](#t29) | T29.1 Define container lifecycle<br>T29.2 Implement ordered initialization<br>T29.3 Implement gateway and assets<br>T29.4 Implement one-command runner<br>T29.5 Verify and commit | T01, T04, T05 | TODO | Unassigned / — |
+| [T29 — Docker packaging, gateway, initialization, and one-command startup](#t29) | T29.1 Define container lifecycle<br>T29.2 Implement ordered initialization<br>T29.3 Implement gateway and assets<br>T29.4 Implement one-command runner<br>T29.5 Verify and commit | T01, T04, T05 | ACTIVE | implement_t29_early / 747c5f5 + 939bb44; early packaging independently approved; clean Docker boot, persistence and failure recovery passed; T05/T09/full assets acceptance pending |
 | [T30 — Complete behavioral regression and multi-reviewer acceptance](#t30) | T30.1 Build stable e2e fixtures<br>T30.2 Exercise the full matrix<br>T30.3 Exercise cross-feature journeys<br>T30.4 Exercise hostile timing and isolation<br>T30.5 Verify and commit | T19, T22, T24, T25, T26, T28, T29 | TODO | Unassigned / — |
 | [T31 — Accessibility, RTL, responsive behavior, and browser compatibility](#t31) | T31.1 Define representative coverage<br>T31.2 Run semantic checks<br>T31.3 Inspect visual accessibility<br>T31.4 Run browser coverage<br>T31.5 Fix, verify, and commit | T27, T28, T30 | TODO | Unassigned / — |
 | [T32 — Graphics performance, visual regression, and resource budgets](#t32) | T32.1 Capture controlled visual baselines<br>T32.2 Measure real interaction performance<br>T32.3 Measure bundles and idle work<br>T32.4 Stress lifecycle and fallbacks<br>T32.5 Verify and commit | T27, T28, T30 | TODO | Unassigned / — |
@@ -1782,7 +1782,9 @@ Run the recovery suite plus affected client/web tests. Confirm all actions work 
 - Consumes: Pinned toolchain, web/admin builds, API readiness, Prisma migrations/idempotent fixtures.
 - Produces: pnpm docker:up/down/reset scripts; production-style local containers; same-origin /, /admin, /api, /provider-demo routing; direct Compose fallback.
 
-- [ ] **T29.1 — Define container lifecycle**
+**M1 checkpoint:** Early packaging independently approved at `747c5f5` + `939bb44`. Lifecycle and runner are complete. Ordered foundation initialization, current local assets, clean-volume/restart/session persistence and failure/recovery are verified; T05 rich fixtures, T09 real SSE, future geography/art and full T33 acceptance remain pending. Parent T29 stays ACTIVE. Evidence: `docs/evidence/T29/`.
+
+- [x] **T29.1 — Define container lifecycle**
 
 Use gateway/static frontend, API, PostgreSQL, and one-shot initializer services. Build all app assets inside Docker. Keep database/API ports internal by default; expose one configurable loopback demo port. Record supported arm64/amd64 build paths.
 
@@ -1794,7 +1796,7 @@ Wait for PostgreSQL health, then run migrations and versioned seed to successful
 
 Serve web/admin with correct route bases and independent SPA fallbacks. Proxy API without replacing errors by HTML; stream SSE without buffering. Bundle fonts/geography/art and give immutable hashed assets appropriate caching.
 
-- [ ] **T29.4 — Implement one-command runner**
+- [x] **T29.4 — Implement one-command runner**
 
 pnpm docker:up must build/start, wait for health, print exact web/admin URLs, and exit nonzero with actionable logs on failure. Document docker compose up --build --wait as the Node-free equivalent. No prerequisite manual migration, seed, or login.
 
