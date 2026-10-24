@@ -182,7 +182,7 @@ Provider IDs are demo-provider-01 through demo-provider-06. Capabilities default
 
 Fixtures include inconsistent Persian/Arabic letters, whitespace, aliases, rials/toman, duplicates, missing baggage, ambiguous mandatory charges, airport changes, overnight arrival, ground stops without transfers, sold-out inventory, and room occupancy limits. Unicode cleanup never guesses the identity of distinct entities.
 
-The generator is a pure function of fixture version, seed, demo date, scenario, mapping revision, and query. Delay schedules do not change quote contents. Session demo time is frozen at creation for reproducible schedules; actual event timestamps and expiry use a separate real clock. Reset starts a new reproducible session state. A recorded anchor/seed can reproduce a previous scenario.
+The generator is a pure function of fixture version, seed, demo date, scenario, mapping revision, and query. Delay schedules do not change quote contents. Session demo time is frozen at creation for reproducible schedules; actual event timestamps and expiry use a separate real clock. Reset starts a new reproducible session state. A recorded anchor/seed can reproduce a previous scenario. Session creation/reset anchors use UTC seconds with optional 1–3 fractional digits and millisecond storage/comparison; equivalent spellings resume the same session, while a different instant requires explicit reset. Sub-millisecond and minute-only anchor inputs are rejected.
 
 | Scenario ID | Required behavior |
 |---|---|

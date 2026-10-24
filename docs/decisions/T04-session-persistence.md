@@ -101,3 +101,20 @@ Integration discovery includes both apps/api/src/**/*.integration.spec.ts and th
 existing apps/api/test/**/*.integration.spec.ts. Normal unit discovery excludes
 integration files. The integration suite fails without TEST_DATABASE_URL; it never
 falls back to a user's DATABASE_URL or an in-memory substitute.
+
+
+## M1 checkpoint clarifications
+
+Session creation/reset anchors accept UTC seconds with optional one to three
+fractional digits. Storage and comparison use millisecond instants, so equivalent
+spellings resume the same session; genuinely different instants require reset.
+Sub-millisecond and minute-only anchor inputs are rejected before persistence.
+This restriction applies to the session command, not unrelated wire instants.
+
+`api:test-integration` now depends on uncached `api:test-db-setup`, which validates
+only the explicit dedicated TEST_DATABASE_URL before generation, migration and
+idempotent seeding. The standalone `pnpm db:setup-test` uses the same path. All
+integration entrypoints share the guard; no unrelated DATABASE_URL is a fallback.
+The guard checks target shape; the operator must still own the disposable test
+database. Actual empty-database RED/GREEN and repeat-seed evidence is in
+`docs/evidence/M1-checkpoint/`.
