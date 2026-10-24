@@ -94,6 +94,7 @@ export function ThemeProvider({
   const bridge = useRef(onThemeChange);
   bridge.current = onThemeChange;
   const activeTransition = useRef<ViewTransition | null>(null);
+  const requestGeneration = useRef(0);
   const activeMode = variant === 'admin' ? 'flight' : mode;
   useLayoutEffect(() => {
     const root = document.documentElement;
@@ -120,18 +121,25 @@ export function ThemeProvider({
   );
   const setPreference = useCallback(
     (next: ThemePreference, origin?: HTMLElement) => {
+      // skipTransition skips animation, but its queued DOM update still runs.
+      // Advance before every request, including direct/fallback updates.
+      const generation = ++requestGeneration.current;
       const nextAppearance = next === 'system' ? systemAppearance() : next;
       try {
         localStorage.setItem(storageKey, next);
       } catch {
         /* Theme switching remains available. */
       }
-      const update = () =>
+      const update = () => {
+        if (generation !== requestGeneration.current) return;
         flushSync(() => {
           setStoredPreference(next);
           setAppearance(nextAppearance);
         });
-      activeTransition.current?.skipTransition();
+      };
+      const previousTransition = activeTransition.current;
+      activeTransition.current = null;
+      previousTransition?.skipTransition();
       const reduced =
         typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
       if (!document.startViewTransition || reduced || nextAppearance === appearance) {
@@ -146,14 +154,14 @@ export function ThemeProvider({
       activeTransition.current = transition;
       void transition.ready
         .then(() => {
-          if (activeTransition.current !== transition) return;
+          if (generation !== requestGeneration.current || activeTransition.current !== transition) return;
           document.documentElement.animate?.(
             { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${radius}px at ${x}px ${y}px)`] },
             { duration: 260, easing: 'ease-out', pseudoElement: '::view-transition-new(root)' },
           );
         })
         .catch(() => {
-          /* Skipped/superseded transitions still apply their DOM update. */
+          /* Native skipped transitions reject ready; obsolete DOM updates are guarded above. */
         });
     },
     [appearance],

@@ -36,6 +36,7 @@ function Toggle() {
   return (
     <>
       <output aria-label="appearance">{theme.appearance}</output>
+      <output aria-label="preference">{theme.preference}</output>
       <button onClick={(event) => theme.setPreference('dark', event.currentTarget)}>Dark</button>
       <button onClick={() => theme.setPreference('system')}>System</button>
     </>
@@ -125,4 +126,69 @@ it('skips animation for reduced motion and uses direct updates without View Tran
   delete (document as Document & { startViewTransition?: unknown }).startViewTransition;
   await user.click(screen.getByText('System'));
   expect(screen.getByLabelText('appearance')).toHaveTextContent('light');
+});
+
+it('keeps the latest system choice when a skipped transition runs its deferred DOM update', async () => {
+  const user = userEvent.setup();
+  let deferredUpdate: (() => void) | undefined;
+  let rejectReady: ((reason: Error) => void) | undefined;
+  let skipped = false;
+  const ready = new Promise<void>((_resolve, reject) => {
+    rejectReady = reject;
+  });
+  Object.assign(document, {
+    startViewTransition: (update: () => void) => {
+      deferredUpdate = update;
+      return {
+        ready,
+        finished: Promise.resolve(),
+        // Native skipTransition rejects ready but does not cancel the DOM update.
+        skipTransition() {
+          skipped = true;
+          rejectReady?.(new Error('Transition skipped'));
+        },
+      };
+    },
+  });
+  const delivered: {
+    appearance: string;
+    rootAppearance: string | undefined;
+    preference: string | undefined;
+    stored: string | null;
+  }[] = [];
+  render(
+    <ThemeProvider
+      language="en"
+      mode="flight"
+      initialPreference="light"
+      onThemeChange={(theme) =>
+        delivered.push({
+          appearance: theme.appearance,
+          rootAppearance: document.documentElement.dataset.appearance,
+          preference: document.documentElement.dataset.preference,
+          stored: localStorage.getItem('torobticket.appearance'),
+        })
+      }
+    >
+      <Toggle />
+    </ThemeProvider>,
+  );
+  delivered.length = 0;
+  await user.click(screen.getByText('Dark'));
+  expect(deferredUpdate).toBeTypeOf('function');
+  expect(screen.getByLabelText('appearance')).toHaveTextContent('light');
+  await user.click(screen.getByText('System'));
+  expect(skipped).toBe(true);
+  await act(async () => {
+    deferredUpdate?.();
+    await Promise.resolve();
+  });
+  expect(screen.getByLabelText('preference')).toHaveTextContent('system');
+  expect(screen.getByLabelText('appearance')).toHaveTextContent('light');
+  expect(document.documentElement.dataset.preference).toBe('system');
+  expect(document.documentElement.dataset.appearance).toBe('light');
+  expect(localStorage.getItem('torobticket.appearance')).toBe('system');
+  expect(delivered).toEqual([
+    { appearance: 'light', rootAppearance: 'light', preference: 'system', stored: 'system' },
+  ]);
 });
