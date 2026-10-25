@@ -1,8 +1,9 @@
 import { ClientError, type ApiClient } from '@torob-ticket/client';
 import type { DatePriceQuery, DatePriceSnapshot, SessionInfo } from '@torob-ticket/contracts';
 import { searchStartPool } from '../search/search-start-pool';
-import { datePriceIdentityForSession, matchesDateSnapshot, snapshotFresh } from './date-state';
-export interface DateJobState { snapshot?: DatePriceSnapshot; error?: unknown; waiting: boolean }
+import { datePriceIdentityForSession, matchesDateSnapshot, snapshotFresh, observationFresh } from './date-state';
+export interface DateJobState { snapshot?: DatePriceSnapshot; staleSnapshot?: DatePriceSnapshot; error?: unknown; waiting: boolean }
+export function staleDateState(snapshot: DatePriceSnapshot): DateJobState { return { staleSnapshot: snapshot, error: new ClientError('network','date-prices-stale'), waiting: false }; }
 interface Job { request: DatePriceQuery; state: DateJobState; listeners: Set<(state: DateJobState) => void>; abort: AbortController; cancelled: boolean; finished: boolean; done: Promise<void>; releaseTimer?: ReturnType<typeof setTimeout> }
 function pause(ms: number, signal: AbortSignal) { return new Promise<void>((resolve, reject) => { const timer = setTimeout(() => { signal.removeEventListener('abort', abort); resolve(); }, ms); function abort() { clearTimeout(timer); reject(new DOMException('Aborted','AbortError')); } signal.addEventListener('abort', abort, { once: true }); if (signal.aborted) abort(); }); }
 /** One semantic job per API-client lifetime. Its generation belongs to pricing, not result sorting. */
@@ -36,7 +37,7 @@ export class DatePriceJobs {
   private async run(job: Job, session: SessionInfo, epoch: number) {
     const pool = searchStartPool(this.client);
     let slot: ReturnType<typeof pool.reserve>;
-    let id: string | undefined;
+    let id: string | undefined; let terminal = false;
     const inactive = () => job.cancelled || pool.epoch !== epoch || pool.getSnapshot().resetting;
     try {
       while (!slot && !inactive()) {
@@ -51,6 +52,8 @@ export class DatePriceJobs {
       if (!matchesDateSnapshot(snapshot, job.request, session, id)) throw new ClientError('schema', 'date-response-query-mismatch');
       let polls = 0;
       while (!inactive()) {
+        terminal = snapshot.status !== 'checking';
+        if (snapshot.status === 'complete' && !observationFresh(snapshot)) { this.publish(job,staleDateState(snapshot)); return; }
         snapshot = { ...snapshot, cells: [...snapshot.cells].sort((a,b) => a.date.localeCompare(b.date)) };
         this.publish(job, { snapshot, waiting: false });
         if (snapshot.status !== 'checking') return;
@@ -61,7 +64,7 @@ export class DatePriceJobs {
       }
     } catch (error) { if (!inactive()) this.publish(job, { ...job.state, waiting: false, error }); }
     finally {
-      if (id && (inactive() || job.state.error) && job.state.snapshot?.status !== 'complete') await this.client.cancelDatePrices(id, job.request.clientGeneration).catch(() => undefined);
+      if (id && !terminal && (inactive() || job.state.error)) await this.client.cancelDatePrices(id, job.request.clientGeneration).catch(() => undefined);
       job.finished = true; slot?.finish();
     }
   }

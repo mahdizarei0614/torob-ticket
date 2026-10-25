@@ -136,3 +136,11 @@ it('synchronously fences a fast native Pop and preserves a rapid new date intent
   await waitFor(() => expect(hook.result.current.accepted).toBe(true));
   expect(hook.result.current.state.committed?.departureDate).toBe('2026-10-27'); hook.unmount();
 });
+
+it('cannot reauthorize a date intent or reserve priority after its controller unmounts', async () => {
+  const { searchStartPool } = await import('./search-start-pool');
+  const client = { startSearch: vi.fn(async (request: SearchRequest) => recovery(request)), cancelSearch: vi.fn(async () => undefined) } as unknown as ApiClient;
+  const hook = setup(client); const lateCommit = hook.result.current.commitDates; const lease = hook.result.current.dateInteractions; const token = lease.capture(); hook.unmount();
+  lateCommit({ ...query, departureDate: '2026-10-26' }); expect(lease.isCurrent(token)).toBe(false); expect(client.startSearch).not.toHaveBeenCalled();
+  const slot = searchStartPool(client).reserve('date-read'); expect(slot).toBeDefined(); slot?.finish();
+});

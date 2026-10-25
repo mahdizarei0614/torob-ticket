@@ -1,4 +1,5 @@
-import { useMemo, useRef, useState } from 'react';
+import { createDateInteractions, type DateInteractions } from './date-interaction';
+import { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Button } from '@torob-ticket/ui';
 import { LocalDateSchema } from '@torob-ticket/contracts';
 import type { CatalogSnapshot, DatePriceCell, DatePriceQuery, SessionInfo } from '@torob-ticket/contracts';
@@ -9,12 +10,16 @@ import { DateCalendar } from './date-calendar';
 import { DateChart } from './date-chart';
 import { useDatePrices } from './use-date-prices';
 import styles from './dates.module.css';
-export function DateExplorer({ draft, catalog, session, onCommit, onPreview, onCovered, onInteractionChange, disabled = false, waiting = false }: { draft: SearchDraft; catalog: CatalogSnapshot; session: SessionInfo; onCommit: (draft: SearchDraft) => void; onPreview: (date?: string) => void; onCovered: (covered: boolean) => void; onInteractionChange: (active: boolean) => void; disabled?: boolean; waiting?: boolean }) {
+export function DateExplorer({ draft, catalog, session, onCommit, onPreview, onCovered, onInteractionChange, interaction: controlledInteraction, disabled = false, waiting = false }: { draft: SearchDraft; catalog: CatalogSnapshot; session: SessionInfo; onCommit: (draft: SearchDraft) => void; onPreview: (date?: string) => void; onCovered: (covered: boolean) => void; onInteractionChange: (active: boolean) => void; disabled?: boolean; waiting?: boolean; interaction?: DateInteractions }) {
   const [leg, setLeg] = useState<DateLeg>('outbound'); const activeLeg = draft.tripType === 'one-way' ? 'outbound' : leg;
-  const [provisional, setProvisional] = useState<SearchDraft | undefined>(undefined);
+  const [ownedInteraction] = useState(createDateInteractions); const interaction = controlledInteraction ?? ownedInteraction;
+  const externalBasis = JSON.stringify([draft,session]); const basisRef = useRef(externalBasis); basisRef.current = externalBasis;
+  const [provisional, setProvisional] = useState<{ draft: SearchDraft; basis: string; token: number } | undefined>(undefined);
+  const provisionalRef = useRef(provisional); provisionalRef.current = provisional;
+  const activeProvisional = provisional && provisional.basis === externalBasis && interaction.isCurrent(provisional.token) && !disabled ? provisional : undefined;
   const [month, setMonth] = useState(draft.departureDate); const [preview, setPreview] = useState<string | undefined>(undefined);
   const trigger = useRef<HTMLButtonElement>(null);
-  const model = provisional ?? draft;
+  const model = activeProvisional?.draft ?? draft;
   const rawSelected = (activeLeg === 'outbound' ? model.departureDate : model.returnDate) ?? model.departureDate;
   const city = catalog.cities.find(city => city.id === (activeLeg === 'outbound' ? model.originCityId : model.destinationCityId));
   const bounds = dateBounds(session, city?.timeZone ?? 'Asia/Tehran');
@@ -25,28 +30,50 @@ export function DateExplorer({ draft, catalog, session, onCommit, onPreview, onC
   const validity = validateDraft(candidate, catalog, session);
   const basis = validity.query ? datePriceIdentityForSession({ query: validity.query, leg: activeLeg, dates: [bounds.min], clientGeneration: 'basis' }, session) : JSON.stringify([activeLeg,model]);
   const nearby = useRef<{ basis: string; dates: string[] }>({ basis: '', dates: [] });
-  if (nearby.current.basis !== basis || (!provisional && !nearby.current.dates.includes(selected))) nearby.current = { basis, dates: dateWindow(selected, bounds.min, bounds.max) };
-  const batch = [...new Set([...nearby.current.dates, ...(provisional ? calendarWindow(month) : [])])].sort().slice(0, 90);
+  if (nearby.current.basis !== basis || (!activeProvisional && !nearby.current.dates.includes(selected))) nearby.current = { basis, dates: dateWindow(selected, bounds.min, bounds.max) };
+  const batch = [...new Set([...nearby.current.dates, ...(activeProvisional ? calendarWindow(month) : [])])].sort().slice(0, 90);
   const request: DatePriceQuery | undefined = validity.valid && batch.length ? { query: validity.query!, leg: activeLeg, dates: batch, clientGeneration: 'date-intent' } : undefined;
   const prices = useDatePrices(request, session, !disabled);
-  const cells = useMemo<readonly DatePriceCell[]>(() => prices.snapshot?.cells.map(cell => prices.error && cell.status === 'checking' ? { date: cell.date, status: 'unavailable' as const, reason: 'retrieval-failed' as const, retryable: !!prices.retryable, coverage: { expectedProviderIds: [], successfulProviderIds: [], failedProviderIds: [], pendingProviderIds: [], complete: false } } : cell) ?? (request ? batch.map(date => ({ date, status: 'checking' as const })) : []), [prices.snapshot, prices.error, prices.retryable, batch.join('|'), !!request]);
+  const cells = useMemo<readonly DatePriceCell[]>(() => {
+    if (prices.stale || (prices.error && !prices.snapshot)) return [];
+    return prices.snapshot?.cells.map(cell => prices.error && cell.status === 'checking' ? { date: cell.date, status: 'unavailable' as const, reason: 'retrieval-failed' as const, retryable: !!prices.retryable, coverage: { expectedProviderIds: [], successfulProviderIds: [], failedProviderIds: [], pendingProviderIds: [], complete: false } } : cell) ?? (request ? batch.map(date => ({ date, status: 'checking' as const })) : []);
+  }, [prices.snapshot, prices.error, prices.stale, prices.retryable, batch.join('|'), !!request]);
   const selectedDate = preview ?? selected;
   const selectedCell = cells.find(cell => cell.date === selectedDate);
   const travelers = model.party.adults + model.party.children + model.party.infants;
-  function previewDate(date: string) { setPreview(date); onPreview(date); }
-  function commit(date: string) { setPreview(undefined); onPreview(undefined); onCommit(commitDate(draft, activeLeg, date)); }
-  function close() { setProvisional(undefined); setPreview(undefined); onPreview(undefined); onCovered(false); requestAnimationFrame(() => trigger.current?.focus()); }
-  function open() { setProvisional(structuredClone(draft)); setMonth(selected); setPreview(undefined); onCovered(true); }
-  function changeLeg(next: DateLeg) { setLeg(next); setPreview(undefined); if (provisional) setMonth((next === 'outbound' ? provisional.departureDate : provisional.returnDate) ?? provisional.departureDate); }
+  function previewDate(date: string) { if (!mounted.current || disabled) return; setPreview(date); onPreview(date); }
+  function commit(date: string) { if (!mounted.current || disabled) return; setPreview(undefined); onPreview(undefined); onCommit(commitDate(draft, activeLeg, date)); }
+  const callbacks = useRef({ onPreview,onCovered,onInteractionChange }); callbacks.current = { onPreview,onCovered,onInteractionChange };
+  const mounted = useRef(true); const focusFrame = useRef<number | undefined>(undefined);
+  function clearLocal() {
+    const wasOpen = !!provisionalRef.current; provisionalRef.current = undefined;
+    if (mounted.current) { setProvisional(undefined); setPreview(undefined); }
+    callbacks.current.onPreview(undefined); callbacks.current.onInteractionChange(false);
+    if (wasOpen) { callbacks.current.onCovered(false); if (typeof requestAnimationFrame === 'function') focusFrame.current = requestAnimationFrame(() => { if (mounted.current) trigger.current?.focus(); }); }
+  }
+  const clearRef = useRef(clearLocal); clearRef.current = clearLocal;
+  useLayoutEffect(() => { mounted.current = true; const unsubscribe = interaction.subscribe(() => clearRef.current()); return () => { mounted.current = false; unsubscribe(); interaction.invalidate(); if (focusFrame.current !== undefined) cancelAnimationFrame(focusFrame.current); if (provisionalRef.current) callbacks.current.onCovered(false); provisionalRef.current = undefined; callbacks.current.onInteractionChange(false); }; }, [interaction]);
+  const previousBasis = useRef(externalBasis);
+  useLayoutEffect(() => { if (previousBasis.current !== externalBasis || disabled) { previousBasis.current = externalBasis; interaction.invalidate(); } }, [externalBasis,disabled,interaction]);
+  function close() { if (mounted.current) interaction.invalidate(); }
+  function open() { if (!mounted.current || disabled) return; interaction.invalidate(); const next = { draft: structuredClone(draft), basis: externalBasis, token: interaction.capture() }; provisionalRef.current = next; setProvisional(next); setMonth(selected); setPreview(undefined); onCovered(true); }
+  function changeLeg(next: DateLeg) {
+    if (!mounted.current || disabled) return;
+    const calendar = activeProvisional && interaction.isCurrent(activeProvisional.token) && activeProvisional.basis === basisRef.current ? activeProvisional : undefined; interaction.invalidate(); setLeg(next); setPreview(undefined);
+    // Changing direction inside the same calendar is an intentional continuation.
+    if (calendar && calendar.basis === basisRef.current) { if (focusFrame.current !== undefined) cancelAnimationFrame(focusFrame.current); const renewed = { ...calendar, token: interaction.capture() }; provisionalRef.current = renewed; setProvisional(renewed); onCovered(true); setMonth((next === 'outbound' ? calendar.draft.departureDate : calendar.draft.returnDate) ?? calendar.draft.departureDate); }
+  }
+  function applyCalendar() { if (!activeProvisional || !interaction.isCurrent(activeProvisional.token) || activeProvisional.basis !== basisRef.current || disabled || !mounted.current) return; onCommit(activeProvisional.draft); close(); }
   const coverage = selectedCell && 'coverage' in selectedCell ? selectedCell.coverage : undefined;
   return <section aria-label="کاوش تاریخ سفر" className={styles.explorer} data-selected-outbound={draft.departureDate} data-selected-return={draft.returnDate ?? ''} data-date-price-id={prices.snapshot?.datePriceId} data-date-price-status={prices.error ? 'unavailable' : prices.snapshot?.status ?? (request ? 'checking' : 'unselected')}>
     <div className={styles.toolbar}><h2>روزهای سفر را مقایسه کنید</h2>{draft.tripType === 'round-trip' && <select aria-label="بخش سفر برای قیمت روزها" value={activeLeg} onChange={event => changeLeg(event.target.value as DateLeg)}><option value="outbound">تاریخ رفت</option><option value="return">تاریخ برگشت</option></select>}<button ref={trigger} type="button" className={styles.monthSelect} onClick={open} disabled={disabled}>تقویم جلالی و انتخاب تاریخ</button></div>
     <p className={styles.caption}>مجموع {new Intl.NumberFormat('fa-IR').format(travelers)} مسافر{model.tripType === 'round-trip' ? ` · رفت‌وبرگشت کامل · ${activeLeg === 'outbound' ? 'برگشت ثابت' : 'رفت ثابت'}: ${model.returnDate || activeLeg === 'return' ? dateLabel(activeLeg === 'outbound' ? model.returnDate! : model.departureDate) : 'هنوز انتخاب نشده'}` : ' · یک‌طرفه'} · به وقت محلی {city?.name ?? 'شهر حرکت'}</p>
-    <div className={styles.exploration}><DateWheel dates={dates} value={selected} cells={cells} onPreview={previewDate} onCommit={commit} onInteractionChange={onInteractionChange} leg={activeLeg} /><DateChart leg={activeLeg} cells={cells} selected={selectedDate} onSelect={date => { if (!disabled) commit(date); }} /></div>
-    <div className={styles.selection} aria-live="polite"><p>{dateLabel(selectedDate)} · {cellLabel(selectedCell,activeLeg)}</p>{coverage && <p className={styles.status}>{new Intl.NumberFormat('fa-IR').format(coverage.successfulProviderIds.length)} از {new Intl.NumberFormat('fa-IR').format(coverage.expectedProviderIds.length)} فروشنده پاسخ موفق{coverage.complete ? '' : ' · تا این لحظه'}{coverage.failedProviderIds.length ? ' · بخشی از دریافت‌ها ناموفق بود' : ''}</p>}{selectedCell?.status === 'priced' && <p className={styles.status}>مشاهده: <time dateTime={selectedCell.observedAt}>{new Intl.DateTimeFormat('fa-IR', { hour: '2-digit', minute: '2-digit', second: '2-digit' }).format(new Date(selectedCell.observedAt))}</time> · کمترین قیمت واجد شرایط همین فرم</p>}</div>
+    <div className={styles.exploration}><DateWheel dates={dates} value={selected} cells={cells} onPreview={previewDate} onCommit={commit} onInteractionChange={onInteractionChange} leg={activeLeg} interaction={interaction} interactionKey={externalBasis + activeLeg} missingLabel={prices.stale ? 'نیاز به بررسی تازه' : prices.error ? 'قیمت در دسترس نیست' : undefined} /><DateChart leg={activeLeg} cells={cells} selected={selectedDate} onSelect={date => { if (!disabled) commit(date); }} /></div>
+    <div className={styles.selection} aria-live="polite"><p>{dateLabel(selectedDate)} · {prices.stale ? 'قیمت نیاز به بررسی تازه دارد' : prices.error && !selectedCell ? 'قیمت در دسترس نیست' : cellLabel(selectedCell,activeLeg)}</p>{coverage && <p className={styles.status}>{new Intl.NumberFormat('fa-IR').format(coverage.successfulProviderIds.length)} از {new Intl.NumberFormat('fa-IR').format(coverage.expectedProviderIds.length)} فروشنده پاسخ موفق{coverage.complete ? '' : ' · تا این لحظه'}{coverage.failedProviderIds.length ? ' · بخشی از دریافت‌ها ناموفق بود' : ''}</p>}{selectedCell?.status === 'priced' && <p className={styles.status}>مشاهده: <time dateTime={selectedCell.observedAt}>{new Intl.DateTimeFormat('fa-IR', { hour: '2-digit', minute: '2-digit', second: '2-digit' }).format(new Date(selectedCell.observedAt))}</time> · کمترین قیمت واجد شرایط همین فرم</p>}</div>
     {!request && <p className={styles.status}>{model.tripType === 'round-trip' && !model.returnDate && activeLeg === 'outbound' ? 'برای قیمت کامل رفت، ابتدا تاریخ برگشت را انتخاب کنید. رفت را می‌توانید بدون قیمت جابه‌جا کنید.' : 'مسیر، تاریخ و شرایط مسافران را کامل کنید تا قیمت روزها بررسی شود.'}</p>}
-    {prices.waiting && <p role="status" className={styles.status}>در انتظار ظرفیت بررسی قیمت روزها…</p>}{!!prices.error && <p role="alert" className={styles.error}>قیمت روزها دریافت نشد؛ این به معنی نبودن پیشنهاد نیست.</p>}{prices.retryable && <Button type="button" variant="quiet" onPress={prices.retry}>تلاش دوباره برای قیمت روزها</Button>}
+    {prices.waiting && <p role="status" className={styles.status}>در انتظار ظرفیت بررسی قیمت روزها…</p>}{!!prices.error && <p role="alert" className={styles.error}>{prices.stale ? 'قیمت‌های مشاهده‌شده دیگر تازه نیستند؛ برای قیمت تازه دوباره بررسی کنید.' : 'قیمت روزها دریافت نشد؛ این به معنی نبودن پیشنهاد نیست.'}</p>}{prices.retryable && <Button type="button" variant="quiet" onPress={prices.retry}>تلاش دوباره برای قیمت روزها</Button>}
     {waiting && <p role="status" className={styles.status}>تاریخ انتخاب‌شده ثبت شد؛ آخرین انتخاب شما با آزاد شدن ظرفیت جست‌وجو می‌شود.</p>}
-    {provisional && <DateCalendar draft={provisional} leg={activeLeg} onLeg={changeLeg} onDraft={setProvisional} month={month} onMonth={setMonth} min={activeLeg === 'return' && provisional.departureDate > bounds.min ? provisional.departureDate : bounds.min} max={bounds.max} localBounds={{ outbound: dateBounds(session, catalog.cities.find(city => city.id === model.originCityId)?.timeZone ?? 'Asia/Tehran'), return: dateBounds(session, catalog.cities.find(city => city.id === model.destinationCityId)?.timeZone ?? 'Asia/Tehran') }} cells={cells} canApply={validateDraft(provisional, catalog, session).valid && !disabled} onApply={() => { onCommit(provisional); close(); }} onCancel={close} />}
+    {activeProvisional && <DateCalendar draft={activeProvisional.draft} leg={activeLeg} onLeg={changeLeg} onDraft={next => setProvisional(previous => previous && interaction.isCurrent(previous.token) && previous.basis === basisRef.current ? { ...previous, draft: next } : undefined)} month={month} onMonth={setMonth} min={activeLeg === 'return' && model.departureDate > bounds.min ? model.departureDate : bounds.min} max={bounds.max} localBounds={{ outbound: dateBounds(session, catalog.cities.find(city => city.id === model.originCityId)?.timeZone ?? 'Asia/Tehran'), return: dateBounds(session, catalog.cities.find(city => city.id === model.destinationCityId)?.timeZone ?? 'Asia/Tehran') }} cells={cells} canApply={validateDraft(activeProvisional.draft, catalog, session).valid && !disabled} priceNotice={prices.stale ? 'قیمت‌های مشاهده‌شده دیگر تازه نیستند؛ قیمت تازه را دوباره بررسی کنید.' : prices.error ? 'قیمت روزها در دسترس نیست؛ نبودن پیشنهاد ثابت نشده است.' : undefined} missingLabel={prices.stale ? 'نیاز به بررسی تازه' : prices.error ? 'قیمت در دسترس نیست' : undefined} onRefreshPrices={prices.retryable ? prices.retry : undefined} onApply={applyCalendar} onCancel={close} />}
+
   </section>;
 }

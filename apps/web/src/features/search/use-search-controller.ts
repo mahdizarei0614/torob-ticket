@@ -1,3 +1,4 @@
+import { createDateInteractions } from '../dates/date-interaction';
 import { useEffect, useReducer, useRef, useState, useSyncExternalStore } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 import { useQueryClient } from '@tanstack/react-query';
@@ -28,6 +29,7 @@ export function useSearchController(catalog: CatalogSnapshot, session: SessionIn
   const ownNavigation = useRef<string | undefined>(undefined);
   const popTarget = useRef<string | undefined>(undefined);
   const live = useRef(true);
+  const [dateInteractions] = useState(createDateInteractions);
   const starts = searchStartPool(client);
   const datePriority = useRef(Symbol('authorized-date-intent'));
   const startSnapshot = useSyncExternalStore(starts.subscribe, starts.getSnapshot);
@@ -39,8 +41,9 @@ export function useSearchController(catalog: CatalogSnapshot, session: SessionIn
   const [accepted, setAccepted] = useState(false);
   const resetting = startSnapshot.resetting;
   const startLimitReached = startSnapshot.count >= unresolvedStartLimit;
-  useEffect(() => { live.current = true; return () => { live.current = false; generation.current = undefined; queuedDate.current = undefined; starts.prioritize(datePriority.current, false); }; }, []);
+  useEffect(() => { live.current = true; return () => { live.current = false; dateInteractions.invalidate(); generation.current = undefined; queuedDate.current = undefined; starts.prioritize(datePriority.current, false); }; }, []);
   function restoreIntent(search: string) {
+    dateInteractions.invalidate();
     const parsed = parseSearchUrl(search, catalog, session);
     const next = crypto.randomUUID();
     generation.current = next; queuedDate.current = undefined; starts.prioritize(datePriority.current, false); setWaitingDate(false);
@@ -70,9 +73,10 @@ export function useSearchController(catalog: CatalogSnapshot, session: SessionIn
   }, [location.key, location.search, catalog, session, navigate]);
   const validity = validateDraft(state.draft, catalog, session);
   function cancelQueuedDate() { if (!queuedDate.current) return; queuedDate.current = undefined; starts.prioritize(datePriority.current, false); setWaitingDate(false); setPending(false); }
-  function edit(patch: Partial<SearchDraft>) { cancelQueuedDate(); dispatch({ type: 'draft', patch, catalog }); setFeedback(''); }
-  function preset(draft: SearchDraft) { cancelQueuedDate(); dispatch({ type: 'preset', draft }); setFeedback(''); }
+  function edit(patch: Partial<SearchDraft>) { dateInteractions.invalidate(); cancelQueuedDate(); dispatch({ type: 'draft', patch, catalog }); setFeedback(''); }
+  function preset(draft: SearchDraft) { dateInteractions.invalidate(); cancelQueuedDate(); dispatch({ type: 'preset', draft }); setFeedback(''); }
   function commitIntent(query: TransportSearchQuery, next: string) {
+    dateInteractions.invalidate();
     generation.current = next;
     dispatch({ type: 'commit', query, generation: next });
     setPending(true); setAccepted(false); setFeedback('');
@@ -98,7 +102,7 @@ export function useSearchController(catalog: CatalogSnapshot, session: SessionIn
     }
   }
   async function submit(query: TransportSearchQuery = validity.query!) {
-    if (!query || starts.getSnapshot().resetting || pendingGeneration.current === generation.current) return;
+    if (!live.current || !query || starts.getSnapshot().resetting || pendingGeneration.current === generation.current) return;
     const checked = validateDraft(query, catalog, session);
     if (!checked.valid) { setFeedback(checked.errors.join(' ')); return; }
     const slot = starts.reserve(); if (!slot) return;
@@ -107,11 +111,11 @@ export function useSearchController(catalog: CatalogSnapshot, session: SessionIn
     await startCommitted(checked.query!, next, slot);
   }
   function commitDates(draft: SearchDraft) {
-    if (starts.getSnapshot().resetting) return;
+    if (!live.current || starts.getSnapshot().resetting) return;
     const checked = validateDraft(draft, catalog, session);
     const next = crypto.randomUUID();
     if (!checked.valid) {
-      cancelQueuedDate(); generation.current = next; setAccepted(false); setPending(false);
+      dateInteractions.invalidate(); cancelQueuedDate(); generation.current = next; setAccepted(false); setPending(false);
       dispatch({ type: 'date-draft', draft, generation: next });
       setFeedback(draft.tripType === 'round-trip' && !draft.returnDate ? 'تاریخ برگشت را دوباره انتخاب کنید؛ سپس تاریخ‌ها را اعمال کنید.' : checked.errors.join(' '));
       return;
@@ -128,7 +132,8 @@ export function useSearchController(catalog: CatalogSnapshot, session: SessionIn
     void startCommitted(queued.query, queued.generation, slot);
   }, [startSnapshot, waitingDate]);
   async function reset() {
-    if (!starts.beginReset()) return;
+    if (!live.current || !starts.beginReset()) return;
+    dateInteractions.invalidate();
     generation.current = crypto.randomUUID(); queuedDate.current = undefined; starts.prioritize(datePriority.current, false); setWaitingDate(false); setAccepted(false); setPending(false); setFeedback('');
     // Fetch cancellation settles immediately in browsers. Bound custom transports
     // too; the server reset atomically fences/cancels the old namespace.
@@ -142,5 +147,5 @@ export function useSearchController(catalog: CatalogSnapshot, session: SessionIn
       window.location.assign(valid && valid.valid ? serializeSearchUrl(valid.query!) : '/');
     } catch (error) { setFeedback(errorMessage(error)); starts.resetFailed(); }
   }
-  return { state, dispatch, edit, preset, submit, commitDates, waitingDate, reset, validity, pending, resetting, feedback, accepted, startLimitReached, unresolvedStarts: startSnapshot.count, capacityMessage: startLimitReached && !resetting ? startCapacityMessage : '' };
+  return { state, dispatch, edit, preset, submit, dateInteractions, commitDates, waitingDate, reset, validity, pending, resetting, feedback, accepted, startLimitReached, unresolvedStarts: startSnapshot.count, capacityMessage: startLimitReached && !resetting ? startCapacityMessage : '' };
 }
