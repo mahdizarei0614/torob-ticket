@@ -186,3 +186,13 @@ it('StrictMode lifetime replay does not duplicate an outstanding authorized star
  const view=render(<StrictMode><QueryClientProvider client={cache}><MemoryRouter><Harness/></MemoryRouter></QueryClientProvider></StrictMode>);
  expect(client.startSearch).toHaveBeenCalledTimes(1);await act(async()=>{release(recovery(input));});expect(client.startSearch).toHaveBeenCalledTimes(1);expect(current.accepted).toBe(true);expect(current.state.generation).toBe(input.clientGeneration);view.unmount();
 });
+
+describe('live accepted result ownership',()=>{
+ it('allows committed-result inspection during draft edits but fences wrong IDs, native restoration and unmount',async()=>{
+  const client={startSearch:vi.fn(async(request:SearchRequest)=>recovery(request)),cancelSearch:vi.fn(async()=>undefined)} as unknown as ApiClient;
+  const hook=setup(client);await act(()=>hook.result.current.submit());const generation=hook.result.current.state.generation!;const owner=hook.result.current;expect(owner.resultIsCurrent(generation,'operation')).toBe(true);expect(owner.resultIsCurrent(generation,'other')).toBe(false);
+  act(()=>hook.result.current.edit({party:{adults:2,children:0,infants:0}}));expect(hook.result.current.canRefineResults).toBe(false);expect(owner.resultIsCurrent(generation,'operation')).toBe(true);
+  act(()=>{owner.previewResultItinerary('kept-result',generation,'operation');owner.pinResultItinerary('kept-result',generation,'operation');});expect(hook.result.current.state.pinnedItineraryId).toBe('kept-result');
+  act(()=>{window.history.replaceState({},'','/');window.dispatchEvent(new PopStateEvent('popstate'));owner.previewResultItinerary('old',generation,'operation');owner.pinResultItinerary('old',generation,'operation');});expect(hook.result.current.state.pinnedItineraryId).toBeUndefined();expect(hook.result.current.state.previewItineraryId).toBeUndefined();expect(owner.resultIsCurrent(generation,'operation')).toBe(false);expect(owner.resultIsCurrent(hook.result.current.state.generation!,'operation')).toBe(false);hook.unmount();expect(owner.resultIsCurrent(generation,'operation')).toBe(false);
+ });
+});

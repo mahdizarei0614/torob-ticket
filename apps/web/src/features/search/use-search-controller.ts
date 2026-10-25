@@ -28,6 +28,7 @@ export function useSearchController(catalog: CatalogSnapshot, session: SessionIn
   // StrictMode may replay lifetime setup while a canonical Router replacement is pending.
   const intendedGeneration = useRef(state.generation);
   const ownedSearchId = useRef<string | undefined>(undefined);
+  const acceptedResult = useRef<{ generation:string; searchId:string } | undefined>(undefined);
   const ownNavigation = useRef<string | undefined>(undefined);
   const popTarget = useRef<string | undefined>(undefined);
   const live = useRef(true);
@@ -94,6 +95,7 @@ export function useSearchController(catalog: CatalogSnapshot, session: SessionIn
       if (!live.current || starts.epoch !== slot.epoch || generation.current !== next || recovery.snapshot.clientGeneration !== next) { await client.cancelSearch(recovery.snapshot.searchId).catch(() => undefined); return; }
       if (serializeSearchUrl(recovery.snapshot.query) !== serializeSearchUrl(query)) { await client.cancelSearch(recovery.snapshot.searchId).catch(() => undefined); throw new ClientError('schema', 'search-response-query-mismatch'); }
       ownedSearchId.current = recovery.snapshot.searchId;
+      acceptedResult.current = {generation:next,searchId:recovery.snapshot.searchId};
       cache.setQueryData(['search', next, recovery.snapshot.searchId], recovery);
       dispatch({ type: 'adopt', generation: next, searchId: recovery.snapshot.searchId });
       setAccepted(true);
@@ -151,10 +153,19 @@ export function useSearchController(catalog: CatalogSnapshot, session: SessionIn
       window.location.assign(valid && valid.valid ? serializeSearchUrl(valid.query!) : '/');
     } catch (error) { setFeedback(errorMessage(error)); starts.resetFailed(); }
   }
+  function resultIsCurrent(expectedGeneration: string, expectedSearchId: string) {
+    return live.current && !starts.getSnapshot().resetting && generation.current === expectedGeneration && acceptedResult.current?.generation === expectedGeneration && acceptedResult.current.searchId === expectedSearchId;
+  }
+  function previewResultItinerary(id: string | undefined, expectedGeneration: string, expectedSearchId: string) {
+    if (resultIsCurrent(expectedGeneration,expectedSearchId)) dispatch({type:'preview-itinerary',id});
+  }
+  function pinResultItinerary(id: string, expectedGeneration: string, expectedSearchId: string) {
+    if (resultIsCurrent(expectedGeneration,expectedSearchId)) dispatch({type:'pin-itinerary',id});
+  }
   const canRefineResults = Boolean(state.committed && validity.query && serializeSearchUrl(state.committed) === serializeSearchUrl(validity.query));
   function refineResults(query: TransportSearchQuery, expectedGeneration: string, interactionToken: number) {
     if (!live.current || generation.current !== expectedGeneration || !dateInteractions.isCurrent(interactionToken) || !canRefineResults) return;
     void submit(query);
   }
-  return { state, dispatch, edit, preset, submit, refineResults, canRefineResults, refinementToken: dateInteractions.capture(), enterResults: resultEntryGeneration === state.generation, dateInteractions, commitDates, waitingDate, reset, validity, pending, resetting, feedback, accepted, startLimitReached, unresolvedStarts: startSnapshot.count, capacityMessage: startLimitReached && !resetting ? startCapacityMessage : '' };
+  return { state, dispatch, edit, preset, submit, refineResults, resultIsCurrent, previewResultItinerary, pinResultItinerary, canRefineResults, refinementToken: dateInteractions.capture(), enterResults: resultEntryGeneration === state.generation, dateInteractions, commitDates, waitingDate, reset, validity, pending, resetting, feedback, accepted, startLimitReached, unresolvedStarts: startSnapshot.count, capacityMessage: startLimitReached && !resetting ? startCapacityMessage : '' };
 }
