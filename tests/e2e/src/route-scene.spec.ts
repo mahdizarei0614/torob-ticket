@@ -190,3 +190,30 @@ test('@route-scene unavailable WebGL retains native timeline and location action
   expect((await report(page)).point!.longitude).toBe(51.422398);
   await save('route-unavailable', await report(page));
 });
+
+test('@route-scene custom projection keeps real geography visible through empty fits and stable previews', async ({ page }) => {
+  // Supply the public prop at the existing lab caller; production lab/default behavior is unchanged.
+  await page.route('**/libs/graphics/src/route-lab.tsx', async route => {
+    const response = await route.fetch(); const source = await response.text(); const anchor = 'fitKey: String(fit),';
+    if (!source.includes(anchor)) throw new Error('Public RouteScene lab prop insertion point changed');
+    await route.fulfill({ response, body: source.replace(anchor, 'projection: { centralLongitude: 54 }, fitKey: String(fit),') });
+  });
+  await gpuObserver(page); await ready(page); await settle(page);
+  const initial = await camera(page); expect(initial.x).toBe(0);
+  const gpu = () => page.evaluate(() => (window as unknown as { routeGPU: { maxColoredPixels: number; hashes: number[] } }).routeGPU);
+  expect((await gpu()).maxColoredPixels).toBeGreaterThan(400);
+  await page.getByRole('checkbox', { name: 'بدون برنامه سفر', exact: true }).check(); await settle(page); expect(await camera(page)).toEqual(initial);
+  await expect(page.locator('[data-route-scene]')).toContainText('برای نمایش مسیر، مبدأ و مقصد را انتخاب کنید.');
+  await page.getByRole('button', { name: 'تثبیت و تنظیم دوربین', exact: true }).click(); await settle(page); expect((await camera(page)).x).toBe(0);
+  await page.getByRole('checkbox', { name: 'بدون برنامه سفر', exact: true }).uncheck();
+  await page.getByRole('button', { name: 'تثبیت و تنظیم دوربین', exact: true }).click(); await settle(page);
+  const fitted = await camera(page); expect(Math.abs(fitted.x)).toBeLessThan(20); expect(fitted.x).not.toBe(initial.x);
+  await page.getByRole('button', { name: 'پیش‌نمایش مسیر دیگر', exact: true }).click(); await settle(page); expect(await camera(page)).toEqual(fitted);
+  await page.getByRole('button', { name: 'پایان پیش‌نمایش', exact: true }).click();
+  await page.getByRole('combobox', { name: 'محدوده', exact: true }).selectOption('international');
+  await page.getByRole('button', { name: 'نمای کامل جغرافیا', exact: true }).click(); await settle(page);
+  const world = await camera(page); expect(world.x).toBe(0); expect(world.width).toBe(360);
+  const final = await report(page); expect(final.programs.every(program => program.linked && program.vertexCompiled && program.fragmentCompiled)).toBe(true);
+  await save('projection-browser', { projection: { centralLongitude: 54 }, initial, fitted, world, gpu: await gpu(), final });
+  if (process.env.GRAPHICS_EVIDENCE_DIR) await page.screenshot({ path: `${process.env.GRAPHICS_EVIDENCE_DIR}/projection-context54.png` });
+});

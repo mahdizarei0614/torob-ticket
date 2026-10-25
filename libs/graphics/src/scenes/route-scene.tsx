@@ -1,7 +1,7 @@
 import { memo, useMemo } from 'react';
 import type { GeoPoint, Itinerary, Mode, Place } from '@torob-ticket/contracts';
 import { buildRouteGeometry, type IllustrativePath, type RouteSegmentGeometry } from '../geo/route-geometry';
-import { DEFAULT_PROJECTION, fitRouteBounds, projectRoute, type ProjectionContext } from '../geo/projection';
+import { DEFAULT_PROJECTION, fitRouteBounds, projectPoint, projectRoute, type ProjectionContext } from '../geo/projection';
 import { SceneCamera, SceneSurface, useCameraIntent, type SceneMarker } from './scene-surface';
 import { SceneDrawing, StaticMap } from './scene-drawing';
 import styles from './scenes.module.css';
@@ -28,8 +28,14 @@ export const RouteScene = memo(function RouteScene({ places, dots, scope, itiner
   }, [places, leg, onPlaceSelect]);
   const bounds = useMemo(() => {
     const projected = segments.flatMap(segment => segment.paths);
-    return projected.length && fitMode === 'route' ? fitRouteBounds(projected) : scope === 'domestic' ? { x: 54, y: 32.5, width: 22, height: 17 } : { x: 0, y: 15, width: 360, height: 160 };
-  }, [segments, scope, fitMode]);
+    if (projected.length && fitMode === 'route') return fitRouteBounds(projected);
+    if (scope === 'international') return { x: 0, y: 15, width: 360, height: 160 };
+    const [x] = projectPoint({ longitude: 54, latitude: 32.5 }, projection);
+    // Preserve the authored Iran viewport unless the caller's cut splits that extent.
+    // Split geography occupies both ends of [-180,180], requiring the full frame.
+    const crossesSeam = x - 11 < -180 || x + 11 > 180;
+    return { x: crossesSeam ? 0 : x, y: 32.5, width: crossesSeam ? 360 : 22, height: 17 };
+  }, [segments, scope, fitMode, projection]);
   const [camera, setCamera] = useCameraIntent(bounds, fitKey, originKey);
   const label = 'نقشه مسیر';
   return <div data-route-scene data-direction={direction} data-progress={progress}>
