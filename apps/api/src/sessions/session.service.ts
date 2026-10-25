@@ -19,6 +19,7 @@ export function repositoryHttpError(error: unknown): never {
 export class SessionService implements OnApplicationBootstrap, OnModuleDestroy {
   private db?: PrismaClient;
   private reconciled = false;
+  private recoveryReady = false;
   private initializing?: Promise<void>;
   private timer?: ReturnType<typeof setInterval>;
   private readonly recoveries = new Set<() => Promise<void>>();
@@ -44,6 +45,7 @@ export class SessionService implements OnApplicationBootstrap, OnModuleDestroy {
   }
   async ensureReady() {
     if (this.initializing) return this.initializing;
+    this.recoveryReady = false;
     this.initializing = (async () => {
       await checkDatabaseReady(this.database, fixtureIdentity);
       if (!this.reconciled) {
@@ -52,6 +54,7 @@ export class SessionService implements OnApplicationBootstrap, OnModuleDestroy {
         this.reconciled = true;
       }
       for (const recovery of this.recoveries) await recovery();
+      this.recoveryReady = true;
     })();
     try { await this.initializing; } finally { this.initializing = undefined; }
   }
@@ -59,6 +62,7 @@ export class SessionService implements OnApplicationBootstrap, OnModuleDestroy {
   private async cleanup() { for (const id of await this.repository.cleanup(this.realClock.now())) this.cancelSession(id); }
   registerRecovery(recovery: () => Promise<void>): () => void {
     this.recoveries.add(recovery);
+    this.recoveryReady = false;
     return () => { this.recoveries.delete(recovery); };
   }
   /** Every active search registers its controller and releases it on completion. */
@@ -97,7 +101,7 @@ export class SessionService implements OnApplicationBootstrap, OnModuleDestroy {
     if (!token) throw sessionError('SESSION_EXPIRED');
     try {
       // Failed bootstrap must recover/reconcile before any resumed or guarded work.
-      if (!this.reconciled) await this.ensureReady();
+      if (!this.recoveryReady) await this.ensureReady();
       const context = this.context(await this.repository.resolveAndTouch(this.hash(token), this.realClock.now()));
       this.cookie(response, token, !!request.secure);
       return context;

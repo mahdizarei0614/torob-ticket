@@ -25,6 +25,10 @@ export class HotelWorkOwner {
             await this.repository.interruptUnfinished(this.sessions.realClock.now());
             this.recovered = true;
         }
+        await this.recoverPending();
+    }
+    /** Failed owned jobs never trigger the global startup reconciliation. */
+    private async recoverPending() {
         for (const [id, session] of this.pending) {
             try {
                 await this.repository.fail(session.scope, id, 'interrupted', this.sessions.realClock.now());
@@ -39,6 +43,9 @@ export class HotelWorkOwner {
         }
     }
     async run<T>(session: SessionContext, work: (owner: OwnedWork) => Promise<T>): Promise<T> {
+        // Direct internal callers must cross the same startup barrier as guarded HTTP.
+        if (!this.recovered)
+            await this.sessions.ensureReady();
         let finish!: () => void;
         const item: OwnedWork = { controller: new AbortController(), done: new Promise<void>(resolve => {
                 finish = resolve;
@@ -52,7 +59,7 @@ export class HotelWorkOwner {
             if (item.id) {
                 this.pending.set(item.id, session);
                 try {
-                    await this.recover();
+                    await this.recoverPending();
                 }
                 catch { /* Retained for the next readiness/recovery attempt. */
                 }
