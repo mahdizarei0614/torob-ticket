@@ -3,7 +3,7 @@ import type { StorybookConfig } from '@storybook/react-vite';
 // eslint-disable-next-line @nx/enforce-module-boundaries
 import tsconfig from '../../../tsconfig.base.json' with { type: 'json' };
 const config: StorybookConfig = {
-  stories: ['../src/**/*.stories.tsx'],
+  stories: ['../src/**/*.stories.tsx', '../../graphics/src/**/*.stories.tsx'],
   framework: { name: '@storybook/react-vite', options: {} },
   staticDirs: ['../../../assets'],
   core: { disableTelemetry: true },

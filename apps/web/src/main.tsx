@@ -5,4 +5,4 @@ import '@torob-ticket/client';
 import { App } from './app';
 const root = document.getElementById('root');
 if (!root) throw new Error('Missing application root');
-createRoot(root).render(<StrictMode><ThemeProvider language="fa"><App /></ThemeProvider></StrictMode>);
+createRoot(root).render(<StrictMode>{location.pathname === '/graphics-lab' ? <App /> : <ThemeProvider language="fa"><App /></ThemeProvider>}</StrictMode>);

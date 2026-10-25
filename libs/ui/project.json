@@ -40,7 +40,8 @@
       "cache": true,
       "inputs": [
         "production",
-        "^production"
+        "^production",
+        "{workspaceRoot}/libs/graphics/**/*"
       ],
       "outputs": [
         "{workspaceRoot}/dist/storybook/ui"

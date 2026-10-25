@@ -31,7 +31,13 @@ export interface ThemeSnapshot {
   mode: Mode;
   colors: ThemeColors;
 }
+export interface ThemeBridge {
+  getSnapshot: () => ThemeSnapshot | null;
+  beforePaint: (listener: (theme: ThemeSnapshot) => void) => () => void;
+  subscribe: (listener: (theme: ThemeSnapshot) => void) => () => void;
+}
 export interface ThemeContextValue {
+  themeBridge: ThemeBridge;
   appearance: Appearance;
   preference: ThemePreference;
   mode: Mode;
@@ -91,6 +97,14 @@ export function ThemeProvider({
   const [appearance, setAppearance] = useState<Appearance>(() =>
     preference === 'system' ? systemAppearance() : preference,
   );
+  const snapshot = useRef<ThemeSnapshot | null>(null);
+  const paintSubscribers = useRef(new Set<(theme: ThemeSnapshot) => void>());
+  const subscribers = useRef(new Set<(theme: ThemeSnapshot) => void>());
+  const [themeBridge] = useState<ThemeBridge>(() => ({
+    getSnapshot: () => snapshot.current,
+    beforePaint: listener => { paintSubscribers.current.add(listener); return () => { paintSubscribers.current.delete(listener); }; },
+    subscribe: listener => { subscribers.current.add(listener); return () => { subscribers.current.delete(listener); }; },
+  }));
   const bridge = useRef(onThemeChange);
   bridge.current = onThemeChange;
   const activeTransition = useRef<ViewTransition | null>(null);
@@ -102,7 +116,12 @@ export function ThemeProvider({
     root.dataset.preference = preference;
     root.dataset.mode = activeMode;
     root.style.colorScheme = appearance;
-    bridge.current?.({ appearance, mode: activeMode, colors: readThemeColors(root) });
+    const next = { appearance, mode: activeMode, colors: readThemeColors(root) };
+    snapshot.current = next;
+    // Publish after CSS is resolved and before the native transition captures its new frame.
+    for (const listener of subscribers.current) listener(next);
+    for (const listener of paintSubscribers.current) listener(next);
+    bridge.current?.(next);
   }, [appearance, preference, activeMode]);
   useEffect(() => {
     if (typeof matchMedia !== 'function') return;
@@ -167,7 +186,7 @@ export function ThemeProvider({
     [appearance],
   );
   return (
-    <ThemeContext.Provider value={{ appearance, preference, mode: activeMode, language, setPreference }}>
+    <ThemeContext.Provider value={{ appearance, preference, mode: activeMode, language, setPreference, themeBridge }}>
       <I18nProvider locale={language}>
         <div className={styles.scope} {...languageProps(language)} data-variant={variant}>
           {children}

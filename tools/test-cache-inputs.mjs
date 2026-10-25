@@ -31,7 +31,9 @@ try {
   copyFileSync('apps/api/vitest.integration.config.ts', join(root, 'apps/api/vitest.integration.config.ts'));
   symlinkSync(resolve('node_modules'), join(root, 'node_modules'), 'dir');
   cpSync('apps/web', join(root, 'apps/web'), { recursive: true });
-  cpSync('libs/client', join(root, 'libs/client'), { recursive: true });
+  // The real consumer now has a lazy graphics route; its browser library imports must resolve
+  // in this isolated workspace even when the foundation test never opens that route.
+  for (const library of ['client', 'graphics', 'ui', 'contracts', 'domain']) cpSync(`libs/${library}`, join(root, `libs/${library}`), { recursive: true });
   mkdirSync(join(root, 'tools'), { recursive: true });
   copyFileSync('tools/test-setup.ts', join(root, 'tools/test-setup.ts'));
   const base = JSON.parse(readFileSync(join(root, 'tsconfig.base.json'), 'utf8'));
