@@ -10,7 +10,7 @@
 
 **Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.0, 2026-10-24.
 
-**Plan state:** Approved; M1 foundation, T05 inventory, T06 normalization, T07 eligible comparison, T08 ranking, T09 durable search orchestration, SSE and recovery, T10 source-backed date prices, and T11 recheck/idempotent referrals are complete and independently reviewed. M2 comparison engine is complete; M3 has completed T13 shared rendering, T14 geography/routes, T15 consumer shell/composer and T16 date exploration; T17 comparison results is next. Remaining product tasks and evidence are tracked below. The earlier date explorer is a completed throwaway interaction study, not implemented product code.
+**Plan state:** Approved; M1 foundation, T05 inventory, T06 normalization, T07 eligible comparison, T08 ranking, T09 durable search orchestration, SSE and recovery, T10 source-backed date prices, and T11 recheck/idempotent referrals are complete and independently reviewed. M2 comparison engine is complete; M3 has completed T13 shared rendering, T14 geography/routes, T15 consumer shell/composer, T16 date exploration and T17 streamed comparison results; T18 map integration is next. Remaining product tasks and evidence are tracked below. The earlier date explorer is a completed throwaway interaction study, not implemented product code.
 
 **Delivery location:** This outputs directory contains the user-facing source documents. On repository creation, copy the spec to docs/superpowers/specs/2026-10-24-torobticket-design.md and this plan to docs/superpowers/plans/2026-10-24-torobticket-master-plan.md. Preserve the revision, task IDs, and decision authority, and rewrite the Spec link to ../specs/2026-10-24-torobticket-design.md.
 
@@ -317,7 +317,9 @@ T14 implements RouteScene/RouteTimeline and LocationScene with canonical Place/I
 
 T15 implements BrowserRouter consumer layout, SearchComposer and useSearchController in apps/web. The controller separates draft/preview/committed query and generation, exposes edit/preset/submit/reset, validity/accepted feedback and bounded-start capacity, and retains itinerary/modal seams. parseSearchUrl/serializeSearchUrl own canonical validated public intent; reload/history restore without selected-search POST and presets stay draft until Search. Runtime-validated apiClient currently exposes session/sessionSnapshot, catalog, reset, startSearch, snapshot and cancelSearch using actual SearchRecovery and POST cancel semantics. Date-price/hotel/referral methods are added by their feature-owning tasks using this transport pattern. A client-lifetime pool caps two unresolved starts across history/controller/QueryClient remounts; hold slots through stale cleanup and preserve the shared reset epoch. T16 must bind controlled date preview/settle without bypassing URL/generation/admission rules. Rulings: docs/decisions/0015-consumer-search-intent.md; detailed evidence: docs/evidence/T15/checkpoint.md. Real map binding, SSE/results and hotels remain T18/T17/T21.
 
-T16 implements DateExplorer/DateWheel/DateCalendar in apps/web, PriceChartScene/shared day-spaced geometry in graphics and PriceChartFallback in UI. The browser-safe graphics/host entry owns the persistent host without eagerly importing Three.js. apiClient.startDatePrices/getDatePrices/cancelDatePrices use the existing T10 wire protocol; date-price semantic generations and original-observation cache freshness are separate from selected-search generations. Valid initial/history intent may retrieve inventory automatically, while selected searches require explicit Search or date commit. Preview, calendar month navigation and Cancel never authorize a selected search. commitDates uses the visible whole draft and may retain only one replaceable latest authorized intent under the shared two-start bound, with priority over passive retrieval. The controller-owned dateInteractions lease synchronously invalidates timers and provisional calendar drafts on history, edit, preset, commit, reset, leg change and unmount; preserve the external basis and lease when extending consumers. Expired/future complete receipts never appear current; mounted pricing expires at its original 60s boundary and the unmodified receipt may remain historical until explicit bounded refresh. Actual fixed-opposite-leg round-trip semantics and missing-price states remain authoritative. Rulings: docs/decisions/0016-date-exploration.md; evidence: docs/evidence/T16/checkpoint.md. SSE/cards/staged adoption, actual map binding and hotel discovery remain T17/T18/T21.
+T16 implements DateExplorer/DateWheel/DateCalendar in apps/web, PriceChartScene/shared day-spaced geometry in graphics and PriceChartFallback in UI. The browser-safe graphics/host entry owns the persistent host without eagerly importing Three.js. apiClient.startDatePrices/getDatePrices/cancelDatePrices use the existing T10 wire protocol; date-price semantic generations and original-observation cache freshness are separate from selected-search generations. Valid initial/history intent may retrieve inventory automatically, while selected searches require explicit Search or date commit. Preview, calendar month navigation and Cancel never authorize a selected search. commitDates uses the visible whole draft and may retain only one replaceable latest authorized intent under the shared two-start bound, with priority over passive retrieval. The controller-owned dateInteractions lease synchronously invalidates timers and provisional calendar drafts on history, edit, preset, commit, reset, leg change and unmount; preserve the external basis and lease when extending consumers. Expired/future complete receipts never appear current; mounted pricing expires at its original 60s boundary and the unmodified receipt may remain historical until explicit bounded refresh. Actual fixed-opposite-leg round-trip semantics and missing-price states remain authoritative. Rulings: docs/decisions/0016-date-exploration.md; evidence: docs/evidence/T16/checkpoint.md. T17 now supplies SSE/cards/staged adoption; actual map binding and hotel discovery remain T18/T21.
+
+T17 implements ResultsPage/ResultsList/JourneyCard/ProviderOffers, ResultFilters, localized Explanation, useResults, the adopted/latest results reducer and bounded scroll-anchor helper in apps/web. It consumes the existing atomic SearchRecovery and subscribeSearch protocol; the server/domain still owns ranking, eligibility and factual claims. ResultsPageProps requires a live isCurrent() function. The controller exposes resultIsCurrent(expectedGeneration, expectedSearchId), previewResultItinerary(idOrUndefined, generation, searchId) and pinResultItinerary(id, generation, searchId); these authorize the exact accepted pair, separately from the ID retained for supersession. Do not replace that predicate with a rendered boolean or direct old-result reducer dispatch. QuoteSelection is {groupId, quoteId, version}; onSelectQuote receives the current exact quote and itinerary, with expiry/latest-authority safety. Initial collection adopts order; inspection stages later updates; explicit adoption retains a valid fare and DOM anchor. Filter Cancel/Escape/toggle/fresh opening restores committed conditions; Clear ignores discarded draft validation. Unapplied composer edits permit committed-result inspection but disable refinement. Original timestamps and immediate current-clock checks remain binding. Rulings: docs/decisions/0017-comparison-results.md; complete evidence: docs/evidence/T17/checkpoint.md. T18 owns real map binding, T21 hotel discovery and T22 referral/return context; query-only history/reload does not automatically create another selected search.
 
 ## 4. Execution and tracking rules
 
@@ -336,7 +338,7 @@ T16 implements DateExplorer/DateWheel/DateCalendar in apps/web, PriceChartScene/
 
 Each row indexes the detailed checkbox steps in section 6. DONE requires independent review and recorded verification evidence.
 
-**Progress:** 35 tasks · 183 subtasks · 16 implementation tasks complete.
+**Progress:** 35 tasks · 183 subtasks · 17 implementation tasks complete.
 
 | Task | Subtasks | Dependencies | Status | Owner / evidence |
 |---|---|---|---|---|
@@ -356,7 +358,7 @@ Each row indexes the detailed checkbox steps in section 6. DONE requires indepen
 | [T14 — Dotted geography and mode-specific route scenes](#t14) | T14.1 Pin geographic and route invariants<br>T14.2 Run geometry tests red<br>T14.3 Implement map and route shaders<br>T14.4 Implement camera and location primitives<br>T14.5 Verify and commit | T05, T13 | DONE | implement_t14 / 92139d8 + 08acee9 + d79be42 + bc25aca; independent review P2 corrected and fresh review approved; graphics 22, initial affected 38 / correction 27, combined browser 15 + final route 6, Docker/production GL/bundle/data preservation pass; docs/evidence/T14 |
 | [T15 — Consumer shell, search composer, URL state, and reviewer entry](#t15) | T15.1 Pin query and navigation behavior<br>T15.2 Run state tests red<br>T15.3 Implement shell and composer<br>T15.4 Implement state ownership<br>T15.5 Implement reviewer entry<br>T15.6 Verify and commit | T02, T04, T05, T12 | DONE | implement_t15 / 52f66c4 + evidence 5426f4d + correction 8c52bc4; independent P2 fixed and fresh review approved; web 21/client 23, affected 48, original browser 23/final composer 5, tools 20+cache; corrected Docker/production isolation/navigation/bundles/preservation pass; docs/evidence/T15 |
 | [T16 — Date wheel, Jalali calendar, linked GLSL chart, and apply behavior](#t16) | T16.1 Pin preview/commit and date rules<br>T16.2 Run date tests red<br>T16.3 Implement the wheel and calendar<br>T16.4 Implement chart and cache wiring<br>T16.5 Verify physical interaction<br>T16.6 Review and commit | T03, T10, T13, T15 | DONE | implement_t16 / source 4ba35d8 + evidence 1525c60 + correction 310a882 + report 8f4a340; three independent P2 findings fixed and fresh review approved; web46/client25/UI16/graphics22, affected48, correction browser14 and corrected Docker/price equivalence/history/isolation/GL/bundles/preservation pass; docs/evidence/T16 |
-| [T17 — Compact comparison results, provider groups, filters, and stable updates](#t17) | T17.1 Pin stable ordering and selection<br>T17.2 Run reducer and e2e tests red<br>T17.3 Implement dense cards and details<br>T17.4 Implement sorting and filters<br>T17.5 Implement staged arrival adoption<br>T17.6 Verify and commit | T08, T09, T15 | TODO | Unassigned / — |
+| [T17 — Compact comparison results, provider groups, filters, and stable updates](#t17) | T17.1 Pin stable ordering and selection<br>T17.2 Run reducer and e2e tests red<br>T17.3 Implement dense cards and details<br>T17.4 Implement sorting and filters<br>T17.5 Implement staged arrival adoption<br>T17.6 Verify and commit | T08, T09, T15 | DONE | implement_t17 / d9feb83 + evidence 83566f5 + fix ba1835d + report 4ce2fd6 + precision dde5b6c; three P2s fixed and fresh independent review approved; web79/client25, affected19, documented browser closures and corrected Docker/comparison/filter/history/isolation/bundle/preservation proof pass; docs/evidence/T17 |
 | [T18 — Link map selection, route details, camera, and referral progress](#t18) | T18.1 Pin the map state machine<br>T18.2 Run map-state tests red<br>T18.3 Wire the scene and timeline<br>T18.4 Wire vehicle progress<br>T18.5 Verify and commit | T14, T17 | TODO | Unassigned / — |
 | [T19 — Optional simulated identity, saved searches, and preferences](#t19) | T19.1 Pin guest and identity behavior<br>T19.2 Run identity tests red<br>T19.3 Implement simulated identity<br>T19.4 Implement saved intent and preferences<br>T19.5 Verify and commit | T04, T12, T15 | TODO | Unassigned / — |
 | [T20 — Hotel eligibility, stay pricing, distance sorting, and recheck](#t20) | T20.1 Pin occupancy and total-stay cases<br>T20.2 Run hotel tests red<br>T20.3 Implement allocation and pricing<br>T20.4 Implement dates and four sorts<br>T20.5 Register recheck and persistence<br>T20.6 Verify and commit | T03, T04, T05, T11 | TODO | Unassigned / — |
@@ -382,7 +384,7 @@ Each row indexes the detailed checkbox steps in section 6. DONE requires indepen
 |---|---|---|
 | M1 — Runnable foundation and contracts | T01–T04, T12; early T29 | COMPLETE: independent task and cross-task review, final WebStorm builds/Docker startup verified; evidence in docs/evidence/M1-checkpoint and M1-handoff |
 | M2 — Credible comparison engine | T05–T11 | COMPLETE: T05–T11 independently reviewed. Provider normalization, complete round trips, ranking, durable streams, date/result equality and explicit versioned/idempotent referrals verified; T11 corrected lifecycle53 and packaged gateway/restart/preservation gates pass |
-| M3 — Signature search experience | T13–T18 | IN PROGRESS: T13–T16 shared renderer, geography/routes, consumer composer and date exploration complete; T17–T18 pending. Wheel/calendar/chart/map linked to real API data; stable results and camera; compact desktop/mobile review |
+| M3 — Signature search experience | T13–T18 | IN PROGRESS: T13–T17 shared renderer, geography/routes, consumer composer, date exploration and streamed comparison complete; T18 consumer map binding pending. Wheel/calendar/chart/map linked to real API data; stable results and camera; compact desktop/mobile review |
 | M4 — Complete traveler flow | T19–T22 | Guest and simulated identity, saved searches, hotels/rooms/custom point, exact simulated provider handoff |
 | M5 — Inspectable admin | T23–T26 | Session-scoped controls actually alter pipeline; raw-to-normalized trace; mapping preview/replay; real referral evidence |
 | M6 — Visual finish and resilience | T27–T28 | All themes/modes, local flat artwork, coordinated motion, empty/partial/error recovery |
@@ -1269,38 +1271,48 @@ Compare the production interaction against the accepted throwaway wheel/calendar
 - `apps/web/src/features/results/results-reducer.ts`
 - `apps/web/src/features/results/explanation.tsx`
 - `apps/web/src/features/results/results-reducer.spec.ts`
-- `tests/e2e/results.spec.ts`
+- `apps/web/src/features/results/use-results.ts` and focused tests
+- `apps/web/src/features/results/scroll-anchor.ts` and ownership tests
+- `apps/web/src/features/results/results-page.spec.tsx`
+- `apps/web/src/features/results/result-filters.spec.tsx`
+- `apps/web/src/features/results/results-ownership.spec.tsx`
+- `apps/web/src/features/search/search-page.tsx` and controller integration/tests
+- `tests/e2e/src/results.spec.ts`
+- `tests/e2e/src/results-corrections.spec.ts`
+- `tests/e2e/src/date-corrections.spec.ts` (asserted own-session cleanup helper)
 
 **Interfaces:**
 
 - Consumes: SearchSnapshot stream, ranked ComparisonGroup/Explanation/Suggestion, controlled search state.
-- Produces: ResultsList; JourneyCard; provider/fare selection; staging reducer; onPreviewItinerary/onPinItinerary/onSelectQuote callbacks.
+- Produces: ResultsPage/ResultsList with live isCurrent() ownership; JourneyCard; exact provider/fare selection; adopted/latest staging reducer and bounded anchor helper; onPreviewItinerary/onPinItinerary/onSelectQuote callbacks. Controller resultIsCurrent/previewResultItinerary/pinResultItinerary guard the accepted generation/search pair; keep it separate from supersession ownership.
 
-- [ ] **T17.1 — Pin stable ordering and selection**
+- [x] **T17.1 — Pin stable ordering and selection**
 
 Test initial reorder, freeze after scroll/focus/open/select, staged update notice, explicit adoption, sort/filter reset, invalidated quote visibility, and no stale-generation overwrite. Assert choosing a provider updates all fare conditions and total.
 
-- [ ] **T17.2 — Run reducer and e2e tests red**
+- [x] **T17.2 — Run reducer and e2e tests red**
 
 Run pnpm nx test web. Define @results fixtures with the slow provider cheaper than early offers so an accidental reorder is observable.
 
-- [ ] **T17.3 — Implement dense cards and details**
+- [x] **T17.3 — Implement dense cards and details**
 
 Show provider, whole-party price, local date/time, operator logo, duration, route codes, baggage/refund terms, and ordered stops. Airport names appear on hover and focus. Use DOM route timelines and keyboard-expandable provider groups.
 
-- [ ] **T17.4 — Implement sorting and filters**
+- [x] **T17.4 — Implement sorting and filters**
 
 Wire the three segments to deterministic server/domain order; change wording to stops for flights and transfers for ground modes. Localize factual explanations and one contextual suggestion. Keep unknown mandatory totals separate and non-actionable.
 
-- [ ] **T17.5 — Implement staged arrival adoption**
+- [x] **T17.5 — Implement staged arrival adoption**
 
 Keep visible order/selection stable after interaction. Show count/coverage of staged updates and an explicit apply action. Mark invalid quotes promptly even when the list order is frozen. Preserve scroll anchor when adopting.
 
-- [ ] **T17.6 — Verify and commit**
+- [x] **T17.6 — Verify and commit**
 
 Run web tests and pnpm nx run e2e:e2e --grep @results. Validate price/conditions/tooltip behavior in all modes, late arrivals, empty/partial coverage, and whole-party labels. Commit results.
 
 **Acceptance:** Results feel like a trustworthy comparison product and remain stable while the user inspects them.
+
+**T17 checkpoint — 2026-10-25:** Complete at source `d9feb83`, original report `83566f5`, correction `ba1835d`, correction report `4ce2fd6` and evidence clarification `dde5b6c`. Independent review reproduced obsolete result pin/preview callbacks, retained canceled filter drafts and invalid-draft Clear; a fresh correction review marks all three P2s ADDRESSED, with seven independent focused cases passing and no new actionable finding. Final web 79 and 19 affected tasks (14 cached) pass; original client 25 and broader 426 assertions remain separately attributed. Browser evidence is documented run/closure unions, not invented single all-green executions; all six hero mode/scope complete RT queries, party four and 36 width/theme checks are retained. Corrected production Docker/Chrome passes real cheaper-late adoption (18,180,000→17,460,000 IRR; anchor delta 0.03125 px), two-adult complete RT provider/condition selection, keyboard sort, filter Cancel/Clear, native Back/reload without implicit search, responsive layout and two-session 404/reset isolation. Native Back had already detached the old DOM; direct same-turn callback fencing is proven by actual SearchPage focused probes, not that browser receipt. Reference production first useful/complete timings are 400.80 / 1,721.19 ms. Every JS asset matches gateway SHA256; gzip9 startup 237,948 / deferred 255,061 bytes including theme bootstrap. Original database container and exact immutable 2/90/308/924 fingerprints remain preserved; owned contexts reset 201/closed and ports 4313/4314 clear. Seventeen of 35 tasks complete; T18 TODO, T29 ACTIVE. [Checkpoint](../../evidence/T17/checkpoint.md) and [packaged evidence](../../evidence/T17/packaged/README.md) retain failures, legacy cleanup limitations, exact archives and evidence boundaries. Full audits and existing chunk/Three warnings remain T32/T33-owned. No push/publication/deployment/application submission; Superpowers remains disabled through 2026-10-26T07:16:38Z.
 
 ---
 
