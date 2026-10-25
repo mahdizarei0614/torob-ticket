@@ -1,0 +1,8 @@
+import { describe, expect, it } from 'vitest';
+import { createScrollAnchor } from './scroll-anchor';
+function setup(){let next=0;let top=100;const frames=new Map<number,()=>void>();const changes:number[]=[];const owner=createScrollAnchor({measure:()=>top,adjust:delta=>{changes.push(delta);top-=delta;},frame:callback=>{frames.set(++next,callback);return next;},cancelFrame:id=>{frames.delete(id);}});return {owner,changes,frames,setTop:(value:number)=>{top=value;},flush:()=>{const callbacks=[...frames.values()];frames.clear();callbacks.forEach(callback=>callback());}};}
+describe('bounded adoption scroll ownership',()=>{
+ it('preserves the captured card through an initial reorder and the measured later layout shift',()=>{const test=setup();test.owner.capture({id:'inspected',top:100});test.setTop(436.171875);test.owner.layout();expect(test.changes).toEqual([336.171875]);test.setTop(66.03125);test.flush();expect(test.changes).toEqual([336.171875,-33.96875]);test.flush();expect(test.frames.size).toBe(0);});
+ it('cancels pending correction when a genuine user scroll, new query/history or unmount relinquishes ownership',()=>{const test=setup();test.owner.capture({id:'a',top:100});test.owner.layout();test.setTop(300);test.owner.cancel();test.flush();expect(test.changes).toEqual([]);expect(test.frames.size).toBe(0);});
+ it('a newer adoption owns all frames, even if an older cancelled callback arrives late',()=>{const test=setup();test.owner.capture({id:'old',top:100});test.owner.layout();const stale=[...test.frames.values()][0]!;test.owner.capture({id:'new',top:250});test.setTop(350);test.owner.layout();stale();expect(test.changes).toEqual([100]);test.flush();test.flush();expect(test.frames.size).toBe(0);});
+});

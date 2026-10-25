@@ -4,7 +4,7 @@ import { resolve } from 'node:path';
 const evidence=process.env.T16_CORRECTION_EVIDENCE_DIR;
 function record(name:string,data:unknown){if(evidence){mkdirSync(evidence,{recursive:true});writeFileSync(resolve(evidence,name),JSON.stringify(data,null,2));}}
 async function ready(page:Page){await expect(page.locator('[data-date-price-status]')).toHaveAttribute('data-date-price-status','complete',{timeout:12000});}
-async function resetOwn(page:Page){await page.request.post('/api/v1/demo/reset');}
+async function resetOwn(page:Page){const response=await page.request.post('/api/v1/demo/reset',{data:{}});expect(response.status()).toBe(201);}
 test.describe('@dates-correction controlled freshness and authorization',()=>{
   test.beforeEach(async({page},info)=>{page.on('response',async response=>{if(response.url().endsWith('/api/v1/demo/session'))record(info.title.slice(0,40).replace(/[^a-z0-9]+/gi,'-')+'-session.json',{session:await response.json(),viewport:page.viewportSize()});});});
   test('physical wheel settle cannot commit after native Back to the same selected date',async({page})=>{

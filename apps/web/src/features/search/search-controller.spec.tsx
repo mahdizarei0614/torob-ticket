@@ -1,8 +1,8 @@
 import { act, render, renderHook, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { MemoryRouter, useNavigate } from 'react-router';
-import { StrictMode, type ReactNode } from 'react';
+import { BrowserRouter, MemoryRouter, useNavigate } from 'react-router';
+import { StrictMode, useEffect, useRef, type ReactNode } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import type { ApiClient } from '@torob-ticket/client';
 import type { SearchRecovery, SearchRequest } from '@torob-ticket/contracts';
@@ -10,11 +10,11 @@ import { useSearchController } from './use-search-controller';
 import { SearchComposer } from './search-composer';
 import { catalog, query, session } from './search-test-data';
 function recovery(input: SearchRequest): SearchRecovery { return { snapshot: { searchId: 'operation', clientGeneration: input.clientGeneration, query: input.query, status: 'collecting', groups: [], providerStatuses: [], coverage: { expectedProviderIds: [], successfulProviderIds: [], failedProviderIds: [], pendingProviderIds: [], complete: false }, observedAt: session.anchorInstant }, sequence: 0 }; }
-function setup(client: ApiClient) {
+function setup(client: ApiClient, initialPath = '/') {
   const cache = new QueryClient();
   let navigate: ReturnType<typeof useNavigate>;
   function Navigation() { navigate = useNavigate(); return null; }
-  function Wrapper({ children }: { children: ReactNode }) { return <StrictMode><QueryClientProvider client={cache}><MemoryRouter><Navigation />{children}</MemoryRouter></QueryClientProvider></StrictMode>; }
+  function Wrapper({ children }: { children: ReactNode }) { return <StrictMode><QueryClientProvider client={cache}><MemoryRouter initialEntries={[initialPath]}><Navigation />{children}</MemoryRouter></QueryClientProvider></StrictMode>; }
   const hook = renderHook(() => useSearchController(catalog, session, client), { wrapper: Wrapper });
   return { ...hook, cache, navigate: (path: string) => navigate(path) };
 }
@@ -143,4 +143,46 @@ it('cannot reauthorize a date intent or reserve priority after its controller un
   const hook = setup(client); const lateCommit = hook.result.current.commitDates; const lease = hook.result.current.dateInteractions; const token = lease.capture(); hook.unmount();
   lateCommit({ ...query, departureDate: '2026-10-26' }); expect(lease.isCurrent(token)).toBe(false); expect(client.startSearch).not.toHaveBeenCalled();
   const slot = searchStartPool(client).reserve('date-read'); expect(slot).toBeDefined(); slot?.finish();
+});
+
+describe('result refinement authorization',()=>{
+ it('rejects a refinement from an old interaction token or restored generation and preserves changed draft fields',async()=>{
+  const client={startSearch:vi.fn(async(request:SearchRequest)=>recovery(request)),cancelSearch:vi.fn(async()=>undefined)} as unknown as ApiClient;
+  const hook=setup(client);await act(()=>hook.result.current.submit());const basis=hook.result.current.state.generation!;const token=hook.result.current.refinementToken;const refine=hook.result.current.refineResults;
+  act(()=>{hook.result.current.edit({party:{adults:2,children:0,infants:0}});refine({...query,sort:'fastest'},basis,token);});expect(client.startSearch).toHaveBeenCalledTimes(1);expect(hook.result.current.state.draft.party.adults).toBe(2);expect(hook.result.current.canRefineResults).toBe(false);
+  act(()=>hook.navigate('/'));act(()=>refine({...query,sort:'fastest'},basis,token));expect(client.startSearch).toHaveBeenCalledTimes(1);hook.unmount();
+ });
+ it('authorizes exactly one explicit same-basis sort and scopes results entry to form Search',async()=>{
+  const client={startSearch:vi.fn(async(request:SearchRequest)=>recovery(request)),cancelSearch:vi.fn(async()=>undefined)} as unknown as ApiClient;
+  const hook=setup(client);await act(()=>hook.result.current.submit(undefined,true));expect(hook.result.current.enterResults).toBe(true);
+  act(()=>hook.result.current.refineResults({...query,sort:'fastest'},hook.result.current.state.generation!,hook.result.current.refinementToken));await waitFor(()=>expect(hook.result.current.accepted).toBe(true));expect(client.startSearch).toHaveBeenCalledTimes(2);expect(hook.result.current.state.committed?.sort).toBe('fastest');expect(hook.result.current.enterResults).toBe(false);hook.unmount();
+ });
+});
+
+describe('canonical URL mount lifetime',()=>{
+ it('submits a valid noncanonical round trip after StrictMode canonical replacement',async()=>{
+  const client={startSearch:vi.fn(async(request:SearchRequest)=>recovery(request)),cancelSearch:vi.fn(async()=>undefined)} as unknown as ApiClient;
+  const round={...query,tripType:'round-trip' as const,returnDate:'2026-10-28'};
+  const hook=setup(client,'/?'+new URLSearchParams({q:JSON.stringify(round)}));
+  await act(()=>hook.result.current.submit(undefined,true));
+  expect(client.startSearch).toHaveBeenCalledTimes(1);expect(hook.result.current.accepted).toBe(true);expect(hook.result.current.state.committed?.returnDate).toBe('2026-10-28');hook.unmount();
+ });
+});
+
+it('actual BrowserRouter canonical mount retains a live submit generation in StrictMode',async()=>{
+ const client={startSearch:vi.fn(async(request:SearchRequest)=>recovery(request)),cancelSearch:vi.fn(async()=>undefined)} as unknown as ApiClient;
+ const round={...query,tripType:'round-trip' as const,returnDate:'2026-10-28'};
+ window.history.replaceState({},'', '/?'+new URLSearchParams({q:JSON.stringify(round)}));
+ const cache=new QueryClient();function Wrapper({children}:{children:ReactNode}){return <StrictMode><QueryClientProvider client={cache}><BrowserRouter>{children}</BrowserRouter></QueryClientProvider></StrictMode>;}
+ const hook=renderHook(()=>useSearchController(catalog,session,client),{wrapper:Wrapper});
+ try {await act(()=>hook.result.current.submit(undefined,true));expect(client.startSearch).toHaveBeenCalledTimes(1);}finally{hook.unmount();window.history.replaceState({},'','/');}
+});
+
+it('StrictMode lifetime replay does not duplicate an outstanding authorized start',async()=>{
+ let release!:(value:SearchRecovery)=>void;let input!:SearchRequest;
+ const client={startSearch:vi.fn((request:SearchRequest)=>{input=request;return new Promise<SearchRecovery>(resolve=>{release=resolve;});}),cancelSearch:vi.fn(async()=>undefined)} as unknown as ApiClient;
+ const cache=new QueryClient();let current!:ReturnType<typeof useSearchController>;
+ function Harness(){current=useSearchController(catalog,session,client);const started=useRef(false);useEffect(()=>{if(!started.current){started.current=true;void current.submit();}},[]);return null;}
+ const view=render(<StrictMode><QueryClientProvider client={cache}><MemoryRouter><Harness/></MemoryRouter></QueryClientProvider></StrictMode>);
+ expect(client.startSearch).toHaveBeenCalledTimes(1);await act(async()=>{release(recovery(input));});expect(client.startSearch).toHaveBeenCalledTimes(1);expect(current.accepted).toBe(true);expect(current.state.generation).toBe(input.clientGeneration);view.unmount();
 });

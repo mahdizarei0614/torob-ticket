@@ -25,6 +25,8 @@ export function useSearchController(catalog: CatalogSnapshot, session: SessionIn
   const initial = useRef(parseSearchUrl(location.search, catalog, session));
   const [state, dispatch] = useReducer(searchReducer, undefined, () => ({ ...createSearchState(initial.current.query ?? initialDraft(catalog, session)), committed: initial.current.query, generation: crypto.randomUUID(), notice: initial.current.message ?? '' }));
   const generation = useRef(state.generation);
+  // StrictMode may replay lifetime setup while a canonical Router replacement is pending.
+  const intendedGeneration = useRef(state.generation);
   const ownedSearchId = useRef<string | undefined>(undefined);
   const ownNavigation = useRef<string | undefined>(undefined);
   const popTarget = useRef<string | undefined>(undefined);
@@ -39,14 +41,15 @@ export function useSearchController(catalog: CatalogSnapshot, session: SessionIn
   const [pending, setPending] = useState(false);
   const [feedback, setFeedback] = useState('');
   const [accepted, setAccepted] = useState(false);
+  const [resultEntryGeneration,setResultEntryGeneration] = useState<string | undefined>();
   const resetting = startSnapshot.resetting;
   const startLimitReached = startSnapshot.count >= unresolvedStartLimit;
-  useEffect(() => { live.current = true; return () => { live.current = false; dateInteractions.invalidate(); generation.current = undefined; queuedDate.current = undefined; starts.prioritize(datePriority.current, false); }; }, []);
+  useEffect(() => { live.current = true; generation.current = intendedGeneration.current; return () => { live.current = false; dateInteractions.invalidate(); generation.current = undefined; queuedDate.current = undefined; starts.prioritize(datePriority.current, false); }; }, []);
   function restoreIntent(search: string) {
-    dateInteractions.invalidate();
+    dateInteractions.invalidate(); setResultEntryGeneration(undefined);
     const parsed = parseSearchUrl(search, catalog, session);
     const next = crypto.randomUUID();
-    generation.current = next; queuedDate.current = undefined; starts.prioritize(datePriority.current, false); setWaitingDate(false);
+    generation.current = next; intendedGeneration.current = next; queuedDate.current = undefined; starts.prioritize(datePriority.current, false); setWaitingDate(false);
     dispatch({ type: 'restore', draft: parsed.query ?? initialDraft(catalog, session), query: parsed.query, generation: next, notice: parsed.message });
     setFeedback(''); setAccepted(false); setPending(false);
     return parsed;
@@ -73,11 +76,11 @@ export function useSearchController(catalog: CatalogSnapshot, session: SessionIn
   }, [location.key, location.search, catalog, session, navigate]);
   const validity = validateDraft(state.draft, catalog, session);
   function cancelQueuedDate() { if (!queuedDate.current) return; queuedDate.current = undefined; starts.prioritize(datePriority.current, false); setWaitingDate(false); setPending(false); }
-  function edit(patch: Partial<SearchDraft>) { dateInteractions.invalidate(); cancelQueuedDate(); dispatch({ type: 'draft', patch, catalog }); setFeedback(''); }
-  function preset(draft: SearchDraft) { dateInteractions.invalidate(); cancelQueuedDate(); dispatch({ type: 'preset', draft }); setFeedback(''); }
+  function edit(patch: Partial<SearchDraft>) { dateInteractions.invalidate(); setResultEntryGeneration(undefined); cancelQueuedDate(); dispatch({ type: 'draft', patch, catalog }); setFeedback(''); }
+  function preset(draft: SearchDraft) { dateInteractions.invalidate(); setResultEntryGeneration(undefined); cancelQueuedDate(); dispatch({ type: 'preset', draft }); setFeedback(''); }
   function commitIntent(query: TransportSearchQuery, next: string) {
     dateInteractions.invalidate();
-    generation.current = next;
+    generation.current = next; intendedGeneration.current = next;
     dispatch({ type: 'commit', query, generation: next });
     setPending(true); setAccepted(false); setFeedback('');
     const search = serializeSearchUrl(query);
@@ -101,21 +104,22 @@ export function useSearchController(catalog: CatalogSnapshot, session: SessionIn
       slot.finish();
     }
   }
-  async function submit(query: TransportSearchQuery = validity.query!) {
-    if (!live.current || !query || starts.getSnapshot().resetting || pendingGeneration.current === generation.current) return;
+  async function submit(query: TransportSearchQuery = validity.query!, enterResults = false) {
+    if (!live.current || !query || starts.getSnapshot().resetting || (pendingGeneration.current !== undefined && pendingGeneration.current === generation.current)) return;
     const checked = validateDraft(query, catalog, session);
     if (!checked.valid) { setFeedback(checked.errors.join(' ')); return; }
     const slot = starts.reserve(); if (!slot) return;
     cancelQueuedDate();
-    const next = crypto.randomUUID(); commitIntent(checked.query!, next);
+    const next = crypto.randomUUID(); commitIntent(checked.query!, next); setResultEntryGeneration(enterResults ? next : undefined);
     await startCommitted(checked.query!, next, slot);
   }
   function commitDates(draft: SearchDraft) {
+    setResultEntryGeneration(undefined);
     if (!live.current || starts.getSnapshot().resetting) return;
     const checked = validateDraft(draft, catalog, session);
     const next = crypto.randomUUID();
     if (!checked.valid) {
-      dateInteractions.invalidate(); cancelQueuedDate(); generation.current = next; setAccepted(false); setPending(false);
+      dateInteractions.invalidate(); cancelQueuedDate(); generation.current = next; intendedGeneration.current = next; setAccepted(false); setPending(false);
       dispatch({ type: 'date-draft', draft, generation: next });
       setFeedback(draft.tripType === 'round-trip' && !draft.returnDate ? 'تاریخ برگشت را دوباره انتخاب کنید؛ سپس تاریخ‌ها را اعمال کنید.' : checked.errors.join(' '));
       return;
@@ -133,8 +137,8 @@ export function useSearchController(catalog: CatalogSnapshot, session: SessionIn
   }, [startSnapshot, waitingDate]);
   async function reset() {
     if (!live.current || !starts.beginReset()) return;
-    dateInteractions.invalidate();
-    generation.current = crypto.randomUUID(); queuedDate.current = undefined; starts.prioritize(datePriority.current, false); setWaitingDate(false); setAccepted(false); setPending(false); setFeedback('');
+    dateInteractions.invalidate(); setResultEntryGeneration(undefined);
+    generation.current = crypto.randomUUID(); intendedGeneration.current = generation.current; queuedDate.current = undefined; starts.prioritize(datePriority.current, false); setWaitingDate(false); setAccepted(false); setPending(false); setFeedback('');
     // Fetch cancellation settles immediately in browsers. Bound custom transports
     // too; the server reset atomically fences/cancels the old namespace.
     let timer: ReturnType<typeof setTimeout> | undefined;
@@ -147,5 +151,10 @@ export function useSearchController(catalog: CatalogSnapshot, session: SessionIn
       window.location.assign(valid && valid.valid ? serializeSearchUrl(valid.query!) : '/');
     } catch (error) { setFeedback(errorMessage(error)); starts.resetFailed(); }
   }
-  return { state, dispatch, edit, preset, submit, dateInteractions, commitDates, waitingDate, reset, validity, pending, resetting, feedback, accepted, startLimitReached, unresolvedStarts: startSnapshot.count, capacityMessage: startLimitReached && !resetting ? startCapacityMessage : '' };
+  const canRefineResults = Boolean(state.committed && validity.query && serializeSearchUrl(state.committed) === serializeSearchUrl(validity.query));
+  function refineResults(query: TransportSearchQuery, expectedGeneration: string, interactionToken: number) {
+    if (!live.current || generation.current !== expectedGeneration || !dateInteractions.isCurrent(interactionToken) || !canRefineResults) return;
+    void submit(query);
+  }
+  return { state, dispatch, edit, preset, submit, refineResults, canRefineResults, refinementToken: dateInteractions.capture(), enterResults: resultEntryGeneration === state.generation, dateInteractions, commitDates, waitingDate, reset, validity, pending, resetting, feedback, accepted, startLimitReached, unresolvedStarts: startSnapshot.count, capacityMessage: startLimitReached && !resetting ? startCapacityMessage : '' };
 }

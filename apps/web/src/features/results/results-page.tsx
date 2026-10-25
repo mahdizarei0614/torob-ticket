@@ -1,0 +1,72 @@
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import type { CatalogSnapshot, Itinerary, QuoteSnapshot, SearchSnapshot, SortOrder, TransportSearchQuery } from '@torob-ticket/contracts';
+import { Button, SegmentedControl } from '@torob-ticket/ui';
+import { JourneyCard } from './journey-card';
+import { ResultFilters } from './result-filters';
+import { hasStagedUpdates, quoteStatus, resolveSuggestion, selectedQuote, type QuoteSelection } from './results-reducer';
+import { createScrollAnchor } from './scroll-anchor';
+import { useResults } from './use-results';
+import { localDay, minutes, number, toman, travelerCount } from './format';
+import styles from './results.module.css';
+export interface ResultsPageProps { generation: string; searchId: string; query: TransportSearchQuery; catalog: CatalogSnapshot; refinementDisabled: boolean; draftChanged: boolean; onRefine: (query: TransportSearchQuery) => void; onEdit: () => void; enterResults?: boolean; onPreviewItinerary?: (itinerary?: Itinerary) => void; onPinItinerary?: (itinerary: Itinerary) => void; onSelectQuote?: (quote?: QuoteSnapshot, itinerary?: Itinerary) => void }
+function Coverage({ snapshot }: { snapshot: SearchSnapshot }) { const coverage = snapshot.coverage; return <div className={styles.coverage} aria-label="پوشش فروشندگان"><span>{number(coverage.successfulProviderIds.length)} از {number(coverage.expectedProviderIds.length)} فروشنده پاسخ داده‌اند{snapshot.status === 'collecting' ? ' · تا این لحظه' : ''}</span>{coverage.pendingProviderIds.length > 0 && <span>{number(coverage.pendingProviderIds.length)} در حال بررسی</span>}{coverage.failedProviderIds.length > 0 && <span className={styles.invalid}>{number(coverage.failedProviderIds.length)} پاسخ ناموفق یا در دسترس نیست</span>}<small>مقایسه فقط میان فروشندگان همین جست‌وجوی نمایشی است.</small></div>; }
+export function ResultsList(props: ResultsPageProps) {
+ const { generation, searchId, query, catalog } = props;
+ const { state, dispatch, connectionError } = useResults(generation,searchId,query);
+ const region = useRef<HTMLElement>(null); const heading = useRef<HTMLHeadingElement>(null); const entered = useRef(false);
+ const snapshot = state.adopted?.snapshot; const latest = state.latest?.snapshot;
+ const stateRef = useRef(state); stateRef.current = state;
+ const [scrollAnchor] = useState(()=>createScrollAnchor({measure:id=>Array.from(region.current?.querySelectorAll<HTMLElement>('[data-group-id]') ?? []).find(card=>card.dataset.groupId===id)?.getBoundingClientRect().top,adjust:delta=>window.scrollBy({top:delta,behavior:'instant'}),frame:callback=>requestAnimationFrame(callback),cancelFrame:id=>cancelAnimationFrame(id)}));
+ useLayoutEffect(()=>{scrollAnchor.layout();},[state.adopted,scrollAnchor]);
+ useLayoutEffect(()=>()=>scrollAnchor.cancel(),[scrollAnchor]);
+ const renderedAt = Date.now();
+ const selected = selectedQuote(state,renderedAt);
+ useEffect(() => { props.onSelectQuote?.(selected, selected ? snapshot?.groups.find(group => group.groupId === selected.itineraryId || group.itinerary.itineraryId === selected.itineraryId)?.itinerary : undefined); }, [selected, snapshot, props.onSelectQuote]);
+ useEffect(() => {
+  if (!props.enterResults || entered.current || !snapshot) return;
+  entered.current = true;
+  heading.current?.focus({ preventScroll:true }); heading.current?.scrollIntoView({ block:'start', behavior:'instant' });
+ }, [props.enterResults,snapshot]);
+ useEffect(() => {
+  const freeze = () => {
+   scrollAnchor.cancel();
+   const rect = region.current?.getBoundingClientRect();
+   if (rect && rect.top < window.innerHeight && rect.bottom > 0) dispatch({ type:'freeze' });
+  };
+  const wheel = (event: WheelEvent) => { if (Math.abs(event.deltaY) > 0) freeze(); };
+  const touch = () => freeze();
+  const keyboard = (event: KeyboardEvent) => { scrollAnchor.cancel(); if (['PageDown','PageUp','Home','End','ArrowDown','ArrowUp',' '].includes(event.key) && event.target instanceof HTMLElement && (event.target === document.body || region.current?.contains(event.target))) freeze(); };
+  window.addEventListener('wheel',wheel,{ passive:true }); window.addEventListener('touchmove',touch,{ passive:true }); window.addEventListener('keydown',keyboard);
+  // Native scrollbar interaction does not generate wheel/touch events.
+  const pointer = (event: PointerEvent) => { scrollAnchor.cancel(); if (event.clientX >= document.documentElement.clientWidth) freeze(); };
+  window.addEventListener('pointerdown',pointer);
+  return () => { window.removeEventListener('wheel',wheel); window.removeEventListener('touchmove',touch); window.removeEventListener('keydown',keyboard); window.removeEventListener('pointerdown',pointer); };
+ }, []);
+ function select(selection: QuoteSelection) {
+  if (quoteStatus(stateRef.current,selection,Date.now()) !== 'current') return;
+  dispatch({ type:'select',selection,now:Date.now() });
+  const itinerary = stateRef.current.adopted?.snapshot.groups.find(group => group.groupId === selection.groupId)?.itinerary; if (itinerary) props.onPinItinerary?.(itinerary);
+ }
+ function adopt() {
+  const cards = Array.from(region.current?.querySelectorAll<HTMLElement>('[data-group-id]') ?? []);
+  const anchor = cards.find(card => card.getBoundingClientRect().bottom > 0);
+  scrollAnchor.capture(anchor?.dataset.groupId ? { id:anchor.dataset.groupId,top:anchor.getBoundingClientRect().top } : undefined);
+  dispatch({ type:'adopt' });
+ }
+
+ const resolvedSuggestion = resolveSuggestion(state,renderedAt);
+ const suggestion = resolvedSuggestion?.suggestion; const suggestionTarget = resolvedSuggestion?.target;
+ return <section ref={region} className={styles.results} aria-label="نتایج مقایسه سفر" data-search-id={searchId} data-generation={generation} data-status={latest?.status ?? 'loading'} data-sequence={state.latest?.sequence ?? 0} data-frozen={state.frozen}>
+  <header className={styles.resultsHead}><div><span className={styles.eyebrow}>پیشنهادهای همین سفر</span><h2 ref={heading} tabIndex={-1}>مقایسه {query.mode === 'flight' ? 'پروازها' : query.mode === 'train' ? 'قطارها' : 'اتوبوس‌ها'}</h2><p>{catalog.cities.find(city => city.id === query.originCityId)?.name} به {catalog.cities.find(city => city.id === query.destinationCityId)?.name} · {localDay(query.departureDate+'T12:00:00Z','UTC')} · {number(travelerCount(query))} مسافر · {query.tripType === 'round-trip' ? 'مجموع کامل رفت‌وبرگشت' : 'یک‌طرفه'}</p></div><Button variant="quiet" onPress={props.onEdit}>ویرایش سفر</Button></header>
+  {props.draftChanged && <p role="status" className={styles.notice}>فرم سفر تغییر کرده؛ این نتایج برای سفر ثبت‌شده بالاست. برای مرتب‌سازی و فیلتر، ابتدا تغییرات فرم را جست‌وجو کنید.</p>}
+  <div className={styles.toolbar}><SegmentedControl label="مرتب‌سازی پیشنهادها" value={query.sort} isDisabled={props.refinementDisabled} onChange={value => props.onRefine({ ...query,sort:value as SortOrder })} options={[{id:'cheapest',label:'ارزان‌ترین'},{id:'fastest',label:'سریع‌ترین'},{id:'fewest-connections',label:query.mode === 'flight' ? 'کم‌توقف‌ترین' : 'کمترین تعویض'}]}/>{snapshot && <ResultFilters query={query} snapshot={snapshot} catalog={catalog} disabled={props.refinementDisabled} onApply={props.onRefine}/>}</div>
+  {latest && <Coverage snapshot={latest}/>}
+  {connectionError && <p role="status" className={styles.notice}>ارتباط زنده ناپایدار است؛ در حال بازیابی وضعیت از سرور هستیم. داده‌های دریافت‌شده حفظ شده‌اند.</p>}
+  {hasStagedUpdates(state) && <div className={styles.updates} role="status"><div><strong>نتایج به‌روز در دسترس است</strong><span>{number(Math.max(0,(latest?.groups.length ?? 0)-(snapshot?.groups.length ?? 0)))} مسیر تازه · {number(latest?.groups.reduce((sum,group) => sum+group.eligibleQuotes.length,0) ?? 0)} پیشنهاد معتبر در آخرین دریافت</span><small>ترتیب و شرایطی که بررسی می‌کنید حفظ شده است.</small></div><Button variant="secondary" onPress={adopt}>اعمال نتایج تازه</Button></div>}
+  {suggestion && suggestionTarget && <aside className={styles.suggestion} aria-label="پیشنهاد جایگزین"><div><strong>{minutes(suggestion.delta.minutes)} زودتر برسید</strong><p>{suggestion.delta.amountRial > 0 ? `${toman(suggestion.delta.amountRial)} بیشتر` : suggestion.delta.amountRial < 0 ? `${toman(-suggestion.delta.amountRial)} کمتر` : 'با همان مبلغ'} نسبت به کم‌قیمت‌ترین پیشنهاد کامل همین جست‌وجو</p></div><Button variant="quiet" onPress={() => { dispatch({type:'freeze'}); const card = Array.from(region.current?.querySelectorAll<HTMLElement>('[data-group-id]') ?? []).find(node => node.dataset.groupId === suggestionTarget.group.groupId); card?.querySelector<HTMLElement>('button')?.focus(); card?.scrollIntoView({block:'center'}); }}>نمایش مسیر پیشنهادی</Button><Button variant="quiet" aria-label="بستن پیشنهاد جایگزین" onPress={() => dispatch({type:'dismiss-suggestion'})}>×</Button></aside>}
+  {state.selected && <div className={selected ? styles.selection : styles.invalid} role="status">{selected ? `پیشنهاد ${catalog.providerCapabilities.find(p => p.providerId === selected.providerId)?.name ?? selected.providerId} برای مقایسه انتخاب شد · ${toman(selected.total.amountRial)} برای همه مسافران. خرید یا رزرو انجام نشده است.` : 'پیشنهاد انتخاب‌شده دیگر معتبر نیست؛ برای ادامه نتایج تازه را بررسی یا دوباره جست‌وجو کنید.'}</div>}
+  {!snapshot || snapshot.status === 'collecting' && snapshot.groups.length === 0 ? <div role="status" className={styles.empty}><span className={styles.loadingLine}/><h3>در حال دریافت پیشنهادهای فروشندگان…</h3><p>به محض آماده شدن، پیشنهادهای قابل مقایسه نمایش داده می‌شوند.</p></div> : snapshot.groups.length > 0 ? <div className={styles.list} role="list" aria-label="مسیرها و پیشنهادهای مقایسه‌شده">{snapshot.groups.map(group => <div role="listitem" key={group.groupId}><JourneyCard group={group} snapshot={snapshot} catalog={catalog} state={state} now={renderedAt} onFreeze={() => dispatch({type:'freeze'})} onSelect={select} onPreviewItinerary={props.onPreviewItinerary}/></div>)}</div> : <div className={styles.empty} role="status"><h3>{snapshot.status === 'empty' ? 'پیشنهاد مطابق شرایط پیدا نشد' : snapshot.status === 'interrupted' ? 'جست‌وجو متوقف شده است' : snapshot.status === 'cancelled' ? 'این جست‌وجو لغو شده است' : 'دریافت پیشنهاد کامل نشد'}</h3><p>{snapshot.status === 'empty' ? 'تاریخ‌های نزدیک، فیلترهای کمتر یا مسیر پشتیبانی‌شده دیگری را امتحان کنید.' : 'دریافت ناموفق به معنی نبود بلیت نیست؛ می‌توانید همین سفر را دوباره جست‌وجو کنید.'}</p><Button variant="secondary" onPress={props.onEdit}>بازگشت به شرایط سفر</Button></div>}
+  {latest && ['partial','interrupted'].includes(latest.status) && snapshot?.groups.length !== 0 && <p className={styles.notice}>فقط پیشنهادهای دریافت‌شده نمایش داده شده‌اند؛ پوشش این جست‌وجو کامل و موفق نیست.</p>}
+ </section>;
+}
+export function ResultsPage(props: ResultsPageProps) { return <ResultsList key={props.generation+'/'+props.searchId} {...props}/>; }
