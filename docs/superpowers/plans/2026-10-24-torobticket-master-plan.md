@@ -1547,7 +1547,7 @@ Run web tests and pnpm nx run e2e:e2e --grep @hotels. Check desktop/modal and mo
 - Consumes: Prepare/confirm endpoints, transport/hotel quote selections, map progress API, optional identity and router context.
 - Produces: Shared referral controller; changed-term confirmation; sold-out alternatives; /provider-demo/:referralId route; restored return context.
 
-- [ ] **T22.1 — Pin user-visible handoff behavior**
+- [x] **T22.1 — Pin user-visible handoff behavior**
 
 Test guest success, unchanged quote, changed total/terms, explicit accept/cancel, expired intent, sold-out alternative, rapid double-click, browser refresh/back, and hotel referrals. A changed offer must never auto-confirm.
 
@@ -1568,6 +1568,8 @@ Confirm with one stable idempotency key per intent, advance the vehicle only on 
 Run web tests and pnpm nx run e2e:e2e --grep @referral. Confirm no login gate, no real provider navigation, no duplicate click on refresh, and no booking/payment/confirmation claim. Commit handoff UI.
 
 **Acceptance:** A reviewer can follow an exact, current offer through a complete referral and return to the comparison safely.
+
+**T22 active checkpoint — 2026-10-26:** Core consent/client source `de35c29`, immutable receipt presentation `295dc48` and bounded UI checkpoint codec `8860e2d` are committed. Independent core review `b8f3d1` passes ten behavior probes; this does not approve routing, restoration or the complete task. Existing scoped API oracle passes six transport/hotel unchanged/changed/sold-out cases with explicit reset201 cleanup. Route integration and browser acceptance remain pending. T22 stays ACTIVE; 21/35 tasks complete, T23 TODO and T29 ACTIVE. [Task authority](../../evidence/T22/task-22-brief.md) and [current state](../../evidence/T22/work-state.json).
 
 ---
 
