@@ -18,19 +18,19 @@ export class SavedSearchController {
     @Post()
     save(
     @Req()
-    request: SessionRequest, 
+    request: SessionRequest,
     @Body(new ZodValidationPipe(SaveSearchInputSchema))
     input: SaveSearchInput) { return this.saved.save(request.sessionContext!, input).catch(repositoryHttpError); }
     @Get(':id')
     get(
     @Req()
-    request: SessionRequest, 
+    request: SessionRequest,
     @Param('id', new ZodValidationPipe(IdSchema))
     id: string) { return this.saved.get(request.sessionContext!, id).catch(repositoryHttpError); }
     @Delete(':id')
     delete(
     @Req()
-    request: SessionRequest, 
+    request: SessionRequest,
     @Param('id', new ZodValidationPipe(IdSchema))
     id: string) { return this.saved.delete(request.sessionContext!, id).catch(repositoryHttpError); }
 }

@@ -20,13 +20,13 @@ export class DemoAuthController {
     @Post('sign-in')
     signIn(
     @Req()
-    request: SessionRequest, 
+    request: SessionRequest,
     @Body(new ZodValidationPipe(Empty))
     _body: z.infer<typeof Empty>) { void _body; return this.repository.signIn(request.sessionContext!.scope).catch(repositoryHttpError); }
     @Post('sign-out')
     signOut(
     @Req()
-    request: SessionRequest, 
+    request: SessionRequest,
     @Body(new ZodValidationPipe(Empty))
     _body: z.infer<typeof Empty>) { void _body; return this.repository.signOut(request.sessionContext!.scope).catch(repositoryHttpError); }
 }

@@ -8,7 +8,7 @@ import type { SessionContext } from '../sessions/session-context';
 export class SavedSearchService {
     constructor(
     @Inject(SessionService)
-    private readonly sessions: SessionService, 
+    private readonly sessions: SessionService,
     @Inject(CatalogService)
     private readonly catalog: CatalogService) { }
     private get repository() { return new AccountRepository(this.sessions.database); }
