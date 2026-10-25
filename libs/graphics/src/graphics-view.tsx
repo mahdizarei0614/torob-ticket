@@ -7,21 +7,20 @@ import styles from './graphics.module.css';
  * useThree(state => state.invalidate); the global R3F invalidate fan-out bypasses
  * this manually advanced host. Scene animation still requires the host motion policy.
  */
-export function GraphicsView({ children, fallback, label, visible = true, layer='background', className }: {
+export function GraphicsView({ children, fallback, label, visible = true, className }: {
   children: ReactNode;
   fallback: ReactNode;
   label: string;
   visible?: boolean;
   className?: string;
-  layer?:'background'|'foreground';
 }) {
   const id = useId();
   const element = useRef<HTMLDivElement>(null);
   const { status, register } = useGraphics();
   useLayoutEffect(() => {
     if (!element.current) return;
-    return register({ id, element: element.current, track: { current: element.current }, scene: children, visible, layer });
-  }, [id, children, visible, layer, register]);
+    return register({ id, element: element.current, track: { current: element.current }, scene: children, visible });
+  }, [id, children, visible, register]);
   return <div ref={element} aria-label={label} role="img" data-graphics-view={id} data-fallback={status !== 'ready'} hidden={!visible} className={`${styles.view} ${className ?? ''}`}>
     <div className={styles.fallback} aria-hidden={status === 'ready'} inert={status === 'ready'}>{fallback}</div>
   </div>;

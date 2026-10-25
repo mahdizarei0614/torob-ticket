@@ -45,7 +45,7 @@ export function HotelDialog({model,catalog,session,canApplyTrip}:{model:HotelDis
      <header className={styles.resultHead}><h2>{snapshot.status==='failed'?'دریافت اقامتگاه‌ها کامل نشد':snapshot.status==='empty'?'اقامت کامل مطابق این شرایط پیدا نشد':`${faNumber(snapshot.results?.filter(r=>r.status==='priced').length??0)} اقامتگاه با قیمت کامل`}</h2><p>{snapshot.status==='empty'?'تعداد اتاق، سن کودکان یا تاریخ‌ها را بررسی کنید. اطلاعات ناقص با نبود اتاق یکسان نیست.':snapshot.status==='failed'?'دریافت ناموفق به معنی نبود اتاق نیست؛ دوباره تلاش کنید.':'مبلغ اصلی برای همه اتاق‌ها و همه شب‌هاست.'}</p></header>
      {snapshot.results?.map(result=>{const hotel=snapshot.hotels.find(h=>h.hotelId===result.hotelId);return hotel?<HotelCard key={hotel.hotelId} hotel={hotel} result={result} quotes={snapshot.quotes.filter(q=>q.hotelId===hotel.hotelId)} catalog={catalog} disabled={!fresh} selected={model.selected} onSelect={model.selectQuote}/>:null;})}
     </section>}
-    <p className={styles.footnote}>همه اقامتگاه‌ها و فروشندگان این نسخه خیالی‌اند. فاصله‌ها خط مستقیم و محدوده نقشه نمایشی است؛ خرید و رزرو انجام نمی‌شود.</p>
+    <p className={styles.footnote}>همه اقامتگاه‌ها و فروشندگان این نسخه خیالی‌اند. فاصله‌ها خط مستقیم‌اند؛ نقشه شهری برای انتخاب موقعیت است و مسیر رانندگی را نشان نمی‌دهد. خرید و رزرو انجام نمی‌شود.</p>
    </>}
   </div>
  </Dialog>;

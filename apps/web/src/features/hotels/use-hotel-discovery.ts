@@ -14,12 +14,13 @@ export function useHotelDiscovery({trip,catalog,session,resetting=false,client=a
  const [,tick]=useState(0);const capturedTrip=tripStamp(trip);const tripEpoch=useRef({stamp:capturedTrip,epoch:0});if(tripEpoch.current.stamp!==capturedTrip)tripEpoch.current={stamp:capturedTrip,epoch:tripEpoch.current.epoch+1};const renderedTripEpoch=tripEpoch.current.epoch,revision=state.revision,pointToken=state.point?.token;
  function abort(){request.current?.controller.abort();request.current=undefined;}
  function send(action:HotelAction){const next=hotelReducer(currentState.current,action);currentState.current=next;setState(next);return next;}
- function owns(needOpen=true,allowStale=false){return live.current&&!latest.current.resetting&&view.current===renderedView&&currentState.current===state&&(!needOpen||view.current.open)&&currentState.current.revision===revision&&tripStamp(latest.current.trip)===capturedTrip&&tripEpoch.current.epoch===renderedTripEpoch&&(allowStale||!tripStale(currentState.current,latest.current.trip));}
- function openDialog(){if(!owns(false,true)||view.current.open)return;if(!initialized.current){initialized.current=true;send({type:'apply-trip',trip:latest.current.trip,catalog});}view.current={open:true,epoch:view.current.epoch+1};setOpen(true);}
- function closeDialog(){if(!owns(true,true))return;abort();view.current={open:false,epoch:view.current.epoch+1};setOpen(false);send({type:'settle-close'});}
+ function viewOwns(needOpen=true){return live.current&&!latest.current.resetting&&view.current===renderedView&&(!needOpen||view.current.open);}
+ function owns(needOpen=true,allowStale=false){return viewOwns(needOpen)&&currentState.current===state&&currentState.current.revision===revision&&tripStamp(latest.current.trip)===capturedTrip&&tripEpoch.current.epoch===renderedTripEpoch&&(allowStale||!tripStale(currentState.current,latest.current.trip));}
+ function openDialog(){if(!viewOwns(false)||tripEpoch.current.epoch!==renderedTripEpoch||view.current.open)return false;if(!initialized.current){initialized.current=true;send({type:'apply-trip',trip:latest.current.trip,catalog});}view.current={open:true,epoch:view.current.epoch+1};setOpen(true);return true;}
+ function closeDialog(){if(!viewOwns())return;abort();view.current={open:false,epoch:view.current.epoch+1};setOpen(false);send({type:'settle-close'});}
  function edit(patch:Partial<HotelDraft>){if(!owns())return;abort();send({type:'edit',patch});latest.current.onSelectHotelQuote?.(undefined);}
  async function search(query:HotelSearchQuery,expectedView:typeof renderedView){
-  abort();const controller=new AbortController();const started=send({type:'start',query});const item={controller,revision:started.revision,view:expectedView,trip:tripStamp(latest.current.trip)};request.current=item;
+  abort();const controller=new AbortController();const started=send({type:'start',query});latest.current.onSelectHotelQuote?.(undefined);const item={controller,revision:started.revision,view:expectedView,trip:tripStamp(latest.current.trip)};request.current=item;
   const valid=()=>live.current&&!latest.current.resetting&&!controller.signal.aborted&&request.current===item&&view.current===item.view&&view.current.open&&currentState.current.revision===item.revision&&tripStamp(latest.current.trip)===item.trip&&!tripStale(currentState.current,latest.current.trip);
   try{const snapshot=await latest.current.client.startHotelSearch(query,controller.signal);if(valid())send({type:'success',revision:item.revision,snapshot});}
   catch(error){if(valid())send({type:'failure',revision:item.revision,error:failure(error)});}
@@ -29,9 +30,9 @@ export function useHotelDiscovery({trip,catalog,session,resetting=false,client=a
  async function changeSort(sort:HotelSearchQuery['sort']){if(!owns()||currentState.current.point)return;abort();const next=send({type:'edit',patch:{sort}});latest.current.onSelectHotelQuote?.(undefined);const checked=hotelQuery(next,catalog,session.anchorInstant);if(checked.query)await search(checked.query,renderedView);}
  function applyTrip(){if(!owns(true,true)||!latest.current.trip.available||latest.current.trip.draftKey!==tripKey(latest.current.trip.query))return;abort();send({type:'apply-trip',trip:latest.current.trip,catalog});latest.current.onSelectHotelQuote?.(undefined);}
  function openPoint(){if(!owns())return;abort();send({type:'open-point'});}
- function pointOwns(){return owns()&&pointToken!==undefined&&currentState.current.point?.token===pointToken;}
+ function pointOwns(){return viewOwns()&&tripEpoch.current.epoch===renderedTripEpoch&&!tripStale(currentState.current,latest.current.trip)&&pointToken!==undefined&&currentState.current.point?.token===pointToken;}
  function setPoint(value:GeoPoint){if(pointOwns())send({type:'point',value});}
- function cancelPoint(){if(!owns(true,true)||pointToken===undefined||currentState.current.point?.token!==pointToken)return;send({type:'cancel-point'});}
+ function cancelPoint(){if(!pointOwns())return;send({type:'cancel-point'});}
  async function applyPoint(){if(!pointOwns()||!currentState.current.point?.value)return;abort();const next=send({type:'apply-point'});latest.current.onSelectHotelQuote?.(undefined);const checked=hotelQuery(next,catalog,session.anchorInstant);if(checked.query)await search(checked.query,renderedView);}
  function selectQuote(quote:HotelQuoteSnapshot){if(!owns())return;const checked=hotelQuery(currentState.current,catalog,session.anchorInstant);if(!checked.query||queryKey(checked.query)!==queryKey(quote.query)||currentState.current.point)return;const next=send({type:'select',quote,now:Date.now()});if(next.selected===quote)latest.current.onSelectHotelQuote?.(quote);}
  useLayoutEffect(()=>{live.current=true;return()=>{live.current=false;abort();};},[]);

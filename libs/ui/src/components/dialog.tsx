@@ -28,7 +28,7 @@ export function Dialog({
     <ModalOverlay className={styles.overlay} isOpen={isOpen} onOpenChange={onOpenChange} isDismissable>
       <Modal className={styles.modal} data-mobile-fullscreen={mobileFullscreen} data-dialog-size={size} {...languageProps(language)}>
         <AriaDialog className={styles.dialog}>
-          <div className={styles.dialogHeader} data-sticky={stickyHeader || undefined} data-graphics-occluder={stickyHeader||undefined}>
+          <div className={styles.dialogHeader} data-sticky={stickyHeader || undefined}>
             <Heading slot="title" className={styles.dialogTitle}>
               {title}
             </Heading>

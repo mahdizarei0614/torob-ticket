@@ -33,14 +33,12 @@ export function SceneCamera({ frame }: { frame: RouteBounds }) {
   useLayoutEffect(() => { const previous = get().camera; set({ camera }); return () => set({ camera: previous }); }, [get, set, camera]);
   return null;
 }
-export function SceneSurface({ label, camera, setZoom, context, markers, onMarkerSelect, onPointChange, children, fallback, onFrame, isCurrent = () => true, markerSelectLabel,portalLabels=false,labelsVisible=true,foreground=false }: {
+export function SceneSurface({ label, camera, setZoom, context, markers, onMarkerSelect, onPointChange, children, fallback, onFrame, isCurrent = () => true, markerSelectLabel,portalLabels=false,labelsVisible=true }: {
   label: string; camera: CameraIntent; setZoom: (zoom: number) => void; context: ProjectionContext; markers: readonly SceneMarker[];
   onMarkerSelect?: (id: string) => void; onPointChange?: (point: GeoPoint) => void;
-  children: (frame: RouteBounds) => ReactNode; fallback: (frame: RouteBounds) => ReactNode; onFrame?: (frame: RouteBounds) => void; isCurrent?:()=>boolean; markerSelectLabel?:string;portalLabels?:boolean;labelsVisible?:boolean;foreground?:boolean;
+  children: (frame: RouteBounds) => ReactNode; fallback: (frame: RouteBounds) => ReactNode; onFrame?: (frame: RouteBounds) => void; isCurrent?:()=>boolean; markerSelectLabel?:string;portalLabels?:boolean;labelsVisible?:boolean;
 }) {
-  const {labelLayer,registerForeground}=useGraphics();
-  const foregroundTarget=useRef<HTMLDivElement>(null);
-  useLayoutEffect(()=>{if(!foreground||!foregroundTarget.current)return;return registerForeground(foregroundTarget.current);},[foreground,registerForeground]);const labelId=useId();
+  const {labelLayer}=useGraphics();const labelId=useId();
   const [rect,setRect]=useState({left:0,top:0,width:0,height:0});
   const viewport = useRef<HTMLDivElement>(null); const [dimensions, setDimensions] = useState({ width: 560, height: 400 });
   const pointers = useRef(new Map<number, { x: number; y: number }>()); const pinch = useRef<{ distance: number; zoom: number } | null>(null);
@@ -103,8 +101,7 @@ export function SceneSurface({ label, camera, setZoom, context, markers, onMarke
         }
         pointers.current.delete(event.pointerId); if (pointers.current.size < 2) pinch.current = null;
       }}>
-      {foreground&&<div ref={foregroundTarget} className={styles.foregroundTarget} data-modal-graphics-target/>}
-      <GraphicsView layer={foreground?'foreground':'background'} label={`${label}؛ نقشه نقطه‌ای`} fallback={fallback(frame)}>{children(frame)}</GraphicsView>
+      <GraphicsView label={`${label}؛ نقشه نقطه‌ای`} fallback={fallback(frame)}>{children(frame)}</GraphicsView>
       {!portalLabels && labels}
       {portalLabels && labelLayer && labelsVisible && rect.width>0 && createPortal(<div className={styles.portalViewport} style={rect}>{labels}</div>,labelLayer)}
     </div>

@@ -23,6 +23,8 @@ minimumReleaseAgeExclude:
   - '@nx/nx-win32-x64-msvc@23.3.1'
   - '@nx/workspace@23.3.1'
   - nx@23.3.1
+  - '@maplibre/vt-pbf@4.3.3'
+  - maplibre-gl@6.16.0
 allowBuilds:
   '@nestjs/core@11.2.8': true
   '@prisma/engines@7.10.1': true

@@ -71,3 +71,9 @@ Local geographic assets and their primary-source licenses are recorded in
 station/terminal points and destination display extents are fictional or
 illustrative. For coverage, source extracts and checks see
 [the T05 evidence](docs/evidence/T05/README.md).
+
+### Optional city location map
+
+Hotel location selection uses [OpenFreeMap](https://openfreemap.org/) with the pinned open-source MapLibre GL JS6.16.0 renderer. No account, API key, billing or environment variable is required. The existing `pnpm docker:up` command works unchanged. Opening the optional picker downloads its SDK/CSS/worker and public map style/tiles; initial ticket comparison does not request them. Offline, failed tiles or unavailable WebGL show a clear message while the local landmark list and coordinates remain usable. Hotel inventory and prices remain fictional. Distances are straight-line, with no routing service.
+
+Map attribution remains visible: OpenFreeMap, OpenMapTiles and OpenStreetMap. MapLibre is BSD-3-Clause ([bundled license](assets/licenses/maplibre-gl-6.16.0.txt)); OpenFreeMap's project is MIT and its map data/third-party styles retain their upstream [licenses](https://github.com/hyperknot/openfreemap/blob/main/LICENSE.md). Public map availability has no SLA. App-owned theme colors remain semantic; vendor map styles are third-party assets.
