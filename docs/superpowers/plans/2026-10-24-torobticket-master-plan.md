@@ -12,7 +12,7 @@
 
 **Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.0, 2026-10-24.
 
-**Plan state:** Approved; M1 foundation, T05 inventory, T06 normalization, T07 eligible comparison, T08 ranking, T09 durable search orchestration, SSE and recovery, T10 source-backed date prices, and T11 recheck/idempotent referrals are complete and independently reviewed. M2 comparison engine is complete; M3 is complete: T13 shared rendering, T14 geography/routes, T15 consumer shell/composer, T16 date exploration, T17 streamed comparison results and T18 canonical consumer map integration are independently reviewed and verified. T19 optional identity, saved intent and local preferences are complete; M4 is in progress. Remaining product tasks and evidence are tracked below. The earlier date explorer is a completed throwaway interaction study, not implemented product code.
+**Plan state:** Approved; M1 foundation, T05 inventory, T06 normalization, T07 eligible comparison, T08 ranking, T09 durable search orchestration, SSE and recovery, T10 source-backed date prices, and T11 recheck/idempotent referrals are complete and independently reviewed. M2 comparison engine is complete; M3 is complete: T13 shared rendering, T14 geography/routes, T15 consumer shell/composer, T16 date exploration, T17 streamed comparison results and T18 canonical consumer map integration are independently reviewed and verified. T19 optional identity, saved intent and local preferences are complete; T20 hotel eligibility, complete stay pricing, four sorts and shared referral authority are complete and independently reviewed; M4 remains in progress for T21/T22. Remaining product tasks and evidence are tracked below. The earlier date explorer is a completed throwaway interaction study, not implemented product code.
 
 **Delivery location:** This outputs directory contains the user-facing source documents. On repository creation, copy the spec to docs/superpowers/specs/2026-10-24-torobticket-design.md and this plan to docs/superpowers/plans/2026-10-24-torobticket-master-plan.md. Preserve the revision, task IDs, and decision authority, and rewrite the Spec link to ../specs/2026-10-24-torobticket-design.md.
 
@@ -344,7 +344,7 @@ T19 implements AccountRepository, DemoAuthModule/SavedSearchModule and AccountPa
 
 Each row indexes the detailed checkbox steps in section 6. DONE requires independent review and recorded verification evidence.
 
-**Progress:** 35 tasks · 183 subtasks · 19 implementation tasks complete.
+**Progress:** 35 tasks · 183 subtasks · 20 implementation tasks complete.
 
 | Task | Subtasks | Dependencies | Status | Owner / evidence |
 |---|---|---|---|---|
@@ -367,7 +367,7 @@ Each row indexes the detailed checkbox steps in section 6. DONE requires indepen
 | [T17 — Compact comparison results, provider groups, filters, and stable updates](#t17) | T17.1 Pin stable ordering and selection<br>T17.2 Run reducer and e2e tests red<br>T17.3 Implement dense cards and details<br>T17.4 Implement sorting and filters<br>T17.5 Implement staged arrival adoption<br>T17.6 Verify and commit | T08, T09, T15 | DONE | implement_t17 / d9feb83 + evidence 83566f5 + fix ba1835d + report 4ce2fd6 + precision dde5b6c; three P2s fixed and fresh independent review approved; web79/client25, affected19, documented browser closures and corrected Docker/comparison/filter/history/isolation/bundle/preservation proof pass; docs/evidence/T17 |
 | [T18 — Link map selection, route details, camera, and referral progress](#t18) | T18.1 Pin the map state machine<br>T18.2 Run map-state tests red<br>T18.3 Wire the scene and timeline<br>T18.4 Wire vehicle progress<br>T18.5 Verify and commit | T14, T17 | DONE | implement_t18 / source342e68d + harness89c2a16 + fixesbb37d01/4e07347;3P2s addressed by fresh review18checks; web104/graphics26/affected38, final native5consumer+6lab and Docker/GL/camera/mobile/bundles/database proof PASS; docs/evidence/T18 |
 | [T19 — Optional simulated identity, saved searches, and preferences](#t19) | T19.1 Pin guest and identity behavior<br>T19.2 Run identity tests red<br>T19.3 Implement simulated identity<br>T19.4 Implement saved intent and preferences<br>T19.5 Verify and commit | T04, T12, T15 | DONE | implement_t19 / product9191eff/875fb02 + corrections58f4e58/8eec6b3 + evidencea022be9; twoP2s addressed by fresh20check review; web123/UI16/client27/API91/affected48/native4 and final Docker/account/modal/JS/database preservation PASS; docs/evidence/T19 |
-| [T20 — Hotel eligibility, stay pricing, distance sorting, and recheck](#t20) | T20.1 Pin occupancy and total-stay cases<br>T20.2 Run hotel tests red<br>T20.3 Implement allocation and pricing<br>T20.4 Implement dates and four sorts<br>T20.5 Register recheck and persistence<br>T20.6 Verify and commit | T03, T04, T05, T11 | TODO | Unassigned / — |
+| [T20 — Hotel eligibility, stay pricing, distance sorting, and recheck](#t20) | T20.1 Pin occupancy and total-stay cases<br>T20.2 Run hotel tests red<br>T20.3 Implement allocation and pricing<br>T20.4 Implement dates and four sorts<br>T20.5 Register recheck and persistence<br>T20.6 Verify and commit | T03, T04, T05, T11 | DONE | implement_t20 / cc4aea0; full/fresh reviews, pure484/API106/affected48 and root production/cleanup/archive pass; [checkpoint](../../evidence/T20/checkpoint.md) |
 | [T21 — Hotel discovery modal, custom-location map, and trip-state restoration](#t21) | T21.1 Pin opening, edits, and restoration<br>T21.2 Run hotel UI tests red<br>T21.3 Implement hotel browsing<br>T21.4 Implement location selection<br>T21.5 Implement modal/canvas coordination<br>T21.6 Verify and commit | T12, T13, T14, T15, T20 | TODO | Unassigned / — |
 | [T22 — Traveler referral UI and simulated provider landing page](#t22) | T22.1 Pin user-visible handoff behavior<br>T22.2 Run referral UI tests red<br>T22.3 Implement recheck UI<br>T22.4 Implement handoff and return<br>T22.5 Verify and commit | T11, T17, T18, T19, T21 | TODO | Unassigned / — |
 | [T23 — Admin shell, scenario controls, provider overrides, and session reset](#t23) | T23.1 Pin scoped control effects<br>T23.2 Run controls tests red<br>T23.3 Implement admin navigation and controls<br>T23.4 Implement revision and invalidation<br>T23.5 Implement reset recovery<br>T23.6 Verify and commit | T04, T12, T06 | TODO | Unassigned / — |
@@ -391,7 +391,7 @@ Each row indexes the detailed checkbox steps in section 6. DONE requires indepen
 | M1 — Runnable foundation and contracts | T01–T04, T12; early T29 | COMPLETE: independent task and cross-task review, final WebStorm builds/Docker startup verified; evidence in docs/evidence/M1-checkpoint and M1-handoff |
 | M2 — Credible comparison engine | T05–T11 | COMPLETE: T05–T11 independently reviewed. Provider normalization, complete round trips, ranking, durable streams, date/result equality and explicit versioned/idempotent referrals verified; T11 corrected lifecycle53 and packaged gateway/restart/preservation gates pass |
 | M3 — Signature search experience | T13–T18 | COMPLETE: shared renderer, geography/routes, consumer composer, date exploration, streamed comparison and canonical map binding independently verified. Wheel/calendar/chart/map linked to real mock-provider API data; stable results/camera and desktop/mobile route details. |
-| M4 — Complete traveler flow | T19–T22 | IN PROGRESS: T19 optional simulated identity, saved intent and local preferences complete and independently verified. T20 hotel eligibility/pricing/recheck is next; hotels/custom point and traveler/provider handoff remain T21/T22. |
+| M4 — Complete traveler flow | T19–T22 | IN PROGRESS: T19 optional identity/preferences and T20 hotel eligibility, complete stay prices, four sorts and shared recheck/referral authority complete and independently verified. Hotel discovery UI/custom point and traveler/provider handoff remain T21/T22. |
 | M5 — Inspectable admin | T23–T26 | Session-scoped controls actually alter pipeline; raw-to-normalized trace; mapping preview/replay; real referral evidence |
 | M6 — Visual finish and resilience | T27–T28 | All themes/modes, local flat artwork, coordinated motion, empty/partial/error recovery |
 | M7 — Reproducible quality gates | T29–T33 | Clean Docker boot, browser journeys, accessibility audit, measured graphics/bundles, isolation/reset/restart evidence |
@@ -1440,31 +1440,33 @@ Run API integration and pnpm nx run e2e:e2e --grep @guest-saved. Confirm reset r
 - Consumes: HotelSearchQuery/RoomRate/RoomAllocation/HotelQuoteSnapshot, seeded catalog, money/time rules, RecheckRegistry.
 - Produces: allocateRooms; priceStay; straightLineKm; rankHotels; searchHotels; hotel recheck handler using the same referral lifecycle.
 
-- [ ] **T20.1 — Pin occupancy and total-stay cases**
+- [x] **T20.1 — Pin occupancy and total-stay cases**
 
 Test all requested nights and rooms, rate inventory, required child ages, breakfast/refund variants, missing fees, early local arrival, same-day trip, different time zones, unknown stars/distances, and custom points. Assert a cheap two-person room cannot price a five-person one-room party.
 
-- [ ] **T20.2 — Run hotel tests red**
+- [x] **T20.2 — Run hotel tests red**
 
 Run pnpm nx test domain and pnpm nx run api:test-integration. Use a fixture where the cheapest nightly rate is not the cheapest eligible stay total.
 
-- [ ] **T20.3 — Implement allocation and pricing**
+- [x] **T20.3 — Implement allocation and pricing**
 
 Enumerate eligible room/rate allocations under the requested room count and policy, with bounded party size. Price every night and mandatory charge in integer rials. Return a concrete allocation, breakdown, eligibility reasons, and immutable quote version.
 
-- [ ] **T20.4 — Implement dates and four sorts**
+- [x] **T20.4 — Implement dates and four sorts**
 
 Use destination-local arrival/check-out suggestions but validate hotel dates independently. Compare stars, lowest total, arrival-point distance, and custom-point distance with the documented tie breaks. Compute and label straight-line kilometers; unknown values sort last.
 
-- [ ] **T20.5 — Register recheck and persistence**
+- [x] **T20.5 — Register recheck and persistence**
 
 Persist HotelSearchRun and quotes, apply the same expiry/intents/idempotency as transport, and register the hotel handler in RecheckRegistry. Price-change/sold-out scenarios must affect hotels as well.
 
-- [ ] **T20.6 — Verify and commit**
+- [x] **T20.6 — Verify and commit**
 
 Run domain/API integration tests, including multi-room child occupancy, last available night, stays outside coverage, a changed room term, and foreign-session quote access. Commit hotel engine.
 
 **Acceptance:** Hotel comparisons show an actually eligible whole-stay allocation and participate in the same trustworthy referral process.
+
+**T20 checkpoint — 2026-10-26:** Complete at product `4bb328e`, identity/order corrections `e63fca5`/`7c248da`, recovery/cancellation corrections `3d35a27`/`cc4aea0`, and evidence `2931eb7`/`e79e9ab`/metadata-free archive `9a3c426`. Exact-room/party/all-night source-backed stays preserve ages, unknown policies/fees and per-room terms; four sorts/date/distance helpers and fresh persisted snapshots participate in shared versioned/idempotent referral authority. Whole independent review and a different fresh reviewer close all C1–C4; ordering39/39 keeps7c248da attribution (source unchanged through finalcc4aea0), recovery6/6 is finalcc4aea0 with original243-case oracle. Final pure/server484, API/PG106, affected48(14cached), root14-property/42-rate exhaustive stay-price oracle, changed/soldout alternative/version/scope proofs and real pre-upgrade transport intent confirmation pass. Original DB container/immutable fingerprints and3migrations preserved; servedJS hashes match, gzip9startup249123/deferred256193bytes. Own contexts reset{}201/disposed; exact test container/volume/connection files removed,62320closed. Root verifies17review artifacts/7source hashes and53committed payloads in54actual metadata-free archive members; original108-member AppleDouble packaging failure retained separately. Twenty of35complete; M4inprogress,T21TODO,T29ACTIVE. [Checkpoint](../../evidence/T20/checkpoint.md), [fresh review](../../evidence/T20/task-20-correction-review.md), [production evidence](../../evidence/T20/packaged/README.md). No hotel UI/nativeGL claim, real provider/OAuth/payment/booking/LLM, push/publication/remote deployment/submission; Superpowers disabled through2026-10-26T07:16:38Z.
 
 ---
 
