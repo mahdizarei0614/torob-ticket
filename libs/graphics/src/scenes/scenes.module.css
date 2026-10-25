@@ -1,5 +1,5 @@
 .scene { position: relative; min-width: 0; }
-.viewport { position: relative; height: 380px; overflow: hidden; background: var(--scene-background); box-shadow: inset 0 0 0 1px var(--border); border-radius: var(--radius-lg); touch-action: pan-y; }
+.viewport { position: relative; height: var(--route-viewport-height,380px); overflow: hidden; background: var(--scene-background); box-shadow: inset 0 0 0 1px var(--border); border-radius: var(--radius-lg); touch-action: pan-y; }
 .picker { touch-action: none; }
 .viewport > div[data-graphics-view] { height: 100%; }
 .labels { position: absolute; inset: 0; pointer-events: none; z-index: 2; }
@@ -33,3 +33,9 @@
 .spreadLabel { width: 144px; height: 54px; }
 
 .labControls input { accent-color: var(--accent); }
+
+.labelButton[data-city-id] { font-size: 11px; line-height: 1.3; padding: 4px 7px; white-space: normal; }
+.labelButton[data-city-role="origin"],.labelButton[data-city-role="destination"] { border-color: var(--accent); background: var(--accent-soft); font-weight: 650; }
+.labelButton:disabled { opacity: 1; cursor: default; color: var(--disabled-text); }
+
+.portalViewport { position:absolute;overflow:hidden;pointer-events:none; }

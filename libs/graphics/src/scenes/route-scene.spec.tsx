@@ -52,3 +52,27 @@ describe('public RouteScene projection and camera intent', () => {
     view.rerender(element(world)); expectVisible(view.container, worldDots, world); expect(camera(view.container).x).toBe(0); expect(camera(view.container).width).toBe(360);
   });
 });
+it('consumer city buttons/dropdown share actual city anchors, support disabled choices and fence retained controls',async()=>{
+ let live=true;const selected=vi.fn();const changed=vi.fn();
+ const city={id:'city-real',name:'شهر واقعی',countryCode:'IR',point:{latitude:32,longitude:54},timeZone:'Asia/Tehran'};
+ const props:RouteSceneProps={...base,fitMode:'geography',cities:[{city,enabled:true,role:'origin'},{city:{...city,id:'disabled',name:'غیرفعال',point:{latitude:33,longitude:55}},enabled:false,role:'network'}],onCitySelect:selected,isCurrent:()=>live,onCameraIntentChange:changed,showTimeline:false};
+ const view=render(element(props));await act(async()=>undefined);
+ const enabled=view.getByRole('button',{name:'شهر واقعی · مبدا'});expect(enabled).toHaveAttribute('data-city-id','city-real');expect(view.getByRole('button',{name:'غیرفعال'})).toBeDisabled();expect(view.getByRole('option',{name:'غیرفعال'})).toBeDisabled();
+ act(()=>enabled.click());expect(selected).toHaveBeenCalledWith('city-real');
+ live=false;act(()=>enabled.click());act(()=>view.getByRole('button',{name:'بزرگ‌نمایی نقشه مسیر'}).click());expect(selected).toHaveBeenCalledTimes(1);expect(camera(view.container).zoom).toBe(1);
+});
+it('consumer camera snapshot survives responsive unmount and both directions share the deliberate fit',async()=>{
+ const props:RouteSceneProps={...base,itinerary,fitBothDirections:true,onCameraIntentChange:vi.fn()};
+ const view=render(element(props));await act(async()=>undefined);act(()=>view.getByRole('button',{name:'بزرگ‌نمایی نقشه مسیر'}).click());const fitted=camera(view.container);
+ view.rerender(element({...props,direction:'return'}));expect(camera(view.container)).toEqual(fitted);view.unmount();
+ const next=render(element({...props,initialCamera:{x:fitted.x,y:fitted.y,width:20,height:15,zoom:fitted.zoom}}));await act(async()=>undefined);expect(camera(next.container)).toMatchObject({x:fitted.x,y:fitted.y,zoom:1.25});
+});
+it('consumer linked label portal inherits its host and removes old controls across hide/remount/unmount',async()=>{
+ const box={left:20,top:30,width:560,height:400,right:580,bottom:430,x:20,y:30,toJSON:()=>({})};
+ const measure=vi.spyOn(HTMLElement.prototype,'getBoundingClientRect').mockReturnValue(box);
+ const props:RouteSceneProps={...base,portalLabels:true,cities:[{city:{id:'real-city',name:'شهر',countryCode:'IR',point:{latitude:32,longitude:54},timeZone:'Asia/Tehran'},enabled:true,role:'origin'}],fitMode:'geography',onCitySelect:vi.fn()};
+ const view=render(element(props));await act(async()=>undefined);
+ const id=view.container.querySelector('[data-camera]')!.getAttribute('aria-controls')!;const label=view.container.querySelector('[data-graphics-label-layer] [data-scene-labels]');expect(label?.id).toBe(id);expect(label?.closest('[data-graphics-label-layer]')).not.toBeNull();expect(label?.parentElement).toHaveStyle({left:'20px',top:'30px',width:'560px',height:'400px'});
+ view.rerender(element({...props,labelsVisible:false}));expect(view.container.querySelector('[data-scene-labels]')).toBeNull();
+ view.rerender(element(props));expect(view.container.querySelectorAll('[data-scene-labels]')).toHaveLength(1);view.unmount();expect(document.querySelector('[data-scene-labels]')).toBeNull();measure.mockRestore();
+});

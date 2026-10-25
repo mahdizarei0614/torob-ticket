@@ -11,7 +11,7 @@ try {
   mkdirSync(join(root, 'libs/graphics/src/shaders'), { recursive: true });
   mkdirSync(join(root, 'libs/ui/src'), { recursive: true });
   mkdirSync(join(root, 'assets/geography'), { recursive: true });
-  const geography = join(root, 'assets/geography/route-scene-fixtures.json');
+  const geography = join(root, 'assets/geography/consumer-geography.json');
   writeFileSync(geography, '{"revision":"first"}');
   writeFileSync(join(root, 'libs/graphics/src/index.ts'), 'export {};');
   writeFileSync(join(root, 'libs/ui/src/index.ts'), 'export {};');

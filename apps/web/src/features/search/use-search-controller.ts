@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from 'react-router';
 import { useQueryClient } from '@tanstack/react-query';
 import { apiClient, ClientError, type ApiClient } from '@torob-ticket/client';
 import type { CatalogSnapshot, SessionInfo, TransportSearchQuery } from '@torob-ticket/contracts';
-import { createSearchState, searchReducer } from './search-reducer';
+import { createSearchState, searchReducer, type SearchIntentCause } from './search-reducer';
 import { searchStartPool, startCapacityMessage, unresolvedStartLimit } from './search-start-pool';
 import { initialDraft, parseSearchUrl, serializeSearchUrl, validateDraft, type SearchDraft } from './search-url';
 export function errorMessage(error: unknown): string {
@@ -79,10 +79,10 @@ export function useSearchController(catalog: CatalogSnapshot, session: SessionIn
   function cancelQueuedDate() { if (!queuedDate.current) return; queuedDate.current = undefined; starts.prioritize(datePriority.current, false); setWaitingDate(false); setPending(false); }
   function edit(patch: Partial<SearchDraft>) { dateInteractions.invalidate(); setResultEntryGeneration(undefined); cancelQueuedDate(); dispatch({ type: 'draft', patch, catalog }); setFeedback(''); }
   function preset(draft: SearchDraft) { dateInteractions.invalidate(); setResultEntryGeneration(undefined); cancelQueuedDate(); dispatch({ type: 'preset', draft }); setFeedback(''); }
-  function commitIntent(query: TransportSearchQuery, next: string) {
+  function commitIntent(query: TransportSearchQuery, next: string, cause: SearchIntentCause = 'search') {
     dateInteractions.invalidate();
     generation.current = next; intendedGeneration.current = next;
-    dispatch({ type: 'commit', query, generation: next });
+    dispatch({ type: 'commit', query, generation: next, cause });
     setPending(true); setAccepted(false); setFeedback('');
     const search = serializeSearchUrl(query);
     if ((popTarget.current !== undefined ? window.location.search : location.search) !== search) { ownNavigation.current = search; void navigate({ pathname: '/', search }); }
@@ -106,13 +106,13 @@ export function useSearchController(catalog: CatalogSnapshot, session: SessionIn
       slot.finish();
     }
   }
-  async function submit(query: TransportSearchQuery = validity.query!, enterResults = false) {
+  async function submit(query: TransportSearchQuery = validity.query!, enterResults = false, cause: SearchIntentCause = 'search') {
     if (!live.current || !query || starts.getSnapshot().resetting || (pendingGeneration.current !== undefined && pendingGeneration.current === generation.current)) return;
     const checked = validateDraft(query, catalog, session);
     if (!checked.valid) { setFeedback(checked.errors.join(' ')); return; }
     const slot = starts.reserve(); if (!slot) return;
     cancelQueuedDate();
-    const next = crypto.randomUUID(); commitIntent(checked.query!, next); setResultEntryGeneration(enterResults ? next : undefined);
+    const next = crypto.randomUUID(); commitIntent(checked.query!, next, cause); setResultEntryGeneration(enterResults ? next : undefined);
     await startCommitted(checked.query!, next, slot);
   }
   function commitDates(draft: SearchDraft) {
@@ -126,7 +126,7 @@ export function useSearchController(catalog: CatalogSnapshot, session: SessionIn
       setFeedback(draft.tripType === 'round-trip' && !draft.returnDate ? 'تاریخ برگشت را دوباره انتخاب کنید؛ سپس تاریخ‌ها را اعمال کنید.' : checked.errors.join(' '));
       return;
     }
-    commitIntent(checked.query!, next);
+    commitIntent(checked.query!, next, 'date');
     // A single replaceable authorized intent. History/reset/edit/unmount fences it.
     queuedDate.current = { query: checked.query!, generation: next }; starts.prioritize(datePriority.current, true); setWaitingDate(true);
   }
@@ -159,13 +159,14 @@ export function useSearchController(catalog: CatalogSnapshot, session: SessionIn
   function previewResultItinerary(id: string | undefined, expectedGeneration: string, expectedSearchId: string) {
     if (resultIsCurrent(expectedGeneration,expectedSearchId)) dispatch({type:'preview-itinerary',id});
   }
-  function pinResultItinerary(id: string, expectedGeneration: string, expectedSearchId: string) {
+  function pinResultItinerary(id: string | undefined, expectedGeneration: string, expectedSearchId: string) {
     if (resultIsCurrent(expectedGeneration,expectedSearchId)) dispatch({type:'pin-itinerary',id});
   }
+  function clearMapInspection(token:number) {if(live.current && !starts.getSnapshot().resetting && dateInteractions.isCurrent(token)) dispatch({type:'pin-itinerary',id:undefined});}
   const canRefineResults = Boolean(state.committed && validity.query && serializeSearchUrl(state.committed) === serializeSearchUrl(validity.query));
   function refineResults(query: TransportSearchQuery, expectedGeneration: string, interactionToken: number) {
     if (!live.current || generation.current !== expectedGeneration || !dateInteractions.isCurrent(interactionToken) || !canRefineResults) return;
-    void submit(query);
+    void submit(query,false,'refine');
   }
-  return { state, dispatch, edit, preset, submit, refineResults, resultIsCurrent, previewResultItinerary, pinResultItinerary, canRefineResults, refinementToken: dateInteractions.capture(), enterResults: resultEntryGeneration === state.generation, dateInteractions, commitDates, waitingDate, reset, validity, pending, resetting, feedback, accepted, startLimitReached, unresolvedStarts: startSnapshot.count, capacityMessage: startLimitReached && !resetting ? startCapacityMessage : '' };
+  return { state, dispatch, edit, preset, submit, refineResults, resultIsCurrent, previewResultItinerary, pinResultItinerary, clearMapInspection, canRefineResults, refinementToken: dateInteractions.capture(), enterResults: resultEntryGeneration === state.generation, dateInteractions, commitDates, waitingDate, reset, validity, pending, resetting, feedback, accepted, startLimitReached, unresolvedStarts: startSnapshot.count, capacityMessage: startLimitReached && !resetting ? startCapacityMessage : '' };
 }

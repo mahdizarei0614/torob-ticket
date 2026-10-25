@@ -16,3 +16,5 @@
 .report { white-space: pre-wrap; overflow-wrap: anywhere; direction: ltr; text-align: left; font-size: var(--text-xs); max-height: 340px; overflow: auto; background: var(--surface-subtle); padding: var(--space-4); }
 .spacer { height: 65vh; }
 @media (max-width: 600px) { .views { grid-template-columns: 1fr; } .lab { padding: var(--space-3); } }
+
+.labelLayer { position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:2; }

@@ -35,6 +35,7 @@ export interface GraphicsController {
 }
 interface HostContext extends GraphicsController {
   status: GraphicsStatus;
+  labelLayer: HTMLElement | null;
   register: (view: GraphicsViewRegistration) => () => void;
 }
 const Context = createContext<HostContext | null>(null);
@@ -58,6 +59,7 @@ export function GraphicsProvider({ children, covered = false, motion = false, di
   controllerRef?: RefObject<GraphicsController | null>;
 }) {
   const [status, setStatus] = useState<GraphicsStatus>('loading');
+  const [labelLayer,setLabelLayer]=useState<HTMLDivElement|null>(null);
   const [views, setViews] = useState<GraphicsViewRegistration[]>([]);
   const eventSource = useRef<HTMLDivElement>(null);
   const runtime = useRef<GraphicsController>({ invalidate() { /* Lazy renderer not yet attached. */ }, inspect: () => null });
@@ -67,11 +69,12 @@ export function GraphicsProvider({ children, covered = false, motion = false, di
   }, []);
   const invalidate = useCallback(() => runtime.current.invalidate(), []);
   const inspect = useCallback(() => runtime.current.inspect(), []);
-  const context = useMemo(() => ({ status, register, invalidate, inspect }), [status, register, invalidate, inspect]);
+  const context = useMemo(() => ({ status, labelLayer, register, invalidate, inspect }), [status, labelLayer, register, invalidate, inspect]);
   if (controllerRef) controllerRef.current = { invalidate, inspect };
   return <Context.Provider value={context}>
     <div ref={eventSource} className={styles.host} data-graphics-status={status}>
       {children}
+      <div ref={setLabelLayer} className={styles.labelLayer} data-graphics-label-layer />
       <RendererBoundary onFailure={() => setStatus('unavailable')}>
         <Suspense fallback={null}>
           <Renderer views={views} eventSource={eventSource} runtime={runtime} onStatus={setStatus} covered={covered} motion={motion} diagnostics={diagnostics} />

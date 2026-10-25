@@ -8,7 +8,7 @@ import { createScrollAnchor } from './scroll-anchor';
 import { useResults } from './use-results';
 import { localDay, minutes, number, toman, travelerCount } from './format';
 import styles from './results.module.css';
-export interface ResultsPageProps { isCurrent: () => boolean; generation: string; searchId: string; query: TransportSearchQuery; catalog: CatalogSnapshot; refinementDisabled: boolean; draftChanged: boolean; onRefine: (query: TransportSearchQuery) => void; onEdit: () => void; enterResults?: boolean; onPreviewItinerary?: (itinerary?: Itinerary) => void; onPinItinerary?: (itinerary: Itinerary) => void; onSelectQuote?: (quote?: QuoteSnapshot, itinerary?: Itinerary) => void }
+export interface ResultsPageProps { isCurrent: () => boolean; generation: string; searchId: string; query: TransportSearchQuery; catalog: CatalogSnapshot; refinementDisabled: boolean; draftChanged: boolean; onRefine: (query: TransportSearchQuery) => void; onEdit: () => void; enterResults?: boolean; onPreviewItinerary?: (itinerary?: Itinerary) => void; onPinItinerary?: (itinerary: Itinerary) => void; onSelectQuote?: (quote?: QuoteSnapshot, itinerary?: Itinerary, selectionIntent?: QuoteSelection) => void }
 function Coverage({ snapshot }: { snapshot: SearchSnapshot }) { const coverage = snapshot.coverage; return <div className={styles.coverage} aria-label="پوشش فروشندگان"><span>{number(coverage.successfulProviderIds.length)} از {number(coverage.expectedProviderIds.length)} فروشنده پاسخ داده‌اند{snapshot.status === 'collecting' ? ' · تا این لحظه' : ''}</span>{coverage.pendingProviderIds.length > 0 && <span>{number(coverage.pendingProviderIds.length)} در حال بررسی</span>}{coverage.failedProviderIds.length > 0 && <span className={styles.invalid}>{number(coverage.failedProviderIds.length)} پاسخ ناموفق یا در دسترس نیست</span>}<small>مقایسه فقط میان فروشندگان همین جست‌وجوی نمایشی است.</small></div>; }
 export function ResultsList(props: ResultsPageProps) {
  const { generation, searchId, query, catalog } = props;
@@ -23,7 +23,7 @@ export function ResultsList(props: ResultsPageProps) {
  useLayoutEffect(()=>{mounted.current=true;return()=>{mounted.current=false;scrollAnchor.cancel();};},[scrollAnchor]);
  const renderedAt = Date.now();
  const selected = selectedQuote(state,renderedAt);
- useEffect(() => { if(ownsCurrent()) outward.current.onSelectQuote?.(selected, selected ? snapshot?.groups.find(group => group.itinerary.itineraryId === selected.itineraryId)?.itinerary : undefined); }, [selected, snapshot]);
+ useEffect(() => { if(ownsCurrent()) outward.current.onSelectQuote?.(selected, selected ? snapshot?.groups.find(group => group.itinerary.itineraryId === selected.itineraryId)?.itinerary : undefined,state.selected); }, [selected, snapshot,state.selected]);
  useEffect(() => {
   if (!ownsCurrent() || !props.enterResults || entered.current || !snapshot) return;
   entered.current = true;
