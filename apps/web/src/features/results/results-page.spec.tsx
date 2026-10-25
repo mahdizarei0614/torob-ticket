@@ -2,6 +2,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { act } from '@testing-library/react';
 import { useReducer } from 'react';
 import { afterEach, expect, it, vi } from 'vitest';
+import {createMapState,mapReducer,mapView} from '../map/map-state';
 import { ResultsList } from './results-page';
 import { useResults } from './use-results';
 import { createResultsState, resultsReducer } from './results-reducer';
@@ -37,4 +38,10 @@ it('a delayed adoption frame relinquishes scrolling immediately when controller 
 it('obsolete entry and outward selection effects do not focus or scroll a restored screen',()=>{
  vi.spyOn(Date,'now').mockReturnValue(Date.parse(observedAt)+5000);const scroll=vi.fn();HTMLElement.prototype.scrollIntoView=scroll;const value=recovery([group('a')]);const state=resultsReducer(createResultsState('generation','search'),{type:'receive',recovery:value});const selected=vi.fn();vi.mocked(useResults).mockReturnValue({state,dispatch:vi.fn(),now:Date.now(),connectionError:false,stored:value});
  render(<ResultsList isCurrent={()=>false} generation="generation" searchId="search" query={query} catalog={catalog} refinementDisabled={false} draftChanged={false} enterResults onRefine={()=>undefined} onEdit={()=>undefined} onSelectQuote={selected}/>);expect(scroll).not.toHaveBeenCalled();expect(selected).not.toHaveBeenCalled();expect(screen.getByRole('heading',{name:'مقایسه پروازها'})).not.toHaveFocus();
+});
+
+it('the actual list forwards hover/focus ownership and restores focused A after leaving B',()=>{
+ vi.spyOn(Date,'now').mockReturnValue(Date.parse(observedAt)+1000);const owner={generation:'generation',searchId:'search'};const value=recovery([group('a'),group('b')]);const state=resultsReducer(createResultsState(owner.generation,owner.searchId),{type:'receive',recovery:value});vi.mocked(useResults).mockReturnValue({state,dispatch:vi.fn(),now:Date.now(),connectionError:false,stored:value});let map=createMapState({draft:query,committed:query,...owner,current:true,revision:1,cause:'search'});
+ const view=render(<><button>outside</button><ResultsList isCurrent={()=>true} {...owner} query={query} catalog={catalog} refinementDisabled={false} draftChanged={false} onRefine={()=>undefined} onEdit={()=>undefined} onPreviewItinerary={(itinerary,source,leavingId)=>{map=mapReducer(map,{type:'preview',owner,source,leavingId,inspection:itinerary?{itinerary,query,owner}:undefined});}}/></>);
+ const cards=view.container.querySelectorAll('article');const first=cards[0]!.querySelector<HTMLButtonElement>('button[aria-pressed]')!;act(()=>first.focus());fireEvent.mouseEnter(cards[1]!);expect(mapView(map,Date.now()).itinerary?.itineraryId).toBe('b');fireEvent.mouseLeave(cards[1]!);expect(mapView(map,Date.now()).itinerary?.itineraryId).toBe('a');fireEvent.mouseEnter(cards[0]!);act(()=>screen.getByRole('button',{name:'outside'}).focus());expect(mapView(map,Date.now()).itinerary?.itineraryId).toBe('a');fireEvent.mouseLeave(cards[0]!);expect(mapView(map,Date.now()).itinerary).toBeUndefined();
 });

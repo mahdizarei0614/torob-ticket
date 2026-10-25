@@ -20,8 +20,8 @@ describe('journey and provider offer facts',()=>{
  it('previews the same itinerary on keyboard focus and mouse hover, and clears on leaving',async()=>{
   const data=group('a');const state=resultsReducer(createResultsState('generation','search'),{type:'receive',recovery:recovery([data])});const preview=vi.fn();const freeze=vi.fn();
   render(<JourneyCard group={data} snapshot={state.adopted!.snapshot} catalog={catalog} state={state} now={Date.parse(observedAt)} onFreeze={freeze} onSelect={()=>undefined} onPreviewItinerary={preview}/>);
-  act(()=>screen.getByRole('button',{name:'انتخاب پیشنهاد'}).focus());expect(preview).toHaveBeenLastCalledWith(data.itinerary);expect(freeze).toHaveBeenCalled();
-  const user=userEvent.setup();await user.hover(screen.getByRole('article'));expect(preview).toHaveBeenLastCalledWith(data.itinerary);await user.unhover(screen.getByRole('article'));expect(preview).toHaveBeenLastCalledWith(undefined);
+  act(()=>screen.getByRole('button',{name:'انتخاب پیشنهاد'}).focus());expect(preview).toHaveBeenLastCalledWith(data.itinerary,'focus');expect(freeze).toHaveBeenCalled();
+  const user=userEvent.setup();await user.hover(screen.getByRole('article'));expect(preview).toHaveBeenLastCalledWith(data.itinerary,'hover');await user.unhover(screen.getByRole('article'));expect(preview).toHaveBeenLastCalledWith(data.itinerary,'focus');act(()=>screen.getByRole('button',{name:'انتخاب پیشنهاد'}).blur());expect(preview).toHaveBeenLastCalledWith(undefined,'focus',data.itinerary.itineraryId);
  });
  it('keeps incomplete mandatory-price offers separate and exposes no choice for them',async()=>{
   const data=group('a');data.eligibleQuotes=[];data.representativeQuoteId=undefined;

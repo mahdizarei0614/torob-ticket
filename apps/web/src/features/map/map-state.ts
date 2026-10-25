@@ -6,14 +6,14 @@ export interface MapOwner { generation: string; searchId: string }
 export interface MapContext { draft: SearchDraft; committed?: TransportSearchQuery; generation?: string; searchId?: string; current: boolean; resetting?: boolean; revision: number; cause: 'initial'|'edit'|'preset'|'restore'|'search'|'refine'|'date'; places?:readonly Place[] }
 export interface MapInspection { itinerary: Itinerary; query: TransportSearchQuery; owner: MapOwner; historical?: boolean }
 export interface MapState {
-  context: MapContext; pin?: MapInspection; preview?: MapInspection;
+  context: MapContext; pin?: MapInspection; preview?: MapInspection; hover?:MapInspection; focus?:MapInspection;
   selection?: {quote:QuoteSnapshot;inspection:MapInspection;valid:boolean;source:'result'|'recheck'};
   resultIntent?:QuoteSelection; receipt?: ReferralReceipt;
   direction:'outbound'|'return'; fitEpoch:number; projection:{centralLongitude:number}; cameraMode:'geography'|'route';
 }
 export type MapAction =
   | {type:'context';context:MapContext}
-  | {type:'preview';inspection?:MapInspection;owner:MapOwner}
+  | {type:'preview';inspection?:MapInspection;owner:MapOwner;source?:'hover'|'focus';leavingId?:string}
   | {type:'pin';inspection:MapInspection}
   | {type:'selection';inspection?:MapInspection;quote?:QuoteSnapshot;owner:MapOwner;intent?:QuoteSelection}
   | {type:'direction';direction:'outbound'|'return'}
@@ -37,8 +37,8 @@ export function reconcileMapState(state:MapState,context:MapContext):MapState {
   const reset=Boolean(context.resetting);
   const historical=context.cause==='refine' && intentChanged && travelKey(previous.draft)===travelKey(context.draft) && !reset;
   const clear=reset || restore || (intentChanged && !historical) || draftChanged;
-  if(historical) return {...state,context,pin:state.pin ? {...state.pin,historical:true} : undefined,preview:undefined,selection:undefined,resultIntent:undefined,receipt:undefined};
-  if(clear) return {...state,context,pin:undefined,preview:undefined,selection:undefined,resultIntent:undefined,receipt:undefined,
+  if(historical) return {...state,context,pin:state.pin ? {...state.pin,historical:true} : undefined,preview:undefined,hover:undefined,focus:undefined,selection:undefined,resultIntent:undefined,receipt:undefined};
+  if(clear) return {...state,context,pin:undefined,preview:undefined,hover:undefined,focus:undefined,selection:undefined,resultIntent:sameOwner(ownerFor(previous),ownerFor(context))?state.resultIntent:undefined,receipt:undefined,
     direction:geoChanged || restore || context.draft.tripType==='one-way' ? 'outbound' : state.direction,
     ...(geoChanged || restore || reset && !previous.resetting ? {fitEpoch:state.fitEpoch+1,projection:{centralLongitude:0},cameraMode:'geography' as const} : {})};
   return {...state,context};
@@ -58,17 +58,23 @@ function receiptMatches(state:MapState,receipt:ReferralReceipt,now:number) {
 export function mapReducer(state:MapState,action:MapAction):MapState {
   switch(action.type) {
     case 'context':return reconcileMapState(state,action.context);
-    case 'preview':return current(state,action.owner) && (!action.inspection || sameOwner(action.inspection.owner,action.owner)) ? {...state,preview:action.inspection} : state;
+    case 'preview': {
+      if(!current(state,action.owner) || action.inspection && !sameOwner(action.inspection.owner,action.owner))return state;
+      const source=action.source??'hover';
+      if(!action.inspection && action.leavingId && state[source]?.itinerary.itineraryId!==action.leavingId)return state;
+      const next={...state,[source]:action.inspection};return {...next,preview:next.hover??next.focus};
+    }
     case 'pin': {
       if(!current(state,action.inspection.owner)) return state;
       const legs=[action.inspection.itinerary.outbound,action.inspection.itinerary.return].filter(Boolean);
       const ids=legs.flatMap(leg=>leg!.segments.flatMap(segment=>[segment.originPlaceId,segment.destinationPlaceId]));
       const points=(state.context.places??[]).filter(place=>ids.includes(place.id)).map(place=>place.point);
-      return {...state,pin:{...action.inspection,historical:false},preview:undefined,selection:undefined,receipt:undefined,fitEpoch:state.fitEpoch+1,projection:contextForPoints(points),cameraMode:'route',direction:state.direction==='return' && action.inspection.itinerary.return ? 'return' : 'outbound'};
+      return {...state,pin:{...action.inspection,historical:false},preview:undefined,hover:undefined,focus:undefined,selection:undefined,receipt:undefined,fitEpoch:state.fitEpoch+1,projection:contextForPoints(points),cameraMode:'route',direction:state.direction==='return' && action.inspection.itinerary.return ? 'return' : 'outbound'};
     }
     case 'selection': {
       if(!current(state,action.owner)) return state;
-      // Passive updates to the original result may not overwrite an explicitly accepted fresh recheck.
+      // A passive delivery cannot resurrect a pre-edit choice or overwrite an accepted fresh recheck.
+      if(action.quote && action.intent && action.intent===state.resultIntent && !state.selection)return state;
       if(action.intent && action.intent===state.resultIntent && state.selection?.source==='recheck') return state;
       if(!action.quote || !action.inspection) return {...state,resultIntent:action.intent,selection:state.selection ? {...state.selection,valid:false} : undefined};
       if(!sameOwner(action.inspection.owner,action.owner) || action.quote.itineraryId!==action.inspection.itinerary.itineraryId) return state;
@@ -76,7 +82,7 @@ export function mapReducer(state:MapState,action:MapAction):MapState {
       return {...state,resultIntent:action.intent,selection:{quote:action.quote,inspection:action.inspection,valid:true,source:'result'},receipt:unchanged ? state.receipt : undefined};
     }
     case 'direction':return {...state,direction:action.direction};
-    case 'clear-inspection': {const different=state.pin && networkKey(state.pin.query)!==networkKey(state.context.draft) || state.preview && networkKey(state.preview.query)!==networkKey(state.context.draft);return {...state,pin:undefined,preview:undefined,selection:undefined,resultIntent:undefined,receipt:undefined,...(different?{fitEpoch:state.fitEpoch+1,projection:{centralLongitude:0},cameraMode:'geography' as const}:{})};}
+    case 'clear-inspection': {const different=state.pin && networkKey(state.pin.query)!==networkKey(state.context.draft) || state.preview && networkKey(state.preview.query)!==networkKey(state.context.draft);return {...state,pin:undefined,preview:undefined,hover:undefined,focus:undefined,selection:undefined,receipt:undefined,...(different?{fitEpoch:state.fitEpoch+1,projection:{centralLongitude:0},cameraMode:'geography' as const}:{})};}
     case 'bind-rechecked': {
       const previous=state.selection;const quote=QuoteSnapshotSchema.safeParse(action.quote);const itinerary=ItinerarySchema.safeParse(action.itinerary);
       if(!current(state,action.owner) || !previous || !quote.success || !itinerary.success || action.previous.quoteId!==previous.quote.quoteId || action.previous.version!==previous.quote.version || !validQuote(quote.data,action.now)) return state;

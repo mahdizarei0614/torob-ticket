@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from 'react-router';
 import { useQueryClient } from '@tanstack/react-query';
 import { apiClient, ClientError, type ApiClient } from '@torob-ticket/client';
 import type { CatalogSnapshot, SessionInfo, TransportSearchQuery } from '@torob-ticket/contracts';
-import { createSearchState, searchReducer, type SearchIntentCause } from './search-reducer';
+import { createSearchState, searchReducer, type SearchIntentCause, type SearchAction } from './search-reducer';
 import { searchStartPool, startCapacityMessage, unresolvedStartLimit } from './search-start-pool';
 import { initialDraft, parseSearchUrl, serializeSearchUrl, validateDraft, type SearchDraft } from './search-url';
 export function errorMessage(error: unknown): string {
@@ -23,7 +23,12 @@ export function useSearchController(catalog: CatalogSnapshot, session: SessionIn
   const navigate = useNavigate();
   const cache = useQueryClient();
   const initial = useRef(parseSearchUrl(location.search, catalog, session));
-  const [state, dispatch] = useReducer(searchReducer, undefined, () => ({ ...createSearchState(initial.current.query ?? initialDraft(catalog, session)), committed: initial.current.query, generation: crypto.randomUUID(), notice: initial.current.message ?? '' }));
+  const [state, reduceDispatch] = useReducer(searchReducer, undefined, () => ({ ...createSearchState(initial.current.query ?? initialDraft(catalog, session)), committed: initial.current.query, generation: crypto.randomUUID(), notice: initial.current.message ?? '' }));
+  // Apply the same authoritative reducer before React delivery so map/result intent joins
+  // observe edits, history and accepted pins atomically within one event turn.
+  const intentState=useRef(state);
+  function dispatch(action:SearchAction){intentState.current=searchReducer(intentState.current,action);reduceDispatch(action);}
+  const currentIntent=()=>intentState.current;
   const generation = useRef(state.generation);
   // StrictMode may replay lifetime setup while a canonical Router replacement is pending.
   const intendedGeneration = useRef(state.generation);
@@ -168,5 +173,5 @@ export function useSearchController(catalog: CatalogSnapshot, session: SessionIn
     if (!live.current || generation.current !== expectedGeneration || !dateInteractions.isCurrent(interactionToken) || !canRefineResults) return;
     void submit(query,false,'refine');
   }
-  return { state, dispatch, edit, preset, submit, refineResults, resultIsCurrent, previewResultItinerary, pinResultItinerary, clearMapInspection, canRefineResults, refinementToken: dateInteractions.capture(), enterResults: resultEntryGeneration === state.generation, dateInteractions, commitDates, waitingDate, reset, validity, pending, resetting, feedback, accepted, startLimitReached, unresolvedStarts: startSnapshot.count, capacityMessage: startLimitReached && !resetting ? startCapacityMessage : '' };
+  return { state, dispatch, currentIntent, edit, preset, submit, refineResults, resultIsCurrent, previewResultItinerary, pinResultItinerary, clearMapInspection, canRefineResults, refinementToken: dateInteractions.capture(), enterResults: resultEntryGeneration === state.generation, dateInteractions, commitDates, waitingDate, reset, validity, pending, resetting, feedback, accepted, startLimitReached, unresolvedStarts: startSnapshot.count, capacityMessage: startLimitReached && !resetting ? startCapacityMessage : '' };
 }
