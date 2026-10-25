@@ -1,3 +1,4 @@
+import {ReferralSelectionSchema,RecheckResultSchema,ConfirmReferralInputSchema,ReferralReceiptSchema,type ReferralSelection,type ConfirmReferralInput,type ReferralIntent,type ReferralReceipt} from '@torob-ticket/contracts';
 import { z } from 'zod';
 import {HotelSearchQuerySchema,HotelSearchSnapshotSchema,type HotelSearchQuery} from '@torob-ticket/contracts';
 import { ApiErrorSchema, DemoAuthStateSchema, SavedSearchSchema, SavedSearchListSchema, DeleteSavedSearchResultSchema, SaveSearchInputSchema, type SaveSearchInput, CatalogSnapshotSchema, CreateDemoSessionInputSchema, DatePriceQuerySchema, DatePriceSnapshotSchema, IdSchema, SearchRecoverySchema, SearchRequestSchema, SessionInfoSchema, type ApiError, type CreateDemoSessionInput, type DatePriceQuery, type SearchRequest, type SessionInfo } from '@torob-ticket/contracts';
@@ -5,6 +6,12 @@ export class ClientError extends Error {
   constructor(readonly kind: 'api' | 'network' | 'schema' | 'request' | 'http', message: string, readonly api?: ApiError, readonly status?: number) { super(message); this.name = 'ClientError'; }
 }
 type Transport = typeof fetch;
+function referralPayloadBound(selection:ReferralIntent['selection'],payload:ReferralIntent['quote']) {
+  return payload.kind===selection.kind && payload.quote.quoteId===selection.quoteId && payload.quote.version===selection.quoteVersion && payload.quote.completeness.status==='complete' && payload.quote.eligibility.status==='eligible' && (payload.kind!=='transport'||payload.quote.itineraryId===payload.itinerary.itineraryId);
+}
+function receiptBound(receipt:ReferralReceipt) {
+  return referralPayloadBound(receipt.selection,receipt.payload) && receipt.handoffPath===`/provider-demo/${encodeURIComponent(receipt.referralId)}` && Date.parse(receipt.confirmedAt)>=Date.parse(receipt.payload.quote.observedAt) && Date.parse(receipt.confirmedAt)<Date.parse(receipt.payload.quote.expiresAt);
+}
 /** Fixed same-origin routes only. Mutations are sent once; caller owns deliberate retry. */
 export function createApiClient(transport: Transport = (...args) => fetch(...args)) {
   let latestSession: SessionInfo | undefined;
@@ -41,6 +48,21 @@ export function createApiClient(transport: Transport = (...args) => fetch(...arg
   }
   return {
     session, catalog,
+    async catalogReadonly(signal?:AbortSignal){return request('catalog',CatalogSnapshotSchema,{signal});},
+    async prepareReferral(input:ReferralSelection,signal?:AbortSignal){
+      const payload=body(ReferralSelectionSchema,input);const result=await request('referrals/prepare',RecheckResultSchema,{method:'POST',body:payload,signal});
+      if(result.status!=='unavailable'){
+        const {intent}=result;const selected=intent.selection;
+        if(selected.kind!==input.kind||selected.quoteId!==input.quoteId||selected.quoteVersion<=input.quoteVersion||!referralPayloadBound(selected,intent.quote)||Date.parse(intent.expiresAt)<=Date.parse(intent.createdAt))throw new ClientError('schema','referral-prepare-binding');
+        if(result.status==='changed'&&(result.previousQuoteVersion!==input.quoteVersion||!referralPayloadBound(input,result.previousQuote)))throw new ClientError('schema','referral-previous-binding');
+      }
+      return result;
+    },
+    async confirmReferral(input:ConfirmReferralInput,signal?:AbortSignal){
+      const receipt=await request('referrals/confirm',ReferralReceiptSchema,{method:'POST',body:body(ConfirmReferralInputSchema,input),signal});
+      if(receipt.intentId!==input.intentId||receipt.selection.quoteVersion!==input.acceptedQuoteVersion||!receiptBound(receipt))throw new ClientError('schema','referral-confirm-binding');return receipt;
+    },
+    async getReferral(id:string,signal?:AbortSignal){const receipt=await request(`referrals/${idPath(id)}`,ReferralReceiptSchema,{signal});if(receipt.referralId!==id||!receiptBound(receipt))throw new ClientError('schema','referral-read-binding');return receipt;},
     async startHotelSearch(input:HotelSearchQuery,signal?:AbortSignal) { const payload=body(HotelSearchQuerySchema,input);const snapshot=await request('hotel-searches',HotelSearchSnapshotSchema,{method:'POST',body:payload,signal});if(JSON.stringify(snapshot.query)!==payload)throw new ClientError('schema','hotel-query-mismatch');return snapshot; },
     async getHotelSearch(id:string,signal?:AbortSignal) {const snapshot=await request(`hotel-searches/${idPath(id)}`,HotelSearchSnapshotSchema,{signal});if(snapshot.hotelSearchId!==id)throw new ClientError('schema','hotel-search-id-mismatch');return snapshot;},
     async authState(signal?: AbortSignal) { return request('auth/demo',DemoAuthStateSchema,{signal}); },
