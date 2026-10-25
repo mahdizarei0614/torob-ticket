@@ -2,6 +2,8 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox syntax for tracking. Read the companion specification first. This plan authorizes no deployment, application submission, real provider integration, or external messaging.
 
+**Owner workflow override:** Superpowers is disabled through `2026-10-26T07:16:38Z` / `10:46:38 Asia/Tehran`. During that interval use native task-by-task subagents, independent reviews and ordinary project decision/evidence records; do not invoke plugin skills, tools, scripts, templates or frozen bookkeeping. The original workflow instruction above resumes only after that interval, subject to newer owner instructions.
+
 **Goal:** Build a polished, self-contained Torob-style travel comparison demo that demonstrates product judgment, UI/UX quality, reliable full-stack engineering, and an evidenced AI-assisted development process.
 
 **Architecture:** Option A: an Nx/pnpm TypeScript monorepo with React/Vite consumer and admin applications, a modular NestJS API, and PostgreSQL/Prisma. Providers enter one validated normalization/comparison pipeline. A shared Three.js/React Three Fiber/GLSL renderer supports the map and visual effects while HTML provides accessible interaction.
@@ -10,7 +12,7 @@
 
 **Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.0, 2026-10-24.
 
-**Plan state:** Approved; M1 foundation, T05 inventory, T06 normalization, T07 eligible comparison, T08 ranking, T09 durable search orchestration, SSE and recovery, T10 source-backed date prices, and T11 recheck/idempotent referrals are complete and independently reviewed. M2 comparison engine is complete; M3 has completed T13 shared rendering, T14 geography/routes, T15 consumer shell/composer, T16 date exploration and T17 streamed comparison results; T18 map integration is next. Remaining product tasks and evidence are tracked below. The earlier date explorer is a completed throwaway interaction study, not implemented product code.
+**Plan state:** Approved; M1 foundation, T05 inventory, T06 normalization, T07 eligible comparison, T08 ranking, T09 durable search orchestration, SSE and recovery, T10 source-backed date prices, and T11 recheck/idempotent referrals are complete and independently reviewed. M2 comparison engine is complete; M3 is complete: T13 shared rendering, T14 geography/routes, T15 consumer shell/composer, T16 date exploration, T17 streamed comparison results and T18 canonical consumer map integration are independently reviewed and verified. Remaining product tasks and evidence are tracked below. The earlier date explorer is a completed throwaway interaction study, not implemented product code.
 
 **Delivery location:** This outputs directory contains the user-facing source documents. On repository creation, copy the spec to docs/superpowers/specs/2026-10-24-torobticket-design.md and this plan to docs/superpowers/plans/2026-10-24-torobticket-master-plan.md. Preserve the revision, task IDs, and decision authority, and rewrite the Spec link to ../specs/2026-10-24-torobticket-design.md.
 
@@ -321,6 +323,8 @@ T16 implements DateExplorer/DateWheel/DateCalendar in apps/web, PriceChartScene/
 
 T17 implements ResultsPage/ResultsList/JourneyCard/ProviderOffers, ResultFilters, localized Explanation, useResults, the adopted/latest results reducer and bounded scroll-anchor helper in apps/web. It consumes the existing atomic SearchRecovery and subscribeSearch protocol; the server/domain still owns ranking, eligibility and factual claims. ResultsPageProps requires a live isCurrent() function. The controller exposes resultIsCurrent(expectedGeneration, expectedSearchId), previewResultItinerary(idOrUndefined, generation, searchId) and pinResultItinerary(id, generation, searchId); these authorize the exact accepted pair, separately from the ID retained for supersession. Do not replace that predicate with a rendered boolean or direct old-result reducer dispatch. QuoteSelection is {groupId, quoteId, version}; onSelectQuote receives the current exact quote and itinerary, with expiry/latest-authority safety. Initial collection adopts order; inspection stages later updates; explicit adoption retains a valid fare and DOM anchor. Filter Cancel/Escape/toggle/fresh opening restores committed conditions; Clear ignores discarded draft validation. Unapplied composer edits permit committed-result inspection but disable refinement. Original timestamps and immediate current-clock checks remain binding. Rulings: docs/decisions/0017-comparison-results.md; complete evidence: docs/evidence/T17/checkpoint.md. T18 owns real map binding, T21 hotel discovery and T22 referral/return context; query-only history/reload does not automatically create another selected search.
 
+T18 implements TripMap/useTripMap/mapReducer and the consumer RouteTimeline/RouteDirectionControl. The API catalog owns City/Place support; accepted canonical itineraries own timetable facts. Display priority is hover, focused result, explicit pin, then unpriced draft illustration. Results preview callbacks carry `(itinerary?, source?: 'hover' | 'focus', leavingId?)`; forward all metadata under the live accepted-pair guard. The controller's `currentIntent()` advances synchronously through the same searchReducer/action path; map sends reconcile against it, preserving coherent same-turn committed inspection without granting obsolete operations access. Passive consumed quote intents cannot resurrect cleared choices; explicit same-fare reselection remains possible. Camera callbacks retain draft/fit/scene leases and saved logical intent; viewport frame changes do not authorize a fit. Consumer dots fetch only `/geography/consumer-geography.json`; authored paths remain non-navigation. Below1120px the map/portal unmount and the canonical DOM timeline remains. Repeated stops join by ordered occurrence plus known arrival/departure instants; unknown/conflicting/unmatched facts stay explicit. Future T22 calls `bindAcceptedQuote(previous,quote,itinerary)` only after ready or explicit changed-version acceptance, then supplies its actual server receipt to `confirmReferral`; exact quote/version/itinerary/current owner and original validity interval gate100. No completion simulator is implemented. Shared host/finite motion, same-basis historical inspection and portal behavior are documented in docs/decisions/0018-consumer-trip-map.md; complete evidence: docs/evidence/T18/checkpoint.md. T19/T21/T22/T27/T32/T33 retain their planned scope.
+
 ## 4. Execution and tracking rules
 
 - Each task below is independently reviewable; follow dependencies rather than assuming numerical order is mandatory.
@@ -338,7 +342,7 @@ T17 implements ResultsPage/ResultsList/JourneyCard/ProviderOffers, ResultFilters
 
 Each row indexes the detailed checkbox steps in section 6. DONE requires independent review and recorded verification evidence.
 
-**Progress:** 35 tasks · 183 subtasks · 17 implementation tasks complete.
+**Progress:** 35 tasks · 183 subtasks · 18 implementation tasks complete.
 
 | Task | Subtasks | Dependencies | Status | Owner / evidence |
 |---|---|---|---|---|
@@ -359,7 +363,7 @@ Each row indexes the detailed checkbox steps in section 6. DONE requires indepen
 | [T15 — Consumer shell, search composer, URL state, and reviewer entry](#t15) | T15.1 Pin query and navigation behavior<br>T15.2 Run state tests red<br>T15.3 Implement shell and composer<br>T15.4 Implement state ownership<br>T15.5 Implement reviewer entry<br>T15.6 Verify and commit | T02, T04, T05, T12 | DONE | implement_t15 / 52f66c4 + evidence 5426f4d + correction 8c52bc4; independent P2 fixed and fresh review approved; web 21/client 23, affected 48, original browser 23/final composer 5, tools 20+cache; corrected Docker/production isolation/navigation/bundles/preservation pass; docs/evidence/T15 |
 | [T16 — Date wheel, Jalali calendar, linked GLSL chart, and apply behavior](#t16) | T16.1 Pin preview/commit and date rules<br>T16.2 Run date tests red<br>T16.3 Implement the wheel and calendar<br>T16.4 Implement chart and cache wiring<br>T16.5 Verify physical interaction<br>T16.6 Review and commit | T03, T10, T13, T15 | DONE | implement_t16 / source 4ba35d8 + evidence 1525c60 + correction 310a882 + report 8f4a340; three independent P2 findings fixed and fresh review approved; web46/client25/UI16/graphics22, affected48, correction browser14 and corrected Docker/price equivalence/history/isolation/GL/bundles/preservation pass; docs/evidence/T16 |
 | [T17 — Compact comparison results, provider groups, filters, and stable updates](#t17) | T17.1 Pin stable ordering and selection<br>T17.2 Run reducer and e2e tests red<br>T17.3 Implement dense cards and details<br>T17.4 Implement sorting and filters<br>T17.5 Implement staged arrival adoption<br>T17.6 Verify and commit | T08, T09, T15 | DONE | implement_t17 / d9feb83 + evidence 83566f5 + fix ba1835d + report 4ce2fd6 + precision dde5b6c; three P2s fixed and fresh independent review approved; web79/client25, affected19, documented browser closures and corrected Docker/comparison/filter/history/isolation/bundle/preservation proof pass; docs/evidence/T17 |
-| [T18 — Link map selection, route details, camera, and referral progress](#t18) | T18.1 Pin the map state machine<br>T18.2 Run map-state tests red<br>T18.3 Wire the scene and timeline<br>T18.4 Wire vehicle progress<br>T18.5 Verify and commit | T14, T17 | TODO | Unassigned / — |
+| [T18 — Link map selection, route details, camera, and referral progress](#t18) | T18.1 Pin the map state machine<br>T18.2 Run map-state tests red<br>T18.3 Wire the scene and timeline<br>T18.4 Wire vehicle progress<br>T18.5 Verify and commit | T14, T17 | DONE | implement_t18 / source342e68d + harness89c2a16 + fixesbb37d01/4e07347;3P2s addressed by fresh review18checks; web104/graphics26/affected38, final native5consumer+6lab and Docker/GL/camera/mobile/bundles/database proof PASS; docs/evidence/T18 |
 | [T19 — Optional simulated identity, saved searches, and preferences](#t19) | T19.1 Pin guest and identity behavior<br>T19.2 Run identity tests red<br>T19.3 Implement simulated identity<br>T19.4 Implement saved intent and preferences<br>T19.5 Verify and commit | T04, T12, T15 | TODO | Unassigned / — |
 | [T20 — Hotel eligibility, stay pricing, distance sorting, and recheck](#t20) | T20.1 Pin occupancy and total-stay cases<br>T20.2 Run hotel tests red<br>T20.3 Implement allocation and pricing<br>T20.4 Implement dates and four sorts<br>T20.5 Register recheck and persistence<br>T20.6 Verify and commit | T03, T04, T05, T11 | TODO | Unassigned / — |
 | [T21 — Hotel discovery modal, custom-location map, and trip-state restoration](#t21) | T21.1 Pin opening, edits, and restoration<br>T21.2 Run hotel UI tests red<br>T21.3 Implement hotel browsing<br>T21.4 Implement location selection<br>T21.5 Implement modal/canvas coordination<br>T21.6 Verify and commit | T12, T13, T14, T15, T20 | TODO | Unassigned / — |
@@ -384,7 +388,7 @@ Each row indexes the detailed checkbox steps in section 6. DONE requires indepen
 |---|---|---|
 | M1 — Runnable foundation and contracts | T01–T04, T12; early T29 | COMPLETE: independent task and cross-task review, final WebStorm builds/Docker startup verified; evidence in docs/evidence/M1-checkpoint and M1-handoff |
 | M2 — Credible comparison engine | T05–T11 | COMPLETE: T05–T11 independently reviewed. Provider normalization, complete round trips, ranking, durable streams, date/result equality and explicit versioned/idempotent referrals verified; T11 corrected lifecycle53 and packaged gateway/restart/preservation gates pass |
-| M3 — Signature search experience | T13–T18 | IN PROGRESS: T13–T17 shared renderer, geography/routes, consumer composer, date exploration and streamed comparison complete; T18 consumer map binding pending. Wheel/calendar/chart/map linked to real API data; stable results and camera; compact desktop/mobile review |
+| M3 — Signature search experience | T13–T18 | COMPLETE: shared renderer, geography/routes, consumer composer, date exploration, streamed comparison and canonical map binding independently verified. Wheel/calendar/chart/map linked to real mock-provider API data; stable results/camera and desktop/mobile route details. |
 | M4 — Complete traveler flow | T19–T22 | Guest and simulated identity, saved searches, hotels/rooms/custom point, exact simulated provider handoff |
 | M5 — Inspectable admin | T23–T26 | Session-scoped controls actually alter pipeline; raw-to-normalized trace; mapping preview/replay; real referral evidence |
 | M6 — Visual finish and resilience | T27–T28 | All themes/modes, local flat artwork, coordinated motion, empty/partial/error recovery |
@@ -1336,27 +1340,29 @@ Run web tests and pnpm nx run e2e:e2e --grep @results. Validate price/conditions
 - Consumes: RouteScene, search controller, result preview/pin/select callbacks, canonical itinerary.
 - Produces: TripMap view model; route hover/focus/pin restoration; textual timeline parity; referral progress transition API.
 
-- [ ] **T18.1 — Pin the map state machine**
+- [x] **T18.1 — Pin the map state machine**
 
 Assert dot/dropdown parity, origin endpoint activation, illustrative-to-actual route transition, hover preview restoring the pinned route, deliberate camera fit only on pin, and independent round-trip direction. Sorting and result scrolling must not change camera intent.
 
-- [ ] **T18.2 — Run map-state tests red**
+- [x] **T18.2 — Run map-state tests red**
 
 Run pnpm nx test web. Use two itineraries with different connection cities to expose incorrect preview restoration.
 
-- [ ] **T18.3 — Wire the scene and timeline**
+- [x] **T18.3 — Wire the scene and timeline**
 
 Pass one authoritative itinerary/direction to map and DOM timeline. Display city order, local arrival/departure, waits, vehicle/airport changes, and required transfer segments. Keep labels accessible and retain the main-map breakpoint.
 
-- [ ] **T18.4 — Wire vehicle progress**
+- [x] **T18.4 — Wire vehicle progress**
 
 Advance 0/35/70/100% at endpoint/comparison/selected-quote/confirmed-referral states. Failed or changed-quote checks do not complete the journey. Reduced motion places the sprite directly; a prior selection is not falsely confirmed.
 
-- [ ] **T18.5 — Verify and commit**
+- [x] **T18.5 — Verify and commit**
 
 Run web tests and pnpm nx run e2e:e2e --grep @map-flow. Test pointer and focus previews, explicit zoom, round-trip direction, responsive hide/show, long scrolling, and unavailable selected offers. Commit map integration.
 
 **Acceptance:** Map, result details, and referral progress describe the same journey without camera surprises or booking claims.
+
+**T18 checkpoint — 2026-10-25:** Complete at source342e68d, native selector89c2a16 and correctionsbb37d01/4e07347. Initial independent review reproduced3P2s: same-turn map/controller split, lost mixed-input preview and repeated-stop duplication/order. A fresh correction reviewer marks all ADDRESSED with18independent checks passing, including its additional known-timestamp occurrence RED→GREEN. Final web104/graphics26, affected38targets(28cached), consumer5/5 and unchanged laboratory6/6 pass on4e07347. Root rebuilt Docker and independently verifies physical dot/dropdown selection,35/70/preview, native mixed-input ownership, canonical timeline, camera/direction/zoom/wheel/theme, mobile390px unmount/text/restore, native context loss/recovery and unchanged edited draft inspection. Final originalGL observation:1context/62compiled-linked programs/555draws/5framebuffer colors,noerrors; these are bounded observations, not universal performance claims. Every productionJS asset matches gatewaySHA256; gzip9startup244565/deferred256183bytes. Original database container/full-row immutable fingerprints preserved; final owned contexts reset201/closed and4313/4314free. The earlier single interrupted lost-cookie scope remains explicitly left to normal expiry; no guessed cleanup is claimed. Final traces redact transient owned demo headers; report/manifests retain the evidence correction and local-history boundary. Eighteen of35tasks and M3 complete; T19TODO,T29ACTIVE. [Checkpoint](../../evidence/T18/checkpoint.md), [fresh review](../../evidence/T18/task-18-correction-review.md) and [production evidence](../../evidence/T18/packaged/README.md). Referral UI remains T22; full audits/polish remain T27/T32/T33. No push, publication, deployment or application submission; Superpowers disabled through2026-10-26T07:16:38Z.
 
 ---
 
