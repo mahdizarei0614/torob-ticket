@@ -13,6 +13,7 @@ export class HotelWorkOwner {
     private readonly active = new Set<OwnedWork>();
     private readonly pending = new Map<string, SessionContext>();
     private recovered = false;
+    private destroyed = false;
     private readonly unregister: () => void;
     constructor(private readonly sessions: SessionService) {
         this.unregister = sessions.registerRecovery(() => this.recover());
@@ -43,9 +44,8 @@ export class HotelWorkOwner {
         }
     }
     async run<T>(session: SessionContext, work: (owner: OwnedWork) => Promise<T>): Promise<T> {
-        // Direct internal callers must cross the same startup barrier as guarded HTTP.
-        if (!this.recovered)
-            await this.sessions.ensureReady();
+        if (this.destroyed)
+            throw new RepositoryError('SESSION_EXPIRED');
         let finish!: () => void;
         const item: OwnedWork = { controller: new AbortController(), done: new Promise<void>(resolve => {
                 finish = resolve;
@@ -53,6 +53,10 @@ export class HotelWorkOwner {
         const release = this.sessions.registerController(session, item.controller, item.done);
         this.active.add(item);
         try {
+            // Register before waiting so reset/shutdown can cancel this lease.
+            if (!this.recovered)
+                await this.sessions.ensureReady();
+            this.assertCurrent(item);
             return await work(item);
         }
         catch (error) {
@@ -74,10 +78,11 @@ export class HotelWorkOwner {
         }
     }
     assertCurrent(item: OwnedWork) {
-        if (item.controller.signal.aborted)
+        if (this.destroyed || item.controller.signal.aborted)
             throw new RepositoryError('SESSION_EXPIRED');
     }
     async destroy() {
+        this.destroyed = true;
         this.unregister();
         for (const item of this.active)
             item.controller.abort();
