@@ -87,3 +87,10 @@ describe('optional account typed transport',()=>{
   const transport=vi.fn(async()=>json({items:[{...saved,quoteId:'forbidden'}]}));const client=createApiClient(transport);await expect(client.saveSearch({name:' ',query})).rejects.toMatchObject({kind:'request'});await expect(client.deleteSavedSearch('')).rejects.toMatchObject({kind:'request'});expect(transport).not.toHaveBeenCalled();await expect(client.listSavedSearches()).rejects.toMatchObject({kind:'schema'});
  });
 });
+
+ describe('hotel typed transport and exact evidence identity',()=>{
+ const query={destinationCityId:'city',checkIn:'2026-10-25',checkOut:'2026-10-27',party:{adults:1,children:0,infants:0},rooms:1,sort:'cheapest' as const};
+ const snapshot={hotelSearchId:'hotel/a',query,status:'empty',hotels:[],quotes:[],results:[],observedAt:'2026-10-25T00:00:00Z'};
+ it('sends one validated POST and encoded exact GET with cancellation',async()=>{const transport=vi.fn(async()=>json(snapshot));const client=createApiClient(transport);const controller=new AbortController();await expect(client.startHotelSearch(query,controller.signal)).resolves.toEqual(snapshot);await expect(client.getHotelSearch('hotel/a',controller.signal)).resolves.toEqual(snapshot);expect(transport.mock.calls.map(c=>c[0])).toEqual(['/api/v1/hotel-searches','/api/v1/hotel-searches/hotel%2Fa']);expect(transport.mock.calls[0]![1]).toMatchObject({method:'POST',credentials:'same-origin',signal:controller.signal,body:JSON.stringify(query)});});
+ it('rejects invalid stay/selector before HTTP and malformed or mismatched evidence after HTTP',async()=>{const transport=vi.fn(async()=>json(snapshot));const client=createApiClient(transport);await expect(client.startHotelSearch({...query,sessionId:'peer'} as never)).rejects.toMatchObject({kind:'request'});expect(transport).not.toHaveBeenCalled();await expect(createApiClient(async()=>json({...snapshot,query:{...query,checkOut:'2026-10-28'}})).startHotelSearch(query)).rejects.toMatchObject({kind:'schema'});await expect(createApiClient(async()=>json({...snapshot,hotelSearchId:'another'})).getHotelSearch('hotel/a')).rejects.toMatchObject({kind:'schema'});});
+ });

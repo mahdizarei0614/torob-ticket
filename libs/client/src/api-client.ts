@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import {HotelSearchQuerySchema,HotelSearchSnapshotSchema,type HotelSearchQuery} from '@torob-ticket/contracts';
 import { ApiErrorSchema, DemoAuthStateSchema, SavedSearchSchema, SavedSearchListSchema, DeleteSavedSearchResultSchema, SaveSearchInputSchema, type SaveSearchInput, CatalogSnapshotSchema, CreateDemoSessionInputSchema, DatePriceQuerySchema, DatePriceSnapshotSchema, IdSchema, SearchRecoverySchema, SearchRequestSchema, SessionInfoSchema, type ApiError, type CreateDemoSessionInput, type DatePriceQuery, type SearchRequest, type SessionInfo } from '@torob-ticket/contracts';
 export class ClientError extends Error {
   constructor(readonly kind: 'api' | 'network' | 'schema' | 'request' | 'http', message: string, readonly api?: ApiError, readonly status?: number) { super(message); this.name = 'ClientError'; }
@@ -40,6 +41,8 @@ export function createApiClient(transport: Transport = (...args) => fetch(...arg
   }
   return {
     session, catalog,
+    async startHotelSearch(input:HotelSearchQuery,signal?:AbortSignal) { const payload=body(HotelSearchQuerySchema,input);const snapshot=await request('hotel-searches',HotelSearchSnapshotSchema,{method:'POST',body:payload,signal});if(JSON.stringify(snapshot.query)!==payload)throw new ClientError('schema','hotel-query-mismatch');return snapshot; },
+    async getHotelSearch(id:string,signal?:AbortSignal) {const snapshot=await request(`hotel-searches/${idPath(id)}`,HotelSearchSnapshotSchema,{signal});if(snapshot.hotelSearchId!==id)throw new ClientError('schema','hotel-search-id-mismatch');return snapshot;},
     async authState(signal?: AbortSignal) { return request('auth/demo',DemoAuthStateSchema,{signal}); },
     async signIn(signal?: AbortSignal) { return request('auth/demo/sign-in',DemoAuthStateSchema,{method:'POST',body:'{}',signal}); },
     async signOut(signal?: AbortSignal) { return request('auth/demo/sign-out',DemoAuthStateSchema,{method:'POST',body:'{}',signal}); },

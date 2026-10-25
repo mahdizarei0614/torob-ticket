@@ -18,3 +18,7 @@
 @media (max-width: 600px) { .views { grid-template-columns: 1fr; } .lab { padding: var(--space-3); } }
 
 .labelLayer { position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:2; }
+
+.canvasHost { position:fixed;inset:0;z-index:1;pointer-events:none; }
+
+.canvasHost:not([data-graphics-status='ready']) .canvas { visibility:hidden; }

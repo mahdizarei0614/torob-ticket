@@ -203,6 +203,7 @@
   color: var(--text);
   box-shadow: var(--elevation);
 }
+.modal[data-dialog-size='wide'] { width:min(68rem,100%); }
 .dialog {
   padding: var(--space-5);
   outline: none;

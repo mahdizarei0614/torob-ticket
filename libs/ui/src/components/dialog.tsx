@@ -12,6 +12,7 @@ export interface DialogProps {
   mobileFullscreen?: boolean;
   /** Keep dismissal available while a long dialog body scrolls; opt-in. */
   stickyHeader?: boolean;
+  size?: 'standard'|'wide';
 }
 export function Dialog({
   title,
@@ -21,12 +22,13 @@ export function Dialog({
   onOpenChange,
   mobileFullscreen = false,
   stickyHeader = false,
+  size = 'standard',
 }: DialogProps) {
   return (
     <ModalOverlay className={styles.overlay} isOpen={isOpen} onOpenChange={onOpenChange} isDismissable>
-      <Modal className={styles.modal} data-mobile-fullscreen={mobileFullscreen} {...languageProps(language)}>
+      <Modal className={styles.modal} data-mobile-fullscreen={mobileFullscreen} data-dialog-size={size} {...languageProps(language)}>
         <AriaDialog className={styles.dialog}>
-          <div className={styles.dialogHeader} data-sticky={stickyHeader || undefined}>
+          <div className={styles.dialogHeader} data-sticky={stickyHeader || undefined} data-graphics-occluder={stickyHeader||undefined}>
             <Heading slot="title" className={styles.dialogTitle}>
               {title}
             </Heading>

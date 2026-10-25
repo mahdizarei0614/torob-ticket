@@ -39,3 +39,6 @@
 .labelButton:disabled { opacity: 1; cursor: default; color: var(--disabled-text); }
 
 .portalViewport { position:absolute;overflow:hidden;pointer-events:none; }
+
+.foregroundTarget { position:absolute;inset:0;z-index:1;pointer-events:none; }
+.viewport:has(.foregroundTarget) { isolation:isolate; }

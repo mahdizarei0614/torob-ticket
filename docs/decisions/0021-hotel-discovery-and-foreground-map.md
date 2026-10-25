@@ -1,0 +1,33 @@
+# 0021 — Independent hotel discovery and one foreground map
+
+Status: implementation candidate; independent review and actual native/packaged verification determine closure. Authority: approved design7/8/12, Task21, native task brief and decisions0018–0020. No Superpowers plugin is used during its owner-disabled interval.
+
+## Independent comparison state and trip authority
+
+HotelEntry stays mounted beside the ticket results, while the ticket ResultsPage, controller and travel map retain their own state. An actual accepted result query supplies the initial destination/party. A current valid selected canonical itinerary supplies final destination-local arrival and first return departure; hover and historical pin never supply defaults. At first opening the local draft is initialized from that current context. No selection requires explicit arrival-date confirmation; one-way checkout is empty, same-day return remains invalid without inventing a night. Child ages at hotel check-in are explicit and never borrowed from transport ages.
+
+After a stay has been opened, its bound valid arrival is a travel fact for that independent stay. A filter/sort-only transport refresh does not erase it merely because the fare selection becomes historical. A newly selected valid canonical arrival or meaningful dates/destination/party/mode change produces an explicit new-trip suggestion. Original hotel dates/context remain labeled previous-trip and their quote actions are blocked until coherent Apply-new-trip. New transport drafts must be accepted before Apply; no destination is mixed with an older itinerary. Hotel field edits, sorting and point application never start a transport search or rewrite transport URL/filter/order/selection/camera. Closing does not unmount ticket results.
+
+The hotel form uses destination-local nights0–119/checkout120, an inline Persian calendar plus accessible Gregorian manual inputs, requested room count and explicit age fields. It does not borrow transport90-day inventory or invent daily hotel prices. Primary shared Price displays every room/all nights; secondary average explicitly covers all rooms. Early-arrival numeric check-in notes are derived only from returned roomDetails.policy, never assumed before source evidence.
+
+## Search, conditions and selection
+
+Typed same-origin client startHotelSearch/getHotelSearch validate strict wire contracts and exact requested query/searchID identity, forward cancellation and send a mutation once. Explicit Search, eligible sort change or Apply reference issues one fresh hotel operation. Pin movement, coordinate editing and map preview never stream requests. Errors, capacity, empty and incomplete/unknown diagnostics remain distinguishable and recoverable.
+
+Cards use server result ordering and complete representatives/alternatives; browser code never recomputes ranking/eligibility or fabricates a fee. Each variant preserves the exact allocation, per-room capacity/ages, breakfast/cancellation/refund/fees, authored infant/check-in policy, source observation/expiry/version. Unknown conditions remain unknown. Incomplete subtotals are explicitly nonfinal and unselectable. Quote selection checks accepted current query/snapshot, expiry, eligibility/completeness and invokes onSelectHotelQuote with the full immutable snapshot plus a local comparison summary. No provider URL, fake booking, disabled roadmap CTA or referral mutation is introduced; T22 owns handoff.
+
+Rendered actions and response settlement bind lifecycle, dialog-cycle, edit revision, meaningful trip epoch and provisional point token. Edit/close/reset/unmount abort owned fetches and fence retained callbacks. StrictMode setup republishes live actions without authorizing unmounted work. Old server mutations may finish despite client abort; dismissal does not claim rollback. Point Apply/Cancel is transactional, Escape cancels it before closing the outer modal, and focus returns to its trigger.
+
+## One persistent canvas, modal scope and clipping
+
+GraphicsProvider owns one stable DOM host and renders its lazy Renderer into a constant React portal target. A scoped foreground lease physically moves that same host into the picker viewport layer; the portal target and Canvas/R3F identity never change. Replacement/release uses exact lease identity, so a stale cleanup cannot steal a newer foreground. Provider teardown removes listeners/host; normal cleanup restores its home slot. Original renderer status is also recorded on the stable host, preserving canvas visibility after reparenting.
+
+GraphicsView registrations classify background versus foreground. A foreground picker admits only its view; travel route/chart Activities stay mounted and suspended. An open hotel without picker suspends all views. Account/calendar coverage can explicitly block foreground admission too. Existing scene and dialog defaults remain unchanged. Context loss retains the active picker lease and semantic fallback; context restoration draws the same picker/context.
+
+The foreground target is inside the React Aria dialog and a local isolated viewport, below its semantic labels and above its fallback surface. Canvas remains aria-hidden, nonfocusable and pointer-events:none. All map input, landmarks and coordinates remain native DOM in the modal's focus/aria scope. Fixed viewport coordinates remain unchanged. The stable host uses an explicitly measured viewport/scroll-ancestor intersection clip; resize/scroll observers refresh it. No global canvas elevation, second provider/context or escaped interactive portal label layer is used.
+
+The picker loads validated bundled illustrative destination extents/landmarks and uses returned Hotel points for accommodation markers. Extents are not municipal/street boundaries, distances are spherical straight-line kilometers, and arbitrary valid coordinates remain allowed. Local asset/WebGL failure preserves landmark/list/coordinate controls. Colors remain semantic tokens; no remote imagery, new 3D treatment or real navigation claim.
+
+## Verification boundaries
+
+Initial compiling reducer6, hook4 (one passing control), client2 (ten passing controls) and foreground-placement/admission/clip3 behavioral REDs precede their respective implementations. Expanded actual DOM/card/constant-provider tests and native @hotels real API cases provide separate behavior proof. GPU paint/context/focus/clip claims require actual Chrome/packaged verification, not the DOM mock renderer. Owned native scopes reset with explicit{} and201; trace is off. No test database is needed. Root owns final Docker/source/hash/preservation proof and master/checkpoint. Source candidate does not itself close T21.

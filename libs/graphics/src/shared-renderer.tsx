@@ -8,19 +8,18 @@ import { createRenderScheduler } from './render-scheduler';
 import { chooseGraphicsQuality } from './quality-policy';
 import type { GraphicsController, GraphicsDiagnostics, GraphicsViewRegistration } from './graphics-provider';
 import styles from './graphics.module.css';
+import {admitsView,visibleClipRect} from './foreground-host';
 interface RendererProps {
   views: GraphicsViewRegistration[];
   eventSource: RefObject<HTMLDivElement | null>;
   runtime: RefObject<GraphicsController>;
   onStatus: (status: GraphicsStatus) => void;
   covered: boolean;
+  foreground: boolean;
   motion: boolean;
   diagnostics: boolean;
 }
-function inViewport(view: GraphicsViewRegistration) {
-  const rect = view.element.getBoundingClientRect();
-  return view.visible && rect.width > 0 && rect.height > 0 && rect.bottom > 0 && rect.top < innerHeight && rect.right > 0 && rect.left < innerWidth;
-}
+function inViewport(view:GraphicsViewRegistration){const rect=visibleClipRect(view.element);return view.visible&&rect.width>0&&rect.height>0;}
 function Driver(props: RendererProps & { onVisibility: (ids: string[]) => void; sceneInvalidation: RefObject<() => void>; onDpr: (dpr: number) => void }) {
   const gl = useThree(value => value.gl);
   const getState = useThree(value => value.get);
@@ -56,7 +55,8 @@ function Driver(props: RendererProps & { onVisibility: (ids: string[]) => void; 
       fragmentLog: context.getShaderInfoLog(program.fragmentShader) ?? '',
     }));
     const clear = () => { gl.setScissorTest(false); gl.setViewport(0, 0, innerWidth, innerHeight); gl.clear(true, true, true); };
-    const active = () => live && !lost && !failed && !document.hidden && !latest.current.covered;
+    const active = () => live && !lost && !failed && !document.hidden && (!latest.current.covered||latest.current.foreground);
+    const visibleViews=()=>latest.current.views.filter(view=>inViewport(view)&&admitsView(view.layer,latest.current.covered,latest.current.foreground));
     const scheduler = createRenderScheduler(time => {
       if (!active()) return;
       const start = performance.now();
@@ -64,7 +64,7 @@ function Driver(props: RendererProps & { onVisibility: (ids: string[]) => void; 
       state.advance(time / 1000, false);
       data.frames++;
       data.frameSubscribers = state.get().internal.subscribers.length;
-      data.activeViews = latest.current.views.filter(inViewport).length;
+      data.activeViews = visibleViews().length;
       data.geometries = gl.info.memory.geometries;
       data.programsInMemory = gl.info.programs?.length ?? 0;
       if (!ready && data.programsInMemory > 0 && !failed) { ready = true; status('ready'); }
@@ -76,7 +76,7 @@ function Driver(props: RendererProps & { onVisibility: (ids: string[]) => void; 
           const location = context.getUniformLocation(program, key);
           if (location) data.uniforms[key] = [...context.getUniform(program, location) as Float32Array];
         }
-        for (const view of latest.current.views.filter(inViewport)) {
+        for (const view of visibleViews()) {
           const rect = view.element.getBoundingClientRect();
           const pixel = new Uint8Array(4);
           const dpr = gl.getPixelRatio();
@@ -99,10 +99,10 @@ function Driver(props: RendererProps & { onVisibility: (ids: string[]) => void; 
       data.quality = quality;
     });
     const updatePolicy = () => {
-      const visibleViews = latest.current.views.filter(inViewport);
-      const visible = visibleViews.length > 0;
-      data.activeViews = active() ? visibleViews.length : 0;
-      latest.current.onVisibility(active() ? visibleViews.map(view => view.id) : []);
+      const admitted = visibleViews();
+      const visible = admitted.length > 0;
+      data.activeViews = active() ? admitted.length : 0;
+      latest.current.onVisibility(active() ? admitted.map(view => view.id) : []);
       scheduler.setPolicy({ active: active() && visible, motion: latest.current.motion, reducedMotion: reduced.matches });
       if (active() && !visible) clear();
     };
@@ -173,7 +173,7 @@ function Driver(props: RendererProps & { onVisibility: (ids: string[]) => void; 
     for (const view of props.views) { observer.observe(view.element); intersections.observe(view.element); }
     wake.current();
     return () => { observer.disconnect(); intersections.disconnect(); };
-  }, [props.views, props.covered, props.motion]);
+  }, [props.views, props.covered, props.foreground, props.motion]);
   return null;
 }
 function SceneInvalidation({ active, connection }: { active: boolean; connection: RefObject<() => void> }) {
