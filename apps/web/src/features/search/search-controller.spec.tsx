@@ -48,6 +48,31 @@ describe('controller request and navigation ownership', () => {
     expect(result.current.state.searchId).toBeUndefined();
     expect(result.current.state.notice).toContain('پیوند');
   });
+  it('caps unresolved starts across history and controller remounts with synchronous admission', async () => {
+    const held: { request: SearchRequest; release: (value: SearchRecovery) => void }[] = [];
+    const client = { startSearch: vi.fn((request: SearchRequest) => new Promise<SearchRecovery>(release => held.push({ request, release }))), cancelSearch: vi.fn(async () => undefined) } as unknown as ApiClient;
+    let hook = setup(client);
+    const operations: Promise<void>[] = [];
+    try {
+      act(() => { operations.push(hook.result.current.submit()); operations.push(hook.result.current.submit()); });
+      expect(client.startSearch).toHaveBeenCalledTimes(1);
+      act(() => hook.navigate('/'));
+      act(() => { operations.push(hook.result.current.submit()); });
+      act(() => hook.navigate('/'));
+      act(() => { operations.push(hook.result.current.submit()); });
+      expect(client.startSearch).toHaveBeenCalledTimes(2);
+      hook.unmount();
+      hook = setup(client);
+      act(() => { operations.push(hook.result.current.submit()); operations.push(hook.result.current.submit()); });
+      expect(client.startSearch).toHaveBeenCalledTimes(2);
+      await act(async () => { held[0]!.release(recovery(held[0]!.request)); await operations[0]; });
+      act(() => { operations.push(hook.result.current.submit()); operations.push(hook.result.current.submit()); });
+      expect(client.startSearch).toHaveBeenCalledTimes(3);
+    } finally {
+      await act(async () => { for (const item of held) item.release(recovery(item.request)); await Promise.allSettled(operations); });
+      hook.unmount();
+    }
+  });
   it('bounds traveler age edits under oversized counts rather than allocating that count', async () => {
     const user = userEvent.setup();
     const edit = vi.fn();

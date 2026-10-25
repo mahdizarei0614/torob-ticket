@@ -1,9 +1,10 @@
-import { useEffect, useReducer, useRef, useState } from 'react';
+import { useEffect, useReducer, useRef, useState, useSyncExternalStore } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 import { useQueryClient } from '@tanstack/react-query';
 import { apiClient, ClientError, type ApiClient } from '@torob-ticket/client';
 import type { CatalogSnapshot, SessionInfo, TransportSearchQuery } from '@torob-ticket/contracts';
 import { createSearchState, searchReducer } from './search-reducer';
+import { searchStartPool, startCapacityMessage, unresolvedStartLimit } from './search-start-pool';
 import { initialDraft, parseSearchUrl, serializeSearchUrl, validateDraft, type SearchDraft } from './search-url';
 export function errorMessage(error: unknown): string {
   if (error instanceof ClientError) {
@@ -26,11 +27,14 @@ export function useSearchController(catalog: CatalogSnapshot, session: SessionIn
   const ownedSearchId = useRef<string | undefined>(undefined);
   const ownNavigation = useRef<string | undefined>(undefined);
   const live = useRef(true);
-  const operations = useRef(new Map<Promise<unknown>, AbortController>());
+  const starts = searchStartPool(client);
+  const startSnapshot = useSyncExternalStore(starts.subscribe, starts.getSnapshot);
+  const pendingGeneration = useRef<string | undefined>(undefined);
   const [pending, setPending] = useState(false);
   const [feedback, setFeedback] = useState('');
   const [accepted, setAccepted] = useState(false);
-  const [resetting, setResetting] = useState(false);
+  const resetting = startSnapshot.resetting;
+  const startLimitReached = startSnapshot.count >= unresolvedStartLimit;
   useEffect(() => { live.current = true; return () => { live.current = false; generation.current = undefined; }; }, []);
   useEffect(() => {
     if (ownNavigation.current === location.search) { ownNavigation.current = undefined; return; }
@@ -48,11 +52,14 @@ export function useSearchController(catalog: CatalogSnapshot, session: SessionIn
   function edit(patch: Partial<SearchDraft>) { dispatch({ type: 'draft', patch, catalog }); setFeedback(''); }
   function preset(draft: SearchDraft) { dispatch({ type: 'preset', draft }); setFeedback(''); }
   async function submit(query: TransportSearchQuery = validity.query!) {
-    if (!query || resetting || pending) return;
+    if (!query || starts.getSnapshot().resetting || pendingGeneration.current === generation.current) return;
     const checked = validateDraft(query, catalog, session);
     if (!checked.valid) { setFeedback(checked.errors.join(' ')); return; }
+    const slot = starts.reserve();
+    if (!slot) return;
     const next = crypto.randomUUID();
     generation.current = next;
+    pendingGeneration.current = next;
     const priorId = ownedSearchId.current;
     dispatch({ type: 'commit', query: checked.query!, generation: next });
     setPending(true); setAccepted(false); setFeedback('');
@@ -60,37 +67,37 @@ export function useSearchController(catalog: CatalogSnapshot, session: SessionIn
     if (location.search !== search) { ownNavigation.current = search; void navigate({ pathname: '/', search }); }
     // Do not abort a POST whose operation ID may already exist. A stale reply is
     // retained only long enough to cancel exactly that operation in this session.
-    const abort = new AbortController();
-    const operation = (async () => {
+    await (async () => {
       try {
-        const recovery = await client.startSearch({ query: checked.query!, clientGeneration: next, ...(priorId ? { supersedesSearchId: priorId } : {}) }, abort.signal);
-        if (!live.current || generation.current !== next || recovery.snapshot.clientGeneration !== next) { await client.cancelSearch(recovery.snapshot.searchId).catch(() => undefined); return; }
+        const recovery = await client.startSearch({ query: checked.query!, clientGeneration: next, ...(priorId ? { supersedesSearchId: priorId } : {}) }, slot.signal);
+        if (!live.current || starts.epoch !== slot.epoch || generation.current !== next || recovery.snapshot.clientGeneration !== next) { await client.cancelSearch(recovery.snapshot.searchId).catch(() => undefined); return; }
         if (serializeSearchUrl(recovery.snapshot.query) !== serializeSearchUrl(checked.query!)) { await client.cancelSearch(recovery.snapshot.searchId).catch(() => undefined); throw new ClientError('schema', 'search-response-query-mismatch'); }
         ownedSearchId.current = recovery.snapshot.searchId;
         cache.setQueryData(['search', next, recovery.snapshot.searchId], recovery);
         dispatch({ type: 'adopt', generation: next, searchId: recovery.snapshot.searchId });
         setAccepted(true);
       } catch (error) { if (live.current && generation.current === next) setFeedback(errorMessage(error)); }
-      finally { if (live.current && generation.current === next) setPending(false); }
+      finally {
+        if (pendingGeneration.current === next) pendingGeneration.current = undefined;
+        if (live.current && generation.current === next) setPending(false);
+        slot.finish();
+      }
     })();
-    operations.current.set(operation, abort);
-    await operation.finally(() => operations.current.delete(operation));
   }
   async function reset() {
-    if (resetting) return;
-    setResetting(true); generation.current = crypto.randomUUID(); setAccepted(false); setPending(false); setFeedback('');
-    for (const abort of operations.current.values()) abort.abort();
+    if (!starts.beginReset()) return;
+    generation.current = crypto.randomUUID(); setAccepted(false); setPending(false); setFeedback('');
     // Fetch cancellation settles immediately in browsers. Bound custom transports
     // too; the server reset atomically fences/cancels the old namespace.
     let timer: ReturnType<typeof setTimeout> | undefined;
-    await Promise.race([Promise.allSettled([...operations.current.keys()]), new Promise<void>(resolve => { timer = setTimeout(resolve, 1500); })]);
+    await Promise.race([Promise.allSettled(starts.pending()), new Promise<void>(resolve => { timer = setTimeout(resolve, 1500); })]);
     clearTimeout(timer);
     try {
       const next = await client.reset();
       cache.removeQueries({ queryKey: ['search'] });
       const valid = state.committed && validateDraft(state.committed, catalog, next);
       window.location.assign(valid && valid.valid ? serializeSearchUrl(valid.query!) : '/');
-    } catch (error) { setFeedback(errorMessage(error)); setResetting(false); }
+    } catch (error) { setFeedback(errorMessage(error)); starts.resetFailed(); }
   }
-  return { state, dispatch, edit, preset, submit, reset, validity, pending, resetting, feedback, accepted };
+  return { state, dispatch, edit, preset, submit, reset, validity, pending, resetting, feedback, accepted, startLimitReached, unresolvedStarts: startSnapshot.count, capacityMessage: startLimitReached && !resetting ? startCapacityMessage : '' };
 }

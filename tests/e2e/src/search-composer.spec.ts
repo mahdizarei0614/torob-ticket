@@ -141,4 +141,53 @@ test.describe('@search-composer actual API consumer journey', () => {
     record('reset-race.json', { heldSearch: true, heldSearchId, resetStatus: 201, elapsedMs: Date.now() - start, lateAdoption: false });
   });
 
+  test('bounds unresolved starts across history and recovers after stale cleanup', async ({ page }) => {
+    const held: (() => void)[] = [];
+    const requests: { status: number; searchId?: string; supersedesSearchId?: string }[] = [];
+    let hold = true;
+    await page.route('**/api/v1/searches', async route => {
+      const request = route.request().postDataJSON();
+      const response = await route.fetch();
+      const body = await response.json();
+      requests.push({ status: response.status(), searchId: body.snapshot?.searchId, supersedesSearchId: request.supersedesSearchId });
+      if (hold) await new Promise<void>(resolve => held.push(resolve));
+      await route.fulfill({ response }).catch(() => undefined);
+    });
+    await page.goto('/');
+    const submit = page.getByRole('button', { name: 'جست‌وجوی سفر', exact: true });
+    try {
+      for (let index = 0; index < 2; index++) {
+        await expect(submit).toBeEnabled(); await submit.click();
+        await expect.poll(() => requests.length).toBe(index + 1);
+        await page.goBack();
+      }
+      // The old implementation admits a third held response after history restore.
+      if (await submit.isEnabled()) { await submit.click(); await expect.poll(() => requests.length).toBe(3); }
+      expect(requests).toHaveLength(2);
+      await expect(submit).toBeDisabled();
+      await expect(page.getByRole('status').filter({ hasText: 'دو درخواست جست‌وجو در انتظار پاسخ است' })).toBeVisible();
+      const cancel = page.waitForResponse(response => response.url().endsWith(`/searches/${requests[0]!.searchId}/cancel`));
+      held[0]!();
+      expect((await cancel).status()).toBe(201);
+      await expect(submit).toBeEnabled();
+      await expect(page.getByText(/درخواست جست‌وجو برای/)).toHaveCount(0);
+      hold = false;
+      await submit.click(); await expect.poll(() => requests.length).toBe(3);
+      await expect(page.getByRole('status').filter({ hasText: 'درخواست جست‌وجو برای' })).toBeVisible();
+      expect(requests[2]!.status).toBe(201);
+      await submit.click(); await expect.poll(() => requests.length).toBe(4);
+      await expect(page.getByRole('status').filter({ hasText: 'درخواست جست‌وجو برای' })).toBeVisible();
+      expect(requests[3]!.supersedesSearchId).toBe(requests[2]!.searchId);
+      await page.getByRole('button', { name: 'کاوش نسخه نمایشی', exact: true }).click();
+      await page.getByRole('button', { name: 'شروع دوباره نشست من', exact: true }).click();
+      const reset = page.waitForResponse(response => response.url().endsWith('/api/v1/demo/reset'));
+      await page.getByRole('button', { name: 'پاک کردن فعالیت و شروع دوباره', exact: true }).click();
+      expect((await reset).status()).toBe(201);
+      held[1]!();
+      await expect(submit).toBeEnabled();
+      await expect(page.getByText(/درخواست جست‌وجو برای/)).toHaveCount(0);
+      record('unresolved-start-cap.json', { requests, cap: 2, noExtraPostAtCapacity: true, staleCleanupRecoveredCapacity: true, supersessionRetained: true, ownResetStatus: 201 });
+    } finally { for (const release of held) release(); }
+  });
+
 });
