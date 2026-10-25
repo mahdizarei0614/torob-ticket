@@ -2,11 +2,11 @@ import { expect, test } from '@playwright/test';
 test('consumer loads a Persian demo entry', async ({ page }) => {
   await page.goto('/');
   await expect(page.getByRole('main')).toHaveAttribute('dir', 'rtl');
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('ترب تیکت');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('سفر بعدی از کجا شروع می‌شود؟');
   await expect(page.getByRole('note')).toContainText('نسخه نمایشی');
 });
 test('admin entry is English and visibly a demo', async ({ page }) => {
-  await page.goto('http://127.0.0.1:4301/admin/');
+  await page.goto('/admin/');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('TorobTicket Admin');
   await expect(page.getByRole('main')).toHaveAttribute('dir', 'ltr');
   await expect(page.getByRole('note')).toContainText('Demo environment');

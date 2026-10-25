@@ -75,15 +75,19 @@ try {
     appendFileSync(join(root, 'tools/test-setup.ts'), `\nimport { appendFileSync as markCacheProbe } from 'node:fs';\nmarkCacheProbe(${JSON.stringify(marker)}, 'run\\n');\n`);
     const cold = run('web:test');
     assert.equal(cold.status, 0, cold.output);
+    // Vitest runs setup once per discovered test file. Cache reuse must add no
+    // setup executions, regardless of the growing consumer test-file count.
+    const coldSetups = readFileSync(marker, 'utf8');
+    assert.ok(coldSetups.length > 0, 'Cold web tests must execute setup');
     const warm = run('web:test');
     assert.equal(warm.status, 0, warm.output);
-    assert.equal(readFileSync(marker, 'utf8'), 'run\n', 'Unchanged web test must actually use its cached successful result');
+    assert.equal(readFileSync(marker, 'utf8'), coldSetups, 'Unchanged web test must actually use its cached successful result');
     appendFileSync(join(root, 'tools/test-setup.ts'), "\nthrow new Error('CACHE_SETUP_PROBE');\n");
     const changed = run('web:test');
     assert.equal(changed.status, 1, `Changing only root test setup must invalidate cached web success:\n${changed.output}`);
     assert.match(changed.output, /CACHE_SETUP_PROBE/);
-    assert.equal(readFileSync(marker, 'utf8'), 'run\nrun\n');
-    console.log('PASS: root setup change invalidates cached UI tests and exposes the setup failure (setup executions 1 → 2).');
+    assert.equal(readFileSync(marker, 'utf8'), coldSetups + coldSetups);
+    console.log('PASS: root setup change invalidates cached UI tests and exposes the setup failure (one setup execution per discovered test file).');
   });
   assert.deepEqual(failures, []);
 } finally { rmSync(root, { recursive: true, force: true }); }

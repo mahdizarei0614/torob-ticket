@@ -107,7 +107,7 @@ export function ThemeProvider({
   }));
   const bridge = useRef(onThemeChange);
   bridge.current = onThemeChange;
-  const activeTransition = useRef<ViewTransition | null>(null);
+  const activeTransition = useRef<Pick<ViewTransition, 'skipTransition' | 'ready'> | null>(null);
   const requestGeneration = useRef(0);
   const activeMode = variant === 'admin' ? 'flight' : mode;
   useLayoutEffect(() => {
