@@ -9,7 +9,7 @@ export interface MapCamera {center:GeoPoint;zoom:number}
 export type FreeMapStatus='loading'|'ready'|'unavailable';
 export interface FreeMapInput {center:GeoPoint;appearance:'light'|'dark';choices:MapChoice[];point?:GeoPoint;isCurrent:()=>boolean;onPoint:(point:GeoPoint)=>void;onStatus:(status:FreeMapStatus)=>void;markerClassName:string;camera?:MapCamera;timeoutMs?:number;}
 export interface FreeMapController {ready:Promise<boolean>;update:(input:Pick<FreeMapInput,'appearance'|'choices'|'point'>)=>void;getCamera:()=>MapCamera|undefined;dispose:()=>void;}
-export const FREE_MAP_STYLES={light:'https://tiles.openfreemap.org/styles/liberty',dark:'https://tiles.openfreemap.org/styles/dark'} as const;
+export const FREE_MAP_STYLES={light:'https://vector.openstreetmap.org/styles/shortbread/colorful.json',dark:'https://vector.openstreetmap.org/styles/shortbread/shadow.json'} as const;
 let active:FreeMapController|undefined;
 /** Controlled SDK seam; a disposed async import can never construct a later map. */
 export function createFreeMap(element:HTMLElement,input:FreeMapInput,load:()=>Promise<FreeMapSdk>):FreeMapController{

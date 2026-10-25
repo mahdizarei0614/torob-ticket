@@ -28,6 +28,6 @@ export function LocationPicker({model,catalog,onCancel,onApply}:{model:HotelDisc
    {assets.error&&<p className={styles.muted}>فهرست نشانه‌های محلی دریافت نشد؛ مرکز مقصد، مختصات و نقشه شهری قابل استفاده‌اند. <Button variant="quiet" onPress={()=>void assets.refetch()}>دریافت دوباره نشانه‌ها</Button></p>}
   </div><div className={styles.landmarks} aria-label="نشانه‌ها و اقامتگاه‌های مقصد"><Button variant="secondary" onPress={()=>model.setPoint(city.point)}>مرکز {city.name}</Button>{choices.filter(p=>p.name.includes(filter)).map(p=><Button key={p.id} variant="quiet" onPress={()=>model.setPoint(p.point)}>{p.number!==undefined?`${faNumber(p.number)} · `:''}{p.name}</Button>)}{filter&&!choices.some(p=>p.name.includes(filter))&&<p role="status">نشانه‌ای با این نام پیدا نشد؛ از مرکز شهر یا مختصات استفاده کنید.</p>}</div></div>
   <footer className={styles.pickerActions}><p>{point?'نقطه موقت انتخاب شده است؛ با اعمال، مرجع مقایسه می‌شود.':'روی نقشه بزنید، نشانه‌ای انتخاب کنید یا مختصات را ویرایش کنید.'}</p><Button isDisabled={!point||!coordinatesValid} onPress={onApply}>اعمال موقعیت</Button><Button variant="quiet" onPress={onCancel}>انصراف و حفظ موقعیت قبلی</Button></footer>
-  <p className={styles.footnote}>نقشه شهری از OpenFreeMap و داده‌های OpenStreetMap است؛ اقامتگاه‌ها و قیمت‌های این مقایسه خیالی‌اند.</p>
+  <p className={styles.footnote}>نقشه شهری از سرویس برداری OpenStreetMap است؛ اقامتگاه‌ها و قیمت‌های این مقایسه خیالی‌اند.</p>
  </section>;
 }

@@ -14,10 +14,10 @@ export function FreeLocationMap(props:FreeLocationMapProps){
   return()=>{live=false;camera.current=owned.getCamera();owned.dispose();if(controller.current===owned)controller.current=undefined;};
  },[props.identity,attempt]);
  useLayoutEffect(()=>{controller.current?.update({appearance,choices:props.choices,point:props.point});},[appearance,props.choices,props.point]);
- return <section className={styles.freeMap} aria-label="نقشه شهری انتخاب موقعیت" data-free-map-status={status} data-free-map-provider="OpenFreeMap">
+ return <section className={styles.freeMap} aria-label="نقشه شهری انتخاب موقعیت" data-free-map-status={status} data-free-map-provider="OpenStreetMap">
   <div ref={element} className={styles.mapRoot} data-free-map-container dir="ltr"/>
   {status==='loading'&&<p role="status" className={styles.mapStatus}>در حال دریافت نقشه شهری…</p>}
   {status==='unavailable'&&<div className={styles.mapUnavailable} role="status"><strong>نقشه شهری در دسترس نیست.</strong><p>با نشانه‌های فهرست یا مختصات می‌توانید موقعیت را انتخاب کنید.</p><Button variant="secondary" onPress={()=>{if(latest.current.isCurrent())setAttempt(n=>n+1);}}>تلاش دوباره برای نقشه شهری</Button></div>}
-  <p className={styles.mapCredits}><a href="https://openfreemap.org/" target="_blank" rel="noreferrer">OpenFreeMap</a> · <a href="https://openmaptiles.org/" target="_blank" rel="noreferrer">© OpenMapTiles</a> · داده‌های <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap</a></p>
+  <p className={styles.mapCredits}>© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap</a> contributors · سبک <a href="https://github.com/versatiles-org/versatiles-style" target="_blank" rel="noreferrer">VersaTiles</a></p>
  </section>;
 }
