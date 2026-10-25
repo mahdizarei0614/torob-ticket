@@ -31,12 +31,12 @@ export function allocateRooms(query: HotelSearchQuery, rates: readonly RoomRate[
     let unknownAllocation = false, ambiguousSource = false;
     const groups = new Map<string, RoomRate[]>();
     for (const rate of rates) {
-        const key = rate.hotelId + '|' + rate.providerId;
+        const key = JSON.stringify([rate.hotelId, rate.providerId]);
         const group = groups.get(key) ?? [];
         group.push(rate);
         groups.set(key, group);
     }
-    for (const group of groups.values()) {
+    for (const [, group] of [...groups.entries()].sort(([a], [b]) => a.localeCompare(b, 'en'))) {
         const usable = group.filter(rate => {
             if (group.filter(x => x.roomRateId === rate.roomRateId).length !== 1) {
                 unknown.add('ambiguous-room-rate');
@@ -90,10 +90,11 @@ export function allocateRooms(query: HotelSearchQuery, rates: readonly RoomRate[
         }
         visit([], query.party.adults, query.party.children, query.party.infants, query.childAgesAtCheckIn?.slice().sort((a, b) => a - b), query.party.infantAgesMonths?.slice().sort((a, b) => a - b), '');
     }
+    // Encode tuples structurally: contract-valid IDs may contain punctuation.
     // Equal rate multisets have equal room-night price and terms. Keep the canonical valid partition.
     const unique = new Map<string, RoomAllocation[]>();
     for (const allocation of all) {
-        const key = allocation.map(room => room.roomRateId).sort().join('|');
+        const key = JSON.stringify(allocation.map(room => room.roomRateId).sort());
         if (!unique.has(key))
             unique.set(key, allocation);
     }

@@ -41,3 +41,7 @@ Hotel confirmation extends the same ReferralRepository.confirm branch, intent/ev
 ## Verification boundary
 
 Meaningful compiling domain assertion REDs and real HTTP404 REDs precede implementation. Focused tests cover allocation, all-night inventory, ages/infants, fees, terms, overflow, four sorts, date/distance edges and stay suggestions. Real local HTTP/PostgreSQL checks cover immutable reads/fresh POSTs, exact versions, changed terms, sold-out alternative success, shared confirmation/idempotency/scope/expiry/digest, mutable-source races, reset, admission and restart recovery. Tests use only the newly owned T20 *_test database/container at fixed localhost62320; credentials/cookies remain outside archived evidence. Full integration/affected gates, independent reviews and root-owned Docker/preservation evidence determine closure; this decision does not claim hotel UI, native WebGL coverage or publication.
+
+## Self-audit correction
+
+Constructed contract-valid IDs containing `|` exposed two delimiter-key collisions: distinct property/provider tuples could merge, and distinct rate multisets could drop the minimum-cost alternative. Two actual assertion REDs reproduce these failures. The allocator now serializes tuple/array keys structurally and orders groups deterministically. Authored seeded identifiers were unaffected; candidate and correction verification remain separately attributed.

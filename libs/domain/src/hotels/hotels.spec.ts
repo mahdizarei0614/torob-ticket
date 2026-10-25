@@ -222,3 +222,19 @@ it('cannot price fabricated allocated child ages when the stay query omitted the
     const q = { ...query, party: { adults: 2, children: 1, childAges: [8], infants: 0 } };
     expect(priceStay(q, [{ ...room('a', 2, 1), childAgesAtCheckIn: [8] }], [rate('a')], { a: policy }, context).status).toBe('unknown');
 });
+it('keeps every canonical rate multiset when valid IDs contain the old separator', () => {
+    const q = { ...query, rooms: 2, party: { adults: 4, children: 0, infants: 0 } };
+    const rates = [rate('a', [100, 100]), rate('a|a', [1, 1]), rate('a|a|a', [100, 100])];
+    const policies = Object.fromEntries(rates.map(r => [r.roomRateId, policy]));
+    const allocations = allocateRooms(q, rates, policies).allocations;
+    expect(allocations).toHaveLength(6);
+    const totals = allocations.map(a => priceStay(q, a, rates, policies, context)).map(r => r.status === 'priced' ? r.quote.total.amountRial : Infinity);
+    expect(Math.min(...totals)).toBe(4);
+});
+it('does not merge different property/provider tuples containing separator characters', () => {
+    const q = { ...query, rooms: 2, party: { adults: 4, children: 0, infants: 0 } };
+    const a = { ...rate('a'), hotelId: 'h|p', providerId: 'q' }, b = { ...rate('b'), hotelId: 'h', providerId: 'p|q' };
+    a.nightlyPrices.forEach(n => n.availableRooms = 1);
+    b.nightlyPrices.forEach(n => n.availableRooms = 1);
+    expect(allocateRooms(q, [a, b], { a: policy, b: policy }).status).toBe('ineligible');
+});
