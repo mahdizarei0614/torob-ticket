@@ -1,6 +1,6 @@
 # TorobTicket — Product and Architecture Specification
 
-**Revision:** 1.0 · 2026-10-24  
+**Revision:** 1.2 · 2026-10-26  
 **Purpose:** Authoritative design companion to the master implementation plan.  
 **Status:** Product scope and architecture approved in conversation. Implementation defaults below are explicit engineering decisions made while preparing the plan; they are not additional claims of user approval.
 
@@ -145,7 +145,7 @@ Default sorting is lowest complete stay total. Other sorts are stars, distance t
 
 Arrival point means airport, train station, or bus terminal according to the selected itinerary. If it is not known, require a choice. The custom-location map opens on demand, supports landmarks and a pin, and is available on mobile as an exception to the hidden main travel map. Distances are explicitly straight-line kilometers.
 
-The locally bundled hotel map provides destination boundaries, landmarks, accommodation markers, and sufficient coordinate detail to choose a reference point. It does not imply street navigation or live routing.
+**Owner override, 2026-10-26:** The hotel location picker uses OpenFreeMap’s real interactive street basemap with MapLibre GL JS, locally authored landmarks and fictional accommodation markers. The public map needs no registration, API key or billing; it requires network access. Its SDK, CSS and local worker load only when the picker opens; the app’s transport renderer pauses behind the hotel dialog. When network, tiles or WebGL are unavailable, a clear unavailable state retains landmark/list and coordinate selection; no dotted or fabricated basemap is shown. It does not imply street navigation or live routing. This final free-map choice supersedes the intermediate Google and Neshan choices.
 
 Room type, occupancy, breakfast, cancellation, and fees remain visible. The user chooses an eligible room/rate and follows a tracked hotel-site referral to its simulated landing page. Hotels are compared with each other; merging the same hotel across booking marketplaces is deferred.
 
@@ -247,7 +247,9 @@ Use React Aria primitives, custom CSS Modules, and semantic CSS variables for al
 
 Local font defaults are Vazirmatn for Persian and Inter for English; verify and bundle font licenses. The visual reference is compact comparison UI with clear hierarchy, not a dashboard template. Density must not remove readable price conditions or focus targets.
 
-A persistent WebGL2 renderer uses clipped views for the map, chart, and hotel picker. Context/material/geometry resources are shared, not allocated per ticket card. HTML owns labels, controls, forms, calendars, dialogs, and selectable information. WebGL handles dotted geography, routes, vehicle progress, chart emphasis, and selected flat effects.
+A persistent app-owned WebGL2 renderer uses clipped views for transport maps and charts. Context/material/geometry resources are shared, not allocated per ticket card. **Owner’s free-map exception:** the on-demand hotel picker uses a separate MapLibre renderer inside its native dialog, with at most one active provider map and complete cleanup on dismissal. It does not create another app-owned renderer or alter the transport scene. HTML owns labels, controls, forms, calendars, dialogs, and selectable information. App WebGL handles dotted transport geography, routes, vehicle progress, chart emphasis, and selected flat effects.
+
+OpenFreeMap styles and required OpenStreetMap/OpenMapTiles attribution are third-party assets; authored hotel controls and custom markers still use semantic tokens. Record its lazy SDK/network weight separately from app-owned bundles and disclose the total map cost. No provider key or account is required. Provider map styles and SDK UI are vendor assets; custom controls and markers remain subject to semantic theme tokens.
 
 When the hotel modal is open, pause the background travel scene and preserve its camera/pinned state. Scene layering must keep native modal focus and pointer semantics correct. All UI animations are flat except shallow map/route depth.
 
