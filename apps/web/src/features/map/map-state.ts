@@ -19,7 +19,8 @@ export type MapAction =
   | {type:'direction';direction:'outbound'|'return'}
   | {type:'clear-inspection'}
   | {type:'bind-rechecked';owner:MapOwner;previous:{quoteId:string;version:number};quote:QuoteSnapshot;itinerary:Itinerary;now:number}
-  | {type:'confirm';receipt:ReferralReceipt;owner:MapOwner;now:number};
+  | {type:'confirm';receipt:ReferralReceipt;owner:MapOwner;now:number}
+  | {type:'hydrate-receipt';owner:MapOwner;origin:QuoteSnapshot;itinerary:Itinerary;receipt:ReferralReceipt;now:number};
 export const sameOwner = (a:MapOwner|undefined,b:MapOwner|undefined) => Boolean(a && b && a.generation===b.generation && a.searchId===b.searchId);
 const ownerFor = (context:MapContext):MapOwner|undefined => context.current && !context.resetting && context.generation && context.searchId ? {generation:context.generation,searchId:context.searchId} : undefined;
 const travelKey = (query:SearchDraft) => JSON.stringify([query.mode,query.scope,query.originCityId,query.destinationCityId,query.departureDate,query.returnDate,query.tripType,query.party,query.classCode]);
@@ -89,6 +90,17 @@ export function mapReducer(state:MapState,action:MapAction):MapState {
       const next=quote.data;
       if(next.quoteId!==previous.quote.quoteId || next.version<=previous.quote.version || next.providerId!==previous.quote.providerId || next.fareId!==previous.quote.fareId || next.itineraryId!==previous.quote.itineraryId || canonical(next.party)!==canonical(previous.quote.party) || canonical(itinerary.data)!==canonical(previous.inspection.itinerary)) return state;
       return {...state,selection:{quote:next,inspection:previous.inspection,valid:true,source:'recheck'},receipt:undefined};
+    }
+    case 'hydrate-receipt': {
+      // Caller supplies an origin member fetched from this cookie-scoped search.
+      // Historical confirmation time validates the event; it never extends current validity.
+      const parsed=ReferralReceiptSchema.safeParse(action.receipt),origin=QuoteSnapshotSchema.safeParse(action.origin),itinerary=ItinerarySchema.safeParse(action.itinerary);
+      if(!current(state,action.owner)||!state.context.committed||!parsed.success||!origin.success||!itinerary.success||parsed.data.payload.kind!=='transport')return state;
+      const receipt=parsed.data,payload=parsed.data.payload;if(payload.kind!=='transport')return state;const next=payload.quote,old=origin.data;
+      if(next.quoteId!==old.quoteId||next.version<old.version||next.providerId!==old.providerId||next.fareId!==old.fareId||next.itineraryId!==old.itineraryId||next.itineraryId!==itinerary.data.itineraryId||canonical(next.party)!==canonical(old.party)||canonical(payload.itinerary)!==canonical(itinerary.data)||receipt.handoffPath!==`/provider-demo/${receipt.referralId}`)return state;
+      const inspection:MapInspection={itinerary:itinerary.data,query:state.context.committed,owner:action.owner};
+      const selected:MapState={...state,pin:inspection,preview:undefined,hover:undefined,focus:undefined,selection:{quote:next,inspection,valid:true,source:'recheck'},cameraMode:'route'};
+      return receiptMatches(selected,receipt,action.now)?{...selected,receipt}:state;
     }
     case 'confirm': {
       const parsed=ReferralReceiptSchema.safeParse(action.receipt);

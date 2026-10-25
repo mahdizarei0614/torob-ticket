@@ -1,5 +1,7 @@
 import { Dialog as AriaDialog, Heading, Modal, ModalOverlay } from 'react-aria-components';
-import { type ReactNode } from 'react';
+import { createContext, useContext, useRef, useCallback, type ReactNode } from 'react';
+const DialogSuspensionContext=createContext(false);
+export const DialogSuspensionProvider=DialogSuspensionContext.Provider;
 import { Button } from './button';
 import { languageProps, type Language } from './language';
 import styles from '../styles/primitives.module.css';
@@ -13,6 +15,7 @@ export interface DialogProps {
   /** Keep dismissal available while a long dialog body scrolls; opt-in. */
   stickyHeader?: boolean;
   size?: 'standard'|'wide';
+  initialScrollTop?: number;
 }
 export function Dialog({
   title,
@@ -23,10 +26,14 @@ export function Dialog({
   mobileFullscreen = false,
   stickyHeader = false,
   size = 'standard',
+  initialScrollTop=0,
 }: DialogProps) {
+  const suspended=useContext(DialogSuspensionContext);
+  const scroll=useRef(initialScrollTop);
+  const modalRef=useCallback((node:HTMLDivElement|null)=>{if(node)node.scrollTop=scroll.current;},[]);
   return (
-    <ModalOverlay className={styles.overlay} isOpen={isOpen} onOpenChange={onOpenChange} isDismissable>
-      <Modal className={styles.modal} data-mobile-fullscreen={mobileFullscreen} data-dialog-size={size} {...languageProps(language)}>
+    <ModalOverlay className={styles.overlay} isOpen={isOpen && !suspended} onOpenChange={next=>{if(!suspended)onOpenChange(next);}} isDismissable>
+      <Modal ref={modalRef} data-dialog-scroll onScroll={event=>{scroll.current=event.currentTarget.scrollTop;}} className={styles.modal} data-mobile-fullscreen={mobileFullscreen} data-dialog-size={size} {...languageProps(language)}>
         <AriaDialog className={styles.dialog}>
           <div className={styles.dialogHeader} data-sticky={stickyHeader || undefined}>
             <Heading slot="title" className={styles.dialogTitle}>

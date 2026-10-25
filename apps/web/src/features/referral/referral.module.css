@@ -1,0 +1,6 @@
+.selected{margin-block:var(--space-4);padding:var(--space-4);border:1px solid var(--border-strong);border-radius:var(--radius-lg);background:var(--surface);display:grid;gap:var(--space-3)}
+.selected p,.dialog p{line-height:1.8;color:var(--text-muted)}
+.dialog{display:grid;gap:var(--space-4);padding-block:var(--space-3)}
+.comparison{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-4)}
+.comparison>section{padding:var(--space-3);border:1px solid var(--border);border-radius:var(--radius-md);min-width:0}
+@media(max-width:640px){.comparison{grid-template-columns:1fr}}

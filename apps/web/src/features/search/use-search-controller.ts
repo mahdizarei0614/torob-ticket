@@ -1,9 +1,10 @@
+import {skipProviderPop} from '../referral/provider-history';
 import { createDateInteractions } from '../dates/date-interaction';
 import { useEffect, useReducer, useRef, useState, useSyncExternalStore } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 import { useQueryClient } from '@tanstack/react-query';
 import { apiClient, ClientError, type ApiClient } from '@torob-ticket/client';
-import type { CatalogSnapshot, SessionInfo, TransportSearchQuery } from '@torob-ticket/contracts';
+import type { CatalogSnapshot, SessionInfo, TransportSearchQuery, SearchRecovery } from '@torob-ticket/contracts';
 import { createSearchState, searchReducer, type SearchIntentCause, type SearchAction } from './search-reducer';
 import { searchStartPool, startCapacityMessage, unresolvedStartLimit } from './search-start-pool';
 import { initialDraft, parseSearchUrl, serializeSearchUrl, validateDraft, type SearchDraft } from './search-url';
@@ -18,12 +19,12 @@ export function errorMessage(error: unknown): string {
   return 'درخواست قابل پردازش نبود. اطلاعات سفر را بررسی کنید و دوباره تلاش کنید.';
 }
 /** URL owns committed intent; reducer owns reversible local interaction; Query owns server data. */
-export function useSearchController(catalog: CatalogSnapshot, session: SessionInfo, client: ApiClient = apiClient) {
+export function useSearchController(catalog: CatalogSnapshot, session: SessionInfo, client: ApiClient = apiClient, restore?: {recovery:SearchRecovery;draft:TransportSearchQuery}) {
   const location = useLocation();
   const navigate = useNavigate();
   const cache = useQueryClient();
   const initial = useRef(parseSearchUrl(location.search, catalog, session));
-  const [state, reduceDispatch] = useReducer(searchReducer, undefined, () => ({ ...createSearchState(initial.current.query ?? initialDraft(catalog, session)), committed: initial.current.query, generation: crypto.randomUUID(), notice: initial.current.message ?? '' }));
+  const [state, reduceDispatch] = useReducer(searchReducer, undefined, () => restore?{...createSearchState(restore.draft),committed:restore.recovery.snapshot.query,generation:restore.recovery.snapshot.clientGeneration,searchId:restore.recovery.snapshot.searchId}:{ ...createSearchState(initial.current.query ?? initialDraft(catalog, session)), committed: initial.current.query, generation: crypto.randomUUID(), notice: initial.current.message ?? '' });
   // Apply the same authoritative reducer before React delivery so map/result intent joins
   // observe edits, history and accepted pins atomically within one event turn.
   const intentState=useRef(state);
@@ -32,9 +33,9 @@ export function useSearchController(catalog: CatalogSnapshot, session: SessionIn
   const generation = useRef(state.generation);
   // StrictMode may replay lifetime setup while a canonical Router replacement is pending.
   const intendedGeneration = useRef(state.generation);
-  const ownedSearchId = useRef<string | undefined>(undefined);
-  const acceptedResult = useRef<{ generation:string; searchId:string } | undefined>(undefined);
-  const ownNavigation = useRef<string | undefined>(undefined);
+  const ownedSearchId = useRef<string | undefined>(restore?.recovery.snapshot.searchId);
+  const acceptedResult = useRef<{ generation:string; searchId:string } | undefined>(restore?{generation:restore.recovery.snapshot.clientGeneration,searchId:restore.recovery.snapshot.searchId}:undefined);
+  const ownNavigation = useRef<string | undefined>(restore?location.search:undefined);
   const popTarget = useRef<string | undefined>(undefined);
   const live = useRef(true);
   const [dateInteractions] = useState(createDateInteractions);
@@ -64,7 +65,7 @@ export function useSearchController(catalog: CatalogSnapshot, session: SessionIn
   useEffect(() => {
     // Native Back can coalesce an intermediate router render. Fence synchronously
     // from the actual URL; the router remains the sole navigation writer.
-    function onPop() { ownNavigation.current = undefined; popTarget.current = window.location.search; restoreRef.current(window.location.search); }
+    function onPop() { if(skipProviderPop(window.location.pathname,window.location.search,window.history.state?.key))return; ownNavigation.current = undefined; popTarget.current = window.location.search; restoreRef.current(window.location.search); }
     window.addEventListener('popstate', onPop); return () => window.removeEventListener('popstate', onPop);
   }, []);
   useEffect(() => {

@@ -1,18 +1,19 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, type MutableRefObject } from 'react';
 import type { CatalogSnapshot, Itinerary, QuoteSnapshot, SearchSnapshot, SortOrder, TransportSearchQuery } from '@torob-ticket/contracts';
 import { Button, SegmentedControl } from '@torob-ticket/ui';
 import { JourneyCard } from './journey-card';
 import { ResultFilters } from './result-filters';
-import { hasStagedUpdates, quoteStatus, resolveSuggestion, selectedQuote, type QuoteSelection } from './results-reducer';
+import { hasStagedUpdates, quoteStatus, resolveSuggestion, selectedQuote, type QuoteSelection, type ResultsState } from './results-reducer';
 import { createScrollAnchor } from './scroll-anchor';
 import { useResults } from './use-results';
 import { localDay, minutes, number, toman, travelerCount } from './format';
 import styles from './results.module.css';
-export interface ResultsPageProps { isCurrent: () => boolean; generation: string; searchId: string; query: TransportSearchQuery; catalog: CatalogSnapshot; refinementDisabled: boolean; draftChanged: boolean; onRefine: (query: TransportSearchQuery) => void; onEdit: () => void; enterResults?: boolean; onPreviewItinerary?: (itinerary?: Itinerary,source?:'hover'|'focus',leavingId?:string) => void; onPinItinerary?: (itinerary: Itinerary) => void; onSelectQuote?: (quote?: QuoteSnapshot, itinerary?: Itinerary, selectionIntent?: QuoteSelection) => void }
+export interface ResultsEvidence {state:ResultsState;select:(selection:QuoteSelection)=>void}
+export interface ResultsPageProps { evidenceRef?:MutableRefObject<ResultsEvidence|undefined>;restore?:Pick<ResultsState,'frozen'|'selected'|'dismissedSuggestion'>; isCurrent: () => boolean; generation: string; searchId: string; query: TransportSearchQuery; catalog: CatalogSnapshot; refinementDisabled: boolean; draftChanged: boolean; onRefine: (query: TransportSearchQuery) => void; onEdit: () => void; enterResults?: boolean; onPreviewItinerary?: (itinerary?: Itinerary,source?:'hover'|'focus',leavingId?:string) => void; onPinItinerary?: (itinerary: Itinerary) => void; onSelectQuote?: (quote?: QuoteSnapshot, itinerary?: Itinerary, selectionIntent?: QuoteSelection) => void }
 function Coverage({ snapshot }: { snapshot: SearchSnapshot }) { const coverage = snapshot.coverage; return <div className={styles.coverage} aria-label="پوشش فروشندگان"><span>{number(coverage.successfulProviderIds.length)} از {number(coverage.expectedProviderIds.length)} فروشنده پاسخ داده‌اند{snapshot.status === 'collecting' ? ' · تا این لحظه' : ''}</span>{coverage.pendingProviderIds.length > 0 && <span>{number(coverage.pendingProviderIds.length)} در حال بررسی</span>}{coverage.failedProviderIds.length > 0 && <span className={styles.invalid}>{number(coverage.failedProviderIds.length)} پاسخ ناموفق یا در دسترس نیست</span>}<small>مقایسه فقط میان فروشندگان همین جست‌وجوی نمایشی است.</small></div>; }
 export function ResultsList(props: ResultsPageProps) {
  const { generation, searchId, query, catalog } = props;
- const { state, dispatch, connectionError } = useResults(generation,searchId,query);
+ const { state, dispatch, connectionError } = useResults(generation,searchId,query,undefined,undefined,props.restore);
  const region = useRef<HTMLElement>(null); const heading = useRef<HTMLHeadingElement>(null); const entered = useRef(false);
  const snapshot = state.adopted?.snapshot; const latest = state.latest?.snapshot;
  const stateRef = useRef(state); stateRef.current = state;
@@ -48,7 +49,7 @@ export function ResultsList(props: ResultsPageProps) {
  function select(selection: QuoteSelection) {
   if (!ownsCurrent() || quoteStatus(stateRef.current,selection,Date.now()) !== 'current') return;
   dispatch({ type:'select',selection,now:Date.now() });
-  const itinerary = stateRef.current.adopted?.snapshot.groups.find(group => group.groupId === selection.groupId)?.itinerary; if (itinerary && ownsCurrent()) outward.current.onPinItinerary?.(itinerary);
+  const matched=stateRef.current.adopted?.snapshot.groups.find(group => group.groupId === selection.groupId);const itinerary=matched?.itinerary; if (itinerary && ownsCurrent()){outward.current.onPinItinerary?.(itinerary);outward.current.onSelectQuote?.(matched?.eligibleQuotes.find(q=>q.quoteId===selection.quoteId&&q.version===selection.version),itinerary,selection);}
  }
  function adopt() {
   if(!ownsCurrent()) {scrollAnchor.cancel();return;}
@@ -58,6 +59,7 @@ export function ResultsList(props: ResultsPageProps) {
   dispatch({ type:'adopt' });
  }
 
+ if(props.evidenceRef)props.evidenceRef.current={state,select};
  const resolvedSuggestion = resolveSuggestion(state,renderedAt);
  const suggestion = resolvedSuggestion?.suggestion; const suggestionTarget = resolvedSuggestion?.target;
  return <section ref={region} className={styles.results} aria-label="نتایج مقایسه سفر" data-search-id={searchId} data-generation={generation} data-status={latest?.status ?? 'loading'} data-sequence={state.latest?.sequence ?? 0} data-frozen={state.frozen}>

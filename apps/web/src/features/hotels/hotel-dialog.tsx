@@ -1,4 +1,4 @@
-import {useLayoutEffect,useRef} from 'react';
+import {useLayoutEffect,useRef,type ReactNode} from 'react';
 import type {CatalogSnapshot,SessionInfo} from '@torob-ticket/contracts';
 import {Button,Dialog,SegmentedControl} from '@torob-ticket/ui';
 import {suggestHotelStay} from '@torob-ticket/domain';
@@ -9,7 +9,7 @@ import {HotelCard} from './hotel-card';
 import {LocationPicker} from './location-picker';
 import {dateText,faNumber,nights} from './hotel-format';
 import styles from './hotels.module.css';
-export function HotelDialog({model,catalog,session,canApplyTrip}:{model:HotelDiscovery;catalog:CatalogSnapshot;session:SessionInfo;canApplyTrip:boolean}){
+export function HotelDialog({model,catalog,session,canApplyTrip,referralAction,initialScrollTop}:{model:HotelDiscovery;catalog:CatalogSnapshot;session:SessionInfo;canApplyTrip:boolean;referralAction?:ReactNode;initialScrollTop?:number}){
  const locationTrigger=useRef<HTMLDivElement>(null);const cycle=useRef({open:model.open,epoch:0});const focusRequest=useRef<number|undefined>(undefined);if(cycle.current.open!==model.open){cycle.current={open:model.open,epoch:cycle.current.epoch+1};focusRequest.current=undefined;}
  useLayoutEffect(()=>{if(!model.state.point&&model.open&&focusRequest.current===cycle.current.epoch){focusRequest.current=undefined;locationTrigger.current?.querySelector('button')?.focus({preventScroll:true});}},[model.state.point,model.open]);const {state}=model,trip=state.trip,draft=state.draft,snapshot=state.snapshot;
  const city=catalog.cities.find(c=>c.id===trip.query.destinationCityId)!;const bounds=hotelBounds(session.anchorInstant,city.timeZone);
@@ -20,7 +20,7 @@ export function HotelDialog({model,catalog,session,canApplyTrip}:{model:HotelDis
  function focusLocation(){focusRequest.current=cycle.current.epoch;}
  function cancelPoint(){focusLocation();model.cancelPoint();}
  function applyPoint(){focusLocation();void model.applyPoint();}
- return <Dialog title={`مقایسه اقامتگاه‌های ${city.name}`} isOpen={model.open} onOpenChange={next=>{if(!next)model.closeDialog();}} mobileFullscreen stickyHeader size="wide">
+ return <Dialog title={`مقایسه اقامتگاه‌های ${city.name}`} isOpen={model.open} initialScrollTop={initialScrollTop} onOpenChange={next=>{if(!next)model.closeDialog();}} mobileFullscreen stickyHeader size="wide">
   <div className={styles.dialogContent} data-hotel-dialog data-hotel-context={trip.query.destinationCityId} data-hotel-stale={model.stale}>
    <div className={styles.intro}><span className={styles.eyebrow}>بعد از مسیر، مقصد را زندگی کن</span><p>اقامتگاه‌های خیالی را برای همه مسافران و همه شب‌های اقامت مقایسه کنید.</p></div>
    {model.stale&&<aside className={styles.stale} role="status"><strong>سفر تغییر کرده است؛ اقامت مستقل شما حفظ شد.</strong><p>این مقایسه هنوز برای سفر قبلی به {city.name} از {dateText(draft.checkIn)} تا {dateText(draft.checkOut)} است. قیمت یا اتاق قبلی تا اعمال سفر تازه قابل انتخاب نیست.</p><Button variant="secondary" onPress={model.applyTrip} isDisabled={!canApplyTrip}>استفاده از سفر جدید</Button>{!canApplyTrip&&<p>ابتدا سفر تازه را در فرم اصلی کامل و مقایسه کنید؛ سپس این تغییر را اعمال کنید.</p>}</aside>}
@@ -41,6 +41,7 @@ export function HotelDialog({model,catalog,session,canApplyTrip}:{model:HotelDis
     {state.error&&<div role="alert" className={styles.stale}><p>{state.error}</p><Button variant="secondary" isDisabled={!model.query||model.stale} onPress={()=>void model.submit()}>تلاش دوباره برای اقامتگاه‌ها</Button></div>}
     {snapshot&&!fresh&&state.status!=='loading'&&<p role="status" className={styles.note}>شرایط اقامت تغییر کرده است؛ برای قیمت قابل انتخاب، دوباره مقایسه کنید.</p>}
     {model.selected&&<div className={styles.selection} role="status" data-selected-hotel-quote={model.selected.quoteId}><strong>ترکیب اتاق برای بررسی انتخاب شد</strong><p>{snapshot?.hotels.find(h=>h.hotelId===model.selected?.hotelId)?.name} · مجموع {faNumber(model.selected.total.amountRial/10)} تومان برای همه اتاق‌ها و شب‌ها. خرید یا رزرو انجام نشده است.</p></div>}
+    {referralAction}
     {snapshot&&<section aria-label="نتایج مقایسه اقامتگاه‌ها" className={styles.results} data-hotel-search-id={snapshot.hotelSearchId} data-hotel-query={queryKey(snapshot.query)} data-hotel-status={snapshot.status}>
      <header className={styles.resultHead}><h2>{snapshot.status==='failed'?'دریافت اقامتگاه‌ها کامل نشد':snapshot.status==='empty'?'اقامت کامل مطابق این شرایط پیدا نشد':`${faNumber(snapshot.results?.filter(r=>r.status==='priced').length??0)} اقامتگاه با قیمت کامل`}</h2><p>{snapshot.status==='empty'?'تعداد اتاق، سن کودکان یا تاریخ‌ها را بررسی کنید. اطلاعات ناقص با نبود اتاق یکسان نیست.':snapshot.status==='failed'?'دریافت ناموفق به معنی نبود اتاق نیست؛ دوباره تلاش کنید.':'مبلغ اصلی برای همه اتاق‌ها و همه شب‌هاست.'}</p></header>
      {snapshot.results?.map(result=>{const hotel=snapshot.hotels.find(h=>h.hotelId===result.hotelId);return hotel?<HotelCard key={hotel.hotelId} hotel={hotel} result={result} quotes={snapshot.quotes.filter(q=>q.hotelId===hotel.hotelId)} catalog={catalog} disabled={!fresh} selected={model.selected} onSelect={model.selectQuote}/>:null;})}

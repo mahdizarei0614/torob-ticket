@@ -1,14 +1,15 @@
 import {useEffect,useLayoutEffect,useRef,useState} from 'react';
-import type {CatalogSnapshot,SessionInfo,HotelQuoteSnapshot,GeoPoint,HotelSearchQuery} from '@torob-ticket/contracts';
+import type {CatalogSnapshot,SessionInfo,HotelQuoteSnapshot,GeoPoint,HotelSearchQuery,HotelSearchSnapshot,ReferralReceipt} from '@torob-ticket/contracts';
 import {apiClient,ClientError,type ApiClient} from '@torob-ticket/client';
 import {createHotelState,hotelReducer,hotelQuery,queryKey,tripKey,tripStamp,tripStale,type HotelTrip,type HotelDraft,type HotelAction} from './hotel-state';
-export interface HotelDiscoveryProps {trip:HotelTrip;catalog:CatalogSnapshot;session:SessionInfo;resetting?:boolean;client?:ApiClient;onSelectHotelQuote?:(quote:HotelQuoteSnapshot|undefined)=>void}
+export interface HotelRestore {snapshot:HotelSearchSnapshot;draft:HotelDraft;selected?:HotelQuoteSnapshot;open:boolean;scrollTop:number;receipt?:ReferralReceipt}
+export interface HotelDiscoveryProps {trip:HotelTrip;catalog:CatalogSnapshot;session:SessionInfo;resetting?:boolean;client?:ApiClient;onSelectHotelQuote?:(quote:HotelQuoteSnapshot|undefined)=>void;restore?:HotelRestore}
 function failure(error:unknown){if(error instanceof ClientError){if(error.api?.code==='SEARCH_LIMIT')return 'دو بررسی دیگر در نشست فعال است؛ پس از پایان آن‌ها دوباره تلاش کنید.';if(error.api?.code==='SESSION_EXPIRED')return 'نشست در دسترس نیست؛ نسخه نمایشی را دوباره آماده کنید.';if(error.kind==='network')return 'دریافت اقامتگاه‌ها ممکن نشد؛ اتصال را بررسی و دوباره تلاش کنید.';}return 'پاسخ معتبر اقامت دریافت نشد؛ دوباره مقایسه کنید.';}
 /** Every method is bound to the rendered view, edit revision and provisional transaction. */
-export function useHotelDiscovery({trip,catalog,session,resetting=false,client=apiClient,onSelectHotelQuote}:HotelDiscoveryProps){
- const [state,setState]=useState(()=>createHotelState(trip,catalog));const currentState=useRef(state);currentState.current=state;
- const [open,setOpen]=useState(false);const view=useRef({open:false,epoch:0});const renderedView=view.current;
- const initialized=useRef(false);
+export function useHotelDiscovery({trip,catalog,session,resetting=false,client=apiClient,onSelectHotelQuote,restore}:HotelDiscoveryProps){
+ const [state,setState]=useState(()=>restore?hotelReducer(createHotelState(trip,catalog),{type:'hydrate',snapshot:restore.snapshot,draft:restore.draft,selected:restore.selected}):createHotelState(trip,catalog));const currentState=useRef(state);currentState.current=state;
+ const [open,setOpen]=useState(restore?.open??false);const view=useRef({open:restore?.open??false,epoch:0});const renderedView=view.current;
+ const initialized=useRef(Boolean(restore));
  const live=useRef(true);const latest=useRef({trip,resetting,client,onSelectHotelQuote});latest.current={trip,resetting,client,onSelectHotelQuote};
  const request=useRef<{controller:AbortController;revision:number;view:typeof renderedView;trip:string}|undefined>(undefined);
  const [,tick]=useState(0);const capturedTrip=tripStamp(trip);const tripEpoch=useRef({stamp:capturedTrip,epoch:0});if(tripEpoch.current.stamp!==capturedTrip)tripEpoch.current={stamp:capturedTrip,epoch:tripEpoch.current.epoch+1};const renderedTripEpoch=tripEpoch.current.epoch,revision=state.revision,pointToken=state.point?.token;
@@ -42,6 +43,15 @@ export function useHotelDiscovery({trip,catalog,session,resetting=false,client=a
  useEffect(()=>{if(expiry===undefined||!Number.isFinite(expiry)||expiry<=Date.now())return;const timer=setTimeout(()=>{tick(v=>v+1);latest.current.onSelectHotelQuote?.(undefined);},expiry-Date.now()+1);return()=>clearTimeout(timer);},[expiry]);
  const checked=hotelQuery(state,catalog,session.anchorInstant),stale=tripStale(state,trip);
  const selected=state.selected&&Date.parse(state.selected.expiresAt)>Date.now()&&!stale?state.selected:undefined;
- return {state,open,stale,query:checked.query,errors:checked.errors,selected,openDialog,closeDialog,edit,submit,changeSort,applyTrip,openPoint,setPoint,cancelPoint,applyPoint,selectQuote,isPointCurrent:pointOwns};
+ function selectionLease(){
+  const selected=currentState.current.selected;const checked=hotelQuery(currentState.current,catalog,session.anchorInstant);if(!checked.query||!selected||queryKey(checked.query)!==queryKey(selected.query))return undefined;if(!selected||!viewOwns()||currentState.current.revision!==revision||tripStamp(latest.current.trip)!==capturedTrip||tripStale(currentState.current,latest.current.trip)||currentState.current.point)return undefined;
+  const capturedView=view.current,capturedRevision=currentState.current.revision,capturedStamp=tripStamp(latest.current.trip);let expected=selected;
+  const isCurrent=()=>live.current&&!latest.current.resetting&&view.current===capturedView&&view.current.open&&currentState.current.revision===capturedRevision&&tripStamp(latest.current.trip)===capturedStamp&&!tripStale(currentState.current,latest.current.trip)&&currentState.current.selected===expected;
+  const accept=(quote:HotelQuoteSnapshot)=>{if(!isCurrent())return false;const next=send({type:'bind-rechecked',previous:{quoteId:expected.quoteId,version:expected.version},quote,now:Date.now()});if(next.selected?.version!==quote.version)return false;expected=next.selected;latest.current.onSelectHotelQuote?.(expected);return true;};
+  const confirmed=(receipt:ReferralReceipt)=>isCurrent()&&receipt.payload.kind==='hotel'&&JSON.stringify(receipt.payload.quote)===JSON.stringify(expected)&&Date.parse(receipt.confirmedAt)>=Date.parse(expected.observedAt)&&Date.parse(receipt.confirmedAt)<Date.parse(expected.expiresAt);
+  const refresh=()=>{if(!isCurrent())return;const checked=hotelQuery(currentState.current,catalog,session.anchorInstant);if(checked.query)void search(checked.query,view.current);};
+  return {refresh,quote:selected,key:[capturedView.epoch,capturedRevision,selected.quoteId,selected.version].join('/'),isCurrent,accept,confirmed};
+ }
+ return {readState:()=>currentState.current,selectionLease,state,open,stale,query:checked.query,errors:checked.errors,selected,openDialog,closeDialog,edit,submit,changeSort,applyTrip,openPoint,setPoint,cancelPoint,applyPoint,selectQuote,isPointCurrent:pointOwns};
 }
 export type HotelDiscovery=ReturnType<typeof useHotelDiscovery>;

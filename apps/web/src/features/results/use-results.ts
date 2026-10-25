@@ -3,12 +3,12 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiClient, subscribeSearch, type ApiClient, type SubscribeSearchOptions } from '@torob-ticket/client';
 import type { SearchRecovery, TransportSearchQuery } from '@torob-ticket/contracts';
 import { serializeSearchUrl } from '../search/search-url';
-import { createResultsState, resultsReducer } from './results-reducer';
-export function useResults(generation: string, searchId: string, query: TransportSearchQuery, client: ApiClient = apiClient, subscribe: (options: SubscribeSearchOptions) => () => void = subscribeSearch) {
+import { createResultsState, resultsReducer, type ResultsState } from './results-reducer';
+export function useResults(generation: string, searchId: string, query: TransportSearchQuery, client: ApiClient = apiClient, subscribe: (options: SubscribeSearchOptions) => () => void = subscribeSearch, restore?:Pick<ResultsState,'frozen'|'selected'|'dismissedSuggestion'>) {
  const cache = useQueryClient();
  const key = ['search', generation, searchId];
  const stored = useQuery({ queryKey: key, queryFn: ({ signal }) => client.snapshot(searchId, signal), enabled: false, staleTime: Infinity, retry: false });
- const [state, dispatch] = useReducer(resultsReducer, undefined, () => createResultsState(generation, searchId));
+ const [state, dispatch] = useReducer(resultsReducer, undefined, () => ({...createResultsState(generation, searchId),...restore}));
  const [connectionError, setConnectionError] = useState(false);
  const [now, setNow] = useState(Date.now);
  useEffect(() => {
