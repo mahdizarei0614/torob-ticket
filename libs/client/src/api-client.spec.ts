@@ -71,3 +71,19 @@ describe('date price typed transport', () => {
     await expect(client.startDatePrices({ ...input, dates: [...input.dates] })).rejects.toMatchObject({ kind: 'schema' });
   });
 });
+
+describe('optional account typed transport',()=>{
+ const query={mode:'flight',scope:'domestic',tripType:'one-way',originCityId:'a',destinationCityId:'b',departureDate:'2026-10-25',party:{adults:1,children:0,infants:0},classCode:'economy',filters:{},sort:'cheapest'} as const;
+ const identity={identityId:'demo-id',displayName:'مسافر نمایشی',simulated:true};
+ const saved={savedSearchId:'saved/a',identityId:identity.identityId,name:'سفر',query,createdAt:'2026-10-25T00:00:00Z'};
+ it('validates every account response, sends empty auth bodies once and encodes saved IDs',async()=>{
+  const transport=vi.fn().mockResolvedValueOnce(json({identity:null})).mockResolvedValueOnce(json({identity},201)).mockResolvedValueOnce(json({items:[saved]})).mockResolvedValueOnce(json(saved,201)).mockResolvedValueOnce(json(saved)).mockResolvedValueOnce(json({deletedSavedSearchId:saved.savedSearchId})).mockResolvedValueOnce(json({identity:null},201));
+  const client=createApiClient(transport),controller=new AbortController();await client.authState(controller.signal);await client.signIn();await client.listSavedSearches();await client.saveSearch({name:'  سفر  ',query});await client.getSavedSearch(saved.savedSearchId);await client.deleteSavedSearch(saved.savedSearchId);await client.signOut();
+  expect(transport.mock.calls.map(c=>c[0])).toEqual(['/api/v1/auth/demo','/api/v1/auth/demo/sign-in','/api/v1/saved-searches','/api/v1/saved-searches','/api/v1/saved-searches/saved%2Fa','/api/v1/saved-searches/saved%2Fa','/api/v1/auth/demo/sign-out']);
+  expect(transport.mock.calls[1]![1]).toMatchObject({method:'POST',body:'{}',credentials:'same-origin'});expect(transport.mock.calls[0]![1]).toMatchObject({signal:controller.signal});expect(JSON.parse(transport.mock.calls[3]![1].body)).toEqual({name:'سفر',query});
+ });
+ it('never replays auth mutations or accepts a malformed account/save response',async()=>{
+  const malformed=vi.fn(async()=>json({identity:{...identity,simulated:false}}));await expect(createApiClient(malformed).signIn()).rejects.toMatchObject({kind:'schema'});expect(malformed).toHaveBeenCalledTimes(1);
+  const transport=vi.fn(async()=>json({items:[{...saved,quoteId:'forbidden'}]}));const client=createApiClient(transport);await expect(client.saveSearch({name:' ',query})).rejects.toMatchObject({kind:'request'});await expect(client.deleteSavedSearch('')).rejects.toMatchObject({kind:'request'});expect(transport).not.toHaveBeenCalled();await expect(client.listSavedSearches()).rejects.toMatchObject({kind:'schema'});
+ });
+});

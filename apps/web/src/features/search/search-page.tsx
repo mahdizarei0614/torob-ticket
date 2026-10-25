@@ -1,3 +1,4 @@
+import {AccountPanel} from '../account/account-panel';
 import { useState } from 'react';
 import { GraphicsProvider } from '@torob-ticket/graphics/host';
 import { ResultsPage } from '../results/results-page';
@@ -20,12 +21,12 @@ function Consumer({ catalog, session }: { catalog: CatalogSnapshot; session: Ses
   const controller = useSearchController(catalog, session);
   const { state } = controller;
   const map=useTripMap(controller,catalog);const desktop=useDesktopMap();const [mapMotion,setMapMotion]=useState(false);
-  const [calendarOpen, setCalendarOpen] = useState(false);
+  const [calendarOpen, setCalendarOpen] = useState(false);const [accountOpen,setAccountOpen]=useState(false);const covered=calendarOpen||accountOpen;
   const [dateInteracting, setDateInteracting] = useState(false);
   const cityName = (id: string) => catalog.cities.find(c => c.id === id)?.name ?? 'انتخاب نشده';
-  return <ThemeProvider language="fa" mode={state.draft.mode}><GraphicsProvider covered={calendarOpen} motion={mapMotion}><main lang="fa" dir="rtl" className={styles.shell} data-pinned-itinerary={state.pinnedItineraryId} data-preview-itinerary={state.previewItineraryId}>
-    <TripMap map={map} catalog={catalog} desktop={desktop} covered={calendarOpen} onMotionChange={setMapMotion}/>
-    <div className={styles.content}><header className={styles.header}><a className={styles.brand} href="/" aria-label="ترب تیکت، خانه">ترب<span>تیکت</span><small>مقایسه سفر</small></a><div className={styles.headerActions}><span className={styles.demoBadge}>نسخه نمایشی</span><AppearanceButton /></div></header>
+  return <ThemeProvider language="fa" mode={state.draft.mode}><GraphicsProvider covered={covered} motion={mapMotion}><main lang="fa" dir="rtl" className={styles.shell} data-pinned-itinerary={state.pinnedItineraryId} data-preview-itinerary={state.previewItineraryId}>
+    <TripMap map={map} catalog={catalog} desktop={desktop} covered={covered} onMotionChange={setMapMotion}/>
+    <div className={styles.content}><header className={styles.header}><a className={styles.brand} href="/" aria-label="ترب تیکت، خانه">ترب<span>تیکت</span><small>مقایسه سفر</small></a><div className={styles.headerActions}><span className={styles.demoBadge}>نسخه نمایشی</span><AppearanceButton /><AccountPanel controller={controller} catalog={catalog} session={session} onCovered={setAccountOpen}/></div></header>
       <section className={styles.intro}><span className={styles.eyebrow}>مسیر خودت را پیدا کن</span><h1>سفر بعدی از کجا شروع می‌شود؟</h1><p>پرواز، قطار یا اتوبوس؛ شرایط سفر را کنار هم ببینید.</p></section>
       <SearchComposer draft={state.draft} catalog={catalog} session={session} edit={controller.edit} onSubmit={() => { void controller.submit(undefined,true); }} errors={controller.validity.errors} pending={controller.pending} disabled={controller.resetting || controller.startLimitReached || dateInteracting} dateExplorer={<DateExplorer interaction={controller.dateInteractions} draft={state.draft} catalog={catalog} session={session} onCommit={controller.commitDates} onPreview={date => controller.dispatch({ type: 'preview-date', date })} onCovered={setCalendarOpen} onInteractionChange={setDateInteracting} disabled={controller.resetting} waiting={controller.waitingDate} />} />
       <div aria-live="polite" className={styles.feedback}>{dateInteracting && <p role="status">انتخاب روز در حال تنظیم است؛ با رها کردن، همان تاریخ جست‌وجو می‌شود.</p>}{controller.capacityMessage && <p role="status">{controller.capacityMessage}</p>}{state.notice && <p role="status">{state.notice}</p>}{controller.feedback && <p role="alert" className={styles.error}>{controller.feedback}</p>}{controller.accepted && <p role="status">درخواست جست‌وجو برای {cityName(state.committed?.originCityId ?? '')} به {cityName(state.committed?.destinationCityId ?? '')} در نشست شما ثبت شد.</p>}</div>

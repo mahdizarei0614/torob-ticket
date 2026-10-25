@@ -10,6 +10,8 @@ export function sessionError(code: ApiErrorCode, status = 401) {
   return new HttpException({ code, fieldPaths: [], retryable: false, requestId: randomUUID() }, status);
 }
 export function repositoryHttpError(error: unknown): never {
+  if (error instanceof RepositoryError && error.code === 'IDENTITY_REQUIRED') throw sessionError(error.code,403);
+  if (error instanceof RepositoryError && error.code === 'SAVED_SEARCH_LIMIT') throw sessionError(error.code,429);
   if (error instanceof RepositoryError) throw error.code === 'SEARCH_LIMIT' ? new HttpException({ code: error.code, fieldPaths: [], retryable: true, requestId: randomUUID() }, 429) : sessionError(error.code, error.code === 'NOT_FOUND' ? 404 : error.code === 'SESSION_EXPIRED' ? 401 : 409);
   throw error;
 }

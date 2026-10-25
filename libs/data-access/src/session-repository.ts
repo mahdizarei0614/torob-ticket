@@ -7,7 +7,7 @@ export const SESSION_INACTIVITY_MS = 24 * 60 * 60 * 1000;
 const sessionInclude = { fixture: true, identity: true } as const;
 export type SessionRecord = Prisma.DemoSessionGetPayload<{ include: typeof sessionInclude }>;
 export function sessionInfo(row: SessionRecord): SessionInfo {
-  return { seed: Number(row.seed), anchorInstant: row.anchorInstant.toISOString(), scenario: row.scenario as SessionInfo['scenario'], fixtureVersion: row.fixtureVersion, catalogRevision: row.fixture.catalogRevision, mappingRevision: row.mappingRevision, scenarioRevision: row.scenarioRevision, expiresAt: row.expiresAt.toISOString(), identity: row.identity ? DemoIdentitySchema.parse(row.identity.payload) : null };
+  return { seed: Number(row.seed), anchorInstant: row.anchorInstant.toISOString(), scenario: row.scenario as SessionInfo['scenario'], fixtureVersion: row.fixtureVersion, catalogRevision: row.fixture.catalogRevision, mappingRevision: row.mappingRevision, scenarioRevision: row.scenarioRevision, expiresAt: row.expiresAt.toISOString(), identity: row.identity?.signedIn ? DemoIdentitySchema.parse(row.identity.payload) : null };
 }
 export class SessionRepository {
   constructor(private readonly db: PrismaClient, private readonly fixture:FixtureIdentity=FOUNDATION_IDENTITY) {}

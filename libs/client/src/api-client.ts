@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { ApiErrorSchema, CatalogSnapshotSchema, CreateDemoSessionInputSchema, DatePriceQuerySchema, DatePriceSnapshotSchema, IdSchema, SearchRecoverySchema, SearchRequestSchema, SessionInfoSchema, type ApiError, type CreateDemoSessionInput, type DatePriceQuery, type SearchRequest, type SessionInfo } from '@torob-ticket/contracts';
+import { ApiErrorSchema, DemoAuthStateSchema, SavedSearchSchema, SavedSearchListSchema, DeleteSavedSearchResultSchema, SaveSearchInputSchema, type SaveSearchInput, CatalogSnapshotSchema, CreateDemoSessionInputSchema, DatePriceQuerySchema, DatePriceSnapshotSchema, IdSchema, SearchRecoverySchema, SearchRequestSchema, SessionInfoSchema, type ApiError, type CreateDemoSessionInput, type DatePriceQuery, type SearchRequest, type SessionInfo } from '@torob-ticket/contracts';
 export class ClientError extends Error {
   constructor(readonly kind: 'api' | 'network' | 'schema' | 'request' | 'http', message: string, readonly api?: ApiError, readonly status?: number) { super(message); this.name = 'ClientError'; }
 }
@@ -40,6 +40,13 @@ export function createApiClient(transport: Transport = (...args) => fetch(...arg
   }
   return {
     session, catalog,
+    async authState(signal?: AbortSignal) { return request('auth/demo',DemoAuthStateSchema,{signal}); },
+    async signIn(signal?: AbortSignal) { return request('auth/demo/sign-in',DemoAuthStateSchema,{method:'POST',body:'{}',signal}); },
+    async signOut(signal?: AbortSignal) { return request('auth/demo/sign-out',DemoAuthStateSchema,{method:'POST',body:'{}',signal}); },
+    async listSavedSearches(signal?: AbortSignal) { return request('saved-searches',SavedSearchListSchema,{signal}); },
+    async getSavedSearch(id:string,signal?:AbortSignal) { return request(`saved-searches/${idPath(id)}`,SavedSearchSchema,{signal}); },
+    async saveSearch(input:SaveSearchInput,signal?:AbortSignal) { return request('saved-searches',SavedSearchSchema,{method:'POST',body:body(SaveSearchInputSchema,input),signal}); },
+    async deleteSavedSearch(id:string,signal?:AbortSignal) { return request(`saved-searches/${idPath(id)}`,DeleteSavedSearchResultSchema,{method:'DELETE',signal}); },
     sessionSnapshot: () => latestSession,
     async reset(input: CreateDemoSessionInput = {}, signal?: AbortSignal) { const payload = body(CreateDemoSessionInputSchema, input); if (bootstrap) await bootstrap; return request('demo/reset', SessionInfoSchema, { method: 'POST', body: payload, signal }); },
     async startSearch(input: SearchRequest, signal?: AbortSignal) { return request('searches', SearchRecoverySchema, { method: 'POST', body: body(SearchRequestSchema, input), signal }); },

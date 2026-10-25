@@ -120,6 +120,16 @@ export function useSearchController(catalog: CatalogSnapshot, session: SessionIn
     const next = crypto.randomUUID(); commitIntent(checked.query!, next, cause); setResultEntryGeneration(enterResults ? next : undefined);
     await startCommitted(checked.query!, next, slot);
   }
+  /** Saved intent is explicit; restore exact fields, then use normal admission for fresh prices. */
+  function openSavedSearch(query:TransportSearchQuery) {
+    if(!live.current||starts.getSnapshot().resetting)return;
+    preset(query);
+    const checked=validateDraft(query,catalog,session);
+    if(!checked.valid){setFeedback('جست‌وجوی ذخیره‌شده در فرم قرار گرفت؛ برای قیمت تازه آن را اصلاح کنید. '+checked.errors.join(' '));return;}
+    if(starts.getSnapshot().count>=unresolvedStartLimit){setFeedback('قصد سفر ذخیره‌شده در فرم قرار گرفت؛ هنوز جست‌وجوی تازه شروع نشده است. '+startCapacityMessage);return;}
+    if(pendingGeneration.current!==undefined&&pendingGeneration.current===generation.current){setFeedback('قصد سفر ذخیره‌شده در فرم قرار گرفت؛ برای ثبت جست‌وجوی تازه صبر کنید تا درخواست قبلی پاسخ بگیرد.');return;}
+    void submit(checked.query!,true);
+  }
   function commitDates(draft: SearchDraft) {
     setResultEntryGeneration(undefined);
     if (!live.current || starts.getSnapshot().resetting) return;
@@ -173,5 +183,5 @@ export function useSearchController(catalog: CatalogSnapshot, session: SessionIn
     if (!live.current || generation.current !== expectedGeneration || !dateInteractions.isCurrent(interactionToken) || !canRefineResults) return;
     void submit(query,false,'refine');
   }
-  return { state, dispatch, currentIntent, edit, preset, submit, refineResults, resultIsCurrent, previewResultItinerary, pinResultItinerary, clearMapInspection, canRefineResults, refinementToken: dateInteractions.capture(), enterResults: resultEntryGeneration === state.generation, dateInteractions, commitDates, waitingDate, reset, validity, pending, resetting, feedback, accepted, startLimitReached, unresolvedStarts: startSnapshot.count, capacityMessage: startLimitReached && !resetting ? startCapacityMessage : '' };
+  return { state, dispatch, currentIntent, edit, preset, submit, openSavedSearch, refineResults, resultIsCurrent, previewResultItinerary, pinResultItinerary, clearMapInspection, canRefineResults, refinementToken: dateInteractions.capture(), enterResults: resultEntryGeneration === state.generation, dateInteractions, commitDates, waitingDate, reset, validity, pending, resetting, feedback, accepted, startLimitReached, unresolvedStarts: startSnapshot.count, capacityMessage: startLimitReached && !resetting ? startCapacityMessage : '' };
 }

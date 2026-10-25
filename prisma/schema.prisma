@@ -232,6 +232,7 @@ model ReferralEvent {
 }
 model DemoIdentity {
   sessionId String @id
+  signedIn Boolean @default(true)
   id String
   payload Json
   session DemoSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
