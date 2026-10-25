@@ -29,3 +29,11 @@ Account/calendar coverage is ORed in the existing graphics host and map; covered
 API: GET `auth/demo`; POST `auth/demo/sign-in` and `sign-out` with strict empty bodies return `{identity}`. GET/POST `saved-searches`; GET/DELETE `saved-searches/:id`; list returns `{items}`, create/get return SavedSearch, delete returns `{deletedSavedSearchId}`. Browser client validates every response, encodes IDs, forwards cancellation and never automatically repeats mutations.
 
 Meaningful real HTTP/PostgreSQL failures and actual controller/component regressions are retained separately from setup/type/lint failures. Native tests disable failed traces to avoid archiving session cookies. All tests use explicitly owned scopes/database resources; production preservation and independent reviews are root-owned. No T20/T21/T22 feature is implemented here.
+
+## Independent review corrections
+
+R1: account method entry checks the operation and sandbox epoch captured by its rendered view, before sending or aborting any request. A raw sign-in/sign-out/save/delete callback retained across a failed actual controller reset cannot target the recovered/replacement sandbox; a newly rendered explicit action remains available. Response fencing and mutation single-flight remain separate checks.
+
+R2: AccountPanel owns a synchronous dialog-cycle lease. Escape/Cancel/close/unmount invalidate it before React delivery. The lease guards actual saved-open/delete, simulated sign-in/out, name preparation/confirmation/cancellation and preference callbacks, including close/reopen. It is forwarded through the actual child account contract rather than relying on detached DOM events. A mutation already explicitly sent may settle server-side; dismissal does not promise rollback or reopen/resume anything. Failed save intent/name remains recoverable for deliberate retry while its current dialog is open.
+
+Layout setup explicitly republishes the account lifetime before paint. This refreshes current rendered method/dialog leases after StrictMode setup→cleanup→setup, while cleanup still invalidates pending older requests and real unmount. Standalone hook and an actual AccountPanel mounted after controller stabilization under a StrictMode root reproduce the earlier stale-lease failure without relying on incidental app rerenders; both are now positive controls.

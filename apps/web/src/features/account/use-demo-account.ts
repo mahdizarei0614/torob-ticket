@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { apiClient, ClientError, type ApiClient } from '@torob-ticket/client';
 import type { DemoIdentity, SavedSearch, SaveSearchInput } from '@torob-ticket/contracts';
 import { searchStartPool } from '../search/search-start-pool';
@@ -22,12 +22,15 @@ export function useDemoAccount(initialIdentity: DemoIdentity | null, client: Api
     const [pending, setPending] = useState<'read' | 'write' | null>(null);
     const [listStatus, setListStatus] = useState<'idle' | 'loading' | 'complete' | 'error'>('idle');
     const [error, setError] = useState('');
+    const [,publishLifetime]=useState(0);
     const identityRef = useRef(identity);
     identityRef.current = identity;
     const live = useRef(true), epoch = useRef(0), sandbox = useRef(pool.epoch), request = useRef<AbortController | undefined>(undefined), writing = useRef(false);
     function valid(token: number, scope: number) { return live.current && epoch.current === token && pool.epoch === scope && !pool.getSnapshot().resetting; }
     function clear() { setIdentity(null); setItems([]); setReady(false); setListStatus('idle'); }
-    useEffect(() => { live.current = true; return () => { live.current = false; epoch.current++; request.current?.abort(); }; }, []);
+    // Republish current view leases before paint after a lifecycle replay/resume.
+    // Cleanup still fences the previous lifetime's pending requests and real unmount.
+    useLayoutEffect(() => { live.current = true; publishLifetime(value=>value+1); return () => { live.current = false; epoch.current++; request.current?.abort(); }; }, []);
     useEffect(() => { if (sandbox.current !== pool.epoch || reset.resetting) {
         sandbox.current = pool.epoch;
         epoch.current++;
@@ -37,7 +40,7 @@ export function useDemoAccount(initialIdentity: DemoIdentity | null, client: Api
         setError('');
         clear();
     } }, [reset.resetting, pool.epoch]);
-    async function run(kind: 'read' | 'write', work: (signal: AbortSignal, current: () => boolean) => Promise<void>) { if (!live.current || pool.getSnapshot().resetting || writing.current)
+    async function run(kind: 'read' | 'write', work: (signal: AbortSignal, current: () => boolean) => Promise<void>) { if (!live.current || pool.getSnapshot().resetting || writing.current || pool.epoch !== renderedScope || epoch.current !== renderedEpoch)
         return false; const token = ++epoch.current, scope = pool.epoch; sandbox.current = scope; request.current?.abort(); const controller = new AbortController(); request.current = controller; writing.current = kind === 'write'; setPending(kind); setError(''); const current = () => valid(token, scope); try {
         await work(controller.signal, current);
         return current();

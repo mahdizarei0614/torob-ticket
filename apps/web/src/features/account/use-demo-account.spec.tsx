@@ -1,9 +1,10 @@
+import {StrictMode} from 'react';
 import { act, renderHook } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter } from 'react-router';
 import type { ReactNode } from 'react';
 import { afterEach, expect, it, vi } from 'vitest';
-import type { ApiClient } from '@torob-ticket/client';
+import {ClientError,type ApiClient } from '@torob-ticket/client';
 import type { SavedSearch, SearchRequest, SearchRecovery } from '@torob-ticket/contracts';
 import { useDemoAccount } from './use-demo-account';
 import { useSearchController } from '../search/use-search-controller';
@@ -15,7 +16,7 @@ const identity = { identityId: 'demo', displayName: 'مسافر نمایشی', s
 const saved: SavedSearch = { savedSearchId: 'save', identityId: 'demo', name: 'سفر', query, createdAt: observedAt };
 const deferred = <T,>() => { let resolve!: (value: T) => void; const promise = new Promise<T>(done => resolve = done); return { promise, resolve }; };
 afterEach(() => vi.restoreAllMocks());
-function client() { let sequence = 0; return { authState: vi.fn(async () => ({ identity })), signIn: vi.fn(async () => ({ identity })), signOut: vi.fn(async () => ({ identity: null })), listSavedSearches: vi.fn(async () => ({ items: [saved] })), saveSearch: vi.fn(async () => saved), deleteSavedSearch: vi.fn(async () => ({ deletedSavedSearchId: saved.savedSearchId })), startSearch: vi.fn(async (input: SearchRequest): Promise<SearchRecovery> => ({ sequence: 0, snapshot: { searchId: 's' + ++sequence, clientGeneration: input.clientGeneration, query: input.query, status: 'complete', observedAt, groups: [group('a')], providerStatuses: [], coverage: { expectedProviderIds: [], successfulProviderIds: [], failedProviderIds: [], pendingProviderIds: [], complete: true } } })), cancelSearch: vi.fn(async () => undefined) } as unknown as ApiClient; }
+function client() { let sequence = 0; return { reset:vi.fn(async()=>{throw new ClientError('network','reset-offline');}),authState: vi.fn(async () => ({ identity })), signIn: vi.fn(async () => ({ identity })), signOut: vi.fn(async () => ({ identity: null })), listSavedSearches: vi.fn(async () => ({ items: [saved] })), saveSearch: vi.fn(async () => saved), deleteSavedSearch: vi.fn(async () => ({ deletedSavedSearchId: saved.savedSearchId })), startSearch: vi.fn(async (input: SearchRequest): Promise<SearchRecovery> => ({ sequence: 0, snapshot: { searchId: 's' + ++sequence, clientGeneration: input.clientGeneration, query: input.query, status: 'complete', observedAt, groups: [group('a')], providerStatuses: [], coverage: { expectedProviderIds: [], successfulProviderIds: [], failedProviderIds: [], pendingProviderIds: [], complete: true } } })), cancelSearch: vi.fn(async () => undefined) } as unknown as ApiClient; }
 function setup(api: ApiClient) { const cache = new QueryClient(); function Wrapper({ children }: {
     children: ReactNode;
 }) { return <QueryClientProvider client={cache}><BrowserRouter>{children}</BrowserRouter></QueryClientProvider>; } window.history.replaceState(null, '', '/'); return renderHook(() => { const controller = useSearchController(catalog, session, api); return { controller, map: useTripMap(controller, catalog), account: useDemoAccount(null, api) }; }, { wrapper: Wrapper }); }
@@ -30,3 +31,15 @@ it('single-flights mutations and drops a late sign-in after synchronous reset or
 }>(); vi.mocked(api2.signIn).mockReturnValue(pending2.promise); const unmount = setup(api2); let work!: Promise<boolean>; act(() => { work = unmount.result.current.account.signIn(); }); unmount.unmount(); pending2.resolve({ identity }); await work; expect(api2.listSavedSearches).not.toHaveBeenCalled(); });
 it('explicitly reopening identical saved intent always requests a new accepted search, while auth/list never do', async () => { const api = client(), hook = setup(api); await act(() => hook.result.current.account.refresh()); expect(api.startSearch).not.toHaveBeenCalled(); await act(async () => hook.result.current.controller.openSavedSearch(saved.query)); const first = hook.result.current.controller.state.searchId; await act(async () => hook.result.current.controller.openSavedSearch(saved.query)); expect(api.startSearch).toHaveBeenCalledTimes(2); expect(hook.result.current.controller.state.searchId).not.toBe(first); expect(vi.mocked(api.startSearch).mock.calls[0]![0].clientGeneration).not.toBe(vi.mocked(api.startSearch).mock.calls[1]![0].clientGeneration); hook.unmount(); });
 it('restores exact invalid saved dates or capacity-blocked intent visibly without guessing, queuing or starting', async () => { const api = client(), hook = setup(api); const stale = { ...query, departureDate: '2026-10-01' }; act(() => hook.result.current.controller.openSavedSearch(stale)); expect(hook.result.current.controller.state.draft.departureDate).toBe('2026-10-01'); expect(hook.result.current.controller.feedback).toContain('اصلاح'); expect(api.startSearch).not.toHaveBeenCalled(); const pool = searchStartPool(api), a = pool.reserve()!, b = pool.reserve()!; act(() => hook.result.current.controller.openSavedSearch(query)); expect(hook.result.current.controller.state.draft).toEqual(query); expect(hook.result.current.controller.feedback).toContain('هنوز جست‌وجوی تازه شروع نشده'); expect(api.startSearch).not.toHaveBeenCalled(); act(() => { a.finish(); b.finish(); }); await act(async () => { await Promise.resolve(); }); expect(api.startSearch).not.toHaveBeenCalled(); await act(() => hook.result.current.controller.submit()); expect(api.startSearch).toHaveBeenCalledTimes(1); hook.unmount(); });
+
+for(const action of ['signIn','signOut','save','remove'] as const)it('rejects retained '+action+' method entry after actual failed reset, while a current sign-in recovers',async()=>{
+ const api=client(),hook=setup(api);await act(()=>hook.result.current.account.refresh());const old=hook.result.current.account;
+ await act(()=>hook.result.current.controller.reset());expect(api.reset).toHaveBeenCalledTimes(1);
+ await act(async()=>{if(action==='signIn')await old.signIn();if(action==='signOut')await old.signOut();if(action==='save')await old.save({name:saved.name,query:saved.query});if(action==='remove')await old.remove(saved.savedSearchId);});
+ const mutation=action==='save'?api.saveSearch:action==='remove'?api.deleteSavedSearch:api[action];expect(mutation).not.toHaveBeenCalled();
+ await act(()=>hook.result.current.account.signIn());expect(api.signIn).toHaveBeenCalledTimes(1);expect(hook.result.current.account.identity).toEqual(identity);hook.unmount();
+});
+
+it('publishes a current standalone StrictMode account lease after replay and rejects it after real unmount',async()=>{
+ const api=client();const hook=renderHook(()=>useDemoAccount(null,api),{wrapper:StrictMode});expect(hook.result.current.isCurrent()).toBe(true);await act(()=>hook.result.current.signIn());expect(api.signIn).toHaveBeenCalledTimes(1);const old=hook.result.current;hook.unmount();await old.signOut();expect(api.signOut).not.toHaveBeenCalled();
+});
