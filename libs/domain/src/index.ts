@@ -25,3 +25,4 @@ export * from './hotels/distance';
 export * from './hotels/rank-hotels';
 export * from './hotels/stay-suggestions';
 export * from './hotels/revisions';
+export * from './hotels/canonical-order';

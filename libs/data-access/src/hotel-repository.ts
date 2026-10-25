@@ -1,7 +1,7 @@
 import { createHash, randomUUID } from 'node:crypto';
 import { parseDate } from '@internationalized/date';
 import { HotelSchema, HotelSearchQuerySchema, HotelSearchSnapshotSchema, HotelQuoteSnapshotSchema, ReferralIntentSchema, type Hotel, type RoomRate, type HotelRoomPolicy, type HotelSearchQuery, type HotelSearchSnapshot, type HotelQuoteSnapshot, type ReferralSelection, type ReferralIntent, type RecheckResult, type HotelComparisonResult } from '@torob-ticket/contracts';
-import { allocateRooms, priceStay, rankHotels, straightLineKm, localDateAt, canonicalValue, hotelIdentity, HOTEL_ENGINE_REVISION, HOTEL_POLICY_REVISION, type RealClock, type HotelRankInput } from '@torob-ticket/domain';
+import { compareHotelKeys, allocateRooms, priceStay, rankHotels, straightLineKm, localDateAt, canonicalValue, hotelIdentity, HOTEL_ENGINE_REVISION, HOTEL_POLICY_REVISION, type RealClock, type HotelRankInput } from '@torob-ticket/domain';
 import type { Prisma, PrismaClient } from './generated/client';
 import { RepositoryError, scopedTransaction, type DataScope } from './scope';
 import { readProviderContext, type ProviderContextSnapshot } from './search-repository';
@@ -47,7 +47,7 @@ export interface HotelRun {
 }
 export function hotelFingerprint(source: HotelSource) {
     const i = source.frozen.info;
-    return digest({ fixtureVersion: i.fixtureVersion, catalogRevision: i.catalogRevision, seed: i.seed, anchorInstant: i.anchorInstant, scenario: i.scenario, scenarioRevision: i.scenarioRevision, mappingRevision: i.mappingRevision, mappings: source.frozen.mappings, overrides: source.frozen.overrides.slice().sort((a, b) => a.providerId.localeCompare(b.providerId, 'en')), timeZone: source.timeZone, hotels: source.hotels, templates: source.templates, engineRevision: source.engineRevision, policyRevision: source.policyRevision });
+    return digest({ fixtureVersion: i.fixtureVersion, catalogRevision: i.catalogRevision, seed: i.seed, anchorInstant: i.anchorInstant, scenario: i.scenario, scenarioRevision: i.scenarioRevision, mappingRevision: i.mappingRevision, mappings: source.frozen.mappings, overrides: source.frozen.overrides.slice().sort((a, b) => compareHotelKeys(a.providerId, b.providerId)), timeZone: source.timeZone, hotels: source.hotels, templates: source.templates, engineRevision: source.engineRevision, policyRevision: source.policyRevision });
 }
 /** Hotel source and lineage authority. All writes/read-confirmation share the session lock. */
 export class HotelRepository {
@@ -142,7 +142,7 @@ export class HotelRepository {
                 else
                     states.push(candidate);
             }
-            priced.sort((a, b) => a.total.amountRial - b.total.amountRial || canonicalValue(a.roomAllocation).localeCompare(canonicalValue(b.roomAllocation), 'en'));
+            priced.sort((a, b) => a.total.amountRial - b.total.amountRial || compareHotelKeys(canonicalValue(a.roomAllocation), canonicalValue(b.roomAllocation)));
             quotes.push(...priced);
             const status: HotelComparisonResult['status'] = priced.length ? 'priced' : states.some(s => s.status === 'incomplete') ? 'incomplete' : issues[hotel.hotelId]?.length ? 'failed' : allocations.status === 'unknown' ? 'unknown' : hotelRates.length ? 'ineligible' : 'unavailable';
             const reasons = priced.length ? [] : [...new Set([...allocations.reasons, ...states.flatMap(s => s.reasons), ...(issues[hotel.hotelId] ?? []), ...(!hotelRates.length ? ['hotel-rates-unavailable'] : [])])].sort();

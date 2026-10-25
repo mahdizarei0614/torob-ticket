@@ -1,5 +1,6 @@
 import { HotelSearchQuerySchema, type HotelSearchQuery, type RoomRate, type RoomAllocation } from '@torob-ticket/contracts';
 import type { AllocationEvaluation, HotelRoomPolicy } from './types';
+import { compareHotelKeys } from './canonical-order';
 import { prepareRate, roomEligibility, stayNights } from './rate-authority';
 function subsets(values: number[], count: number): {
     chosen: number[];
@@ -36,7 +37,7 @@ export function allocateRooms(query: HotelSearchQuery, rates: readonly RoomRate[
         group.push(rate);
         groups.set(key, group);
     }
-    for (const [, group] of [...groups.entries()].sort(([a], [b]) => a.localeCompare(b, 'en'))) {
+    for (const [, group] of [...groups.entries()].sort(([a], [b]) => compareHotelKeys(a, b))) {
         const usable = group.filter(rate => {
             if (group.filter(x => x.roomRateId === rate.roomRateId).length !== 1) {
                 unknown.add('ambiguous-room-rate');
@@ -51,7 +52,7 @@ export function allocateRooms(query: HotelSearchQuery, rates: readonly RoomRate[
             if (p.status === 'unknown' && !p.available)
                 ambiguousSource = true;
             return p.available > 0;
-        }).sort((a, b) => a.roomRateId.localeCompare(b.roomRateId, 'en'));
+        }).sort((a, b) => compareHotelKeys(a.roomRateId, b.roomRateId));
         const inventory = new Map(usable.map(rate => [rate.roomRateId, prepareRate(rate, policies[rate.roomRateId], nights).available]));
         function visit(rooms: RoomAllocation[], adults: number, children: number, infants: number, childAges: number[] | undefined, infantAges: number[] | undefined, last: string, uncertain = false) {
             const remaining = query.rooms - rooms.length;

@@ -45,3 +45,5 @@ Meaningful compiling domain assertion REDs and real HTTP404 REDs precede impleme
 ## Self-audit correction
 
 Constructed contract-valid IDs containing `|` exposed two delimiter-key collisions: distinct property/provider tuples could merge, and distinct rate multisets could drop the minimum-cost alternative. Two actual assertion REDs reproduce these failures. The allocator now serializes tuple/array keys structurally and orders groups deterministically. Authored seeded identifiers were unaffected; candidate and correction verification remain separately attributed.
+
+An independent correction review reproduced a second identity edge: distinct composed/decomposed Unicode IDs compare equal under English collation. Permanent allocator and all-four-sort ranking REDs now cover source permutations. T20's group/rate/property/representative and hotel-only override ordering share a total comparator: English collation followed by raw-string comparison, with no identifier normalization. Existing transport ordering/fingerprint inputs are untouched.

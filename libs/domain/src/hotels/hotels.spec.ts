@@ -238,3 +238,20 @@ it('does not merge different property/provider tuples containing separator chara
     b.nightlyPrices.forEach(n => n.availableRooms = 1);
     expect(allocateRooms(q, [a, b], { a: policy, b: policy }).status).toBe('ineligible');
 });
+it('keeps a total order for distinct collation-equivalent rate IDs under source permutations', () => {
+    const rates = [rate('é', [100, 100]), rate('e\u0301', [1, 1])], q = { ...query, rooms: 2, party: { adults: 4, children: 0, infants: 0 } }, policies = Object.fromEntries(rates.map(r => [r.roomRateId, policy]));
+    expect(rates[0]!.roomRateId.localeCompare(rates[1]!.roomRateId, 'en')).toBe(0);
+    expect(allocateRooms(q, rates, policies)).toEqual(allocateRooms(q, rates.slice().reverse(), policies));
+});
+it('keeps a total order for distinct collation-equivalent hotel/provider groups', () => {
+    const rates = [{ ...rate('a'), hotelId: 'hé' }, { ...rate('b'), hotelId: 'he\u0301' }], q = { ...query, rooms: 2, party: { adults: 4, children: 0, infants: 0 } };
+    expect(allocateRooms(q, rates, { a: policy, b: policy })).toEqual(allocateRooms(q, rates.slice().reverse(), { a: policy, b: policy }));
+});
+it('uses a total hotelID tie break in every ranking mode without normalizing opaque identifiers', () => {
+    const priced = priceStay(query, [room()], [rate('a')], { a: policy }, context);
+    if (priced.status !== 'priced')
+        throw Error('expected priced');
+    const entries = ['hé', 'he\u0301'].map(hotelId => ({ hotel: { hotelId, destinationCityId: 'city', name: hotelId, stars: 3, point: { latitude: 0, longitude: 0 }, address: 'fiction', provenance }, quote: { ...priced.quote, hotelId }, arrivalDistanceKm: 1, locationDistanceKm: 1 }));
+    for (const sort of ['cheapest', 'stars', 'arrival-distance', 'location-distance'] as const)
+        expect(rankHotels(entries, sort)).toEqual(rankHotels(entries.slice().reverse(), sort));
+});
