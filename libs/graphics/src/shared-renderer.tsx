@@ -1,4 +1,4 @@
-import { Activity, useCallback, useEffect, useLayoutEffect, useRef, useState, type RefObject } from 'react';
+import { Activity, memo, useCallback, useEffect, useLayoutEffect, useRef, useState, type RefObject } from 'react';
 import { Canvas, useThree } from '@react-three/fiber';
 import { View } from '@react-three/drei/web/View';
 import { NoToneMapping, SRGBColorSpace, WebGLRenderer } from 'three';
@@ -21,7 +21,7 @@ function inViewport(view: GraphicsViewRegistration) {
   const rect = view.element.getBoundingClientRect();
   return view.visible && rect.width > 0 && rect.height > 0 && rect.bottom > 0 && rect.top < innerHeight && rect.right > 0 && rect.left < innerWidth;
 }
-function Driver(props: RendererProps & { onVisibility: (ids: string[]) => void }) {
+function Driver(props: RendererProps & { onVisibility: (ids: string[]) => void; sceneInvalidation: RefObject<() => void>; onDpr: (dpr: number) => void }) {
   const gl = useThree(value => value.gl);
   const getState = useThree(value => value.get);
   const { themeBridge } = useTheme();
@@ -95,7 +95,7 @@ function Driver(props: RendererProps & { onVisibility: (ids: string[]) => void }
       const quality = chooseGraphicsQuality({ deviceDpr: devicePixelRatio, mobile: innerWidth <= 600, samples: data.cpuSubmissionMs });
       stickyLow ||= quality.tier === 'low';
       if (stickyLow) { quality.dpr = Math.min(1, devicePixelRatio); quality.tier = 'low'; quality.reason = 'measured-cpu-submission'; }
-      if (data.quality.dpr !== quality.dpr) { state.setDpr(quality.dpr); scheduler.invalidate(); }
+      if (gl.getPixelRatio() !== quality.dpr) { state.setDpr(quality.dpr); latest.current.onDpr(quality.dpr); scheduler.invalidate(); }
       data.quality = quality;
     });
     const updatePolicy = () => {
@@ -107,6 +107,12 @@ function Driver(props: RendererProps & { onVisibility: (ids: string[]) => void }
       if (active() && !visible) clear();
     };
     wake.current = updatePolicy;
+    const requestSceneFrame = () => { if (active()) scheduler.invalidateScene(); };
+    const previousInvalidation = getState().invalidate;
+    props.sceneInvalidation.current = requestSceneFrame;
+    // Public store setter: reconciler prop commits and useThree().invalidate use
+    // this bridge even though the renderer itself is manually advanced.
+    state.set({ invalidate: requestSceneFrame });
     const stopContext = observeContextLifecycle(gl.domElement, () => {
       lost = true; ready = false; data.lost++; status('context-lost'); updatePolicy();
     }, () => {
@@ -136,7 +142,9 @@ function Driver(props: RendererProps & { onVisibility: (ids: string[]) => void }
       dprQuery.removeEventListener('change', dprChanged);
       dprQuery = matchMedia(`(resolution: ${devicePixelRatio}dppx)`);
       dprQuery.addEventListener('change', dprChanged);
-      state.setDpr(Math.min(devicePixelRatio, stickyLow ? 1 : innerWidth <= 600 ? 1.5 : 1.75));
+      const dpr = Math.min(devicePixelRatio, stickyLow ? 1 : innerWidth <= 600 ? 1.5 : 1.75);
+      state.setDpr(dpr);
+      latest.current.onDpr(dpr);
       updatePolicy();
     };
     dprQuery.addEventListener('change', dprChanged);
@@ -144,6 +152,8 @@ function Driver(props: RendererProps & { onVisibility: (ids: string[]) => void }
     return () => {
       live = false;
       scheduler.dispose();
+      if (getState().invalidate === requestSceneFrame) state.set({ invalidate: previousInvalidation });
+      if (props.sceneInvalidation.current === requestSceneFrame) props.sceneInvalidation.current = () => {};
       unsubscribe(); stopContext();
       document.removeEventListener('visibilitychange', updatePolicy);
       window.removeEventListener('scroll', updatePolicy, true);
@@ -156,7 +166,7 @@ function Driver(props: RendererProps & { onVisibility: (ids: string[]) => void }
       if (props.runtime.current === runtime) props.runtime.current = { invalidate() { /* Host unmounted. */ }, inspect: () => structuredClone(data) };
       // R3F owns renderer disposal, event disconnection and context release on Canvas unmount.
     };
-  }, [gl, getState, themeBridge, props.runtime]);
+  }, [gl, getState, themeBridge, props.runtime, props.sceneInvalidation]);
   useEffect(() => {
     const observer = new ResizeObserver(() => wake.current());
     const intersections = new IntersectionObserver(() => wake.current());
@@ -166,18 +176,39 @@ function Driver(props: RendererProps & { onVisibility: (ids: string[]) => void }
   }, [props.views, props.covered, props.motion]);
   return null;
 }
+function SceneInvalidation({ active, connection }: { active: boolean; connection: RefObject<() => void> }) {
+  const get = useThree(state => state.get);
+  const set = useThree(state => state.set);
+  const enabled = useRef(active);
+  enabled.current = active;
+  useLayoutEffect(() => {
+    let live = true;
+    const previous = get().invalidate;
+    const invalidate = () => { if (live && enabled.current) connection.current(); };
+    // Drei portals preserve their own store methods. Install at the actual scene
+    // boundary, outside Activity so hidden scenes retain a guarded stable method.
+    set({ invalidate });
+    return () => {
+      live = false;
+      if (get().invalidate === invalidate) set({ invalidate: previous });
+    };
+  }, [get, set, connection]);
+  return null;
+}
 function SceneCommit({ runtime }: { runtime: RefObject<GraphicsController> }) {
   // Activity reveals commit in the R3F reconciler after the DOM host update. Paint the
   // committed scene, never rely on a frame scheduled before its subscriptions existed.
   useLayoutEffect(() => runtime.current.invalidate(), [runtime]);
   return null;
 }
-export default function SharedRenderer(props: RendererProps) {
+function SharedRenderer(props: RendererProps) {
   const [activeIds, setActiveIds] = useState<string[]>([]);
+  const [dpr, setDpr] = useState(() => chooseGraphicsQuality({ deviceDpr: devicePixelRatio, mobile: innerWidth <= 600, samples: [] }).dpr);
+  const sceneInvalidation = useRef<() => void>(() => {});
   useEffect(() => props.runtime.current.invalidate(), [activeIds, props.runtime]);
   const onVisibility = useCallback((ids: string[]) => setActiveIds(current => current.length === ids.length && current.every((id, index) => id === ids[index]) ? current : ids), []);
   return <Canvas data-active-scenes={activeIds.length} className={styles.canvas} aria-hidden="true" tabIndex={-1} frameloop="never" eventSource={props.eventSource}
-    dpr={Math.min(devicePixelRatio, innerWidth <= 600 ? 1.5 : 1.75)}
+    dpr={dpr}
     gl={defaults => {
       const canvas = defaults.canvas as HTMLCanvasElement;
       const context = canvas.getContext('webgl2', { alpha: true, antialias: false, premultipliedAlpha: true });
@@ -188,7 +219,9 @@ export default function SharedRenderer(props: RendererProps) {
       renderer.setClearAlpha(0);
       return renderer;
     }}>
-    <Driver {...props} onVisibility={onVisibility} />
-    {props.views.map((view, index) => <View key={view.id} track={view.track} visible={activeIds.includes(view.id)} index={index + 1}><Activity mode={activeIds.includes(view.id) ? 'visible' : 'hidden'}>{view.scene}<SceneCommit runtime={props.runtime} /></Activity></View>)}
+    <Driver {...props} onVisibility={onVisibility} sceneInvalidation={sceneInvalidation} onDpr={setDpr} />
+    {props.views.map((view, index) => <View key={view.id} track={view.track} visible={activeIds.includes(view.id)} index={index + 1}><SceneInvalidation active={activeIds.includes(view.id)} connection={sceneInvalidation} /><Activity mode={activeIds.includes(view.id) ? 'visible' : 'hidden'}>{view.scene}<SceneCommit runtime={props.runtime} /></Activity></View>)}
   </Canvas>;
 }
+
+export default memo(SharedRenderer);

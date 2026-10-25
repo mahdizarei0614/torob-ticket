@@ -1,4 +1,4 @@
-import { Component, createContext, lazy, Suspense, useCallback, useContext, useRef, useState, type ReactNode, type RefObject } from 'react';
+import { Component, createContext, lazy, Suspense, useCallback, useContext, useMemo, useRef, useState, type ReactNode, type RefObject } from 'react';
 import type { GraphicsStatus } from './context-lifecycle';
 import type { GraphicsQuality } from './quality-policy';
 import styles from './graphics.module.css';
@@ -67,8 +67,9 @@ export function GraphicsProvider({ children, covered = false, motion = false, di
   }, []);
   const invalidate = useCallback(() => runtime.current.invalidate(), []);
   const inspect = useCallback(() => runtime.current.inspect(), []);
+  const context = useMemo(() => ({ status, register, invalidate, inspect }), [status, register, invalidate, inspect]);
   if (controllerRef) controllerRef.current = { invalidate, inspect };
-  return <Context.Provider value={{ status, register, invalidate, inspect }}>
+  return <Context.Provider value={context}>
     <div ref={eventSource} className={styles.host} data-graphics-status={status}>
       {children}
       <RendererBoundary onFailure={() => setStatus('unavailable')}>

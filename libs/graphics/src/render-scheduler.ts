@@ -5,11 +5,13 @@ export function createRenderScheduler(render: (time: number) => void, clock: Fra
   let policy: RenderPolicy = { active: true, motion: false, reducedMotion: false };
   let pending: number | undefined;
   let disposed = false;
+  let drawing = false;
   const cancel = () => { if (pending !== undefined) clock.cancel(pending); pending = undefined; };
   const draw = (time: number) => {
     pending = undefined;
     if (disposed || !policy.active) return;
-    render(time);
+    drawing = true;
+    try { render(time); } finally { drawing = false; }
     if (policy.motion && !policy.reducedMotion) invalidate();
   };
   const invalidate = () => {
@@ -17,6 +19,12 @@ export function createRenderScheduler(render: (time: number) => void, clock: Fra
   };
   return {
     invalidate,
+    // Ordinary reconciler commits and imperative scene changes get one frame. A
+    // useFrame callback cannot turn that bridge into motion the host did not permit.
+    invalidateScene() {
+      if (drawing && (!policy.motion || policy.reducedMotion)) return;
+      invalidate();
+    },
     flush() { cancel(); draw(clock.now()); },
     setPolicy(next: RenderPolicy) { policy = next; if (policy.active) invalidate(); else cancel(); },
     dispose() { disposed = true; cancel(); },

@@ -179,6 +179,18 @@ test('@graphics-host actual bad GLSL exposes SVG and usable native actions', asy
   await expect(page.getByLabel('مسیر انتخاب‌شده')).toHaveText('دوم');
   await page.getByRole('button', { name: 'باز کردن گفتگو' }).click();
   await page.getByRole('button', { name: 'بستن گفتگو' }).click();
+  const activeFallback = page.locator('[data-graphics-view] > div').first();
+  await expect(activeFallback).not.toHaveAttribute('inert');
+  const fallbackFocusWorks = await activeFallback.evaluate(element => {
+    const button = document.createElement('button');
+    button.textContent = 'fallback keyboard probe';
+    element.append(button);
+    button.focus();
+    const focused = document.activeElement === button;
+    button.remove();
+    return focused;
+  });
+  expect(fallbackFocusWorks).toBe(true);
   const failed = await report(page);
   expect(failed.programs[0]?.fragmentCompiled).toBe(false);
   expect(failed.programs[0]?.fragmentLog).toContain('ERROR');
@@ -270,4 +282,117 @@ test('@graphics-host real high-density resize respects desktop and mobile budget
     await expect(page.getByRole('button', { name: 'انتخاب مسیر دوم' })).toBeEnabled();
     await evidence('dpr-resize', { desktop, mobile });
   } finally { await context.close(); }
+});
+
+interface SceneProbe { hits: number; hiddenCommits: number }
+async function installNestedSceneProbe(page: Page) {
+  // Replace only the laboratory scene response, keeping the actual shared host/GLSL/GPU.
+  // The nested component intentionally knows nothing about GraphicsController.
+  await page.route('**/libs/graphics/src/lab-scene.tsx', async route => {
+    const response = await route.fetch();
+    let source = await response.text();
+    const signature = 'export function LabScene({ resources, cameraX, moving }) {';
+    if (!source.includes(signature) || !source.includes('geometry: resources.geometry,')) throw new Error('Laboratory scene probe insertion points changed');
+    source = source.replace(signature, `${signature}
+      const [probeVisible, setProbeVisible] = useState(true);
+      const sceneInvalidate = useThree(state => state.invalidate);
+      useFrame(() => { if (window.graphicsProbeLoop) sceneInvalidate(); });
+      useEffect(() => {
+        window.graphicsSceneProbe ??= { hits: 0, hiddenCommits: 0 };
+        (window.graphicsCapturedInvalidations ??= []).push(sceneInvalidate);
+        const hide = () => setProbeVisible(false);
+        const imperative = () => { resources.material.uniforms.background.value.w = 0; sceneInvalidate(); };
+        window.addEventListener('graphics-probe-local-state', hide);
+        window.addEventListener('graphics-probe-invalidate', imperative);
+        return () => { window.removeEventListener('graphics-probe-local-state', hide); window.removeEventListener('graphics-probe-invalidate', imperative); };
+      }, [resources, sceneInvalidate]);
+      useLayoutEffect(() => { if (!probeVisible) window.graphicsSceneProbe.hiddenCommits++; }, [probeVisible]);
+    `);
+    source = source.replace('geometry: resources.geometry,', 'visible: probeVisible, onPointerDown: () => { window.graphicsSceneProbe.hits++; setProbeVisible(false); }, geometry: resources.geometry,');
+    await route.fulfill({ response, body: source });
+  });
+}
+async function settleFrames(page: Page) {
+  await page.evaluate(async () => { await new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))); });
+}
+test('@graphics-host retained fallback permits real mesh pointer hits without invisible keyboard targets', async ({ page }) => {
+  await installNestedSceneProbe(page);
+  await ready(page);
+  await settleFrames(page);
+  const before = await report(page);
+  const view = page.locator('[data-graphics-view]').first();
+  const box = (await view.boundingBox())!;
+  const x = box.x + box.width / 2;
+  const y = box.y + box.height / 2;
+  await page.mouse.click(x, y);
+  await expect.poll(() => page.evaluate(() => (window as unknown as { graphicsSceneProbe: SceneProbe }).graphicsSceneProbe.hits)).toBe(1);
+  await expect.poll(async () => (await report(page)).pixels[firstView]).toEqual([0, 0, 0, 0]);
+  const after = await report(page);
+  expect(after.frames).toBe(before.frames + 1);
+  expect(after.pixels[secondView]).toEqual([244, 246, 248, 255]);
+  const focus = await view.locator(':scope > div').evaluate(element => {
+    const button = document.createElement('button');
+    button.textContent = 'fallback keyboard probe';
+    element.append(button);
+    button.focus();
+    const focused = document.activeElement === button;
+    button.remove();
+    return focused;
+  });
+  expect(focus).toBe(false);
+  const retainedBox = (await view.boundingBox())!;
+  expect([retainedBox.width, retainedBox.height]).toEqual([box.width, box.height]);
+  await evidence('review-pointer', { before, after, fallbackFocused: focus });
+});
+test('@graphics-host arbitrary nested local state commits draw without external host events', async ({ page }) => {
+  await installNestedSceneProbe(page);
+  await ready(page);
+  await settleFrames(page);
+  const before = await report(page);
+  await page.evaluate(() => window.dispatchEvent(new Event('graphics-probe-local-state')));
+  await expect.poll(() => page.evaluate(() => (window as unknown as { graphicsSceneProbe: SceneProbe }).graphicsSceneProbe.hiddenCommits)).toBe(2);
+  await expect.poll(async () => (await report(page)).pixels[firstView]).toEqual([0, 0, 0, 0]);
+  const after = await report(page);
+  expect(after.pixels[secondView]).toEqual([0, 0, 0, 0]);
+  expect(after.frames).toBe(before.frames + 1);
+  await page.waitForTimeout(180);
+  expect((await report(page)).frames).toBe(after.frames);
+  await evidence('review-local-state', { before, after });
+});
+test('@graphics-host standard useThree invalidate paints imperative changes once', async ({ page }) => {
+  await installNestedSceneProbe(page);
+  await ready(page);
+  await settleFrames(page);
+  const before = await report(page);
+  await page.evaluate(() => window.dispatchEvent(new Event('graphics-probe-invalidate')));
+  await expect.poll(async () => (await report(page)).pixels[firstView]).toEqual([0, 0, 0, 0]);
+  const after = await report(page);
+  expect(after.pixels[secondView]).toEqual([0, 0, 0, 0]);
+  expect(after.frames).toBe(before.frames + 1);
+  await page.waitForTimeout(180);
+  expect((await report(page)).frames).toBe(after.frames);
+  // A stale externally captured scene invalidator must not wake a covered host.
+  await page.getByRole('button', { name: 'باز کردن گفتگو' }).click();
+  const coveredReport = async () => {
+    await page.getByRole('button', { name: 'تازه‌سازی گزارش', includeHidden: true }).evaluate((element: HTMLButtonElement) => element.click());
+    return JSON.parse(await page.getByTestId('graphics-report').innerText()) as Report;
+  };
+  const covered = await coveredReport();
+  await page.evaluate(() => (window as unknown as { graphicsCapturedInvalidations: (() => void)[] }).graphicsCapturedInvalidations.forEach(invalidate => invalidate()));
+  await page.waitForTimeout(120);
+  expect((await coveredReport()).frames).toBe(covered.frames);
+  await page.keyboard.press('Escape');
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await settleFrames(page);
+  const reduced = await report(page);
+  // Standard invalidation from useFrame cannot create an unsolicited/reduced-motion loop.
+  await page.evaluate(() => {
+    (window as unknown as { graphicsProbeLoop: boolean }).graphicsProbeLoop = true;
+    window.dispatchEvent(new Event('graphics-probe-invalidate'));
+  });
+  await expect.poll(async () => (await report(page)).frames).toBe(reduced.frames + 1);
+  await page.waitForTimeout(180);
+  const guarded = await report(page);
+  expect(guarded.frames).toBe(reduced.frames + 1);
+  await evidence('review-hook-invalidate', { before, after, covered, reduced, guarded });
 });

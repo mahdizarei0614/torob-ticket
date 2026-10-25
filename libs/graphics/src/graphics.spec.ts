@@ -75,3 +75,29 @@ it('does not infer a slow tier from one compile outlier or a partial window', ()
   expect(chooseGraphicsQuality({ deviceDpr: 2, mobile: false, samples: [150, ...Array(29).fill(2)] })?.tier).toBe('standard');
   expect(chooseGraphicsQuality({ deviceDpr: 2, mobile: false, samples: Array(29).fill(40) })?.tier).toBe('standard');
 });
+it('bridges scene invalidation once and prevents callback-driven loops without permitted motion', () => {
+  let next = 0;
+  const pending = new Map<number, FrameRequestCallback>();
+  let draws = 0;
+  const scheduler = createRenderScheduler(() => { draws++; scheduler.invalidateScene(); }, {
+    request: callback => { pending.set(++next, callback); return next; },
+    cancel: id => { pending.delete(id); }, now: () => 50,
+  });
+  const tick = () => { const callbacks = [...pending.values()]; pending.clear(); callbacks.forEach(callback => callback(50)); };
+  scheduler.invalidateScene();
+  scheduler.invalidateScene();
+  expect(pending.size).toBe(1);
+  tick();
+  expect(draws).toBe(1);
+  expect(pending.size).toBe(0);
+  scheduler.setPolicy({ active: true, motion: true, reducedMotion: true });
+  tick();
+  expect(pending.size).toBe(0);
+  scheduler.setPolicy({ active: true, motion: true, reducedMotion: false });
+  tick();
+  expect(pending.size).toBe(1);
+  scheduler.setPolicy({ active: false, motion: true, reducedMotion: false });
+  scheduler.invalidateScene();
+  expect(pending.size).toBe(0);
+  scheduler.dispose();
+});
