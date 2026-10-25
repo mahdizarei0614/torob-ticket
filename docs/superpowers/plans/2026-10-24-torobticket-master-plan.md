@@ -10,7 +10,7 @@
 
 **Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.0, 2026-10-24.
 
-**Plan state:** Approved; M1 foundation, T05 inventory, T06 normalization, T07 eligible comparison, T08 ranking, T09 durable search orchestration, SSE and recovery, T10 source-backed date prices, and T11 recheck/idempotent referrals are complete and independently reviewed. M2 comparison engine is complete; M3 has completed T13 shared WebGL rendering and continues with T14 geography and route scenes. Remaining product tasks and evidence are tracked below. The earlier date explorer is a completed throwaway interaction study, not implemented product code.
+**Plan state:** Approved; M1 foundation, T05 inventory, T06 normalization, T07 eligible comparison, T08 ranking, T09 durable search orchestration, SSE and recovery, T10 source-backed date prices, and T11 recheck/idempotent referrals are complete and independently reviewed. M2 comparison engine is complete; M3 has completed T13 shared WebGL rendering and T14 dotted geography/route scenes, and continues with T15 consumer shell/composer. Remaining product tasks and evidence are tracked below. The earlier date explorer is a completed throwaway interaction study, not implemented product code.
 
 **Delivery location:** This outputs directory contains the user-facing source documents. On repository creation, copy the spec to docs/superpowers/specs/2026-10-24-torobticket-design.md and this plan to docs/superpowers/plans/2026-10-24-torobticket-master-plan.md. Preserve the revision, task IDs, and decision authority, and rewrite the Spec link to ../specs/2026-10-24-torobticket-design.md.
 
@@ -313,6 +313,8 @@ T09 implements the contract-only subscribeSearch lifecycle and its default same-
 
 T13 implements GraphicsProvider, GraphicsView, useGraphics/controller diagnostics and stable useThemeUniforms. UI publishes token subscribers before a generic beforePaint stage; no UI→graphics import. Children are arbitrary R3F nodes; declarative commits render automatically. Imperative changes use useThree(state => state.invalidate) or the host controller; package-global invalidate fan-out is outside this manual host. Motion is opt-in, and Activity suspends hidden/covered/offscreen callbacks. Required fallback/label and external semantic controls remain the scene author's responsibility. T21 owns foreground native-dialog composition; /graphics-lab is diagnostic only.
 
+T14 implements RouteScene/RouteTimeline and LocationScene with canonical Place/Itinerary direction, explicit illustrative/empty seams, bundled dots/authored paths, shared ProjectionContext and fitKey/originKey camera intent. Public geometry includes projectPoint/unprojectPoint/projectRoute/fitRouteBounds/contextForPoints/buildRouteGeometry and progress helpers. Fetch `/geography/route-geometry.json` for authored-only geometry (36 ordered bus pairs, 326 canonical journeys checked); do not import fixtures into browser code or use lab schedules as search data. Keep projection fixed during previews; intentional context changes must accompany a deliberate fit/origin key. Camera overviews use the same projection, including seam fragments. LocationScene accepts destinationBoundary/landmarks/accommodations/customPoint and emits GeoPoint through onPointChange; mobile/DOM fallback remains usable. Rulings are recorded in docs/decisions/0014-dotted-route-scenes.md; /route-lab is diagnostic, with consumer binding T18 and modal composition T21.
+
 ## 4. Execution and tracking rules
 
 - Each task below is independently reviewable; follow dependencies rather than assuming numerical order is mandatory.
@@ -347,7 +349,7 @@ Each row indexes the detailed checkbox steps in section 6. DONE requires indepen
 | [T11 — Recheck, quote versions, idempotent referrals, and handoff data](#t11) | T11.1 Pin changed-price and idempotency cases<br>T11.2 Run referral tests red<br>T11.3 Implement prepare and acceptance<br>T11.4 Implement atomic confirmation<br>T11.5 Verify and commit | T04, T07, T09 | DONE | implement_t11 / 3abdd5e + cb77ce2 + 301119d; independently reviewed, I1 closed by scoped re-review; integration81/amended53, root12+tools20, affected34/16 and packaged ready/change/soldout/idempotency/restart/preservation pass; docs/evidence/T11 |
 | [T12 — Design tokens, accessible primitives, typography, and component gallery](#t12) | T12.1 Define the visual foundation<br>T12.2 Implement accessible primitives<br>T12.3 Pin interaction behavior<br>T12.4 Build the state gallery<br>T12.5 Verify and commit | T01 | DONE | implement_t12 / 6e0071c + 581f834; review clean; UI13 tests, browser28 audit/startup6/native race2 and builds passed |
 | [T13 — Shared WebGL renderer, typed uniforms, and graceful fallback](#t13) | T13.1 Define lifecycle behavior<br>T13.2 Build the shared host<br>T13.3 Implement uniforms and scheduling<br>T13.4 Implement fallback and recovery<br>T13.5 Verify and commit | T12 | DONE | implement_t13 / 1b83a74 + e2c5df1 + e43bf0e; independent review/correction approved, I1/I2 closed; units8/browser10/final affected26, root12+tools20 and packaged GL/lazy/theme/modal/preservation pass; docs/evidence/T13 |
-| [T14 — Dotted geography and mode-specific route scenes](#t14) | T14.1 Pin geographic and route invariants<br>T14.2 Run geometry tests red<br>T14.3 Implement map and route shaders<br>T14.4 Implement camera and location primitives<br>T14.5 Verify and commit | T05, T13 | TODO | Unassigned / — |
+| [T14 — Dotted geography and mode-specific route scenes](#t14) | T14.1 Pin geographic and route invariants<br>T14.2 Run geometry tests red<br>T14.3 Implement map and route shaders<br>T14.4 Implement camera and location primitives<br>T14.5 Verify and commit | T05, T13 | DONE | implement_t14 / 92139d8 + 08acee9 + d79be42 + bc25aca; independent review P2 corrected and fresh review approved; graphics 22, initial affected 38 / correction 27, combined browser 15 + final route 6, Docker/production GL/bundle/data preservation pass; docs/evidence/T14 |
 | [T15 — Consumer shell, search composer, URL state, and reviewer entry](#t15) | T15.1 Pin query and navigation behavior<br>T15.2 Run state tests red<br>T15.3 Implement shell and composer<br>T15.4 Implement state ownership<br>T15.5 Implement reviewer entry<br>T15.6 Verify and commit | T02, T04, T05, T12 | TODO | Unassigned / — |
 | [T16 — Date wheel, Jalali calendar, linked GLSL chart, and apply behavior](#t16) | T16.1 Pin preview/commit and date rules<br>T16.2 Run date tests red<br>T16.3 Implement the wheel and calendar<br>T16.4 Implement chart and cache wiring<br>T16.5 Verify physical interaction<br>T16.6 Review and commit | T03, T10, T13, T15 | TODO | Unassigned / — |
 | [T17 — Compact comparison results, provider groups, filters, and stable updates](#t17) | T17.1 Pin stable ordering and selection<br>T17.2 Run reducer and e2e tests red<br>T17.3 Implement dense cards and details<br>T17.4 Implement sorting and filters<br>T17.5 Implement staged arrival adoption<br>T17.6 Verify and commit | T08, T09, T15 | TODO | Unassigned / — |
@@ -376,7 +378,7 @@ Each row indexes the detailed checkbox steps in section 6. DONE requires indepen
 |---|---|---|
 | M1 — Runnable foundation and contracts | T01–T04, T12; early T29 | COMPLETE: independent task and cross-task review, final WebStorm builds/Docker startup verified; evidence in docs/evidence/M1-checkpoint and M1-handoff |
 | M2 — Credible comparison engine | T05–T11 | COMPLETE: T05–T11 independently reviewed. Provider normalization, complete round trips, ranking, durable streams, date/result equality and explicit versioned/idempotent referrals verified; T11 corrected lifecycle53 and packaged gateway/restart/preservation gates pass |
-| M3 — Signature search experience | T13–T18 | IN PROGRESS: T13 shared renderer complete; T14–T18 pending. Wheel/calendar/chart/map linked to real API data; stable results and camera; compact desktop/mobile review |
+| M3 — Signature search experience | T13–T18 | IN PROGRESS: T13 shared renderer and T14 geography/routes complete; T15–T18 pending. Wheel/calendar/chart/map linked to real API data; stable results and camera; compact desktop/mobile review |
 | M4 — Complete traveler flow | T19–T22 | Guest and simulated identity, saved searches, hotels/rooms/custom point, exact simulated provider handoff |
 | M5 — Inspectable admin | T23–T26 | Session-scoped controls actually alter pipeline; raw-to-normalized trace; mapping preview/replay; real referral evidence |
 | M6 — Visual finish and resilience | T27–T28 | All themes/modes, local flat artwork, coordinated motion, empty/partial/error recovery |
@@ -1100,27 +1102,29 @@ Run pnpm nx test graphics and pnpm nx run e2e:e2e --grep @graphics-host. Check a
 - Consumes: Bundled world/Iran/destination geography and canonical Place/Itinerary; shared GraphicsView.
 - Produces: RouteScene(props: RouteSceneProps); LocationScene(props: LocationSceneProps); projectRoute; fitRouteBounds; mode geometry and flat pixel sprites.
 
-- [ ] **T14.1 — Pin geographic and route invariants**
+- [x] **T14.1 — Pin geographic and route invariants**
 
 Test projection bounds, antimeridian splitting, coincident points, long routes, ordered stops, and a required ground transfer. Flight geometry is curved/elevated, rail segmented, bus follows an authored winding polyline.
 
-- [ ] **T14.2 — Run geometry tests red**
+- [x] **T14.2 — Run geometry tests red**
 
 Run pnpm nx test graphics. Confirm antimeridian and zero-length route cases cannot create NaN or world-spanning accidental lines.
 
-- [ ] **T14.3 — Implement map and route shaders**
+- [x] **T14.3 — Implement map and route shaders**
 
 Create instanced/point-based dotted geography, token-driven emphasis, route reveal, shallow route depth, and flat pixel vehicles. Use bundled coordinates and explicit illustrative-path metadata; no remote tiles or route service.
 
-- [ ] **T14.4 — Implement camera and location primitives**
+- [x] **T14.4 — Implement camera and location primitives**
 
 Fit only on deliberate pin/origin changes, expose explicit zoom/pinch, and preserve camera state. LocationScene accepts landmarks/markers/custom point and emits onPointChange(GeoPoint); labels and controls remain DOM-based.
 
-- [ ] **T14.5 — Verify and commit**
+- [x] **T14.5 — Verify and commit**
 
 Run graphics tests and pnpm nx run e2e:e2e --grep @route-scene. Inspect Iran/world, all modes/themes, stop ordering, and explicit controls. Confirm no auto-spin and no scene movement while unrelated content scrolls. Commit scenes.
 
 **Acceptance:** The signature dotted map explains each mode's route accurately enough for the mock dataset and remains stable and legible.
+
+**T14 checkpoint — 2026-10-25:** Complete at 92139d8 + report 08acee9 + correction d79be42 + report bc25aca. Independent review reproduced one P2: the domestic overview camera ignored a custom projection. Public-component/SSR REDs reproduced it; the fix now keeps all 3,212 Iran dots visible, including across a projection seam. Fresh correction review marks it ADDRESSED with no new actionable issue. Final 22 graphics tests, 27 correction-affected targets and six real-Chrome route scenarios pass; the initial 38 affected targets, 12 root test targets/tools and 15 combined T13/T14 browser scenarios remain recorded. Corrected production Docker/Chrome verifies one WebGL2 canvas, compiled shaders, lazy loading, preview/theme camera, transfer/mobile selection and 36 authored-only paths. Final JavaScript SHA256 matches live gateway bytes (101,596 startup / 255,757 deferred gzip9 bytes). The same database container and all inventory fingerprints are preserved; ports 4313/4314 are clear. Fourteen of 35 tasks are complete; T15 remains TODO. T29 remains ACTIVE. Native evidence/checkpoint: docs/evidence/T14. Superpowers remains disabled through 2026-10-26T07:16:38Z. No push, deployment or publication. Consumer binding, modal composition and full performance/accessibility audits remain T15/T18/T21/T32 work. Known Clock/raw-chunk and test-only Three CJS warnings remain visible.
 
 ---
 
