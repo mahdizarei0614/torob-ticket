@@ -12,7 +12,7 @@ function RouteCodes({ leg, catalog }: { leg: JourneyLeg; catalog: CatalogSnapsho
 function timelineEvents(leg:JourneyLeg) {
  type Event={kind:'segment';index:number}|{kind:'stop';index:number;segmentIndex?:number};
  const events:Event[]=[];let cursor=0;
- leg.stops.forEach((stop,index)=>{const match=leg.segments.findIndex((segment,i)=>i>=cursor&&segment.destinationPlaceId===stop.placeId);
+ leg.stops.forEach((stop,index)=>{const match=leg.segments.findIndex((segment,i)=>i>=cursor&&segment.destinationPlaceId===stop.placeId&&(!stop.arrivalAt||Date.parse(stop.arrivalAt)===Date.parse(segment.arrivalAt))&&(!stop.departureAt||leg.segments[i+1]?.originPlaceId===stop.placeId&&Date.parse(stop.departureAt)===Date.parse(leg.segments[i+1]!.departureAt)));
   if(match>=cursor){for(;cursor<=match;cursor++)events.push({kind:'segment',index:cursor});events.push({kind:'stop',index,segmentIndex:match});}
   else events.push({kind:'stop',index});
  });

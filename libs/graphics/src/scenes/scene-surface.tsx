@@ -62,8 +62,9 @@ export function SceneSurface({ label, camera, setZoom, context, markers, onMarke
     const width=marker.kind==='city'?112:144,height=marker.kind==='city'?36:54;
     const baseLeft = p.x-width/2, baseTop = p.y-height*1.2;
     let chosen = { left: baseLeft, top: baseTop }; let found = false;
-    for (const column of [0, -1, 1,-2,2]) {
-      for (const row of [0,1,-1,2,-2,3,-3,4,-4,5,-5]) {
+    // The bounded city network has its own spreading budget; retain the T14 local-picker layout.
+    for (const column of marker.kind==='city'?[0,-1,1,-2,2]:[0,-1,1]) {
+      for (const row of marker.kind==='city'?[0,1,-1,2,-2,3,-3,4,-4,5,-5]:[0,1,2,3,-1,-2,-3]) {
         const candidate = { left: Math.max(4, Math.min(dimensions.width-width-4, baseLeft+column*(width+6))), top: Math.max(4, Math.min(dimensions.height-height-4, baseTop+row*(height+6))) };
         if (!occupied.some(other => candidate.left < other.left+other.width+4 && candidate.left+width+4>other.left && candidate.top<other.top+other.height+4 && candidate.top+height+4>other.top)) { chosen = candidate; found = true; break; }
       }

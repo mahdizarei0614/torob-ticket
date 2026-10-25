@@ -25,3 +25,12 @@ it.each([true,false])('repeated place occurrences preserve known=%s stop order a
  const rows=[...view.container.querySelectorAll('[data-stop-place]')];expect(rows.map(node=>node.getAttribute('data-stop-place'))).toEqual(['B','unmatched','C','B']);expect(rows.map(node=>node.getAttribute('data-stop-occurrence'))).toEqual(['0','1','2','3']);expect(rows[1]).toHaveAttribute('data-stop-unmatched','true');
  expect(rows[0]).toHaveTextContent('۵ دقیقه');expect(rows[3]).toHaveTextContent('۲۵ دقیقه');if(known){expect(rows[0]!.querySelector('time')?.dateTime).toBe(stops[0]!.arrivalAt);expect(rows[3]!.querySelector('time')?.dateTime).toBe(stops[3]!.arrivalAt);expect(rows[1]).toHaveTextContent('منطقه زمانی اعلام نشده');}else for(const row of rows)expect(row).toHaveTextContent('ورود نامعلوم · حرکت نامعلوم');
 });
+
+it.each(['arrival','departure','both','conflict'] as const)('known %s hints select the actual later visit or retain irreconcilable stop explicitly',hint=>{
+ const first=group('a').itinerary.outbound.segments[0]!;const epoch=Date.parse(first.departureAt);const points=[['A','B'],['B','C'],['C','B'],['B','D']];
+ const segments=points.map(([from,to],index)=>({...first,segmentId:'timed-'+index,originPlaceId:from!,destinationPlaceId:to!,departureAt:new Date(epoch+[0,65,140,225][index]!*60000).toISOString(),arrivalAt:new Date(epoch+([0,65,140,225][index]!+60)*60000).toISOString()}));
+ const stop={placeId:'B',kind:'connection' as const,waitMinutes:25,vehicleChange:true,...(hint==='departure'?{}:{arrivalAt:hint==='conflict'?segments[0]!.arrivalAt:segments[2]!.arrivalAt.replace('.000Z','Z')}),...(hint==='arrival'?{}:{departureAt:segments[3]!.departureAt})};
+ const itinerary=ItinerarySchema.parse({...group('a').itinerary,outbound:{segments,stops:[stop]}});const view=render(<RouteTimeline itinerary={itinerary} catalog={catalog} direction="outbound"/>);const events=[...view.container.querySelectorAll('[data-segment-id],[data-stop-place]')].map(node=>node.getAttribute('data-segment-id')??'stop:'+node.getAttribute('data-stop-place'));
+ if(hint==='conflict'){expect(view.container.querySelector('[data-stop-place]')).toHaveAttribute('data-stop-unmatched','true');expect(events.filter(value=>value.startsWith('timed-'))).toEqual(segments.map(segment=>segment.segmentId));}else expect(events).toEqual(['timed-0','timed-1','timed-2','stop:B','timed-3']);
+ expect(view.container.querySelectorAll('[data-stop-place]')).toHaveLength(1);
+});
