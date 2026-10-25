@@ -214,6 +214,12 @@
   align-items: start;
   margin-bottom: var(--space-4);
 }
+.dialogHeader[data-sticky='true'] {
+  position: sticky;
+  top: var(--space-1);
+  z-index: 1;
+  background: var(--surface);
+}
 .dialogTitle {
   font-size: var(--text-lg);
   line-height: 1.6;

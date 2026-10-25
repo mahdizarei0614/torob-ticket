@@ -28,6 +28,7 @@ export function AccountPanel({controller,catalog,session,onCovered,client=apiCli
  const queryKey=valid.query?serializeSearchUrl(valid.query):'';
  const viewCurrent=()=>dialog.current.open&&dialog.current.epoch===dialogEpoch;
  const actionCurrent=()=>viewCurrent()&&account.isCurrent()&&controller.dateInteractions.isCurrent(actionLease);
+ const formCurrent=(expected:SaveTransaction|undefined)=>Boolean(expected&&viewCurrent()&&transactionRef.current===expected&&controller.dateInteractions.isCurrent(expected.lease));
  function discard(){transactionRef.current=undefined;setTransaction(undefined);setName('');}
  function changeDialog(next:boolean){
   dialog.current={open:next,epoch:dialog.current.epoch+1};setOpen(next);onCovered(next);
@@ -46,15 +47,14 @@ export function AccountPanel({controller,catalog,session,onCovered,client=apiCli
   changeDialog(true);void account.refresh();
  }
  function prepare(){
-  if(!actionCurrent()||!account.identity)return;
+  if(!actionCurrent()||!account.identity||transactionRef.current!==transaction)return;
   const checked=validateDraft(controller.currentIntent().draft,catalog,session);
   if(!checked.valid){setNotice('برای ذخیره، اطلاعات سفر در فرم را کامل و معتبر کنید.');return;}
   const next={query:checked.query!,lease:controller.dateInteractions.capture()};
   transactionRef.current=next;setTransaction(next);setName('');setNotice('');
  }
- async function save(){
-  const captured=transactionRef.current;
-  if(!actionCurrent()||!captured||!controller.dateInteractions.isCurrent(captured.lease)||!account.identity)return;
+ async function save(captured:SaveTransaction|undefined){
+  if(!actionCurrent()||!captured||!formCurrent(captured)||!account.identity)return;
   const current=validateDraft(controller.currentIntent().draft,catalog,session);
   if(!current.query||serializeSearchUrl(current.query)!==serializeSearchUrl(captured.query))return;
   const success=await account.save({name,query:captured.query});
@@ -73,7 +73,7 @@ export function AccountPanel({controller,catalog,session,onCovered,client=apiCli
    <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a5 5 0 1 0 0 10 5 5 0 0 0 0-10ZM3 22a9 9 0 0 1 18 0h-2a7 7 0 0 0-14 0Z"/></svg>
    <span className={styles.triggerLabel}>حساب نمایشی</span>
   </Button>
-  <Dialog title="حساب نمایشی و جست‌وجوهای ذخیره‌شده" isOpen={open} onOpenChange={next=>{if(dialog.current.epoch===dialogEpoch)changeDialog(next);}} mobileFullscreen>
+  <Dialog title="حساب نمایشی و جست‌وجوهای ذخیره‌شده" isOpen={open} onOpenChange={next=>{if(dialog.current.epoch===dialogEpoch)changeDialog(next);}} mobileFullscreen stickyHeader>
    <div className={styles.panel}>
     <DemoLogin account={visibleAccount}/>
     {account.pending==='read'&&<p role="status">دریافت وضعیت حساب…</p>}
@@ -89,11 +89,11 @@ export function AccountPanel({controller,catalog,session,onCovered,client=apiCli
     </label>
     {account.identity&&<>
      <Button variant="secondary" isDisabled={account.pending==='write'||!valid.valid} onPress={prepare}>ذخیره جست‌وجوی فعلی</Button>
-     {transaction&&<form aria-label="نام‌گذاری جست‌وجوی ذخیره‌شده" onSubmit={e=>{e.preventDefault();void save();}}>
-      <label>نام جست‌وجو<input aria-label="نام جست‌وجو" value={name} maxLength={200} onChange={e=>{if(viewCurrent())setName(e.target.value);}}/></label>
+     {transaction&&<form aria-label="نام‌گذاری جست‌وجوی ذخیره‌شده" onSubmit={e=>{e.preventDefault();void save(transaction);}}>
+      <label>نام جست‌وجو<input aria-label="نام جست‌وجو" value={name} maxLength={200} onChange={e=>{if(formCurrent(transaction))setName(e.target.value);}}/></label>
       <div className={styles.actions}>
        <Button type="submit" isDisabled={!name.trim()||account.pending==='write'}>ذخیره این جست‌وجو</Button>
-       <Button variant="quiet" onPress={()=>{if(viewCurrent())discard();}}>انصراف از ذخیره</Button>
+       <Button variant="quiet" onPress={()=>{if(formCurrent(transaction))discard();}}>انصراف از ذخیره</Button>
       </div>
      </form>}
      <SavedSearches account={visibleAccount} catalog={catalog} onOpen={saved=>{
