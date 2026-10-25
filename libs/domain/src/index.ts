@@ -17,3 +17,11 @@ export { chooseSuggestion } from './comparison/choose-suggestion';
 export type { SuggestionContext } from './comparison/choose-suggestion';
 export * from './query-identity';
 export * from './comparison/project-date-prices';
+
+export * from './hotels/types';
+export * from './hotels/allocate-rooms';
+export * from './hotels/price-stay';
+export * from './hotels/distance';
+export * from './hotels/rank-hotels';
+export * from './hotels/stay-suggestions';
+export * from './hotels/revisions';

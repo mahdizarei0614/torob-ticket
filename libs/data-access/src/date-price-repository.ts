@@ -1,3 +1,4 @@
+import {assertSearchAdmission} from './admission';
 import { randomUUID } from 'node:crypto';
 import { DatePriceQuerySchema, DatePriceSnapshotSchema, SearchSnapshotSchema, type DatePriceQuery, type DatePriceSnapshot, type Coverage, type QuoteSnapshot } from '@torob-ticket/contracts';
 import { canonicalTransportQuery, datePriceIdentity, type QueryIdentity } from '@torob-ticket/domain';
@@ -36,7 +37,7 @@ export class DatePriceRepository {
         const fresh = !retryableFailure && payload.snapshot.status === 'complete' && ageMs !== undefined && ageMs >= 0 && ageMs < 60000;
         if (payload.snapshot.status === 'checking' || fresh) return { id: row.id, payload, created: false };
       }
-      if (await tx.searchRun.count({ where: { sessionId: scope.sessionId, status: 'collecting' } }) >= 2) throw new RepositoryError('SEARCH_LIMIT');
+      await assertSearchAdmission(tx,scope);
       const request = canonicalDateView(input);
       const id = randomUUID();
       const snapshot: DatePriceSnapshot = { datePriceId: id, clientGeneration: request.clientGeneration, query: request, cells: request.dates.map(date => ({ date, status: 'checking' })), status: 'checking', pollCursor: '0', observedAt: now.toISOString() };

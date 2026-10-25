@@ -4,7 +4,7 @@ import { catalogForIdentity, mockFarePolicies } from '@torob-ticket/fixtures';
 import { ProviderService } from '../providers/provider.service';
 import type { SessionContext } from '../sessions/session-context';
 import { SessionService } from '../sessions/session.service';
-import { RecheckRegistry } from './recheck-registry';
+import { RecheckRegistry, type RecheckHandler } from './recheck-registry';
 export class ReferralService {
     private readonly active = new Map<string, {
         controller: AbortController;
@@ -16,6 +16,7 @@ export class ReferralService {
         this.unregister = sessions.registerRecovery(() => this.recover());
         this.registry.register('transport', { prepareReferral: (session, selection) => this.prepareTransport(session, selection) });
     }
+    registerRecheckHandler(kind:ReferralSelection['kind'],handler:RecheckHandler){this.registry.register(kind,handler);}
     get repository() {
         return new ReferralRepository(this.sessions.database, {
             revisions: { sourceRevisions: Object.fromEntries(Object.keys(mockFarePolicies).map(id => [id, 'source-v1'])), policyRevisions: Object.fromEntries(Object.entries(mockFarePolicies).map(([id, policy]) => [id, policy.revision])) },

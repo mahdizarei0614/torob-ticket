@@ -1,3 +1,4 @@
+import {assertSearchAdmission} from './admission';
 import { SearchSnapshotSchema, SearchEventSchema, type SearchSnapshot, type SearchEvent, type ProviderStatus, type QuoteSnapshot, NormalizationTraceSchema, NormalizedOfferSchema, RawProviderRecordSchema, type RawProviderRecord, type NormalizationTrace, type NormalizedOffer } from '@torob-ticket/contracts';
 import type { SourceFareEvidence } from '@torob-ticket/domain';
 import { randomUUID } from 'node:crypto';
@@ -50,7 +51,7 @@ export class SearchRepository {
     return scopedTransaction(this.db, scope, async tx => {
       if (options.supersedesSearchId) await this.assertComparisonRun(tx, scope, options.supersedesSearchId);
       if (options.supersedesSearchId) await this.terminate(tx, scope, options.supersedesSearchId, 'cancelled', now);
-      if (options.enforceLimit && await tx.searchRun.count({ where: { sessionId: scope.sessionId, status: 'collecting' } }) >= 2) throw new RepositoryError('SEARCH_LIMIT');
+      if (options.enforceLimit) await assertSearchAdmission(tx,scope);
       if (input.predecessorId) await this.assertComparisonRun(tx, scope, input.predecessorId);
       if (input.predecessorId && !await tx.searchRun.findUnique({ where: { sessionId_id: { sessionId: scope.sessionId, id: input.predecessorId } } })) throw new RepositoryError('NOT_FOUND');
       const session = await tx.demoSession.findUniqueOrThrow({ where: { id: scope.sessionId } });

@@ -1,3 +1,5 @@
+import {HotelRepository} from './hotel-repository';
+import {assertSearchAdmission} from './admission';
 import { createHash, randomUUID } from 'node:crypto';
 import { NormalizedOfferSchema, QuoteSnapshotSchema, ReferralIntentSchema, ReferralReceiptSchema, SearchSnapshotSchema, TransportSearchQuerySchema, type ConfirmReferralInput, type NormalizedOffer, type QuoteSnapshot, type ReferralIntent, type ReferralSelection, type RecheckResult } from '@torob-ticket/contracts';
 import { canonicalValue, quoteOffer, type ComparisonContext, type RealClock, type SourceFareEvidence } from '@torob-ticket/domain';
@@ -104,8 +106,7 @@ export class ReferralRepository {
             const checked = this.evaluate(selected.row.offer!.payload, selected.query, frozen, new Date(selected.quote.observedAt));
             if (canonicalValue({ ...checked.quote, quoteId: selected.quote.quoteId, version: selected.quote.version }) !== canonicalValue(selected.quote))
                 throw new RepositoryError('QUOTE_CHANGED');
-            if (await tx.searchRun.count({ where: { sessionId: scope.sessionId, status: 'collecting' } }) >= 2)
-                throw new RepositoryError('SEARCH_LIMIT');
+            await assertSearchAdmission(tx,scope);
             const id = randomUUID();
             const operation: RecheckOperation = { kind: 'referral-recheck', originSearchId: selected.originSearchId, selection, frozen, fingerprint: this.fingerprint(frozen), previous: checked.offer, previousQuote: selected.quote };
             await tx.searchRun.create({ data: { sessionId: scope.sessionId, id, query: json(selected.query), clientGeneration: id, status: 'collecting', snapshot: json(operation), mappingRevision: frozen.info.mappingRevision, fixtureVersion: frozen.info.fixtureVersion, createdAt: now, updatedAt: now } });
@@ -208,14 +209,18 @@ export class ReferralRepository {
             const intent = ReferralIntentSchema.parse(stored.intent);
             if (stored.digest !== digest(intent) || intent.intentId !== row.id || intent.selection.quoteId !== row.quoteId || intent.selection.quoteVersion !== row.quoteVersion || intent.expiresAt !== row.expiresAt.toISOString() || intent.createdAt !== row.createdAt.toISOString())
                 throw new RepositoryError('QUOTE_CHANGED');
-            const current = await this.current(tx, scope);
-            if (this.fingerprint(current) !== stored.fingerprint)
-                throw new RepositoryError('QUOTE_CHANGED');
-            const selected = await this.selected(tx, scope, intent.selection, now);
-            const checked = this.evaluate(selected.row.offer!.payload, selected.query, current, new Date(selected.quote.observedAt));
-            const exact = { kind: 'transport', quote: { ...checked.quote, quoteId: selected.quote.quoteId, version: selected.quote.version }, itinerary: checked.offer.itinerary };
-            if (canonicalValue(exact) !== canonicalValue(intent.quote) || canonicalValue(selected.quote) !== canonicalValue(intent.quote.quote))
-                throw new RepositoryError('QUOTE_CHANGED');
+            if(intent.selection.kind==='hotel') {
+                await new HotelRepository(this.db).assertHotelIntent(tx,scope,intent,stored.fingerprint,now);
+            } else {
+                const current = await this.current(tx, scope);
+                if (this.fingerprint(current) !== stored.fingerprint)
+                    throw new RepositoryError('QUOTE_CHANGED');
+                const selected = await this.selected(tx, scope, intent.selection, now);
+                const checked = this.evaluate(selected.row.offer!.payload, selected.query, current, new Date(selected.quote.observedAt));
+                const exact = { kind: 'transport', quote: { ...checked.quote, quoteId: selected.quote.quoteId, version: selected.quote.version }, itinerary: checked.offer.itinerary };
+                if (canonicalValue(exact) !== canonicalValue(intent.quote) || canonicalValue(selected.quote) !== canonicalValue(intent.quote.quote))
+                    throw new RepositoryError('QUOTE_CHANGED');
+            }
             const id = randomUUID();
             const receipt = ReferralReceiptSchema.parse({ referralId: id, intentId: row.id, selection: intent.selection, payload: intent.quote, confirmedAt: now.toISOString(), handoffPath: `/provider-demo/${id}` });
             await tx.referralEvent.create({ data: { sessionId: scope.sessionId, id, intentId: row.id, idempotencyKey: input.idempotencyKey, payloadHash, payload: json(receipt), createdAt: now } });
