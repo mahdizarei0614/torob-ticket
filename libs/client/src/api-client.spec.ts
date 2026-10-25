@@ -50,3 +50,24 @@ describe('abort and bounded recovery boundaries', () => {
     expect(transport).toHaveBeenCalledTimes(3);
   });
 });
+
+describe('date price typed transport', () => {
+  const query = { mode: 'flight', scope: 'domestic', tripType: 'one-way', originCityId: 'a', destinationCityId: 'b', departureDate: '2026-10-25', party: { adults: 1, children: 0, infants: 0 }, classCode: 'economy', filters: {}, sort: 'cheapest' } as const;
+  const input = { query, leg: 'outbound', dates: ['2026-10-25'], clientGeneration: 'g a' } as const;
+  const snapshot = { datePriceId: 'id/a', clientGeneration: input.clientGeneration, query: input, cells: [{ date: '2026-10-25', status: 'checking' }], status: 'checking', observedAt: '2026-10-25T00:00:00Z' };
+  it('validates POST/GET/DELETE, encodes exact IDs and generation, and forwards abort', async () => {
+    const transport = vi.fn(async () => json(snapshot)); const client = createApiClient(transport); const controller = new AbortController();
+    await client.startDatePrices({ ...input, dates: [...input.dates] }, controller.signal);
+    await client.getDatePrices('id/a', 'g a', controller.signal);
+    await client.cancelDatePrices('id/a', 'g a');
+    expect(transport.mock.calls.map(call => call[0])).toEqual(['/api/v1/date-prices', '/api/v1/date-prices/id%2Fa?clientGeneration=g%20a', '/api/v1/date-prices/id%2Fa?clientGeneration=g%20a']);
+    expect(transport.mock.calls[0]![1]).toMatchObject({ method: 'POST', signal: controller.signal, credentials: 'same-origin' });
+    expect(transport.mock.calls[2]![1]).toMatchObject({ method: 'DELETE' });
+  });
+  it('rejects malformed inputs before HTTP and malformed responses as schema failure', async () => {
+    const transport = vi.fn(async () => json({ ...snapshot, cells: [{ date: '2026-10-25', status: 'priced' }] })); const client = createApiClient(transport);
+    await expect(client.startDatePrices({ ...input, dates: [] })).rejects.toMatchObject({ kind: 'request' });
+    await expect(client.getDatePrices('id','')).rejects.toMatchObject({ kind: 'request' }); expect(transport).not.toHaveBeenCalled();
+    await expect(client.startDatePrices({ ...input, dates: [...input.dates] })).rejects.toMatchObject({ kind: 'schema' });
+  });
+});

@@ -16,6 +16,9 @@
     "resolveJsonModule": true,
     "baseUrl": ".",
     "paths": {
+      "@torob-ticket/graphics/host": [
+        "libs/graphics/src/host.ts"
+      ],
       "@torob-ticket/contracts": [
         "libs/contracts/src/index.ts"
       ],

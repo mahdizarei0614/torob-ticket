@@ -21,6 +21,7 @@ const dependencyConstraints = [
 const boundaryRule = (testFile = false) => ['error', {
   enforceBuildableLibDependency: true,
   allow: [],
+  checkDynamicDependenciesExceptions: ['@torob-ticket/graphics/host'],
   depConstraints: dependencyConstraints.map(constraint => testFile && constraint.allowedExternalImports
     ? { ...constraint, allowedExternalImports: [...constraint.allowedExternalImports, 'vitest'] }
     : constraint)

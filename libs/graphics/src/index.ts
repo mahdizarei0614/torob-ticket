@@ -12,3 +12,4 @@ export * from './scenes/route-scene';
 export * from './scenes/location-scene';
 export type { SceneMarker } from './scenes/scene-surface';
 export { RouteLab } from './route-lab';
+export * from './scenes/price-chart-scene';

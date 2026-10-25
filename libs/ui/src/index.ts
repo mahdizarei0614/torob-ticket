@@ -8,3 +8,4 @@ export * from './components/status';
 export * from './components/price';
 export * from './components/language';
 export * from './theme/theme-provider';
+export * from './components/price-chart-fallback';

@@ -15,6 +15,7 @@ export type SearchAction =
   | { type: 'draft'; patch: Partial<SearchDraft>; catalog: CatalogSnapshot }
   | { type: 'restore'; draft: SearchDraft; query?: TransportSearchQuery; generation: string; notice?: string }
   | { type: 'preset'; draft: SearchDraft }
+  | { type: 'date-draft'; draft: SearchDraft; generation: string }
   | { type: 'commit'; query: TransportSearchQuery; generation: string }
   | { type: 'adopt'; generation: string; searchId: string }
   | { type: 'preview-date'; date?: string }
@@ -43,6 +44,7 @@ export function searchReducer(state: SearchState, action: SearchAction): SearchS
     }
     case 'restore': return { ...createSearchState(action.draft), committed: action.query, generation: action.generation, notice: action.notice ?? '' };
     case 'preset': return { ...state, draft: structuredClone(action.draft), previewDate: undefined, notice: 'سفر پیشنهادی در فرم قرار گرفت؛ برای ثبت آن جست‌وجو کنید.' };
+    case 'date-draft': return { ...state, draft: structuredClone(action.draft), generation: action.generation, searchId: undefined, previewDate: undefined, notice: 'تاریخ برگشت را دوباره انتخاب کنید.' };
     case 'commit': return { ...createSearchState(action.query), committed: action.query, generation: action.generation };
     case 'adopt': return action.generation === state.generation ? { ...state, searchId: action.searchId } : state;
     case 'preview-date': return { ...state, previewDate: action.date };

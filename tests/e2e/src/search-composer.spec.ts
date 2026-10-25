@@ -46,33 +46,37 @@ test.describe('@search-composer actual API consumer journey', () => {
     await destination.fill('تهران'); await expect(page.getByRole('option', { name: 'تهران', exact: true })).toBeVisible(); await destination.press('ArrowDown'); await expect(destination).toHaveAttribute('aria-activedescendant', /.+/); await destination.press('Enter');
     await expect(destination).toHaveValue('تهران');
     await page.getByRole('radio', { name: 'رفت‌وبرگشت', exact: true }).focus(); await page.keyboard.press('Space');
-    const date = await page.getByLabel('تاریخ رفت میلادی').inputValue();
-    await page.getByLabel('تاریخ برگشت میلادی').fill(date);
-    await expect(page.getByRole('button', { name: 'جست‌وجوی سفر', exact: true })).toBeEnabled();
-    await page.getByRole('button', { name: 'جست‌وجوی سفر', exact: true }).click();
+    const explorer = page.getByRole('region', { name: 'کاوش تاریخ سفر' });
+    const date = (await explorer.getAttribute('data-selected-outbound'))!;
+    const calendar = page.getByRole('button', { name: 'تقویم جلالی و انتخاب تاریخ' });
+    await calendar.click();
+    const dialog = page.getByRole('dialog', { name: 'انتخاب تاریخ سفر' });
+    await dialog.getByLabel('تاریخ برگشت میلادی در تقویم', { exact: true }).fill(date);
+    await dialog.getByRole('button', { name: 'اعمال تاریخ‌ها', exact: true }).click();
     await expect(page.getByRole('status').filter({ hasText: 'درخواست جست‌وجو برای' })).toBeVisible();
     const first = page.url();
     const next = new Date(`${date}T12:00:00Z`); next.setUTCDate(next.getUTCDate() + 1);
-    await page.getByLabel('تاریخ رفت میلادی').fill(next.toISOString().slice(0,10));
-    await expect(page.getByLabel('تاریخ برگشت میلادی')).toHaveValue('');
-    await expect(page.getByText(/تاریخ برگشت با انتخاب تازه/)).toBeVisible();
-    expect(page.url()).toBe(first);
-    await page.getByLabel('تاریخ برگشت میلادی').fill(next.toISOString().slice(0,10));
     await page.getByLabel('تعداد نوزاد', { exact: true }).fill('2');
     await expect(page.getByRole('button', { name: 'جست‌وجوی سفر', exact: true })).toBeDisabled();
     await page.getByLabel('تعداد نوزاد', { exact: true }).fill('0');
-    await page.getByRole('button', { name: 'جست‌وجوی سفر', exact: true }).click();
+    await calendar.click();
+    await dialog.getByLabel('تاریخ رفت میلادی در تقویم', { exact: true }).fill(next.toISOString().slice(0,10));
+    await expect(dialog.getByLabel('تاریخ برگشت میلادی در تقویم', { exact: true })).toHaveValue('');
+    await expect(dialog.getByText(/تاریخ برگشت را دوباره انتخاب کنید/)).toBeVisible();
+    expect(page.url()).toBe(first);
+    await dialog.getByLabel('تاریخ برگشت میلادی در تقویم', { exact: true }).fill(next.toISOString().slice(0,10));
+    await dialog.getByRole('button', { name: 'اعمال تاریخ‌ها', exact: true }).click();
     await expect(page.getByRole('status').filter({ hasText: 'درخواست جست‌وجو برای' })).toBeVisible();
     const second = page.url(); expect(second).not.toBe(first);
     let posts = 0; page.on('request', request => { if (request.method() === 'POST' && request.url().endsWith('/searches')) posts++; });
-    await page.goBack(); await expect(page.getByLabel('تاریخ رفت میلادی')).toHaveValue(date);
+    await page.goBack(); await expect(explorer).toHaveAttribute('data-selected-outbound',date);
     await expect(page.getByText('درخواست جست‌وجو برای', { exact: false })).toHaveCount(0);
-    await page.goForward(); await expect(page.getByLabel('تاریخ رفت میلادی')).toHaveValue(next.toISOString().slice(0,10));
-    await page.reload(); await expect(page.getByLabel('تاریخ رفت میلادی')).toHaveValue(next.toISOString().slice(0,10));
+    await page.goForward(); await expect(explorer).toHaveAttribute('data-selected-outbound',next.toISOString().slice(0,10));
+    await page.reload(); await expect(explorer).toHaveAttribute('data-selected-outbound',next.toISOString().slice(0,10));
     expect(posts).toBe(0);
     record('history-keyboard.json', { first, second, postsAfterNavigation: posts });
   });
-  test('recoverable malformed links and responsive layout without graphics startup', async ({ page }) => {
+  test('recoverable malformed links and responsive layout with one shared deferred chart host', async ({ page }) => {
     await page.addInitScript(() => {
       if (!document.startViewTransition) return;
       const original = document.startViewTransition.bind(document);
@@ -106,8 +110,10 @@ test.describe('@search-composer actual API consumer journey', () => {
     await expect(page.locator('html')).toHaveAttribute('data-appearance', 'dark');
     await page.evaluate(async () => { await Promise.all((window as unknown as { composerTransitions?: Promise<void>[] }).composerTransitions ?? []); });
     if (evidence) await page.screenshot({ path: resolve(evidence, 'train-dark-1440.png'), fullPage: true });
-    expect(scripts.some(url => /three|libs\/graphics/.test(url))).toBe(false);
-    record('responsive.json', { widths, scriptCount: scripts.length, graphicsRequested: false });
+    await expect(page.locator('[data-graphics-status]')).toHaveAttribute('data-graphics-status', 'ready');
+    await expect(page.locator('canvas')).toHaveCount(1);
+    expect(scripts.some(url => /shared-renderer|three/.test(url))).toBe(true);
+    record('responsive.json', { widths, scriptCount: scripts.length, graphicsRequestedForDateChart: true, sharedCanvases: 1 });
   });
   test('stalled start cannot prevent explicit reset or adopt after reset', async ({ page }) => {
     let release!: () => void;

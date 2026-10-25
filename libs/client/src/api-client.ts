@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { ApiErrorSchema, CatalogSnapshotSchema, CreateDemoSessionInputSchema, IdSchema, SearchRecoverySchema, SearchRequestSchema, SessionInfoSchema, type ApiError, type CreateDemoSessionInput, type SearchRequest, type SessionInfo } from '@torob-ticket/contracts';
+import { ApiErrorSchema, CatalogSnapshotSchema, CreateDemoSessionInputSchema, DatePriceQuerySchema, DatePriceSnapshotSchema, IdSchema, SearchRecoverySchema, SearchRequestSchema, SessionInfoSchema, type ApiError, type CreateDemoSessionInput, type DatePriceQuery, type SearchRequest, type SessionInfo } from '@torob-ticket/contracts';
 export class ClientError extends Error {
   constructor(readonly kind: 'api' | 'network' | 'schema' | 'request' | 'http', message: string, readonly api?: ApiError, readonly status?: number) { super(message); this.name = 'ClientError'; }
 }
@@ -45,6 +45,9 @@ export function createApiClient(transport: Transport = (...args) => fetch(...arg
     async startSearch(input: SearchRequest, signal?: AbortSignal) { return request('searches', SearchRecoverySchema, { method: 'POST', body: body(SearchRequestSchema, input), signal }); },
     async snapshot(id: string, signal?: AbortSignal) { return request(`searches/${idPath(id)}`, SearchRecoverySchema, { signal }); },
     async cancelSearch(id: string, signal?: AbortSignal) { return request(`searches/${idPath(id)}/cancel`, SearchRecoverySchema, { method: 'POST', signal }); },
+    async startDatePrices(input: DatePriceQuery, signal?: AbortSignal) { return request('date-prices', DatePriceSnapshotSchema, { method: 'POST', body: body(DatePriceQuerySchema, input), signal }); },
+    async getDatePrices(id: string, clientGeneration: string, signal?: AbortSignal) { return request(`date-prices/${idPath(id)}?clientGeneration=${idPath(clientGeneration)}`, DatePriceSnapshotSchema, { signal }); },
+    async cancelDatePrices(id: string, clientGeneration: string, signal?: AbortSignal) { return request(`date-prices/${idPath(id)}?clientGeneration=${idPath(clientGeneration)}`, DatePriceSnapshotSchema, { method: 'DELETE', signal }); },
   };
 }
 export const apiClient = createApiClient();

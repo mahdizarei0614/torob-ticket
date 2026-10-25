@@ -13,13 +13,16 @@ class SearchStartPool {
   private listeners = new Set<() => void>();
   private snapshot: StartSnapshot = { count: 0, resetting: false };
   epoch = 0;
+  private priorities = new Set<symbol>();
+  prioritize(key: symbol, active: boolean) { if (active) this.priorities.add(key); else this.priorities.delete(key); this.publish(); }
   subscribe = (listener: () => void) => { this.listeners.add(listener); return () => { this.listeners.delete(listener); }; };
   getSnapshot = () => this.snapshot;
   private publish(resetting = this.snapshot.resetting) {
     this.snapshot = { count: this.entries.size, resetting };
     for (const listener of this.listeners) listener();
   }
-  reserve() {
+  reserve(kind: 'search' | 'date-read' = 'search') {
+    if (kind === 'date-read' && this.priorities.size) return undefined;
     if (this.snapshot.resetting || this.entries.size >= unresolvedStartLimit) return undefined;
     const key = Symbol('search-start');
     const abort = new AbortController();
@@ -39,7 +42,7 @@ class SearchStartPool {
   }
   beginReset() {
     if (this.snapshot.resetting) return false;
-    this.epoch++;
+    this.epoch++; this.priorities.clear();
     this.publish(true);
     for (const entry of this.entries.values()) entry.abort.abort();
     return true;

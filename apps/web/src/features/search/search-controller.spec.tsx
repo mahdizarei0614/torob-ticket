@@ -85,3 +85,54 @@ describe('controller request and navigation ownership', () => {
     await waitFor(() => expect(screen.getByRole('button', { name: 'جست‌وجوی سفر' })).toBeDisabled());
   });
 });
+
+describe('authorized date intent admission', () => {
+  it('commits current whole-query dates immediately and drains only the latest authorized intent after capacity frees', async () => {
+    const { searchStartPool } = await import('./search-start-pool');
+    const client = { startSearch: vi.fn(async (request: SearchRequest) => recovery(request)), cancelSearch: vi.fn(async () => undefined) } as unknown as ApiClient;
+    const pool = searchStartPool(client); const first = pool.reserve()!, second = pool.reserve()!;
+    const hook = setup(client);
+    act(() => { hook.result.current.commitDates({ ...query, departureDate: '2026-10-26', party: { adults: 2, children: 0, infants: 0 } }); });
+    act(() => { hook.result.current.commitDates({ ...query, departureDate: '2026-10-27', party: { adults: 3, children: 0, infants: 0 } }); });
+    expect(hook.result.current.state.committed?.departureDate).toBe('2026-10-27'); expect(hook.result.current.waitingDate).toBe(true); expect(client.startSearch).not.toHaveBeenCalled();
+    await act(async () => { first.finish(); });
+    await waitFor(() => expect(client.startSearch).toHaveBeenCalledTimes(1));
+    expect((client.startSearch as ReturnType<typeof vi.fn>).mock.calls[0]![0].query).toMatchObject({ departureDate: '2026-10-27', party: { adults: 3 } });
+    expect(hook.result.current.waitingDate).toBe(false); second.finish(); hook.unmount();
+  });
+  it('drops queued authorization on history or nondate edit, and never serializes an incomplete round trip', async () => {
+    const { searchStartPool } = await import('./search-start-pool');
+    const client = { startSearch: vi.fn(async (request: SearchRequest) => recovery(request)), cancelSearch: vi.fn(async () => undefined) } as unknown as ApiClient;
+    const pool = searchStartPool(client); const first = pool.reserve()!, second = pool.reserve()!; const hook = setup(client);
+    act(() => hook.result.current.commitDates({ ...query, departureDate: '2026-10-26' }));
+    act(() => hook.result.current.edit({ party: { adults: 2, children: 0, infants: 0 } }));
+    await act(async () => first.finish()); expect(client.startSearch).not.toHaveBeenCalled();
+    act(() => hook.result.current.commitDates({ ...query, tripType: 'round-trip', returnDate: undefined }));
+    expect(hook.result.current.state.draft.returnDate).toBeUndefined(); expect(hook.result.current.accepted).toBe(false); expect(client.startSearch).not.toHaveBeenCalled();
+    const replacement = pool.reserve()!;
+    act(() => hook.result.current.commitDates({ ...query, departureDate: '2026-10-27' }));
+    act(() => hook.navigate('/'));
+    replacement.finish();
+    await act(async () => second.finish()); expect(client.startSearch).not.toHaveBeenCalled(); hook.unmount();
+  });
+});
+
+it('synchronously fences a fast native Pop and preserves a rapid new date intent against old replies/router renders', async () => {
+  const held: { request: SearchRequest; release: (value: SearchRecovery) => void }[] = [];
+  const client = { startSearch: vi.fn((request: SearchRequest) => new Promise<SearchRecovery>(release => held.push({ request, release }))), cancelSearch: vi.fn(async () => undefined) } as unknown as ApiClient;
+  const hook = setup(client); let first!: Promise<void>;
+  act(() => { first = hook.result.current.submit(); });
+  const old = held[0]!;
+  act(() => {
+    window.history.replaceState(null,'','/'); window.dispatchEvent(new PopStateEvent('popstate'));
+    hook.result.current.commitDates({ ...query, departureDate: '2026-10-27' });
+    hook.navigate('/'); // Late router view of the Pop, before the new navigation render.
+  });
+  await waitFor(() => expect(held).toHaveLength(2));
+  expect(hook.result.current.state.committed?.departureDate).toBe('2026-10-27');
+  await act(async () => { old.release(recovery(old.request)); await first; });
+  expect(client.cancelSearch).toHaveBeenCalledWith('operation'); expect(hook.result.current.accepted).toBe(false);
+  await act(async () => { held[1]!.release(recovery(held[1]!.request)); });
+  await waitFor(() => expect(hook.result.current.accepted).toBe(true));
+  expect(hook.result.current.state.committed?.departureDate).toBe('2026-10-27'); hook.unmount();
+});
