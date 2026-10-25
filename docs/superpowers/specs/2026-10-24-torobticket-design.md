@@ -1,6 +1,7 @@
 # TorobTicket — Product and Architecture Specification
 
-**Revision:** 1.2 · 2026-10-26  
+**Revision:** 1.3 · 2026-10-26
+
 **Purpose:** Authoritative design companion to the master implementation plan.  
 **Status:** Product scope and architecture approved in conversation. Implementation defaults below are explicit engineering decisions made while preparing the plan; they are not additional claims of user approval.
 
@@ -145,7 +146,7 @@ Default sorting is lowest complete stay total. Other sorts are stars, distance t
 
 Arrival point means airport, train station, or bus terminal according to the selected itinerary. If it is not known, require a choice. The custom-location map opens on demand, supports landmarks and a pin, and is available on mobile as an exception to the hidden main travel map. Distances are explicitly straight-line kilometers.
 
-**Owner override, 2026-10-26:** The hotel location picker uses OpenFreeMap’s real interactive street basemap with MapLibre GL JS, locally authored landmarks and fictional accommodation markers. The public map needs no registration, API key or billing; it requires network access. Its SDK, CSS and local worker load only when the picker opens; the app’s transport renderer pauses behind the hotel dialog. When network, tiles or WebGL are unavailable, a clear unavailable state retains landmark/list and coordinate selection; no dotted or fabricated basemap is shown. It does not imply street navigation or live routing. This final free-map choice supersedes the intermediate Google and Neshan choices.
+**Free-map implementation ruling, 2026-10-26:** The owner requested a free real street map. Use the official OpenStreetMap vector service with MapLibre GL JS: hosted VersaTiles Colorful (light) and Shadow (dark) styles, locally authored landmarks and fictional accommodation markers. No registration, API key or billing is required. This implementation default replaces our earlier OpenFreeMap choice after repeated host timeouts; the official OSM vector styles respond on the current machine. Tile, glyph and sprite requests share vector.openstreetmap.org. The SDK, CSS and local worker load only when the picker opens; the transport renderer pauses behind the hotel dialog. Preserve visible OSM contributor attribution, normal browser caching/Referer and on-demand viewport requests, with no tile proxy, bulk/offline download or app-level speculative prefetch. Network/tiles/WebGL failure retains the local list and coordinates with a clear unavailable state, without a fabricated or silently substituted map. It provides location selection, not street navigation or live routing. Google and Neshan remain superseded; no account/key/billing change was made.
 
 Room type, occupancy, breakfast, cancellation, and fees remain visible. The user chooses an eligible room/rate and follows a tracked hotel-site referral to its simulated landing page. Hotels are compared with each other; merging the same hotel across booking marketplaces is deferred.
 
@@ -249,7 +250,7 @@ Local font defaults are Vazirmatn for Persian and Inter for English; verify and 
 
 A persistent app-owned WebGL2 renderer uses clipped views for transport maps and charts. Context/material/geometry resources are shared, not allocated per ticket card. **Owner’s free-map exception:** the on-demand hotel picker uses a separate MapLibre renderer inside its native dialog, with at most one active provider map and complete cleanup on dismissal. It does not create another app-owned renderer or alter the transport scene. HTML owns labels, controls, forms, calendars, dialogs, and selectable information. App WebGL handles dotted transport geography, routes, vehicle progress, chart emphasis, and selected flat effects.
 
-OpenFreeMap styles and required OpenStreetMap/OpenMapTiles attribution are third-party assets; authored hotel controls and custom markers still use semantic tokens. Record its lazy SDK/network weight separately from app-owned bundles and disclose the total map cost. No provider key or account is required. Provider map styles and SDK UI are vendor assets; custom controls and markers remain subject to semantic theme tokens.
+Official OSM-hosted VersaTiles styles and required OpenStreetMap contributor attribution are third-party assets; authored hotel controls and custom markers still use semantic tokens. Record its lazy SDK/network weight separately from app-owned bundles and disclose the total map cost. No provider key or account is required. Provider map styles and SDK UI are vendor assets; custom controls and markers remain subject to semantic theme tokens.
 
 When the hotel modal is open, pause the background travel scene and preserve its camera/pinned state. Scene layering must keep native modal focus and pointer semantics correct. All UI animations are flat except shallow map/route depth.
 
@@ -277,7 +278,7 @@ Root pnpm docker:up runs build, startup, initialization, readiness checks, and p
 
 Pin a compatible Node LTS, package manager, Nx/plugin set, runtime dependencies, and container versions during foundation work. Keep the lockfile committed; record the compatibility matrix. Do not invent unverified version combinations in this specification.
 
-Default runtime needs no external API, remote font, map tile service, image host, CDN script, or LLM. First build may download dependencies/images. Docker shutdown and explicit local reset commands are documented separately.
+The mock comparison/referral runtime needs no external API credentials, remote font, image host, CDN script or LLM. The explicitly requested hotel street-map exception loads public vector tiles/styles/glyphs/sprites on demand; its local list/coordinate fallback stays usable without that service. First build may download dependencies/images. Docker shutdown and explicit local reset commands are documented separately.
 
 Verification includes domain/adapter tests, real-PostgreSQL integration tests, Playwright reviewer journeys, six mode/scope coverage, one-way/round-trip, keyboard/RTL/mobile/light-dark states, scenario recovery, session isolation, shader fallback/context restoration, resource cleanup, and clean startup. Component visual fixtures are kept in Storybook.
 
