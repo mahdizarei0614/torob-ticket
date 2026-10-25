@@ -10,7 +10,7 @@
 
 **Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.0, 2026-10-24.
 
-**Plan state:** Approved; M1 foundation, T05 inventory, T06 normalization, T07 eligible comparison, T08 ranking, T09 durable search orchestration, SSE and recovery, T10 source-backed date prices, and T11 recheck/idempotent referrals are complete and independently reviewed. M2 comparison engine is complete; M3 has completed T13 shared WebGL rendering and T14 dotted geography/route scenes, and continues with T15 consumer shell/composer. Remaining product tasks and evidence are tracked below. The earlier date explorer is a completed throwaway interaction study, not implemented product code.
+**Plan state:** Approved; M1 foundation, T05 inventory, T06 normalization, T07 eligible comparison, T08 ranking, T09 durable search orchestration, SSE and recovery, T10 source-backed date prices, and T11 recheck/idempotent referrals are complete and independently reviewed. M2 comparison engine is complete; M3 has completed T13 shared rendering, T14 geography/routes and T15 consumer shell/composer; T16 date exploration is next. Remaining product tasks and evidence are tracked below. The earlier date explorer is a completed throwaway interaction study, not implemented product code.
 
 **Delivery location:** This outputs directory contains the user-facing source documents. On repository creation, copy the spec to docs/superpowers/specs/2026-10-24-torobticket-design.md and this plan to docs/superpowers/plans/2026-10-24-torobticket-master-plan.md. Preserve the revision, task IDs, and decision authority, and rewrite the Spec link to ../specs/2026-10-24-torobticket-design.md.
 
@@ -315,6 +315,8 @@ T13 implements GraphicsProvider, GraphicsView, useGraphics/controller diagnostic
 
 T14 implements RouteScene/RouteTimeline and LocationScene with canonical Place/Itinerary direction, explicit illustrative/empty seams, bundled dots/authored paths, shared ProjectionContext and fitKey/originKey camera intent. Public geometry includes projectPoint/unprojectPoint/projectRoute/fitRouteBounds/contextForPoints/buildRouteGeometry and progress helpers. Fetch `/geography/route-geometry.json` for authored-only geometry (36 ordered bus pairs, 326 canonical journeys checked); do not import fixtures into browser code or use lab schedules as search data. Keep projection fixed during previews; intentional context changes must accompany a deliberate fit/origin key. Camera overviews use the same projection, including seam fragments. LocationScene accepts destinationBoundary/landmarks/accommodations/customPoint and emits GeoPoint through onPointChange; mobile/DOM fallback remains usable. Rulings are recorded in docs/decisions/0014-dotted-route-scenes.md; /route-lab is diagnostic, with consumer binding T18 and modal composition T21.
 
+T15 implements BrowserRouter consumer layout, SearchComposer and useSearchController in apps/web. The controller separates draft/preview/committed query and generation, exposes edit/preset/submit/reset, validity/accepted feedback and bounded-start capacity, and retains itinerary/modal seams. parseSearchUrl/serializeSearchUrl own canonical validated public intent; reload/history restore without POST and presets stay draft until Search. Runtime-validated apiClient currently exposes session/sessionSnapshot, catalog, reset, startSearch, snapshot and cancelSearch using actual SearchRecovery and POST cancel semantics. Date-price/hotel/referral methods are added by their feature-owning tasks using this transport pattern. A client-lifetime pool caps two unresolved starts across history/controller/QueryClient remounts; hold slots through stale cleanup and preserve the shared reset epoch. T16 must bind controlled date preview/settle without bypassing URL/generation/admission rules. Rulings: docs/decisions/0015-consumer-search-intent.md; detailed evidence: docs/evidence/T15/checkpoint.md. Real map binding, SSE/results and hotels remain T18/T17/T21.
+
 ## 4. Execution and tracking rules
 
 - Each task below is independently reviewable; follow dependencies rather than assuming numerical order is mandatory.
@@ -350,7 +352,7 @@ Each row indexes the detailed checkbox steps in section 6. DONE requires indepen
 | [T12 — Design tokens, accessible primitives, typography, and component gallery](#t12) | T12.1 Define the visual foundation<br>T12.2 Implement accessible primitives<br>T12.3 Pin interaction behavior<br>T12.4 Build the state gallery<br>T12.5 Verify and commit | T01 | DONE | implement_t12 / 6e0071c + 581f834; review clean; UI13 tests, browser28 audit/startup6/native race2 and builds passed |
 | [T13 — Shared WebGL renderer, typed uniforms, and graceful fallback](#t13) | T13.1 Define lifecycle behavior<br>T13.2 Build the shared host<br>T13.3 Implement uniforms and scheduling<br>T13.4 Implement fallback and recovery<br>T13.5 Verify and commit | T12 | DONE | implement_t13 / 1b83a74 + e2c5df1 + e43bf0e; independent review/correction approved, I1/I2 closed; units8/browser10/final affected26, root12+tools20 and packaged GL/lazy/theme/modal/preservation pass; docs/evidence/T13 |
 | [T14 — Dotted geography and mode-specific route scenes](#t14) | T14.1 Pin geographic and route invariants<br>T14.2 Run geometry tests red<br>T14.3 Implement map and route shaders<br>T14.4 Implement camera and location primitives<br>T14.5 Verify and commit | T05, T13 | DONE | implement_t14 / 92139d8 + 08acee9 + d79be42 + bc25aca; independent review P2 corrected and fresh review approved; graphics 22, initial affected 38 / correction 27, combined browser 15 + final route 6, Docker/production GL/bundle/data preservation pass; docs/evidence/T14 |
-| [T15 — Consumer shell, search composer, URL state, and reviewer entry](#t15) | T15.1 Pin query and navigation behavior<br>T15.2 Run state tests red<br>T15.3 Implement shell and composer<br>T15.4 Implement state ownership<br>T15.5 Implement reviewer entry<br>T15.6 Verify and commit | T02, T04, T05, T12 | TODO | Unassigned / — |
+| [T15 — Consumer shell, search composer, URL state, and reviewer entry](#t15) | T15.1 Pin query and navigation behavior<br>T15.2 Run state tests red<br>T15.3 Implement shell and composer<br>T15.4 Implement state ownership<br>T15.5 Implement reviewer entry<br>T15.6 Verify and commit | T02, T04, T05, T12 | DONE | implement_t15 / 52f66c4 + evidence 5426f4d + correction 8c52bc4; independent P2 fixed and fresh review approved; web 21/client 23, affected 48, original browser 23/final composer 5, tools 20+cache; corrected Docker/production isolation/navigation/bundles/preservation pass; docs/evidence/T15 |
 | [T16 — Date wheel, Jalali calendar, linked GLSL chart, and apply behavior](#t16) | T16.1 Pin preview/commit and date rules<br>T16.2 Run date tests red<br>T16.3 Implement the wheel and calendar<br>T16.4 Implement chart and cache wiring<br>T16.5 Verify physical interaction<br>T16.6 Review and commit | T03, T10, T13, T15 | TODO | Unassigned / — |
 | [T17 — Compact comparison results, provider groups, filters, and stable updates](#t17) | T17.1 Pin stable ordering and selection<br>T17.2 Run reducer and e2e tests red<br>T17.3 Implement dense cards and details<br>T17.4 Implement sorting and filters<br>T17.5 Implement staged arrival adoption<br>T17.6 Verify and commit | T08, T09, T15 | TODO | Unassigned / — |
 | [T18 — Link map selection, route details, camera, and referral progress](#t18) | T18.1 Pin the map state machine<br>T18.2 Run map-state tests red<br>T18.3 Wire the scene and timeline<br>T18.4 Wire vehicle progress<br>T18.5 Verify and commit | T14, T17 | TODO | Unassigned / — |
@@ -378,7 +380,7 @@ Each row indexes the detailed checkbox steps in section 6. DONE requires indepen
 |---|---|---|
 | M1 — Runnable foundation and contracts | T01–T04, T12; early T29 | COMPLETE: independent task and cross-task review, final WebStorm builds/Docker startup verified; evidence in docs/evidence/M1-checkpoint and M1-handoff |
 | M2 — Credible comparison engine | T05–T11 | COMPLETE: T05–T11 independently reviewed. Provider normalization, complete round trips, ranking, durable streams, date/result equality and explicit versioned/idempotent referrals verified; T11 corrected lifecycle53 and packaged gateway/restart/preservation gates pass |
-| M3 — Signature search experience | T13–T18 | IN PROGRESS: T13 shared renderer and T14 geography/routes complete; T15–T18 pending. Wheel/calendar/chart/map linked to real API data; stable results and camera; compact desktop/mobile review |
+| M3 — Signature search experience | T13–T18 | IN PROGRESS: T13–T15 shared renderer, geography/routes and consumer composer complete; T16–T18 pending. Wheel/calendar/chart/map linked to real API data; stable results and camera; compact desktop/mobile review |
 | M4 — Complete traveler flow | T19–T22 | Guest and simulated identity, saved searches, hotels/rooms/custom point, exact simulated provider handoff |
 | M5 — Inspectable admin | T23–T26 | Session-scoped controls actually alter pipeline; raw-to-normalized trace; mapping preview/replay; real referral evidence |
 | M6 — Visual finish and resilience | T27–T28 | All themes/modes, local flat artwork, coordinated motion, empty/partial/error recovery |
@@ -1146,38 +1148,47 @@ Run graphics tests and pnpm nx run e2e:e2e --grep @route-scene. Inspect Iran/wor
 - `apps/web/src/features/search/search-reducer.spec.ts`
 - `apps/web/src/features/demo/demo-menu.tsx`
 - `libs/client/src/api-client.ts`
-- `tests/e2e/search-composer.spec.ts`
+- `tests/e2e/src/search-composer.spec.ts`
+- `apps/web/src/features/search/use-search-controller.ts`
+- `apps/web/src/features/search/search-start-pool.ts`
+- `apps/web/src/features/search/search-controller.spec.tsx`
+- `apps/web/src/features/search/search.module.css`
+- `libs/client/src/api-client.spec.ts`
+
+**Implementation joins:** web Vitest discovery includes `.spec.ts` and `.spec.tsx`; the cache probe measures per-file setup execution. The UI ViewTransition ref narrows its type only. Existing foundation/lab navigation tests and the isolated Vite proxy configuration were updated and verified; dependency versions and backend semantics are unchanged.
 
 **Interfaces:**
 
 - Consumes: Catalog/SessionInfo/TransportSearchQuery contracts; shared primitives; planned typed API endpoints.
 - Produces: Consumer router/layout; SearchComposer; useSearchController; canonical URL serialization; demo indicator/preset menu; typed apiClient.
 
-- [ ] **T15.1 — Pin query and navigation behavior**
+- [x] **T15.1 — Pin query and navigation behavior**
 
 Test selecting origin enables only supported endpoints; mode switches preserve compatible inputs and explain cleared destinations. Round-trip dates, party constraints, browser back/forward, malformed URLs, and restoration from a preset must be deterministic.
 
-- [ ] **T15.2 — Run state tests red**
+- [x] **T15.2 — Run state tests red**
 
 Run pnpm nx test web. Assert a stale generation cannot become the current committed query and preview dates do not alter the URL.
 
-- [ ] **T15.3 — Implement shell and composer**
+- [x] **T15.3 — Implement shell and composer**
 
 Create the Persian/RTL compact app, mode/scope/trip-type controls, origin/destination comboboxes, party/class controls, and the 1120 px desktop split layout. Obtain session and catalog through apiClient; keep the map placeholder fixed left.
 
-- [ ] **T15.4 — Implement state ownership**
+- [x] **T15.4 — Implement state ownership**
 
 Separate draft, preview, committed query, active search generation, pinned/preview itinerary, and modal draft states. Keep committed intent in the URL; transient hover/drag stays local. Gate the search until query validity is complete.
 
-- [ ] **T15.5 — Implement reviewer entry**
+- [x] **T15.5 — Implement reviewer entry**
 
 Show the subtle simulated-data indicator, optional preset/scenario/admin menu, and useful initial route. Do not auto-start a forced tutorial or require login. Reference fixtures through API catalog IDs, not duplicated browser inventory.
 
-- [ ] **T15.6 — Verify and commit**
+- [x] **T15.6 — Verify and commit**
 
 Run web tests and pnpm nx run e2e:e2e --grep @search-composer. Check all six mode/scope selections, keyboard completion, URL reload/back, 390/768/1440 widths, and no horizontal overflow. Commit consumer shell.
 
 **Acceptance:** The reviewer can immediately compose a valid search in all supported modes, and navigation restores intent without losing context.
+
+**T15 checkpoint — 2026-10-25:** Complete at 52f66c4 + evidence 5426f4d + correction 8c52bc4. Independent review reproduced unbounded unanswered browser POSTs through Search→Back; a shared synchronous two-start pool, same-tick guard and reset epoch now preserve the bound across remounts, with visible capacity recovery. Fresh correction review marks P2 ADDRESSED with no new actionable finding. Final web21/client23, 48 affected tasks, five real-API composer journeys and targeted admission/recovery/reset proof pass; the original 23-case browser matrix and tools20/cache/assets/regeneration proof remain recorded. Corrected Docker/production Chrome passes real searches, URL/history/presets, two-session isolation/reset and lazy WebGL2. JavaScript matches gateway SHA256 (197,981 startup / 255,421 deferred gzip9 bytes); original DB container/inventory preserved; own test contexts reset/closed and 4313/4314 clear. Tablet capture artifact resolved with fresh/settled one-header proof, without app changes. Fifteen of 35 tasks complete; T16 remains TODO and T29 ACTIVE. Superpowers remains disabled through 2026-10-26T07:16:38Z. No push/publication/deployment. Basic date entry, schematic map and accepted-only request summary are deliberate T16–T18 seams. Full performance/accessibility and raw-chunk warnings remain T32/T33-owned.
 
 ---
 
