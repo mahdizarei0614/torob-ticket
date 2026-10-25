@@ -1,12 +1,12 @@
-import {lazy,Suspense,useLayoutEffect,useMemo,useState} from 'react';
+import {useLayoutEffect,useMemo,useState} from 'react';
 import {useQuery} from '@tanstack/react-query';
 import type {CatalogSnapshot} from '@torob-ticket/contracts';
 import {Button} from '@torob-ticket/ui';
 import type {HotelDiscovery} from './use-hotel-discovery';
 import {cityLocationAssets,loadLocationAssets,validPoint} from './location-assets';
 import {faNumber} from './hotel-format';
+import {FreeLocationMap} from './free-location-map';
 import styles from './hotels.module.css';
-const Map=lazy(()=>import('./free-location-map').then(m=>({default:m.FreeLocationMap})));
 export function LocationPicker({model,catalog,onCancel,onApply}:{model:HotelDiscovery;catalog:CatalogSnapshot;onCancel:()=>void;onApply:()=>void}){
  const [filter,setFilter]=useState('');const destination=model.state.trip.query.destinationCityId;const city=catalog.cities.find(c=>c.id===destination)!;
  const assets=useQuery({queryKey:['hotel-location-assets'],queryFn:({signal})=>loadLocationAssets(signal),staleTime:Infinity,retry:false,refetchOnWindowFocus:false});
@@ -22,7 +22,7 @@ export function LocationPicker({model,catalog,onCancel,onApply}:{model:HotelDisc
   <header className={styles.pickerHead}><div><h3>کجای {city.name} نزدیک‌تر باشد؟</h3><p>فاصله خط مستقیم است؛ راهنمای خیابان یا زمان رانندگی نیست.</p></div><Button variant="quiet" onPress={onCancel}>انصراف از موقعیت</Button></header>
   <label className={styles.field}>جست‌وجوی نشانه یا اقامتگاه<input aria-label="جست‌وجوی نشانه یا اقامتگاه" value={filter} onChange={event=>setFilter(event.target.value)}/></label>
   <div className={styles.pickerLayout}><div>
-   <Suspense fallback={<p role="status">آماده‌سازی نقشه شهری…</p>}><Map identity={destination+':'+model.state.point?.token} center={city.point} choices={choices} point={point} onPoint={model.setPoint} isCurrent={model.isPointCurrent}/></Suspense>
+   <FreeLocationMap identity={destination+':'+model.state.point?.token} center={city.point} choices={choices} point={point} onPoint={model.setPoint} isCurrent={model.isPointCurrent}/>
    <div className={styles.coordinates}><label>عرض جغرافیایی<input aria-label="عرض جغرافیایی" type="number" dir="ltr" min="-90" max="90" step="any" value={coordinates.latitude} aria-invalid={!coordinatesValid||undefined} onChange={event=>coordinate('latitude',event.target.value)}/></label><label>طول جغرافیایی<input aria-label="طول جغرافیایی" type="number" dir="ltr" min="-180" max="180" step="any" value={coordinates.longitude} aria-invalid={!coordinatesValid||undefined} onChange={event=>coordinate('longitude',event.target.value)}/></label></div>
    {!coordinatesValid&&<p role="status">مختصات معتبر وارد کنید؛ عرض بین ۹۰- تا ۹۰ و طول بین ۱۸۰- تا ۱۸۰ است.</p>}
    {assets.error&&<p className={styles.muted}>فهرست نشانه‌های محلی دریافت نشد؛ مرکز مقصد، مختصات و نقشه شهری قابل استفاده‌اند. <Button variant="quiet" onPress={()=>void assets.refetch()}>دریافت دوباره نشانه‌ها</Button></p>}
