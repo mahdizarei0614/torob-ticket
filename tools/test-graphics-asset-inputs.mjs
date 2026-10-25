@@ -10,6 +10,9 @@ try {
   symlinkSync(resolve('node_modules'), join(root, 'node_modules'), 'dir');
   mkdirSync(join(root, 'libs/graphics/src/shaders'), { recursive: true });
   mkdirSync(join(root, 'libs/ui/src'), { recursive: true });
+  mkdirSync(join(root, 'assets/geography'), { recursive: true });
+  const geography = join(root, 'assets/geography/route-scene-fixtures.json');
+  writeFileSync(geography, '{"revision":"first"}');
   writeFileSync(join(root, 'libs/graphics/src/index.ts'), 'export {};');
   writeFileSync(join(root, 'libs/ui/src/index.ts'), 'export {};');
   const shader = join(root, 'libs/graphics/src/shaders/shared.glsl');
@@ -36,5 +39,10 @@ try {
     run(project, target);
     assert.equal(readFileSync(join(root, `${project}-${target}-runs`), 'utf8'), 'run\nrun\n', `Shader changes must invalidate ${project}:${target}`);
   }
-  console.log('PASS: shader-only changes invalidate warm graphics tests, graphics builds and the shared Storybook gallery.');
+  writeFileSync(geography, '{"revision":"changed"}');
+  for (const [project, target] of cases) {
+    run(project, target);
+    assert.equal(readFileSync(join(root, `${project}-${target}-runs`), 'utf8'), 'run\nrun\nrun\n', `Geography-only changes must invalidate ${project}:${target}`);
+  }
+  console.log('PASS: shader-only and geography-only changes invalidate warm graphics tests, graphics builds and the shared Storybook gallery.');
 } finally { rmSync(root, { recursive: true, force: true }); }

@@ -1,0 +1,35 @@
+.scene { position: relative; min-width: 0; }
+.viewport { position: relative; height: 380px; overflow: hidden; background: var(--scene-background); box-shadow: inset 0 0 0 1px var(--border); border-radius: var(--radius-lg); touch-action: pan-y; }
+.picker { touch-action: none; }
+.viewport > div[data-graphics-view] { height: 100%; }
+.labels { position: absolute; inset: 0; pointer-events: none; z-index: 2; }
+.labels > span { position: absolute; transform: translate(-50%, -120%); max-width: 165px; }
+.labels > span[hidden] { display: none; }
+.label, .labelButton { display: block; font-size: var(--text-xs); color: var(--text); background: var(--surface); border: 1px solid var(--border-strong); border-radius: var(--radius-sm); padding: 2px 5px; text-wrap: balance; }
+.labelButton { pointer-events: auto; min-height: 32px; cursor: pointer; }
+.controls { display: flex; align-items: center; gap: var(--space-2); margin-block: var(--space-2); }
+.controls button, .markerSelect select, .coordinates input { min-height: 44px; min-width: 44px; padding: var(--space-2); color: var(--text); background: var(--surface); border: 1px solid var(--border-strong); border-radius: var(--radius-sm); }
+.scene :focus-visible, .coordinates :focus-visible, .lab :focus-visible { outline: var(--focus-width) solid var(--focus); outline-offset: 3px; }
+.markerSelect { display: flex; gap: var(--space-2); align-items: center; margin-block: var(--space-3); }
+.markerSelect select { max-width: 100%; }
+.timeline { font-size: var(--text-sm); line-height: 1.8; padding-inline-start: 24px; }
+.timeline li[data-transfer='true'] { border-inline-start: 3px dashed var(--scene-route-muted); padding-inline-start: var(--space-2); }
+.coordinates { display: flex; flex-wrap: wrap; gap: var(--space-3); margin-block: var(--space-3); }
+.coordinates label { display: grid; gap: var(--space-1); }
+.coordinates input { width: 150px; }
+.lab { padding: var(--space-5); max-width: 1400px; margin: auto; }
+.lab h1 { font-size: var(--text-xl); }
+.labControls { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; }
+.labControls button, .labControls select { min-height: 44px; padding: var(--space-2); color: var(--text); background: var(--surface); border: 1px solid var(--border-strong); border-radius: var(--radius-sm); }
+.layout { display: grid; grid-template-columns: 46% 1fr; gap: var(--space-5); direction: ltr; margin-block: var(--space-4); align-items: start; }
+.mainMap { position: sticky; top: 0; direction: rtl; }
+.results { direction: rtl; height: 560px; overflow: auto; border: 1px solid var(--border); padding: var(--space-3); }
+.location { max-width: 680px; }
+.report { font-size: var(--text-xs); white-space: pre-wrap; overflow-wrap: anywhere; direction: ltr; max-height: 220px; overflow: auto; }
+@media (max-width: 1119px) { .layout { display: block; } .mainMap { display: none; } .results { height: auto; } }
+@media (max-width: 600px) { .lab { padding: var(--space-3); } .viewport { height: 320px; } .labelButton { min-height: 44px; } }
+
+.leaders { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.spreadLabel { width: 144px; height: 54px; }
+
+.labControls input { accent-color: var(--accent); }

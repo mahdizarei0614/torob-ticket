@@ -1,6 +1,8 @@
 import { lazy, Suspense } from 'react';
 const GraphicsLab = lazy(() => import('@torob-ticket/graphics').then(module => ({ default: module.GraphicsLab })));
+const RouteLab = lazy(() => import('@torob-ticket/graphics').then(module => ({ default: module.RouteLab })));
 export function App() {
+  if (location.pathname === '/route-lab') return <Suspense fallback={<p lang="fa" dir="rtl">در حال آماده‌سازی نقشه…</p>}><RouteLab /></Suspense>;
   if (location.pathname === '/graphics-lab') return <Suspense fallback={<p lang="fa" dir="rtl">در حال آماده‌سازی آزمایشگاه…</p>}><GraphicsLab /></Suspense>;
   return (
     <main lang="fa" dir="rtl">

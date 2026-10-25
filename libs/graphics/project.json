@@ -35,5 +35,12 @@
         "command": "vitest run --project ui libs/graphics --passWithNoTests"
       }
     }
+  },
+  "namedInputs": {
+    "default": [
+      "{projectRoot}/**/*",
+      "sharedGlobals",
+      "uiAssets"
+    ]
   }
 }
