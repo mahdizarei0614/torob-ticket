@@ -10,7 +10,7 @@
 
 **Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.0, 2026-10-24.
 
-**Plan state:** Approved; M1 foundation, T05 inventory, T06 normalization, T07 eligible comparison, T08 ranking, T09 durable search orchestration, SSE and recovery, T10 source-backed date prices, and T11 recheck/idempotent referrals are complete and independently reviewed. M2 comparison engine is complete; M3 begins with T13 shared WebGL rendering. Remaining product tasks and evidence are tracked below. The earlier date explorer is a completed throwaway interaction study, not implemented product code.
+**Plan state:** Approved; M1 foundation, T05 inventory, T06 normalization, T07 eligible comparison, T08 ranking, T09 durable search orchestration, SSE and recovery, T10 source-backed date prices, and T11 recheck/idempotent referrals are complete and independently reviewed. M2 comparison engine is complete; M3 has completed T13 shared WebGL rendering and continues with T14 geography and route scenes. Remaining product tasks and evidence are tracked below. The earlier date explorer is a completed throwaway interaction study, not implemented product code.
 
 **Delivery location:** This outputs directory contains the user-facing source documents. On repository creation, copy the spec to docs/superpowers/specs/2026-10-24-torobticket-design.md and this plan to docs/superpowers/plans/2026-10-24-torobticket-master-plan.md. Preserve the revision, task IDs, and decision authority, and rewrite the Spec link to ../specs/2026-10-24-torobticket-design.md.
 
@@ -311,6 +311,8 @@ T07 implemented context: ComparisonContext supplies a real clock, places, explic
 
 T09 implements the contract-only subscribeSearch lifecycle and its default same-origin fetch transport. T10 implements searchKey/datePriceKey/hotelKey as browser-safe wrappers around shared pure identity logic. The remaining client composition helper is apiClient for typed REST. Committed search/filter state is URL-serializable. Hover, dragging, modal draft dates, pinned route, and staged result updates belong to typed UI reducers; animation frames do not round-trip through global React state.
 
+T13 implements GraphicsProvider, GraphicsView, useGraphics/controller diagnostics and stable useThemeUniforms. UI publishes token subscribers before a generic beforePaint stage; no UI→graphics import. Children are arbitrary R3F nodes; declarative commits render automatically. Imperative changes use useThree(state => state.invalidate) or the host controller; package-global invalidate fan-out is outside this manual host. Motion is opt-in, and Activity suspends hidden/covered/offscreen callbacks. Required fallback/label and external semantic controls remain the scene author's responsibility. T21 owns foreground native-dialog composition; /graphics-lab is diagnostic only.
+
 ## 4. Execution and tracking rules
 
 - Each task below is independently reviewable; follow dependencies rather than assuming numerical order is mandatory.
@@ -328,7 +330,7 @@ T09 implements the contract-only subscribeSearch lifecycle and its default same-
 
 Each row indexes the detailed checkbox steps in section 6. DONE requires independent review and recorded verification evidence.
 
-**Progress:** 35 tasks · 183 subtasks · 12 implementation tasks complete.
+**Progress:** 35 tasks · 183 subtasks · 13 implementation tasks complete.
 
 | Task | Subtasks | Dependencies | Status | Owner / evidence |
 |---|---|---|---|---|
@@ -344,7 +346,7 @@ Each row indexes the detailed checkbox steps in section 6. DONE requires indepen
 | [T10 — Consistent date-price projection and scoped caching](#t10) | T10.1 Pin date/result equivalence<br>T10.2 Run projection tests red<br>T10.3 Implement bounded projection<br>T10.4 Implement cache identity and invalidation<br>T10.5 Verify and commit | T09 | DONE | implement_t10 / 0a39241 + 3dd0d0a; independent spec/quality approved, no blocking findings; domain239/client17/API66, root12+tools20, affected34 and packaged equivalence/cache/isolation/restart/preservation passed; docs/evidence/T10; T10-M1 readability retained |
 | [T11 — Recheck, quote versions, idempotent referrals, and handoff data](#t11) | T11.1 Pin changed-price and idempotency cases<br>T11.2 Run referral tests red<br>T11.3 Implement prepare and acceptance<br>T11.4 Implement atomic confirmation<br>T11.5 Verify and commit | T04, T07, T09 | DONE | implement_t11 / 3abdd5e + cb77ce2 + 301119d; independently reviewed, I1 closed by scoped re-review; integration81/amended53, root12+tools20, affected34/16 and packaged ready/change/soldout/idempotency/restart/preservation pass; docs/evidence/T11 |
 | [T12 — Design tokens, accessible primitives, typography, and component gallery](#t12) | T12.1 Define the visual foundation<br>T12.2 Implement accessible primitives<br>T12.3 Pin interaction behavior<br>T12.4 Build the state gallery<br>T12.5 Verify and commit | T01 | DONE | implement_t12 / 6e0071c + 581f834; review clean; UI13 tests, browser28 audit/startup6/native race2 and builds passed |
-| [T13 — Shared WebGL renderer, typed uniforms, and graceful fallback](#t13) | T13.1 Define lifecycle behavior<br>T13.2 Build the shared host<br>T13.3 Implement uniforms and scheduling<br>T13.4 Implement fallback and recovery<br>T13.5 Verify and commit | T12 | TODO | Unassigned / — |
+| [T13 — Shared WebGL renderer, typed uniforms, and graceful fallback](#t13) | T13.1 Define lifecycle behavior<br>T13.2 Build the shared host<br>T13.3 Implement uniforms and scheduling<br>T13.4 Implement fallback and recovery<br>T13.5 Verify and commit | T12 | DONE | implement_t13 / 1b83a74 + e2c5df1 + e43bf0e; independent review/correction approved, I1/I2 closed; units8/browser10/final affected26, root12+tools20 and packaged GL/lazy/theme/modal/preservation pass; docs/evidence/T13 |
 | [T14 — Dotted geography and mode-specific route scenes](#t14) | T14.1 Pin geographic and route invariants<br>T14.2 Run geometry tests red<br>T14.3 Implement map and route shaders<br>T14.4 Implement camera and location primitives<br>T14.5 Verify and commit | T05, T13 | TODO | Unassigned / — |
 | [T15 — Consumer shell, search composer, URL state, and reviewer entry](#t15) | T15.1 Pin query and navigation behavior<br>T15.2 Run state tests red<br>T15.3 Implement shell and composer<br>T15.4 Implement state ownership<br>T15.5 Implement reviewer entry<br>T15.6 Verify and commit | T02, T04, T05, T12 | TODO | Unassigned / — |
 | [T16 — Date wheel, Jalali calendar, linked GLSL chart, and apply behavior](#t16) | T16.1 Pin preview/commit and date rules<br>T16.2 Run date tests red<br>T16.3 Implement the wheel and calendar<br>T16.4 Implement chart and cache wiring<br>T16.5 Verify physical interaction<br>T16.6 Review and commit | T03, T10, T13, T15 | TODO | Unassigned / — |
@@ -360,7 +362,7 @@ Each row indexes the detailed checkbox steps in section 6. DONE requires indepen
 | [T26 — Referral analytics and end-to-end provenance trail](#t26) | T26.1 Pin real metric counts<br>T26.2 Run analytics tests red<br>T26.3 Implement metrics and joins<br>T26.4 Implement the referral views<br>T26.5 Verify and commit | T11, T23, T24 | TODO | Unassigned / — |
 | [T27 — Flat artwork, coordinated motion, and all theme transitions](#t27) | T27.1 Author the visual assets<br>T27.2 Implement useful motion<br>T27.3 Implement theme coordination<br>T27.4 Verify motion and all palettes<br>T27.5 Review and commit | T12, T13, T14, T16, T17, T21 | TODO | Unassigned / — |
 | [T28 — Failure recovery and coherent state across features](#t28) | T28.1 Pin the scenario recovery matrix<br>T28.2 Run recovery cases red<br>T28.3 Implement recovery actions<br>T28.4 Reconcile stale selections<br>T28.5 Verify and commit | T09, T10, T16, T17, T18, T20, T21, T22, T24, T25 | TODO | Unassigned / — |
-| [T29 — Docker packaging, gateway, initialization, and one-command startup](#t29) | T29.1 Define container lifecycle<br>T29.2 Implement ordered initialization<br>T29.3 Implement gateway and assets<br>T29.4 Implement one-command runner<br>T29.5 Verify and commit | T01, T04, T05 | ACTIVE | implement_t29_early / T05 inventory/T06 migration/T07 comparison integrated; packaged startup, compiled comparison and data preservation verified; real T09 SSE, future assets and T33 full acceptance pending |
+| [T29 — Docker packaging, gateway, initialization, and one-command startup](#t29) | T29.1 Define container lifecycle<br>T29.2 Implement ordered initialization<br>T29.3 Implement gateway and assets<br>T29.4 Implement one-command runner<br>T29.5 Verify and commit | T01, T04, T05 | ACTIVE | implement_t29_early / T05–T11 engine and T13 graphics packaged-verified; startup, SSE, referrals, production GL/lazy assets and data preservation pass; future artwork and full T33 acceptance pending |
 | [T30 — Complete behavioral regression and multi-reviewer acceptance](#t30) | T30.1 Build stable e2e fixtures<br>T30.2 Exercise the full matrix<br>T30.3 Exercise cross-feature journeys<br>T30.4 Exercise hostile timing and isolation<br>T30.5 Verify and commit | T19, T22, T24, T25, T26, T28, T29 | TODO | Unassigned / — |
 | [T31 — Accessibility, RTL, responsive behavior, and browser compatibility](#t31) | T31.1 Define representative coverage<br>T31.2 Run semantic checks<br>T31.3 Inspect visual accessibility<br>T31.4 Run browser coverage<br>T31.5 Fix, verify, and commit | T27, T28, T30 | TODO | Unassigned / — |
 | [T32 — Graphics performance, visual regression, and resource budgets](#t32) | T32.1 Capture controlled visual baselines<br>T32.2 Measure real interaction performance<br>T32.3 Measure bundles and idle work<br>T32.4 Stress lifecycle and fallbacks<br>T32.5 Verify and commit | T27, T28, T30 | TODO | Unassigned / — |
@@ -374,7 +376,7 @@ Each row indexes the detailed checkbox steps in section 6. DONE requires indepen
 |---|---|---|
 | M1 — Runnable foundation and contracts | T01–T04, T12; early T29 | COMPLETE: independent task and cross-task review, final WebStorm builds/Docker startup verified; evidence in docs/evidence/M1-checkpoint and M1-handoff |
 | M2 — Credible comparison engine | T05–T11 | COMPLETE: T05–T11 independently reviewed. Provider normalization, complete round trips, ranking, durable streams, date/result equality and explicit versioned/idempotent referrals verified; T11 corrected lifecycle53 and packaged gateway/restart/preservation gates pass |
-| M3 — Signature search experience | T13–T18 | Wheel/calendar/chart/map linked to real API data; stable results and camera; compact desktop/mobile review |
+| M3 — Signature search experience | T13–T18 | IN PROGRESS: T13 shared renderer complete; T14–T18 pending. Wheel/calendar/chart/map linked to real API data; stable results and camera; compact desktop/mobile review |
 | M4 — Complete traveler flow | T19–T22 | Guest and simulated identity, saved searches, hotels/rooms/custom point, exact simulated provider handoff |
 | M5 — Inspectable admin | T23–T26 | Session-scoped controls actually alter pipeline; raw-to-normalized trace; mapping preview/replay; real referral evidence |
 | M6 — Visual finish and resilience | T27–T28 | All themes/modes, local flat artwork, coordinated motion, empty/partial/error recovery |
@@ -1045,27 +1047,30 @@ Run pnpm nx test ui, pnpm nx build ui, and pnpm nx run ui:build-storybook. Inspe
 - Consumes: Theme tokens/provider and semantic DOM containers; Three.js WebGL2/R3F/Drei View.
 - Produces: GraphicsProvider; GraphicsView; useThemeUniforms; graphics quality/fallback state; shared scene lifecycle and on-demand scheduling.
 
-- [ ] **T13.1 — Define lifecycle behavior**
+- [x] **T13.1 — Define lifecycle behavior**
 
 Pin token-to-uniform conversion, quality caps, renderer disposal, visibility pause, context loss/restoration, and reduced-motion policy. Create an e2e scene with two clipped views plus a native dialog.
 
-- [ ] **T13.2 — Build the shared host**
+- [x] **T13.2 — Build the shared host**
 
 Implement one persistent canvas and clipped views aligned to DOM rectangles. Lazy-load graphics; retain useful SVG/HTML until ready. Register event sources without blocking native controls; avoid one context or material per result card.
 
-- [ ] **T13.3 — Implement uniforms and scheduling**
+- [x] **T13.3 — Implement uniforms and scheduling**
 
 Resolve CSS color tokens to renderer color space, update all active shader uniforms on theme changes, reuse resources, and invalidate only while needed. Apply DPR caps and measured low-tier policy; pause hidden/covered scenes.
 
-- [ ] **T13.4 — Implement fallback and recovery**
+- [x] **T13.4 — Implement fallback and recovery**
 
 Detect unavailable WebGL2, shader failure, and lost context. Expose a fallback state to views; restore after context recovery without resetting selected query or camera intent. Cancel animation/observers and dispose resources on unmount.
 
-- [ ] **T13.5 — Verify and commit**
+- [x] **T13.5 — Verify and commit**
 
 Run pnpm nx test graphics and pnpm nx run e2e:e2e --grep @graphics-host. Check actual GL compile/link logs, modal pointer/keyboard behavior, theme sync, and loss/recovery in a real browser. Save evidence; commit graphics foundation.
 
 **Acceptance:** A bounded shared renderer supports multiple scenes while every essential UI action survives graphics failure.
+
+**T13 checkpoint — 2026-10-25:** Complete at1b83a74 + report e2c5df1 + corrections e43bf0e. Independent review confirmed two Important generic-host issues (fallback input interception and stale nested R3F updates); actual browser REDs reproduced them, corrected bridges/fallback/DPR policy pass8units/10browser cases and26finalaffected targets. Fresh correction review closed both with no new blocker. Final Docker/production Chrome verifies lazy WebGL2, compiled one-program/two-view rendering, semantic theme sync, inert fallback, native dialog, and exact existing-data preservation. Root suite12targets+20tools and GLSL cache probes pass; shared Storybook builds. Actual hardware/context/hidden-tab/failure/DPR evidence retained in docs/evidence/T13. Known upstream Clock/rawchunk warnings remain T32-owned; opaque native hotel foreground composition remains T21. Thirteen of35tasks are complete; next T14. Superpowers paused by owner for24h at2026-10-25 07:16:38UTC; later work/reviews/tracker used standard tools.
+
 
 ---
 
