@@ -12,7 +12,7 @@
 
 **Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.0, 2026-10-24.
 
-**Plan state:** Approved; M1 foundation, T05 inventory, T06 normalization, T07 eligible comparison, T08 ranking, T09 durable search orchestration, SSE and recovery, T10 source-backed date prices, and T11 recheck/idempotent referrals are complete and independently reviewed. M2 comparison engine is complete; M3 is complete: T13 shared rendering, T14 geography/routes, T15 consumer shell/composer, T16 date exploration, T17 streamed comparison results and T18 canonical consumer map integration are independently reviewed and verified. Remaining product tasks and evidence are tracked below. The earlier date explorer is a completed throwaway interaction study, not implemented product code.
+**Plan state:** Approved; M1 foundation, T05 inventory, T06 normalization, T07 eligible comparison, T08 ranking, T09 durable search orchestration, SSE and recovery, T10 source-backed date prices, and T11 recheck/idempotent referrals are complete and independently reviewed. M2 comparison engine is complete; M3 is complete: T13 shared rendering, T14 geography/routes, T15 consumer shell/composer, T16 date exploration, T17 streamed comparison results and T18 canonical consumer map integration are independently reviewed and verified. T19 optional identity, saved intent and local preferences are complete; M4 is in progress. Remaining product tasks and evidence are tracked below. The earlier date explorer is a completed throwaway interaction study, not implemented product code.
 
 **Delivery location:** This outputs directory contains the user-facing source documents. On repository creation, copy the spec to docs/superpowers/specs/2026-10-24-torobticket-design.md and this plan to docs/superpowers/plans/2026-10-24-torobticket-master-plan.md. Preserve the revision, task IDs, and decision authority, and rewrite the Spec link to ../specs/2026-10-24-torobticket-design.md.
 
@@ -325,6 +325,8 @@ T17 implements ResultsPage/ResultsList/JourneyCard/ProviderOffers, ResultFilters
 
 T18 implements TripMap/useTripMap/mapReducer and the consumer RouteTimeline/RouteDirectionControl. The API catalog owns City/Place support; accepted canonical itineraries own timetable facts. Display priority is hover, focused result, explicit pin, then unpriced draft illustration. Results preview callbacks carry `(itinerary?, source?: 'hover' | 'focus', leavingId?)`; forward all metadata under the live accepted-pair guard. The controller's `currentIntent()` advances synchronously through the same searchReducer/action path; map sends reconcile against it, preserving coherent same-turn committed inspection without granting obsolete operations access. Passive consumed quote intents cannot resurrect cleared choices; explicit same-fare reselection remains possible. Camera callbacks retain draft/fit/scene leases and saved logical intent; viewport frame changes do not authorize a fit. Consumer dots fetch only `/geography/consumer-geography.json`; authored paths remain non-navigation. Below1120px the map/portal unmount and the canonical DOM timeline remains. Repeated stops join by ordered occurrence plus known arrival/departure instants; unknown/conflicting/unmatched facts stay explicit. Future T22 calls `bindAcceptedQuote(previous,quote,itinerary)` only after ready or explicit changed-version acceptance, then supplies its actual server receipt to `confirmReferral`; exact quote/version/itinerary/current owner and original validity interval gate100. No completion simulator is implemented. Shared host/finite motion, same-basis historical inspection and portal behavior are documented in docs/decisions/0018-consumer-trip-map.md; complete evidence: docs/evidence/T18/checkpoint.md. T19/T21/T22/T27/T32/T33 retain their planned scope.
 
+T19 implements AccountRepository, DemoAuthModule/SavedSearchModule and AccountPanel/useDemoAccount/DemoLogin/SavedSearches. Required migration `0003_demo_identity_state` adds DemoIdentity.signedIn; sign-out retains identity/saves, reactivation is idempotent, reset/expiry cascades the sandbox. Account authorization is rechecked under the same session row lock as mutation/read. Identity-required403 and saved-limit429 are explicit; signed-in peer IDs return404. Saves are normalized full TransportSearchQuery intent plus name/creation metadata, never quotes; canonical duplicates update names under a20-distinct cap. apiClient publishes authState/signIn/signOut/listSavedSearches/getSavedSearch/saveSearch/deleteSavedSearch with runtime schemas and same-origin single-send transport. The account hook is separate from bootstrap SessionInfo; do not replace that controller prop on auth updates. Methods have rendered operation/sandbox entry leases, explicit layout lifecycle publication for StrictMode and true-unmount fences. AccountPanel wraps child actions with dialog-cycle/date authority and exact provisional SaveTransaction identity; use fresh current render handlers, not callbacks stashed across ownership changes. `controller.openSavedSearch(query)` restores exact fields and uses normal admission for fresh prices, with invalid/capacity feedback and no implicit queue. Theme stays local/guest-accessible. Optional `Dialog.stickyHeader` defaultsfalse and AccountPanel opts in so its20-row mobile list retains Close/title while scrolling. Calendar/account coverage composes in the same host/map; T21 must add hotel coverage without replacing these owners. Guest comparison/referral remains unrestricted; actual handoff UI is still T22. Rulings: docs/decisions/0019-optional-demo-account.md; complete evidence: docs/evidence/T19/checkpoint.md.
+
 ## 4. Execution and tracking rules
 
 - Each task below is independently reviewable; follow dependencies rather than assuming numerical order is mandatory.
@@ -342,7 +344,7 @@ T18 implements TripMap/useTripMap/mapReducer and the consumer RouteTimeline/Rout
 
 Each row indexes the detailed checkbox steps in section 6. DONE requires independent review and recorded verification evidence.
 
-**Progress:** 35 tasks · 183 subtasks · 18 implementation tasks complete.
+**Progress:** 35 tasks · 183 subtasks · 19 implementation tasks complete.
 
 | Task | Subtasks | Dependencies | Status | Owner / evidence |
 |---|---|---|---|---|
@@ -364,7 +366,7 @@ Each row indexes the detailed checkbox steps in section 6. DONE requires indepen
 | [T16 — Date wheel, Jalali calendar, linked GLSL chart, and apply behavior](#t16) | T16.1 Pin preview/commit and date rules<br>T16.2 Run date tests red<br>T16.3 Implement the wheel and calendar<br>T16.4 Implement chart and cache wiring<br>T16.5 Verify physical interaction<br>T16.6 Review and commit | T03, T10, T13, T15 | DONE | implement_t16 / source 4ba35d8 + evidence 1525c60 + correction 310a882 + report 8f4a340; three independent P2 findings fixed and fresh review approved; web46/client25/UI16/graphics22, affected48, correction browser14 and corrected Docker/price equivalence/history/isolation/GL/bundles/preservation pass; docs/evidence/T16 |
 | [T17 — Compact comparison results, provider groups, filters, and stable updates](#t17) | T17.1 Pin stable ordering and selection<br>T17.2 Run reducer and e2e tests red<br>T17.3 Implement dense cards and details<br>T17.4 Implement sorting and filters<br>T17.5 Implement staged arrival adoption<br>T17.6 Verify and commit | T08, T09, T15 | DONE | implement_t17 / d9feb83 + evidence 83566f5 + fix ba1835d + report 4ce2fd6 + precision dde5b6c; three P2s fixed and fresh independent review approved; web79/client25, affected19, documented browser closures and corrected Docker/comparison/filter/history/isolation/bundle/preservation proof pass; docs/evidence/T17 |
 | [T18 — Link map selection, route details, camera, and referral progress](#t18) | T18.1 Pin the map state machine<br>T18.2 Run map-state tests red<br>T18.3 Wire the scene and timeline<br>T18.4 Wire vehicle progress<br>T18.5 Verify and commit | T14, T17 | DONE | implement_t18 / source342e68d + harness89c2a16 + fixesbb37d01/4e07347;3P2s addressed by fresh review18checks; web104/graphics26/affected38, final native5consumer+6lab and Docker/GL/camera/mobile/bundles/database proof PASS; docs/evidence/T18 |
-| [T19 — Optional simulated identity, saved searches, and preferences](#t19) | T19.1 Pin guest and identity behavior<br>T19.2 Run identity tests red<br>T19.3 Implement simulated identity<br>T19.4 Implement saved intent and preferences<br>T19.5 Verify and commit | T04, T12, T15 | TODO | Unassigned / — |
+| [T19 — Optional simulated identity, saved searches, and preferences](#t19) | T19.1 Pin guest and identity behavior<br>T19.2 Run identity tests red<br>T19.3 Implement simulated identity<br>T19.4 Implement saved intent and preferences<br>T19.5 Verify and commit | T04, T12, T15 | DONE | implement_t19 / product9191eff/875fb02 + corrections58f4e58/8eec6b3 + evidencea022be9; twoP2s addressed by fresh20check review; web123/UI16/client27/API91/affected48/native4 and final Docker/account/modal/JS/database preservation PASS; docs/evidence/T19 |
 | [T20 — Hotel eligibility, stay pricing, distance sorting, and recheck](#t20) | T20.1 Pin occupancy and total-stay cases<br>T20.2 Run hotel tests red<br>T20.3 Implement allocation and pricing<br>T20.4 Implement dates and four sorts<br>T20.5 Register recheck and persistence<br>T20.6 Verify and commit | T03, T04, T05, T11 | TODO | Unassigned / — |
 | [T21 — Hotel discovery modal, custom-location map, and trip-state restoration](#t21) | T21.1 Pin opening, edits, and restoration<br>T21.2 Run hotel UI tests red<br>T21.3 Implement hotel browsing<br>T21.4 Implement location selection<br>T21.5 Implement modal/canvas coordination<br>T21.6 Verify and commit | T12, T13, T14, T15, T20 | TODO | Unassigned / — |
 | [T22 — Traveler referral UI and simulated provider landing page](#t22) | T22.1 Pin user-visible handoff behavior<br>T22.2 Run referral UI tests red<br>T22.3 Implement recheck UI<br>T22.4 Implement handoff and return<br>T22.5 Verify and commit | T11, T17, T18, T19, T21 | TODO | Unassigned / — |
@@ -389,7 +391,7 @@ Each row indexes the detailed checkbox steps in section 6. DONE requires indepen
 | M1 — Runnable foundation and contracts | T01–T04, T12; early T29 | COMPLETE: independent task and cross-task review, final WebStorm builds/Docker startup verified; evidence in docs/evidence/M1-checkpoint and M1-handoff |
 | M2 — Credible comparison engine | T05–T11 | COMPLETE: T05–T11 independently reviewed. Provider normalization, complete round trips, ranking, durable streams, date/result equality and explicit versioned/idempotent referrals verified; T11 corrected lifecycle53 and packaged gateway/restart/preservation gates pass |
 | M3 — Signature search experience | T13–T18 | COMPLETE: shared renderer, geography/routes, consumer composer, date exploration, streamed comparison and canonical map binding independently verified. Wheel/calendar/chart/map linked to real mock-provider API data; stable results/camera and desktop/mobile route details. |
-| M4 — Complete traveler flow | T19–T22 | Guest and simulated identity, saved searches, hotels/rooms/custom point, exact simulated provider handoff |
+| M4 — Complete traveler flow | T19–T22 | IN PROGRESS: T19 optional simulated identity, saved intent and local preferences complete and independently verified. T20 hotel eligibility/pricing/recheck is next; hotels/custom point and traveler/provider handoff remain T21/T22. |
 | M5 — Inspectable admin | T23–T26 | Session-scoped controls actually alter pipeline; raw-to-normalized trace; mapping preview/replay; real referral evidence |
 | M6 — Visual finish and resilience | T27–T28 | All themes/modes, local flat artwork, coordinated motion, empty/partial/error recovery |
 | M7 — Reproducible quality gates | T29–T33 | Clean Docker boot, browser journeys, accessibility audit, measured graphics/bundles, isolation/reset/restart evidence |
@@ -1388,27 +1390,29 @@ Run web tests and pnpm nx run e2e:e2e --grep @map-flow. Test pointer and focus p
 - Consumes: SessionContext, DemoIdentity/SavedSearch schemas, search URL/controller, shared Dialog.
 - Produces: Explicit demo Torob sign-in/sign-out endpoints; save/list/delete search intents; optional account UI with local theme preference.
 
-- [ ] **T19.1 — Pin guest and identity behavior**
+- [x] **T19.1 — Pin guest and identity behavior**
 
 Assert guest search/referral is unrestricted; saving can prompt simulated identity; login preserves current query/selection; reopening a saved search requests fresh prices. Another session cannot read saved searches.
 
-- [ ] **T19.2 — Run identity tests red**
+- [x] **T19.2 — Run identity tests red**
 
 Run pnpm nx run api:test-integration. Define @guest-saved e2e cases with no email/OTP/network dependency.
 
-- [ ] **T19.3 — Implement simulated identity**
+- [x] **T19.3 — Implement simulated identity**
 
 Use clear Persian copy for Continue with Torob — demo, one-click simulation, and sign-out. Persist identity only within the reviewer sandbox. No password/email capture, real OAuth redirect, or third-party SDK.
 
-- [ ] **T19.4 — Implement saved intent and preferences**
+- [x] **T19.4 — Implement saved intent and preferences**
 
 Save normalized query intent with a display name; list/delete it; reopening restores inputs and executes a fresh search. Keep theme preference local and restore guest context on sign-out.
 
-- [ ] **T19.5 — Verify and commit**
+- [x] **T19.5 — Verify and commit**
 
 Run API integration and pnpm nx run e2e:e2e --grep @guest-saved. Confirm reset removes session saves and the main journey never acquires a login gate. Commit optional identity.
 
 **Acceptance:** Optional identity adds useful persistence while the entire core comparison/referral flow remains available to guests.
+
+**T19 checkpoint — 2026-10-25:** Complete at product `9191eff` / formatting `875fb02`, corrections `58f4e58` / `8eec6b3`, and evidence `a022be9`. Initial independent review reproduced twoP2s: stale raw account methods after failed reset and row actions after dialog dismissal. Fresh correction review marks both ADDRESSED with20checks passing, including the subsequent same-dialog canceled/replacement form REDs, current retry/action controls and unmasked StrictMode/real-unmount checks. Root's native20-row mobile boundary exposed scrolling Close out of view; the account-only opt-in persistent header fixes it, with unchanged other-dialog defaults. Final web123/UI16/client27, realHTTP/PG91, affected48targets(32cached) and native4/4 pass. Backend/API/contracts/client/data/migration source is identical875fb02→8eec6b3; server proof retains that attribution. Root final Docker/Chrome verifies exact fare70/query/URL/camera preservation,2fresh identical saved reopens, theme/list reload/delete, covered renderer idle, mobile/Escape and20-row final action plus visible Close/title. Gateway JS SHA256matches localbuild; gzip9startup248216/deferred256192bytes. Original DB container and exact immutable fingerprints preserved, three migrations ready; final root/native scopes reset201/closed, exact owned test containers/volume/connection file removed and4313/4314/62311free. Test random-port restart failure was repaired only in the owned resource; raw failures remain separately redacted/attributed. Root verifies61archive members and15independent review artifact hashes. Nineteen of35tasks complete; M4inprogress,T20TODO,T29ACTIVE. [Checkpoint](../../evidence/T19/checkpoint.md), [fresh review](../../evidence/T19/task-19-correction-review.md), [production evidence](../../evidence/T19/packaged/README.md). No push/publication/deployment/submission; Superpowers disabled through2026-10-26T07:16:38Z. Hotel/handoff/polish/full audits retain their planned later scope.
 
 ---
 
