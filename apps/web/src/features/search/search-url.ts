@@ -15,7 +15,7 @@ export function validateDraft(draft: unknown, catalog: CatalogSnapshot, session:
   if (!parsed.success) return { valid: false, errors: ['مبدا، مقصد، تاریخ و تعداد مسافران را کامل و معتبر وارد کنید. حداقل یک بزرگسال، حداکثر ۹ مسافر و تعداد نوزاد حداکثر برابر بزرگسالان است.'] };
   const q = parsed.data;
   const errors: string[] = [];
-  if (!catalog.supportedConnections.some(c => c.mode === q.mode && c.scope === q.scope && c.originCityId === q.originCityId && c.destinationCityId === q.destinationCityId)) errors.push('این مسیر در شبکه نمایشی این وسیله و محدوده پشتیبانی نمی‌شود.');
+  if (!catalog.supportedConnections.some(c => c.mode === q.mode && c.scope === q.scope && c.originCityId === q.originCityId && c.destinationCityId === q.destinationCityId)) errors.push('این مسیر برای وسیله و محدوده انتخاب‌شده در دسترس نیست.');
   if (!catalog.classChoices.some(c => c.mode === q.mode && c.code === q.classCode)) errors.push('کلاس سفر را از گزینه‌های همین وسیله انتخاب کنید.');
   const providers = catalog.providerCapabilities.filter(p => p.modes.includes(q.mode) && p.scopes.includes(q.scope));
   if (q.filters.providerIds?.some(id => !providers.some(p => p.providerId === id))) errors.push('فروشنده انتخاب‌شده برای این سفر پشتیبانی نمی‌شود.');
@@ -28,7 +28,7 @@ export function validateDraft(draft: unknown, catalog: CatalogSnapshot, session:
     const city = catalog.cities.find(c => c.id === cityId);
     if (!city) { errors.push('شهر ناشناخته است.'); continue; }
     const bounds = dateBounds(session, city.timeZone);
-    if (date < bounds.min || date > bounds.max) errors.push('تاریخ باید در بازه ۹۰ روزه نسخه نمایشی و به وقت محلی شهر باشد.');
+    if (date < bounds.min || date > bounds.max) errors.push('تاریخ باید در بازه ۹۰ روز آینده و به وقت محلی شهر باشد.');
   }
   return { valid: errors.length === 0, errors, ...(errors.length ? {} : { query: q }) };
 }

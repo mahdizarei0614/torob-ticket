@@ -1,7 +1,7 @@
 import type { ApiClient } from '@torob-ticket/client';
 
 export const unresolvedStartLimit = 2;
-export const startCapacityMessage = 'دو درخواست جست‌وجو در انتظار پاسخ است. برای پاسخ صبر کنید یا از «کاوش نسخه نمایشی» نشست خود را دوباره شروع کنید.';
+export const startCapacityMessage = 'دو درخواست جست‌وجو در انتظار پاسخ است. پس از دریافت پاسخ، می‌توانید دوباره جست‌وجو کنید.';
 interface StartSnapshot { count: number; resetting: boolean }
 interface StartEntry { abort: AbortController; done: Promise<void> }
 

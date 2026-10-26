@@ -22,7 +22,7 @@ test('@graphics-host real shaders share resources, clip, and synchronously follo
   const errors: string[] = [];
   page.on('pageerror', error => errors.push(error.message));
   await ready(page);
-  await expect(page.getByRole('heading', { name: 'آزمایشگاه گرافیک' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'کارگاه گرافیک' })).toBeVisible();
   await expect(page.locator('canvas')).toHaveCount(1);
   const initial = await report(page);
   expect(initial.programs).toEqual([{ linked: true, vertexCompiled: true, fragmentCompiled: true, programLog: '', vertexLog: '', fragmentLog: '' }]);
@@ -86,10 +86,10 @@ test('@graphics-host idle, reduced motion, clipping and native dialog preserve c
   await page.getByRole('button', { name: 'انتخاب مسیر دوم' }).click();
   await page.getByRole('button', { name: 'جابجایی دوربین' }).click();
   await expect(page.getByLabel('جابجایی دوربین', { exact: true })).toHaveText('0.1');
-  await page.getByRole('checkbox', { name: 'حرکت نمایشی' }).check();
+  await page.getByRole('checkbox', { name: 'حرکت مسیر' }).check();
   await expect.poll(async () => (await report(page)).frames).toBeGreaterThan(first.frames + 3);
   await page.getByRole('button', { name: 'باز کردن گفتگو' }).click();
-  const modal = page.getByRole('dialog', { name: 'گفتگوی آزمایشی' });
+  const modal = page.getByRole('dialog', { name: 'تنظیمات مسیر' });
   await expect(modal).toBeVisible();
   await expect(modal.getByRole('button', { name: 'بستن گفتگو' })).toBeFocused();
   // Native dialog makes the background inert. Read the controller through the report button's real handler,
@@ -232,7 +232,7 @@ test('@graphics-host genuinely hidden Chrome tab pauses and resumes with latest 
     await page.setViewportSize({ width: 1280, height: 900 });
     await page.goto(`${baseURL}/graphics-lab`);
     await expect(page.locator('[data-graphics-status="ready"]')).toBeVisible();
-    await page.getByRole('checkbox', { name: 'حرکت نمایشی' }).check();
+    await page.getByRole('checkbox', { name: 'حرکت مسیر' }).check();
     const running = await report(page);
     await expect.poll(async () => (await report(page)).frames).toBeGreaterThan(running.frames + 2);
     const foreground = await context.newPage();

@@ -69,11 +69,11 @@ export function AccountPanel({controller,catalog,session,onCovered,client=apiCli
   save:input=>guarded(()=>account.save(input)),remove:id=>guarded(()=>account.remove(id)),isCurrent:actionCurrent,
  };
  return <>
-  <Button variant="quiet" aria-label="حساب نمایشی" isDisabled={controller.resetting||account.pending==='write'} onPress={show}>
+  <Button variant="quiet" aria-label="حساب کاربری" isDisabled={controller.resetting||account.pending==='write'} onPress={show}>
    <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a5 5 0 1 0 0 10 5 5 0 0 0 0-10ZM3 22a9 9 0 0 1 18 0h-2a7 7 0 0 0-14 0Z"/></svg>
-   <span className={styles.triggerLabel}>حساب نمایشی</span>
+   <span className={styles.triggerLabel}>حساب کاربری</span>
   </Button>
-  <Dialog title="حساب نمایشی و جست‌وجوهای ذخیره‌شده" isOpen={open} onOpenChange={next=>{if(dialog.current.epoch===dialogEpoch)changeDialog(next);}} mobileFullscreen stickyHeader>
+  <Dialog title="حساب کاربری و جست‌وجوهای ذخیره‌شده" isOpen={open} onOpenChange={next=>{if(dialog.current.epoch===dialogEpoch)changeDialog(next);}} mobileFullscreen stickyHeader>
    <div className={styles.panel}>
     <DemoLogin account={visibleAccount}/>
     {account.pending==='read'&&<p role="status">دریافت وضعیت حساب…</p>}

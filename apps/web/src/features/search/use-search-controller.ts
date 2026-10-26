@@ -10,8 +10,8 @@ import { searchStartPool, startCapacityMessage, unresolvedStartLimit } from './s
 import { initialDraft, parseSearchUrl, serializeSearchUrl, validateDraft, type SearchDraft } from './search-url';
 export function errorMessage(error: unknown): string {
   if (error instanceof ClientError) {
-    if (error.api?.code === 'SESSION_EXPIRED') return 'نشست نمایشی منقضی شده است. صفحه را تازه کنید و جست‌وجو را دوباره انجام دهید.';
-    if (error.api?.code === 'SEARCH_LIMIT') return 'دو جست‌وجو در این نشست فعال است. چند لحظه صبر کنید و دوباره تلاش کنید.';
+    if (error.api?.code === 'SESSION_EXPIRED') return 'مهلت این صفحه پایان یافته است. صفحه را تازه کنید و دوباره جست‌وجو کنید.';
+    if (error.api?.code === 'SEARCH_LIMIT') return 'دو جست‌وجوی شما در حال بررسی است. چند لحظه صبر کنید و دوباره تلاش کنید.';
     if (error.api?.code === 'AGE_REQUIRED') return 'سن مسافران برای این مسیر لازم است؛ اطلاعات سن را کامل کنید.';
     if (error.kind === 'network') return 'ارتباط برقرار نشد. اتصال را بررسی کنید و دوباره تلاش کنید.';
     if (error.api?.code === 'UNSUPPORTED_ROUTE') return 'این مسیر پشتیبانی نمی‌شود؛ مبدا و مقصد را بررسی کنید.';

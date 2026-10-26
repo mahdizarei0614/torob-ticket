@@ -4,11 +4,11 @@ import type { DemoIdentity, SavedSearch, SaveSearchInput } from '@torob-ticket/c
 import { searchStartPool } from '../search/search-start-pool';
 export function accountError(error: unknown) { if (error instanceof ClientError) {
     if (error.api?.code === 'IDENTITY_REQUIRED')
-        return 'برای ذخیره یا دیدن جست‌وجوها، ورود نمایشی را دوباره انجام دهید.';
+        return 'برای دسترسی به جست‌وجوهای ذخیره‌شده، دوباره وارد شوید.';
     if (error.api?.code === 'SAVED_SEARCH_LIMIT')
         return '۲۰ جست‌وجوی متفاوت ذخیره شده است. یکی را حذف کنید و دوباره ذخیره کنید.';
     if (error.api?.code === 'SESSION_EXPIRED')
-        return 'نشست نمایشی پایان یافته است. صفحه را تازه کنید.';
+        return 'دسترسی به حساب پایان یافته است. صفحه را تازه کنید.';
     if (error.kind === 'network')
         return 'ارتباط برقرار نشد. دوباره تلاش کنید.';
 } return 'اطلاعات حساب دریافت یا ذخیره نشد. دوباره تلاش کنید.'; }

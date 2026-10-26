@@ -119,7 +119,7 @@ test('@route-scene camera stays idle through preview, direction, progress, theme
   await save('route-camera', { initial, zoomed, first, stopped, final: await report(page) });
 });
 test('@route-scene preserves ordered canonical stops and separate airport transfer, fallback and context restoration', async ({ page }) => {
-  await ready(page); await page.getByRole('combobox', { name: 'مسیر آزمایشی', exact: true }).selectOption('airport-transfer'); await settle(page);
+  await ready(page); await page.getByRole('combobox', { name: 'مسیر', exact: true }).selectOption('airport-transfer'); await settle(page);
   const timeline = page.locator('[data-route-scene]').getByRole('list', { name: 'ترتیب بخش‌های مسیر' });
   await expect(timeline.locator('li')).toHaveCount(2); await expect(timeline.locator('li').nth(1)).toHaveAttribute('data-transfer', 'true');
   await expect(timeline).toContainText('انتقال زمینی ضروری');

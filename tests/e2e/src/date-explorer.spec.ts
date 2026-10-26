@@ -108,7 +108,7 @@ test.describe('@dates real date exploration', () => {
       await page.goto('/');await ready(page); await expect(page.locator('[data-graphics-status]')).toHaveAttribute('data-graphics-status','ready');
       const palettes=[];
       for(const mode of ['پرواز','قطار','اتوبوس'])for(const scope of ['داخلی','بین‌المللی']){
-        await page.getByRole('button',{name:'کاوش نسخه نمایشی',exact:true}).click();await page.getByRole('button',{name:new RegExp(`^${mode} ${scope} ·`)}).click();await ready(page);
+        await page.getByRole('button',{name:'سفرهای پیشنهادی',exact:true}).click();await page.getByRole('button',{name:new RegExp(`^${mode} ${scope} ·`)}).click();await ready(page);
         for(const appearance of ['dark','light']){
           if(await page.locator('html').getAttribute('data-appearance')!==appearance)await page.getByRole('button',{name:appearance==='dark'?'نمای تیره':'نمای روشن',exact:true}).click();await settledTheme(page);
           await page.getByRole('region',{name:'کاوش تاریخ سفر'}).scrollIntoViewIfNeeded();await page.waitForTimeout(80);

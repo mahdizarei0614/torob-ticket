@@ -13,7 +13,7 @@ test.describe('@search-composer actual API consumer journey', () => {
     expect(starts).toBe(0); expect(sessions).toBe(1);
     const journeys = [];
     for (const mode of ['پرواز', 'قطار', 'اتوبوس']) for (const scope of ['داخلی','بین‌المللی']) {
-      await page.getByRole('button', { name: 'کاوش نسخه نمایشی', exact: true }).click();
+      await page.getByRole('button', { name: 'سفرهای پیشنهادی', exact: true }).click();
       const preset = page.getByRole('button', { name: new RegExp(`^${mode} ${scope} ·`) });
       await preset.click();
       await expect(page.getByRole('button', { name: 'جست‌وجوی سفر', exact: true })).toBeEnabled();
@@ -103,7 +103,7 @@ test.describe('@search-composer actual API consumer journey', () => {
       if (evidence) await page.screenshot({ path: resolve(evidence, `consumer-${width}.png`), fullPage: true });
       widths.push(dimensions);
     }
-    await page.getByRole('button', { name: 'کاوش نسخه نمایشی', exact: true }).click();
+    await page.getByRole('button', { name: 'سفرهای پیشنهادی', exact: true }).click();
     await page.getByRole('button', { name: /^قطار داخلی ·/ }).click();
     await page.getByRole('button', { name: 'نمای تیره', exact: true }).click();
     await expect(page.locator('html')).toHaveAttribute('data-mode', 'train');
@@ -115,7 +115,7 @@ test.describe('@search-composer actual API consumer journey', () => {
     expect(scripts.some(url => /shared-renderer|three/.test(url))).toBe(true);
     record('responsive.json', { widths, scriptCount: scripts.length, graphicsRequestedForDateChart: true, sharedCanvases: 1 });
   });
-  test('stalled start cannot prevent explicit reset or adopt after reset', async ({ page }) => {
+  test('owner API reset fences a held response across document reload', async ({ page }) => {
     let release!: () => void;
     const held = new Promise<void>(resolve => { release = resolve; });
     let sent = false;
@@ -132,19 +132,15 @@ test.describe('@search-composer actual API consumer journey', () => {
     const submit = page.getByRole('button', { name: 'جست‌وجوی سفر', exact: true });
     await expect(submit).toBeEnabled(); await submit.click();
     await expect.poll(() => sent).toBe(true);
-    await page.getByRole('button', { name: 'کاوش نسخه نمایشی', exact: true }).click();
-    await page.getByRole('button', { name: 'شروع دوباره نشست من', exact: true }).click();
-    await expect(page.getByRole('dialog', { name: 'شروع دوباره نشست؟' })).toBeVisible();
-    await expect(page.getByText(/ارجاع‌ها، جست‌وجوهای ذخیره‌شده/)).toBeVisible();
-    const reset = page.waitForResponse(response => response.url().endsWith('/api/v1/demo/reset'));
-    const start = Date.now();
-    await page.getByRole('button', { name: 'پاک کردن فعالیت و شروع دوباره', exact: true }).click();
-    expect((await reset).status()).toBe(201);
-    expect(Date.now() - start).toBeLessThan(5000);
-    release();
+    // The traveler flow intentionally exposes no destructive session operation.
+    await expect(page.getByRole('button',{name:/پاک کردن فعالیت|شروع دوباره نشست/})).toHaveCount(0);
+    const start = Date.now();const reset=await page.request.post('/api/v1/demo/reset',{data:{}});
+    expect(reset.status()).toBe(201);expect(Date.now()-start).toBeLessThan(5000);
+    expect((await page.request.get('/api/v1/searches/'+heldSearchId)).status()).toBe(404);
+    await page.reload();release();
     await expect(submit).toBeEnabled();
     await expect(page.getByText(/درخواست جست‌وجو برای/)).toHaveCount(0);
-    record('reset-race.json', { heldSearch: true, heldSearchId, resetStatus: 201, elapsedMs: Date.now() - start, lateAdoption: false });
+    record('reset-race.json', { heldSearch: true, heldSearchId, resetStatus: 201, resetBody:{}, recovery:'owner API plus document reload', oldSource404:true, elapsedMs: Date.now() - start, lateAdoption: false });
   });
 
   test('bounds unresolved starts across history and recovers after stale cleanup', async ({ page }) => {
@@ -184,15 +180,12 @@ test.describe('@search-composer actual API consumer journey', () => {
       await submit.click(); await expect.poll(() => requests.length).toBe(4);
       await expect(page.getByRole('status').filter({ hasText: 'درخواست جست‌وجو برای' })).toBeVisible();
       expect(requests[3]!.supersedesSearchId).toBe(requests[2]!.searchId);
-      await page.getByRole('button', { name: 'کاوش نسخه نمایشی', exact: true }).click();
-      await page.getByRole('button', { name: 'شروع دوباره نشست من', exact: true }).click();
-      const reset = page.waitForResponse(response => response.url().endsWith('/api/v1/demo/reset'));
-      await page.getByRole('button', { name: 'پاک کردن فعالیت و شروع دوباره', exact: true }).click();
-      expect((await reset).status()).toBe(201);
-      held[1]!();
+      const reset=await page.request.post('/api/v1/demo/reset',{data:{}});expect(reset.status()).toBe(201);
+      expect((await page.request.get('/api/v1/searches/'+requests[3]!.searchId)).status()).toBe(404);
+      await page.reload();held[1]!();
       await expect(submit).toBeEnabled();
       await expect(page.getByText(/درخواست جست‌وجو برای/)).toHaveCount(0);
-      record('unresolved-start-cap.json', { requests, cap: 2, noExtraPostAtCapacity: true, staleCleanupRecoveredCapacity: true, supersessionRetained: true, ownResetStatus: 201 });
+      record('unresolved-start-cap.json', { requests, cap: 2, noExtraPostAtCapacity: true, staleCleanupRecoveredCapacity: true, supersessionRetained: true, ownResetStatus: 201, explicitResetBody:{}, recovery:'owner API plus document reload', oldSource404:true });
     } finally { for (const release of held) release(); }
   });
 
