@@ -9,7 +9,7 @@ import styles from './referral.module.css';
 export function ReferralFacts({payload,catalog}:{payload:ReferralPayload;catalog:CatalogSnapshot}){
  const q=payload.quote;return <div data-checked-quote-id={q.quoteId} data-checked-quote-version={q.version} data-checked-amount-rial={q.total.amountRial}>
  <p>{catalog.providerCapabilities.find(p=>p.providerId===q.providerId)?.name??'فروشنده نمایشی'} · نسخه {number(q.version)}</p>
- {payload.kind==='transport'?<><Price total={payload.quote.total} scope={{kind:'party',travelers:payload.quote.party.adults+payload.quote.party.children+payload.quote.party.infants}}/><FareConditions quote={payload.quote} catalog={catalog}/><details><summary>ریز مبلغ همه مسافران</summary><Breakdown quote={payload.quote}/></details></>:<><p><bdi>{payload.quote.query.checkIn}</bdi> تا <bdi>{payload.quote.query.checkOut}</bdi> · {number(nights(payload.quote.query.checkIn,payload.quote.query.checkOut))} شب</p><RoomRates quote={payload.quote} disabled selected onSelect={()=>undefined}/></>}
+ {payload.kind==='transport'?<><Price total={payload.quote.total} scope={{kind:'party',travelers:payload.quote.party.adults+payload.quote.party.children+payload.quote.party.infants}}/><FareConditions quote={payload.quote} catalog={catalog}/><details><summary>ریز مبلغ همه مسافران</summary><Breakdown quote={payload.quote}/></details></>:<><p><bdi>{payload.quote.query.checkIn}</bdi> تا <bdi>{payload.quote.query.checkOut}</bdi> · {number(nights(payload.quote.query.checkIn,payload.quote.query.checkOut))} شب</p><RoomRates comparisonEvidence={false} quote={payload.quote} disabled selected onSelect={()=>undefined}/></>}
  </div>;
 }
 export function ProviderAction({source,flow,catalog,compact=false}:{source:ReferralSource;flow:ReturnType<typeof useReferralController>;catalog:CatalogSnapshot;compact?:boolean}){
@@ -26,7 +26,7 @@ export function ProviderAction({source,flow,catalog,compact=false}:{source:Refer
 }
 export function ReferralDialog({flow,catalog}:{flow:ReturnType<typeof useReferralController>;catalog:CatalogSnapshot}){
  const s=flow.state,busy=s.phase==='checking'||s.phase==='confirming';const alternatives=s.source?.alternatives?.().filter(a=>s.alternativeQuoteIds?.includes(a.quoteId))??[];
- return <Dialog title={s.phase==='changed'?'شرایط تازه پیشنهاد':'ادامه با فروشنده'} isOpen={s.phase!=='idle'&&s.phase!=='completed'} onOpenChange={open=>{if(!open)flow.cancel();}} mobileFullscreen size={s.phase==='changed'?'wide':'standard'} stickyHeader>
+ return <Dialog isDismissable={false} title={s.phase==='changed'?'شرایط تازه پیشنهاد':'ادامه با فروشنده'} isOpen={s.phase!=='idle'&&s.phase!=='completed'} onOpenChange={open=>{if(!open)flow.cancel();}} mobileFullscreen size={s.phase==='changed'?'wide':'standard'} stickyHeader>
  <div className={styles.dialog} data-referral-phase={s.phase}>
  {busy&&<p role="status">{s.phase==='checking'?'در حال بررسی قیمت و شرایط همین پیشنهاد…':'در حال ثبت ارجاع و دریافت نتیجه…'}</p>}
  {s.error&&<p role="alert">{s.error}</p>}

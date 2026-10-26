@@ -196,3 +196,14 @@ describe('live accepted result ownership',()=>{
   act(()=>{window.history.replaceState({},'','/');window.dispatchEvent(new PopStateEvent('popstate'));owner.previewResultItinerary('old',generation,'operation');owner.pinResultItinerary('old',generation,'operation');});expect(hook.result.current.state.pinnedItineraryId).toBeUndefined();expect(hook.result.current.state.previewItineraryId).toBeUndefined();expect(owner.resultIsCurrent(generation,'operation')).toBe(false);expect(owner.resultIsCurrent(hook.result.current.state.generation!,'operation')).toBe(false);hook.unmount();expect(owner.resultIsCurrent(generation,'operation')).toBe(false);
  });
 });
+
+it('root StrictMode replay keeps a GET-hydrated comparison owner while different real history revokes it',async()=>{
+ const {serializeSearchUrl}=await import('./search-url');const restored=recovery({query,clientGeneration:'restored-generation'});restored.snapshot.status='complete';
+ const start=vi.fn(),client={startSearch:start,cancelSearch:vi.fn()} as unknown as ApiClient;let current!:ReturnType<typeof useSearchController>;
+ window.history.replaceState({key:'restored-entry',idx:0},'','/'+serializeSearchUrl(query));const cache=new QueryClient();
+ function Restored(){current=useSearchController(catalog,session,client,{recovery:restored,draft:query});return null;}
+ const view=render(<StrictMode><QueryClientProvider client={cache}><BrowserRouter><Restored/></BrowserRouter></QueryClientProvider></StrictMode>);
+ try{expect(current.state.searchId).toBe(restored.snapshot.searchId);expect(current.state.generation).toBe('restored-generation');expect(current.resultIsCurrent('restored-generation',restored.snapshot.searchId)).toBe(true);expect(start).not.toHaveBeenCalled();
+ act(()=>{window.history.replaceState({key:'different-entry',idx:0},'','/'+serializeSearchUrl({...query,sort:'fastest'}));window.dispatchEvent(new PopStateEvent('popstate'));});await waitFor(()=>expect(current.state.draft.sort).toBe('fastest'));expect(current.state.searchId).toBeUndefined();expect(current.resultIsCurrent('restored-generation',restored.snapshot.searchId)).toBe(false);expect(start).not.toHaveBeenCalled();}
+ finally{view.unmount();window.history.replaceState({},'','/');}
+});

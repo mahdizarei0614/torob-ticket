@@ -4,3 +4,5 @@
 .comparison{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-4)}
 .comparison>section{padding:var(--space-3);border:1px solid var(--border);border-radius:var(--radius-md);min-width:0}
 @media(max-width:640px){.comparison{grid-template-columns:1fr}}
+
+.selected>button{scroll-margin-block:var(--space-3)}

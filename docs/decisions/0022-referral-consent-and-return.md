@@ -1,6 +1,6 @@
 # 0022 — Exact referral consent, immutable handoff and scoped return
 
-Status: implemented candidate. Independent review, native verification and packaged closure are tracked in T22. No backend, schema, migration or dependency changes are introduced.
+Status: implemented candidate. Independent review, native verification and packaged closure are tracked in T22. Native verification required one narrow existing transport recheck/confirm DTO correction to preserve the authoritative original public group itinerary. No database schema, migration or dependency change is introduced. Raw provider evidence and existing immutable receipts remain unchanged.
 
 The existing public recheck/confirm/receipt API remains the authority for transport and hotel availability, prices, versions and idempotency. The browser validates contextual kind/quote/version/provider/itinerary or hotel/query/allocation bindings in addition to strict contract shapes. Every prepare is a single deliberate mutation. A shape-valid ready response may auto-confirm only when its material facts match the actual captured displayed baseline; observation timestamps and new version numbers alone are not material changes.
 
@@ -31,3 +31,10 @@ An immutable receipt cache key alone cannot establish the current cookie namespa
 ## Continuation discoverability correction
 
 The current transport continuation is inside its selected journey card, immediately after that card's selection row. The current hotel continuation is inside its exact selected room offer, immediately after that offer's price/selection row. A narrow quote-ID/ReactNode presentation seam carries these single actions; ownership and accepted facts stay with the existing controllers. Provider, whole-party/stay price and version remain visible, with repeated complete terms in a disclosure. An explicit new selection reveals/focuses its Continue once. Fresh version delivery, provider Back/Return and scoped checkpoint restoration do not repeat that selection focus/scroll action. Native checks assert immediate viewport reachability and normal Tab/Shift+Tab order without scrolling the action from test code.
+
+
+## Native recovery corrections
+
+The validated initial return entry is recognized idempotently by its exact Router key/query across root StrictMode effect replay. A one-shot navigation marker cannot protect rehydrated search ownership: replay would consume it and then reset the restored generation/searchId. Different genuine history still clears that initial-entry marker and restores/fences normally.
+
+Referral dialogs require explicit dismissal. An outside pointer press is ignored; Close, Cancel and focused Escape retain normal guarded cancellation. This prevents the second press of a real double-click from cancelling the just-opened checking dialog before its prepare result, while the shared controller still prevents duplicate requests. Both inline CTAs have semantic scroll margin for a completely visible focus ring; strict native viewport assertions remain unchanged. Original comparison card/room prices are explicitly captioned separately from the current selected version's amount.

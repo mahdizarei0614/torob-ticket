@@ -35,6 +35,8 @@ export function useSearchController(catalog: CatalogSnapshot, session: SessionIn
   const intendedGeneration = useRef(state.generation);
   const ownedSearchId = useRef<string | undefined>(restore?.recovery.snapshot.searchId);
   const acceptedResult = useRef<{ generation:string; searchId:string } | undefined>(restore?{generation:restore.recovery.snapshot.clientGeneration,searchId:restore.recovery.snapshot.searchId}:undefined);
+  // A validated initial restore is an idempotent keyed mount, including root StrictMode replay.
+  const restoredEntry=useRef(restore?{key:location.key,search:location.search}:undefined);
   const ownNavigation = useRef<string | undefined>(restore?location.search:undefined);
   const popTarget = useRef<string | undefined>(undefined);
   const live = useRef(true);
@@ -69,6 +71,8 @@ export function useSearchController(catalog: CatalogSnapshot, session: SessionIn
     window.addEventListener('popstate', onPop); return () => window.removeEventListener('popstate', onPop);
   }, []);
   useEffect(() => {
+    const restored=restoredEntry.current;
+    if(restored){if(restored.key===location.key&&restored.search===location.search&&popTarget.current===undefined){ownNavigation.current=undefined;return;}restoredEntry.current=undefined;}
     if (ownNavigation.current !== undefined) {
       if (ownNavigation.current !== location.search) return; // A late old router render cannot undo a newer explicit intent.
       ownNavigation.current = undefined; popTarget.current = undefined; return;

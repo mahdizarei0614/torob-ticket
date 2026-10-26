@@ -16,6 +16,7 @@ export interface DialogProps {
   stickyHeader?: boolean;
   size?: 'standard'|'wide';
   initialScrollTop?: number;
+  isDismissable?: boolean;
 }
 export function Dialog({
   title,
@@ -27,12 +28,13 @@ export function Dialog({
   stickyHeader = false,
   size = 'standard',
   initialScrollTop=0,
+  isDismissable=true,
 }: DialogProps) {
   const suspended=useContext(DialogSuspensionContext);
   const scroll=useRef(initialScrollTop);
   const modalRef=useCallback((node:HTMLDivElement|null)=>{if(node)node.scrollTop=scroll.current;},[]);
   return (
-    <ModalOverlay className={styles.overlay} isOpen={isOpen && !suspended} onOpenChange={next=>{if(!suspended)onOpenChange(next);}} isDismissable>
+    <ModalOverlay className={styles.overlay} isOpen={isOpen && !suspended} onOpenChange={next=>{if(!suspended)onOpenChange(next);}} isDismissable={isDismissable}>
       <Modal ref={modalRef} data-dialog-scroll onScroll={event=>{scroll.current=event.currentTarget.scrollTop;}} className={styles.modal} data-mobile-fullscreen={mobileFullscreen} data-dialog-size={size} {...languageProps(language)}>
         <AriaDialog className={styles.dialog}>
           <div className={styles.dialogHeader} data-sticky={stickyHeader || undefined}>
