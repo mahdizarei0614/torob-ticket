@@ -2272,3 +2272,14 @@ The subsequent request supersedes the previous all-labels-hidden and pre-ticket 
 | Compact date selection | Icon trigger; smaller priced month grid; Gregorian disclosure; unchanged wheel and provisional Apply/Cancel | DONE | `722d71c`; native Apply/Cancel/focus; 430px desktop calendar, 314px at 320px with 44.56×48px day targets |
 | Hotel placement | Valid-route CTA below desktop map; upward finite entry; inline narrow layout; state/focus continuity; first explicit open establishes return context | DONE | `722d71c`; 5 focused tests and native first-open/resize/stay/focus/reduced-motion checks pass; hotel HTTP 201 complete |
 | Integration and review | Packaged rebuild; native GPU/browser checks; independent review; tracker/SDD/export synchronization and local checkpoint | DONE | [Independent review](../../evidence/adjustments/compact-journey/review.md); 406 source tests, 9 Nx checks, 12 native scenarios plus 6 final affected repeats pass; local app healthy; M7 remains partial |
+
+## Owner adjustment — compact ticket results and cheapest default, 2026-10-27
+
+[Decision 0035](../../decisions/0035-compact-ticket-results-and-default-selection.md) maps all nine result-list requests. A fresh current completed search selects its cheapest eligible quote once and draws its itinerary; a manual choice wins. Compact cards preserve exact quote evidence and expose an explicit provider handoff only when selected. M7 remains partial, 29/35; T30 stays active.
+
+| Adjustment | Subtasks | Status | Evidence |
+|---|---|---|---|
+| Compact result cards | Shared rows and readable type; native whole-card selection; selected styling; one details expansion with complete fare/return evidence | DONE | `35d4a1b`; 162.42px cards, three complete cards at 1366×768; [checkpoint](../../evidence/adjustments/compact-results/checkpoint.md) |
+| Default selection and header | Terminal cheapest quote; manual-choice/restore/stale fences; no automatic referral/focus; actual seller count; compact update recovery | DONE | `35d4a1b`; 58 final result tests and native automatic-map/manual-selection checks |
+| Handoff and suggestions | Provider-named selected CTA; existing recheck/recovery semantics; route-suggestion chooser at top | DONE | `35d4a1b`; exact handoff/no-write return and changed-price consent verified; edited hotel stay preserved until explicit arrival update |
+| Integration and independent review | Source checks; packaged desktop/mobile/round-trip/map/referral verification; review; tracker/SDD/export sync | DONE | [Independent review](../../evidence/adjustments/compact-results/review.md); 431 integrated source tests, final 58 result tests, type/lint, seven native scenarios; local stack ready; M7 remains partial |
