@@ -11,6 +11,10 @@ describe('deliberate recovery choices', () => {
     expect(clear).toHaveBeenCalledExactlyOnceWith('refundableOnly'); expect(fresh).not.toHaveBeenCalled();
     expect(screen.queryByRole('button', { name: /حذف فقط فیلتر بار/ })).toBeNull();
   });
+  it('keeps an unknown URL city ID visibly identifiable without inventing a catalog name', () => {
+    render(<SearchRecovery query={{...query,destinationCityId:'london'}} catalog={catalog} onEdit={()=>undefined}/>);
+    expect(screen.getByText('london',{exact:true})).toBeVisible();expect(screen.getByText(/شناسه شهر مقصد در پیوند شناخته نشد/)).toBeVisible();
+  });
   it('keeps expiry recovery explicit and does not expose a search mutation until session resumes', () => {
     const resume = vi.fn(), fresh = vi.fn();
     render(<SearchRecovery query={query} catalog={catalog} expired onEdit={() => undefined} onResume={resume} onFresh={fresh} />);

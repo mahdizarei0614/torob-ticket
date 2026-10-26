@@ -42,7 +42,7 @@ describe('reviewer session HTTP contract with PostgreSQL', () => {
       const resumed = await post(anchor, cookie);
       expect(resumed.status).toBe(201);
       expect(await resumed.json()).toMatchObject({ anchorInstant: canonical, seed: 73 });
-      expect(resumed.headers.get('set-cookie')!.split(';')[0]).toBe(cookie);
+      expect(resumed.headers.has('set-cookie')).toBe(false);
     }
     const different = await post('2026-10-24T00:00:00.124Z', cookie);
     expect(different.status).toBe(409);

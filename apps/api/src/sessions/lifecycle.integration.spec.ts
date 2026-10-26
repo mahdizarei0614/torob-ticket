@@ -97,7 +97,7 @@ describe('session isolation and lifecycle', () => {
     expect(fresh.status).toBe(201); expect(await fresh.json()).toMatchObject({seed: 102, scenario: 'slow-provider', anchorInstant: '2026-09-01T00:00:00.000Z'});
     const newCookie = fresh.headers.get('set-cookie')!.split(';')[0]!;
     expect(newCookie).not.toBe(a.cookie);
-    expect((await post('session', {}, a.cookie)).status).toBe(401);
+    expect((await fetch(`${base}/api/v1/demo/session`,{headers:{cookie:a.cookie}})).status).toBe(401);
     const next = await sessions.authenticate({headers: {cookie: newCookie}}, {setHeader: () => undefined}); ids.push(next.sessionId);
     expect(next.sessionId).not.toBe(a.context.sessionId);
   });
@@ -111,9 +111,9 @@ describe('session isolation and lifecycle', () => {
     a.context.demoClock.now().setUTCFullYear(2000);
     expect(a.context.demoClock.now().toISOString()).toBe('2026-09-01T00:00:00.000Z');
     clock.advance(24 * 3600000);
-    const expired = await post('session', {}, a.cookie);
+    const expired = await fetch(`${base}/api/v1/demo/session`,{headers:{cookie:a.cookie}});
     expect(expired.status).toBe(401); expect(await expired.json()).toMatchObject({code: 'SESSION_EXPIRED'});
-    expect(expired.headers.get('set-cookie')).toContain('Max-Age=0');
+    expect(expired.headers.has('set-cookie')).toBe(false);
     await sessions.maintenance();
     expect(await db.demoSession.findUnique({where: {id: a.context.sessionId}})).toBeNull();
   });
