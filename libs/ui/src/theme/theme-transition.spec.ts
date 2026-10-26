@@ -1,0 +1,27 @@
+import {afterEach,expect,it,vi} from 'vitest';
+import {runThemeTransition} from './theme-transition';
+afterEach(()=>{vi.unstubAllGlobals();delete(document as Document&{startViewTransition?:unknown}).startViewTransition;});
+function native(){let update!:()=>Promise<void>|void;const animationFinished=Promise.resolve();const animate=vi.fn(()=>({finished:animationFinished,cancel:vi.fn()}));Object.assign(document.documentElement,{animate});let ready!:(value?:unknown)=>void;const promise=new Promise<void>(resolve=>{ready=resolve;});const skip=vi.fn();Object.assign(document,{startViewTransition:(value:()=>Promise<void>|void)=>{update=value;return {ready:promise,finished:Promise.resolve(),skipTransition:skip};}});vi.stubGlobal('matchMedia',()=>({matches:false,addEventListener(){},removeEventListener(){}}));return {update:()=>update(),ready:()=>ready(),animate,skip};}
+it('applies CSS atomically and awaits the supplied GPU flush before native reveal and finished',async()=>{const view=native(),events:string[]=[];let flush!:()=>void;const flushed=new Promise<void>(resolve=>{flush=resolve;});const run=runThemeTransition(()=>events.push('css'),{onApplied:async()=>{events.push('gpu');await flushed;events.push('flushed');}});const update=view.update();expect(events).toEqual(['css','gpu']);view.ready();await Promise.resolve();expect(view.animate).not.toHaveBeenCalled();flush();await update;await run.finished;expect(events).toEqual(['css','gpu','flushed']);expect(view.animate).toHaveBeenCalledWith(expect.anything(),expect.objectContaining({duration:260,pseudoElement:'::view-transition-new(root)'}));});
+it('skips obsolete queued callbacks and settles without revealing after a newer owner invalidates it',async()=>{const view=native();let current=true;const apply=vi.fn(),flush=vi.fn(async()=>undefined);const run=runThemeTransition(apply,{isCurrent:()=>current,onApplied:flush});current=false;run.skip();await view.update();view.ready();await run.finished;expect(apply).not.toHaveBeenCalled();expect(flush).not.toHaveBeenCalled();expect(view.animate).not.toHaveBeenCalled();expect(view.skip).toHaveBeenCalled();});
+it('direct reduced-motion and unsupported-native fallbacks still await the same flush without animation',async()=>{vi.stubGlobal('matchMedia',()=>({matches:true}));const native=vi.fn();Object.assign(document,{startViewTransition:native});const apply=vi.fn(),flush=vi.fn(async()=>undefined);await runThemeTransition(apply,{onApplied:flush}).finished;expect(apply).toHaveBeenCalledTimes(1);expect(flush).toHaveBeenCalledTimes(1);expect(native).not.toHaveBeenCalled();delete(document as Document&{startViewTransition?:unknown}).startViewTransition;await runThemeTransition(apply,{onApplied:flush}).finished;expect(apply).toHaveBeenCalledTimes(2);});
+it('contains native and flush failures without an unhandled finished rejection or stale reveal',async()=>{vi.stubGlobal('matchMedia',()=>({matches:false}));Object.assign(document,{startViewTransition:()=>{throw Error('unsupported');}});const apply=vi.fn();await expect(runThemeTransition(apply,{onApplied:async()=>{throw Error('gpu unavailable');}}).finished).resolves.toBeUndefined();expect(apply).toHaveBeenCalledTimes(1);});
+it('settles the current requested theme when reduced motion changes before its queued native update',async()=>{
+ let reduced=false,changed!:()=>void,update!:()=>Promise<void>;
+ vi.stubGlobal('matchMedia',()=>({get matches(){return reduced;},addEventListener:(_:string,listener:()=>void)=>{changed=listener;},removeEventListener:vi.fn()}));
+ const animate=vi.fn();Object.assign(document.documentElement,{animate});
+ Object.assign(document,{startViewTransition:(callback:()=>Promise<void>)=>{update=callback;return {ready:Promise.resolve(),finished:Promise.resolve(),skipTransition:vi.fn()};}});
+ const apply=vi.fn(),flush=vi.fn(async()=>undefined);const run=runThemeTransition(apply,{onApplied:flush});
+ reduced=true;changed();await run.finished;await update();expect(apply).toHaveBeenCalledTimes(1);expect(flush).toHaveBeenCalledTimes(1);expect(animate).not.toHaveBeenCalled();
+});
+it('waits for the full in-flight flush after ready rejects and native repeats its update',async()=>{
+ let update!:()=>Promise<void>,reject!:(error:Error)=>void,release!:()=>void;
+ const ready=new Promise<void>((_,fail)=>{reject=fail;});Object.assign(document,{startViewTransition:(callback:()=>Promise<void>)=>{update=callback;return {ready,finished:Promise.resolve(),skipTransition:vi.fn()};}});
+ const apply=vi.fn();const run=runThemeTransition(apply,{onApplied:()=>new Promise<void>(resolve=>{release=resolve;})});let done=false;void run.finished.then(()=>{done=true;});
+ const first=update();reject(Error('native skipped'));const repeated=update();await Promise.resolve();expect(done).toBe(false);expect(apply).toHaveBeenCalledTimes(1);release();await first;await repeated;await run.finished;expect(done).toBe(true);
+});
+it('finished includes the reveal animation completion and contains an interrupted animation rejection',async()=>{
+ const view=native();let reject!:(error:Error)=>void;const cancel=vi.fn(()=>reject(Error('interrupted')));
+ view.animate.mockImplementation(()=>({finished:new Promise<void>((_,fail)=>{reject=fail;}),cancel}));
+ const run=runThemeTransition(()=>undefined);let done=false;void run.finished.then(()=>{done=true;});await view.update();view.ready();await Promise.resolve();await Promise.resolve();expect(done).toBe(false);run.skip();await run.finished;expect(cancel).toHaveBeenCalledTimes(1);expect(done).toBe(true);
+});

@@ -202,3 +202,16 @@ it.each(['train','bus'] as const)('a retained inactive %s context cannot overwri
  view.rerender(tree(false,true));expect(document.documentElement.dataset.mode).toBe('flight');expect(document.documentElement.dataset.appearance).toBe('light');act(()=>theme.setPreference('light'));expect(theme.appearance).toBe('dark');expect(document.documentElement.dataset.mode).toBe('flight');expect(bridge).not.toHaveBeenCalled();
  view.rerender(tree(true,false));expect(document.documentElement.dataset.mode).toBe(mode);expect(document.documentElement.dataset.appearance).toBe('dark');expect(bridge).toHaveBeenCalled();expect(theme.themeBridge.getSnapshot()).toMatchObject({mode,appearance:'dark'});expect(mounts).toBe(1);
 });
+
+it('waits for the application graphics flush before revealing a changed mode and preserves a pending preference', async()=>{
+ const updates:(()=>Promise<void>)[]=[]; const animate=vi.fn(()=>({finished:Promise.resolve(),cancel:vi.fn()}));Object.assign(document.documentElement,{animate});
+ Object.assign(document,{startViewTransition:(update:()=>Promise<void>)=>{updates.push(update);return {ready:Promise.resolve(),finished:Promise.resolve(),skipTransition:vi.fn()};}});
+ let release!:()=>void;const flush=vi.fn(()=>new Promise<void>(resolve=>{release=resolve;}));
+ const view=render(<ThemeProvider initialPreference="light" mode="flight" onThemeApplied={flush}><Toggle/></ThemeProvider>);
+ await userEvent.click(screen.getByText('Dark'));
+ view.rerender(<ThemeProvider initialPreference="light" mode="train" onThemeApplied={flush}><Toggle/></ThemeProvider>);
+ expect(updates).toHaveLength(2);
+ await act(async()=>{await updates[0]();});expect(document.documentElement.dataset.appearance).toBe('light');
+ let pending!:Promise<void>;act(()=>{pending=updates[1]();});expect(document.documentElement.dataset.mode).toBe('train');expect(document.documentElement.dataset.appearance).toBe('dark');expect(animate).not.toHaveBeenCalled();
+ await act(async()=>{release();await pending;});await waitFor(()=>expect(animate).toHaveBeenCalledTimes(1));expect(screen.getByLabelText('appearance')).toHaveTextContent('dark');
+});

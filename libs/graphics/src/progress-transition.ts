@@ -15,6 +15,8 @@ export function createProgressTransition(key:string,target:number) {
    return Boolean(tween);
   },
   sample,
+  /** A bounded shader accent sampled by the same finite host-owned transition. */
+  emphasis(now:number){sample(now);if(!tween)return 0;const t=Math.max(0,Math.min(1,(now-tween.start)/700));return 4*t*(1-t);},
   active:()=>Boolean(tween),
   cancel(){value=goal;tween=undefined;},
  };

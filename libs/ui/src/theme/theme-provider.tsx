@@ -9,6 +9,7 @@ import {
   type ReactNode,
 } from 'react';
 import { flushSync } from 'react-dom';
+import {runThemeTransition,type ThemeTransitionRun} from './theme-transition';
 import { I18nProvider } from 'react-aria-components';
 import { type Mode } from '@torob-ticket/contracts';
 import { languageProps, type Language } from '../components/language';
@@ -83,6 +84,7 @@ export function ThemeProvider({
   variant = 'consumer',
   initialPreference,
   onThemeChange,
+  onThemeApplied,
   active=true,
 }: {
   children: ReactNode;
@@ -91,6 +93,8 @@ export function ThemeProvider({
   variant?: 'consumer' | 'admin';
   initialPreference?: ThemePreference;
   onThemeChange?: (theme: ThemeSnapshot) => void;
+  /** Application seam: resolves after visible graphics have flushed the resolved tokens. */
+  onThemeApplied?: () => Promise<void>;
   /** Retained offscreen trees keep context; only the visible owner publishes global tokens. */
   active?: boolean;
 }) {
@@ -110,88 +114,64 @@ export function ThemeProvider({
   }));
   const bridge = useRef(onThemeChange);
   bridge.current = onThemeChange;
-  const activeTransition = useRef<Pick<ViewTransition, 'skipTransition' | 'ready'> | null>(null);
+  const activeTransition = useRef<ThemeTransitionRun | null>(null);
   const requestGeneration = useRef(0);
   const rootActive=useRef(active);rootActive.current=active;
   const activeMode = variant === 'admin' ? 'flight' : mode;
-  useLayoutEffect(() => {
-    rootActive.current=active;
-    if(!active){requestGeneration.current++;activeTransition.current?.skipTransition();activeTransition.current=null;return;}
-    const root = document.documentElement;
-    root.dataset.appearance = appearance;
-    root.dataset.preference = preference;
-    root.dataset.mode = activeMode;
-    root.style.colorScheme = appearance;
-    const next = { appearance, mode: activeMode, colors: readThemeColors(root) };
-    snapshot.current = next;
-    // Publish after CSS is resolved and before the native transition captures its new frame.
-    for (const listener of subscribers.current) listener(next);
-    for (const listener of paintSubscribers.current) listener(next);
-    bridge.current?.(next);
-  }, [appearance, preference, activeMode, active]);
-  useEffect(() => {
-    if (typeof matchMedia !== 'function') return;
-    const media = matchMedia('(prefers-color-scheme: dark)');
-    const update = () => {
-      if (preference === 'system') setAppearance(media.matches ? 'dark' : 'light');
+  const currentMode=useRef(activeMode);currentMode.current=activeMode;
+  const target=useRef({preference,appearance});
+  const applied=useRef(onThemeApplied);applied.current=onThemeApplied;
+  const publish=useCallback((next:typeof target.current,nextMode:Mode)=>{
+    const root=document.documentElement;
+    root.dataset.appearance=next.appearance;root.dataset.preference=next.preference;root.dataset.mode=nextMode;root.style.colorScheme=next.appearance;
+    const theme={appearance:next.appearance,mode:nextMode,colors:readThemeColors(root)};
+    snapshot.current=theme;
+    for(const listener of subscribers.current)listener(theme);
+    for(const listener of paintSubscribers.current)listener(theme);
+    bridge.current?.(theme);
+  },[]);
+  const change=useCallback((next:typeof target.current,nextMode:Mode,origin?:HTMLElement,inLayout=false,animate=true)=>{
+    const generation=++requestGeneration.current;
+    activeTransition.current?.skip();
+    const isCurrent=()=>rootActive.current&&generation===requestGeneration.current;
+    const update=()=>{
+      if(!isCurrent())return;
+      const state=()=>{setStoredPreference(next.preference);setAppearance(next.appearance);};
+      // A direct layout-effect update is already before paint; deferred native callbacks need flushSync.
+      if(inLayout)state();else flushSync(state);
+      publish(next,nextMode);
     };
-    media.addEventListener('change', update);
-    return () => media.removeEventListener('change', update);
-  }, [preference]);
-  useEffect(
-    () => () => {
-      rootActive.current=false;requestGeneration.current++;activeTransition.current?.skipTransition();activeTransition.current=null;
-    },
-    [],
-  );
-  const setPreference = useCallback(
-    (next: ThemePreference, origin?: HTMLElement) => {
-      if(!rootActive.current)return;
-      // skipTransition skips animation, but its queued DOM update still runs.
-      // Advance before every request, including direct/fallback updates.
-      const generation = ++requestGeneration.current;
-      const nextAppearance = next === 'system' ? systemAppearance() : next;
-      try {
-        localStorage.setItem(storageKey, next);
-      } catch {
-        /* Theme switching remains available. */
-      }
-      const update = () => {
-        if (generation !== requestGeneration.current||!rootActive.current) return;
-        flushSync(() => {
-          setStoredPreference(next);
-          setAppearance(nextAppearance);
-        });
-      };
-      const previousTransition = activeTransition.current;
-      activeTransition.current = null;
-      previousTransition?.skipTransition();
-      const reduced =
-        typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
-      if (!document.startViewTransition || reduced || nextAppearance === appearance) {
-        update();
-        return;
-      }
-      const rect = origin?.getBoundingClientRect();
-      const x = rect ? rect.left + rect.width / 2 : innerWidth / 2;
-      const y = rect ? rect.top + rect.height / 2 : innerHeight / 2;
-      const radius = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
-      const transition = document.startViewTransition(update);
-      activeTransition.current = transition;
-      void transition.ready
-        .then(() => {
-          if (generation !== requestGeneration.current || activeTransition.current !== transition) return;
-          document.documentElement.animate?.(
-            { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${radius}px at ${x}px ${y}px)`] },
-            { duration: 260, easing: 'ease-out', pseudoElement: '::view-transition-new(root)' },
-          );
-        })
-        .catch(() => {
-          /* Native skipped transitions reject ready; obsolete DOM updates are guarded above. */
-        });
-    },
-    [appearance],
-  );
+    activeTransition.current=runThemeTransition(update,{origin,isCurrent,animate,onApplied:()=>applied.current?.()??Promise.resolve()});
+    inLayout=false;
+  },[publish]);
+  const previousOwner=useRef<{active:boolean;mode:Mode}|null>(null);
+  useLayoutEffect(()=>{
+    rootActive.current=active;
+    const previous=previousOwner.current;previousOwner.current={active,mode:activeMode};
+    if(!active){requestGeneration.current++;activeTransition.current?.skip();activeTransition.current=null;return;}
+    if(!previous?.active){
+      if(target.current.preference==='system')target.current={preference:'system',appearance:systemAppearance()};
+      requestGeneration.current++;activeTransition.current?.skip();
+      setStoredPreference(target.current.preference);setAppearance(target.current.appearance);publish(target.current,activeMode);
+    }else if(previous.mode!==activeMode){
+      // Preserve the most recent requested preference even if its older native update is still queued.
+      change(target.current,activeMode,undefined,true);
+    }
+  },[active,activeMode,change,publish]);
+  const setPreference=useCallback((next:ThemePreference,origin?:HTMLElement)=>{
+    if(!rootActive.current)return;
+    const nextTarget={preference:next,appearance:next==='system'?systemAppearance():next};
+    target.current=nextTarget;
+    try{localStorage.setItem(storageKey,next);}catch{/* Optional browser persistence. */}
+    change(nextTarget,currentMode.current,origin,false,nextTarget.appearance!==snapshot.current?.appearance);
+  },[change]);
+  useEffect(()=>{
+    if(typeof matchMedia!=='function')return;
+    const media=matchMedia('(prefers-color-scheme: dark)');
+    const update=()=>{if(target.current.preference==='system')setPreference('system');};
+    media.addEventListener('change',update);return()=>media.removeEventListener('change',update);
+  },[setPreference]);
+  useEffect(()=>()=>{rootActive.current=false;requestGeneration.current++;activeTransition.current?.skip();activeTransition.current=null;},[]);
   return (
     <ThemeContext.Provider value={{ appearance, preference, mode: activeMode, language, setPreference, themeBridge }}>
       <I18nProvider locale={language}>

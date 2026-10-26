@@ -13,6 +13,7 @@ import mapVertex from '../shaders/map-dots.vert.glsl?raw';
 import mapFragment from '../shaders/map-dots.frag.glsl?raw';
 import routeVertex from '../shaders/route.vert.glsl?raw';
 import routeFragment from '../shaders/route.frag.glsl?raw';
+import ambientFragment from '../shaders/ambient.frag.glsl?raw';
 interface DrawingProps { dots: readonly GeoPoint[]; markers: readonly SceneMarker[]; segments: readonly RouteSegmentGeometry[]; context: ProjectionContext; frame: RouteBounds; progress?: 0 | .35 | .7 | 1; mode?: Mode; reveal?: number;animateProgress?:boolean;onMotionChange?:(active:boolean)=>void;motionKey?:string }
 interface Resources { dots: BufferGeometry; line: BufferGeometry; sprites: Record<Mode,BufferGeometry>; dotsMaterial: ShaderMaterial; routeMaterial: ShaderMaterial; spriteMaterial: ShaderMaterial }
 export function SceneDrawing({ dots, markers, segments, context, frame, progress = 0, mode, reveal = 1,animateProgress=false,onMotionChange,motionKey='route' }: DrawingProps) {
@@ -20,7 +21,7 @@ export function SceneDrawing({ dots, markers, segments, context, frame, progress
   const uniforms = useThemeUniforms(invalidate);
   const mesh=useRef<Mesh>(null);const outward=useRef(onMotionChange);outward.current=onMotionChange;
   const [transition]=useState(()=>createProgressTransition(motionKey,progress));
-  const applyPosition=(value:number)=>{const vehicle=vehicleAlongRoute(segments,value);if(mesh.current){mesh.current.position.set(vehicle.point[0],vehicle.point[1],vehicle.point[2]+.5);if(resources) mesh.current.geometry=resources.sprites[vehicle.mode??mode??'flight'];}};
+  const applyPosition=(value:number)=>{const vehicle=vehicleAlongRoute(segments,value);if(mesh.current){mesh.current.position.set(vehicle.point[0],vehicle.point[1],vehicle.point[2]+.5);if(resources) mesh.current.geometry=resources.sprites[vehicle.mode??mode??'flight'];}if(resources)resources.routeMaterial.uniforms['emphasis']!.value=transition.emphasis(performance.now());};
   useLayoutEffect(()=>{const active=transition.set({key:motionKey,target:progress,enabled:animateProgress,now:performance.now()});applyPosition(transition.sample(performance.now()));outward.current?.(active);invalidate();},[transition,motionKey,progress,animateProgress,segments]);
   useLayoutEffect(()=>()=>{transition.cancel();outward.current?.(false);},[transition]);
   useFrame(()=>{if(!transition.active()) return;applyPosition(transition.sample(performance.now()));if(!transition.active()) outward.current?.(false);});
@@ -32,7 +33,7 @@ export function SceneDrawing({ dots, markers, segments, context, frame, progress
     const next: Resources = {
       dots: geometry, line: createRouteLineGeometry(segments), sprites:{flight:createVehicleGeometry('flight'),train:createVehicleGeometry('train'),bus:createVehicleGeometry('bus')},
       dotsMaterial: new ShaderMaterial({ uniforms: { ...uniforms, pointSize: { value: 3.5 } }, vertexShader: mapVertex, fragmentShader: mapFragment, transparent: true, depthTest: false, depthWrite: false, toneMapped: false }),
-      routeMaterial: new ShaderMaterial({ uniforms: { ...uniforms, reveal: { value: 1 } }, vertexShader: routeVertex, fragmentShader: routeFragment, transparent: true, depthTest: false, depthWrite: false, toneMapped: false }),
+      routeMaterial: new ShaderMaterial({ uniforms: { ...uniforms, reveal: { value: 1 }, emphasis:{value:0} }, vertexShader: routeVertex, fragmentShader: ambientFragment, transparent: true, depthTest: false, depthWrite: false, toneMapped: false }),
       spriteMaterial: new ShaderMaterial({ uniforms: { ...uniforms, reveal: { value: 1 } }, vertexShader: routeVertex, fragmentShader: routeFragment, transparent: true, side: DoubleSide, depthTest: false, depthWrite: false, toneMapped: false }),
     };
     setResources(next); invalidate();

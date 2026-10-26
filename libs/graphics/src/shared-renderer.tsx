@@ -125,13 +125,20 @@ function Driver(props: RendererProps & { onVisibility: (ids: string[]) => void; 
       status('shader-error');
       updatePolicy();
     };
-    const unsubscribe = themeBridge.beforePaint(() => {
+    let flushedTheme: ReturnType<typeof themeBridge.getSnapshot> = null;
+    const flushTheme = () => {
+      const theme=themeBridge.getSnapshot();
+      if(theme===flushedTheme)return Promise.resolve();
       updatePolicy();
       const previous = data.frames;
-      scheduler.flush();
-      if (data.frames !== previous) data.themeFrames++;
-    });
-    const runtime: GraphicsController = { invalidate: updatePolicy, inspect: () => ({ ...structuredClone(data), frameSubscribers: state.get().internal.subscribers.length }) };
+      // Synchronous beforePaint subscribers already update every material. Avoid a second identical frame
+      // when the application awaits this same bridge publication through onThemeApplied.
+      if(theme!==flushedTheme)scheduler.flush();
+      if (data.frames !== previous) {data.themeFrames++;flushedTheme=theme;}
+      return Promise.resolve();
+    };
+    const unsubscribe = themeBridge.beforePaint(() => {void flushTheme();});
+    const runtime: GraphicsController = { invalidate: updatePolicy, flushTheme, inspect: () => ({ ...structuredClone(data), frameSubscribers: state.get().internal.subscribers.length }) };
     props.runtime.current = runtime;
     document.addEventListener('visibilitychange', updatePolicy);
     window.addEventListener('scroll', updatePolicy, true);
@@ -163,7 +170,7 @@ function Driver(props: RendererProps & { onVisibility: (ids: string[]) => void; 
       gl.debug.onShaderError = null;
       data.disposed = true;
       data.frameSubscribers = 0;
-      if (props.runtime.current === runtime) props.runtime.current = { invalidate() { /* Host unmounted. */ }, inspect: () => structuredClone(data) };
+      if (props.runtime.current === runtime) props.runtime.current = { invalidate() { /* Host unmounted. */ }, flushTheme: () => Promise.resolve(), inspect: () => structuredClone(data) };
       // R3F owns renderer disposal, event disconnection and context release on Canvas unmount.
     };
   }, [gl, getState, themeBridge, props.runtime, props.sceneInvalidation]);

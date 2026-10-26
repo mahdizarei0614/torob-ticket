@@ -31,6 +31,8 @@ export interface GraphicsDiagnostics {
 }
 export interface GraphicsController {
   invalidate: () => void;
+  /** Flushes resolved semantic colors into the current visible frame, without resetting scene state. */
+  flushTheme: () => Promise<void>;
   inspect: () => GraphicsDiagnostics | null;
 }
 interface HostContext extends GraphicsController {
@@ -62,15 +64,16 @@ export function GraphicsProvider({ children, covered = false, motion = false, di
   const [labelLayer,setLabelLayer]=useState<HTMLDivElement|null>(null);
   const [views, setViews] = useState<GraphicsViewRegistration[]>([]);
   const eventSource = useRef<HTMLDivElement>(null);
-  const runtime = useRef<GraphicsController>({ invalidate() { /* Lazy renderer not yet attached. */ }, inspect: () => null });
+  const runtime = useRef<GraphicsController>({ invalidate() { /* Lazy renderer not yet attached. */ }, flushTheme: () => Promise.resolve(), inspect: () => null });
   const register = useCallback((view: GraphicsViewRegistration) => {
     setViews(current => [...current.filter(item => item.id !== view.id), view]);
     return () => setViews(current => current.filter(item => item !== view));
   }, []);
   const invalidate = useCallback(() => runtime.current.invalidate(), []);
+  const flushTheme = useCallback(() => runtime.current.flushTheme(), []);
   const inspect = useCallback(() => runtime.current.inspect(), []);
-  const context = useMemo(() => ({ status, labelLayer, register, invalidate, inspect }), [status, labelLayer, register, invalidate, inspect]);
-  if (controllerRef) controllerRef.current = { invalidate, inspect };
+  const context = useMemo(() => ({ status, labelLayer, register, invalidate, flushTheme, inspect }), [status, labelLayer, register, invalidate, flushTheme, inspect]);
+  if (controllerRef) controllerRef.current = { invalidate, flushTheme, inspect };
   return <Context.Provider value={context}>
     <div ref={eventSource} className={styles.host} data-graphics-status={status}>
       {children}
