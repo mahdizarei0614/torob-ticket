@@ -12,7 +12,7 @@
 
 **Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.3, 2026-10-26 (working official OSM vector basemap).
 
-**Plan state:** Approved. M1–M6 are complete through T28 with independent reviews and packaged acceptance evidence. **28/35 tasks complete; M6 COMPLETE, T29 ACTIVE.** The earlier throwaway date explorer remains separate from implemented product code. Remaining M7 work retains its planned scope.
+**Plan state:** Approved. M1–M6 and T29 packaging are complete with independent reviews and packaged acceptance evidence. **29/35 tasks complete; M7 PARTIAL, T30 ACTIVE.** Owner requested a fast checkpoint before substantial design/logic changes: finish durable harness checks now; full T30 matrix and T31–T33 audits/rehearsal remain unfinished. M8 retains its planned scope.
 
 **Delivery location:** This outputs directory contains the user-facing source documents. On repository creation, copy the spec to docs/superpowers/specs/2026-10-24-torobticket-design.md and this plan to docs/superpowers/plans/2026-10-24-torobticket-master-plan.md. Preserve the revision, task IDs, and decision authority, and rewrite the Spec link to ../specs/2026-10-24-torobticket-design.md.
 
@@ -378,8 +378,8 @@ Each row indexes the detailed checkbox steps in section 6. DONE requires indepen
 | [T26 — Referral analytics and end-to-end provenance trail](#t26) | T26.1 Pin real metric counts<br>T26.2 Run analytics tests red<br>T26.3 Implement metrics and joins<br>T26.4 Implement the referral views<br>T26.5 Verify and commit | T11, T23, T24 | DONE | 264cdb4 backend/frontend; e895f10 independent8; full PG1 +corrected PG2/native actual referral PASS |
 | [T27 — Flat artwork, coordinated motion, and all theme transitions](#t27) | T27.1 Author the visual assets<br>T27.2 Implement useful motion<br>T27.3 Implement theme coordination<br>T27.4 Verify motion and all palettes<br>T27.5 Review and commit | T12, T13, T14, T16, T17, T21 | DONE | Source6451d55; independent reviews and M6 packaged20+17 acceptance; [checkpoint](../../evidence/M6/checkpoint.md) |
 | [T28 — Failure recovery and coherent state across features](#t28) | T28.1 Pin the scenario recovery matrix<br>T28.2 Run recovery cases red<br>T28.3 Implement recovery actions<br>T28.4 Reconcile stale selections<br>T28.5 Verify and commit | T09, T10, T16, T17, T18, T20, T21, T22, T24, T25 | DONE | Source6451d55; independent reviews and M6 packaged20+17 acceptance; [checkpoint](../../evidence/M6/checkpoint.md) |
-| [T29 — Docker packaging, gateway, initialization, and one-command startup](#t29) | T29.1 Define container lifecycle<br>T29.2 Implement ordered initialization<br>T29.3 Implement gateway and assets<br>T29.4 Implement one-command runner<br>T29.5 Verify and commit | T01, T04, T05 | ACTIVE | implement_t29_early / T05–T11 engine and T13 graphics packaged-verified; startup, SSE, referrals, production GL/lazy assets and data preservation pass; future artwork and full T33 acceptance pending |
-| [T30 — Complete behavioral regression and multi-reviewer acceptance](#t30) | T30.1 Build stable e2e fixtures<br>T30.2 Exercise the full matrix<br>T30.3 Exercise cross-feature journeys<br>T30.4 Exercise hostile timing and isolation<br>T30.5 Verify and commit | T19, T22, T24, T25, T26, T28, T29 | TODO | Unassigned / — |
+| [T29 — Docker packaging, gateway, initialization, and one-command startup](#t29) | T29.1 Define container lifecycle<br>T29.2 Implement ordered initialization<br>T29.3 Implement gateway and assets<br>T29.4 Implement one-command runner<br>T29.5 Verify and commit | T01, T04, T05 | DONE | Sourcea0e8ab2; independentc5a47d4; [checkpoint](../../evidence/T29/m7-completion/checkpoint.md) |
+| [T30 — Complete behavioral regression and multi-reviewer acceptance](#t30) | T30.1 Build stable e2e fixtures<br>T30.2 Exercise the full matrix<br>T30.3 Exercise cross-feature journeys<br>T30.4 Exercise hostile timing and isolation<br>T30.5 Verify and commit | T19, T22, T24, T25, T26, T28, T29 | ACTIVE | Partial harness675c409; independent4 config probes; full matrix deferred before redesign |
 | [T31 — Accessibility, RTL, responsive behavior, and browser compatibility](#t31) | T31.1 Define representative coverage<br>T31.2 Run semantic checks<br>T31.3 Inspect visual accessibility<br>T31.4 Run browser coverage<br>T31.5 Fix, verify, and commit | T27, T28, T30 | TODO | Unassigned / — |
 | [T32 — Graphics performance, visual regression, and resource budgets](#t32) | T32.1 Capture controlled visual baselines<br>T32.2 Measure real interaction performance<br>T32.3 Measure bundles and idle work<br>T32.4 Stress lifecycle and fallbacks<br>T32.5 Verify and commit | T27, T28, T30 | TODO | Unassigned / — |
 | [T33 — Fresh-start, offline-runtime, reset, and restart rehearsal](#t33) | T33.1 Rehearse a fresh environment<br>T33.2 Verify external-network independence<br>T33.3 Rehearse lifecycle failures<br>T33.4 Finalize verification runner<br>T33.5 Verify and commit | T29, T30, T31, T32 | TODO | Unassigned / — |
@@ -1904,7 +1904,7 @@ Use gateway/static frontend, API, PostgreSQL, and one-shot initializer services.
 
 Wait for PostgreSQL health, then run migrations and versioned seed to successful completion before API readiness. Seed is idempotent. Startup never deletes a volume; reset is a separate explicit local command.
 
-- [ ] **T29.3 — Implement gateway and assets**
+- [x] **T29.3 — Implement gateway and assets**
 
 Serve web/admin with correct route bases and independent SPA fallbacks. Proxy API without replacing errors by HTML; stream SSE without buffering. Bundle fonts/geography/art and give immutable hashed assets appropriate caching.
 
@@ -1912,11 +1912,13 @@ Serve web/admin with correct route bases and independent SPA fallbacks. Proxy AP
 
 pnpm docker:up must build/start, wait for health, print exact web/admin URLs, and exit nonzero with actionable logs on failure. Document docker compose up --build --wait as the Node-free equivalent. No prerequisite manual migration, seed, or login.
 
-- [ ] **T29.5 — Verify and commit**
+- [x] **T29.5 — Verify and commit**
 
 Run the root startup command on a new named test volume and again without deleting it. Check /, /admin/, deep links, health, SSE first-event delivery, and preserved session data. Record command output; commit packaging. Repeat full clean-start acceptance in T33.
 
 **Acceptance:** One documented command starts every required service and a seeded, ready demo with no manual setup sequence.
+
+**T29 complete — 2026-10-26:** Current gateway/assets and fresh-volume/repeated-start acceptance pass at `a0e8ab2`, independent review `c5a47d4`. Exact assets/SPA/API/cache/statuses, actual progressive SSE/replay and session/completed evidence persistence through recreation are verified. Default DB/full immutable inventories preserved; owned4329 stays available for subsequent M7 work, not yet removed. Nine independent HTTP subcases plus three runner behavior cases pass in separate runs. **29/35 tasks complete; T30 ACTIVE.** [Checkpoint](../../evidence/T29/m7-completion/checkpoint.md). Full offline/lifecycle failure/release rehearsal remains T33.
 
 ---
 
@@ -1961,6 +1963,8 @@ Use two reviewer contexts, delayed and duplicated events, rapid query changes, t
 Run pnpm nx run e2e:e2e against the Compose stack and relevant unit/integration suites after any fixes. Record actual results and remaining limitations in behavioral-matrix.md; commit acceptance coverage.
 
 **Acceptance:** The entire agreed product works coherently across modes, parties, failures, and independent reviewer sessions.
+
+**T30 fast partial checkpoint — 2026-10-26:** Owner requested a very quick finish before substantial design/logic changes. Source `675c409` adds isolated external Compose execution, evidence/peer origin binding, custom touch context baseURL/CDP ownership and current admin assertions; no product logic/design changes. Types/lint pass. Actual default Nx smoke4PASS/1obsolete-heading failure is retained; corrected admin-only run1PASS separately. Four independent config probes approve the narrow three-source delta. Full12-row matrix, broad acceptance and T31–T33 audits/rehearsal remain unfinished; **29/35 complete, M7 PARTIAL, T30 ACTIVE**. Owned4329 stack/volume/image tags removed; default4300 remains ready. [Fast checkpoint](../../evidence/release/m7-fast-checkpoint.md), [independent partial review](../../evidence/T30/review/report.md).
 
 ---
 
@@ -2075,7 +2079,7 @@ Create a disposable named volume and run pnpm docker:up from a clean checkout. R
 
 - [ ] **T33.2 — Verify external-network independence**
 
-After images/dependencies are available, block nonlocal requests during the walkthrough. Confirm no remote font, tile, image, analytics, OAuth, or model call is required. Exercise the direct Compose startup path without host Node/pnpm.
+After images/dependencies are available, block nonlocal requests during the walkthrough. Confirm the core journey requires no remote font, image, analytics, OAuth, or model call. The approved on-demand hotel street map is the explicit external tile/style/glyph/sprite exception: block that service and verify the local list/coordinates and referral remain usable with an honest unavailable state. Do not claim the street map is bundled offline. Exercise the direct Compose startup path without host Node/pnpm.
 
 - [ ] **T33.3 — Rehearse lifecycle failures**
 
