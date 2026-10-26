@@ -5,9 +5,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends openssl ca-cert
 WORKDIR /app
 
 FROM node-base AS dependencies
-RUN npm install --global pnpm@11.9.0
+ARG NPM_REGISTRY=https://registry.npmjs.org
+RUN npm install --global pnpm@11.9.0 --registry="$NPM_REGISTRY"
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-RUN pnpm install --frozen-lockfile --fetch-timeout=300000
+RUN pnpm install --frozen-lockfile --fetch-timeout=300000 --registry="$NPM_REGISTRY"
 
 FROM dependencies AS build
 COPY . .
