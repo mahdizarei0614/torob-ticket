@@ -10,7 +10,7 @@
 
 **Tech Stack:** Nx, pnpm, TypeScript, React, Vite, React Router, TanStack Query, React Aria, CSS Modules, CSS custom properties, Zod, NestJS, PostgreSQL, Prisma, Three.js, React Three Fiber, selected Drei utilities, Motion, @internationalized/date, Vitest, Testing Library, Playwright, Storybook, Docker Compose, Caddy.
 
-**Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.6, 2026-10-26 (selected-journey map atmosphere and choreography).
+**Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.7, 2026-10-26 (world map context, zoom density and scene continuity).
 
 **Plan state:** Approved. M1–M6 and T29 packaging are complete with independent reviews and packaged acceptance evidence. **29/35 tasks complete; M7 PARTIAL, T30 ACTIVE.** Owner requested a fast checkpoint before substantial design/logic changes: finish durable harness checks now; full T30 matrix and T31–T33 audits/rehearsal remain unfinished. M8 retains its planned scope.
 
@@ -2246,3 +2246,16 @@ The subsequent request supersedes the previous all-labels-hidden and pre-ticket 
 | Follow-up polish | Side-view ground vehicles; thicker comet trail; eased endpoint/stop framing; remove map divider | DONE | `a602193`; camera continuity, international fit and native screenshots verified |
 | Compact controls | Shared desktop rows; date wheel/chart/evidence layout; preserve font sizes and 44px controls | DONE | `a602193`; final default-form fit at 1440×900, 1366×768, 1280×800 and 390px mobile check pass |
 | Review and integration | Independent review; local packaged rebuild; browser captures; tracker/export sync | DONE | [Independent review](../../evidence/adjustments/atmospheric-map/review.md); 14 Nx tasks pass; native 15 passes plus corrected layout pass separately; local app healthy; M7 remains partial |
+
+## Owner adjustment — world context, zoom density and map continuity, 2026-10-26
+
+[Decision 0033](../../decisions/0033-world-map-context-and-scene-continuity.md) records faint international borders, sparse zoom-dependent city names, airy dot density with three crossfades, and a dim lingering mouse trail; fixes for duplicate endpoints, navigation presentation, and old flight selection after a train edit. M7 remains partial, 29/35.
+
+| Adjustment | Subtasks | Status | Evidence |
+|---|---|---|---|
+| World context | Local country boundaries; capital/major-city hierarchy; selected-label priority and collision budget | DONE | `5789eb7`; local provenance, geographic clipping and sparse visible-label budgets verified; [checkpoint](../../evidence/adjustments/map-navigation/checkpoint.md) |
+| Zoom density | Progressive land-clipped dot grids; crossfades; trackpad pinch; stable markers | DONE | `5789eb7`; native GPU records three world transitions and two domestic transitions within 1–8× at 1440px; no per-frame geometry rebuild |
+| Soft cursor trail | Wider dot spacing; bounded geographic trace; gentle onset/decay; subdued glow and reduced-motion clearing | DONE | `5789eb7`; 16-sample trail, 150ms onset/1.8s lifetime; actual GPU history retains earlier positions, fades after exit and clears for reduced motion in both scopes |
+| Scene continuity | Shared canvas/label viewport; no duplicate endpoints; navigation and responsive restoration | DONE | `5789eb7`; reserved-scrollbar alignment at three heights, one origin/destination, provider Back/Forward, home and responsive remount pass |
+| Transport intent | Old evidence stays readable; edited trip cannot select/pin/continue old results; fresh train uses rail | DONE | `5789eb7`; synchronous stale-callback guards; native edited-flight rejection and fresh train GPU mode verified |
+| Review and integration | Independent review; packaged rebuild; native regressions; tracker/export synchronization | DONE | [Independent review](../../evidence/adjustments/map-navigation/review.md); final 120 focused tests, 13 Nx tasks and 16 native checks pass; local app healthy; M7 remains partial |
