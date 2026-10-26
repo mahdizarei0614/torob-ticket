@@ -10,7 +10,7 @@ import{SearchPage}from'../search/search-page';
 import type{useSearchController}from'../search/use-search-controller';
 const holder=vi.hoisted(()=>({current:undefined as ReturnType<typeof useSearchController>|undefined}));
 vi.mock('../search/use-search-controller',async original=>{const actual=await original<typeof import('../search/use-search-controller')>();return{...actual,useSearchController:(...args:Parameters<typeof actual.useSearchController>)=>{const controller=actual.useSearchController(...args);holder.current=controller;return controller;}};});
-vi.mock('@torob-ticket/graphics/host',()=>({GraphicsProvider:({children}:{children:unknown})=>children}));
+vi.mock('@torob-ticket/graphics/host',async original=>({...await original<typeof import('@torob-ticket/graphics/host')>(),GraphicsProvider:({children}:{children:unknown})=>children}));
 vi.mock('../dates/date-explorer',()=>({DateExplorer:()=>null}));
 vi.mock('@torob-ticket/client',async original=>{const actual=await original<typeof import('@torob-ticket/client')>();return{...actual,apiClient:{session:async()=>session,sessionSnapshot:()=>session,catalog:async()=>catalog,startSearch:async(input:SearchRequest)=>{const value=recovery([group('old-itinerary')]);value.snapshot.clientGeneration=input.clientGeneration;value.snapshot.query=input.query;value.snapshot.status='complete';return value;},cancelSearch:async()=>undefined}};});
 afterEach(()=>{cleanup();vi.restoreAllMocks();window.history.replaceState({},'','/');});

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createResultsState, resultsReducer, selectedQuote, visibleGroups } from './results-reducer';
+import { cheapestCurrentSelection, createResultsState, resultsReducer, selectedQuote, visibleGroups } from './results-reducer';
 import { group, observedAt, recovery } from './results-test-data';
 const now = Date.parse(observedAt);
 const receive = (state: ReturnType<typeof createResultsState>, value: ReturnType<typeof recovery>) => resultsReducer(state, { type: 'receive', recovery: value });
@@ -60,6 +60,49 @@ describe('authoritative result adoption', () => {
   expect(state.selected).toBeUndefined();
   state = resultsReducer(state, { type: 'dismiss-suggestion' }); expect(state.dismissedSuggestion).toBe(true);
   expect(createResultsState('new', 'new').dismissedSuggestion).toBe(false);
+ });
+});
+
+describe('settled cheapest default selection',()=>{
+ const settled = (groups: ReturnType<typeof group>[], sequence=1) => {const value=recovery(groups,sequence);value.snapshot.status='complete';return value;};
+ it('chooses the actual cheapest eligible quote independently of server group/provider ordering',()=>{
+  const fast=group('fast',20000000),cheap=group('cheap',12000000);
+  cheap.eligibleQuotes.push({...structuredClone(cheap.eligibleQuotes[0]!),quoteId:'best-provider',providerId:'other',total:{amountRial:1000000,currency:'IRR'}});
+  const value=settled([fast,cheap]);value.snapshot.query={...value.snapshot.query,sort:'fastest'};
+  let state=receive(createResultsState('generation','search'),value);
+  const evidence=JSON.stringify(value);
+  state=resultsReducer(state,{type:'select-default',sequence:1,now});
+  expect(state.selected).toEqual({groupId:'cheap',quoteId:'best-provider',version:1});
+  expect(state.selectionSource).toBe('automatic');expect(ids(state)).toEqual(['fast','cheap']);expect(JSON.stringify(value)).toBe(evidence);
+ });
+ it('waits for terminal adopted evidence and cannot select an earlier sequence while cheaper final evidence is staged',()=>{
+  let state=receive(createResultsState('generation','search'),recovery([group('early')]));
+  expect(resultsReducer(state,{type:'select-default',sequence:1,now}).selected).toBeUndefined();
+  state=resultsReducer(state,{type:'freeze'});state=receive(state,settled([group('late',1000000),group('early')],2));
+  expect(resultsReducer(state,{type:'select-default',sequence:1,now}).selected).toBeUndefined();
+  expect(resultsReducer(state,{type:'select-default',sequence:2,now}).selected).toBeUndefined();
+  state=resultsReducer(state,{type:'adopt'});state=resultsReducer(state,{type:'select-default',sequence:2,now});
+  expect(state.selected?.quoteId).toBe('late-quote');
+ });
+ it('manual choice wins over a queued automatic selection and never changes on later defaults or expiry',()=>{
+  let state=receive(createResultsState('generation','search'),settled([group('manual'),group('cheap',1000000)]));
+  const selection={groupId:'manual',quoteId:'manual-quote',version:1};
+  state=resultsReducer(state,{type:'select',selection,now});const selected=state;
+  expect(resultsReducer(state,{type:'select-default',sequence:1,now})).toBe(selected);
+  state=receive(state,settled([group('new',500000),group('manual')],2));state=resultsReducer(state,{type:'adopt'});
+  state=resultsReducer(state,{type:'select-default',sequence:2,now:now+600000});
+  expect(state.selected).toEqual(selection);expect(state.selectionSource).toBe('manual');expect(selectedQuote(state,now+600000)).toBeUndefined();
+ });
+ it('excludes expired, future, incomplete, ineligible and changed quote evidence',()=>{
+  const expired=group('expired',1),future=group('future',2),incomplete=group('incomplete',3),ineligible=group('ineligible',4),changed=group('changed',5);
+  expired.eligibleQuotes[0]!.expiresAt=observedAt;future.eligibleQuotes[0]!.observedAt='2026-10-25T06:01:00.000Z';incomplete.eligibleQuotes[0]!.completeness={status:'incomplete',missing:['fee']};ineligible.eligibleQuotes[0]!.eligibility={status:'ineligible',reasons:['seat']};
+  let state=receive(createResultsState('generation','search'),settled([expired,future,incomplete,ineligible,changed]));
+  state=resultsReducer(state,{type:'freeze'});state=receive(state,settled([expired,future,incomplete,ineligible,group('changed',6)],2));
+  expect(cheapestCurrentSelection(state,now)).toBeUndefined();
+ });
+ it.each(['collecting','empty','failed','cancelled'] as const)('does not auto-select from %s snapshots',status=>{
+  const value=settled([group('a')]);value.snapshot.status=status;const state=receive(createResultsState('generation','search'),value);
+  expect(resultsReducer(state,{type:'select-default',sequence:1,now})).toBe(state);
  });
 });
 

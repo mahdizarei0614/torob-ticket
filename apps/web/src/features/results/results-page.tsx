@@ -1,17 +1,22 @@
 import {SearchRecovery} from '../recovery/search-recovery';
 import { useEffect, useLayoutEffect, useRef, useState, type MutableRefObject, type ReactNode } from 'react';
 import type { CatalogSnapshot, Itinerary, QuoteSnapshot, SearchSnapshot, SortOrder, TransportSearchQuery } from '@torob-ticket/contracts';
-import {Button, SegmentedControl,displayProviderName,MotionSurface,ProviderDelayIllustration} from '@torob-ticket/ui';
+import {Button, SegmentedControl,MotionSurface,ProviderDelayIllustration} from '@torob-ticket/ui';
 import { JourneyCard } from './journey-card';
 import { ResultFilters } from './result-filters';
 import { hasStagedUpdates, quoteStatus, resolveSuggestion, selectedQuote, type QuoteSelection, type ResultsState } from './results-reducer';
 import { createScrollAnchor } from './scroll-anchor';
 import { useResults } from './use-results';
-import { localDay, minutes, number, toman, travelerCount } from './format';
+import { minutes, number, toman } from './format';
 import styles from './results.module.css';
 export interface ResultsEvidence {state:ResultsState;select:(selection:QuoteSelection)=>void}
-export interface ResultsPageProps {historical?:boolean;onFreshSearch?:()=>void;onResume?:()=>void;onSessionExpired?:()=>void;onClearFilter?:(key:keyof TransportSearchQuery['filters'])=>void;onEditDate?:()=>void; onRestoreReady?:()=>void; selectedAction?:{quoteId:string;node:ReactNode}; evidenceRef?:MutableRefObject<ResultsEvidence|undefined>;restore?:Pick<ResultsState,'frozen'|'selected'|'dismissedSuggestion'>; isCurrent: () => boolean; isSelectionCurrent?: () => boolean; generation: string; searchId: string; query: TransportSearchQuery; catalog: CatalogSnapshot; refinementDisabled: boolean; draftChanged: boolean; onRefine: (query: TransportSearchQuery) => void; onEdit: () => void; enterResults?: boolean; onPreviewItinerary?: (itinerary?: Itinerary,source?:'hover'|'focus',leavingId?:string) => void; onPinItinerary?: (itinerary: Itinerary) => void; onSelectQuote?: (quote?: QuoteSnapshot, itinerary?: Itinerary, selectionIntent?: QuoteSelection) => void }
-function Coverage({ snapshot }: { snapshot: SearchSnapshot }) { const coverage = snapshot.coverage; return <div className={styles.coverage} aria-label="پوشش فروشندگان"><span>{number(coverage.successfulProviderIds.length)} از {number(coverage.expectedProviderIds.length)} فروشنده پاسخ داده‌اند{snapshot.status === 'collecting' ? ' · تا این لحظه' : ''}</span>{coverage.pendingProviderIds.length > 0 && <span>{number(coverage.pendingProviderIds.length)} در حال بررسی</span>}{coverage.failedProviderIds.length > 0 && <span className={styles.invalid}>{number(coverage.failedProviderIds.length)} پاسخ ناموفق یا در دسترس نیست</span>}<small>مقایسه بر اساس پاسخ فروشندگان همین جست‌وجو است.</small></div>; }
+export interface ResultsPageProps {allowDefaultSelection?:boolean;historical?:boolean;onFreshSearch?:()=>void;onResume?:()=>void;onSessionExpired?:()=>void;onClearFilter?:(key:keyof TransportSearchQuery['filters'])=>void;onEditDate?:()=>void; onRestoreReady?:()=>void; selectedAction?:{quoteId:string;node:ReactNode}; evidenceRef?:MutableRefObject<ResultsEvidence|undefined>;restore?:Pick<ResultsState,'frozen'|'selected'|'dismissedSuggestion'>; isCurrent: () => boolean; isSelectionCurrent?: () => boolean; generation: string; searchId: string; query: TransportSearchQuery; catalog: CatalogSnapshot; refinementDisabled: boolean; draftChanged: boolean; onRefine: (query: TransportSearchQuery) => void; onEdit: () => void; enterResults?: boolean; onPreviewItinerary?: (itinerary?: Itinerary,source?:'hover'|'focus',leavingId?:string) => void; onPinItinerary?: (itinerary: Itinerary) => void; onSelectQuote?: (quote?: QuoteSnapshot, itinerary?: Itinerary, selectionIntent?: QuoteSelection) => void }
+function Coverage({ snapshot }: { snapshot: SearchSnapshot }) {
+ const pending = snapshot.status === 'collecting' ? new Set(snapshot.coverage.pendingProviderIds).size : 0;
+ const failed = new Set(snapshot.coverage.failedProviderIds).size;
+ if (!pending && !failed) return null;
+ return <span className={styles.coveragePending} role="status">{pending > 0 && `${number(pending)} فروشنده در حال بررسی`}{pending > 0 && failed > 0 && ' · '}{failed > 0 && `${number(failed)} فروشنده در دسترس نیست`}</span>;
+}
 export function ResultsList(props: ResultsPageProps) {
  const { generation, searchId, query, catalog } = props;
  const { state, dispatch, connectionError,connectionState,error,retryRead } = useResults(generation,searchId,query,undefined,undefined,props.restore);
@@ -27,7 +32,17 @@ export function ResultsList(props: ResultsPageProps) {
  useEffect(()=>{if(connectionState==='expired')outward.current.onSessionExpired?.();},[connectionState]);
  const renderedAt = Date.now();
  const selected = selectedQuote(state,renderedAt);
- useEffect(() => { if(canSelect()) outward.current.onSelectQuote?.(selected, selected ? snapshot?.groups.find(group => group.itinerary.itineraryId === selected.itineraryId)?.itinerary : undefined,state.selected); }, [selected, snapshot,state.selected]);
+ const defaultSelectionDone = useRef(Boolean(props.restore) || props.allowDefaultSelection === false);
+ const pinnedDefaultSelection = useRef<QuoteSelection | undefined>(undefined);
+ useEffect(() => {
+  if (!canSelect()) return;
+  const itinerary = selected ? snapshot?.groups.find(group => group.itinerary.itineraryId === selected.itineraryId)?.itinerary : undefined;
+  if (selected && itinerary && state.selectionSource === 'automatic' && pinnedDefaultSelection.current !== state.selected) {
+   pinnedDefaultSelection.current = state.selected;
+   outward.current.onPinItinerary?.(itinerary);
+  }
+  outward.current.onSelectQuote?.(selected,itinerary,state.selected);
+ }, [selected,snapshot,state.selected,state.selectionSource]);
  useEffect(() => {
   if (!ownsCurrent() || !props.enterResults || entered.current || !snapshot) return;
   entered.current = true;
@@ -51,6 +66,7 @@ export function ResultsList(props: ResultsPageProps) {
  }, []);
  function select(selection: QuoteSelection) {
   if (!canSelect() || quoteStatus(stateRef.current,selection,Date.now()) !== 'current') return;
+  defaultSelectionDone.current = true;
   dispatch({ type:'select',selection,now:Date.now() });
   const matched=stateRef.current.adopted?.snapshot.groups.find(group => group.groupId === selection.groupId);const itinerary=matched?.itinerary; if (itinerary && canSelect()){outward.current.onPinItinerary?.(itinerary);outward.current.onSelectQuote?.(matched?.eligibleQuotes.find(q=>q.quoteId===selection.quoteId&&q.version===selection.version),itinerary,selection);}
  }
@@ -62,23 +78,32 @@ export function ResultsList(props: ResultsPageProps) {
   dispatch({ type:'adopt' });
  }
 
+ useEffect(() => {
+  if (defaultSelectionDone.current) return;
+  if (!canSelect() || props.restore || props.allowDefaultSelection === false || state.selected) {defaultSelectionDone.current=true;return;}
+  if (!state.latest || state.latest.snapshot.status === 'collecting') return;
+  if (!['complete','partial','interrupted'].includes(state.latest.snapshot.status) || !state.latest.snapshot.groups.length) {defaultSelectionDone.current=true;return;}
+  // A frozen list must adopt the final evidence through the same anchor as explicit updates.
+  if (state.adopted?.sequence !== state.latest.sequence) {adopt();return;}
+  defaultSelectionDone.current=true;
+  dispatch({type:'select-default',sequence:state.latest.sequence,now:Date.now()});
+ },[state.adopted,state.latest,state.selected,props.allowDefaultSelection,props.restore,props.historical,props.draftChanged]);
+
  if(props.evidenceRef)props.evidenceRef.current={state,select};
  const restoredLayout=useRef(false);
  useLayoutEffect(()=>{if(!restoredLayout.current&&props.restore&&snapshot&&ownsCurrent()){restoredLayout.current=true;outward.current.onRestoreReady?.();}},[snapshot,props.restore]);
  const revealedSelection=useRef(props.restore?.selected);
- useLayoutEffect(()=>{if(!state.selected||revealedSelection.current===state.selected||props.selectedAction?.quoteId!==state.selected.quoteId||!canSelect())return;const action=region.current?.querySelector<HTMLButtonElement>('[data-referral-source=transport] button');if(!action||action.disabled)return;revealedSelection.current=state.selected;action.focus({preventScroll:true});action.scrollIntoView({block:'nearest',behavior:'instant'});},[state.selected,props.selectedAction?.quoteId]);
+ useLayoutEffect(()=>{if(!state.selected||revealedSelection.current===state.selected||props.selectedAction?.quoteId!==state.selected.quoteId||!canSelect())return;if(state.selectionSource==='automatic'){revealedSelection.current=state.selected;return;}const action=region.current?.querySelector<HTMLButtonElement>('[data-referral-source=transport] button');if(!action||action.disabled)return;revealedSelection.current=state.selected;action.focus({preventScroll:true});action.scrollIntoView({block:'nearest',behavior:'instant'});},[state.selected,state.selectionSource,props.selectedAction?.quoteId]);
  const resolvedSuggestion = resolveSuggestion(state,renderedAt);
  const suggestion = resolvedSuggestion?.suggestion; const suggestionTarget = resolvedSuggestion?.target;
  return <section ref={region} className={styles.results} aria-label="نتایج مقایسه سفر" data-historical={Boolean(props.historical)} data-connection-state={connectionState} data-search-id={searchId} data-generation={generation} data-status={latest?.status ?? 'loading'} data-sequence={state.latest?.sequence ?? 0} data-frozen={state.frozen}>
-  <header className={styles.resultsHead}><div><span className={styles.eyebrow}>پیشنهادهای همین سفر</span><h2 ref={heading} tabIndex={-1}>مقایسه {query.mode === 'flight' ? 'پروازها' : query.mode === 'train' ? 'قطارها' : 'اتوبوس‌ها'}</h2><p>{catalog.cities.find(city => city.id === query.originCityId)?.name} به {catalog.cities.find(city => city.id === query.destinationCityId)?.name} · {localDay(query.departureDate+'T12:00:00Z','UTC')} · {number(travelerCount(query))} مسافر · {query.tripType === 'round-trip' ? 'مجموع کامل رفت‌وبرگشت' : 'یک‌طرفه'}</p></div><Button variant="quiet" onPress={() => {if(ownsCurrent()) props.onEdit();}}>ویرایش سفر</Button></header>
+  <header className={styles.resultsHead}><h2 ref={heading} tabIndex={-1}>مقایسه {query.mode === 'flight' ? 'پروازها' : query.mode === 'train' ? 'قطارها' : 'اتوبوس‌ها'}{latest && <> <span className={styles.providerCount}>({number(new Set(latest.coverage.successfulProviderIds).size)} فروشنده)</span></>}</h2>{latest && <Coverage snapshot={latest}/>}</header>
   {props.draftChanged && <p role="status" className={styles.notice}>فرم سفر تغییر کرده؛ این نتایج برای سفر ثبت‌شده بالاست. برای انتخاب پیشنهاد، مرتب‌سازی و فیلتر، ابتدا سفر ویرایش‌شده را جست‌وجو کنید.</p>}
-  <div className={styles.toolbar}><SegmentedControl label="مرتب‌سازی پیشنهادها" value={query.sort} isDisabled={props.refinementDisabled} onChange={value => {if(ownsCurrent()) props.onRefine({ ...query,sort:value as SortOrder });}} options={[{id:'cheapest',label:'ارزان‌ترین'},{id:'fastest',label:'سریع‌ترین'},{id:'fewest-connections',label:query.mode === 'flight' ? 'کم‌توقف‌ترین' : 'کمترین تعویض'}]}/>{snapshot && <ResultFilters isCurrent={ownsCurrent} query={query} snapshot={snapshot} catalog={catalog} disabled={props.refinementDisabled} onApply={value => {if(ownsCurrent()) props.onRefine(value);}}/>}</div>
-  {latest && <Coverage snapshot={latest}/>}
+  <div className={styles.toolbar}><SegmentedControl hideLabel label="مرتب‌سازی پیشنهادها" value={query.sort} isDisabled={props.refinementDisabled} onChange={value => {if(ownsCurrent()) props.onRefine({ ...query,sort:value as SortOrder });}} options={[{id:'cheapest',label:'ارزان‌ترین'},{id:'fastest',label:'سریع‌ترین'},{id:'fewest-connections',label:query.mode === 'flight' ? 'کم‌توقف‌ترین' : 'کمترین تعویض'}]}/>{snapshot && <ResultFilters isCurrent={ownsCurrent} query={query} snapshot={snapshot} catalog={catalog} disabled={props.refinementDisabled} onApply={value => {if(ownsCurrent()) props.onRefine(value);}}/>}{hasStagedUpdates(state) && <span className={styles.refreshUpdates}><Button variant="quiet" aria-label="اعمال نتایج تازه" onPress={adopt}><svg aria-hidden="true" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M20 7v5h-5M4 17v-5h5M5.3 8a7.5 7.5 0 0 1 12.4-2L20 9M4 15l2.3 3A7.5 7.5 0 0 0 18.7 16"/></svg>به‌روزرسانی</Button></span>}</div>
   {props.historical&&<p role="status" className={styles.notice}>این شواهد برای تنظیمات قبلی است؛ انتخاب و ادامه نیاز به مقایسه تازه دارد. شرایط فرم شما حفظ شده است.</p>}
   {!props.historical&&(connectionError||snapshot&&snapshot.status!=='collecting'&&snapshot.groups.length>0&&snapshot.groups.every(g=>g.eligibleQuotes.length===0)||['snapshot-only','expired','unavailable'].includes(connectionState)||latest&&['partial','interrupted','failed','cancelled'].includes(latest.status)&&Boolean(snapshot?.groups.length)||snapshot?.groups.some(g=>g.eligibleQuotes.length)&&snapshot.groups.flatMap(g=>g.eligibleQuotes).every(q=>Date.parse(q.expiresAt)<=renderedAt))&&<SearchRecovery query={query} catalog={catalog} status={latest?.status} historical={props.historical} expired={connectionState==='expired'} quoteExpired={Boolean(snapshot?.groups.some(g=>g.eligibleQuotes.length)&&snapshot.groups.flatMap(g=>g.eligibleQuotes).every(q=>Date.parse(q.expiresAt)<=renderedAt))} error={error} connection={connectionState} onFresh={props.historical||connectionState!=='expired'?props.onFreshSearch:undefined} onRead={retryRead} onEdit={props.onEdit} onDate={props.onEditDate} onResume={props.onResume} onClearFilter={props.draftChanged?undefined:props.onClearFilter}/>}
-  {hasStagedUpdates(state) && <div className={styles.updates} role="status"><div><strong>نتایج به‌روز در دسترس است</strong><span>{number(Math.max(0,(latest?.groups.length ?? 0)-(snapshot?.groups.length ?? 0)))} مسیر تازه · {number(latest?.groups.reduce((sum,group) => sum+group.eligibleQuotes.length,0) ?? 0)} پیشنهاد معتبر در آخرین دریافت</span><small>ترتیب و شرایطی که بررسی می‌کنید حفظ شده است.</small></div><Button variant="secondary" onPress={adopt}>اعمال نتایج تازه</Button></div>}
   {suggestion && suggestionTarget && <aside className={styles.suggestion} aria-label="پیشنهاد جایگزین"><div><strong>{minutes(suggestion.delta.minutes)} زودتر برسید</strong><p>{suggestion.delta.amountRial > 0 ? `${toman(suggestion.delta.amountRial)} بیشتر` : suggestion.delta.amountRial < 0 ? `${toman(-suggestion.delta.amountRial)} کمتر` : 'با همان مبلغ'} نسبت به کم‌قیمت‌ترین پیشنهاد کامل همین جست‌وجو</p></div><Button variant="quiet" onPress={() => { if(!ownsCurrent() || !resolveSuggestion(stateRef.current,Date.now())) return; dispatch({type:'freeze'}); const card = Array.from(region.current?.querySelectorAll<HTMLElement>('[data-group-id]') ?? []).find(node => node.dataset.groupId === suggestionTarget.group.groupId); card?.querySelector<HTMLElement>('button')?.focus(); card?.scrollIntoView({block:'center'}); }}>نمایش مسیر پیشنهادی</Button><Button variant="quiet" aria-label="بستن پیشنهاد جایگزین" onPress={() => {if(ownsCurrent()) dispatch({type:'dismiss-suggestion'});}}>×</Button></aside>}
-  {state.selected && !props.draftChanged && !props.historical && <div className={selected ? styles.selection : styles.invalid} role="status">{selected ? `پیشنهاد ${displayProviderName(catalog.providerCapabilities.find(p=>p.providerId===selected.providerId))} برای مقایسه انتخاب شد · ${toman(selected.total.amountRial)} برای همه مسافران.` : 'پیشنهاد انتخاب‌شده دیگر معتبر نیست؛ برای ادامه نتایج تازه را بررسی یا دوباره جست‌وجو کنید.'}</div>}
+  {state.selected && !selected && !props.draftChanged && !props.historical && <div className={styles.invalid} role="status">پیشنهاد انتخاب‌شده دیگر معتبر نیست؛ برای ادامه نتایج تازه را بررسی یا دوباره جست‌وجو کنید.</div>}
   {!snapshot&&error?null:!snapshot || snapshot.status === 'collecting' && snapshot.groups.length === 0 ? <div role="status" className={styles.empty}><ProviderDelayIllustration mode={query.mode} size="compact"/><h3>در حال دریافت پیشنهادهای فروشندگان…</h3><p>به محض آماده شدن، پیشنهادهای قابل مقایسه نمایش داده می‌شوند.</p></div> : snapshot.groups.length > 0 ? <MotionSurface purpose="content" motionKey={generation+'/'+searchId} className={styles.list} role="list" aria-label="مسیرها و پیشنهادهای مقایسه‌شده">{snapshot.groups.map(group => <div role="listitem" key={group.groupId}><JourneyCard selectionDisabled={!canSelect()} continuation={canSelect()&&state.selected?.groupId===group.groupId&&props.selectedAction?.quoteId===state.selected.quoteId?props.selectedAction.node:undefined} group={group} snapshot={snapshot} catalog={catalog} state={state} now={renderedAt} onFreeze={() => {if(ownsCurrent()) dispatch({type:'freeze'});}} onSelect={select} onPreviewItinerary={(itinerary,source,leavingId) => {if(canSelect()) outward.current.onPreviewItinerary?.(itinerary,source,leavingId);}}/></div>)}</MotionSurface> : props.historical?<p role="status">در شواهد قبلی پیشنهاد قابل نمایش دریافت نشده است.</p>:<SearchRecovery query={query} catalog={catalog} status={snapshot.status} onFresh={props.onFreshSearch} onEdit={props.onEdit} onDate={props.onEditDate} onClearFilter={props.draftChanged?undefined:props.onClearFilter}/>}
   {latest && ['partial','interrupted'].includes(latest.status) && snapshot?.groups.length !== 0 && <p className={styles.notice}>فقط پیشنهادهای دریافت‌شده نمایش داده شده‌اند؛ پوشش این جست‌وجو کامل و موفق نیست.</p>}
  </section>;

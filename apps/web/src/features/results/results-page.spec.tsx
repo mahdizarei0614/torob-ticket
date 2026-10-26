@@ -3,9 +3,9 @@ import { act } from '@testing-library/react';
 import { useReducer } from 'react';
 import { afterEach, expect, it, vi } from 'vitest';
 import {createMapState,mapReducer,mapView} from '../map/map-state';
-import { ResultsList } from './results-page';
+import { ResultsList, ResultsPage, type ResultsPageProps } from './results-page';
 import { useResults } from './use-results';
-import { createResultsState, resultsReducer } from './results-reducer';
+import { createResultsState, resultsReducer, type ResultsAction, type ResultsState } from './results-reducer';
 import { group, observedAt, recovery } from './results-test-data';
 import { catalog, query } from '../search/search-test-data';
 vi.mock('./use-results',()=>({useResults:vi.fn()}));
@@ -17,7 +17,7 @@ it('keeps edited-trip results readable but disables representative/provider choi
  const selected=vi.fn(),pin=vi.fn(),preview=vi.fn(),dispatch=vi.fn();
  vi.mocked(useResults).mockReturnValue({state,dispatch,now:Date.now(),connectionError:false,connectionState:'settled',error:undefined,retryRead:vi.fn(),stored:value});
  render(<ResultsList isCurrent={()=>true} generation="generation" searchId="search" query={query} catalog={catalog} refinementDisabled draftChanged onRefine={()=>undefined} onEdit={()=>undefined} onSelectQuote={selected} onPinItinerary={pin} onPreviewItinerary={preview} selectedAction={{quoteId:item.eligibleQuotes[0]!.quoteId,node:<button>continue old flight</button>}}/>);
- expect(screen.getByRole('heading',{name:'مقایسه پروازها'})).toBeVisible();expect(screen.getByRole('button',{name:'انتخاب‌شده برای مقایسه'})).toBeDisabled();
+ expect(screen.getByRole('heading',{name:/مقایسه پروازها/})).toBeVisible();expect(screen.getByRole('button',{name:'انتخاب پیشنهاد'})).toBeDisabled();
  fireEvent.click(screen.getByRole('button',{name:/جزئیات و/}));expect(screen.getByRole('button',{name:'پیشنهاد انتخاب‌شده'})).toBeDisabled();
  expect(screen.queryByRole('button',{name:'continue old flight'})).not.toBeInTheDocument();expect(screen.getByText(/ابتدا سفر ویرایش‌شده را جست‌وجو کنید/)).toBeVisible();
  fireEvent.mouseEnter(screen.getByRole('article'));expect(pin).not.toHaveBeenCalled();expect(preview).not.toHaveBeenCalled();expect(selected).not.toHaveBeenCalled();
@@ -44,7 +44,7 @@ it('obsolete already-rendered result callbacks emit no selection, pin, preview, 
  const time=Date.parse(observedAt)+5000;vi.spyOn(Date,'now').mockReturnValue(time);const value=recovery([group('a')]);let state=resultsReducer(createResultsState('generation','search'),{type:'receive',recovery:value});state=resultsReducer(state,{type:'freeze'});state=resultsReducer(state,{type:'receive',recovery:recovery([group('b'),group('a')],2)});
  const dispatch=vi.fn(),pin=vi.fn(),preview=vi.fn(),selected=vi.fn(),edit=vi.fn(),refine=vi.fn();let current=true;vi.mocked(useResults).mockReturnValue({state,dispatch,now:time,connectionError:false,connectionState:'settled' as const,error:undefined,retryRead:vi.fn(),stored:value});
  render(<ResultsList isCurrent={()=>current} generation="generation" searchId="search" query={query} catalog={catalog} refinementDisabled={false} draftChanged={false} onRefine={refine} onEdit={edit} onPinItinerary={pin} onPreviewItinerary={preview} onSelectQuote={selected}/>);selected.mockClear();current=false;
- fireEvent.click(screen.getByRole('button',{name:'انتخاب پیشنهاد'}));fireEvent.mouseEnter(screen.getByRole('article'));fireEvent.focus(screen.getByRole('button',{name:'انتخاب پیشنهاد'}));fireEvent.click(screen.getByRole('button',{name:'اعمال نتایج تازه'}));fireEvent.click(screen.getByRole('button',{name:'ویرایش سفر'}));expect(dispatch).not.toHaveBeenCalled();expect(pin).not.toHaveBeenCalled();expect(preview).not.toHaveBeenCalled();expect(selected).not.toHaveBeenCalled();expect(edit).not.toHaveBeenCalled();expect(refine).not.toHaveBeenCalled();
+ fireEvent.click(screen.getByRole('button',{name:'انتخاب پیشنهاد'}));fireEvent.mouseEnter(screen.getByRole('article'));fireEvent.focus(screen.getByRole('button',{name:'انتخاب پیشنهاد'}));fireEvent.click(screen.getByRole('button',{name:'اعمال نتایج تازه'}));expect(dispatch).not.toHaveBeenCalled();expect(pin).not.toHaveBeenCalled();expect(preview).not.toHaveBeenCalled();expect(selected).not.toHaveBeenCalled();expect(edit).not.toHaveBeenCalled();expect(refine).not.toHaveBeenCalled();expect(screen.queryByRole('button',{name:'ویرایش سفر'})).not.toBeInTheDocument();
 });
 
 it('a delayed adoption frame relinquishes scrolling immediately when controller ownership changes before React unmount',()=>{
@@ -58,7 +58,7 @@ it('a delayed adoption frame relinquishes scrolling immediately when controller 
 });
 it('obsolete entry and outward selection effects do not focus or scroll a restored screen',()=>{
  vi.spyOn(Date,'now').mockReturnValue(Date.parse(observedAt)+5000);const scroll=vi.fn();HTMLElement.prototype.scrollIntoView=scroll;const value=recovery([group('a')]);const state=resultsReducer(createResultsState('generation','search'),{type:'receive',recovery:value});const selected=vi.fn();vi.mocked(useResults).mockReturnValue({state,dispatch:vi.fn(),now:Date.now(),connectionError:false,connectionState:'settled' as const,error:undefined,retryRead:vi.fn(),stored:value});
- render(<ResultsList isCurrent={()=>false} generation="generation" searchId="search" query={query} catalog={catalog} refinementDisabled={false} draftChanged={false} enterResults onRefine={()=>undefined} onEdit={()=>undefined} onSelectQuote={selected}/>);expect(scroll).not.toHaveBeenCalled();expect(selected).not.toHaveBeenCalled();expect(screen.getByRole('heading',{name:'مقایسه پروازها'})).not.toHaveFocus();
+ render(<ResultsList isCurrent={()=>false} generation="generation" searchId="search" query={query} catalog={catalog} refinementDisabled={false} draftChanged={false} enterResults onRefine={()=>undefined} onEdit={()=>undefined} onSelectQuote={selected}/>);expect(scroll).not.toHaveBeenCalled();expect(selected).not.toHaveBeenCalled();expect(screen.getByRole('heading',{name:/مقایسه پروازها/})).not.toHaveFocus();
 });
 
 it('the actual list forwards hover/focus ownership and restores focused A after leaving B',()=>{
@@ -74,4 +74,86 @@ it('signals restored layout only after actual adopted cards exist, once and only
  const props={isCurrent:()=>current,generation:'generation',searchId:'search',query,catalog,refinementDisabled:false,draftChanged:false,onRefine:()=>undefined,onEdit:()=>undefined,restore:{frozen:true,dismissedSuggestion:false},onRestoreReady:ready};
  const view=render(<ResultsList {...props}/>);expect(ready).not.toHaveBeenCalled();state=resultsReducer(state,{type:'receive',recovery:value});view.rerender(<ResultsList {...props}/>);expect(ready).toHaveBeenCalledTimes(1);view.rerender(<ResultsList {...props}/>);expect(ready).toHaveBeenCalledTimes(1);view.unmount();
  current=false;ready.mockClear();render(<ResultsList {...props}/>);expect(ready).not.toHaveBeenCalled();
+});
+
+function completed(groups: ReturnType<typeof group>[],sequence=1) {
+ const value=recovery(groups,sequence);value.snapshot.status='complete';value.snapshot.coverage={expectedProviderIds:['p'],successfulProviderIds:['p'],pendingProviderIds:[],failedProviderIds:[],complete:true};return value;
+}
+const resultProps: ResultsPageProps={isCurrent:()=>true,generation:'generation',searchId:'search',query,catalog,refinementDisabled:false,draftChanged:false,onRefine:()=>undefined,onEdit:()=>undefined};
+function controlledResults(initial: ResultsState | ((generation:string,searchId:string)=>ResultsState)) {
+ let current!:ResultsState,send!:(action:ResultsAction)=>void;
+ function useControlledResults(generation:string,searchId:string) {
+  const [state,dispatch]=useReducer(resultsReducer,undefined,()=>typeof initial==='function'?initial(generation,searchId):initial);
+  current=state;send=dispatch;
+  return {state,dispatch,now:Date.now(),connectionError:false,connectionState:'settled' as const,error:undefined,retryRead:vi.fn(),stored:state.latest};
+ }
+ vi.mocked(useResults).mockImplementation(useControlledResults);
+ return {state:()=>current,send:(action:ResultsAction)=>act(()=>send(action))};
+}
+it('counts unique successful sellers in the title and keeps only compact pending/failure information',()=>{
+ vi.spyOn(Date,'now').mockReturnValue(Date.parse(observedAt)+1000);const value=recovery([group('a')]);
+ value.snapshot.coverage={expectedProviderIds:['p','q','r','s'],successfulProviderIds:['p','p','q'],pendingProviderIds:['r'],failedProviderIds:['s'],complete:false};
+ controlledResults(resultsReducer(createResultsState('generation','search'),{type:'receive',recovery:value}));
+ render(<ResultsList {...resultProps}/>);
+ expect(screen.getByRole('heading',{name:'مقایسه پروازها (۲ فروشنده)'})).toBeVisible();
+ expect(screen.getByText('۱ فروشنده در حال بررسی · ۱ فروشنده در دسترس نیست')).toBeVisible();
+ expect(screen.queryByText(/فروشنده پاسخ داده‌اند/)).not.toBeInTheDocument();expect(screen.queryByRole('button',{name:'ویرایش سفر'})).not.toBeInTheDocument();
+});
+it('defaults to the cheapest quote under fastest sorting, pins its route, and leaves focus and scroll untouched',()=>{
+ vi.spyOn(Date,'now').mockReturnValue(Date.parse(observedAt)+1000);const scroll=vi.fn();HTMLElement.prototype.scrollIntoView=scroll;
+ const value=completed([group('fast',20000000),group('cheap',1000000)]);value.snapshot.query={...query,sort:'fastest'};
+ const control=controlledResults(resultsReducer(createResultsState('generation','search'),{type:'receive',recovery:value}));const pin=vi.fn(),select=vi.fn(),handoff=vi.fn();
+ render(<><input aria-label="search field" autoFocus/><ResultsList {...resultProps} query={value.snapshot.query} onPinItinerary={pin} onSelectQuote={select} selectedAction={{quoteId:'cheap-quote',node:<div data-referral-source="transport"><button onClick={handoff}>provider action</button></div>}}/></>);
+ expect(control.state().selected?.quoteId).toBe('cheap-quote');expect(control.state().selectionSource).toBe('automatic');
+ expect([...document.querySelectorAll<HTMLElement>('[data-group-id]')].map(node=>node.dataset.groupId)).toEqual(['fast','cheap']);
+ expect(pin).toHaveBeenCalledOnce();expect(pin).toHaveBeenCalledWith(value.snapshot.groups[1]!.itinerary);expect(select).toHaveBeenLastCalledWith(value.snapshot.groups[1]!.eligibleQuotes[0],value.snapshot.groups[1]!.itinerary,{groupId:'cheap',quoteId:'cheap-quote',version:1});
+ expect(screen.getByRole('textbox',{name:'search field'})).toHaveFocus();expect(screen.getByRole('button',{name:'provider action'})).toBeVisible();expect(scroll).not.toHaveBeenCalled();expect(handoff).not.toHaveBeenCalled();
+ expect(screen.queryByText(/برای مقایسه انتخاب شد/)).not.toBeInTheDocument();
+});
+it('waits for a late cheapest quote, adopts final evidence through the existing anchor and selects only once',()=>{
+ vi.spyOn(Date,'now').mockReturnValue(Date.parse(observedAt)+1000);const scroll=vi.spyOn(window,'scrollBy').mockImplementation(()=>undefined),frame=vi.fn(()=>1);
+ vi.spyOn(HTMLElement.prototype,'getBoundingClientRect').mockImplementation(function(this:HTMLElement){return {x:0,y:100,top:100,bottom:300,left:0,right:500,width:500,height:200,toJSON:()=>({})};});
+ vi.stubGlobal('requestAnimationFrame',frame);vi.stubGlobal('cancelAnimationFrame',vi.fn());
+ const control=controlledResults(resultsReducer(createResultsState('generation','search'),{type:'receive',recovery:recovery([group('early')])}));const pin=vi.fn();
+ const view=render(<ResultsList {...resultProps} onPinItinerary={pin}/>);expect(control.state().selected).toBeUndefined();
+ fireEvent.wheel(window,{deltaY:10});expect(control.state().frozen).toBe(true);
+ const later=completed([group('late',1000000),group('early')],2);control.send({type:'receive',recovery:later});
+ expect(control.state().adopted?.sequence).toBe(2);expect(control.state().selected?.quoteId).toBe('late-quote');expect(pin).toHaveBeenCalledOnce();
+ expect(frame).toHaveBeenCalledOnce();expect(scroll).not.toHaveBeenCalled();
+ control.send({type:'receive',recovery:completed([group('even-cheaper',1),group('late',1000000),group('early')],3)});
+ expect(control.state().selected?.quoteId).toBe('late-quote');expect(control.state().adopted?.sequence).toBe(2);expect(pin).toHaveBeenCalledOnce();expect(screen.getByRole('button',{name:'اعمال نتایج تازه'})).toBeVisible();
+ expect(screen.queryByText('نتایج به‌روز در دسترس است')).not.toBeInTheDocument();view.unmount();
+});
+it('a manual choice during collection wins over the terminal cheapest and still reveals its action',()=>{
+ vi.spyOn(Date,'now').mockReturnValue(Date.parse(observedAt)+1000);const scroll=vi.fn();HTMLElement.prototype.scrollIntoView=scroll;
+ const control=controlledResults(resultsReducer(createResultsState('generation','search'),{type:'receive',recovery:recovery([group('manual')])}));const pin=vi.fn();
+ render(<ResultsList {...resultProps} onPinItinerary={pin} selectedAction={{quoteId:'manual-quote',node:<div data-referral-source="transport"><button>provider action</button></div>}}/>);
+ fireEvent.click(screen.getByRole('button',{name:'انتخاب پیشنهاد'}));expect(screen.getByRole('button',{name:'provider action'})).toHaveFocus();expect(scroll).toHaveBeenCalledOnce();
+ control.send({type:'receive',recovery:completed([group('cheap',1),group('manual')],2)});
+ expect(control.state().selected?.quoteId).toBe('manual-quote');expect(control.state().selectionSource).toBe('manual');expect(control.state().adopted?.sequence).toBe(1);expect(pin).toHaveBeenCalledOnce();
+});
+it.each([
+ {name:'historical',props:{historical:true}},
+ {name:'changed draft',props:{draftChanged:true}},
+ {name:'stale owner',props:{isCurrent:()=>false}},
+ {name:'invalid synchronous selection authority',props:{isSelectionCurrent:()=>false}},
+ {name:'refinement',props:{allowDefaultSelection:false}},
+ {name:'restored checkpoint',props:{restore:{frozen:true,dismissedSuggestion:false}}},
+])('does not automatically select or pin $name evidence',({props})=>{
+ vi.spyOn(Date,'now').mockReturnValue(Date.parse(observedAt)+1000);const control=controlledResults(resultsReducer(createResultsState('generation','search'),{type:'receive',recovery:completed([group('a')])}));const pin=vi.fn();
+ render(<ResultsList {...resultProps} {...props} onPinItinerary={pin}/>);expect(control.state().selected).toBeUndefined();expect(pin).not.toHaveBeenCalled();
+});
+it('keeps restored manual selection and its focus instead of replacing it with the cheapest quote',()=>{
+ vi.spyOn(Date,'now').mockReturnValue(Date.parse(observedAt)+1000);const selection={groupId:'manual',quoteId:'manual-quote',version:1};
+ const initial=resultsReducer(resultsReducer(createResultsState('generation','search'),{type:'receive',recovery:completed([group('cheap',1),group('manual')])}),{type:'select',selection,now:Date.now()});
+ const control=controlledResults(initial);const pin=vi.fn();HTMLElement.prototype.scrollIntoView=vi.fn();
+ render(<><input aria-label="restored focus" autoFocus/><ResultsList {...resultProps} restore={{frozen:true,selected:selection,dismissedSuggestion:false}} onPinItinerary={pin} selectedAction={{quoteId:'manual-quote',node:<div data-referral-source="transport"><button>provider action</button></div>}}/></>);
+ expect(control.state().selected).toEqual(selection);expect(pin).not.toHaveBeenCalled();expect(screen.getByRole('textbox',{name:'restored focus'})).toHaveFocus();expect(HTMLElement.prototype.scrollIntoView).not.toHaveBeenCalled();
+});
+it('does not retry an expired default in the same generation, but a new search may select once',()=>{
+ const now=vi.spyOn(Date,'now').mockReturnValue(Date.parse(observedAt)+600000);
+ const control=controlledResults((generation,searchId)=>{const value=completed([group('a')]);value.snapshot.clientGeneration=generation;value.snapshot.searchId=searchId;return resultsReducer(createResultsState(generation,searchId),{type:'receive',recovery:value});});const pin=vi.fn();
+ const view=render(<ResultsPage {...resultProps} onPinItinerary={pin}/>);expect(control.state().selected).toBeUndefined();
+ now.mockReturnValue(Date.parse(observedAt)+1000);view.rerender(<ResultsPage {...resultProps} onPinItinerary={pin}/>);expect(control.state().selected).toBeUndefined();
+ view.rerender(<ResultsPage {...resultProps} generation="next-generation" searchId="next-search" onPinItinerary={pin}/>);expect(control.state().selected?.quoteId).toBe('a-quote');expect(pin).toHaveBeenCalledOnce();
 });

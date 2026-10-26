@@ -12,9 +12,13 @@ export function ReferralFacts({payload,catalog}:{payload:ReferralPayload;catalog
  {payload.kind==='transport'?<><Price total={payload.quote.total} scope={{kind:'party',travelers:payload.quote.party.adults+payload.quote.party.children+payload.quote.party.infants}}/><FareConditions quote={payload.quote} catalog={catalog}/><details><summary>ریز مبلغ همه مسافران</summary><Breakdown quote={payload.quote}/></details></>:<><p><bdi>{payload.quote.query.checkIn}</bdi> تا <bdi>{payload.quote.query.checkOut}</bdi> · {number(nights(payload.quote.query.checkIn,payload.quote.query.checkOut))} شب</p><RoomRates comparisonEvidence={false} quote={payload.quote} disabled selected onSelect={()=>undefined}/></>}
  </div>;
 }
-export function ProviderAction({source,flow,catalog,compact=false}:{source:ReferralSource;flow:ReturnType<typeof useReferralController>;catalog:CatalogSnapshot;compact?:boolean}){
+export function ProviderAction({source,flow,catalog,compact=false,layout='standard'}:{source:ReferralSource;flow:ReturnType<typeof useReferralController>;catalog:CatalogSnapshot;compact?:boolean;layout?:'standard'|'ticket'}){
  const payload=source.payload;
  const blocked=flow.needsFresh(source),recovery=flow.hasRecovery(source),expired=Date.parse(source.payload.quote.expiresAt)<=Date.now();
+ if(layout==='ticket')return <section className={styles.ticketAction} aria-label="ادامه پیشنهاد انتخاب‌شده" data-referral-source={source.payload.kind}>
+ <Button onPress={()=>void flow.start(source)} isDisabled={flow.state.phase!=='idle'}>{recovery?'بررسی نتیجه انتقال قبلی':blocked||expired?'مقایسه تازه همین سفر':<>رفتن به {displayProviderName(catalog.providerCapabilities.find(p=>p.providerId===payload.quote.providerId))}<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9"/><path d="M10 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"/></svg></>}</Button>
+ {blocked?<p role="status">این نسخه به مقایسه تازه نیاز دارد.</p>:expired&&!recovery?<p role="status">اعتبار قیمت پایان یافته است.</p>:null}
+ </section>;
  return <section className={styles.selected} aria-label="ادامه پیشنهاد انتخاب‌شده" data-referral-source={source.payload.kind}>
  <div><strong>پیشنهاد انتخاب‌شده برای ادامه</strong><p>قیمت و شرایط پیش از ادامه دوباره بررسی می‌شود.</p></div>
  {compact&&<div><strong>{displayProviderName(catalog.providerCapabilities.find(p=>p.providerId===payload.quote.providerId))} · نسخه {number(payload.quote.version)}</strong><Price total={payload.quote.total} scope={payload.kind==='transport'?{kind:'party',travelers:payload.quote.party.adults+payload.quote.party.children+payload.quote.party.infants}:{kind:'stay',rooms:payload.quote.query.rooms,nights:nights(payload.quote.query.checkIn,payload.quote.query.checkOut)}}/></div>}

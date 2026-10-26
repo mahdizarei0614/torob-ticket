@@ -6,3 +6,9 @@
 @media(max-width:640px){.comparison{grid-template-columns:1fr}}
 
 .selected>button{scroll-margin-block:var(--space-3)}
+
+.ticketAction{display:flex;align-items:center;gap:var(--space-2);flex-wrap:wrap;min-width:0}
+.ticketAction>button{display:inline-flex;align-items:center;justify-content:center;gap:var(--space-2);font-size:13px;min-height:36px;padding:6px 12px;scroll-margin-block:var(--space-3)}
+.ticketAction svg{flex:none}
+.ticketAction p{margin:0;color:var(--text-muted);font-size:12px}
+@media(max-width:600px){.ticketAction>button{min-height:44px}}

@@ -104,15 +104,28 @@ test('@compact-journey hotel dock opens before a ticket search and survives resp
   await page.setViewportSize({ width: 1440, height: 900 });
   await expect(page.locator('[data-map-hotel-dock] [data-hotel-entry]')).toHaveCount(1);
   await hotelTrigger(page).click(); await expect(checkout).toHaveValue('2026-11-02'); expect(transportPosts).toBe(1);
-  await hotel(page).getByRole('checkbox').check();
   await expect(page.getByRole('region', { name: 'نتایج مقایسه سفر', exact: true, includeHidden: true })).toHaveAttribute('data-status', 'complete');
+  await expect(page.locator('article[data-group-id][data-selected="true"]')).toHaveCount(1);
+  // The newly selected ticket adds arrival facts; it must not overwrite the edited stay.
+  await expect(checkout).toHaveValue('2026-11-02');
+  const applyTrip = hotel(page).getByRole('button', { name: 'استفاده از سفر جدید', exact: true });
+  const arrivalUpdateOffered = await applyTrip.isVisible();
+  if (arrivalUpdateOffered) {
+    await expect(hotel(page).locator('[data-hotel-dialog]')).toHaveAttribute('data-hotel-stale', 'true');
+    await expect(checkout).toBeDisabled();
+    await applyTrip.click();
+    await checkout.fill('2026-11-02');
+  }
+  await expect(hotel(page).locator('[data-hotel-dialog]')).toHaveAttribute('data-hotel-stale', 'false');
+  const confirmation = hotel(page).getByRole('checkbox');
+  if (await confirmation.isVisible()) await confirmation.check();
   const response = page.waitForResponse(r => r.request().method() === 'POST' && r.url().endsWith('/api/v1/hotel-searches'));
   await hotel(page).getByRole('button', { name: 'مقایسه اقامتگاه‌ها', exact: true }).click();
   const http = await response; const body = await http.json(); save('hotel-search-response', {status: http.status(), body}); expect(http.status()).toBe(201); expect(body.status).toBe('complete');
   await expect(hotel(page).getByRole('region', { name: 'نتایج مقایسه اقامتگاه‌ها', exact: true })).toHaveAttribute('data-hotel-search-id', body.hotelSearchId);
   await hotel(page).getByRole('button', { name: 'بستن', exact: true }).click(); await expect(hotelTrigger(page)).toBeFocused();
   await page.screenshot({ path: resolve(evidence, 'hotel-under-map.png') });
-  save('hotel-dock', { transportPosts, hotelStatus: body.status, hotelQuery: body.query });
+  save('hotel-dock', { transportPosts, arrivalUpdateOffered, retainedCheckoutBeforeApply: '2026-11-02', hotelStatus: body.status, hotelQuery: body.query });
 });
 
 test('@compact-journey reduced motion settles hotel entry and respects clear route', async ({ page }) => {

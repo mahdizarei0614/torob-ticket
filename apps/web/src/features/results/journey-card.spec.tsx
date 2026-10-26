@@ -14,7 +14,7 @@ describe('journey and provider offer facts',()=>{
   const user=userEvent.setup();render(<Harness/>);await user.click(screen.getByRole('button',{name:'جزئیات و ۲ پیشنهاد فروشندگان'}));
   const other=screen.getByRole('region',{name:/فروشنده دوم خیالی/});await user.click(within(other).getByRole('button',{name:'انتخاب این پیشنهاد'}));
   const card=screen.getByRole('article');expect(card).toHaveAttribute('data-quote-id','other-quote');expect(card).toHaveAttribute('data-amount-rial','20000000');
-  const facts=within(card).getByLabelText('شرایط پیشنهاد نمایش‌داده‌شده');expect(facts).toHaveTextContent('بار تحویلی: نامشخص');expect(facts).toHaveTextContent('قابل استرداد طبق شرایط فروشنده');expect(facts).toHaveTextContent('فروشنده دوم خیالی');
+  expect(other).toHaveAttribute('data-selected','true');expect(other).toHaveAttribute('data-offer-quote-version',String(second.version));expect(other).toHaveTextContent('بار تحویلی: نامشخص');expect(other).toHaveTextContent('قابل استرداد طبق شرایط فروشنده');expect(other).toHaveTextContent('فروشنده دوم خیالی');expect(within(card).getByRole('button',{name:'انتخاب پیشنهاد'})).toHaveAttribute('aria-pressed','true');
   expect(within(card).queryByLabelText('مقایسه با کم‌قیمت‌ترین پیشنهاد این جست‌وجو')).not.toBeInTheDocument();
  });
  it('previews the same itinerary on keyboard focus and mouse hover, and clears on leaving',async()=>{
