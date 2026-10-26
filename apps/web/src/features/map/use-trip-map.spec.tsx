@@ -18,7 +18,7 @@ function setup() {
  window.history.replaceState(null,'','/');
  return renderHook(()=>{const controller=useSearchController(catalog,session,client);return {controller,map:useTripMap(controller,catalog)};},{wrapper:Wrapper});
 }
-it('synchronously rejects retained city/direction callbacks after native restore and camera delivery after a newer pin',async()=>{
+it('synchronously rejects retained direction callbacks after native restore and camera delivery after a newer pin',async()=>{
  const hook=setup();await act(()=>hook.result.current.controller.submit(query));
  act(()=>hook.result.current.map.pin(group('a').itinerary));
  const old=hook.result.current.map;
@@ -26,7 +26,7 @@ it('synchronously rejects retained city/direction callbacks after native restore
  act(()=>hook.result.current.map.pin(group('b').itinerary));
  act(()=>old.saveCamera({...camera,zoom:8}));expect(hook.result.current.map.initialCamera).toBeUndefined();
  const prior=hook.result.current.map;
- act(()=>{window.history.replaceState(null,'','/');window.dispatchEvent(new PopStateEvent('popstate'));prior.chooseCity('destination','c');prior.direction('return');});
+ act(()=>{window.history.replaceState(null,'','/');window.dispatchEvent(new PopStateEvent('popstate'));prior.direction('return');});
  expect(hook.result.current.controller.state.draft.destinationCityId).toBe('b');expect(hook.result.current.map.view.direction).toBe('outbound');expect(hook.result.current.map.view.itinerary).toBeUndefined();
  hook.unmount();
 });

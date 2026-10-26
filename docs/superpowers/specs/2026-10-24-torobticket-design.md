@@ -1,6 +1,6 @@
 # TorobTicket — Product and Architecture Specification
 
-**Revision:** 1.4 · 2026-10-26
+**Revision:** 1.5 · 2026-10-26
 
 **Purpose:** Authoritative design companion to the master implementation plan.  
 **Status:** Product scope and architecture approved in conversation. Implementation defaults below are explicit engineering decisions made while preparing the plan; they are not additional claims of user approval.
@@ -122,9 +122,9 @@ Date states are priced, checking, no matching offer, and outside coverage. If re
 
 The desktop map stays on the left while the right-hand content scrolls. It starts with dotted Iran for domestic scope or dotted world geography for international scope, with shallow depth and a stable camera.
 
-Map dots and dropdowns control the same origin/destination state. Dropdowns provide a complete accessible alternative. Origin selection emphasizes supported endpoints. After endpoints are selected, show an illustrative route until a specific itinerary is available.
+**Owner adjustment,2026-10-26:** The main travel map is display-only for origin/destination. Only search-form controls change cities. Desktop shows the start→end title and map/route, with no city labels, endpoint controls/dropdown, visible zoom toolbar, duplicate details or progress/footer data. Keep existing route rendering/preview/pin and internal progress/camera state; add no search/domain logic. This supersedes the earlier map-dot city-selection requirement. The hotel location picker remains interactive and unchanged. After form endpoints are selected, show an illustrative route until a specific itinerary is available.
 
-Hover or keyboard focus previews an itinerary without moving the camera. Selecting an itinerary pins it and deliberately fits the camera. Leaving a preview restores the pinned itinerary. Sorting or scrolling results does not reset the camera. Explicit zoom/pinch is supported. Round trips have outbound/return controls and display one direction at a time.
+Hover or keyboard focus previews an itinerary without moving the camera. Selecting an itinerary pins it and deliberately fits the camera. Leaving a preview restores the pinned itinerary. Sorting or scrolling results does not reset the camera. Pinch zoom remains supported. The desktop map has no additional direction toolbar; it displays its current itinerary direction. Round-trip details remain in the ticket details, and mobile route panels retain outbound/return controls.
 
 Flights use elevated curves, rail uses line segments between stations, and buses use authored winding paths. Paths are illustrative mock geometry, not navigation guidance. Stops expose location, arrival/departure, wait duration, vehicle changes, and airport transfers. Required ground transfers have distinct segments. Equivalent information is available in the textual route timeline.
 

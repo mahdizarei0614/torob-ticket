@@ -62,8 +62,8 @@ This table is the implementation index of the complete decisions in the companio
 | D09 | Progressive collection; freeze order on interaction; explicit updates; recheck referral | T09, T11, T17, T22, T28 |
 | D10 | Wheel previews then settles; chart linked; calendar applies; stale queries discarded | T10, T15–T16 |
 | D11 | Date prices share eligibility; fixed opposite return leg; missing prices are gaps | T03, T07, T10, T16 |
-| D12 | Fixed desktop dotted map, supported endpoints, preview/pin, stable camera | T13–T15, T18 |
-| D13 | Mode-specific paths, stops/waits/transfers, direction controls, pixel vehicle progress | T14, T18 |
+| D12 | Fixed display-only desktop dotted map, start→end title, no city labels/editing, preview/pin, stable camera | T13–T15, T18 |
+| D13 | Mode-specific paths, ticket/mobile stops and directions, internal pixel vehicle progress | T14, T18 |
 | D14 | Hotel modal/full-page modal, state restoration, arrival-local stay dates | T20–T21 |
 | D15 | Eligible whole-stay/room totals, four sorts, mode-aware arrival point, custom point | T20–T21 |
 | D16 | Hotel dates independent; early check-in caveat; direct hotel referral | T20–T22 |
@@ -2230,3 +2230,7 @@ Before release, all tasks are DONE or an explicit approved scope change removes 
 - Master-plan self-review: coverage, interfaces, dependencies, step granularity, and review-focus ownership checked before delivery.
 - Task/table counts and local document references validated by a planning audit script.
 - No implementation test, browser regression, package build, performance result, deployment, or submission is claimed by this record.
+
+## Owner adjustment — compact travel map,2026-10-26
+
+Desktop travel map is display-only: start→end title and existing route scene, no city labels/endpoint controls/duplicate map panels. Only the search form edits cities. Internal route/pin/progress/camera semantics, mobile route panel and interactive hotel picker remain. [Decision0031](../../decisions/0031-display-only-travel-map.md), [checkpoint](../../evidence/adjustments/read-only-map/checkpoint.md). This is an owner-directed adjustment; M7 remains partial29/35 and unfinished acceptance is not reclassified.

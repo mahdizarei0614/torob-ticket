@@ -29,7 +29,7 @@ export function useTripMap(controller:SearchController,catalog:CatalogSnapshot) 
  function saveCamera(value:CameraIntent) {if(mapCurrent())camera.current={key:fitKey,value:{...value}};}
  function direction(value:'outbound'|'return'){if(mapCurrent())send({type:'direction',direction:value});}
  function clear(){if(!mapCurrent())return;controller.clearMapInspection(lease);send({type:'clear-inspection'});}
- function chooseCity(target:'origin'|'destination',id:string) {if(!mapCurrent())return;const routes=catalog.supportedConnections.filter(route=>route.mode===readContext().draft.mode&&route.scope===readContext().draft.scope);const allowed=routes.some(route=>target==='origin'?route.originCityId===id:route.originCityId===readContext().draft.originCityId&&route.destinationCityId===id);if(allowed)controller.edit(target==='origin'?{originCityId:id}:{destinationCityId:id});}
+
  /** T22 calls this only with its server recheck quote after ready or explicit changed-version acceptance. */
  function bindAcceptedQuote(previous:{quoteId:string;version:number},quote:QuoteSnapshot,itinerary:Itinerary) {if(!owns(owner)||!owner)return false;const next=send({type:'bind-rechecked',owner,previous,quote,itinerary,now:Date.now()});return next.selection?.quote.version===quote.version&&next.selection.quote.quoteId===quote.quoteId;}
  /** T22 supplies its actual server-confirmed receipt; there is no user-facing completion simulator. */
@@ -49,6 +49,6 @@ export function useTripMap(controller:SearchController,catalog:CatalogSnapshot) 
   if(value.origin&&value.pin){selection(value.origin,value.pin,value.intent);if(value.receipt)hydrateReceipt(value.origin,value.pin,value.receipt);}
   send({type:'direction',direction:value.direction});if(value.camera)camera.current={key:String(current.current.fitEpoch),value:{...value.camera}};
  }
- return {referralLease,restoreUi,readState:()=>current.current,readCamera:()=>camera.current?.key===String(current.current.fitEpoch)?camera.current.value:undefined,hydrateReceipt,selectionCurrent,state,view,preview,pin,selection,direction,clear,chooseCity,fitKey,lease,sceneKey:renderedSceneKey,isCurrent:mapCurrent,saveCamera,initialCamera:camera.current?.key===fitKey?camera.current.value:undefined,bindAcceptedQuote,confirmReferral};
+ return {referralLease,restoreUi,readState:()=>current.current,readCamera:()=>camera.current?.key===String(current.current.fitEpoch)?camera.current.value:undefined,hydrateReceipt,selectionCurrent,state,view,preview,pin,selection,direction,clear,fitKey,lease,sceneKey:renderedSceneKey,isCurrent:mapCurrent,saveCamera,initialCamera:camera.current?.key===fitKey?camera.current.value:undefined,bindAcceptedQuote,confirmReferral};
 }
 export type TripMapController=ReturnType<typeof useTripMap>;

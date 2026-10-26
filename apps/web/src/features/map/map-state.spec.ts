@@ -1,7 +1,7 @@
 import {describe,it,expect} from 'vitest';
 import type {Itinerary,ReferralReceipt,QuoteSnapshot} from '@torob-ticket/contracts';
-import {createMapState,mapReducer,mapView,cityChoices,type MapContext,type MapInspection} from './map-state';
-import {catalog,query} from '../search/search-test-data';
+import {createMapState,mapReducer,mapView,type MapContext,type MapInspection} from './map-state';
+import {query} from '../search/search-test-data';
 import {group,observedAt} from '../results/results-test-data';
 const owner={generation:'g',searchId:'s'};const now=Date.parse(observedAt)+1000;
 const context:MapContext={draft:query,committed:query,...owner,current:true,revision:1,cause:'search'};
@@ -13,10 +13,8 @@ function via(id:string,middle:string):Itinerary {
 const a=via('a','TBZ');const b=via('b','RAS');
 const inspect=(itinerary:Itinerary):MapInspection=>({itinerary,query,owner});
 describe('consumer map ownership and camera intent',()=>{
- it('initial accepted comparison stays illustrative; supported dot choices match the dropdown network',()=>{
+ it('initial accepted comparison stays illustrative',()=>{
   const state=createMapState(context);expect(mapView(state,now).itinerary).toBeUndefined();expect(mapView(state,now).progress).toBe(.35);
-  expect(cityChoices(query,catalog,'destination').filter(item=>item.enabled).map(item=>item.city.id)).toEqual(['b']);
-  expect(cityChoices({...query,mode:'train'},catalog,'destination').filter(item=>item.enabled).map(item=>item.city.id)).toEqual(['c']);
  });
  it('previews without refitting and restores the pinned itinerary after leave',()=>{
   let state=mapReducer(createMapState(context),{type:'pin',inspection:inspect(a)});const fit=state.fitEpoch;

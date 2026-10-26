@@ -17,11 +17,11 @@ export interface RouteSceneProps {
   fitMode?: 'route' | 'geography'; projection?: ProjectionContext; fitKey: string; originKey?: string; progress?: 0 | .35 | .7 | 1; reveal?: number;
   cities?:readonly RouteCityMarker[]; onCitySelect?:(cityId:string)=>void;
   initialCamera?:CameraIntent; onCameraIntentChange?:(camera:CameraIntent)=>void; isCurrent?:()=>boolean;
-  portalLabels?:boolean; labelsVisible?:boolean;fitBothDirections?:boolean; showTimeline?:boolean; showNotes?:boolean;
+  portalLabels?:boolean; labelsVisible?:boolean; showControls?:boolean;fitBothDirections?:boolean; showTimeline?:boolean; showNotes?:boolean;
   animateProgress?:boolean; onMotionChange?:(active:boolean)=>void; motionKey?:string;
   onPlaceSelect?: (placeId: string) => void;
 }
-export const RouteScene = memo(function RouteScene({ places, dots, scope, itinerary, direction = 'outbound', paths = NO_PATHS, illustrative, projection = DEFAULT_PROJECTION, fitMode = 'route', fitKey, originKey = '', progress = 0, reveal = 1, onPlaceSelect,cities=NO_CITIES,onCitySelect,initialCamera,onCameraIntentChange,isCurrent=()=>true,fitBothDirections=false,showTimeline=true,showNotes=true,animateProgress=false,onMotionChange,motionKey,portalLabels=false,labelsVisible=true }: RouteSceneProps) {
+export const RouteScene = memo(function RouteScene({ places, dots, scope, itinerary, direction = 'outbound', paths = NO_PATHS, illustrative, projection = DEFAULT_PROJECTION, fitMode = 'route', fitKey, originKey = '', progress = 0, reveal = 1, onPlaceSelect,cities=NO_CITIES,onCitySelect,initialCamera,onCameraIntentChange,isCurrent=()=>true,fitBothDirections=false,showTimeline=true,showNotes=true,animateProgress=false,onMotionChange,motionKey,portalLabels=false,labelsVisible=true,showControls=true }: RouteSceneProps) {
   const leg = itinerary && (direction === 'outbound' ? itinerary.outbound : itinerary.return);
   const segments = useMemo<readonly RouteSegmentGeometry[]>(() => {
     if (itinerary && leg) return buildRouteGeometry(itinerary, places, paths, direction, projection);
@@ -50,7 +50,7 @@ export const RouteScene = memo(function RouteScene({ places, dots, scope, itiner
   const chooseMarker=(id:string)=>{if(!isCurrent()) return;const city=cities.find(item=>'city:'+item.city.id===id);if(city){if(city.enabled) onCitySelect?.(city.city.id);}else onPlaceSelect?.(id);};
   const label = 'نقشه مسیر';
   return <div data-route-scene data-direction={direction} data-progress={progress}>
-    <SceneSurface portalLabels={portalLabels} labelsVisible={labelsVisible} label={label} camera={camera} setZoom={zoom => setCamera(value => ({ ...value, zoom }))} context={projection} markers={markers} onMarkerSelect={onPlaceSelect||onCitySelect?chooseMarker:undefined} isCurrent={isCurrent} markerSelectLabel={cities.length?'انتخاب شهر روی نقشه':undefined}
+    <SceneSurface portalLabels={portalLabels} labelsVisible={labelsVisible} showControls={showControls} label={label} camera={camera} setZoom={zoom => setCamera(value => ({ ...value, zoom }))} context={projection} markers={markers} onMarkerSelect={onPlaceSelect||onCitySelect?chooseMarker:undefined} isCurrent={isCurrent} markerSelectLabel={cities.length?'انتخاب شهر روی نقشه':undefined}
       fallback={frame => <StaticMap dots={dots} markers={markers} segments={segments} context={projection} frame={frame} progress={progress} mode={itinerary?.mode??illustrative?.mode} />}>
       {frame => <><SceneCamera frame={frame} /><SceneDrawing dots={dots} markers={markers} segments={segments} context={projection} frame={frame} mode={itinerary?.mode ?? illustrative?.mode} progress={progress} reveal={reveal} animateProgress={animateProgress} onMotionChange={onMotionChange} motionKey={motionKey} /></>}
     </SceneSurface>

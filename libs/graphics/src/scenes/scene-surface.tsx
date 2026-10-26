@@ -33,10 +33,10 @@ export function SceneCamera({ frame }: { frame: RouteBounds }) {
   useLayoutEffect(() => { const previous = get().camera; set({ camera }); return () => set({ camera: previous }); }, [get, set, camera]);
   return null;
 }
-export function SceneSurface({ label, camera, setZoom, context, markers, onMarkerSelect, onPointChange, children, fallback, onFrame, isCurrent = () => true, markerSelectLabel,portalLabels=false,labelsVisible=true }: {
+export function SceneSurface({ label, camera, setZoom, context, markers, onMarkerSelect, onPointChange, children, fallback, onFrame, isCurrent = () => true, markerSelectLabel,portalLabels=false,labelsVisible=true,showControls=true }: {
   label: string; camera: CameraIntent; setZoom: (zoom: number) => void; context: ProjectionContext; markers: readonly SceneMarker[];
   onMarkerSelect?: (id: string) => void; onPointChange?: (point: GeoPoint) => void;
-  children: (frame: RouteBounds) => ReactNode; fallback: (frame: RouteBounds) => ReactNode; onFrame?: (frame: RouteBounds) => void; isCurrent?:()=>boolean; markerSelectLabel?:string;portalLabels?:boolean;labelsVisible?:boolean;
+  children: (frame: RouteBounds) => ReactNode; fallback: (frame: RouteBounds) => ReactNode; onFrame?: (frame: RouteBounds) => void; isCurrent?:()=>boolean; markerSelectLabel?:string;portalLabels?:boolean;labelsVisible?:boolean;showControls?:boolean;
 }) {
   const {labelLayer}=useGraphics();const labelId=useId();
   const [rect,setRect]=useState({left:0,top:0,width:0,height:0});
@@ -79,8 +79,8 @@ export function SceneSurface({ label, camera, setZoom, context, markers, onMarke
       </div>
   );
   return <section className={styles.scene} aria-label={label}>
-    <div className={styles.controls}><button aria-label={`بزرگ‌نمایی ${label}`} onClick={() => isCurrent() && setZoom(Math.min(8, camera.zoom * 1.25))}>+</button><button aria-label={`کوچک‌نمایی ${label}`} onClick={() => isCurrent() && setZoom(Math.max(.5, camera.zoom / 1.25))}>−</button><button aria-label={`مقیاس اولیه ${label}`} onClick={() => isCurrent() && setZoom(1)}>۱×</button><output aria-label={`مقیاس ${label}`}>{camera.zoom.toFixed(2)}×</output></div>
-    <div className={`${styles.viewport} ${onPointChange ? styles.picker : ''}`} ref={viewport} aria-controls={labelId} data-camera-intent={JSON.stringify(camera)} data-camera={JSON.stringify({ ...frame, zoom: camera.zoom })}
+    {showControls && <div className={styles.controls}><button aria-label={`بزرگ‌نمایی ${label}`} onClick={() => isCurrent() && setZoom(Math.min(8, camera.zoom * 1.25))}>+</button><button aria-label={`کوچک‌نمایی ${label}`} onClick={() => isCurrent() && setZoom(Math.max(.5, camera.zoom / 1.25))}>−</button><button aria-label={`مقیاس اولیه ${label}`} onClick={() => isCurrent() && setZoom(1)}>۱×</button><output aria-label={`مقیاس ${label}`}>{camera.zoom.toFixed(2)}×</output></div>}
+    <div className={`${styles.viewport} ${onPointChange ? styles.picker : ''}`} ref={viewport} aria-controls={labelsVisible?labelId:undefined} data-camera-intent={JSON.stringify(camera)} data-camera={JSON.stringify({ ...frame, zoom: camera.zoom })}
       onPointerDown={event => {
         if(!isCurrent()) return;
         if ((event.target as HTMLElement).closest('button')) return;
@@ -102,7 +102,7 @@ export function SceneSurface({ label, camera, setZoom, context, markers, onMarke
         pointers.current.delete(event.pointerId); if (pointers.current.size < 2) pinch.current = null;
       }}>
       <GraphicsView label={`${label}؛ نقشه نقطه‌ای`} fallback={fallback(frame)}>{children(frame)}</GraphicsView>
-      {!portalLabels && labels}
+      {!portalLabels && labelsVisible && labels}
       {portalLabels && labelLayer && labelsVisible && rect.width>0 && createPortal(<div className={styles.portalViewport} style={rect}>{labels}</div>,labelLayer)}
     </div>
     {onMarkerSelect && <label className={styles.markerSelect}>{markerSelectLabel??'انتخاب نقطه'} <select aria-label={`انتخاب نقطه ${label}`} value="" onChange={event => {const marker=markers.find(item=>item.id===event.target.value);if(isCurrent() && marker?.enabled!==false && marker?.selectable!==false) onMarkerSelect(event.target.value);}}><option value="" disabled>انتخاب کنید</option>{markers.filter(marker=>marker.selectable!==false).map(marker => <option disabled={marker.enabled===false} key={marker.id} value={marker.id}>{marker.name}</option>)}</select></label>}

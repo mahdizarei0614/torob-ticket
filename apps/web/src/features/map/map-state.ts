@@ -1,4 +1,4 @@
-import { ItinerarySchema, QuoteSnapshotSchema, ReferralReceiptSchema, type CatalogSnapshot, type City, type Itinerary, type Place, type QuoteSnapshot, type ReferralReceipt, type TransportSearchQuery } from '@torob-ticket/contracts';
+import { ItinerarySchema, QuoteSnapshotSchema, ReferralReceiptSchema, type Itinerary, type Place, type QuoteSnapshot, type ReferralReceipt, type TransportSearchQuery } from '@torob-ticket/contracts';
 import { contextForPoints } from '@torob-ticket/graphics/host';
 import type { SearchDraft } from '../search/search-url';
 import type { QuoteSelection } from '../results/results-reducer';
@@ -119,11 +119,4 @@ export function mapView(raw:MapState,now:number) {
   // A real immutable referral event remains historical truth after its quote expires.
   if(displayedSelected && state.receipt && receiptMatches(state,state.receipt,now)) progress=1;
   return {itinerary,inspection,query:inspection?.query??state.context.draft,scope:inspection?.query.scope??state.context.draft.scope,mode:itinerary?.mode??state.context.draft.mode,progress,historical,direction,selectedValid:Boolean(displayedSelected && state.selection?.valid && validQuote(state.selection.quote,now))};
-}
-export interface CityChoice {city:City;enabled:boolean;role:'origin'|'destination'|'network'}
-export function cityChoices(draft:SearchDraft,catalog:CatalogSnapshot,target:'origin'|'destination'):CityChoice[] {
-  const routes=catalog.supportedConnections.filter(route=>route.mode===draft.mode && route.scope===draft.scope);
-  const network=new Set(routes.flatMap(route=>[route.originCityId,route.destinationCityId]));
-  const allowed=new Set(routes.filter(route=>target==='origin' || route.originCityId===draft.originCityId).map(route=>target==='origin'?route.originCityId:route.destinationCityId));
-  return catalog.cities.filter(city=>network.has(city.id)).map(city=>({city,enabled:allowed.has(city.id),role:city.id===draft.originCityId?'origin':city.id===draft.destinationCityId?'destination':'network'}));
 }
