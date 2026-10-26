@@ -2283,3 +2283,13 @@ The subsequent request supersedes the previous all-labels-hidden and pre-ticket 
 | Default selection and header | Terminal cheapest quote; manual-choice/restore/stale fences; no automatic referral/focus; actual seller count; compact update recovery | DONE | `35d4a1b`; 58 final result tests and native automatic-map/manual-selection checks |
 | Handoff and suggestions | Provider-named selected CTA; existing recheck/recovery semantics; route-suggestion chooser at top | DONE | `35d4a1b`; exact handoff/no-write return and changed-price consent verified; edited hotel stay preserved until explicit arrival update |
 | Integration and independent review | Source checks; packaged desktop/mobile/round-trip/map/referral verification; review; tracker/SDD/export sync | DONE | [Independent review](../../evidence/adjustments/compact-results/review.md); 431 integrated source tests, final 58 result tests, type/lint, seven native scenarios; local stack ready; M7 remains partial |
+
+## Owner adjustment — continuous map background, 2026-10-27
+
+[Decision0036](../../decisions/0036-continuous-map-background.md): unify desktop map/page atmosphere and softly fade geography at its edges. Presentation only; M7 remains partial29/35, T30 active.
+
+| Adjustment | Subtasks | Status | Evidence |
+|---|---|---|---|
+| Continuous backdrop | Shared viewport-aligned semantic-token shades; transparent map panel; preserve content layering | DONE | `c3578c8`; six transport/appearance palettes and desktop captures verified; [checkpoint](../../evidence/adjustments/map-blending/checkpoint.md) |
+| Soft map edges | Actual GPU geography/morph fade and matching fallback; zoom-stable edge treatment; readable selected route | DONE | `c3578c8`; 100 focused tests; native shader, international zoom and SVG fallback checks pass |
+| Review and integration | Native desktop themes/zoom/fallback checks; independent review; local packaging; tracker/export sync | DONE | [Independent review](../../evidence/adjustments/map-blending/review.md) approved; 9 Nx checks and 7 native scenarios pass; local stack healthy; M7 remains partial |

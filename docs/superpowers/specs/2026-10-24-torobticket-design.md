@@ -1,6 +1,6 @@
 # TorobTicket — Product and Architecture Specification
 
-**Revision:** 1.9 · 2026-10-27
+**Revision:** 1.10 · 2026-10-27
 
 **Purpose:** Authoritative design companion to the master implementation plan.  
 **Status:** Product scope and architecture approved in conversation. Implementation defaults below are explicit engineering decisions made while preparing the plan; they are not additional claims of user approval.
@@ -129,6 +129,8 @@ Date states are priced, checking, no matching offer, and outside coverage. If re
 ## 6. Map and route behavior
 
 The desktop map stays on the left while the right-hand content scrolls. It starts with dotted Iran for domestic scope or dotted world geography for international scope, with shallow depth and a stable camera.
+
+**Owner background adjustment, 2026-10-27:** The desktop map belongs to one shaded page background, with no differently colored rectangular panel. A shared viewport-aligned atmosphere spans the map and right-hand content. Geography dots, faint borders and morph particles fade softly toward the scene edges, with a broader transition toward the results. The GPU and static fallback both use the fade, which stays visually stable during zoom. Selected route and endpoint/stop labels remain readable; camera alignment, normal scrolling and content interaction stay intact. Decision0036 records this presentation-only change.
 
 **Owner adjustments,2026-10-26:** The main travel map remains display-only for origin/destination. Only search-form controls change cities. Desktop shows the start→end title and map, without endpoint controls/dropdown, visible zoom toolbar, duplicate details or progress/footer. Compact selected-endpoint and progressively revealed stop names are shown. On the international map, sparse contextual capital/major-city labels may fade with zoom and yield to all selected journey labels; these geographic names imply no inventory or selection action. Selecting cities reveals their locations with a flat halo/pop effect. There is no connecting route before a selected ticket; a fresh completed search now automatically selects its cheapest eligible quote as specified above. The hotel location picker remains interactive and unchanged.
 
