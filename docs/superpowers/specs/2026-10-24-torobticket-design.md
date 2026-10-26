@@ -1,6 +1,6 @@
 # TorobTicket — Product and Architecture Specification
 
-**Revision:** 1.7 · 2026-10-26
+**Revision:** 1.8 · 2026-10-27
 
 **Purpose:** Authoritative design companion to the master implementation plan.  
 **Status:** Product scope and architecture approved in conversation. Implementation defaults below are explicit engineering decisions made while preparing the plan; they are not additional claims of user approval.
@@ -66,7 +66,9 @@ The search contract contains:
 
 Changing mode preserves compatible cities and dates. An incompatible destination is cleared with an explanation; it is not silently replaced. Origin selection enables supported destinations. Network support is distinct from availability for a particular date.
 
-**Defaults:** Initial party is one adult; require at least one adult; limit total travelers to nine and infants to the adult count. Mock providers own their age/seat rules. Collect ages only when needed to determine a fare or hotel room; do not collect passenger names, passports, or dates of birth. A hotel age is age at check-in and is not silently inferred from a transport age at a different date.
+**Owner adjustment, 2026-10-27:** New consumer transport searches compare one adult; the passenger calculator is removed. URL, presets, saved-search opens and new submissions normalize consumer intent consistently. Historical result/quote/referral evidence retains its original party; a changed draft cannot select that old evidence. The general domain/admin contracts still support parties of up to nine, at least one adult, and infants no greater than adults. Hotel room/guest eligibility remains independently enforced. Mock providers own their age/seat rules; no passenger names, passports, or dates of birth are collected. A hotel age is age at check-in and is not inferred from transport age at a different date. Keep a compatible selected class; otherwise preselect economy, seat or standard from the catalog, falling back to its first valid class.
+
+Search controls share compact rows without smaller type. The mode, scope and trip-type group names remain accessible but are not visible headings. City fields show search and clear icons, search placeholders and a restrained focus state. Remove the repeated traveler/trip/time-zone summary and routine instructional copy.
 
 **Default filter set:** budget, departure time window, operator/provider, mode-specific class, maximum flight stops or ground transfers, refundable-only, and a flight checked-baggage requirement. Unknown conditions never satisfy an affirmative requirement. A condition is shown as unknown instead of invented. The single departure-time window constrains the outbound departure in its origin time zone and is labeled outbound for round trips. The maximum stops/transfers filter uses the complete-trip count (both directions for round trips), with that total explicit in its label.
 
@@ -112,6 +114,8 @@ Clicking a chart point synchronizes the wheel. The line describes the minimum el
 
 Calendar and wheel use one date-price model. Calendar interaction is provisional until “Apply dates.” Cancel restores the previous selection and focus. Jalali month boundaries, leap years, keyboard navigation, and valid Gregorian conversion are explicit test cases.
 
+The calendar uses a compact icon trigger and a narrow month dialog with priced days and usable touch targets. Gregorian manual entry is available in an optional disclosure. The date wheel retains keyboard/drag interaction without visible drag hints or the redundant date-comparison heading.
+
 For round trips, choose departure first. Return-day prices represent complete round-trip totals. Once both dates are set, changing either leg holds the opposite leg fixed. If the departure makes the return invalid, require the user to reselect; do not silently shift the return. Same-day returns may be valid when actual segment timing makes them possible; the throwaway prototype's stricter behavior is not a production rule.
 
 Date states are priced, checking, no matching offer, and outside coverage. If retrieval fails or no complete price can be established, show a distinct price-unavailable state with recovery; never describe a provider failure as proof that no tickets exist. Missing/unknown values create chart gaps, never zero prices. A price includes coverage and freshness. Filters, party, class, mode, provider scenario, mapping revision, and fixed opposite leg are part of its cache identity.
@@ -138,13 +142,15 @@ The route animation is visual presentation, separate from comparison/referral au
 
 Geography dots breathe slowly with varied phases. Mouse movement leaves a dim, geographically anchored trail with a soft onset and gradual decay after the cursor passes, rather than an immediate spotlight. A bounded history and non-additive glow prevent bright accumulation. An authored subset of major-city locations has slightly larger/brighter dots with the same subtle trail, with no population/ranking inference or additional city-selection logic. Ambient dot motion and the route strand share the existing application renderer/clock and run only while the desktop map is visible, uncovered, and motion is permitted. Reduced motion clears pointer trails and settles the geography.
 
-**Layout defaults:** main travel map at widths ≥1120 CSS px, approximately 46% of desktop content width. Below that threshold, omit the main map and use itinerary timelines. Map controls cannot intercept ordinary results scrolling.
+**Owner motion adjustment, 2026-10-27:** Switching Iran/world redistributes a bounded deterministic particle field along scattered paths, then settles into the destination's airy dot lattice. Interrupted changes continue from the visible state; reduced motion settles directly. Vehicles follow the local path tangent, with a locomotive and two independently following wagons for trains. A blur/opacity envelope softens vehicle entry, arrival and loop restart. Selected origin/destination visuals fade in and out, retaining outgoing visuals only for the exit; current semantic endpoint identities stay unique.
+
+**Layout defaults:** main travel map at widths ≥1120 CSS px, approximately 46% of desktop content width. Below that threshold, omit the main map. Only small screens below768px show a selected-itinerary timeline; larger layouts retain route facts in ticket details. There is no standalone placeholder route card. Map controls cannot intercept ordinary results scrolling.
 
 Geography, city labels, route paths, hotel landmarks, and fonts are bundled locally with attribution/provenance. Projection and route geometry must handle long routes and the antimeridian without drawing through the entire map accidentally.
 
 ## 7. Hotels
 
-A compact “Compare hotels in [destination]” action appears above results. It opens a desktop modal or a mobile full-page modal. Closing restores ticket filters, scroll, selected quote, and pinned route.
+A compact hotel action appears after a valid complete route is selected, including cities and dates. On wide desktop it is docked beneath the map and enters with an upward fade; narrower layouts place it inline above results. Reduced motion settles immediately. It opens a desktop modal or a mobile full-page modal. The discovery model and edited stay survive responsive placement changes, and closing restores focus to the current trigger, ticket filters, scroll, selected quote, and pinned route. If no transport comparison exists, the first explicit hotel click establishes the ordinary comparison context needed for referral return; it never selects a ticket automatically.
 
 Check-in comes from the chosen itinerary's destination-local arrival date. Before an itinerary is chosen, arrival date must be confirmed. Return departure suggests check-out for round trips; one-way searches require check-out before displaying stay prices. A same-day round trip does not silently become a hotel night.
 

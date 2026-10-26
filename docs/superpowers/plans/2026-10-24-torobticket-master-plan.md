@@ -2259,3 +2259,16 @@ The subsequent request supersedes the previous all-labels-hidden and pre-ticket 
 | Scene continuity | Shared canvas/label viewport; no duplicate endpoints; navigation and responsive restoration | DONE | `5789eb7`; reserved-scrollbar alignment at three heights, one origin/destination, provider Back/Forward, home and responsive remount pass |
 | Transport intent | Old evidence stays readable; edited trip cannot select/pin/continue old results; fresh train uses rail | DONE | `5789eb7`; synchronous stale-callback guards; native edited-flight rejection and fresh train GPU mode verified |
 | Review and integration | Independent review; packaged rebuild; native regressions; tracker/export synchronization | DONE | [Independent review](../../evidence/adjustments/map-navigation/review.md); final 120 focused tests, 13 Nx tasks and 16 native checks pass; local app healthy; M7 remains partial |
+
+## Owner adjustment — compact search and journey motion, 2026-10-27
+
+[Decision 0034](../../decisions/0034-compact-search-and-journey-motion.md) maps all twelve owner requests to implementation boundaries. This adjustment preserves read-only map endpoints, explicit ticket selection, comparison/referral authority and historical evidence. M7 remains partial, 29/35; T30 is still active.
+
+| Adjustment | Subtasks | Status | Evidence |
+|---|---|---|---|
+| Geographic transition | Deterministic scattered Iran/world particle morph; rapid reversal; shared clock; reduced-motion settling | DONE | `722d71c`; actual GPU records 1331 particles, progress/crossfade/reversal/reduced motion pass; [checkpoint](../../evidence/adjustments/compact-journey/checkpoint.md) |
+| Vehicle and endpoint motion | Path-tangent rotation; locomotive plus two wagons; departure/arrival blur and fade; retained endpoint exits with unique current identities | DONE | `722d71c`; all three native vehicle modes, separate wagon matrices, blur/opacity envelope, 380ms endpoint exit and visible captures pass |
+| Compact search | Hidden redundant labels/hints; city search/clear/focus; compatible class defaults; fresh one-adult intent with historical evidence intact | DONE | `722d71c`; final 406 tests pass; native defaults/normalization/clear-keyboard controls; desktop form 535px tall at scroll 0 |
+| Compact date selection | Icon trigger; smaller priced month grid; Gregorian disclosure; unchanged wheel and provisional Apply/Cancel | DONE | `722d71c`; native Apply/Cancel/focus; 430px desktop calendar, 314px at 320px with 44.56×48px day targets |
+| Hotel placement | Valid-route CTA below desktop map; upward finite entry; inline narrow layout; state/focus continuity; first explicit open establishes return context | DONE | `722d71c`; 5 focused tests and native first-open/resize/stay/focus/reduced-motion checks pass; hotel HTTP 201 complete |
+| Integration and review | Packaged rebuild; native GPU/browser checks; independent review; tracker/SDD/export synchronization and local checkpoint | DONE | [Independent review](../../evidence/adjustments/compact-journey/review.md); 406 source tests, 9 Nx checks, 12 native scenarios plus 6 final affected repeats pass; local app healthy; M7 remains partial |
