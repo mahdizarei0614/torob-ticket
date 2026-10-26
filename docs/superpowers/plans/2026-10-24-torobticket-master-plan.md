@@ -1551,7 +1551,7 @@ Run web tests and pnpm nx run e2e:e2e --grep @hotels. Check desktop/modal and mo
 
 Test guest success, unchanged quote, changed total/terms, explicit accept/cancel, expired intent, sold-out alternative, rapid double-click, browser refresh/back, and hotel referrals. A changed offer must never auto-confirm.
 
-- [ ] **T22.2 — Run referral UI tests red**
+- [x] **T22.2 — Run referral UI tests red**
 
 Run pnpm nx test web and define @referral e2e cases that assert the exact accepted price/version on the landing page.
 
