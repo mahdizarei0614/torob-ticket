@@ -5,14 +5,15 @@ import { App } from './app';
 import { catalog, session } from './features/search/search-test-data';
 afterEach(() => vi.restoreAllMocks());
 describe('consumer shell', () => {
-  it('boots a useful guest form from API IDs, with Persian semantics and subtle demo entry', async () => {
+  it('boots a useful guest form from API IDs with Persian semantics and travel suggestions', async () => {
     vi.spyOn(apiClient, 'session').mockResolvedValue(session);
     vi.spyOn(apiClient, 'catalog').mockResolvedValue(catalog);
     render(<App />);
     expect(await screen.findByRole('heading', { name: 'سفر بعدی از کجا شروع می‌شود؟' })).toBeInTheDocument();
     expect(screen.getByRole('main')).toHaveAttribute('lang', 'fa');
     expect(screen.getByRole('main')).toHaveAttribute('dir', 'rtl');
-    expect(screen.getByRole('note')).toHaveTextContent('نسخه نمایشی');
+    expect(screen.getByRole('button', { name: 'سفرهای پیشنهادی' })).toBeEnabled();
+    expect(screen.queryByText('نسخه نمایشی')).not.toBeInTheDocument();
     expect(screen.getByRole('combobox', { name: 'مبدا' })).toHaveValue('آغاز');
     expect(screen.getByRole('combobox', { name: 'مقصد' })).toHaveValue('پایان');
     expect(screen.getByRole('button', { name: 'جست‌وجوی سفر' })).toBeEnabled();
@@ -23,6 +24,6 @@ describe('consumer shell', () => {
     expect(await screen.findByRole('alert')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'تلاش دوباره' })).toBeEnabled();
     expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'مدیریت نسخه نمایشی' })).toHaveAttribute('href', '/admin/');
+    expect(screen.queryByRole('link', { name: /مدیریت/ })).not.toBeInTheDocument();
   });
 });
