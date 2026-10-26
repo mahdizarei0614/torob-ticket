@@ -1,11 +1,13 @@
 # TorobTicket — Product and Architecture Specification
 
-**Revision:** 1.3 · 2026-10-26
+**Revision:** 1.4 · 2026-10-26
 
 **Purpose:** Authoritative design companion to the master implementation plan.  
 **Status:** Product scope and architecture approved in conversation. Implementation defaults below are explicit engineering decisions made while preparing the plan; they are not additional claims of user approval.
 
 ## 1. Intent and success
+
+**Owner presentation ruling, 2026-10-26:** All current and future visible consumer/admin surfaces use ordinary production-style copy, names, status messages, accessible labels and tooltips. Remove demo/test/simulated/fictional indicators, disclaimers and entity-name suffixes. Do not expose fixture/scenario/reset tooling in the traveler journey; useful route presets may appear as ordinary travel suggestions. Technical documentation, source contracts, fixture identities, internal routes, tests and verification evidence continue to describe the mocked implementation honestly. This replaces earlier requirements to label the visible product or entities as fictional/simulated. It does not authorize real OAuth/provider integrations, fabricated live data/conversions, payments or booking-success claims. Meaningful unknown conditions, approximate route facts and actual referral status remain clear.
 
 TorobTicket is an independent, demo-only travel comparison product inspired by Torob. It helps a traveler compare equivalent journeys and their provider offers, discover suitable hotels, and continue with a provider. It never sells tickets, takes payment, issues bookings, or asserts that a referral completed a purchase.
 
@@ -48,7 +50,7 @@ Future provider research must establish actual payloads, conditions, identifiers
 
 ### Monetization and identity
 
-The demo records outbound referral clicks. It does not infer bookings or earnings from them. Booking commissions are a possible future partnership model only when verified conversion reporting exists. Ranking is independent of commercial relationships. Provider identities and offers are visibly fictional. Torob sign-in is labeled simulated, and the product does not claim official Torob affiliation.
+The demo records outbound referral clicks. It does not infer bookings or earnings from them. Booking commissions are a possible future partnership model only when verified conversion reporting exists. Ranking is independent of commercial relationships. Provider and offer presentation uses ordinary product names without fictional/test annotations. Identity controls use normal sign-in wording; the implementation remains local and does not assert an official partnership or verified external OAuth connection.
 
 ## 3. Search, inventory, and money
 
@@ -154,7 +156,7 @@ Hotel dates may be edited independently. A later trip change offers an update an
 
 ## 8. Sessions, optional login, and referrals
 
-Guest search, comparison, hotel discovery, and referral are fully supported. Optional “Continue with Torob — demo” establishes a simulated identity inside the same reviewer session. It unlocks saved searches and preferences. No password, real OAuth, OTP delivery, or real personal information is needed.
+Guest search, comparison, hotel discovery, and referral are fully supported. Optional “Continue with Torob” establishes a local identity inside the same isolated session. It unlocks saved searches and preferences. No password, real OAuth, OTP delivery, or real personal information is needed.
 
 Saved searches store search intent, not a promise of a historic fare. Opening one performs a fresh search. Theme preferences persist locally; session-linked saved searches remain for the lifetime of the demo session.
 
@@ -170,7 +172,7 @@ The server records one confirmed referral per idempotency key and returns a loca
 
 Use two layers: hand-authored showcase records with meaningful tradeoffs and deterministic generation of surrounding inventory.
 
-- Six visibly fictional providers with overlapping capabilities and distinct raw payload shapes.
+- Six authored providers with production-style names, overlapping capabilities and distinct raw payload shapes.
 - All six domestic/international × flight/train/bus combinations.
 - A curated city/connection network; every selectable destination has complete hotel coverage.
 - Multiple services on popular dates and at least three provider offers for main showcase itineraries.
@@ -212,7 +214,7 @@ Controls produce actual backend behavior and audit events. Charts derive from re
 
 A mapping correction targets a specific entity type/source namespace. Preview shows collisions and affected records. Applying a valid mapping creates a new revision. Existing search/quote evidence remains immutable; new searches or an explicit replay use the new revision.
 
-An unobtrusive demo indicator and optional “Explore the demo” menu expose prepared searches, scenarios, admin, and reset. The regular product is immediately usable. Reviewers are never forced through a tour.
+The customer journey has no demo/test indicator or fixture/scenario/reset menu. Prepared searches appear as normal travel suggestions. Existing operational controls remain outside the traveler journey, with the dedicated operations/admin experience continuing in its planned milestone. Reviewers use documentation for setup and scenario walkthroughs; they are never forced through a tour.
 
 Provide a README, an under-five-minute walkthrough, AI development evidence, a known-limitations document, and verification evidence. One coherent narrative covers date exploration, provider comparison, route/hotel inspection, changed-fare handling, referral, and admin evidence. **Default walkthrough target:** 4 minutes 30 seconds, leaving room beneath the challenge's five-minute limit. A timed script/storyboard is part of this implementation; an actual application video is a subsequent deliverable when requested, not an excuse to claim a recording exists. Recheck current submission requirements before any eventual submission.
 

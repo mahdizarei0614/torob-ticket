@@ -5,7 +5,12 @@ brief before implementation. The specification is authoritative; record
 implementation rulings in the SDD ledger and docs/decisions.
 
 - Persian/RTL consumer, English admin, LTR transport codes.
-- Demo comparison/referral only. No payments, booking claims, real OAuth,
+- Owner presentation rule, 2026-10-26: use production-style copy and entity names
+  throughout consumer/admin UI and future work. Do not show demo/test/simulated/
+  fictional labels, badges, disclaimers or placeholder suffixes. Keep technical
+  documentation, fixtures, IDs, tests and evidence truthful about the mocked
+  implementation; preserve meaningful unknown conditions and referral semantics.
+- Comparison/referral only. No payments, booking claims, real OAuth,
   external provider integration, fabricated conversion metrics, or runtime LLM.
 - All authored UI colors and shader colors use semantic theme tokens.
 - Never import server/database/provider code into browser libraries.

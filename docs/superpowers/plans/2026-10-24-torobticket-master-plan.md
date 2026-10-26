@@ -1555,7 +1555,7 @@ Test guest success, unchanged quote, changed total/terms, explicit accept/cancel
 
 Run pnpm nx test web and define @referral e2e cases that assert the exact accepted price/version on the landing page.
 
-- [ ] **T22.3 — Implement recheck UI**
+- [x] **T22.3 — Implement recheck UI**
 
 Show a bounded checking state, exact old/new price and material terms, explicit acceptance, and alternatives for unavailable quotes. Preserve context when cancelled or failed. Reuse the same flow for hotels and transport.
 
@@ -1568,6 +1568,16 @@ Confirm with one stable idempotency key per intent, advance the vehicle only on 
 Run web tests and pnpm nx run e2e:e2e --grep @referral. Confirm no login gate, no real provider navigation, no duplicate click on refresh, and no booking/payment/confirmation claim. Commit handoff UI.
 
 **Acceptance:** A reviewer can follow an exact, current offer through a complete referral and return to the comparison safely.
+
+**Owner presentation amendment — 2026-10-26 (specification1.4):** Present all currently implemented and future consumer/admin surfaces as an ordinary production product. Remove visible demo/test/fictional copy and placeholder suffixes; preserve truthful technical documentation and the immutable mocked backend. This cross-cutting request is included before T22 closure and does not complete/start T23 or change the35-task denominator.
+
+| Amendment | Scope | Status |
+|---|---|---|
+| PP1 | Pure metadata presentation helpers; source/unknown preservation | DONE (`c118d9d`;21 helper/39 UI checks) |
+| PP2 | Customer shell/account/travel suggestions and English admin copy | ACTIVE |
+| PP3 | Results/map/hotel/referral presentation and accessible labels | ACTIVE |
+| PP4 | Shared graphics/gallery examples and visible-copy audit | ACTIVE |
+| PP5 | Independent review, regression/native/package evidence | TODO |
 
 **T22 active checkpoint — 2026-10-26:** Core consent/client source `de35c29`, immutable receipt presentation `295dc48` and bounded UI checkpoint codec `8860e2d` are committed. Independent core review `b8f3d1` passes ten behavior probes; this does not approve routing, restoration or the complete task. Existing scoped API oracle passes six transport/hotel unchanged/changed/sold-out cases with explicit reset201 cleanup. Route integration and browser acceptance remain pending. T22 stays ACTIVE; 21/35 tasks complete, T23 TODO and T29 ACTIVE. [Task authority](../../evidence/T22/task-22-brief.md) and [current state](../../evidence/T22/work-state.json).
 
