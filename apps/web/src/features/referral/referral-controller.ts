@@ -91,7 +91,7 @@ export function useReferralController({client=apiClient,enabled=true,onHandoff,t
  }
  async function start(source:ReferralSource){if(!live.current||!latest.current.enabled||epoch.current!==renderedEpoch||current.current||!source.isCurrent())return;await begin(source);}
  async function accept(){const flow=current.current;if(!flow||flow!==renderedFlow||flow.phase!=='changed'||!owns(flow))return;if(acceptIntent(flow))await confirm(flow);}
- function cancel(){const flow=current.current;if(!flow||flow!==renderedFlow)return;if(flow.phase==='changed'||flow.phase==='checking')blocked.current.add(identity(flow.source.payload));if(flow.phase==='confirming'&&flow.input)saveRecovery(flow);invalidate(flow);}
+ function cancel(){const flow=current.current;if(!flow||flow!==renderedFlow)return;if(flow.phase==='changed'&&flow.intent&&latest.current.client.cancelReferralIntent)void latest.current.client.cancelReferralIntent(flow.intent.intentId).catch(()=>undefined);if(flow.phase==='changed'||flow.phase==='checking')blocked.current.add(identity(flow.source.payload));if(flow.phase==='confirming'&&flow.input)saveRecovery(flow);invalidate(flow);}
  async function retryConfirm(){const flow=current.current;if(flow&&flow===renderedFlow&&flow.phase==='retry-confirm'&&owns(flow))await confirm(flow);}
  function freshComparison(){const flow=current.current;if(!flow||flow!==renderedFlow||!owns(flow))return;const source=flow.source;invalidate(flow);source.refresh();}
  async function chooseAlternative(alternative:ReferralAlternative){

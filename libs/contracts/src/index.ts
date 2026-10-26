@@ -7,3 +7,7 @@ export * from './hotel';
 export * from './referral';
 export * from './admin';
 export * from './saved-search';
+export * from './admin-controls';
+export * from './admin-search';
+export * from './admin-mapping';
+export * from './admin-referrals';

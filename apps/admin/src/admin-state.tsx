@@ -1,0 +1,17 @@
+import {createContext,useContext,useRef,useState,type ReactNode} from 'react';
+import {useQuery,useQueryClient} from '@tanstack/react-query';
+import {adminClient,apiClient,ClientError} from '@torob-ticket/client';
+import type {AdminControlConfig,CatalogSnapshot} from '@torob-ticket/contracts';
+interface State{epoch:number;config?:AdminControlConfig;catalog?:CatalogSnapshot;busy:boolean;feedback:string;error:string;run:<T>(action:()=>Promise<T>,done?:(value:T)=>void)=>Promise<void>;refresh:()=>void;reset:()=>Promise<void>}
+const Context=createContext<State|undefined>(undefined);
+export const errorText=(e:unknown)=>e instanceof ClientError?e.api?.code==='MAPPING_COLLISION'?'Configuration changed. Refresh before applying your change.':e.api?.code==='SESSION_EXPIRED'?'Your session has ended. Reload to start a new session.':e.message:e instanceof Error?e.message:'Unable to complete the request.';
+export function AdminState({children}:{children:ReactNode}){
+ const qc=useQueryClient();const[epoch,setEpoch]=useState(0),[busy,setBusy]=useState(false),[feedback,setFeedback]=useState(''),[error,setError]=useState('');const lock=useRef(false);
+ const config=useQuery({queryKey:['admin',epoch,'config'],queryFn:async({signal})=>{await apiClient.session();return adminClient.config(signal);},retry:false,refetchOnWindowFocus:true});
+ const catalog=useQuery({queryKey:['admin',epoch,'catalog'],queryFn:({signal})=>apiClient.catalogReadonly(signal),enabled:!!config.data,retry:false});
+ async function run<T>(action:()=>Promise<T>,done?:(value:T)=>void){if(lock.current)return;lock.current=true;setBusy(true);setError('');setFeedback('');try{const value=await action();done?.(value);await qc.invalidateQueries({queryKey:['admin',epoch]});setFeedback('Changes saved. Existing recorded evidence is retained.');}catch(e){setError(errorText(e));}finally{lock.current=false;setBusy(false);}}
+ async function reset(){if(lock.current)return;lock.current=true;setBusy(true);setError('');setFeedback('');try{await adminClient.reset();await qc.cancelQueries({queryKey:['admin']});qc.removeQueries({queryKey:['admin']});setEpoch(x=>x+1);setFeedback('Session reset. Default settings restored.');}catch(e){setError(errorText(e));}finally{lock.current=false;setBusy(false);}}
+ return <Context.Provider value={{epoch,config:config.data,catalog:catalog.data,busy,feedback,error:error||(config.error?errorText(config.error):''),run,refresh:()=>{void qc.invalidateQueries({queryKey:['admin',epoch]});},reset}}>{children}</Context.Provider>;
+}
+export function useAdmin(){const s=useContext(Context);if(!s)throw new Error('AdminState required');return s;}
+export function useAdminData<T>(key:unknown[],load:(signal:AbortSignal)=>Promise<T>){const{epoch,config}=useAdmin();return useQuery({queryKey:['admin',epoch,config?.revision,...key],queryFn:({signal})=>load(signal),enabled:!!config,retry:false,refetchOnWindowFocus:true});}

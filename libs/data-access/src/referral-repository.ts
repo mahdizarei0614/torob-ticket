@@ -214,6 +214,7 @@ export class ReferralRepository {
                     throw new RepositoryError('IDEMPOTENCY_CONFLICT');
                 return ReferralReceiptSchema.parse(previous.payload);
             }
+            if (await tx.auditEvent.findFirst({ where: { sessionId: scope.sessionId, kind: 'referral-cancelled', payload: { path: ['intentId'], equals: input.intentId } } })) throw new RepositoryError('INTENT_EXPIRED');
             const row = await tx.referralIntent.findUnique({ where: { sessionId_id: { sessionId: scope.sessionId, id: input.intentId } } });
             if (!row)
                 throw new RepositoryError('NOT_FOUND');

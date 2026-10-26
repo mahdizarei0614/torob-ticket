@@ -1,3 +1,4 @@
+import {useSessionSync,sessionRevision} from './use-session-sync';
 import {HotelEntry} from '../hotels/hotel-entry';
 import {AccountPanel} from '../account/account-panel';
 import { useState,useRef,useLayoutEffect } from 'react';
@@ -65,6 +66,8 @@ function Consumer({ catalog, session,covered:providerCovered=false,themeActive=t
 }
 export function SearchPage(props:SearchPageProps={}) {
   const bootstrap = useQuery({ queryKey: ['consumer-bootstrap'], queryFn: async ({ signal }) => { const session = await apiClient.session(); const catalog = await apiClient.catalog(signal); return { session: apiClient.sessionSnapshot() ?? session, catalog }; }, staleTime: Infinity, retry: false, refetchOnWindowFocus: false });
+  const sync=useSessionSync(bootstrap.data?.session,!props.covered);
+  if(sync.expired)return <ThemeProvider active={props.themeActive} language="fa"><main lang="fa" dir="rtl" className={styles.loading}><p role="alert">نشست در دسترس نیست؛ برای ادامه صفحه را دوباره بارگذاری کنید.</p><a href={window.location.href}>بارگذاری دوباره</a></main></ThemeProvider>;
   if (!bootstrap.data) return <ThemeProvider active={props.themeActive} mode={props.restore?.checkpoint.draft.mode} language="fa"><main lang="fa" dir="rtl" className={styles.loading}><h1>ترب تیکت</h1><p>مقایسه بلیت پرواز، قطار و اتوبوس</p><p role={bootstrap.error ? 'alert' : 'status'}>{bootstrap.error ? errorMessage(bootstrap.error) : 'در حال آماده‌سازی مسیرهای سفر…'}</p>{bootstrap.error && <Button onPress={() => { void bootstrap.refetch(); }}>تلاش دوباره</Button>}</main></ThemeProvider>;
-  return <Consumer catalog={bootstrap.data.catalog} session={bootstrap.data.session} {...props} />;
+  return <Consumer key={sessionRevision(bootstrap.data.session)} catalog={bootstrap.data.catalog} session={bootstrap.data.session} {...props} restore={sync.revision?undefined:props.restore} />;
 }

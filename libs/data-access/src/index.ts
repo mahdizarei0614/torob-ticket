@@ -8,3 +8,8 @@ export * from './account-repository';
 
 export * from './hotel-repository';
 export * from './admission';
+
+export * from './admin-referral-repository';
+export * from './admin-controls-repository';
+export * from './admin-search-repository';
+export * from './admin-mapping-repository';

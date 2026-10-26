@@ -1,9 +1,8 @@
-export function App() {
-  return (
-    <main lang="en" dir="ltr">
-      <h1>TorobTicket Admin</h1>
-      <p role="note">Travel comparison operations.</p>
-      <a href="/">Open travel search</a>
-    </main>
-  );
-}
+import {NavLink} from 'react-router';
+import {useTheme} from '@torob-ticket/ui';
+import {AdminState,useAdmin} from './admin-state';
+import {AdminRoutes} from './routes';
+import {ScenarioDrawer} from './features/demo/scenario-drawer';
+import s from './operations.module.css';
+function Shell(){const{config,busy,error,feedback,refresh}=useAdmin();const theme=useTheme();return <main lang="en" dir="ltr" className={s.app}><a className={s.skip} href="#operations-content">Skip to content</a><aside className={s.sidebar}><a className={s.brand} href="/admin/">Torob<span>Ticket</span><small>OPERATIONS</small></a><nav aria-label="Operations">{[['providers','Providers','01'],['searches','Searches','02'],['quality','Data quality','03'],['referrals','Referrals','04']].map(([to,label,n])=><NavLink key={to} to={'/'+to}><span>{n}</span>{label}</NavLink>)}</nav><div className={s.sidebarFooter}><p role="note">Travel comparison operations.</p><a href="/">Open travel search ↗</a></div></aside><div className={s.workspace}><header className={s.topbar}><div><strong>TorobTicket Admin</strong><span className={s.muted}>{config?`Configuration ${config.revision.slice(0,8)}`:'Connecting…'}</span></div><div className={s.actions}><button aria-label="Toggle appearance" onClick={()=>theme.setPreference(theme.appearance==='dark'?'light':'dark')}>{theme.appearance==='dark'?'Light':'Dark'}</button><button disabled={busy} onClick={refresh}>Refresh</button><ScenarioDrawer/></div></header>{error&&<div className={s.notice} role="alert">{error} <button disabled={busy} onClick={refresh}>Retry</button></div>}{feedback&&<p className={s.feedback} role="status">{feedback}</p>}<div id="operations-content" className={s.content} key={config?'ready':'waiting'}>{config?<AdminRoutes/>:!error&&<p role="status">Loading operational configuration…</p>}</div></div></main>;}
+export function App(){return <AdminState><Shell/></AdminState>;}

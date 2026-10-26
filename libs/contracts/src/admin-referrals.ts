@@ -1,0 +1,16 @@
+import {z} from 'zod';
+import {IdSchema,ISOInstantSchema,NonnegativeIntegerSchema} from './common';
+import {ReferralIntentSchema,ReferralReceiptSchema} from './referral';
+import {ReferralMetricsSchema} from './admin';
+import {SearchSnapshotSchema} from './search';
+const page={offset:z.number().int().min(0),limit:z.number().int().min(1).max(100),total:NonnegativeIntegerSchema};
+const wireOffset=z.string().regex(/^(0|[1-9]\d*)$/).transform(Number).pipe(z.number().int().min(0).max(100000)).optional().default(0);
+const wireLimit=z.string().regex(/^[1-9]\d*$/).transform(Number).pipe(z.number().int().min(1).max(100)).optional().default(25);
+export const AdminReferralQuerySchema=z.strictObject({offset:wireOffset,recheckOffset:wireOffset,limit:wireLimit,providerId:IdSchema.optional(),kind:z.enum(['transport','hotel']).optional(),from:ISOInstantSchema.optional(),to:ISOInstantSchema.optional()}).refine(x=>!x.from||!x.to||Date.parse(x.from)<=Date.parse(x.to),'invalid-time-range');
+export type AdminReferralQuery=z.infer<typeof AdminReferralQuerySchema>;
+const audit=z.strictObject({auditId:IdSchema,kind:IdSchema,createdAt:ISOInstantSchema,payload:z.unknown()});
+export const AdminReferralListSchema=z.strictObject({metrics:ReferralMetricsSchema.extend({cancelled:NonnegativeIntegerSchema,scope:z.literal('all-session-events'),conversionReporting:z.literal('not-reported')}),referrals:z.strictObject({...page,items:z.array(ReferralReceiptSchema).max(100)}),rechecks:z.strictObject({...page,items:z.array(audit).max(100)})}).superRefine((value,ctx)=>{for(const key of ['referrals','rechecks'] as const){const p=value[key];if(p.items.length>p.limit||p.items.length>0&&p.offset+p.items.length>p.total)ctx.addIssue({code:'custom',path:[key],message:'page-count-inconsistent'});}});
+export type AdminReferralList=z.infer<typeof AdminReferralListSchema>;
+export const AdminReferralDetailSchema=z.strictObject({receipt:ReferralReceiptSchema.nullable(),intent:ReferralIntentSchema.nullable(),originSearchId:IdSchema.nullable(),recheckRunId:IdSchema.nullable(),sourceSearch:SearchSnapshotSchema.nullable(),sourceQuote:z.unknown().nullable(),rawRecords:z.array(z.strictObject({rawRecordId:IdSchema,sourceNamespace:IdSchema,payload:z.unknown()})).max(100),rawTotal:NonnegativeIntegerSchema,events:z.array(audit).max(100),eventTotal:NonnegativeIntegerSchema});
+export type AdminReferralDetail=z.infer<typeof AdminReferralDetailSchema>;
+export const CancelReferralResultSchema=z.strictObject({intentId:IdSchema,status:z.enum(['cancelled','confirmed'])});

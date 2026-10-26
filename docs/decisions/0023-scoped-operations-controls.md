@@ -1,0 +1,7 @@
+# 0023 — Session-scoped operations controls
+
+Admin uses production-style English labels and four operational areas. No credential setup or real external administration is implied. Cookie authentication and server scope are the same isolated reviewer namespace as the consumer. Configuration GET and all mutations use strict contracts. Mutations require the current optimistic revision, persist override/scenario plus audit and invalidation atomically, and only abort in-memory work after commit. No-op writes retain their revision. Provider overrides merge explicitly; null restores inherited settings. Blank latency keeps its current setting.
+
+Active transport/date/hotel/recheck work terminalizes with an explicit configuration reason. Completed source, quotes, events and confirmed receipts remain immutable. New work consumes new settings; old acceptance intents fail fingerprint checks. Admin reset rotates namespace/cookie, defaults profile to normal, preserves base fixtures and peers, and transactionally stamps a unique public configuration revision and audit. The legacy reset API retains its previous defaults.
+
+GET-only consumer foreground synchronization compares server revisions, queues a wake received during an in-flight check, fences hidden/unmounted late reads, clears stale scoped snapshots/selections and starts no implicit search. Admin data cache keys include current revision so an external reset cannot display old-scope metrics. Failures retain prior controls and Retry actually invalidates scoped queries.

@@ -1,0 +1,8 @@
+import type {ReactNode} from 'react';
+import {useAdmin,errorText} from './admin-state';
+import s from './operations.module.css';
+export function DataState({loading,error,empty,children}:{loading:boolean;error:unknown;empty?:boolean;children:ReactNode}){const {refresh}=useAdmin();if(error)return <div className={s.notice} role="alert">{errorText(error)} <button onClick={refresh}>Retry</button></div>;if(loading)return <p role="status">Loading recorded activity…</p>;if(empty)return <div className={s.empty}><strong>No recorded activity</strong><p>Run a travel search to inspect its evidence here.</p><a href="/">Open travel search</a></div>;return <>{children}</>;}
+export function Json({value,label='Recorded data'}:{value:unknown;label?:string}){return <details className={s.json}><summary>{label}</summary><pre>{JSON.stringify(value,null,2)}</pre></details>;}
+export function Pager({offset,total,limit=25,onChange}:{offset:number;total:number;limit?:number;onChange:(offset:number)=>void}){const{busy}=useAdmin();return <div className={s.pager}><span>{total===0?'0 records':offset>=total?`No records on this page · ${total} total`:`${offset+1}–${Math.min(offset+limit,total)} of ${total}`}</span><button disabled={busy||offset===0} onClick={()=>onChange(Math.max(0,offset-limit))}>Previous</button><button disabled={busy||offset+limit>=total} onClick={()=>onChange(offset+limit)}>Next</button></div>;}
+export const stamp=(value:string|null|undefined)=>value?new Date(value).toLocaleString('en-GB',{dateStyle:'medium',timeStyle:'medium'}):'Not recorded';
+export function Tag({children}:{children:ReactNode}){return <span className={s.tag}>{children}</span>;}

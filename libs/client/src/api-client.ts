@@ -1,3 +1,4 @@
+import {CancelReferralResultSchema} from '@torob-ticket/contracts';
 import {ReferralSelectionSchema,RecheckResultSchema,ConfirmReferralInputSchema,ReferralReceiptSchema,type ReferralSelection,type ConfirmReferralInput,type ReferralIntent,type ReferralReceipt} from '@torob-ticket/contracts';
 import { z } from 'zod';
 import {HotelSearchQuerySchema,HotelSearchSnapshotSchema,type HotelSearchQuery} from '@torob-ticket/contracts';
@@ -48,6 +49,8 @@ export function createApiClient(transport: Transport = (...args) => fetch(...arg
   }
   return {
     session, catalog,
+    async currentSession(signal?:AbortSignal){const value=await request('demo/session',SessionInfoSchema,{signal});latestSession=value;return value;},
+    async cancelReferralIntent(id:string){return request(`referrals/intents/${idPath(id)}/cancel`,CancelReferralResultSchema,{method:'POST',body:'{}'});},
     async catalogReadonly(signal?:AbortSignal){return request('catalog',CatalogSnapshotSchema,{signal});},
     async prepareReferral(input:ReferralSelection,signal?:AbortSignal){
       const payload=body(ReferralSelectionSchema,input);const result=await request('referrals/prepare',RecheckResultSchema,{method:'POST',body:payload,signal});

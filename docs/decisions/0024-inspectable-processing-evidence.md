@@ -1,0 +1,5 @@
+# 0024 — Inspect recorded processing, replay explicitly
+
+Only public transport comparison runs populate Searches and provider health; date inventory and private rechecks are separate evidence. Strict decimal offset/limit queries are bounded to100. Six detail sections expose recorded events, raw records, normalization traces, offers, quotes and projection/ranking audits. Reads lock/check current cookie scope and foreign IDs return404. Source strings are React text/JSON, never HTML. Health uses actual persisted status/count/duration and source/event instants; unknown observations stay null and zero activity adds no chart points.
+
+Replay is allowed only for terminal comparisons; collecting returns409 rather than mutating its evidence. Existing SearchService creates a new linked run with current provider/mapping/configuration settings. Old records remain unchanged. Browser client binds exact requested search IDs and replay generation/predecessor. Route owners key on search ID so pagination and evidence state reset across new runs.

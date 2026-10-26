@@ -1,0 +1,9 @@
+# 0025 — Effective, bounded alias corrections
+
+Only city aliases are currently resolved by the normalizer. The editor offers material city corrections; unsupported explicit place/operator/class IDs are rejected rather than pretending an unused alias has an effect. Keys include provider namespace and entity type; Unicode cleanup never guesses identity. The conflicting-data scenario now authors an unresolved provider04 variant0 origin alias (for example تهران مرکزی). Normal/default generation is unchanged. This gives the actual UI a rejected record that can be corrected and explicitly replayed.
+
+Preview evaluates real saved source through the existing decoder/normalizer and reports before/after decisions, issues, candidate physical itinerary groups and affected IDs. It does not predict final eligibility/ranking. A scoped persisted token expires after10minutes and binds exact patch, mapping ancestry, current configuration and public comparison evidence fingerprints. Apply locks the session, reevaluates and appends a revision/audit/invalidation transactionally. Stale/foreign/expired/tampered or colliding previews cannot apply. Old source/traces/quotes are not rewritten; replay produces new evidence.
+
+Lists page source IDs in PostgreSQL, including outcome filtering; revision history has separate bounded pagination. Preview/apply conservatively cap the public comparison evidence window at500 runs/raw/traces/offers/revisions before materialization. Larger sessions receive an explicit too-large result, never a silently partial preview. Date inventory/private recheck rows cannot inflate the workspace or falsely stale a public-source preview.
+
+Frontend input edits, revisions and unmounts fence late previews; an expiry timer and a same-turn Apply guard demand a fresh preview. Hostile source values remain escaped text.
