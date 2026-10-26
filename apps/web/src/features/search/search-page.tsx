@@ -23,8 +23,8 @@ function AppearanceButton() {
   const theme = useTheme();
   return <Button variant="quiet" aria-label={theme.appearance === 'dark' ? 'نمای روشن' : 'نمای تیره'} onPress={event => theme.setPreference(theme.appearance === 'dark' ? 'light' : 'dark', event.target as HTMLElement)}>{theme.appearance === 'dark' ? '☀' : '☾'}</Button>;
 }
-interface SearchPageProps {covered?:boolean;onHandoff?:(receipt:ReferralReceipt,checkpoint:ReturnCheckpoint)=>void;restore?:HydratedReturn;onRestoreReady?:(value:HydratedReturn,ready:boolean)=>void}
-function Consumer({ catalog, session,covered:providerCovered=false,onHandoff,restore,onRestoreReady }: { catalog: CatalogSnapshot; session: SessionInfo }&SearchPageProps) {
+interface SearchPageProps {covered?:boolean;themeActive?:boolean;onHandoff?:(receipt:ReferralReceipt,checkpoint:ReturnCheckpoint)=>void;restore?:HydratedReturn;onRestoreReady?:(value:HydratedReturn,ready:boolean)=>void}
+function Consumer({ catalog, session,covered:providerCovered=false,themeActive=true,onHandoff,restore,onRestoreReady }: { catalog: CatalogSnapshot; session: SessionInfo }&SearchPageProps) {
   const cache=useQueryClient();const [restoreSeed]=useState(()=>{if(restore)cache.setQueryData(['search',restore.recovery.snapshot.clientGeneration,restore.recovery.snapshot.searchId],restore.recovery);return restore;});
   const controller = useSearchController(catalog, session,undefined,restoreSeed?{recovery:restoreSeed.recovery,draft:restoreSeed.checkpoint.draft}:undefined);
   const { state } = controller;
@@ -49,7 +49,7 @@ function Consumer({ catalog, session,covered:providerCovered=false,onHandoff,res
   }
   const selectedSource=transportSource();
   const cityName = (id: string) => catalog.cities.find(c => c.id === id)?.name ?? 'انتخاب نشده';
-  return <ThemeProvider language="fa" mode={state.draft.mode}><GraphicsProvider covered={covered||flow.state.phase!=='idle'} motion={mapMotion}><main lang="fa" dir="rtl" className={styles.shell} data-pinned-itinerary={state.pinnedItineraryId} data-preview-itinerary={state.previewItineraryId} data-selected-hotel-quote={hotelQuote?.quoteId}>
+  return <ThemeProvider active={themeActive} language="fa" mode={state.draft.mode}><GraphicsProvider covered={covered||flow.state.phase!=='idle'} motion={mapMotion}><main lang="fa" dir="rtl" className={styles.shell} data-pinned-itinerary={state.pinnedItineraryId} data-preview-itinerary={state.previewItineraryId} data-selected-hotel-quote={hotelQuote?.quoteId}>
     <TripMap map={map} catalog={catalog} desktop={desktop} covered={covered||flow.state.phase!=='idle'} onMotionChange={setMapMotion}/>
     <div className={styles.content}><header className={styles.header}><a className={styles.brand} href="/" aria-label="ترب تیکت، خانه">ترب<span>تیکت</span><small>مقایسه سفر</small></a><div className={styles.headerActions}><span className={styles.demoBadge}>نسخه نمایشی</span><AppearanceButton /><AccountPanel controller={controller} catalog={catalog} session={session} onCovered={setAccountOpen}/></div></header>
       <section className={styles.intro}><span className={styles.eyebrow}>مسیر خودت را پیدا کن</span><h1>سفر بعدی از کجا شروع می‌شود؟</h1><p>پرواز، قطار یا اتوبوس؛ شرایط سفر را کنار هم ببینید.</p></section>
@@ -65,6 +65,6 @@ function Consumer({ catalog, session,covered:providerCovered=false,onHandoff,res
 }
 export function SearchPage(props:SearchPageProps={}) {
   const bootstrap = useQuery({ queryKey: ['consumer-bootstrap'], queryFn: async ({ signal }) => { const session = await apiClient.session(); const catalog = await apiClient.catalog(signal); return { session: apiClient.sessionSnapshot() ?? session, catalog }; }, staleTime: Infinity, retry: false, refetchOnWindowFocus: false });
-  if (!bootstrap.data) return <ThemeProvider language="fa"><main lang="fa" dir="rtl" className={styles.loading}><h1>ترب تیکت</h1><p role="note">نسخه نمایشی مقایسه سفر؛ خرید یا رزرو انجام نمی‌شود.</p><p role={bootstrap.error ? 'alert' : 'status'}>{bootstrap.error ? errorMessage(bootstrap.error) : 'در حال آماده‌سازی مسیرهای سفر…'}</p>{bootstrap.error && <Button onPress={() => { void bootstrap.refetch(); }}>تلاش دوباره</Button>}<a href="/admin/">مدیریت نسخه نمایشی</a></main></ThemeProvider>;
+  if (!bootstrap.data) return <ThemeProvider active={props.themeActive} mode={props.restore?.checkpoint.draft.mode} language="fa"><main lang="fa" dir="rtl" className={styles.loading}><h1>ترب تیکت</h1><p role="note">نسخه نمایشی مقایسه سفر؛ خرید یا رزرو انجام نمی‌شود.</p><p role={bootstrap.error ? 'alert' : 'status'}>{bootstrap.error ? errorMessage(bootstrap.error) : 'در حال آماده‌سازی مسیرهای سفر…'}</p>{bootstrap.error && <Button onPress={() => { void bootstrap.refetch(); }}>تلاش دوباره</Button>}<a href="/admin/">مدیریت نسخه نمایشی</a></main></ThemeProvider>;
   return <Consumer catalog={bootstrap.data.catalog} session={bootstrap.data.session} {...props} />;
 }

@@ -1,7 +1,8 @@
-import {StrictMode} from 'react';
+import {StrictMode,type ReactElement} from 'react';
 import {render,screen,fireEvent,act,waitFor} from '@testing-library/react';
 import {BrowserRouter} from 'react-router';
 import {afterEach,it,expect,vi} from 'vitest';
+import type {DialogProps} from '@torob-ticket/ui';
 import {RetainedConsumerRoutes} from '../../routes';
 import {query} from '../search/search-test-data';
 import {serializeSearchUrl} from '../search/search-url';
@@ -10,7 +11,7 @@ import type {HydratedReturn} from './return-hydration';
 const control=vi.hoisted(()=>({value:undefined as unknown as HydratedReturn,origins:[] as number[]}));
 vi.mock('./provider-page',()=>({ProviderPage:({onReturn}:{onReturn:(value:HydratedReturn)=>void})=><button onClick={()=>onReturn(control.value)}>return restored</button>}));
 vi.mock('../search/search-page',async()=>{
- const {useLayoutEffect,useState}=await import('react'),{Dialog}=await import('@torob-ticket/ui');
+ const {useLayoutEffect,useState}=await import('react'),{Dialog}=await vi.importActual<{Dialog:(props:DialogProps)=>ReactElement}>('@torob-ticket/ui');
  function Origin(){useLayoutEffect(()=>{control.origins.push(window.scrollY);},[]);return <p>independent stay</p>;}
  return {SearchPage:({restore,onRestoreReady,covered}:{restore?:HydratedReturn;onRestoreReady?:(value:HydratedReturn,ready:boolean)=>void;covered:boolean})=>{
   const [stage,setStage]=useState('bootstrap');useLayoutEffect(()=>{if(stage==='adopted'&&restore)onRestoreReady?.(restore,true);},[stage,restore,onRestoreReady]);

@@ -83,6 +83,7 @@ export function ThemeProvider({
   variant = 'consumer',
   initialPreference,
   onThemeChange,
+  active=true,
 }: {
   children: ReactNode;
   mode?: Mode;
@@ -90,6 +91,8 @@ export function ThemeProvider({
   variant?: 'consumer' | 'admin';
   initialPreference?: ThemePreference;
   onThemeChange?: (theme: ThemeSnapshot) => void;
+  /** Retained offscreen trees keep context; only the visible owner publishes global tokens. */
+  active?: boolean;
 }) {
   const [preference, setStoredPreference] = useState<ThemePreference>(
     () => initialPreference ?? savedPreference(),
@@ -109,8 +112,11 @@ export function ThemeProvider({
   bridge.current = onThemeChange;
   const activeTransition = useRef<Pick<ViewTransition, 'skipTransition' | 'ready'> | null>(null);
   const requestGeneration = useRef(0);
+  const rootActive=useRef(active);rootActive.current=active;
   const activeMode = variant === 'admin' ? 'flight' : mode;
   useLayoutEffect(() => {
+    rootActive.current=active;
+    if(!active){requestGeneration.current++;activeTransition.current?.skipTransition();activeTransition.current=null;return;}
     const root = document.documentElement;
     root.dataset.appearance = appearance;
     root.dataset.preference = preference;
@@ -122,7 +128,7 @@ export function ThemeProvider({
     for (const listener of subscribers.current) listener(next);
     for (const listener of paintSubscribers.current) listener(next);
     bridge.current?.(next);
-  }, [appearance, preference, activeMode]);
+  }, [appearance, preference, activeMode, active]);
   useEffect(() => {
     if (typeof matchMedia !== 'function') return;
     const media = matchMedia('(prefers-color-scheme: dark)');
@@ -134,12 +140,13 @@ export function ThemeProvider({
   }, [preference]);
   useEffect(
     () => () => {
-      activeTransition.current?.skipTransition();
+      rootActive.current=false;requestGeneration.current++;activeTransition.current?.skipTransition();activeTransition.current=null;
     },
     [],
   );
   const setPreference = useCallback(
     (next: ThemePreference, origin?: HTMLElement) => {
+      if(!rootActive.current)return;
       // skipTransition skips animation, but its queued DOM update still runs.
       // Advance before every request, including direct/fallback updates.
       const generation = ++requestGeneration.current;
@@ -150,7 +157,7 @@ export function ThemeProvider({
         /* Theme switching remains available. */
       }
       const update = () => {
-        if (generation !== requestGeneration.current) return;
+        if (generation !== requestGeneration.current||!rootActive.current) return;
         flushSync(() => {
           setStoredPreference(next);
           setAppearance(nextAppearance);

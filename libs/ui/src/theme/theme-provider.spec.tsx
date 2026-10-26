@@ -1,3 +1,4 @@
+import {useState} from 'react';
 import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
@@ -191,4 +192,13 @@ it('keeps the latest system choice when a skipped transition runs its deferred D
   expect(delivered).toEqual([
     { appearance: 'light', rootAppearance: 'light', preference: 'system', stored: 'system' },
   ]);
+});
+
+it.each(['train','bus'] as const)('a retained inactive %s context cannot overwrite global theme and republishes when visible',mode=>{
+ delete document.documentElement.dataset.mode;let theme!:ReturnType<typeof useTheme>;const bridge=vi.fn();let mounts=0;
+ function Retained(){const [id]=useState(()=>++mounts);theme=useTheme();return <span>{theme.mode} {id}</span>;}
+ function tree(active:boolean,provider:boolean){return <><ThemeProvider active={active} mode={mode} initialPreference="dark" onThemeChange={bridge}><Retained/></ThemeProvider>{provider&&<ThemeProvider mode="flight" initialPreference="light"><span>visible provider</span></ThemeProvider>}</>;}
+ const view=render(tree(false,false));expect(document.documentElement.dataset.mode).toBeUndefined();expect(bridge).not.toHaveBeenCalled();expect(theme.mode).toBe(mode);expect(theme.themeBridge.getSnapshot()).toBeNull();
+ view.rerender(tree(false,true));expect(document.documentElement.dataset.mode).toBe('flight');expect(document.documentElement.dataset.appearance).toBe('light');act(()=>theme.setPreference('light'));expect(theme.appearance).toBe('dark');expect(document.documentElement.dataset.mode).toBe('flight');expect(bridge).not.toHaveBeenCalled();
+ view.rerender(tree(true,false));expect(document.documentElement.dataset.mode).toBe(mode);expect(document.documentElement.dataset.appearance).toBe('dark');expect(bridge).toHaveBeenCalled();expect(theme.themeBridge.getSnapshot()).toMatchObject({mode,appearance:'dark'});expect(mounts).toBe(1);
 });
