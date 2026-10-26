@@ -44,11 +44,37 @@ describe('date estimates and session/query ownership', () => {
     await act(async()=>{await vi.advanceTimersByTimeAsync(121);}); expect(hook.result.current.snapshot).toBeUndefined(); expect(hook.result.current.error).toMatchObject({kind:'schema',message:'date-observation-invalid'}); expect(hook.result.current.retryable).toBe(false);
     await act(async()=>{await vi.advanceTimersByTimeAsync(120000);}); expect(hook.client.startDatePrices).toHaveBeenCalledTimes(1); hook.unmount();
   });
-  it('keeps real retrieval failure bounded and offers an explicit recovery without inventing prices', async () => {
+  it('quietly recovers a transient retrieval failure once without inventing prices', async () => {
     vi.useFakeTimers(); vi.setSystemTime(new Date('2026-10-25T01:00:00Z')); const hook=setup(async()=>{throw new ClientError('network','network-unavailable');});
     await act(async()=>{await vi.advanceTimersByTimeAsync(121);}); expect(hook.result.current.error).toMatchObject({message:'network-unavailable'}); expect(hook.result.current.snapshot).toBeUndefined(); expect(hook.result.current.retryable).toBe(true);
-    await act(async()=>{await vi.advanceTimersByTimeAsync(120000);}); expect(hook.client.startDatePrices).toHaveBeenCalledTimes(1);
-    vi.mocked(hook.client.startDatePrices).mockImplementation(async sent=>snapshot(sent)); act(()=>hook.result.current.retry());
-    await act(async()=>{await vi.advanceTimersByTimeAsync(121);}); expect(hook.result.current.snapshot?.cells[0]?.status).toBe('priced'); expect(hook.result.current.error).toBeUndefined(); expect(hook.client.startDatePrices).toHaveBeenCalledTimes(2); hook.unmount();
+    vi.mocked(hook.client.startDatePrices).mockImplementation(async sent=>snapshot(sent));
+    await act(async()=>{await vi.advanceTimersByTimeAsync(1500);});
+    await act(async()=>{await vi.advanceTimersByTimeAsync(121);}); expect(hook.result.current.snapshot?.cells[0]?.status).toBe('priced'); expect(hook.result.current.error).toBeUndefined(); expect(hook.client.startDatePrices).toHaveBeenCalledTimes(2);
+    await act(async()=>{await vi.advanceTimersByTimeAsync(120000);}); expect(hook.client.startDatePrices).toHaveBeenCalledTimes(2); hook.unmount();
+  });
+  it('stops after one failed automatic recovery but still recovers when the network returns', async () => {
+    vi.useFakeTimers(); const hook=setup(async()=>{throw new ClientError('network','network-unavailable');});
+    await act(async()=>{await vi.advanceTimersByTimeAsync(121);});
+    await act(async()=>{await vi.advanceTimersByTimeAsync(1500);});
+    await act(async()=>{await vi.advanceTimersByTimeAsync(121);});
+    await act(async()=>{await vi.advanceTimersByTimeAsync(120000);});
+    expect(hook.client.startDatePrices).toHaveBeenCalledTimes(2);expect(hook.result.current.snapshot).toBeUndefined();
+    vi.mocked(hook.client.startDatePrices).mockImplementation(async sent=>snapshot(sent));
+    act(()=>window.dispatchEvent(new Event('online')));
+    await act(async()=>{await vi.advanceTimersByTimeAsync(121);});
+    expect(hook.result.current.snapshot?.cells[0]?.status).toBe('priced');expect(hook.client.startDatePrices).toHaveBeenCalledTimes(3);hook.unmount();
+  });
+  it('cancels a pending recovery when disabled or when the scenario identity changes', async () => {
+    vi.useFakeTimers(); const hook=setup(async()=>{throw new ClientError('network','network-unavailable');});
+    await act(async()=>{await vi.advanceTimersByTimeAsync(121);});
+    hook.rerender({currentSession:session,enabled:false});
+    await act(async()=>{await vi.advanceTimersByTimeAsync(2000);});expect(hook.client.startDatePrices).toHaveBeenCalledTimes(1);
+    hook.rerender({currentSession:session,enabled:true});
+    await act(async()=>{await vi.advanceTimersByTimeAsync(121);});
+    vi.mocked(hook.client.startDatePrices).mockImplementation(async sent=>snapshot(sent));
+    hook.rerender({currentSession:{...session,scenarioRevision:'new'},enabled:true});
+    await act(async()=>{await vi.advanceTimersByTimeAsync(121);});const current=hook.result.current.snapshot;
+    await act(async()=>{await vi.advanceTimersByTimeAsync(2000);});
+    expect(hook.result.current.snapshot).toBe(current);expect(hook.client.startDatePrices).toHaveBeenCalledTimes(3);hook.unmount();
   });
 });

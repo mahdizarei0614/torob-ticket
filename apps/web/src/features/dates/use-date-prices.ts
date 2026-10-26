@@ -21,6 +21,18 @@ export function useDatePrices(request: DatePriceQuery | undefined, session: Sess
   const retryable = !!current.error && (!(current.error instanceof ClientError) || current.error.kind === 'network' || current.error.api?.retryable) || !!current.snapshot?.cells.some(cell => cell.status === 'unavailable' && cell.retryable);
   function retry() { if (!retryable) return; retried.current = true; setState({ waiting: true, key }); setRevision(value => value + 1); }
   const retryRef = useRef(retry); retryRef.current = retry;
+  const automaticRecovery = useRef<{ key?: string; attempted: boolean }>({ attempted: false });
+  useEffect(() => {
+    if (automaticRecovery.current.key !== key) automaticRecovery.current = { key, attempted: false };
+    if (!enabled || !key || !retryable || current.waiting || (current.snapshot?.status === 'checking' && !current.error) || automaticRecovery.current.attempted) return;
+    // Recover a transient failure once, without periodically refreshing valid estimates.
+    const timer = setTimeout(() => {
+      if (automaticRecovery.current.key !== key || automaticRecovery.current.attempted) return;
+      automaticRecovery.current.attempted = true;
+      retryRef.current();
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, [key, enabled, retryable, current.waiting, current.snapshot?.status, current.error]);
   useEffect(() => { if (!retryable) return; const online = () => retryRef.current(); window.addEventListener('online', online); return () => window.removeEventListener('online', online); }, [retryable]);
   return { ...current, retryable, retry };
 }

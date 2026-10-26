@@ -25,5 +25,7 @@ it('does not convert a retrieval failure into an empty-price or zero-price claim
  render(<DateExplorer draft={query} catalog={catalog} session={session} onCommit={vi.fn()} onPreview={vi.fn()} onCovered={vi.fn()} onInteractionChange={vi.fn()}/>);
  expect(screen.getByRole('alert')).toHaveTextContent('قیمت روزها دریافت نشد');
  const options=within(screen.getByRole('listbox',{name:'روزهای نزدیک'})).getAllByRole('option');expect(options.every(option=>option.textContent?.includes('قیمت در دسترس نیست'))).toBe(true);
- fireEvent.click(screen.getByRole('button',{name:'تلاش دوباره برای قیمت روزها'}));expect(retry).toHaveBeenCalledOnce();
+ expect(screen.queryByRole('button',{name:/دوباره/})).not.toBeInTheDocument();
+ fireEvent.click(screen.getByRole('button',{name:'تقویم جلالی و انتخاب تاریخ'}));
+ expect(within(screen.getByRole('dialog')).queryByRole('button',{name:/دوباره/})).not.toBeInTheDocument();expect(retry).not.toHaveBeenCalled();
 });
