@@ -45,3 +45,12 @@ it('the actual list forwards hover/focus ownership and restores focused A after 
  const view=render(<><button>outside</button><ResultsList isCurrent={()=>true} {...owner} query={query} catalog={catalog} refinementDisabled={false} draftChanged={false} onRefine={()=>undefined} onEdit={()=>undefined} onPreviewItinerary={(itinerary,source,leavingId)=>{map=mapReducer(map,{type:'preview',owner,source,leavingId,inspection:itinerary?{itinerary,query,owner}:undefined});}}/></>);
  const cards=view.container.querySelectorAll('article');const first=cards[0]!.querySelector<HTMLButtonElement>('button[aria-pressed]')!;act(()=>first.focus());fireEvent.mouseEnter(cards[1]!);expect(mapView(map,Date.now()).itinerary?.itineraryId).toBe('b');fireEvent.mouseLeave(cards[1]!);expect(mapView(map,Date.now()).itinerary?.itineraryId).toBe('a');fireEvent.mouseEnter(cards[0]!);act(()=>screen.getByRole('button',{name:'outside'}).focus());expect(mapView(map,Date.now()).itinerary?.itineraryId).toBe('a');fireEvent.mouseLeave(cards[0]!);expect(mapView(map,Date.now()).itinerary).toBeUndefined();
 });
+
+it('signals restored layout only after actual adopted cards exist, once and only for the current owner',()=>{
+ vi.spyOn(Date,'now').mockReturnValue(Date.parse(observedAt)+1000);let state=createResultsState('generation','search'),current=true;
+ const value=recovery([group('restored')]),dispatch=vi.fn();const ready=vi.fn(()=>expect(document.querySelector('[data-group-id="restored"]')).toBeTruthy());
+ vi.mocked(useResults).mockImplementation(()=>({state,dispatch,now:Date.now(),connectionError:false,stored:undefined}));
+ const props={isCurrent:()=>current,generation:'generation',searchId:'search',query,catalog,refinementDisabled:false,draftChanged:false,onRefine:()=>undefined,onEdit:()=>undefined,restore:{frozen:true,dismissedSuggestion:false},onRestoreReady:ready};
+ const view=render(<ResultsList {...props}/>);expect(ready).not.toHaveBeenCalled();state=resultsReducer(state,{type:'receive',recovery:value});view.rerender(<ResultsList {...props}/>);expect(ready).toHaveBeenCalledTimes(1);view.rerender(<ResultsList {...props}/>);expect(ready).toHaveBeenCalledTimes(1);view.unmount();
+ current=false;ready.mockClear();render(<ResultsList {...props}/>);expect(ready).not.toHaveBeenCalled();
+});

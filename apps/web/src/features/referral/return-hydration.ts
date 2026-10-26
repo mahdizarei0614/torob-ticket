@@ -4,7 +4,7 @@ import type {HotelRestore} from '../hotels/use-hotel-discovery';
 import {canonical,sameLineage,complete,type ReferralPayload} from './referral-facts';
 import {serializeSearchUrl} from '../search/search-url';
 import type {ReturnCheckpoint} from './return-checkpoint';
-export interface HydratedReturn {checkpoint:ReturnCheckpoint;recovery:SearchRecovery;hotel?:HotelRestore;hotelMetadata?:Hotel;transportReceipt?:ReferralReceipt;hotelReceipt?:ReferralReceipt;transportOrigin?:{quote:QuoteSnapshot;itinerary:Itinerary}}
+export interface HydratedReturn {checkpoint:ReturnCheckpoint;recovery:SearchRecovery;hotel?:HotelRestore;hotelMetadata?:Hotel;hotelNotice?:string;transportReceipt?:ReferralReceipt;hotelReceipt?:ReferralReceipt;transportOrigin?:{quote:QuoteSnapshot;itinerary:Itinerary}}
 function eventLineage(origin:ReferralPayload,receipt:ReferralReceipt){
  const at=Date.parse(receipt.confirmedAt);return receipt.selection.kind===receipt.payload.kind&&receipt.selection.quoteId===receipt.payload.quote.quoteId&&receipt.selection.quoteVersion===receipt.payload.quote.version&&receipt.handoffPath===`/provider-demo/${receipt.referralId}`&&at<=Date.now()&&complete(receipt.payload,at)&&(sameLineage(origin,receipt.payload)||canonical(origin)===canonical(receipt.payload));
 }
@@ -19,6 +19,7 @@ export async function hydrateReturn(checkpoint:ReturnCheckpoint,receipt:Referral
  if(checkpoint.pinItineraryId&&!snapshot.groups.some(g=>g.itinerary.itineraryId===checkpoint.pinItineraryId))fail();
  if(checkpoint.direction==='return'&&!snapshot.groups.some(g=>g.itinerary.itineraryId===checkpoint.pinItineraryId&&g.itinerary.return))fail();
  const result:HydratedReturn={checkpoint,recovery};
+ if(selection){const member=snapshot.groups.find(g=>g.groupId===selection.groupId),quote=member?.eligibleQuotes.find(q=>q.quoteId===selection.quoteId&&q.version===selection.version);if(member&&quote)result.transportOrigin={quote,itinerary:member.itinerary};}
  const transport=receipt.payload.kind==='transport'?receipt:checkpoint.transportReferralId?await client.getReferral(checkpoint.transportReferralId,signal):undefined;
  if(transport){
   if(transport.payload.kind!=='transport')fail();const payload=transport.payload;
@@ -28,7 +29,7 @@ export async function hydrateReturn(checkpoint:ReturnCheckpoint,receipt:Referral
   result.transportReceipt=transport;result.transportOrigin={quote,itinerary:member.itinerary};
  }
  const h=checkpoint.hotel;
- if(h?.hotelSearchId){
+ try{if(h?.hotelSearchId){
   const source=await client.getHotelSearch(h.hotelSearchId,signal);
   if(source.hotelSearchId!==h.hotelSearchId||source.query.destinationCityId!==snapshot.query.destinationCityId||canonical([source.query.party.adults,source.query.party.children,source.query.party.infants,source.query.party.infantAgesMonths])!==canonical([snapshot.query.party.adults,snapshot.query.party.children,snapshot.query.party.infants,snapshot.query.party.infantAgesMonths]))fail();
   const hotelReceipt=receipt.payload.kind==='hotel'?receipt:h.referralId?await client.getReferral(h.referralId,signal):undefined;
@@ -41,7 +42,7 @@ export async function hydrateReturn(checkpoint:ReturnCheckpoint,receipt:Referral
   if(h.selected&&!selected)fail();
   const draft=h.draft,q=source.query;
   const draftMatches=draft.arrivalConfirmed&&draft.checkIn===q.checkIn&&draft.checkOut===q.checkOut&&draft.rooms===q.rooms&&draft.sort===q.sort&&canonical(draft.childAges.map(Number))===canonical(q.childAgesAtCheckIn??[])&&canonical(draft.customPoint)===canonical(q.customPoint)&&draft.arrivalPlaceId===q.arrivalPlaceId;
-  result.hotel={snapshot:source,draft,selected:draftMatches?selected:undefined,open:h.open,scrollTop:h.scrollTop,receipt:draftMatches?hotelReceipt:undefined};
- }else if(receipt.payload.kind==='hotel'||h?.selected)fail();
+  const contextBlocked=h.stale!==false;result.hotel={snapshot:source,draft,selected:draftMatches&&!contextBlocked?selected:undefined,open:h.open,scrollTop:h.scrollTop,receipt:draftMatches&&!contextBlocked?hotelReceipt:undefined,tripItinerary:result.transportOrigin?.itinerary,contextBlocked};if(contextBlocked)result.hotelNotice='زمینه انتخاب قبلی اقامت قابل تأیید نیست؛ پیش‌نویس و شواهد حفظ شدند و برای ادامه به مقایسه تازه اقامت نیاز دارید.';
+ }else if(receipt.payload.kind==='hotel'||h?.selected)fail();else if(h)result.hotelNotice='زمینه اقامت قبلی بدون مقایسه ثبت‌شده در این بارگذاری قابل بازگردانی نیست؛ شرایط اقامت را دوباره تنظیم و مقایسه کنید.';}catch{result.hotel=undefined;result.hotelMetadata=undefined;result.hotelReceipt=undefined;result.hotelNotice='زمینه اقامت قبلی با شهر یا مسافران این سفر قابل تأیید نبود؛ فقط مقایسه معتبر سفر بازگردانی شد. اقامت را برای مقصد و مسافران کنونی دوباره مقایسه کنید.';}
  return result;
 }

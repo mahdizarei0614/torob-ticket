@@ -16,12 +16,26 @@ describe('cookie-scoped return evidence hydration',()=>{
 });
 
 it('a valid scoped hotel event restores the exact stay while an edited or tampered draft revokes selected authority',async()=>{
- const f=fixture(),hotel=hotelSnapshot(),original=hotel.quotes[0]!,q={...query,party:hotel.query.party};f.r.snapshot.query=q;f.checkpoint.draft=q;f.checkpoint.returnSearch=serializeSearchUrl(q);f.checkpoint.selected=undefined;
+ const f=fixture(),hotel=hotelSnapshot(),original=hotel.quotes[0]!,q={...query,party:hotel.query.party};f.r.snapshot.query=q;f.checkpoint.draft=q;f.checkpoint.returnSearch=serializeSearchUrl(q);f.g.eligibleQuotes[0]!.party=q.party;
  const fresh={...original,version:2};const receipt:ReferralReceipt={referralId:'r',intentId:'hotel-intent',selection:{kind:'hotel',quoteId:fresh.quoteId,quoteVersion:2},payload:{kind:'hotel',quote:fresh},confirmedAt:new Date(Date.now()+1).toISOString(),handoffPath:'/provider-demo/r'};
  receipt.confirmedAt=original.observedAt;
  const draft={checkIn:hotel.query.checkIn,checkOut:hotel.query.checkOut,rooms:hotel.query.rooms,childAges:[],arrivalConfirmed:true,sort:hotel.query.sort};
- f.checkpoint.hotel={open:true,hotelSearchId:hotel.hotelSearchId,draft,selected:{quoteId:original.quoteId,version:2},scrollTop:180,referralId:'r'};
+ f.checkpoint.hotel={open:true,stale:false,hotelSearchId:hotel.hotelSearchId,draft,selected:{quoteId:original.quoteId,version:2},scrollTop:180,referralId:'r'};
  const client={...f.client,getHotelSearch:vi.fn(async()=>hotel)} as unknown as ApiClient;
- const restored=await hydrateReturn(f.checkpoint,receipt,client);expect(restored.hotel?.selected).toEqual(fresh);expect(restored.hotel?.receipt).toBe(receipt);expect(restored.hotelMetadata?.hotelId).toBe(original.hotelId);
+ const restored=await hydrateReturn(f.checkpoint,receipt,client);expect(restored.hotel?.selected).toEqual(fresh);expect(restored.hotel?.receipt).toBe(receipt);expect(restored.hotel?.tripItinerary).toEqual(f.g.itinerary);expect(restored.hotelMetadata?.hotelId).toBe(original.hotelId);
  f.checkpoint.hotel.draft={...draft,checkOut:'2026-10-29'};const edited=await hydrateReturn(f.checkpoint,receipt,client);expect(edited.hotel?.draft.checkOut).toBe('2026-10-29');expect(edited.hotel?.selected).toBeUndefined();expect(edited.hotel?.receipt).toBeUndefined();
 });
+
+it('preserves stale or unknown independent hotel evidence while revoking selected referral authority',async()=>{
+ for(const stale of [true,undefined]){const f=fixture(),hotel=hotelSnapshot(),original=hotel.quotes[0]!,q={...query,party:hotel.query.party};f.r.snapshot.query=q;f.g.eligibleQuotes[0]!.party=q.party;f.checkpoint.draft=q;f.checkpoint.returnSearch=serializeSearchUrl(q);const fresh={...original,version:2};const receipt:ReferralReceipt={referralId:'r',intentId:'h',selection:{kind:'hotel',quoteId:fresh.quoteId,quoteVersion:2},payload:{kind:'hotel',quote:fresh},confirmedAt:fresh.observedAt,handoffPath:'/provider-demo/r'};
+ f.checkpoint.hotel={open:true,stale,hotelSearchId:hotel.hotelSearchId,draft:{checkIn:hotel.query.checkIn,checkOut:hotel.query.checkOut,rooms:2,childAges:[],arrivalConfirmed:true,sort:'cheapest'},selected:{quoteId:fresh.quoteId,version:2},scrollTop:80};const client={...f.client,getHotelSearch:vi.fn(async()=>hotel)} as unknown as ApiClient;const result=await hydrateReturn(f.checkpoint,receipt,client);expect(result.recovery).toBe(f.r);expect(result.hotel?.snapshot).toBe(hotel);expect(result.hotel?.selected).toBeUndefined();expect(result.hotel?.receipt).toBeUndefined();expect(result.hotel?.contextBlocked).toBe(true);expect(result.hotelNotice).toBeTruthy();}
+});
+it('an optional hotel with another city, party or inaccessible scope cannot discard valid transport recovery',async()=>{
+ for(const mismatch of ['city','party','foreign']){const f=fixture(),hotel=hotelSnapshot();const current={...query,party:{adults:mismatch==='party'?3:2,children:0,infants:0}};f.r.snapshot.query=current;f.g.eligibleQuotes[0]!.party=current.party;f.checkpoint.draft=current;f.checkpoint.returnSearch=serializeSearchUrl(current);
+  const original=hotel.quotes[0]!,fresh={...original,version:2};const receipt:ReferralReceipt={referralId:'r',intentId:'h',selection:{kind:'hotel',quoteId:fresh.quoteId,quoteVersion:2},payload:{kind:'hotel',quote:fresh},confirmedAt:fresh.observedAt,handoffPath:'/provider-demo/r'};f.checkpoint.hotel={open:true,stale:false,hotelSearchId:hotel.hotelSearchId,draft:{checkIn:hotel.query.checkIn,checkOut:hotel.query.checkOut,rooms:2,childAges:[],arrivalConfirmed:true,sort:'cheapest'},selected:{quoteId:fresh.quoteId,version:2},scrollTop:80};
+  if(mismatch==='city'){hotel.query={...hotel.query,destinationCityId:'c'};hotel.hotels[0]!.destinationCityId='c';hotel.quotes[0]!.query=hotel.query;}
+  const client={...f.client,getHotelSearch:vi.fn(async()=>{if(mismatch==='foreign')throw Error('404');return hotel;})} as unknown as ApiClient;const result=await hydrateReturn(f.checkpoint,receipt,client);expect(result.recovery).toBe(f.r);expect(result.hotel).toBeUndefined();expect(result.hotelMetadata).toBeUndefined();expect(result.hotelNotice).toBeTruthy();expect(f.snapshot).toHaveBeenCalledTimes(1);
+ }
+});
+
+it('an interacted but unsearched optional stay has an explicit hotel-only fallback',async()=>{const f=fixture();f.checkpoint.hotel={open:false,stale:false,draft:{checkIn:query.departureDate,checkOut:'',rooms:1,childAges:[],arrivalConfirmed:false,sort:'cheapest'},scrollTop:0};const result=await hydrateReturn(f.checkpoint,f.receipt,f.client);expect(result.recovery).toBe(f.r);expect(result.hotel).toBeUndefined();expect(result.hotelNotice).toBeTruthy();});

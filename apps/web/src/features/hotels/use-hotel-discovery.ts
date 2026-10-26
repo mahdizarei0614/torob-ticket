@@ -2,12 +2,12 @@ import {useEffect,useLayoutEffect,useRef,useState} from 'react';
 import type {CatalogSnapshot,SessionInfo,HotelQuoteSnapshot,GeoPoint,HotelSearchQuery,HotelSearchSnapshot,ReferralReceipt} from '@torob-ticket/contracts';
 import {apiClient,ClientError,type ApiClient} from '@torob-ticket/client';
 import {createHotelState,hotelReducer,hotelQuery,queryKey,tripKey,tripStamp,tripStale,type HotelTrip,type HotelDraft,type HotelAction} from './hotel-state';
-export interface HotelRestore {snapshot:HotelSearchSnapshot;draft:HotelDraft;selected?:HotelQuoteSnapshot;open:boolean;scrollTop:number;receipt?:ReferralReceipt}
+export interface HotelRestore {snapshot:HotelSearchSnapshot;draft:HotelDraft;selected?:HotelQuoteSnapshot;open:boolean;scrollTop:number;receipt?:ReferralReceipt;tripItinerary?:HotelTrip['itinerary'];contextBlocked?:boolean}
 export interface HotelDiscoveryProps {trip:HotelTrip;catalog:CatalogSnapshot;session:SessionInfo;resetting?:boolean;client?:ApiClient;onSelectHotelQuote?:(quote:HotelQuoteSnapshot|undefined)=>void;restore?:HotelRestore}
 function failure(error:unknown){if(error instanceof ClientError){if(error.api?.code==='SEARCH_LIMIT')return 'دو بررسی دیگر در نشست فعال است؛ پس از پایان آن‌ها دوباره تلاش کنید.';if(error.api?.code==='SESSION_EXPIRED')return 'نشست در دسترس نیست؛ نسخه نمایشی را دوباره آماده کنید.';if(error.kind==='network')return 'دریافت اقامتگاه‌ها ممکن نشد؛ اتصال را بررسی و دوباره تلاش کنید.';}return 'پاسخ معتبر اقامت دریافت نشد؛ دوباره مقایسه کنید.';}
 /** Every method is bound to the rendered view, edit revision and provisional transaction. */
 export function useHotelDiscovery({trip,catalog,session,resetting=false,client=apiClient,onSelectHotelQuote,restore}:HotelDiscoveryProps){
- const [state,setState]=useState(()=>restore?hotelReducer(createHotelState(trip,catalog),{type:'hydrate',snapshot:restore.snapshot,draft:restore.draft,selected:restore.selected}):createHotelState(trip,catalog));const currentState=useRef(state);currentState.current=state;
+ const [state,setState]=useState(()=>restore?hotelReducer(createHotelState(trip,catalog),{type:'hydrate',snapshot:restore.snapshot,draft:restore.draft,selected:restore.selected,contextBlocked:restore.contextBlocked}):createHotelState(trip,catalog));const currentState=useRef(state);currentState.current=state;
  const [open,setOpen]=useState(restore?.open??false);const view=useRef({open:restore?.open??false,epoch:0});const renderedView=view.current;
  const initialized=useRef(Boolean(restore));
  const live=useRef(true);const latest=useRef({trip,resetting,client,onSelectHotelQuote});latest.current={trip,resetting,client,onSelectHotelQuote};
@@ -52,6 +52,6 @@ export function useHotelDiscovery({trip,catalog,session,resetting=false,client=a
   const refresh=()=>{if(!isCurrent())return;const checked=hotelQuery(currentState.current,catalog,session.anchorInstant);if(checked.query)void search(checked.query,view.current);};
   return {refresh,quote:selected,key:[capturedView.epoch,capturedRevision,selected.quoteId,selected.version].join('/'),isCurrent,accept,confirmed};
  }
- return {readState:()=>currentState.current,selectionLease,state,open,stale,query:checked.query,errors:checked.errors,selected,openDialog,closeDialog,edit,submit,changeSort,applyTrip,openPoint,setPoint,cancelPoint,applyPoint,selectQuote,isPointCurrent:pointOwns};
+ return {contextBlocked:Boolean(state.contextBlocked),readState:()=>currentState.current,selectionLease,state,open,stale,query:checked.query,errors:checked.errors,selected,openDialog,closeDialog,edit,submit,changeSort,applyTrip,openPoint,setPoint,cancelPoint,applyPoint,selectQuote,isPointCurrent:pointOwns};
 }
 export type HotelDiscovery=ReturnType<typeof useHotelDiscovery>;

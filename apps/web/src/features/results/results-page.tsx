@@ -9,7 +9,7 @@ import { useResults } from './use-results';
 import { localDay, minutes, number, toman, travelerCount } from './format';
 import styles from './results.module.css';
 export interface ResultsEvidence {state:ResultsState;select:(selection:QuoteSelection)=>void}
-export interface ResultsPageProps { selectedAction?:{quoteId:string;node:ReactNode}; evidenceRef?:MutableRefObject<ResultsEvidence|undefined>;restore?:Pick<ResultsState,'frozen'|'selected'|'dismissedSuggestion'>; isCurrent: () => boolean; generation: string; searchId: string; query: TransportSearchQuery; catalog: CatalogSnapshot; refinementDisabled: boolean; draftChanged: boolean; onRefine: (query: TransportSearchQuery) => void; onEdit: () => void; enterResults?: boolean; onPreviewItinerary?: (itinerary?: Itinerary,source?:'hover'|'focus',leavingId?:string) => void; onPinItinerary?: (itinerary: Itinerary) => void; onSelectQuote?: (quote?: QuoteSnapshot, itinerary?: Itinerary, selectionIntent?: QuoteSelection) => void }
+export interface ResultsPageProps { onRestoreReady?:()=>void; selectedAction?:{quoteId:string;node:ReactNode}; evidenceRef?:MutableRefObject<ResultsEvidence|undefined>;restore?:Pick<ResultsState,'frozen'|'selected'|'dismissedSuggestion'>; isCurrent: () => boolean; generation: string; searchId: string; query: TransportSearchQuery; catalog: CatalogSnapshot; refinementDisabled: boolean; draftChanged: boolean; onRefine: (query: TransportSearchQuery) => void; onEdit: () => void; enterResults?: boolean; onPreviewItinerary?: (itinerary?: Itinerary,source?:'hover'|'focus',leavingId?:string) => void; onPinItinerary?: (itinerary: Itinerary) => void; onSelectQuote?: (quote?: QuoteSnapshot, itinerary?: Itinerary, selectionIntent?: QuoteSelection) => void }
 function Coverage({ snapshot }: { snapshot: SearchSnapshot }) { const coverage = snapshot.coverage; return <div className={styles.coverage} aria-label="پوشش فروشندگان"><span>{number(coverage.successfulProviderIds.length)} از {number(coverage.expectedProviderIds.length)} فروشنده پاسخ داده‌اند{snapshot.status === 'collecting' ? ' · تا این لحظه' : ''}</span>{coverage.pendingProviderIds.length > 0 && <span>{number(coverage.pendingProviderIds.length)} در حال بررسی</span>}{coverage.failedProviderIds.length > 0 && <span className={styles.invalid}>{number(coverage.failedProviderIds.length)} پاسخ ناموفق یا در دسترس نیست</span>}<small>مقایسه فقط میان فروشندگان همین جست‌وجوی نمایشی است.</small></div>; }
 export function ResultsList(props: ResultsPageProps) {
  const { generation, searchId, query, catalog } = props;
@@ -60,6 +60,8 @@ export function ResultsList(props: ResultsPageProps) {
  }
 
  if(props.evidenceRef)props.evidenceRef.current={state,select};
+ const restoredLayout=useRef(false);
+ useLayoutEffect(()=>{if(!restoredLayout.current&&props.restore&&snapshot&&ownsCurrent()){restoredLayout.current=true;outward.current.onRestoreReady?.();}},[snapshot,props.restore]);
  const revealedSelection=useRef(props.restore?.selected);
  useLayoutEffect(()=>{if(!state.selected||revealedSelection.current===state.selected||props.selectedAction?.quoteId!==state.selected.quoteId||!ownsCurrent())return;const action=region.current?.querySelector<HTMLButtonElement>('[data-referral-source=transport] button');if(!action||action.disabled)return;revealedSelection.current=state.selected;action.focus({preventScroll:true});action.scrollIntoView({block:'nearest',behavior:'instant'});},[state.selected,props.selectedAction?.quoteId]);
  const resolvedSuggestion = resolveSuggestion(state,renderedAt);
