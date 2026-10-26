@@ -8,7 +8,7 @@ export interface ThemeTransitionRun { skip: () => void; finished: Promise<void> 
 /** The callback owns the atomic update; applications can supply an independent graphics flush. */
 export function runThemeTransition(nextTheme: () => void, options: ThemeTransitionOptions = {}): ThemeTransitionRun {
   let cancelled = false, settled = false, failed = false, revealSkipped = false;
-  let transition: ViewTransition | undefined, animation: Animation | undefined;
+  let transition: Pick<ViewTransition, 'ready' | 'finished' | 'skipTransition'> | undefined, animation: Animation | undefined;
   let application: Promise<void> | undefined;
   let finish!: () => void, applied!: () => void;
   const finished = new Promise<void>(resolve => { finish = resolve; });
