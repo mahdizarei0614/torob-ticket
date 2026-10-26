@@ -1,0 +1,9 @@
+# 0027 — Flat visual identity and coordinated motion
+
+Local authored SVG travel, delayed-provider and hotel illustrations share semantic tokens, transport glyphs, six provider marks and explicit known-carrier/neutral-unknown marks. Labels are optional, decorative art is hidden from accessibility by default, and provenance appends to the unchanged geography ledger. No remote art or raster service is needed.
+
+Finite Motion entries have explicit content/detail/dialog/emphasis purposes. Result collections enter once per search, never per provider arrival; details enter on deliberate expansion; actual foreground dialogs animate their existing semantic DOM rather than adding a focus wrapper. Covered/hidden/reduced/disabled policies settle immediately without replay. Foreground portal motion honors reduced/hidden/global-disabled policy independently of covered background content. No animation owns data validity.
+
+The theme utility guards the atomic React/CSS update, awaits the application-supplied graphics flush before native new-frame capture, and completes or skips without unhandled rejection. Latest requests, mode changes, inactive owners and unmounts fence obsolete queued updates. Reduced-motion changes settle the requested current target directly. UI never imports graphics. Stored/system theme still applies before paint, and the existing animation:none/mix-blend-mode:normal root rules remain.
+
+The app-owned renderer gains an awaitable flush with direct no-op resolution for unavailable/covered hosts. A real token-driven ambient fragment is bound to the route material and driven only by the existing bounded700ms vehicle progress transition; it adds no canvas, camera movement or RAF owner. Native shader/uniform/idle and fallback evidence remains distinct from pure/component tests.

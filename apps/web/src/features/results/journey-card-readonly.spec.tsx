@@ -1,0 +1,9 @@
+import {fireEvent,render,screen} from '@testing-library/react';
+import {afterEach,it,expect,vi} from 'vitest';
+import {JourneyCard} from './journey-card';
+import {createResultsState,resultsReducer} from './results-reducer';
+import {group,observedAt,recovery} from './results-test-data';
+import {catalog} from '../search/search-test-data';
+afterEach(()=>vi.restoreAllMocks());
+it('retained historical cards expose readable facts but disable both representative and provider selections',()=>{vi.spyOn(Date,'now').mockReturnValue(Date.parse(observedAt)+1000);const g=group('historical'),saved=recovery([g]);const state=resultsReducer(createResultsState('generation','search'),{type:'receive',recovery:saved});const select=vi.fn();render(<JourneyCard selectionDisabled group={g} snapshot={saved.snapshot} catalog={catalog} state={state} now={Date.now()} onFreeze={()=>undefined} onSelect={select}/>);expect(screen.getByRole('button',{name:'انتخاب پیشنهاد'})).toBeDisabled();fireEvent.click(screen.getByRole('button',{name:/جزئیات و/}));expect(screen.getByRole('button',{name:'انتخاب این پیشنهاد'})).toBeDisabled();expect(select).not.toHaveBeenCalled();});
+it('a current card remains selectable with the same factual price and version',()=>{vi.spyOn(Date,'now').mockReturnValue(Date.parse(observedAt)+1000);const g=group('current'),saved=recovery([g]);const state=resultsReducer(createResultsState('generation','search'),{type:'receive',recovery:saved});render(<JourneyCard group={g} snapshot={saved.snapshot} catalog={catalog} state={state} now={Date.now()} onFreeze={()=>undefined} onSelect={()=>undefined}/>);expect(screen.getByRole('button',{name:'انتخاب پیشنهاد'})).toBeEnabled();expect(screen.getByRole('article')).toHaveAttribute('data-quote-version',String(g.eligibleQuotes[0]!.version));});

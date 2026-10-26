@@ -1,0 +1,11 @@
+# 0028 — Preserve intent, revoke obsolete authority
+
+Metadata/configuration/reset/expiry changes preserve the mounted traveler form, independently edited hotel stay and bounded historical evidence. They revoke quote, map-selection, operation and referral authority synchronously; stale buttons are visibly disabled. Only affected mutable date/hotel/identity caches and operations are invalidated. Immutable searches/referrals, local geography and visual camera intent are retained. No revision event silently starts a search or changes dates/party/ages/filters/point/sort.
+
+Foreground session checks are GET-only, coalesce/queue wake events and fence both successes and failures before/after dependent awaits. Explicit resume owns its epoch; old responses cannot re-expire or overwrite it. When metadata is identical after a legacy namespace reset, validate the current retained search lease by scoped GET.404 marks history read-only without snapshot replacement or POST. Fresh searches, resume, changed configuration and coverage invalidate that validation lease. Unknown start-pool slots remain occupied until actual settlement even when their transport is aborted.
+
+A schema-valid unsupported URL remains the requested editable intent. Supported-route actions change endpoints only; date/edit actions focus the existing controls; filter relaxation removes only the named key. Fresh transport/hotel comparison is deliberate. Unavailable, expired and unknown conditions do not become empty-success claims. Mutation and confirmation requests never retry automatically; uncertain confirmation retains its original idempotency flow.
+
+Stream states distinguish connecting/live/recovering/snapshot-only/settled/expired/unavailable. REST recovery does not claim a live stream. Cold collecting snapshots attach a correctly bound subscription; foreign data cannot seed its cursor. Typed HTTP problems are read before body cleanup. Terminal snapshots retain exact provider coverage and cannot be overwritten by a later fallback-status assignment.
+
+Shared Persian/English recovery components expose meaningful keyboard actions. Admin explicit resume keeps the route/editor mounted, clears old server evidence/preview authority and retains local editor input. Actual expiry/crash tests use only the separately labeled torobticket-m6 stack; the default database is preserved.
