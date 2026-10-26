@@ -44,6 +44,6 @@ void main() {
     vec3 color = (a.rgb*levels.x+b.rgb*levels.y+c.rgb*levels.z+d.rgb*levels.w)/max(0.0001,alpha);
     gl_FragColor = vec4(color,alpha);
   }
-  gl_FragColor.a *= mapOpacity;
+  gl_FragColor.a *= mapOpacity * mapEdgeOpacity();
   #include <colorspace_fragment>
 }

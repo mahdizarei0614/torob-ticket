@@ -4,6 +4,7 @@ attribute float seed;
 uniform float morphProgress;
 uniform float pointSize;
 varying float vOpacity;
+varying vec2 vMapUv;
 void main() {
   float t = smoothstep(0.0,1.0,morphProgress);
   float drift = sin(3.14159265359*t)*(.12+seed*.24);
@@ -11,5 +12,6 @@ void main() {
   vec2 positionOnScreen = mix(position.xy,targetPosition,t)+vec2(cos(angle),sin(angle))*drift;
   vOpacity = mix(endpointOpacity.x,endpointOpacity.y,t);
   gl_Position = vec4(positionOnScreen,0.0,1.0);
+  vMapUv = positionOnScreen * 0.5 + 0.5;
   gl_PointSize = pointSize;
 }

@@ -177,12 +177,14 @@ test('@map-navigation world borders and sparse labels persist through three dot-
   const worldLabels = await page.locator('[data-context-city][data-visible="true"]').count();
   expect(worldLabels).toBeGreaterThan(0); expect(worldLabels).toBeLessThanOrEqual(6);
   await map(page).screenshot({ path: resolve(evidence, 'world-context.png') });
+  await page.screenshot({ path: resolve(evidence, 'world-context-page.png') });
   await page.getByRole('combobox', { name: 'مقصد', exact: true }).fill('وان');
   await page.getByRole('option', { name: 'وان', exact: true }).click();
   await expect(page.getByRole('combobox', { name: 'مقصد', exact: true })).toHaveValue('وان');
   await page.waitForTimeout(1300); await assertRendering(page);
   const regional = await page.locator('[data-route-presentation]').getAttribute('data-map-dot-weights');
   await map(page).screenshot({ path: resolve(evidence, 'regional-context.png') });
+  await page.screenshot({ path: resolve(evidence, 'regional-context-page.png') });
   const box = (await map(page).locator('[data-camera]').boundingBox())!;
   await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
   await page.keyboard.down('Control');
@@ -192,6 +194,7 @@ test('@map-navigation world borders and sparse labels persist through three dot-
   const deepFrame = JSON.parse((await map(page).locator('[data-camera]').getAttribute('data-camera'))!);
   expect(deepFrame.zoom).toBe(8); expect(await page.locator('[data-context-city][data-visible="true"]').count()).toBeLessThanOrEqual(10);
   await map(page).screenshot({ path: resolve(evidence, 'deep-context.png') });
+  await page.screenshot({ path: resolve(evidence, 'deep-context-page.png') });
   const stats = await gpu(page);
   expect(stats.dotWeights.length).toBeGreaterThan(10);
   expect(stats.dotLattices).toContainEqual([4, 1, .25, .0625]);

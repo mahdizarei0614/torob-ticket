@@ -7,6 +7,7 @@ uniform float geographyOpacity;
 uniform float time;
 uniform float motionReduced;
 varying float vEmphasis;
+varying float vGeography;
 varying float vHover;
 varying float vBreath;
 void main() {
@@ -31,5 +32,6 @@ void main() {
     gl_FragColor = vec4(tint,clamp(alpha,0.0,1.0));
   }
   if (vEmphasis < 0.5) gl_FragColor.a *= geographyOpacity;
+  gl_FragColor.a *= mix(1.0, mapEdgeOpacity(), vGeography);
   #include <colorspace_fragment>
 }

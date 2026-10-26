@@ -35,3 +35,16 @@
 
 .suggestions>button{color:var(--accent);font-size:12px;min-height:32px;padding:3px 7px}
 @media(max-width:759px){.suggestions>button{min-height:44px;padding-inline:0}}
+
+/* One viewport-aligned atmosphere spans the map and results, even while results scroll. */
+@media(min-width:1120px){
+ .shell{
+  background:
+   radial-gradient(ellipse at 20% 48%,var(--color-clear) 12%,var(--scene-edge) 100%),
+   radial-gradient(ellipse at 16% 38%,var(--scene-haze),var(--color-clear) 56%),
+   radial-gradient(ellipse at 58% 76%,var(--scene-haze-secondary),var(--color-clear) 64%),
+   radial-gradient(ellipse at 96% 5%,var(--canvas-haze),var(--color-clear) 62%),
+   var(--scene-background);
+  background-attachment:fixed;
+ }
+}

@@ -6,33 +6,36 @@ import type { ProjectionContext, RouteBounds } from '../geo/projection';
 import { DOMESTIC_DOT_BASE_SPACING, INTERNATIONAL_DOT_BASE_SPACING, worldDotWeights, worldLandPositions, worldBorderPositions, type WorldCountry } from '../geo/world-context';
 import type { ScenePointer } from './scene-surface';
 import { createPointerTrail, POINTER_TRAIL_RADIUS_PX } from './pointer-trail';
+import { createMapEdgeFadeUniforms, updateMapEdgeFadeUniforms } from './map-edge-fade';
+import edgeFadeFragment from '../shaders/map-edge-fade.glsl?raw';
 import worldVertex from '../shaders/world-context.vert.glsl?raw';
 import worldFragment from '../shaders/world-context.frag.glsl?raw';
 import morphVertex from '../shaders/scope-morph.vert.glsl?raw';
 import morphFragment from '../shaders/scope-morph.frag.glsl?raw';
 import { createScopeMorph, snapshotLandDots, scopeMorphLandOpacity, SCOPE_MORPH_PARTICLE_LIMIT, type MorphLand } from './scope-morph';
 
-interface Props { countries:readonly WorldCountry[];context:ProjectionContext;frame:RouteBounds;pointer?:RefObject<ScenePointer>;reducedMotion:boolean;domestic?:boolean;active?:boolean;resetKey?:string }
+interface Props { countries:readonly WorldCountry[];context:ProjectionContext;frame:RouteBounds;pointer?:RefObject<ScenePointer>;reducedMotion:boolean;domestic?:boolean;active?:boolean;resetKey?:string;featherGeography?:boolean }
 /** A bounded land mesh carries all dot levels; zooming changes uniforms, never geometry. */
-export function WorldGeography({countries,context,frame,pointer,reducedMotion,domestic=false,active=true,resetKey='map'}:Props){
+export function WorldGeography({countries,context,frame,pointer,reducedMotion,domestic=false,active=true,resetKey='map',featherGeography=false}:Props){
   const invalidate=useThree(state=>state.invalidate);const get=useThree(state=>state.get);const uniforms=useThemeUniforms(invalidate);
   const [trail]=useState(createPointerTrail);
   const [morph]=useState(createScopeMorph);
+  const [edgeFade]=useState(createMapEdgeFadeUniforms);
   const morphResources=useMemo(()=>{
     const geometry=new BufferGeometry();
     for(const [name,size] of [['position',3],['targetPosition',2],['endpointOpacity',2],['seed',1]] as const)geometry.setAttribute(name,new Float32BufferAttribute(new Float32Array(SCOPE_MORPH_PARTICLE_LIMIT*size),size).setUsage(DynamicDrawUsage));
     geometry.setDrawRange(0,0);
-    const material=new ShaderMaterial({transparent:true,depthTest:false,depthWrite:false,toneMapped:false,uniforms:{...uniforms,morphProgress:{value:1},morphOpacity:{value:0},pointSize:{value:6}},vertexShader:morphVertex,fragmentShader:morphFragment});
+    const material=new ShaderMaterial({transparent:true,depthTest:false,depthWrite:false,toneMapped:false,uniforms:{...uniforms,...edgeFade,morphProgress:{value:1},morphOpacity:{value:0},pointSize:{value:6}},vertexShader:morphVertex,fragmentShader:edgeFadeFragment+'\n'+morphFragment});
     return {geometry,material};
-  },[uniforms]);
+  },[uniforms,edgeFade]);
   const baseSpacing=domestic?DOMESTIC_DOT_BASE_SPACING:INTERNATIONAL_DOT_BASE_SPACING;
   const resources=useMemo(()=>{
     const borders=new BufferGeometry();borders.setAttribute('position',new Float32BufferAttribute(worldBorderPositions(countries,context),3));
     const land=new BufferGeometry();land.setAttribute('position',new Float32BufferAttribute(worldLandPositions(countries,context),3));
-    const shared={...uniforms,mapOpacity:{value:1},baseSpacing:{value:baseSpacing},latticeSpacings:{value:domestic?new Vector4(baseSpacing,baseSpacing/2,baseSpacing/4,baseSpacing/8):new Vector4(baseSpacing,baseSpacing/4,baseSpacing/16,baseSpacing/64)},gridOrigin:{value:new Vector2(domestic?44:-179,domestic?25:-59)},time:{value:0},unitsPerPixel:{value:1},levelWeights:{value:new Vector4(1,0,0,0)},centralLongitude:{value:context.centralLongitude},trailSamples:{value:trail.uniforms}};
-    const options={transparent:true,depthTest:false,depthWrite:false,toneMapped:false,side:DoubleSide,vertexShader:worldVertex,fragmentShader:worldFragment};
+    const shared={...uniforms,...edgeFade,mapOpacity:{value:1},baseSpacing:{value:baseSpacing},latticeSpacings:{value:domestic?new Vector4(baseSpacing,baseSpacing/2,baseSpacing/4,baseSpacing/8):new Vector4(baseSpacing,baseSpacing/4,baseSpacing/16,baseSpacing/64)},gridOrigin:{value:new Vector2(domestic?44:-179,domestic?25:-59)},time:{value:0},unitsPerPixel:{value:1},levelWeights:{value:new Vector4(1,0,0,0)},centralLongitude:{value:context.centralLongitude},trailSamples:{value:trail.uniforms}};
+    const options={transparent:true,depthTest:false,depthWrite:false,toneMapped:false,side:DoubleSide,vertexShader:worldVertex,fragmentShader:edgeFadeFragment+'\n'+worldFragment};
     return {borders,land,borderMaterial:new ShaderMaterial({...options,uniforms:{...shared,layer:{value:0}}}),landMaterial:new ShaderMaterial({...options,uniforms:{...shared,layer:{value:1}}})};
-  },[countries,context,uniforms,domestic,baseSpacing,trail]);
+  },[countries,context,uniforms,domestic,baseSpacing,trail,edgeFade]);
   const last=useRef(performance.now());const elapsed=useRef(0);
   const displayed=useRef<MorphLand|null>(null);
   const previousTarget=useRef('');
@@ -70,6 +73,7 @@ export function WorldGeography({countries,context,frame,pointer,reducedMotion,do
   useEffect(()=>{invalidate();return()=>{resources.borders.dispose();resources.land.dispose();resources.borderMaterial.dispose();resources.landMaterial.dispose();};},[resources,invalidate]);
   useEffect(()=>()=>{morphResources.geometry.dispose();morphResources.material.dispose();},[morphResources]);
   useFrame(()=>{
+    updateMapEdgeFadeUniforms(edgeFade,get().size,featherGeography);
     const camera=get().camera as OrthographicCamera;
     const width=camera.isOrthographicCamera?(camera.right-camera.left)/camera.zoom:frame.width;
     const unit=width/Math.max(1,get().size.width);
