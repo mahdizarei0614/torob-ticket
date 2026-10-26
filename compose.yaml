@@ -19,6 +19,7 @@ services:
       dockerfile: infra/Dockerfile
       args:
         NPM_REGISTRY: ${TOROBTICKET_NPM_REGISTRY:-https://registry.npmjs.org}
+        PRISMA_ENGINES_MIRROR: ${TOROBTICKET_PRISMA_ENGINES_MIRROR:-https://binaries.prisma.sh}
       target: initializer
     environment:
       DATABASE_URL: postgresql://torobticket:local-demo-only@database:5432/torobticket
@@ -32,6 +33,7 @@ services:
       dockerfile: infra/Dockerfile
       args:
         NPM_REGISTRY: ${TOROBTICKET_NPM_REGISTRY:-https://registry.npmjs.org}
+        PRISMA_ENGINES_MIRROR: ${TOROBTICKET_PRISMA_ENGINES_MIRROR:-https://binaries.prisma.sh}
       target: api
     environment:
       DATABASE_URL: postgresql://torobticket:local-demo-only@database:5432/torobticket
@@ -52,6 +54,7 @@ services:
       dockerfile: infra/Dockerfile
       args:
         NPM_REGISTRY: ${TOROBTICKET_NPM_REGISTRY:-https://registry.npmjs.org}
+        PRISMA_ENGINES_MIRROR: ${TOROBTICKET_PRISMA_ENGINES_MIRROR:-https://binaries.prisma.sh}
       target: gateway
     ports:
       - '127.0.0.1:${TOROBTICKET_PORT:-4300}:80'

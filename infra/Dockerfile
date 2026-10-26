@@ -11,6 +11,8 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 RUN pnpm install --frozen-lockfile --fetch-timeout=300000 --registry="$NPM_REGISTRY"
 
 FROM dependencies AS build
+ARG PRISMA_ENGINES_MIRROR=https://binaries.prisma.sh
+ENV PRISMA_ENGINES_MIRROR=$PRISMA_ENGINES_MIRROR
 COPY . .
 ENV NX_DAEMON=false NX_ISOLATE_PLUGINS=false NX_TUI=false
 RUN pnpm build && pnpm exec tsc -p prisma/tsconfig.json && pnpm exec tsc-alias -p prisma/tsconfig.json
