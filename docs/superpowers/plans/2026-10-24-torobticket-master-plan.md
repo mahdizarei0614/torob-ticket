@@ -2293,3 +2293,14 @@ The subsequent request supersedes the previous all-labels-hidden and pre-ticket 
 | Continuous backdrop | Shared viewport-aligned semantic-token shades; transparent map panel; preserve content layering | DONE | `c3578c8`; six transport/appearance palettes and desktop captures verified; [checkpoint](../../evidence/adjustments/map-blending/checkpoint.md) |
 | Soft map edges | Actual GPU geography/morph fade and matching fallback; zoom-stable edge treatment; readable selected route | DONE | `c3578c8`; 100 focused tests; native shader, international zoom and SVG fallback checks pass |
 | Review and integration | Native desktop themes/zoom/fallback checks; independent review; local packaging; tracker/export sync | DONE | [Independent review](../../evidence/adjustments/map-blending/review.md) approved; 9 Nx checks and 7 native scenarios pass; local stack healthy; M7 remains partial |
+
+## Owner adjustment — price colors and same-price sellers, 2026-10-27
+
+[Decision0037](../../decisions/0037-price-bands-and-same-price-sellers.md) maps the eight requested changes. M7 remains partial, 29/35; T30 active.
+
+| Adjustment | Subtasks | Status | Evidence |
+|---|---|---|---|
+| Compact date controls | Remove observation card/captions; full-width search; 150px chart; retain unchanged estimates; quiet bounded recovery without retry controls | DONE | `ed75038`, `e28b92a`; [checkpoint](../../evidence/adjustments/price-colors-sellers/checkpoint.md); original observation retention and 26 final date tests pass |
+| Price bands | Shared comparable-range rule; semantic tokens; wheel/calendar/card amounts and SVG/GLSL chart | DONE | `ed75038`; source bands/theme checks and native dark/light/calendar/mobile/SVG evidence pass |
+| Same-price sellers | Exact-total card projections; seller icon actions; fare variants; sort/scroll/focus and source authority | DONE | `ed75038`; same-price component fixtures plus native exact seller receipt/read-only return and changed-price consent verified |
+| Integration and review | Independent review; packaged visual and referral checks; tracker/SDD/exports | DONE | [Review](../../evidence/adjustments/price-colors-sellers/review.md) approved; 365 integrated source tests, 26 final date tests, type/lint and 8 unique native cases pass; final single-provider/reduced-motion captures explicitly scoped; local stack ready; M7 remains partial |
