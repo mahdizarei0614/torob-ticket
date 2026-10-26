@@ -10,7 +10,7 @@
 .field { display: flex; flex-direction: column; gap: 6px; font-size: 13px; min-width: 0; }.field strong { font-size: 16px; font-weight: 550; }.field input,.field select { width: 100%; min-width: 0; min-height: 44px; padding: 8px 10px; background: var(--surface); color: var(--text); border: 1px solid var(--border-strong); border-radius: var(--radius-sm); font: inherit; }
 .field input:focus-visible,.field select:focus-visible { outline: var(--focus-width) solid var(--focus); outline-offset: 2px; }.field input[aria-invalid='true'] { border-color: var(--danger); }
 .muted { color: var(--text-muted); font-size: 11px; }
-.submitRow { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }.submitRow > button:first-child { min-width: 160px; }.help,.error,.feedback { font-size: 12px; line-height: 1.9; margin: 0; }.help { color: var(--text-muted); }.error { color: var(--danger); }.feedback p { padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); margin-block: 14px 0; }
+.submitRow { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }.submitRow > button:first-child { width: 100%; min-width: 0; }.help,.error,.feedback { font-size: 12px; line-height: 1.9; margin: 0; }.help { color: var(--text-muted); }.error { color: var(--danger); }.feedback p { padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); margin-block: 14px 0; }
 .filterNote { color: var(--text-muted); font-size: 12px; }.footer { padding: 14px 0 24px; }.footer > p { font-size: 11px; color: var(--text-muted); line-height: 1.9; margin: 8px 0; }.presets { display: grid; gap: 8px; margin-block: 18px; }.loading { display: grid; gap: 16px; max-width: 600px; margin: 10vh auto; padding: 24px; }
 .mapPlaceholder { display: none; }.mapGrid { position: absolute; inset: 0; background-image: radial-gradient(var(--scene-dot) 1px, var(--color-clear) 1px); background-size: 21px 21px; opacity: .3; mask-image: radial-gradient(ellipse at center, var(--text) 10%, var(--color-clear) 67%); }.mapCaption { position: absolute; inset-inline: 12%; top: 57%; text-align: center; }.mapCaption p { font-size: 27px; font-weight: 600; }.mapCaption small { color: var(--text-muted); font-size: 12px; }.routeSymbol { position: absolute; top: 41%; left: 22%; right: 22%; display: flex; align-items: center; color: var(--scene-route); font-size: 22px; }.routeSymbol i { flex: 1; border-top: 2px dashed var(--scene-route-muted); transform: rotate(-12deg); }
 @media (min-width: 1120px) { .content { margin-left: 46%; margin-right: 0; width: 54%; max-width: none; padding-inline: clamp(24px,3vw,55px); }.mapPlaceholder { display: block; position: fixed; top: 0; bottom: 0; left: 0; width: 46%; background: var(--scene-background); border-inline-start: 1px solid var(--border); }.intro { padding-top: 22px; }.composer { padding: 20px; } }
@@ -29,7 +29,7 @@
  .segments{gap:8px;justify-content:space-between;--space-1:2px;--space-2:.2rem;}
  .tripFields{grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(110px,.58fr);gap:10px;align-items:start;}
  .submitRow{justify-content:space-between;gap:10px;}
- .submitRow>button:first-child{min-width:176px;}
+ .submitRow>button:first-child{width:100%;min-width:0;}
  .footer{padding:8px 0 12px;}
 }
 

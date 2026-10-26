@@ -1,5 +1,5 @@
-import type {CatalogSnapshot} from '@torob-ticket/contracts';
-import {Button,Dialog,Price,displayProviderName} from '@torob-ticket/ui';
+import type {CatalogSnapshot,QuoteSnapshot} from '@torob-ticket/contracts';
+import {Button,Dialog,Price,ProviderMark,displayProviderName} from '@torob-ticket/ui';
 import {FareConditions,Breakdown} from '../results/provider-offers';
 import {RoomRates} from '../hotels/room-rates';
 import {nights} from '../hotels/hotel-format';
@@ -11,6 +11,14 @@ export function ReferralFacts({payload,catalog}:{payload:ReferralPayload;catalog
  <p>{displayProviderName(catalog.providerCapabilities.find(p=>p.providerId===q.providerId))} · نسخه {number(q.version)}</p>
  {payload.kind==='transport'?<><Price total={payload.quote.total} scope={{kind:'party',travelers:payload.quote.party.adults+payload.quote.party.children+payload.quote.party.infants}}/><FareConditions quote={payload.quote} catalog={catalog}/><details><summary>ریز مبلغ همه مسافران</summary><Breakdown quote={payload.quote}/></details></>:<><p><bdi>{payload.quote.query.checkIn}</bdi> تا <bdi>{payload.quote.query.checkOut}</bdi> · {number(nights(payload.quote.query.checkIn,payload.quote.query.checkOut))} شب</p><RoomRates comparisonEvidence={false} quote={payload.quote} disabled selected onSelect={()=>undefined}/></>}
  </div>;
+}
+/** Navigation begins with an exact quote recheck; no provider URL exists until that check is confirmed. */
+export function ProviderIconLink({quote,catalog,flow,resolveSource,variant}:{quote:QuoteSnapshot;catalog:CatalogSnapshot;flow:ReturnType<typeof useReferralController>;resolveSource:()=>ReferralSource|undefined;variant?:number}) {
+ const provider=displayProviderName(catalog.providerCapabilities.find(item=>item.providerId===quote.providerId));
+ const label=variant?`${provider}، گزینه ${number(variant)}`:provider;
+ return <button type="button" role="link" className={styles.sellerLink} data-referral-source="transport" data-provider-id={quote.providerId} data-seller-link-quote-id={quote.quoteId} data-seller-link-version={quote.version} aria-label={label} title={label} disabled={flow.state.phase!=='idle'} onClick={()=>{const source=resolveSource();if(source)void flow.start(source);}}>
+  <ProviderMark providerId={quote.providerId} size={40}/><span>{provider}</span><svg className={styles.linkGlyph} viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9"/><path d="M10 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"/></svg>
+ </button>;
 }
 export function ProviderAction({source,flow,catalog,compact=false,layout='standard'}:{source:ReferralSource;flow:ReturnType<typeof useReferralController>;catalog:CatalogSnapshot;compact?:boolean;layout?:'standard'|'ticket'}){
  const payload=source.payload;

@@ -8,7 +8,7 @@ const query: TransportSearchQuery = { mode: 'flight', scope: 'domestic', tripTyp
 const results = (page: Page) => page.getByRole('region', { name: 'نتایج مقایسه سفر', exact: true });
 const cards = (page: Page) => results(page).locator('article[data-group-id]');
 const selected = (page: Page) => results(page).locator('article[data-selected="true"]');
-const action = (page: Page) => page.locator('[data-referral-source="transport"]').getByRole('button', { name: /^رفتن به / });
+const action = (page: Page) => page.locator('button[data-referral-source="transport"][role="link"]').first();
 const save = (name: string, data: unknown) => writeFileSync(resolve(evidence, name + '.json'), JSON.stringify(data, null, 2) + '\n');
 async function open(page: Page, input = query) {
   await page.goto('/?q=' + encodeURIComponent(JSON.stringify(input)));
@@ -69,7 +69,7 @@ test('@compact-results desktop density, native whole-card choice and cheapest au
     save(`density-${size.width}`, { size, geometry });
     await page.screenshot({ path: resolve(evidence, `results-${size.width}.png`) });
     expect(geometry.length).toBeGreaterThanOrEqual(3);
-    expect(geometry.every(card => card.height <= (card.selected ? 215 : 185))).toBe(true);
+    expect(geometry.every(card => card.height <= (card.selected ? 280 : 185))).toBe(true);
     expect(geometry.filter(card => card.visible).length).toBeGreaterThanOrEqual(3);
     expect(geometry.every(card => card.nestedButtons === 0)).toBe(true);
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(size.width);
@@ -84,7 +84,7 @@ test('@compact-results desktop density, native whole-card choice and cheapest au
   const keyboardId = await another.getAttribute('data-group-id');
   await another.locator('[data-card-select]').focus(); await page.keyboard.press('Enter');
   await expect(selected(page)).toHaveAttribute('data-group-id', keyboardId!); await expect(action(page)).toBeFocused();
-  const details = selected(page).getByRole('button', { name: /جزئیات و/ }); await details.click();
+  const details = selected(page).getByRole('button', { name: 'جزئیات سفر', exact: true }); await details.click();
   await expect(details).toHaveAttribute('aria-expanded', 'true'); expect(requests).toEqual([]);
   await expect(selected(page)).toHaveAttribute('data-group-id', keyboardId!);
   save('desktop', { browser: browser.version(), automatic, sellerCount: sellers, measurements, manual: nextId, keyboard: keyboardId, referralPostsBeforeExplicitContinue: requests });
@@ -109,7 +109,7 @@ for (const mode of ['train', 'bus'] as const) test(`@compact-results ${mode} def
     await page.screenshot({ path: resolve(evidence, `${mode}-roundtrip-${width}.png`) });
     widths.push({ width, overflow, selectedCard: bounds });
   }
-  await selected(page).getByRole('button', { name: /جزئیات و/ }).click();
+  await selected(page).getByRole('button', { name: 'جزئیات سفر', exact: true }).click();
   await expect(selected(page).getByRole('region', { name: 'جزئیات مسیر رفت', exact: true })).toBeVisible();
   await expect(selected(page).getByRole('region', { name: 'جزئیات مسیر برگشت', exact: true })).toBeVisible();
   save(mode, { automatic, widths });

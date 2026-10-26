@@ -2,16 +2,19 @@ import { formatTomanParts } from '@torob-ticket/domain';
 import { type Money } from '@torob-ticket/contracts';
 import { languageProps, type Language } from './language';
 import styles from '../styles/primitives.module.css';
+import type { PriceBand } from './price-band';
 export type PriceScope =
   { kind: 'party'; travelers: number } | { kind: 'stay'; rooms: number; nights: number };
 export function Price({
   total,
   scope,
   language = 'fa',
+  band,
 }: {
   total: Money;
   scope: PriceScope;
   language?: Language;
+  band?: PriceBand;
 }) {
   const locale = language === 'fa' ? 'fa-IR' : 'en-US';
   const number = (value: number) => new Intl.NumberFormat(locale).format(value);
@@ -35,7 +38,7 @@ export function Price({
       aria-label={`${label}: ${amount} ${unit}`}
     >
       <div aria-hidden="true" className={styles.amount}>
-        <bdi>{amount}</bdi>
+        <bdi data-price-band={band}>{amount}</bdi>
         <span className={styles.unit}>{unit}</span>
       </div>
       <span aria-hidden="true" className={styles.description}>

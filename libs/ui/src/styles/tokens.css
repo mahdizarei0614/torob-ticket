@@ -64,6 +64,9 @@
   --chart-line: var(--accent);
   --chart-grid: var(--border);
   --chart-marker: var(--accent);
+  --price-low: var(--success);
+  --price-mid: var(--warning);
+  --price-high: var(--danger);
   color-scheme: light;
 }
 [data-appearance='dark'] {

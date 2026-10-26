@@ -33,9 +33,10 @@ export function matchesDateSnapshot(snapshot: DatePriceSnapshot, request: DatePr
   if (actual.length !== expected.length || actual.some((date, index) => date !== expected[index])) return false;
   return snapshot.clientGeneration === request.clientGeneration && snapshot.query.clientGeneration === request.clientGeneration && (!id || snapshot.datePriceId === id) && datePriceIdentityForSession(snapshot.query, session) === datePriceIdentityForSession(request, session);
 }
-export function observationFresh(snapshot: DatePriceSnapshot, now = Date.now()): boolean { const age = now - Date.parse(snapshot.observedAt); return age >= 0 && age < 60000; }
-export function snapshotFresh(snapshot: DatePriceSnapshot, now = Date.now()): boolean {
-  return snapshot.status === 'complete' && observationFresh(snapshot,now) && !snapshot.cells.some(cell => cell.status === 'unavailable' && cell.retryable);
+/** Date estimates remain usable for this unchanged session/query; referral quotes have their own expiry. */
+export function observationUsable(snapshot: DatePriceSnapshot, now = Date.now()): boolean { const observed = Date.parse(snapshot.observedAt); return Number.isFinite(observed) && observed <= now; }
+export function snapshotReusable(snapshot: DatePriceSnapshot, now = Date.now()): boolean {
+  return snapshot.status === 'complete' && observationUsable(snapshot,now) && !snapshot.cells.some(cell => cell.status === 'unavailable' && cell.retryable);
 }
 export function dateLabel(date: string): string {
   let value; try { value = toCalendar(parseDate(date), new PersianCalendar()); } catch { return 'تاریخ انتخاب نشده'; }

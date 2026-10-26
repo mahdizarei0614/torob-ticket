@@ -1,11 +1,11 @@
-uniform vec4 chartLine;
-uniform vec4 chartMarker;
 uniform vec4 chartGrid;
-uniform float selectedX;
+uniform vec4 priceLow;
+uniform vec4 priceMid;
+uniform vec4 priceHigh;
 uniform float kind;
-varying float vX;
+varying float vPricePosition;
 void main() {
-  vec4 color = kind > 1.5 ? chartGrid : kind > 0.5 && abs(vX - selectedX) < 0.005 ? chartMarker : chartLine;
+  vec4 color = kind > 1.5 ? chartGrid : vPricePosition <= 0.25 ? priceLow : vPricePosition >= 0.75 ? priceHigh : priceMid;
   gl_FragColor = color;
   #include <colorspace_fragment>
 }

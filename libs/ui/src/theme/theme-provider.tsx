@@ -25,6 +25,9 @@ export interface ThemeColors {
   chartLine: string;
   chartGrid: string;
   chartMarker: string;
+  priceLow: string;
+  priceMid: string;
+  priceHigh: string;
   focus: string;
 }
 export interface ThemeSnapshot {
@@ -73,6 +76,9 @@ export function readThemeColors(element: Element = document.documentElement): Th
     chartLine: read('--chart-line'),
     chartGrid: read('--chart-grid'),
     chartMarker: read('--chart-marker'),
+    priceLow: read('--price-low'),
+    priceMid: read('--price-mid'),
+    priceHigh: read('--price-high'),
     focus: read('--focus'),
   };
 }

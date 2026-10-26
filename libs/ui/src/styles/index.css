@@ -1,3 +1,8 @@
 @import './tokens.css';
 @import './reset.css';
 @import './typography.css';
+
+[data-price-band='low'] { color: var(--price-low); }
+[data-price-band='mid'] { color: var(--price-mid); }
+[data-price-band='high'] { color: var(--price-high); }
+[data-price-band='unknown'] { color: var(--text-muted); }

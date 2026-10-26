@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { dateWindow, commitDate, matchesDateSnapshot, snapshotFresh, datePriceIdentityForSession, cellLabel, disabledCell } from './date-state';
+import { dateWindow, commitDate, matchesDateSnapshot, snapshotReusable, datePriceIdentityForSession, cellLabel, disabledCell } from './date-state';
 import { query, session } from '../search/search-test-data';
 import type { DatePriceCell, DatePriceQuery, DatePriceSnapshot } from '@torob-ticket/contracts';
 const request: DatePriceQuery = { query, leg: 'outbound', dates: ['2026-10-25','2026-10-26'], clientGeneration: 'g' };
@@ -32,9 +32,10 @@ describe('date intent and semantic response ownership', () => {
     const labels = cells.map(cell => cellLabel(cell)); expect(new Set(labels).size).toBe(6); expect(labels.every(label => !label.includes('۰ تومان'))).toBe(true);
     expect(disabledCell(cells[2])).toBe(true); expect(disabledCell(cells[3], 'return')).toBe(true); expect(disabledCell(cells[3], 'outbound')).toBe(false); expect(cellLabel(cells[3], 'outbound')).toContain('برگشت'); expect(disabledCell(cells[1])).toBe(false);
   });
-  it('does not extend already-old observations by sixty seconds on receipt or cache lookup', () => {
-    expect(snapshotFresh(snapshot, Date.parse(snapshot.observedAt) + 59999)).toBe(true);
-    expect(snapshotFresh(snapshot, Date.parse(snapshot.observedAt) + 60000)).toBe(false);
-    expect(snapshotFresh({ ...snapshot, cells: [{ date: query.departureDate, status: 'unavailable', reason: 'retrieval-failed', retryable: true, coverage: { complete: true, expectedProviderIds: ['p'], successfulProviderIds: [], failedProviderIds: ['p'], pendingProviderIds: [] } }] }, Date.parse(snapshot.observedAt) + 1)).toBe(false);
+  it('retains dated estimates without a clock-only cutoff but rejects future observations and retryable gaps', () => {
+    expect(snapshotReusable(snapshot, Date.parse(snapshot.observedAt) + 59999)).toBe(true);
+    expect(snapshotReusable(snapshot, Date.parse(snapshot.observedAt) + 3600000)).toBe(true);
+    expect(snapshotReusable(snapshot, Date.parse(snapshot.observedAt) - 1)).toBe(false);
+    expect(snapshotReusable({ ...snapshot, cells: [{ date: query.departureDate, status: 'unavailable', reason: 'retrieval-failed', retryable: true, coverage: { complete: true, expectedProviderIds: ['p'], successfulProviderIds: [], failedProviderIds: ['p'], pendingProviderIds: [] } }] }, Date.parse(snapshot.observedAt) + 1)).toBe(false);
   });
 });

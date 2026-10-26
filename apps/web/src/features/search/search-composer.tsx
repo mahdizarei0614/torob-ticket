@@ -39,7 +39,7 @@ export function SearchComposer({ draft, catalog, session, edit, onSubmit, errors
     </div>
     {dateExplorer}
     {Object.keys(draft.filters).length > 0 && <div className={styles.filterNote}>فیلترهای پیوند برای این جست‌وجو حفظ شده‌اند. <Button variant="quiet" onPress={() => edit({ filters: {} })}>پاک کردن فیلترها</Button></div>}
-    <div className={styles.submitRow}><Button type="submit" isDisabled={disabled || errors.length > 0} isLoading={pending}>جست‌وجوی سفر</Button><span className={styles.muted}>مقایسه قیمت و شرایط فروشندگان</span></div>
+    <div className={styles.submitRow}><Button type="submit" isDisabled={disabled || errors.length > 0} isLoading={pending}>جست‌وجوی سفر</Button></div>
     {errors.length > 0 && <p className={styles.help} role="status">{errors.join(' ')}</p>}
   </form>;
 }

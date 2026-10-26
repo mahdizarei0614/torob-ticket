@@ -50,10 +50,10 @@ it('converts sRGB tokens to linear working colors once, preserving alpha', () =>
 });
 
 it('updates every shared theme vector without replacing uniform references', () => {
-  const first = { background: '#808080', dot: '#808080', route: '#808080', routeMuted: '#808080', highlight: '#808080', chartLine: '#808080', chartGrid: '#808080', chartMarker: '#808080', focus: '#808080' };
+  const first = { background: '#808080', dot: '#808080', route: '#808080', routeMuted: '#808080', highlight: '#808080', chartLine: '#808080', chartGrid: '#808080', chartMarker: '#808080', priceLow: '#808080', priceMid: '#808080', priceHigh: '#808080', focus: '#808080' };
   const uniforms = createThemeUniforms(first);
   const vectors = Object.values(uniforms).map(uniform => uniform.value);
-  updateThemeUniforms(uniforms, { background: '#ff0000', dot: '#ff0000', route: '#ff0000', routeMuted: '#ff0000', highlight: '#ff0000', chartLine: '#ff0000', chartGrid: '#ff0000', chartMarker: '#ff0000', focus: '#ff0000' });
+  updateThemeUniforms(uniforms, { background: '#ff0000', dot: '#ff0000', route: '#ff0000', routeMuted: '#ff0000', highlight: '#ff0000', chartLine: '#ff0000', chartGrid: '#ff0000', chartMarker: '#ff0000', priceLow: '#ff0000', priceMid: '#ff0000', priceHigh: '#ff0000', focus: '#ff0000' });
   Object.values(uniforms).forEach((uniform, index) => { expect(uniform.value).toBe(vectors[index]); expect(uniform.value.toArray()).toEqual([1, 0, 0, 1]); });
 });
 it('permits actual context restoration and disconnects both lifecycle listeners', () => {

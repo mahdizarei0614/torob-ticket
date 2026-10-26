@@ -1,11 +1,12 @@
 import { createDateInteractions, type DateInteractions } from './date-interaction';
 import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
 import type { DatePriceCell } from '@torob-ticket/contracts';
+import { priceBand, type PriceRange } from '@torob-ticket/ui';
 import { cellLabel, dateLabel, disabledCell, settleMs, type DateLeg } from './date-state';
 import styles from './dates.module.css';
 const rowHeight = 44;
 /** Nearby wheel/trackpad intent settles once; outward motion at an edge chains to the page. */
-export function DateWheel({ dates, value, cells, onPreview, onCommit, onInteractionChange, leg = 'outbound', interaction: controlledInteraction, interactionKey = leg, missingLabel }: { dates: readonly string[]; value: string; cells: readonly DatePriceCell[]; onPreview: (date: string) => void; onCommit: (date: string) => void; onInteractionChange?: (active: boolean) => void; leg?: DateLeg; interaction?: DateInteractions; interactionKey?: string; missingLabel?: string }) {
+export function DateWheel({ dates, value, cells, range, onPreview, onCommit, onInteractionChange, leg = 'outbound', interaction: controlledInteraction, interactionKey = leg, missingLabel }: { dates: readonly string[]; value: string; cells: readonly DatePriceCell[]; range?: PriceRange; onPreview: (date: string) => void; onCommit: (date: string) => void; onInteractionChange?: (active: boolean) => void; leg?: DateLeg; interaction?: DateInteractions; interactionKey?: string; missingLabel?: string }) {
   const [ownedInteraction] = useState(createDateInteractions); const interaction = controlledInteraction ?? ownedInteraction;
   const authorization = useRef<{ token: number; key: string } | undefined>(undefined);
   const basis = useRef(interactionKey); basis.current = interactionKey;
@@ -57,7 +58,7 @@ export function DateWheel({ dates, value, cells, onPreview, onCommit, onInteract
       onPointerUp={() => { const drag = gesture.current; if (!drag) return; gesture.current = undefined; suppressClick.current = drag.moved; if (drag.moved) settle(current.current); else { authorization.current = undefined; callbacks.current.onInteractionChange?.(false); } }}
       onPointerCancel={cancel}>
       <div className={styles.wheelCenter} aria-hidden="true" />
-      <div className={styles.wheelRows} style={{ transform: `translateY(${(2 - index) * rowHeight}px)` }}>{dates.map((date, i) => <div id={`${id}-${i}`} role="option" aria-selected={date === preview} aria-disabled={disabledCell(cells.find(cell => cell.date === date), leg) || undefined} key={date} className={styles.wheelRow} onClick={() => { if (suppressClick.current) { suppressClick.current = false; return; } if (enabled(date)) settle(date); }}><span>{dateLabel(date)}</span><small>{cells.find(cell => cell.date === date) ? cellLabel(cells.find(cell => cell.date === date), leg) : missingLabel ?? cellLabel(undefined)}</small></div>)}</div>
+      <div className={styles.wheelRows} style={{ transform: `translateY(${(2 - index) * rowHeight}px)` }}>{dates.map((date, i) => { const cell = cells.find(cell => cell.date === date); return <div id={`${id}-${i}`} role="option" aria-selected={date === preview} aria-disabled={disabledCell(cells.find(cell => cell.date === date), leg) || undefined} key={date} className={styles.wheelRow} onClick={() => { if (suppressClick.current) { suppressClick.current = false; return; } if (enabled(date)) settle(date); }}><span>{dateLabel(date)}</span><small data-price-band={priceBand(cell?.status === 'priced' ? cell.minimum.amountRial : undefined, range)}>{cell ? cellLabel(cell, leg) : missingLabel ?? cellLabel(undefined)}</small></div>; })}</div>
     </div>
     <button type="button" className={styles.arrow} aria-label="روز بعد" disabled={!enabled(dates[index + 1])} onClick={() => step(1)}>⌄</button>
   </div>;

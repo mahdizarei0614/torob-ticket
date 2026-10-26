@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import { act } from '@testing-library/react';
 import { useReducer } from 'react';
 import { afterEach, expect, it, vi } from 'vitest';
@@ -8,6 +8,7 @@ import { useResults } from './use-results';
 import { createResultsState, resultsReducer, type ResultsAction, type ResultsState } from './results-reducer';
 import { group, observedAt, recovery } from './results-test-data';
 import { catalog, query } from '../search/search-test-data';
+import { priceCardId } from './price-cards';
 vi.mock('./use-results',()=>({useResults:vi.fn()}));
 afterEach(()=>{vi.restoreAllMocks();vi.unstubAllGlobals();});
 it('keeps edited-trip results readable but disables representative/provider choices and continuation',()=>{
@@ -18,7 +19,7 @@ it('keeps edited-trip results readable but disables representative/provider choi
  vi.mocked(useResults).mockReturnValue({state,dispatch,now:Date.now(),connectionError:false,connectionState:'settled',error:undefined,retryRead:vi.fn(),stored:value});
  render(<ResultsList isCurrent={()=>true} generation="generation" searchId="search" query={query} catalog={catalog} refinementDisabled draftChanged onRefine={()=>undefined} onEdit={()=>undefined} onSelectQuote={selected} onPinItinerary={pin} onPreviewItinerary={preview} selectedAction={{quoteId:item.eligibleQuotes[0]!.quoteId,node:<button>continue old flight</button>}}/>);
  expect(screen.getByRole('heading',{name:/مقایسه پروازها/})).toBeVisible();expect(screen.getByRole('button',{name:'انتخاب پیشنهاد'})).toBeDisabled();
- fireEvent.click(screen.getByRole('button',{name:/جزئیات و/}));expect(screen.getByRole('button',{name:'پیشنهاد انتخاب‌شده'})).toBeDisabled();
+ fireEvent.click(screen.getByRole('button',{name:'جزئیات سفر'}));expect(screen.queryByRole('button',{name:'پیشنهاد انتخاب‌شده'})).not.toBeInTheDocument();expect(screen.getByText('بار همراه: نامشخص')).toBeVisible();
  expect(screen.queryByRole('button',{name:'continue old flight'})).not.toBeInTheDocument();expect(screen.getByText(/ابتدا سفر ویرایش‌شده را جست‌وجو کنید/)).toBeVisible();
  fireEvent.mouseEnter(screen.getByRole('article'));expect(pin).not.toHaveBeenCalled();expect(preview).not.toHaveBeenCalled();expect(selected).not.toHaveBeenCalled();
 });
@@ -101,7 +102,7 @@ it('counts unique successful sellers in the title and keeps only compact pending
 });
 it('defaults to the cheapest quote under fastest sorting, pins its route, and leaves focus and scroll untouched',()=>{
  vi.spyOn(Date,'now').mockReturnValue(Date.parse(observedAt)+1000);const scroll=vi.fn();HTMLElement.prototype.scrollIntoView=scroll;
- const value=completed([group('fast',20000000),group('cheap',1000000)]);value.snapshot.query={...query,sort:'fastest'};
+ const value=completed([group('fast',20000000),group('cheap',1000000)]);value.snapshot.groups[0]!.durationMinutes=60;value.snapshot.query={...query,sort:'fastest'};
  const control=controlledResults(resultsReducer(createResultsState('generation','search'),{type:'receive',recovery:value}));const pin=vi.fn(),select=vi.fn(),handoff=vi.fn();
  render(<><input aria-label="search field" autoFocus/><ResultsList {...resultProps} query={value.snapshot.query} onPinItinerary={pin} onSelectQuote={select} selectedAction={{quoteId:'cheap-quote',node:<div data-referral-source="transport"><button onClick={handoff}>provider action</button></div>}}/></>);
  expect(control.state().selected?.quoteId).toBe('cheap-quote');expect(control.state().selectionSource).toBe('automatic');
@@ -156,4 +157,52 @@ it('does not retry an expired default in the same generation, but a new search m
  const view=render(<ResultsPage {...resultProps} onPinItinerary={pin}/>);expect(control.state().selected).toBeUndefined();
  now.mockReturnValue(Date.parse(observedAt)+1000);view.rerender(<ResultsPage {...resultProps} onPinItinerary={pin}/>);expect(control.state().selected).toBeUndefined();
  view.rerender(<ResultsPage {...resultProps} generation="next-generation" searchId="next-search" onPinItinerary={pin}/>);expect(control.state().selected?.quoteId).toBe('a-quote');expect(pin).toHaveBeenCalledOnce();
+});
+
+it('renders exact-price cards in global price order with only the selected price sellers and stable price colors',()=>{
+ vi.spyOn(Date,'now').mockReturnValue(Date.parse(observedAt)+1000);HTMLElement.prototype.scrollIntoView=vi.fn();
+ const a=group('a',1000000),b=group('b',1500000);const original=a.eligibleQuotes[0]!;
+ a.eligibleQuotes.push({...structuredClone(original),quoteId:'peer',providerId:'q'}, {...structuredClone(original),quoteId:'higher',total:{currency:'IRR',amountRial:2000000}});
+ const value=completed([a,b]);const control=controlledResults(resultsReducer(createResultsState('generation','search'),{type:'receive',recovery:value}));
+ const outbound=vi.fn();const renderProviderAction=vi.fn((quote:typeof original,source:typeof a)=><button type="button" role="link" data-referral-source="transport" onClick={()=>outbound(quote,source)}>{quote.providerId}</button>);
+ render(<ResultsList {...resultProps} renderProviderAction={renderProviderAction}/>);
+ const cards=screen.getAllByRole('article');expect(cards.map(card=>card.getAttribute('data-amount-rial'))).toEqual(['1000000','1500000','2000000']);
+ expect(cards.map(card=>card.querySelector('[data-price-band]')?.getAttribute('data-price-band'))).toEqual(['low','mid','high']);
+ expect(cards.filter(card=>card.hasAttribute('data-selected'))).toEqual([cards[0]]);
+ expect(within(cards[0]!).getAllByRole('link')).toHaveLength(2);expect(within(cards[2]!).queryByRole('link')).not.toBeInTheDocument();
+ expect([...cards[0]!.querySelectorAll<HTMLElement>('[data-seller-amount-rial]')].map(node=>node.dataset.sellerAmountRial)).toEqual(['1000000','1000000']);
+ fireEvent.click(within(cards[0]!).getByRole('link',{name:'q'}));expect(outbound).toHaveBeenLastCalledWith(a.eligibleQuotes[1],a);
+ fireEvent.click(within(cards[2]!).getByRole('button',{name:'انتخاب پیشنهاد'}));
+ expect(control.state().selected).toEqual({groupId:'a',quoteId:'higher',version:1});expect(cards[0]).not.toHaveAttribute('data-selected');expect(cards[2]).toHaveAttribute('data-selected','true');
+ expect(within(cards[0]!).queryByRole('link')).not.toBeInTheDocument();expect(within(cards[2]!).getAllByRole('link')).toHaveLength(1);expect(within(cards[2]!).getByRole('link')).toHaveFocus();
+ expect(cards[2]).toHaveAttribute('data-price-card-id',priceCardId('a',a.eligibleQuotes[2]));
+ expect(screen.queryByRole('button',{name:/جزئیات و.*پیشنهاد/})).not.toBeInTheDocument();
+});
+
+it('keeps same-price fare variants distinguishable and excludes revoked sellers from the selected row',()=>{
+ vi.spyOn(Date,'now').mockReturnValue(Date.parse(observedAt)+1000);
+ const a=group('variants',100),first=a.eligibleQuotes[0]!;
+ a.eligibleQuotes.push({...structuredClone(first),quoteId:'variant-two',fareId:'second-fare',conditions:{outbound:{...first.conditions.outbound,refundable:{status:'known',value:true}}}}, {...structuredClone(first),quoteId:'revoked',providerId:'r'});
+ let initial=resultsReducer(createResultsState('generation','search'),{type:'receive',recovery:completed([a])});
+ initial=resultsReducer(initial,{type:'select',selection:{groupId:'variants',quoteId:first.quoteId,version:1},now:Date.now()});
+ const latest=structuredClone(a);latest.eligibleQuotes=latest.eligibleQuotes.filter(quote=>quote.quoteId!=='revoked');initial=resultsReducer(initial,{type:'receive',recovery:completed([latest],2)});
+ controlledResults(initial);render(<ResultsList {...resultProps} renderProviderAction={quote=><a href={'#'+quote.quoteId}>{quote.quoteId}</a>}/>);
+ expect(screen.getAllByRole('link')).toHaveLength(2);expect(screen.queryByRole('link',{name:'revoked'})).not.toBeInTheDocument();
+ expect(screen.getByText('گزینه ۱')).toBeVisible();expect(screen.getByText('گزینه ۲')).toBeVisible();
+ fireEvent.click(screen.getByRole('button',{name:'جزئیات سفر'}));
+ const fares=document.querySelectorAll('[data-offer-quote-id]');expect(fares).toHaveLength(3);
+ expect(document.querySelector('[data-offer-quote-id="variant-two"]')).toHaveTextContent('قابل استرداد طبق شرایط فروشنده');
+ expect(document.querySelector('[data-offer-quote-id="revoked"]')).toHaveTextContent('این نسخه دیگر معتبر نیست');
+});
+
+it('suggestion focus targets its exact price card when the itinerary has a cheaper bucket',()=>{
+ vi.spyOn(Date,'now').mockReturnValue(Date.parse(observedAt)+1000);HTMLElement.prototype.scrollIntoView=vi.fn();
+ const baseline=group('baseline',10000000),alternative=group('alternative',10200000);baseline.durationMinutes=250;alternative.durationMinutes=100;
+ const higher={...structuredClone(alternative.eligibleQuotes[0]!),quoteId:'higher-target',total:{currency:'IRR' as const,amountRial:10500000}};alternative.eligibleQuotes.push(higher);
+ const value=completed([baseline,alternative]);value.snapshot.suggestion={kind:'faster-journey',alternativeId:higher.quoteId,baselineId:baseline.eligibleQuotes[0]!.quoteId,delta:{amountRial:500000,minutes:150,priceRatio:1.05},coverage:value.snapshot.coverage,dismissalScope:{searchId:'search'}};
+ controlledResults(resultsReducer(createResultsState('generation','search'),{type:'receive',recovery:value}));render(<ResultsList {...resultProps}/>);
+ fireEvent.click(screen.getByRole('button',{name:'نمایش مسیر پیشنهادی'}));
+ const target=screen.getAllByRole('article').find(card=>card.getAttribute('data-price-card-id')===priceCardId(alternative.groupId,higher))!;
+ expect(within(target).getByRole('button',{name:'انتخاب پیشنهاد'})).toHaveFocus();
+ expect(target).toHaveAttribute('data-quote-id','higher-target');
 });

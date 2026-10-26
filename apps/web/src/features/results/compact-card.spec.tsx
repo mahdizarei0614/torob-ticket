@@ -65,12 +65,13 @@ describe('compact card selection and facts', () => {
   render(<Harness onSelect={select} onContinue={continueToProvider}/>);
   await user.click(screen.getByRole('button', { name: 'فرودگاه امام خمینی' }));
   expect(select).not.toHaveBeenCalled();
-  const details = screen.getByRole('button', { name: 'جزئیات و ۱ پیشنهاد فروشندگان' });
+  const details = screen.getByRole('button', { name: 'جزئیات سفر' });
   await user.click(details);
   expect(details).toHaveAttribute('aria-expanded', 'true');
   expect(select).not.toHaveBeenCalled();
   const offer = screen.getByRole('region', { name: /پیشنهاد سفر/ });
-  await user.click(within(offer).getByRole('button', { name: 'انتخاب این پیشنهاد' }));
+  expect(within(offer).queryByRole('button')).not.toBeInTheDocument();
+  await user.click(screen.getByRole('button', { name: 'انتخاب پیشنهاد' }));
   expect(select).toHaveBeenCalledTimes(1);
   await user.click(screen.getByRole('button', { name: 'رفتن به فروشنده' }));
   expect(continueToProvider).toHaveBeenCalledTimes(1);
@@ -95,7 +96,7 @@ describe('compact card selection and facts', () => {
   expect(card).toHaveTextContent(`برگشت · ${localDay(returning.departureAt, returning.departureTimeZone)}`);
   expect(card).toHaveTextContent(localTime(returning.arrivalAt, returning.arrivalTimeZone));
   expect(card).toHaveTextContent(localDay(returning.arrivalAt, returning.arrivalTimeZone));
-  await userEvent.setup().click(screen.getByRole('button', { name: 'جزئیات و ۱ پیشنهاد فروشندگان' }));
+  await userEvent.setup().click(screen.getByRole('button', { name: 'جزئیات سفر' }));
   expect(within(screen.getByRole('region', { name: 'جزئیات مسیر رفت' })).getAllByText('Asia/Tehran', { selector: 'small' })).toHaveLength(2);
   expect(screen.getByRole('region', { name: 'جزئیات مسیر برگشت' })).toHaveTextContent(localDay(returning.arrivalAt, returning.arrivalTimeZone));
  });
@@ -105,7 +106,7 @@ describe('compact card selection and facts', () => {
   data.eligibleQuotes[0]!.conditions.outbound.materialTerms = ['تغییر نام مسافر مجاز نیست'];
   render(<Harness data={data}/>);
   expect(screen.queryByText('بار همراه: نامشخص')).not.toBeInTheDocument();
-  await userEvent.setup().click(screen.getByRole('button', { name: 'جزئیات و ۱ پیشنهاد فروشندگان' }));
+  await userEvent.setup().click(screen.getByRole('button', { name: 'جزئیات سفر' }));
   const offer = screen.getByRole('region', { name: /پیشنهاد سفر/ });
   expect(offer).toHaveTextContent('بار همراه: نامشخص');
   expect(offer).toHaveTextContent('جزئیات و جریمه لغو نامشخص است');

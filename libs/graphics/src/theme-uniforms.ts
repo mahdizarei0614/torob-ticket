@@ -39,7 +39,7 @@ export function updateThemeUniforms(uniforms: ThemeUniforms, colors: ThemeColors
 export function useThemeUniforms(onUpdate?: () => void) {
   const { themeBridge } = useTheme();
   const [uniforms] = useState<ThemeUniforms>(() => {
-    const empty = Object.fromEntries(['background', 'dot', 'route', 'routeMuted', 'highlight', 'chartLine', 'chartGrid', 'chartMarker', 'focus'].map(key => [key, { value: new Vector4() }])) as ThemeUniforms;
+    const empty = Object.fromEntries(['background', 'dot', 'route', 'routeMuted', 'highlight', 'chartLine', 'chartGrid', 'chartMarker', 'priceLow', 'priceMid', 'priceHigh', 'focus'].map(key => [key, { value: new Vector4() }])) as ThemeUniforms;
     const snapshot = themeBridge.getSnapshot();
     if (snapshot) updateThemeUniforms(empty, snapshot.colors);
     return empty;

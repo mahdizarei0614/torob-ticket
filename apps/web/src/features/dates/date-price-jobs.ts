@@ -1,9 +1,8 @@
 import { ClientError, type ApiClient } from '@torob-ticket/client';
 import type { DatePriceQuery, DatePriceSnapshot, SessionInfo } from '@torob-ticket/contracts';
 import { searchStartPool } from '../search/search-start-pool';
-import { datePriceIdentityForSession, matchesDateSnapshot, snapshotFresh, observationFresh } from './date-state';
-export interface DateJobState { snapshot?: DatePriceSnapshot; staleSnapshot?: DatePriceSnapshot; error?: unknown; waiting: boolean }
-export function staleDateState(snapshot: DatePriceSnapshot): DateJobState { return { staleSnapshot: snapshot, error: new ClientError('network','date-prices-stale'), waiting: false }; }
+import { datePriceIdentityForSession, matchesDateSnapshot, snapshotReusable, observationUsable } from './date-state';
+export interface DateJobState { snapshot?: DatePriceSnapshot; error?: unknown; waiting: boolean }
 interface Job { request: DatePriceQuery; state: DateJobState; listeners: Set<(state: DateJobState) => void>; abort: AbortController; cancelled: boolean; finished: boolean; done: Promise<void>; releaseTimer?: ReturnType<typeof setTimeout> }
 function pause(ms: number, signal: AbortSignal) { return new Promise<void>((resolve, reject) => { const timer = setTimeout(() => { signal.removeEventListener('abort', abort); resolve(); }, ms); function abort() { clearTimeout(timer); reject(new DOMException('Aborted','AbortError')); } signal.addEventListener('abort', abort, { once: true }); if (signal.aborted) abort(); }); }
 /** One semantic job per API-client lifetime. Its generation belongs to pricing, not result sorting. */
@@ -17,7 +16,7 @@ export class DatePriceJobs {
     for (const [oldKey, old] of this.jobs) { if (!old.listeners.size && old.finished && (old.cancelled || old.state.error || this.jobs.size > 24)) this.jobs.delete(oldKey); }
     const key = datePriceIdentityForSession(input, session);
     let job = this.jobs.get(key);
-    const reusable = job && !job.cancelled && !job.state.error && (!job.state.snapshot || job.state.snapshot.status === 'checking' || snapshotFresh(job.state.snapshot));
+    const reusable = job && !job.cancelled && !job.state.error && (!job.state.snapshot || job.state.snapshot.status === 'checking' || snapshotReusable(job.state.snapshot));
     if (!reusable || (retry && job?.state.snapshot?.status !== 'checking')) {
       const previous = job?.done;
       job = { request: { ...input, clientGeneration: crypto.randomUUID() }, state: { waiting: true }, listeners: new Set(), abort: new AbortController(), cancelled: false, finished: false, done: Promise.resolve() };
@@ -53,7 +52,7 @@ export class DatePriceJobs {
       let polls = 0;
       while (!inactive()) {
         terminal = snapshot.status !== 'checking';
-        if (snapshot.status === 'complete' && !observationFresh(snapshot)) { this.publish(job,staleDateState(snapshot)); return; }
+        if (snapshot.status === 'complete' && !observationUsable(snapshot)) throw new ClientError('schema','date-observation-invalid');
         snapshot = { ...snapshot, cells: [...snapshot.cells].sort((a,b) => a.date.localeCompare(b.date)) };
         this.publish(job, { snapshot, waiting: false });
         if (snapshot.status !== 'checking') return;

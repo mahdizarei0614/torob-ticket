@@ -6,6 +6,7 @@ export * from './components/dialog';
 export * from './components/tooltip';
 export * from './components/status';
 export * from './components/price';
+export * from './components/price-band';
 export * from './components/language';
 export * from './theme/theme-provider';
 export * from './components/price-chart-fallback';

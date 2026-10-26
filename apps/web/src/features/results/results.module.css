@@ -71,3 +71,9 @@
 @media(prefers-reduced-motion:reduce) { .detailChevron { transition: none; } }
 
 .providerIdentity {display:flex;align-items:center;gap:var(--space-2);min-width:0}.providerName {display:inline-flex;align-items:center;gap:var(--space-2)}
+
+/* Each selected fare total exposes only the sellers offering that exact amount. */
+.sellers { display:flex; flex-wrap:wrap; align-items:flex-start; gap:8px; padding:8px 12px; border-top:1px solid var(--border); background:var(--surface-subtle); }
+.sellerChoice { display:grid; justify-items:center; gap:3px; min-width:0; }
+.sellerChoice > small { font-size:10px; color:var(--text-muted); }
+.sellers :is(a,button) { min-width:56px; min-height:56px; }
