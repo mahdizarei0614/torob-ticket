@@ -4,6 +4,6 @@ export function retainComparisonHistory(key:string,search:string){retained={key,
 export function clearComparisonHistory(){retained=undefined;}
 export function skipProviderPop(pathname:string,search:string,key:unknown){
  if(pathname.startsWith('/provider-demo/')){if(retained)retained.provider=true;return true;}
- if(retained?.provider&&pathname==='/'&&retained.key===key&&retained.search===search){retained.provider=false;return true;}
+ if(retained?.provider&&pathname==='/'&&retained.key===(key===undefined?'default':key)&&retained.search===search){retained.provider=false;return true;}
  if(retained)retained.provider=false;return false;
 }

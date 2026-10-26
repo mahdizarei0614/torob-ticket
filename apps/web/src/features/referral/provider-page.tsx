@@ -6,8 +6,9 @@ import {ProviderReceiptView} from './provider-receipt-view';
 import {readReturnCheckpoint} from './return-checkpoint';
 import {hydrateReturn,type HydratedReturn} from './return-hydration';
 export function ProviderPage({referralId,retained,onReturn}:{referralId:string;retained:boolean;onReturn:(restored?:HydratedReturn)=>void}){
+ const [mount]=useState(()=>crypto.randomUUID());
  const [returning,setReturning]=useState(false),[notice,setNotice]=useState('');const heading=useRef<HTMLElement>(null),live=useRef(true);
- const data=useQuery({queryKey:['referral',referralId],queryFn:async({signal})=>{
+ const data=useQuery({queryKey:['referral',referralId,mount],queryFn:async({signal})=>{
   const receipt=await apiClient.getReferral(referralId,signal);const catalog=await apiClient.catalogReadonly(signal).catch(()=>undefined);const checkpoint=readReturnCheckpoint(referralId);
   const restored=checkpoint?await hydrateReturn(checkpoint,receipt,apiClient,signal).catch(()=>undefined):undefined;
   return {receipt,catalog,hotel:restored?.hotelMetadata};

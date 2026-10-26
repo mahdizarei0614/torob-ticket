@@ -21,3 +21,9 @@ The transport API exposes only its latest public snapshot. Consequently a frozen
 Normal hotel handoff checkpoints retain the source hotelSearchId and resolve the property name from its validated public GET. A cold direct hotel receipt without that source uses destination/stay wording and an explicit unknown property name. No property name is fabricated and no backend persistence is broadened for presentation.
 
 Provider pages show the exact immutable accepted payload and confirmation time as a historical referral. They offer a local Return action and no payment or booking controls. All entities and prices remain authored demo fiction. T22 ends at referral/handoff; no sale, booking, conversion or external provider interaction is inferred.
+
+## Self-audit corrections before packaged verification
+
+Native initial history can have no explicit key while BrowserRouter represents it as `default`. The exact provider-return guard normalizes only that undefined native key to the Router sentinel; distinct keyed comparison entries still restore normally. A permanent assertion RED reproduces the missed exact-entry match.
+
+An immutable receipt cache key alone cannot establish the current cookie namespace after same-document re-entry. Each provider-page mount now has a unique read query, so it GET-validates the requested receipt before display even when an older mount left that ID in the Query cache. A permanent actual-component RED prepopulates the old cache and changes the current server read to404; it must show the scoped error and send no session bootstrap or mutation.
