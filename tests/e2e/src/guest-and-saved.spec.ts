@@ -7,7 +7,7 @@ test.use({trace:'off'});
 const evidence=process.env.T19_EVIDENCE_DIR;
 const query:TransportSearchQuery={mode:'flight',scope:'domestic',tripType:'one-way',originCityId:'tehran',destinationCityId:'mashhad',departureDate:'2026-10-25',party:{adults:1,children:0,infants:0},classCode:'economy',filters:{},sort:'cheapest'};
 const account=(page:Page)=>page.getByRole('dialog',{name:'حساب کاربری و جست‌وجوهای ذخیره‌شده',exact:true});
-const map=(page:Page)=>page.getByRole('complementary',{name:'نقشه تعاملی سفر',exact:true});
+const map=(page:Page)=>page.getByRole('complementary',{name:'نقشه سفر',exact:true});
 function record(name:string,value:unknown){if(evidence){mkdirSync(evidence,{recursive:true});writeFileSync(resolve(evidence,name+'.json'),JSON.stringify(value,null,2)+'\n');}}
 async function capture(page:Page,name:string){if(evidence){await page.evaluate(()=>document.fonts.ready);await page.screenshot({path:resolve(evidence,name+'.png')});}}
 async function setup(page:Page){const response=await page.request.post('/api/v1/demo/session',{data:{seed:1919,anchorInstant:'2026-10-25T06:00:00Z',scenario:'normal'}});expect(response.status()).toBe(201);const metadata=await response.json();await page.goto('/?'+new URLSearchParams({q:JSON.stringify(query)}));await expect(page.getByRole('button',{name:'جست‌وجوی سفر',exact:true})).toBeEnabled();return metadata;}
