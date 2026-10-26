@@ -14,7 +14,7 @@ and serves the consumer at <http://localhost:4300/> and admin at
 <http://localhost:4300/admin/>. No `.env` copy, local database, manual migration,
 seed, login, or local compilation is required. The runner needs Node 24.17.0
 and pnpm 11.9.0. First build downloads images, Debian packages and dependencies;
-subsequent runtime has no external service requirement.
+the comparison/referral runtime then uses local inventory, fonts, artwork and geography. The on-demand hotel street-map picker is the explicit exception: it requests public OpenStreetMap vector styles/tiles/glyphs/sprites when opened. No account/key is required; if those requests fail, the local landmark list and coordinate selection remain usable. Essential comparison and referral do not require that map service.
 
 Without local Node/pnpm, the equivalent is:
 
@@ -74,34 +74,52 @@ Caddy serves independent `/` and `/admin/` SPA fallbacks and consumer
 `/provider-demo/*` routes; API paths always proxy to Nest and retain JSON errors.
 Hashed Vite assets are immutable for a year. HTML, theme bootstrap and currently
 unhashed local fonts require revalidation. Missing font/script assets return
-404. API proxy flushing is immediate (`flush_interval -1`) for future SSE.
+404. API proxy flushing is immediate (`flush_interval -1`) for actual search SSE. Local geography, license and provenance paths are served as files; missing files return404 instead of an HTML application shell.
 
-## Current foundation scope and verification
+## Current product and packaging verification
 
-The seed preserves `foundation-v1` and adds immutable `showcase-v1` / `catalog-v1`
-inventory: 22 cities, 104 directed connections, 308 hotels and 924 relative room
-templates. New sessions receive this catalog through guarded `GET /api/v1/catalog`;
-legacy sessions remain on their empty foundation catalog until reset. Geographic
-assets are bundled locally with provenance. The consumer/admin still expose their
-approved foundation UI; transport searches, SSE first-event/replay behavior (T09),
-map rendering, art and later product routes remain pending integration. Gateway streaming configuration
-is present; foundation 404 checks are not evidence of a working search stream.
-Full T29 stays active; repeat complete demo acceptance in T33.
+The seeded catalog preserves `foundation-v1` and immutable `showcase-v1` /
+`catalog-v1` inventory:22 cities,104 directed mode/scope connections,308 hotels,
+90 places and924 relative room templates. Search, date-price exploration,
+provider comparison, hotel discovery, referral handoff and session-isolated
+admin evidence are implemented. Normal, delayed, failed, changed-price, sold-out,
+conflicting-source and empty profiles are available through admin controls;
+traveler UI remains ordinary product copy. Sessions preserve completed evidence
+across container recreation. Previously collecting searches become interrupted
+on API restart and expose explicit retry; they do not pretend in-memory work resumed.
 
-Behavior tests: `pnpm test:docker-runner`. To verify an owned disposable stack:
+The build packages all app-owned fonts, geography, shader code and authored flat
+art. The lazy MapLibre SDK/worker/CSS are bundled; the optional street-map content
+comes from `vector.openstreetmap.org`. There is no tile proxy, background download,
+external OAuth/provider connection or runtime model dependency. A blocked map
+service produces an explicit unavailable state alongside local location controls.
+
+Behavior tests: `pnpm test:docker-runner`. Maintainers can run the actual HTTP
+packaging verifier only against an explicitly owned disposable T29 stack. The
+included override labels all four containers and its named volume:
 
 ```sh
-COMPOSE_PROJECT_NAME=torobticket-t29-review TOROBTICKET_PORT=4399 pnpm docker:up
-COMPOSE_PROJECT_NAME=torobticket-t29-review TOROBTICKET_PORT=4399 node tools/verify-docker-foundation.mjs
-COMPOSE_PROJECT_NAME=torobticket-t29-review pnpm docker:reset
+export COMPOSE_PROJECT_NAME=torobticket-t29-m7
+export TOROBTICKET_PORT=4329
+export TOROBTICKET_VERIFY_OWNER=t29-m7
+export COMPOSE_FILE=compose.yaml:docs/evidence/T29/m7-completion/compose-owned.yaml
+pnpm docker:up
+node tools/verify-docker-foundation.mjs
 ```
 
-The verification checks HTTP routing/cache/local asset bytes, real live/ready
-responses, JSON errors and current-session persistence after complete container
-recreation. It accepts only explicitly named `torobticket-t29-*` projects.
+The retained verifier filename is historical; it checks the current product:
+independent SPA/deep routes, real API status codes, cached hashed scripts,
+revalidated exact local assets, actual ordered SSE data/terminal replay, full
+search evidence and session-row persistence through container recreation, and
+all three completed migrations. It refuses unowned/default targets before Docker
+operations. It never prints opaque credentials. Full browser, offline-runtime,
+reset and restart rehearsal is recorded separately in T33.
 
-T05 catalog database checks use an explicit owned disposable database ending in
-`_test`. After `pnpm nx run api:test-integration`, run
-`node tools/verify-fixture-seed.mjs` with the same `TEST_DATABASE_URL` to execute
-the real seed twice and verify unchanged immutable payload hashes and counts.
-These checks do not prove the complete demo or deployment.
+After inspection, remove only that disposable project/volume with the same shell
+overrides via `pnpm docker:reset`; never reuse this command against a project
+whose data you intend to preserve. Unset the four variables when returning to
+the default4300 project.
+
+Real database integration checks require an explicit owned disposable database
+ending in `_test`; see `tools/setup-test-database.mjs` and its ownership guards.
+Never point integration tests at the normal reviewer database.

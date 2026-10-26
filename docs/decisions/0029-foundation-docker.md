@@ -18,3 +18,12 @@ No rich catalog or search endpoint is introduced by packaging. T05 inventory,
 T09 SSE delivery/replay, future geography/art integration and full T33 clean-start
 acceptance remain pending. Parent T29 remains ACTIVE. Native foundation runtime
 verification covers arm64 only; amd64 is a documented supported-index build path.
+
+
+## M7 completion ruling — 2026-10-26
+
+T29 finishes gateway/assets acceptance against the current M6 product rather than treating foundation404 checks as stream evidence. Geography/license/provenance paths receive explicit file handling, including404 for missing files, with revalidation; only content-hashed build assets receive immutable caching. Consumer/admin SPA fallbacks remain independent, while API errors preserve their real401/404 JSON semantics and search SSE flushes actual ordered frames.
+
+The retained `verify-docker-foundation.mjs` maintainer command now rejects default/unowned projects before Docker operations, requires matching owner labels on all containers/volume, verifies current rich inventory/three migrations, holds the opaque cookie only in memory, consumes a real collecting stream to terminal, and recreates the owned stack without deleting its volume. It proves unchanged completed search/session evidence after the actual startup runner executes again; valid session resume correctly does not echo its captured credential. Default reviewer data is never reset by acceptance.
+
+Runtime independence includes all app-owned assets and comparison/referral APIs. The owner-approved hotel street-map exception remains explicit: MapLibre code is local and lazy, public OSM vector content is fetched only on demand, and local list/coordinate selection survives network failure. No offline tile copy/prefetch or provider fallback is introduced. Full clean-checkout, blocked-network, reset/restart rehearsal remains T33.
