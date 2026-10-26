@@ -184,15 +184,22 @@ export class HotelRepository {
             throw new RepositoryError('NOT_FOUND');
         return run;
     }
-    async fail(scope: DataScope, id: string, reason: string, now: Date) {
-        return scopedTransaction(this.db, scope, async (tx) => {
+    private async failInTransaction(tx: Prisma.TransactionClient, scope: DataScope, id: string, reason: string, now: Date) {
             const row = await tx.hotelSearchRun.findUnique({ where: { sessionId_id: { sessionId: scope.sessionId, id } } }), run = row?.payload as unknown as HotelRun;
             if (!row || run.phase !== 'running')
                 return;
             const snapshot = run.kind === 'hotel-search' ? HotelSearchSnapshotSchema.parse({ hotelSearchId: id, query: run.query, status: 'failed', hotels: [], quotes: [], results: [], observedAt: run.startedAt }) : undefined;
             await tx.hotelSearchRun.update({ where: { sessionId_id: { sessionId: scope.sessionId, id } }, data: { payload: json({ ...run, phase: 'failed', failure: reason, ...(snapshot ? { snapshot } : {}) }) } });
             await this.audit(tx, scope, 'hotel-work-failed', { hotelSearchId: id, reason }, now);
-        });
+    }
+    async fail(scope: DataScope, id: string, reason: string, now: Date) {
+        return scopedTransaction(this.db, scope, tx => this.failInTransaction(tx, scope, id, reason, now));
+    }
+    /** Only unfinished work changes; prior completed snapshots and quotes are retained. */
+    async invalidateInTransaction(tx: Prisma.TransactionClient, scope: DataScope, now: Date, reason: string) {
+        const rows = await tx.hotelSearchRun.findMany({ where: { sessionId: scope.sessionId, payload: { path: ['phase'], equals: 'running' } } });
+        for (const row of rows) await this.failInTransaction(tx, scope, row.id, reason, now);
+        return rows.map(row => row.id);
     }
     async interruptUnfinished(now: Date) {
         const rows = await this.db.hotelSearchRun.findMany({ where: { payload: { path: ['phase'], equals: 'running' } }, select: { sessionId: true, id: true } });

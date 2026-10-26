@@ -125,13 +125,19 @@ export class SearchRepository {
     const run = await tx.searchRun.findUnique({ where: { sessionId_id: { sessionId: scope.sessionId, id } } });
     if ((run?.snapshot as Prisma.JsonObject | undefined)?.['kind'] === 'referral-recheck') throw new RepositoryError('NOT_FOUND');
   }
-  private async terminate(tx: Prisma.TransactionClient, scope: DataScope, id: string, status: 'cancelled' | 'interrupted', now: Date) {
+  /** Caller holds the session lock; existing events and completed evidence stay immutable. */
+  async invalidateInTransaction(tx: Prisma.TransactionClient, scope: DataScope, now: Date, reason: string) {
+    const runs = await tx.searchRun.findMany({ where: { sessionId: scope.sessionId, status: 'collecting' } });
+    for (const run of runs) await this.terminate(tx, scope, run.id, 'cancelled', now, reason);
+    return runs.map(run => run.id);
+  }
+  private async terminate(tx: Prisma.TransactionClient, scope: DataScope, id: string, status: 'cancelled' | 'interrupted', now: Date, reason: string = status) {
     const run = await tx.searchRun.findUnique({ where: { sessionId_id: { sessionId: scope.sessionId, id } } });
     if (!run) throw new RepositoryError('NOT_FOUND');
     if (run.status !== 'collecting') return;
     const parsed = SearchSnapshotSchema.safeParse(run.snapshot);
     // Old repository-only evidence can predate the public projection contract.
-    const snapshot = parsed.success ? { ...parsed.data, status, providerStatuses: parsed.data.providerStatuses.map(row => row.status === 'pending' || row.status === 'running' ? { ...row, status: 'cancelled' as const, reason: status } : row), observedAt: now.toISOString() } : { ...(run.snapshot as Prisma.JsonObject), status };
+    const snapshot = parsed.success ? { ...parsed.data, status, providerStatuses: parsed.data.providerStatuses.map(row => row.status === 'pending' || row.status === 'running' ? { ...row, status: 'cancelled' as const, reason } : row), observedAt: now.toISOString() } : { ...(run.snapshot as Prisma.JsonObject), status };
     if (parsed.success && 'providerStatuses' in snapshot) {
       const value = snapshot as SearchSnapshot;
       value.coverage = { ...value.coverage, pendingProviderIds: [], failedProviderIds: value.providerStatuses.filter(row => row.status !== 'complete').map(row => row.providerId), complete: true };
@@ -149,10 +155,10 @@ export class SearchRepository {
     const unfinishedProviders = await tx.providerRun.findMany({ where: { sessionId: scope.sessionId, searchId: id, status: { in: ['pending', 'running', 'collecting'] } } });
     for (const provider of unfinishedProviders) {
       await tx.providerRun.update({ where: { sessionId_id: { sessionId: scope.sessionId, id: provider.id } }, data: {
-        status: 'cancelled', payload: json({ ...(provider.payload as Prisma.JsonObject), status: 'cancelled', reason: status }),
+        status: 'cancelled', payload: json({ ...(provider.payload as Prisma.JsonObject), status: 'cancelled', reason }),
       } });
     }
-    await tx.auditEvent.create({ data: { sessionId: scope.sessionId, id: randomUUID(), kind: 'search-terminated', payload: json({ searchId: id, status, snapshot, priorProjectionRetained: true }), createdAt: now } });
+    await tx.auditEvent.create({ data: { sessionId: scope.sessionId, id: randomUUID(), kind: 'search-terminated', payload: json({ searchId: id, status, reason, snapshot, priorProjectionRetained: true }), createdAt: now } });
     await tx.searchRun.update({ where: { sessionId_id: { sessionId: scope.sessionId, id } }, data: { status, snapshot: json(snapshot), updatedAt: now } });
   }
   cancel(scope: DataScope, id: string, now: Date) {

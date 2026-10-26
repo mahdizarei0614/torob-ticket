@@ -82,6 +82,16 @@ export class DatePriceRepository {
       return payload;
     });
   }
+  /** Called under the same session lock as a configuration revision. */
+  async invalidateInTransaction(tx: Prisma.TransactionClient, scope: DataScope, now: Date) {
+    const rows = await tx.datePriceRun.findMany({ where: { sessionId: scope.sessionId } });
+    const ids: string[] = [];
+    for (const row of rows) {
+      const payload = row.payload as unknown as DatePricePayload;
+      if (payload.kind === 'date-price-evidence' && payload.snapshot.status === 'checking') { await this.interrupt(tx, scope, row.id, payload, now); ids.push(row.id); }
+    }
+    return ids;
+  }
   private async interrupt(tx: Prisma.TransactionClient, scope: DataScope, id: string, payload: DatePricePayload, now: Date) {
     payload.sequence++;
     payload.snapshot = DatePriceSnapshotSchema.parse({ ...payload.snapshot, status: 'interrupted', pollCursor: String(payload.sequence), observedAt: now.toISOString(), cells: payload.snapshot.cells.map(cell => {

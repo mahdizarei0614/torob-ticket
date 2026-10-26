@@ -1,0 +1,11 @@
+import {z} from 'zod';
+import {IdSchema} from './common';
+import {DemoScenarioSchema,ProviderOverridePatchSchema,SessionInfoSchema} from './admin';
+export const AdminControlConfigSchema=z.strictObject({session:SessionInfoSchema,revision:IdSchema,providers:z.array(z.strictObject({providerId:IdSchema,override:ProviderOverridePatchSchema.nullable()}))}).superRefine((config,ctx)=>{if(config.revision!==config.session.scenarioRevision)ctx.addIssue({code:'custom',path:['revision'],message:'configuration-revision-mismatch'});if(new Set(config.providers.map(p=>p.providerId)).size!==config.providers.length)ctx.addIssue({code:'custom',path:['providers'],message:'duplicate-provider-id'});});
+export type AdminControlConfig=z.infer<typeof AdminControlConfigSchema>;
+export const AdminSetScenarioInputSchema=z.strictObject({baseRevision:IdSchema,scenario:DemoScenarioSchema});
+export type AdminSetScenarioInput=z.infer<typeof AdminSetScenarioInputSchema>;
+export const AdminSetProviderOverrideInputSchema=z.strictObject({baseRevision:IdSchema,patch:ProviderOverridePatchSchema.nullable()});
+export type AdminSetProviderOverrideInput=z.infer<typeof AdminSetProviderOverrideInputSchema>;
+export const AdminResetInputSchema=z.strictObject({});
+export type AdminResetInput=z.infer<typeof AdminResetInputSchema>;

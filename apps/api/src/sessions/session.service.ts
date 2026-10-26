@@ -1,7 +1,7 @@
 import { HttpException, Injectable, Inject, type OnApplicationBootstrap, type OnModuleDestroy } from '@nestjs/common';
 import { createHash, randomBytes, randomUUID } from 'node:crypto';
 import type { ApiErrorCode, CreateDemoSessionInput } from '@torob-ticket/contracts';
-import { createPrisma, checkDatabaseReady, RepositoryError, SearchRepository, SessionRepository, sessionInfo, type PrismaClient, type SessionRecord } from '@torob-ticket/data-access';
+import { createPrisma, checkDatabaseReady, RepositoryError, SearchRepository, SessionRepository, sessionInfo, type PrismaClient, type SessionResetOptions, type SessionRecord } from '@torob-ticket/data-access';
 import { fixtureIdentity } from '@torob-ticket/fixtures';
 import { FrozenDemoClock, SystemRealClock } from '../common/clocks';
 import type { CookieResponse, SessionContext, SessionRequest } from './session-context';
@@ -72,6 +72,10 @@ export class SessionService implements OnApplicationBootstrap, OnModuleDestroy {
     set.add(controller); this.controllers.set(context.sessionId, set);
     return () => { if (done) this.pendingWork.delete(done); set.delete(controller); if (!set.size) this.controllers.delete(context.sessionId); };
   }
+  /** A committed scoped configuration revision fences currently registered work. */
+  cancelCurrentWork(context: SessionContext, reason = 'configuration-changed') {
+    this.cancelSession(context.sessionId, reason);
+  }
   private cancelSession(id: string, reason?: string) {
     for (const controller of this.controllers.get(id) ?? []) controller.abort(reason);
     this.controllers.delete(id);
@@ -120,11 +124,11 @@ export class SessionService implements OnApplicationBootstrap, OnModuleDestroy {
     this.cookie(response, token, !!request.secure);
     return sessionInfo(row);
   }
-  async reset(context: SessionContext, input: CreateDemoSessionInput, request: SessionRequest, response: CookieResponse) {
+  async reset(context: SessionContext, input: CreateDemoSessionInput, request: SessionRequest, response: CookieResponse, options?:SessionResetOptions) {
     const token = randomBytes(32).toString('base64url');
     try {
       // A new internal ID fences stale async work from the replacement sandbox.
-      const row = await this.repository.reset(context.scope, this.hash(token), { seed: input.seed ?? context.info.seed, anchorInstant: input.anchorInstant ?? context.info.anchorInstant, scenario: input.scenario ?? context.info.scenario }, this.realClock.now());
+      const row = await this.repository.reset(context.scope, this.hash(token), { seed: input.seed ?? context.info.seed, anchorInstant: input.anchorInstant ?? context.info.anchorInstant, scenario: input.scenario ?? context.info.scenario }, this.realClock.now(), options);
       this.cancelSession(context.sessionId);
       this.cookie(response, token, !!request.secure);
       return sessionInfo(row);

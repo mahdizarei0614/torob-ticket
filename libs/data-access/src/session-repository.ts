@@ -3,6 +3,7 @@ import { DemoIdentitySchema, type CreateDemoSessionInput, type SessionInfo } fro
 import type { Prisma, PrismaClient } from './generated/client';
 import { FOUNDATION_IDENTITY, type FixtureIdentity } from './prisma';
 import { RepositoryError, scopedTransaction, type DataScope } from './scope';
+export interface SessionResetOptions {scenarioRevision?:string;auditReason?:string}
 export const SESSION_INACTIVITY_MS = 24 * 60 * 60 * 1000;
 const sessionInclude = { fixture: true, identity: true } as const;
 export type SessionRecord = Prisma.DemoSessionGetPayload<{ include: typeof sessionInclude }>;
@@ -11,10 +12,10 @@ export function sessionInfo(row: SessionRecord): SessionInfo {
 }
 export class SessionRepository {
   constructor(private readonly db: PrismaClient, private readonly fixture:FixtureIdentity=FOUNDATION_IDENTITY) {}
-  private async insert(tx: Prisma.TransactionClient, credentialHash: string, input: CreateDemoSessionInput, now: Date) {
+  private async insert(tx: Prisma.TransactionClient, credentialHash: string, input: CreateDemoSessionInput, now: Date, scenarioRevision = 'scenario-v1') {
     const id = randomUUID();
     const mappingRevision = 'mapping-v1';
-    return tx.demoSession.create({ data: { id, credentialHash, seed: BigInt(input.seed ?? 20261024), anchorInstant: new Date(input.anchorInstant ?? now.toISOString()), scenario: input.scenario ?? 'normal', scenarioRevision: 'scenario-v1', fixtureVersion: this.fixture.fixtureVersion, mappingRevision, createdAt: now, lastSeenAt: now, expiresAt: new Date(now.getTime() + SESSION_INACTIVITY_MS), mappings: { create: { id: mappingRevision, patch: {}, createdAt: now } } }, include: sessionInclude });
+    return tx.demoSession.create({ data: { id, credentialHash, seed: BigInt(input.seed ?? 20261024), anchorInstant: new Date(input.anchorInstant ?? now.toISOString()), scenario: input.scenario ?? 'normal', scenarioRevision, fixtureVersion: this.fixture.fixtureVersion, mappingRevision, createdAt: now, lastSeenAt: now, expiresAt: new Date(now.getTime() + SESSION_INACTIVITY_MS), mappings: { create: { id: mappingRevision, patch: {}, createdAt: now } } }, include: sessionInclude });
   }
   create(credentialHash: string, input: CreateDemoSessionInput, now: Date) {
     return this.db.$transaction(tx => this.insert(tx, credentialHash, input, now));
@@ -27,10 +28,13 @@ export class SessionRepository {
       return tx.demoSession.findUniqueOrThrow({ where: { credentialHash }, include: sessionInclude });
     });
   }
-  reset(scope: DataScope, credentialHash: string, input: CreateDemoSessionInput, now: Date) {
+  reset(scope: DataScope, credentialHash: string, input: CreateDemoSessionInput, now: Date, options?:SessionResetOptions) {
     return scopedTransaction(this.db, scope, async tx => {
+      const previous = options?.auditReason ? await tx.demoSession.findUniqueOrThrow({where:{id:scope.sessionId}}) : undefined;
       await tx.demoSession.delete({ where: { id: scope.sessionId } });
-      return this.insert(tx, credentialHash, input, now);
+      const row = await this.insert(tx, credentialHash, input, now, options?.scenarioRevision);
+      if(options?.auditReason) await tx.auditEvent.create({data:{sessionId:row.id,id:randomUUID(),kind:'admin-session-reset',payload:{reason:options.auditReason,previousRevision:previous!.scenarioRevision,revision:row.scenarioRevision},createdAt:now}});
+      return row;
     });
   }
   async cleanup(now: Date): Promise<string[]> {
