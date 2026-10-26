@@ -1,0 +1,40 @@
+import { randomUUID } from 'node:crypto';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { MappingImpactPreviewSchema, MappingWorkspaceSchema, type MappingPatch, type TransportSearchQuery } from '@torob-ticket/contracts';
+import { AdminMappingRepository, SearchRepository, SessionRepository, sessionInfo } from '@torob-ticket/data-access';
+import { fixtureIdentity } from '@torob-ticket/fixtures';
+import { requireTestDatabaseUrl } from '../../test/test-database.cjs';
+import { FrozenDemoClock, SystemRealClock } from '../common/clocks';
+import { SessionService } from '../sessions/session.service';
+import type { SessionContext } from '../sessions/session-context';
+import { ProviderService } from '../providers/provider.service';
+import { SearchService } from '../searches/search.service';
+import { SearchInspectionService } from './search-inspection.service';
+import { MappingService, evaluateMapping } from './mapping.service';
+const query:TransportSearchQuery={mode:'flight',scope:'domestic',tripType:'one-way',originCityId:'tehran',destinationCityId:'mashhad',departureDate:'2026-10-25',party:{adults:1,children:0,infants:0},classCode:'economy',filters:{providerIds:['demo-provider-04']},sort:'cheapest'};
+describe('mapping preview/apply and explicit replay on PostgreSQL',()=>{
+ let sessions:SessionService;let searches:SearchService;let mappings:MappingService;let replay:SearchInspectionService;
+ const owned:SessionContext[]=[];
+ async function context() {const row=await new SessionRepository(sessions.database,fixtureIdentity).create(randomUUID(),{seed:5,anchorInstant:'2026-10-24T00:00:00Z',scenario:'conflicting-data'},new Date());const c={sessionId:row.id,scope:{sessionId:row.id},info:sessionInfo(row),demoClock:new FrozenDemoClock(row.anchorInstant.toISOString())};owned.push(c);return c;}
+ async function terminal(c:SessionContext,id:string) {let r=await searches.getSearch(c,id);await expect.poll(async()=>{r=await searches.getSearch(c,id);return r.snapshot.status;},{timeout:10000,interval:20}).not.toBe('collecting');return r;}
+ beforeAll(async()=>{process.env.DATABASE_URL=requireTestDatabaseUrl(process.env.TEST_DATABASE_URL);sessions=new SessionService(new SystemRealClock());await sessions.ensureReady();searches=new SearchService(sessions,new ProviderService(()=>new SearchRepository(sessions.database),sessions.realClock));mappings=new MappingService(sessions);replay=new SearchInspectionService(sessions,searches);});
+ afterAll(async()=>{await searches?.onModuleDestroy();if(sessions){await sessions.database.demoSession.deleteMany({where:{id:{in:owned.map(c=>c.sessionId)}}});await sessions.onModuleDestroy();}});
+ it('previews actual rejected fixture, rejects collisions and foreign scope, applies exactly once, then explicitly replays without rewriting old evidence',async()=>{
+  const a=await context(),b=await context();const initial=await searches.startSearch(a,{query,clientGeneration:'mapping-original'});await terminal(a,initial.snapshot.searchId);
+  const listing=await mappings.list(a,{offset:0,limit:1,outcome:'rejected'});expect(MappingWorkspaceSchema.safeParse(listing).success).toBe(true);expect(listing.records).toHaveLength(1);expect(listing.totalRecords).toBe(1);expect((listing.records[0]!.raw.payload as {cityAliases:string[]}).cityAliases[0]).toBe('تهران مرکزی');
+  const historic=JSON.stringify({raw:await sessions.database.rawRecord.findMany({where:{sessionId:a.sessionId},orderBy:{id:'asc'}}),traces:await sessions.database.normalizationDecision.findMany({where:{sessionId:a.sessionId},orderBy:{id:'asc'}}),quotes:await sessions.database.quote.findMany({where:{sessionId:a.sessionId},orderBy:{id:'asc'}})});
+  const patch:MappingPatch={entityType:'city',sourceNamespace:'demo-provider-04/v1',sourceValue:'تهران مرکزی',targetId:'tehran',baseRevision:listing.mappingRevision};
+  const invalid=await mappings.preview(a,{...patch,sourceValue:'تهران',targetId:'mashhad'});expect(invalid.valid).toBe(false);await expect(mappings.apply(a,{previewId:invalid.previewId,patch:invalid.patch})).rejects.toMatchObject({code:'INVALID_QUERY'});
+  const preview=await mappings.preview(a,patch);expect(MappingImpactPreviewSchema.safeParse(preview).success).toBe(true);expect(preview.impacts[0]).toMatchObject({before:{outcome:'rejected'},after:{outcome:'accepted'}});expect(preview.groupingChanges[0]!.afterGroupIds.length).toBeGreaterThan(preview.groupingChanges[0]!.beforeGroupIds.length);
+  await expect(mappings.apply(b,{previewId:preview.previewId,patch})).rejects.toMatchObject({code:'NOT_FOUND'});
+  await expect(mappings.apply(a,{previewId:preview.previewId,patch:{...patch,targetId:'mashhad'}})).rejects.toMatchObject({code:'INVALID_QUERY'});
+  const second=await mappings.preview(a,patch);const results=await Promise.allSettled([mappings.apply(a,{previewId:preview.previewId,patch}),mappings.apply(a,{previewId:second.previewId,patch})]);expect(results.filter(r=>r.status==='fulfilled')).toHaveLength(1);expect(results.find(r=>r.status==='rejected')).toMatchObject({reason:{code:'MAPPING_COLLISION'}});
+  expect(await sessions.database.auditEvent.count({where:{sessionId:a.sessionId,kind:'mapping-applied'}})).toBe(1);
+  const afterApply=JSON.stringify({raw:await sessions.database.rawRecord.findMany({where:{sessionId:a.sessionId},orderBy:{id:'asc'}}),traces:await sessions.database.normalizationDecision.findMany({where:{sessionId:a.sessionId},orderBy:{id:'asc'}}),quotes:await sessions.database.quote.findMany({where:{sessionId:a.sessionId},orderBy:{id:'asc'}})});expect(afterApply).toBe(historic);
+  const next=await replay.replay(a,initial.snapshot.searchId,{clientGeneration:'mapping-replay'});const completed=await terminal(a,next.snapshot.searchId);expect(completed.snapshot.predecessorSearchId).toBe(initial.snapshot.searchId);
+  const current=await mappings.list(a,{offset:0,limit:100});const corrected=current.records.filter(r=>r.searchId===next.snapshot.searchId);expect(corrected).toHaveLength(3);expect(corrected.every(r=>r.trace.outcome==='accepted')).toBe(true);expect(current.records.find(r=>r.raw.rawRecordId===listing.records[0]!.raw.rawRecordId)?.trace).toEqual(listing.records[0]!.trace);
+  const historicRun=await sessions.database.searchRun.findUniqueOrThrow({where:{sessionId_id:{sessionId:a.sessionId,id:initial.snapshot.searchId}}});expect(historicRun.mappingRevision).toBe(patch.baseRevision);expect((await sessions.database.searchRun.findUniqueOrThrow({where:{sessionId_id:{sessionId:a.sessionId,id:next.snapshot.searchId}}})).mappingRevision).not.toBe(patch.baseRevision);
+  const historicQuoteIds=JSON.parse(historic).quotes.map((q:{id:string})=>q.id);expect(JSON.stringify(await sessions.database.quote.findMany({where:{sessionId:a.sessionId,id:{in:historicQuoteIds}},orderBy:{id:'asc'}}))).toBe(JSON.stringify(JSON.parse(historic).quotes));
+ });
+ it('rejects expired and evidence-stale previews before creating a revision',async()=>{const a=await context();const start=await searches.startSearch(a,{query,clientGeneration:'stale-source'});await terminal(a,start.snapshot.searchId);const data=await mappings.list(a,{offset:0,limit:25});const patch:MappingPatch={entityType:'city',sourceNamespace:'demo-provider-04/v1',sourceValue:'تهران مرکزی',targetId:'tehran',baseRevision:data.mappingRevision};const expired=await new AdminMappingRepository(sessions.database).preview(a.scope,patch,new Date(Date.now()-660000),evaluateMapping);await expect(mappings.apply(a,{previewId:expired.previewId,patch})).rejects.toMatchObject({code:'MAPPING_COLLISION'});const preview=await mappings.preview(a,patch);const newSearchId=randomUUID();await new SearchRepository(sessions.database).create(a.scope,{query,snapshot:JSON.parse(JSON.stringify({...start.snapshot,searchId:newSearchId,clientGeneration:'new-evidence'})),clientGeneration:'new-evidence'},new Date(),{id:newSearchId});await expect(mappings.apply(a,{previewId:preview.previewId,patch})).rejects.toMatchObject({code:'MAPPING_COLLISION'});expect(await sessions.database.mappingRevision.count({where:{sessionId:a.sessionId}})).toBe(1);});
+});
