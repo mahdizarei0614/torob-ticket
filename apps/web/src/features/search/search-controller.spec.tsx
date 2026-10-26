@@ -203,7 +203,7 @@ it('root StrictMode replay keeps a GET-hydrated comparison owner while different
  window.history.replaceState({key:'restored-entry',idx:0},'','/'+serializeSearchUrl(query));const cache=new QueryClient();
  function Restored(){current=useSearchController(catalog,session,client,{recovery:restored,draft:query});return null;}
  const view=render(<StrictMode><QueryClientProvider client={cache}><BrowserRouter><Restored/></BrowserRouter></QueryClientProvider></StrictMode>);
- try{expect(current.state.searchId).toBe(restored.snapshot.searchId);expect(current.state.generation).toBe('restored-generation');expect(current.resultIsCurrent('restored-generation',restored.snapshot.searchId)).toBe(true);expect(start).not.toHaveBeenCalled();
+ try{expect(current.state.searchId).toBe(restored.snapshot.searchId);expect(current.state.generation).toBe('restored-generation');expect(current.accepted).toBe(true);expect(current.resultIsCurrent('restored-generation',restored.snapshot.searchId)).toBe(true);expect(start).not.toHaveBeenCalled();
  act(()=>{window.history.replaceState({key:'different-entry',idx:0},'','/'+serializeSearchUrl({...query,sort:'fastest'}));window.dispatchEvent(new PopStateEvent('popstate'));});await waitFor(()=>expect(current.state.draft.sort).toBe('fastest'));expect(current.state.searchId).toBeUndefined();expect(current.resultIsCurrent('restored-generation',restored.snapshot.searchId)).toBe(false);expect(start).not.toHaveBeenCalled();}
  finally{view.unmount();window.history.replaceState({},'','/');}
 });

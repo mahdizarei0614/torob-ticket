@@ -49,7 +49,7 @@ export function useSearchController(catalog: CatalogSnapshot, session: SessionIn
   const [waitingDate, setWaitingDate] = useState(false);
   const [pending, setPending] = useState(false);
   const [feedback, setFeedback] = useState('');
-  const [accepted, setAccepted] = useState(false);
+  const [accepted, setAccepted] = useState(Boolean(restore));
   const [resultEntryGeneration,setResultEntryGeneration] = useState<string | undefined>();
   const resetting = startSnapshot.resetting;
   const startLimitReached = startSnapshot.count >= unresolvedStartLimit;

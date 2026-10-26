@@ -7,3 +7,8 @@
 @media(max-width:600px) { .exploration { grid-template-columns: minmax(125px,.8fr) minmax(0,1fr); gap: 8px; }.arrow { min-height:44px; }.chart { height: 150px; }.wheelRow { font-size:12px; }.wheelRow small { font-size:10px; }.calendarCell { min-height: 64px; }.calendarCell small { font-size: 8px; } }
 @media(prefers-reduced-motion:reduce) { .wheelRows { transition: none; } }
 @media(max-width:600px) { .calendar td { padding: 0; }.calendarFooter { position: sticky; bottom: 0; z-index: 3; background: var(--surface); border-top: 1px solid var(--border); padding-block: 10px; }.calendarFooter button { min-height: 44px; } }
+
+/* Keep known/unknown date evidence in the same compact rows during async settlement. */
+.selection>p{min-block-size:1lh}
+.range{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px;font-size:10px;color:var(--text-muted);line-height:1.9}.range>span{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px;min-block-size:1lh}.range bdi{overflow-wrap:anywhere}
+@media(max-width:600px){.selection>.status{min-block-size:2lh}.range{grid-template-columns:1fr}}
