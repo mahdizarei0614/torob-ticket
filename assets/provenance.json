@@ -51,5 +51,29 @@
     "geography/world.geojson",
     "geography/iran.geojson",
     "geography/destination-landmarks.geojson"
+  ],
+  "authoredAssets": [
+    {
+      "id": "flat-travel-art-v1",
+      "createdOn": "2026-10-26",
+      "kind": "Original code-native SVG artwork and finite 2D interface motion",
+      "paths": [
+        "libs/ui/src/illustrations/empty-route.tsx",
+        "libs/ui/src/illustrations/provider-delay.tsx",
+        "libs/ui/src/illustrations/hotel-stay.tsx",
+        "libs/ui/src/illustrations/illustration-frame.tsx",
+        "libs/ui/src/illustrations/illustrations.module.css",
+        "libs/ui/src/icons/transport-icons.tsx",
+        "libs/ui/src/icons/provider-mark.tsx",
+        "libs/ui/src/icons/icons.module.css",
+        "libs/ui/src/motion/motion-policy.ts",
+        "libs/ui/src/motion/motion-surface.tsx"
+      ],
+      "authorship": "Authored locally for TorobTicket with AI assistance; vector paths and geometric brand/carrier glyphs are original repository artwork.",
+      "sourceMaterial": "No copied third-party logo, reference image, generated raster asset, remote resource or proprietary carrier artwork.",
+      "scope": "Decorative abstract travel scenery and marks for the authored provider/operator identities. Not geographic evidence, a property depiction, amenity evidence, live delay estimate, availability or booking confirmation.",
+      "theming": "All authored fills, strokes and text colors resolve semantic CSS tokens or inherited currentColor.",
+      "motion": "Finite opacity/2D translations only; reduced motion, hidden documents and covered views settle to a static final frame. No SVG animation, background loop or per-provider entry animation."
+    }
   ]
 }

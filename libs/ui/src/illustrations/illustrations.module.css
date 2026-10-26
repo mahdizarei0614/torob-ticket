@@ -1,0 +1,2 @@
+.art{display:block;inline-size:100%;max-inline-size:22.5rem;block-size:auto;aspect-ratio:2/1;color:var(--accent);flex-shrink:0;overflow:visible}
+.art[data-size='compact']{max-inline-size:12rem}

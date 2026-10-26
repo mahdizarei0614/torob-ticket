@@ -1,0 +1,30 @@
+import {useState} from 'react';
+import type {Meta,StoryObj} from '@storybook/react-vite';
+import type {Mode} from '@torob-ticket/contracts';
+import {ThemeProvider,type Appearance} from '../theme/theme-provider';
+import {Button} from '../components/button';
+import {ProviderMark} from '../icons/provider-mark';
+import {TransportIcon} from '../icons/transport-icons';
+import {displayOperatorName} from '../presentation/travel-labels';
+import {MotionPolicyProvider,MotionSurface} from '../motion/motion-surface';
+import {EmptyRouteIllustration} from './empty-route';
+import {ProviderDelayIllustration} from './provider-delay';
+import {HotelStayIllustration} from './hotel-stay';
+import '../styles/index.css';
+import s from './travel-art.stories.module.css';
+function TravelArtwork({mode='flight',appearance='light',staticMotion=false,initiallyCovered=false}:{mode?:Mode;appearance?:Appearance;staticMotion?:boolean;initiallyCovered?:boolean}) {
+ const[entry,setEntry]=useState(0),[covered,setCovered]=useState(initiallyCovered);
+ return <ThemeProvider key={`${mode}/${appearance}`} mode={mode} language="fa" initialPreference={appearance}><MotionPolicyProvider disabled={staticMotion} covered={covered}><main className={s.gallery} lang="fa" dir="rtl"><header className={s.header}><div><h1>جزئیات کوچک، سفر روشن‌تر</h1><p>مسیر، پاسخ فروشندگان و انتخاب اقامت</p></div><div className={s.controls}><Button onPress={()=>setEntry(n=>n+1)}>نمایش دوباره</Button><Button variant="secondary" onPress={()=>setCovered(v=>!v)}>{covered?'بازگشت به مقایسه':'پوشاندن مقایسه'}</Button></div></header>{covered&&<p className={s.covered} role="status">مقایسه در پس‌زمینه ثابت می‌ماند؛ اطلاعات و انتخاب‌ها حفظ می‌شوند.</p>}<div className={s.grid}><article className={s.card}><EmptyRouteIllustration mode={mode}/><h2>مسیر از انتخاب شما شروع می‌شود</h2><p>مبدأ و مقصد را انتخاب کنید تا پیشنهادهای همان سفر بررسی شوند.</p></article><article className={s.card}><ProviderDelayIllustration mode={mode}/><h2>منتظر پاسخ فروشنده</h2><p>اطلاعات رسیده قابل بررسی است. پاسخ‌های بعدی شرایط سفر را تکمیل می‌کنند.</p></article><article className={s.card}><HotelStayIllustration/><h2>اقامت هماهنگ با سفر</h2><p>زمان ورود، تعداد اتاق و شرایط اقامت را کنار هم ببینید.</p></article></div><section className={s.marks} aria-label="فروشندگان">{['راه‌آرا','سفرین','بلیت‌نو','هم‌مسیر','دورآوا','سفرآیین'].map((name,n)=><span className={s.mark} key={name}><ProviderMark providerId={`demo-provider-0${n+1}`}/>{name}</span>)}</section><MotionSurface motionKey={entry} purpose="detail"><section className={s.details} aria-label="جزئیات مسیر"><TransportIcon mode={mode} size={24}/><ProviderMark operatorId={`demo-operator-${mode}-0`} mode={mode}/><div><strong>{displayOperatorName(`demo-operator-${mode}-0`,mode)}</strong><p>جزئیات با انتخاب شما باز می‌شوند؛ به‌روزرسانی داده‌ها حرکت را تکرار نمی‌کند.</p></div></section></MotionSurface><section className={s.marks} aria-label="حالت‌های کوچک و نامشخص"><EmptyRouteIllustration mode={mode} scope="international" size="compact"/><ProviderDelayIllustration mode={mode} size="compact"/><HotelStayIllustration size="compact"/><ProviderMark label="فروشنده"/><TransportIcon mode="flight" label="پرواز"/><TransportIcon mode="train" label="قطار"/><TransportIcon mode="bus" label="اتوبوس"/></section></main></MotionPolicyProvider></ThemeProvider>;
+}
+const meta={title:'Travel/Flat artwork and finite motion',component:TravelArtwork,parameters:{layout:'fullscreen'},argTypes:{mode:{control:'radio',options:['flight','train','bus']},appearance:{control:'radio',options:['light','dark']},staticMotion:{control:'boolean'},initiallyCovered:{control:'boolean'}}}satisfies Meta<typeof TravelArtwork>;
+export default meta;
+type Story=StoryObj<typeof meta>;
+export const FlightLight:Story={args:{mode:'flight',appearance:'light'}};
+export const FlightDark:Story={args:{mode:'flight',appearance:'dark'}};
+export const TrainLight:Story={args:{mode:'train',appearance:'light'}};
+export const TrainDark:Story={args:{mode:'train',appearance:'dark'}};
+export const BusLight:Story={args:{mode:'bus',appearance:'light'}};
+export const BusDark:Story={args:{mode:'bus',appearance:'dark'}};
+export const Static:Story={args:{staticMotion:true}};
+export const Covered:Story={args:{initiallyCovered:true,appearance:'dark'}};
+export const CompactMobile:Story={args:{mode:'train'},globals:{viewport:{value:'mobile1',isRotated:false}}};
