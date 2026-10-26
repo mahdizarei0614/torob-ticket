@@ -33,7 +33,8 @@ describe('fresh, scoped, atomic referrals', () => {
         await expect.poll(async () => { snapshot = (await search.getSearch(c, started.snapshot.searchId)).snapshot; return snapshot.status; }, { timeout: 5000, interval: 10 }).toBe('complete');
         const quote = snapshot.groups.flatMap(g => g.eligibleQuotes).find(q => q.providerId === 'demo-provider-04')!;
         expect(quote).toBeDefined();
-        return { c, quote, searchId: snapshot.searchId };
+        const itinerary = snapshot.groups.find(group => group.eligibleQuotes.some(candidate => candidate.quoteId === quote.quoteId))!.itinerary;
+        return { c, quote, itinerary, searchId: snapshot.searchId };
     }
     const selection = (quote: QuoteSnapshot) => ({ kind: 'transport' as const, quoteId: quote.quoteId, quoteVersion: quote.version });
     beforeAll(async () => {
@@ -46,7 +47,7 @@ describe('fresh, scoped, atomic referrals', () => {
     });
     afterAll(async () => { await referrals?.onModuleDestroy(); await search?.onModuleDestroy(); await sessions.database.demoSession.deleteMany({ where: { id: { in: contexts.map(c => c.sessionId) } } }); await sessions?.onModuleDestroy(); });
     it('rechecks real evidence, preserves whole-party roundtrip, and confirms once under concurrency and refresh', async () => {
-        const { c, quote } = await setup();
+        const { c, quote, itinerary } = await setup();
         const prepared = await referrals.prepareReferral(c, selection(quote));
         expect(prepared.status).toBe('ready');
         expect(RecheckResultSchema.safeParse(prepared).success).toBe(true);
@@ -59,6 +60,9 @@ describe('fresh, scoped, atomic referrals', () => {
         expect(intent.quote.quote.party).toEqual(query.party);
         expect(Date.parse(intent.expiresAt) - Date.parse(intent.createdAt)).toBe(120000);
         expect(intent.quote.quote.total).toEqual(quote.total);
+        // The traveler accepts the exact public journey shown in the source comparison.
+        expect(intent.quote.itinerary).toEqual(itinerary);
+        expect(intent.quote.itinerary.itineraryId).toBe(intent.quote.quote.itineraryId);
         if (intent.quote.kind !== 'transport')
             throw Error('transport');
         expect(intent.quote.itinerary.return?.segments.length).toBeGreaterThan(0);
@@ -87,12 +91,15 @@ describe('fresh, scoped, atomic referrals', () => {
         expect((await sessions.database.auditEvent.findMany({ where: { sessionId: c.sessionId } })).some(e => /booking|revenue|conversion/.test(e.kind))).toBe(false);
     });
     it('returns exact old/new price facts requiring the new accepted version', async () => {
-        const { c, quote } = await setup('price-change');
+        const { c, quote, itinerary } = await setup('price-change');
         const result = await referrals.prepareReferral(c, selection(quote));
         expect(result.status).toBe('changed');
         if (result.status !== 'changed')
             throw Error('changed');
         expect(result.previousQuote.quote).toEqual(quote);
+        expect(result.previousQuote).toEqual({ kind: 'transport', quote, itinerary });
+        if (result.intent.quote.kind !== 'transport') throw Error('transport');
+        expect(result.intent.quote.itinerary).toEqual(itinerary);
         expect(result.intent.quote.quote.total.amountRial).toBeGreaterThan(quote.total.amountRial);
         expect(result.materialChanges).toContain('total');
         const input = { intentId: result.intent.intentId, acceptedQuoteVersion: 1, idempotencyKey: 'accept' };
