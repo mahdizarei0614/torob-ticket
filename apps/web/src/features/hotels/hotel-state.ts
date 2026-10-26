@@ -61,7 +61,7 @@ export function hotelQuery(state:HotelState,catalog:CatalogSnapshot,anchor:strin
  const party={adults:trip.query.party.adults,children:trip.query.party.children,infants:trip.query.party.infants,...(trip.query.party.infantAgesMonths?{infantAgesMonths:[...trip.query.party.infantAgesMonths]}:{})};
  const parsed=HotelSearchQuerySchema.safeParse({destinationCityId:trip.query.destinationCityId,checkIn:draft.checkIn,checkOut:draft.checkOut,party,...(party.children?{childAgesAtCheckIn:draft.childAges.map(Number)}:{}),rooms:draft.rooms,sort:draft.sort,...(draft.arrivalPlaceId?{arrivalPlaceId:draft.arrivalPlaceId}:{}),...(draft.customPoint?{customPoint:draft.customPoint}:{})});
  if(!parsed.success&&!errors.length)errors.push('تاریخ‌ها و شرایط اقامت را کامل و معتبر کنید.');
- if(parsed.success&&city){const bounds=hotelBounds(anchor,city.timeZone);if(parsed.data.checkIn<bounds.min||parsed.data.checkOut>bounds.max)errors.push('اقامت باید در پوشش ۱۲۰ شب نسخه نمایشی باشد.');}
+ if(parsed.success&&city){const bounds=hotelBounds(anchor,city.timeZone);if(parsed.data.checkIn<bounds.min||parsed.data.checkOut>bounds.max)errors.push('تاریخ اقامت را از محدوده قابل جست‌وجو انتخاب کنید.');}
  return {errors,...(!errors.length&&parsed.success?{query:parsed.data}:{})};
 }
 export function tripStale(state:HotelState,trip:HotelTrip){return Boolean(state.contextBlocked)||tripStamp(state.trip)!==tripStamp(trip)||!trip.available||trip.draftKey!==tripKey(trip.query);}

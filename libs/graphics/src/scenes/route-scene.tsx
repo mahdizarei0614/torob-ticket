@@ -1,3 +1,4 @@
+import {displayPlaceName} from '@torob-ticket/ui';
 import { memo, useMemo, useEffect } from 'react';
 import type { City, GeoPoint, Itinerary, Mode, Place } from '@torob-ticket/contracts';
 import { buildRouteGeometry, type IllustrativePath, type RouteSegmentGeometry } from '../geo/route-geometry';
@@ -31,7 +32,7 @@ export const RouteScene = memo(function RouteScene({ places, dots, scope, itiner
   const markers = useMemo<SceneMarker[]>(() => {
     const ids = leg ? [...new Set([...leg.segments.flatMap(segment => [segment.originPlaceId, segment.destinationPlaceId]), ...leg.stops.map(stop => stop.placeId)])] : [];
     // Public place selection remains available even before a specific itinerary exists.
-    return [...places.filter(place => ids.includes(place.id) || (!leg && placeSelectable)).map(place => ({ id: place.id, name: `${place.name}${place.code ? ` (${place.code})` : ''}`, point: place.point, kind: 'place' as const,selectable:placeSelectable,showLabel:!cities.length })),...cities.map(item=>({id:'city:'+item.city.id,cityId:item.city.id,name:item.city.name+(item.role==='origin'?' · مبدا':item.role==='destination'?' · مقصد':''),point:item.city.point,kind:'city' as const,enabled:item.enabled,role:item.role,selectable:citySelectable}))];
+    return [...places.filter(place => ids.includes(place.id) || (!leg && placeSelectable)).map(place => ({ id: place.id, name: `${displayPlaceName(place)}${place.code ? ` (${place.code})` : ''}`, point: place.point, kind: 'place' as const,selectable:placeSelectable,showLabel:!cities.length })),...cities.map(item=>({id:'city:'+item.city.id,cityId:item.city.id,name:item.city.name+(item.role==='origin'?' · مبدا':item.role==='destination'?' · مقصد':''),point:item.city.point,kind:'city' as const,enabled:item.enabled,role:item.role,selectable:citySelectable}))];
   }, [places, leg, placeSelectable,cities,citySelectable]);
   const cameraSegments=useMemo(()=>fitBothDirections && itinerary?.return ? [...buildRouteGeometry(itinerary,places,paths,'outbound',projection),...buildRouteGeometry(itinerary,places,paths,'return',projection)] : segments,[fitBothDirections,itinerary,places,paths,projection,segments]);
   const bounds = useMemo(() => {
@@ -53,7 +54,7 @@ export const RouteScene = memo(function RouteScene({ places, dots, scope, itiner
       fallback={frame => <StaticMap dots={dots} markers={markers} segments={segments} context={projection} frame={frame} progress={progress} mode={itinerary?.mode??illustrative?.mode} />}>
       {frame => <><SceneCamera frame={frame} /><SceneDrawing dots={dots} markers={markers} segments={segments} context={projection} frame={frame} mode={itinerary?.mode ?? illustrative?.mode} progress={progress} reveal={reveal} animateProgress={animateProgress} onMotionChange={onMotionChange} motionKey={motionKey} /></>}
     </SceneSurface>
-    {showNotes && <p role="note">مسیرها نمونه و تقریبی‌اند؛ راهنمای مسیریابی نیستند. پیشرفت نشان‌دهنده مقایسه و ارجاع است؛ رزرو تأیید نمی‌شود.</p>}
+    {showNotes && <p role="note">مسیر روی نقشه تقریبی است و راهنمای مسیریابی نیست.</p>}
     {showNotes && !leg && <p>{illustrative?.label ?? (itinerary ? 'اطلاعات مسیر برگشت موجود نیست.' : 'برای نمایش مسیر، مبدأ و مقصد را انتخاب کنید.')}</p>}
     {showTimeline && <RouteTimeline itinerary={itinerary} places={places} direction={direction} />}
     {segments.some(segment => segment.geometryStatus === 'unavailable') && <p role="status">هندسه بخشی از مسیر موجود نیست؛ مشخصات آن در فهرست مسیر حفظ شده است.</p>}
@@ -62,7 +63,7 @@ export const RouteScene = memo(function RouteScene({ places, dots, scope, itiner
 export function RouteTimeline({ itinerary, places, direction = 'outbound' }: Pick<RouteSceneProps, 'itinerary' | 'places' | 'direction'>) {
   const leg = itinerary && (direction === 'outbound' ? itinerary.outbound : itinerary.return);
   if (!leg) return null;
-  const name = (id: string) => places.find(place => place.id === id)?.name ?? `مکان نامعلوم (${id})`;
+  const name = (id: string) => displayPlaceName(places.find(place => place.id === id));
   const modes = { flight: 'پرواز', train: 'قطار', bus: 'اتوبوس' };
   return <div>
     <ol className={styles.timeline} aria-label="ترتیب بخش‌های مسیر">{leg.segments.map(segment => <li key={segment.segmentId} data-segment-id={segment.segmentId} data-transfer={segment.mode !== itinerary!.mode}>

@@ -1,7 +1,7 @@
 import {useLayoutEffect,useMemo,useState} from 'react';
 import {useQuery} from '@tanstack/react-query';
 import type {CatalogSnapshot} from '@torob-ticket/contracts';
-import {Button} from '@torob-ticket/ui';
+import {Button,displayHotelName} from '@torob-ticket/ui';
 import type {HotelDiscovery} from './use-hotel-discovery';
 import {cityLocationAssets,loadLocationAssets,validPoint} from './location-assets';
 import {faNumber} from './hotel-format';
@@ -12,7 +12,7 @@ export function LocationPicker({model,catalog,onCancel,onApply}:{model:HotelDisc
  const assets=useQuery({queryKey:['hotel-location-assets'],queryFn:({signal})=>loadLocationAssets(signal),staleTime:Infinity,retry:false,refetchOnWindowFocus:false});
  const local=useMemo(()=>assets.data?cityLocationAssets(assets.data,destination):{landmarks:[]},[assets.data,destination]);
  const hotels=model.state.snapshot?.hotels;
- const accommodations=useMemo(()=>(hotels??[]).map((h,index)=>({id:h.hotelId,name:h.name,point:h.point,number:index+1})),[hotels]);
+ const accommodations=useMemo(()=>(hotels??[]).map((h,index)=>({id:h.hotelId,name:displayHotelName(h),point:h.point,number:index+1})),[hotels]);
  const choices=useMemo(()=>[...local.landmarks,...accommodations],[local.landmarks,accommodations]);const point=model.state.point?.value;const shown=point??city.point;
  const [coordinates,setCoordinates]=useState({latitude:String(shown.latitude),longitude:String(shown.longitude)});
  useLayoutEffect(()=>{setCoordinates({latitude:String(Number(shown.latitude.toFixed(6))),longitude:String(Number(shown.longitude.toFixed(6)))});},[shown.latitude,shown.longitude]);
@@ -28,6 +28,6 @@ export function LocationPicker({model,catalog,onCancel,onApply}:{model:HotelDisc
    {assets.error&&<p className={styles.muted}>فهرست نشانه‌های محلی دریافت نشد؛ مرکز مقصد، مختصات و نقشه شهری قابل استفاده‌اند. <Button variant="quiet" onPress={()=>void assets.refetch()}>دریافت دوباره نشانه‌ها</Button></p>}
   </div><div className={styles.landmarks} aria-label="نشانه‌ها و اقامتگاه‌های مقصد"><Button variant="secondary" onPress={()=>model.setPoint(city.point)}>مرکز {city.name}</Button>{choices.filter(p=>p.name.includes(filter)).map(p=><Button key={p.id} variant="quiet" onPress={()=>model.setPoint(p.point)}>{p.number!==undefined?`${faNumber(p.number)} · `:''}{p.name}</Button>)}{filter&&!choices.some(p=>p.name.includes(filter))&&<p role="status">نشانه‌ای با این نام پیدا نشد؛ از مرکز شهر یا مختصات استفاده کنید.</p>}</div></div>
   <footer className={styles.pickerActions}><p>{point?'نقطه موقت انتخاب شده است؛ با اعمال، مرجع مقایسه می‌شود.':'روی نقشه بزنید، نشانه‌ای انتخاب کنید یا مختصات را ویرایش کنید.'}</p><Button isDisabled={!point||!coordinatesValid} onPress={onApply}>اعمال موقعیت</Button><Button variant="quiet" onPress={onCancel}>انصراف و حفظ موقعیت قبلی</Button></footer>
-  <p className={styles.footnote}>نقشه شهری از سرویس برداری OpenStreetMap است؛ اقامتگاه‌ها و قیمت‌های این مقایسه خیالی‌اند.</p>
+  <p className={styles.footnote}>نقشه شهری: OpenStreetMap.</p>
  </section>;
 }

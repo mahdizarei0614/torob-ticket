@@ -1,6 +1,6 @@
 import {useLayoutEffect,useRef} from 'react';
 import type {CatalogSnapshot,HotelQuoteSnapshot,Itinerary,ReferralReceipt,SessionInfo,TransportSearchQuery} from '@torob-ticket/contracts';
-import {Button} from '@torob-ticket/ui';
+import {Button,displayHotelName} from '@torob-ticket/ui';
 import type {SearchController,TripMapController} from '../map/use-trip-map';
 import {HotelDialog} from './hotel-dialog';
 import {tripKey,type HotelTrip} from './hotel-state';
@@ -32,7 +32,7 @@ function HotelEntryContent({controller,map,catalog,session,query,onCovered,onSel
  useLayoutEffect(()=>{onCovered(model.open);return()=>onCovered(false);},[model.open,onCovered]);
  function source():ReferralSource|undefined{
   const lease=model.selectionLease();if(!lease)return undefined;
-  return {key:'hotel/'+lease.key,payload:{kind:'hotel',quote:lease.quote},isCurrent:lease.isCurrent,accept:fresh=>fresh.kind==='hotel'&&lease.accept(fresh.quote),confirmed:receipt=>{const okay=lease.confirmed(receipt);if(okay){hotelReceipt.current=receipt;emitCheckpoint();}return okay;},refresh:lease.refresh,alternatives:()=>model.state.snapshot?.quotes.filter(q=>q.quoteId!==lease.quote.quoteId).map(q=>({quoteId:q.quoteId,label:`${model.state.snapshot?.hotels.find(h=>h.hotelId===q.hotelId)?.name??'اقامتگاه'} · ${q.total.amountRial/10} تومان برای کل اقامت`,select:()=>{model.selectQuote(q);return source();}}))??[]};
+  return {key:'hotel/'+lease.key,payload:{kind:'hotel',quote:lease.quote},isCurrent:lease.isCurrent,accept:fresh=>fresh.kind==='hotel'&&lease.accept(fresh.quote),confirmed:receipt=>{const okay=lease.confirmed(receipt);if(okay){hotelReceipt.current=receipt;emitCheckpoint();}return okay;},refresh:lease.refresh,alternatives:()=>model.state.snapshot?.quotes.filter(q=>q.quoteId!==lease.quote.quoteId).map(q=>({quoteId:q.quoteId,label:`${displayHotelName(model.state.snapshot?.hotels.find(h=>h.hotelId===q.hotelId))} · ${q.total.amountRial/10} تومان برای کل اقامت`,select:()=>{model.selectQuote(q);return source();}}))??[]};
  }
  const selectedSource=source();
  function emitCheckpoint(){if(!opened.current){onCheckpoint?.(undefined);return;}const current=model.readState();onCheckpoint?.({open:model.open,stale:model.stale,hotelSearchId:current.snapshot?.hotelSearchId,draft:current.draft,selected:current.selected?{quoteId:current.selected.quoteId,version:current.selected.version}:undefined,referralId:hotelReceipt.current?.payload.kind==='hotel'&&JSON.stringify(hotelReceipt.current.payload.quote)===JSON.stringify(current.selected)?hotelReceipt.current.referralId:undefined,scrollTop:document.querySelector<HTMLElement>('[data-hotel-dialog]')?.closest<HTMLElement>('[data-dialog-scroll]')?.scrollTop??0});}

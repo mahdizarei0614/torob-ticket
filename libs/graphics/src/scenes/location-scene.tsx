@@ -33,6 +33,6 @@ export const LocationScene = memo(function LocationScene({ destinationBoundary, 
       <label>عرض جغرافیایی<input aria-label="عرض جغرافیایی" type="number" dir="ltr" min="-90" max="90" step="0.001" value={Number(current.latitude.toFixed(6))} onChange={event => { const value = event.currentTarget.valueAsNumber; if (Number.isFinite(value) && value >= -90 && value <= 90) onPointChange({ ...current, latitude: value }); }} /></label>
       <label>طول جغرافیایی<input aria-label="طول جغرافیایی" type="number" dir="ltr" min="-180" max="180" step="0.001" value={Number(current.longitude.toFixed(6))} onChange={event => { const value = event.currentTarget.valueAsNumber; if (Number.isFinite(value) && value >= -180 && value <= 180) onPointChange({ ...current, longitude: value }); }} /></label>
     </div>
-    <p role="note">محدوده نمایشی و اقامتگاه‌های خیالی؛ فاصله‌ها خط مستقیم‌اند. نقشه راهنمای خیابان یا مسیر زنده نیست.</p>
+    <p role="note">فاصله‌ها خط مستقیم‌اند. برای مسیر خیابانی و زمان رانندگی از مسیریابی استفاده کنید.</p>
   </div>;
 });

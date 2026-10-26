@@ -57,7 +57,7 @@ export function useReferralController({client=apiClient,enabled=true,onHandoff,t
    if(!flow.source.confirmed(receipt)){invalidate(flow);return;}
    removeRecovery(flow);publish(flow,{phase:'completed',source:flow.source,receipt});
    try{latest.current.onHandoff(receipt,flow.source);current.current=undefined;epoch.current++;setState({phase:'idle'});}
-   catch{publish(flow,{phase:'handoff-error',source:flow.source,receipt,error:'انتقال ثبت شده است؛ باز کردن صفحه نمایشی ممکن نشد.'});}
+   catch{publish(flow,{phase:'handoff-error',source:flow.source,receipt,error:'ارجاع ثبت شده است؛ باز کردن صفحه فروشنده ممکن نشد.'});}
   }catch(error){
    if(!owns(flow))return;
    if(error instanceof ClientError&&error.kind==='api'&&['INTENT_EXPIRED','QUOTE_EXPIRED','QUOTE_CHANGED','OFFER_UNAVAILABLE','INCOMPLETE_PRICE','SESSION_EXPIRED','NOT_FOUND','IDEMPOTENCY_CONFLICT'].includes(error.api?.code??'')){requireFresh(flow,message(error));removeRecovery(flow);}

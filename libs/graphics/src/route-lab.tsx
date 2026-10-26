@@ -24,14 +24,14 @@ function Lab({ data, mode, setMode }: { data: FixtureAsset; mode: Mode; setMode:
   const features = useMemo(() => data.destination.features.filter(feature => feature.properties.cityId === 'tehran'), [data]);
   const boundary = useMemo(() => features.find(feature => feature.properties.kind === 'illustrative-destination-extent')!.geometry as AreaGeometry, [features]);
   const landmarks = useMemo<SceneMarker[]>(() => features.filter(feature => feature.properties.kind === 'landmark').map(feature => ({ id: feature.properties.id, name: feature.properties.name ?? 'نشانه محلی', point: { longitude: (feature.geometry.coordinates as number[])[0]!, latitude: (feature.geometry.coordinates as number[])[1]! }, kind: 'landmark' })), [features]);
-  const accommodations = useMemo<SceneMarker[]>(() => features.filter(feature => feature.properties.kind === 'accommodation').slice(0, 3).map((feature, i) => ({ id: feature.properties.id, name: `اقامتگاه نمونه ${i + 1} (خیالی)`, point: { longitude: (feature.geometry.coordinates as number[])[0]!, latitude: (feature.geometry.coordinates as number[])[1]! }, kind: 'accommodation' })), [features]);
+  const accommodations = useMemo<SceneMarker[]>(() => features.filter(feature => feature.properties.kind === 'accommodation').slice(0, 3).map((feature, i) => ({ id: feature.properties.id, name: ['اقامتگاه سپیدار','اقامتگاه آفتاب','اقامتگاه نارون'][i]!, point: { longitude: (feature.geometry.coordinates as number[])[0]!, latitude: (feature.geometry.coordinates as number[])[1]! }, kind: 'accommodation' })), [features]);
   return <main className={styles.lab} lang="fa" dir="rtl">
-    <h1>آزمایشگاه نقشه و مسیر</h1>
-    <p>داده نمایشیِ از پیش محاسبه‌شده از کاتالوگ محلی؛ جستجوی زنده یا پیشنهاد قیمت نیست. جغرافیا: Natural Earth، مالکیت عمومی؛ فرودگاه‌ها: OurAirports. نشانه‌ها و محدوده‌ها: <a href="/provenance.json">منشأ داده‌های محلی</a>.</p>
+    <h1>کارگاه نقشه و مسیر</h1>
+    <p>کاتالوگ جغرافیایی و تنظیمات نمایش مسیر. جغرافیا: Natural Earth، مالکیت عمومی؛ فرودگاه‌ها: OurAirports. نشانه‌ها و محدوده‌ها: <a href="/provenance.json">منشأ داده‌های محلی</a>.</p>
     <div className={styles.labControls}>
       <label>نوع سفر <select aria-label="نوع سفر" value={mode} onChange={event => { const next = event.target.value as Mode; pin(data.scenarios.find(scenario => scenario.itinerary.mode === next)!); }}><option value="flight">هواپیما</option><option value="train">قطار</option><option value="bus">اتوبوس</option></select></label>
       <label>محدوده <select aria-label="محدوده" value={pinned.scope} onChange={event => pin(data.scenarios.find(scenario => scenario.itinerary.mode === mode && scenario.scope === event.target.value)!)}><option value="domestic">ایران</option><option value="international">جهان</option></select></label>
-      <label>مسیر آزمایشی <select aria-label="مسیر آزمایشی" value={pinned.id} onChange={event => pin(data.scenarios.find(scenario => scenario.id === event.target.value)!)}>{data.scenarios.map(scenario => <option value={scenario.id} key={scenario.id}>{scenario.name}</option>)}</select></label>
+      <label>مسیر <select aria-label="مسیر" value={pinned.id} onChange={event => pin(data.scenarios.find(scenario => scenario.id === event.target.value)!)}>{data.scenarios.map(scenario => <option value={scenario.id} key={scenario.id}>{scenario.name}</option>)}</select></label>
       <button onClick={event => setPreference(appearance === 'light' ? 'dark' : 'light', event.currentTarget)}>تغییر روشنایی</button>
       <button onClick={() => setPreview(data.scenarios.find(scenario => scenario.id !== pinned.id && scenario.itinerary.mode === mode) ?? pinned)}>پیش‌نمایش مسیر دیگر</button>
       <button onClick={() => setPreview(null)}>پایان پیش‌نمایش</button>
@@ -47,7 +47,7 @@ function Lab({ data, mode, setMode }: { data: FixtureAsset; mode: Mode; setMode:
     <GraphicsProvider controllerRef={controller} diagnostics>
       <div className={styles.layout}>
         <div className={styles.mainMap} data-testid="main-route-map"><RouteScene places={data.places} dots={displayed.scope === 'domestic' ? data.dots.iran : data.dots.world} scope={displayed.scope} fitMode={fitMode} itinerary={empty ? undefined : displayed.itinerary} paths={data.paths} direction={direction} fitKey={String(fit)} originKey={pinned.itinerary.originPlaceId} progress={progress} reveal={reveal} onPlaceSelect={setPlace} /></div>
-        <section className={styles.results} aria-label="محتوای مستقل قابل پیمایش"><h2>مسیر متنی معادل</h2><RouteTimeline itinerary={displayed.itinerary} places={data.places} direction={direction} />{Array.from({ length: 18 }, (_, i) => <p key={i}>محتوای نمونه برای بررسی پایداری دوربین هنگام پیمایش · {i + 1}</p>)}</section>
+        <section className={styles.results} aria-label="محتوای مستقل قابل پیمایش"><h2>مسیر متنی معادل</h2><RouteTimeline itinerary={displayed.itinerary} places={data.places} direction={direction} />{Array.from({ length: 18 }, (_, i) => <p key={i}>جزئیات مسیر هنگام پیمایش · {i + 1}</p>)}</section>
       </div>
       <section className={styles.location}><h2>انتخاب موقعیت محلی</h2><LocationScene destinationBoundary={boundary} landmarks={landmarks} accommodations={accommodations} customPoint={point} onPointChange={setPoint} fitKey="tehran" /><output aria-label="نقطه انتخابی" dir="ltr">{point ? `${point.latitude.toFixed(6)}, ${point.longitude.toFixed(6)}` : 'No custom point'}</output></section>
     </GraphicsProvider>

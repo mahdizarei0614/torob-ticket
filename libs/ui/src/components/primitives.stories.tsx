@@ -106,8 +106,8 @@ function GalleryContent({ language, mode }: { language: Language; mode: Mode }) 
           <h1>{text('مسیر روشن، انتخاب مطمئن', 'A clearer way to compare.')}</h1>
           <p className={styles.muted}>
             {text(
-              'گالری اجزای رابط · داده‌ها نمونه‌اند و خرید یا رزروی انجام نمی‌شود.',
-              'Component review gallery · Sample data, no purchase or booking.',
+              'اجزای رابط سفر؛ مقایسه مسیر، قیمت و شرایط.',
+              'Travel interface components · Compare routes, prices and conditions.',
             )}
           </p>
         </div>
@@ -163,7 +163,7 @@ function GalleryContent({ language, mode }: { language: Language; mode: Mode }) 
             description={text('انتخاب از شبکه پشتیبانی‌شده', 'Choose from the supported network')}
           />
           <Button language={language} onPress={() => setDialog(true)}>
-            {text('مشاهده نمونه قیمت', 'Inspect sample total')}
+            {text('مشاهده قیمت', 'Inspect total')}
             <span aria-hidden="true">↗</span>
           </Button>
         </div>
@@ -183,11 +183,11 @@ function GalleryContent({ language, mode }: { language: Language; mode: Mode }) 
                   <TransportIcon mode={mode} />
                 </span>
                 <div>
-                  <strong>{text('سفر آبی — نمایشی', 'Blue Journey — demo')}</strong>
+                  <strong>{text('سفر آبی', 'Blue Journey')}</strong>
                   <p className={styles.small}>
                     {text(
-                      'نمونه کارت مقایسه · ارائه‌دهنده خیالی',
-                      'Comparison specimen · Fictional provider',
+                      'مقایسه پیشنهادهای سفر',
+                      'Compare travel offers',
                     )}
                   </p>
                 </div>
@@ -372,7 +372,7 @@ function GalleryContent({ language, mode }: { language: Language; mode: Mode }) 
             <div className={styles.codeSample}>
               {text('مسیر', 'Route')} <Code>IKA → IST</Code>
               <br />
-              {text('شناسه', 'Reference')} <Code>DEMO-TK-024</Code>
+              {text('شناسه', 'Reference')} <Code>TK-024</Code>
             </div>
             <Tooltip
               language={language}
@@ -406,7 +406,7 @@ function GalleryContent({ language, mode }: { language: Language; mode: Mode }) 
       >
         <div className={styles.modalContent}>
           <Status language={language} tone="info">
-            {text('نمونه نمایشی؛ بدون رزرو', 'Demo specimen; no booking')}
+            {text('جزئیات پیشنهاد', 'Offer details')}
           </Status>
           <Price
             language={language}

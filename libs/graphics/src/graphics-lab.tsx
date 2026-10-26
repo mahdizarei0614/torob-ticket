@@ -12,8 +12,8 @@ function Scenes({ broken, cameraX, moving, showSecond }: { broken: boolean; came
   const resources = useLabResources(broken);
   const scene = useLabScene(resources, cameraX, moving);
   return <div className={styles.views}>
-    <section><h2>نمای مسیر اول</h2><GraphicsView label="مسیر اول: تهران به شیراز" fallback={<Fallback />}>{scene}</GraphicsView><p>تهران ← شیراز · نمایش مسیر نمونه</p></section>
-    <section><h2>نمای مسیر دوم</h2><GraphicsView visible={showSecond} label="مسیر دوم: تهران به اصفهان" fallback={<Fallback />}>{scene}</GraphicsView><p>تهران ← اصفهان · نمایش مسیر نمونه</p></section>
+    <section><h2>نمای مسیر اول</h2><GraphicsView label="مسیر اول: تهران به شیراز" fallback={<Fallback />}>{scene}</GraphicsView><p>تهران ← شیراز · نمایش مسیر</p></section>
+    <section><h2>نمای مسیر دوم</h2><GraphicsView visible={showSecond} label="مسیر دوم: تهران به اصفهان" fallback={<Fallback />}>{scene}</GraphicsView><p>تهران ← اصفهان · نمایش مسیر</p></section>
   </div>;
 }
 function HostStatus() { const { status } = useGraphics(); return <output aria-label="وضعیت گرافیک" dir="ltr">{status}</output>; }
@@ -31,14 +31,14 @@ function Lab({ mode, setMode }: { mode: Mode; setMode: (mode: Mode) => void }) {
   const broken = new URLSearchParams(location.search).get('shader') === 'broken';
   const refresh = () => setReport(JSON.stringify({ ...controller.current?.inspect(), selected, cameraX }, null, 2));
   return <main className={styles.lab} lang="fa" dir="rtl">
-    <h1>آزمایشگاه گرافیک</h1><p>صحنه آزمایشی زیرساخت نمایش؛ مقایسه یا رزرو واقعی انجام نمی‌شود.</p>
+    <h1>کارگاه گرافیک</h1><p>تنظیمات نمایش مسیر، دوربین و حرکت.</p>
     <div className={styles.controls}>
       <label>نوع سفر <select value={mode} onChange={event => setMode(event.target.value as Mode)}><option value="flight">هواپیما</option><option value="train">قطار</option><option value="bus">اتوبوس</option></select></label>
       <button onClick={event => setPreference(appearance === 'light' ? 'dark' : 'light', event.currentTarget)}>تغییر روشنایی</button>
       <button onClick={() => setSelected('دوم')}>انتخاب مسیر دوم</button>
       <button onClick={() => { setCameraX(value => value + 0.1); controller.current?.invalidate(); }}>جابجایی دوربین</button>
       <button onClick={() => { setCovered(true); dialog.current?.showModal(); }}>باز کردن گفتگو</button>
-      <label><input type="checkbox" checked={motion} onChange={event => setMotion(event.target.checked)} />حرکت نمایشی</label>
+      <label><input type="checkbox" checked={motion} onChange={event => setMotion(event.target.checked)} />حرکت مسیر</label>
       <button onClick={() => setSecond(value => !value)}>نمایش یا پنهان کردن نمای دوم</button>
       <button onClick={() => setMounted(value => !value)}>{mounted ? 'آزادسازی گرافیک' : 'راه‌اندازی گرافیک'}</button>
       <button onClick={refresh}>تازه‌سازی گزارش</button>
@@ -47,11 +47,11 @@ function Lab({ mode, setMode }: { mode: Mode; setMode: (mode: Mode) => void }) {
     {mounted && <GraphicsProvider controllerRef={controller} covered={covered} motion={motion} diagnostics>
       <HostStatus /><Scenes broken={broken} cameraX={cameraX} moving={motion && !covered} showSecond={second} />
     </GraphicsProvider>}
-    <dialog ref={dialog} aria-label="گفتگوی آزمایشی" onClose={() => setCovered(false)}>
-      <h2>گفتگوی آزمایشی</h2><p>مسیر انتخاب‌شده حفظ می‌شود.</p>
+    <dialog ref={dialog} aria-label="تنظیمات مسیر" onClose={() => setCovered(false)}>
+      <h2>تنظیمات مسیر</h2><p>مسیر انتخاب‌شده حفظ می‌شود.</p>
       <form method="dialog"><button>بستن گفتگو</button></form>
     </dialog>
-    <h2>گزارش فنی آزمایشگاه</h2><pre className={styles.report} data-testid="graphics-report">{report}</pre>
+    <h2>گزارش فنی نمایش</h2><pre className={styles.report} data-testid="graphics-report">{report}</pre>
     <div className={styles.spacer} aria-hidden="true" /><a href="/">بازگشت به صفحه اصلی</a>
   </main>;
 }

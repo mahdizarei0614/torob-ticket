@@ -1,4 +1,4 @@
-import { act, render } from '@testing-library/react';
+import { act, render,screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ItinerarySchema, PlaceSchema, type GeoPoint } from '@torob-ticket/contracts';
 import { GraphicsProvider } from '../graphics-provider';
@@ -75,4 +75,11 @@ it('consumer linked label portal inherits its host and removes old controls acro
  const id=view.container.querySelector('[data-camera]')!.getAttribute('aria-controls')!;const label=view.container.querySelector('[data-graphics-label-layer] [data-scene-labels]');expect(label?.id).toBe(id);expect(label?.closest('[data-graphics-label-layer]')).not.toBeNull();expect(label?.parentElement).toHaveStyle({left:'20px',top:'30px',width:'560px',height:'400px'});
  view.rerender(element({...props,labelsVisible:false}));expect(view.container.querySelector('[data-scene-labels]')).toBeNull();
  view.rerender(element(props));expect(view.container.querySelectorAll('[data-scene-labels]')).toHaveLength(1);view.unmount();expect(document.querySelector('[data-scene-labels]')).toBeNull();measure.mockRestore();
+});
+
+it('uses friendly station labels for real marker controls, dropdown options and timeline without mutating source places',async()=>{
+ const source=places.map(place=>place.id===itinerary.originPlaceId?{...place,kind:'station' as const,code:undefined,name:'ایستگاه نمونه تهران (خیالی)'}:{...place});const before=JSON.stringify(source);source.forEach(Object.freeze);
+ const view=render(element({...base,places:source,itinerary,onPlaceSelect:vi.fn()}));await act(async()=>undefined);
+ expect(screen.getByRole('button',{name:'ایستگاه تهران'})).toBeVisible();expect(screen.getByRole('option',{name:'ایستگاه تهران'})).toBeInTheDocument();
+ expect(view.container.querySelector('[aria-label="ترتیب بخش‌های مسیر"]')).toHaveTextContent('ایستگاه تهران');expect(view.container.textContent).not.toContain('ایستگاه نمونه تهران (خیالی)');expect(JSON.stringify(source)).toBe(before);
 });
