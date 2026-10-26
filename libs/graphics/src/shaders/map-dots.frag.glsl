@@ -3,6 +3,7 @@ uniform vec4 highlight;
 uniform vec4 focus;
 uniform vec4 route;
 uniform float atmosphere;
+uniform float geographyOpacity;
 uniform float time;
 uniform float motionReduced;
 varying float vEmphasis;
@@ -15,9 +16,9 @@ void main() {
     gl_FragColor = vEmphasis > 1.5 ? focus : vEmphasis > 0.5 ? highlight : dot;
   } else {
     float core = 1.0 - smoothstep(0.10,0.19,radius);
-    float halo = exp(-radius * radius * 25.0) * (0.1 + vHover * 0.45);
-    float strength = clamp(vBreath + vEmphasis * 0.23 + vHover * 0.45,0.0,1.0);
-    vec3 tint = mix(dot.rgb,highlight.rgb,clamp(vHover * 0.8 + min(vEmphasis,1.0) * 0.38,0.0,1.0));
+    float halo = exp(-radius * radius * 25.0) * (0.1 + vHover * 0.07);
+    float strength = clamp(vBreath + vEmphasis * 0.23 + vHover * 0.13,0.0,1.0);
+    vec3 tint = mix(dot.rgb,highlight.rgb,clamp(vHover * 0.22 + min(vEmphasis,1.0) * 0.38,0.0,1.0));
     float alpha = (core * strength + halo) * dot.a;
     if (vEmphasis > 1.5) {
       float settled = motionReduced > 0.5 ? 1.0 : 1.0 - exp(-time * 5.5);
@@ -29,5 +30,6 @@ void main() {
     }
     gl_FragColor = vec4(tint,clamp(alpha,0.0,1.0));
   }
+  if (vEmphasis < 0.5) gl_FragColor.a *= geographyOpacity;
   #include <colorspace_fragment>
 }

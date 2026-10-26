@@ -1,5 +1,7 @@
 .host { position: relative; }
-.canvas { position: fixed !important; inset: 0; width: 100vw !important; height: 100vh !important; pointer-events: none !important; z-index: 1; }
+/* Match the fixed label layer's containing box, including reserved scrollbars.
+   100vw overconstrains inset:0 in RTL and shifts the canvas left by the gutter. */
+.canvas { position: fixed !important; inset: 0; width: auto !important; height: auto !important; pointer-events: none !important; z-index: 1; }
 .host:not([data-graphics-status='ready']) .canvas { visibility: hidden; }
 .view { position: relative; height: 240px; background: var(--scene-background); overflow: hidden; }
 .view[hidden] { display: none; }

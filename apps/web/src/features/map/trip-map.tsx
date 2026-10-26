@@ -13,10 +13,16 @@ const NO_DOTS:[]=[];
 const MAJOR_CITIES=new Set(['tehran','mashhad','isfahan','shiraz','tabriz','istanbul','dubai','doha','london','paris','frankfurt','bangkok','kuala-lumpur','tokyo','new-york']);
 const Scene=lazy(()=>import('@torob-ticket/graphics').then(module=>({default:module.RouteScene})));
 const Dots=z.object({revision:z.string(),navigation:z.literal(false),dots:z.object({iran:z.array(GeoPointSchema).max(16000),world:z.array(GeoPointSchema).max(16000)})});
+const Coordinate=z.tuple([z.number().finite(),z.number().finite()]);
+const Ring=z.array(Coordinate).min(4).max(30000);
+const Polygon=z.array(Ring).min(1).max(2000);
+const Countries=z.object({features:z.array(z.object({properties:z.object({countryCode:z.string()}),geometry:z.discriminatedUnion('type',[z.object({type:z.literal('Polygon'),coordinates:Polygon}),z.object({type:z.literal('MultiPolygon'),coordinates:z.array(Polygon).min(1).max(2000)})])})).max(300)});
+const ContextCities=z.object({navigation:z.literal(false),cities:z.array(z.object({id:z.string(),name:z.string(),point:GeoPointSchema,tier:z.union([z.literal(0),z.literal(1),z.literal(2)])})).max(150)});
 const Paths=z.object({revision:z.string(),navigation:z.literal(false),illustrative:z.literal(true),paths:z.array(z.object({originPlaceId:z.string(),destinationPlaceId:z.string(),points:z.array(GeoPointSchema).min(2).max(1000),provenance:z.object({source:z.string(),revision:z.string(),illustrative:z.literal(true),navigation:z.literal(false)})})).max(1000)});
 async function mapAssets(signal:AbortSignal) {
- const [dots,paths]=await Promise.all(['/geography/consumer-geography.json','/geography/route-geometry.json'].map(async path=>{const response=await fetch(path,{signal});if(!response.ok)throw new Error('bundled-map-unavailable');return response.json();}));
- return {dots:Dots.parse(dots),geometry:Paths.parse(paths)};
+ const [dots,paths,countries,cities]=await Promise.all(['/geography/consumer-geography.json','/geography/route-geometry.json','/geography/world.geojson','/geography/world-context-cities.json'].map(async path=>{const response=await fetch(path,{signal});if(!response.ok)throw new Error('bundled-map-unavailable');return response.json();}));
+ const countriesParsed=Countries.parse(countries).features;
+ return {dots:Dots.parse(dots),geometry:Paths.parse(paths),iran:countriesParsed.filter(country=>country.properties.countryCode==='IR'),worldContext:{countries:countriesParsed,cities:ContextCities.parse(cities).cities}};
 }
 export function useDesktopMap() {
  const [desktop,setDesktop]=useState(()=>typeof matchMedia==='function'&&matchMedia('(min-width:1120px)').matches);
@@ -57,7 +63,7 @@ export function TripMap({map,catalog,desktop,covered,onMotionChange}:{map:TripMa
  return <aside className={styles.map} aria-label="نقشه سفر" data-map-itinerary={view.itinerary?.itineraryId} data-map-direction={view.direction} data-map-progress={view.progress} data-map-fit={map.fitKey} data-map-historical={view.historical}>
   <header className={styles.header}><RouteSummary map={map} catalog={catalog} compact/></header>
   <div className={styles.scene}>
-   <Suspense fallback={<p role="status">آماده‌سازی نقشه…</p>}><Scene labelsVisible={false} showControls={false} places={catalog.places} dots={assets.data?(view.scope==='domestic'?assets.data.dots.dots.iran:assets.data.dots.dots.world):NO_DOTS} paths={assets.data?.geometry.paths} scope={view.scope} itinerary={view.itinerary} presentation={presentation} direction={view.direction} fitMode={map.state.cameraMode} fitBothDirections fitKey={map.fitKey} originKey="consumer-map" projection={map.state.projection} progress={view.progress} initialCamera={map.initialCamera} onCameraIntentChange={map.savePresentationCamera} isCurrent={capturedCurrent} animateProgress={active} onMotionChange={reportMotion} motionKey={map.presentationSceneKey} showTimeline={false} showNotes={false}/></Suspense>
+   <Suspense fallback={<p role="status">آماده‌سازی نقشه…</p>}><Scene labelsVisible={false} showControls={false} places={catalog.places} dots={assets.data?(view.scope==='domestic'?assets.data.dots.dots.iran:assets.data.dots.dots.world):NO_DOTS} paths={assets.data?.geometry.paths} worldContext={view.scope==='international'?assets.data?.worldContext:undefined} geography={view.scope==='domestic'?assets.data?.iran:undefined} scope={view.scope} itinerary={view.itinerary} presentation={presentation} direction={view.direction} fitMode={map.state.cameraMode} fitBothDirections fitKey={map.fitKey} originKey="consumer-map" projection={map.state.projection} progress={view.progress} initialCamera={map.initialCamera} onCameraIntentChange={map.savePresentationCamera} isCurrent={capturedCurrent} animateProgress={active} onMotionChange={reportMotion} motionKey={map.presentationSceneKey} showTimeline={false} showNotes={false}/></Suspense>
   </div>
   {assets.error&&<p role="status">داده محلی نقشه در دسترس نیست؛ انتخاب شهر در فرم سفر همچنان قابل استفاده است. <Button variant="quiet" onPress={()=>void assets.refetch()}>تلاش دوباره برای نقشه</Button></p>}
 

@@ -36,6 +36,14 @@
       "license": "Public domain",
       "licenseUrl": "https://data.iana.org/time-zones/tzdb/LICENSE",
       "sha256": "5f23781702bf51408ff1581daa109ab3b9257fb433b1554e579d92172892c0cf"
+    },
+    {
+      "name": "Natural Earth 110m populated places for map context",
+      "url": "https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_populated_places.geojson",
+      "license": "Public domain",
+      "licenseUrl": "https://www.naturalearthdata.com/about/terms-of-use/",
+      "sha256": "a86028b083182b68c7620fc6e1a8a47ee547cb9cd2fb62ccbb78bea786440899",
+      "retrievedOn": "2026-10-26"
     }
   ],
   "transformations": [
@@ -44,13 +52,16 @@
     "OurAirports: select 24 IATA/ICAO identifiers and coordinates; no operational schedule claim.",
     "Rail and bus places are fictional points near city centers, with stable local IDs, no invented real station codes.",
     "Destination extent rectangles enclose all sourced arrival references and accommodation markers; they are illustrative display bounds, not municipal boundaries. Landmarks are sourced city reference centers; accommodation markers and all hotels are fictional.",
-    "All transport paths, operators, services, timetables, prices, and room inventory are authored fiction. No navigation, live data, or actual hotel policy implied."
+    "All transport paths, operators, services, timetables, prices, and room inventory are authored fiction. No navigation, live data, or actual hotel policy implied.",
+    "Select cities for cartographic context only; retain source coordinates; translate names to Persian; author display tiers, not population ranks.",
+    "Merge already-bundled T05 catalog city reference points. No new selectable destinations or inventory."
   ],
   "attribution": "Made with Natural Earth. Airport data from OurAirports. Time zone identifiers from IANA tzdb.",
   "localAssets": [
     "geography/world.geojson",
     "geography/iran.geojson",
-    "geography/destination-landmarks.geojson"
+    "geography/destination-landmarks.geojson",
+    "geography/world-context-cities.json"
   ],
   "authoredAssets": [
     {

@@ -187,11 +187,18 @@ export function useSearchController(catalog: CatalogSnapshot, session: SessionIn
   function resultIsCurrent(expectedGeneration: string, expectedSearchId: string) {
     return live.current && authority.current.current && !starts.getSnapshot().resetting && generation.current === expectedGeneration && acceptedResult.current?.generation === expectedGeneration && acceptedResult.current.searchId === expectedSearchId;
   }
+  /** Old results remain readable, but cannot select a trip that differs from the edited form. */
+  function resultSelectionIsCurrent(expectedGeneration: string, expectedSearchId: string) {
+    if (!resultIsCurrent(expectedGeneration,expectedSearchId)) return false;
+    const intent = intentState.current;
+    const checked = validateDraft(intent.draft,catalog,session);
+    return Boolean(intent.committed && checked.query && serializeSearchUrl(intent.committed) === serializeSearchUrl(checked.query));
+  }
   function previewResultItinerary(id: string | undefined, expectedGeneration: string, expectedSearchId: string) {
-    if (resultIsCurrent(expectedGeneration,expectedSearchId)) dispatch({type:'preview-itinerary',id});
+    if (resultSelectionIsCurrent(expectedGeneration,expectedSearchId)) dispatch({type:'preview-itinerary',id});
   }
   function pinResultItinerary(id: string | undefined, expectedGeneration: string, expectedSearchId: string) {
-    if (resultIsCurrent(expectedGeneration,expectedSearchId)) dispatch({type:'pin-itinerary',id});
+    if (resultSelectionIsCurrent(expectedGeneration,expectedSearchId)) dispatch({type:'pin-itinerary',id});
   }
   function clearMapInspection(token:number) {if(live.current && !starts.getSnapshot().resetting && dateInteractions.isCurrent(token)) dispatch({type:'pin-itinerary',id:undefined});}
   const canRefineResults = Boolean(authority.current.current&&state.committed && validity.query && serializeSearchUrl(state.committed) === serializeSearchUrl(validity.query));
@@ -199,5 +206,5 @@ export function useSearchController(catalog: CatalogSnapshot, session: SessionIn
     if (!live.current || generation.current !== expectedGeneration || !dateInteractions.isCurrent(interactionToken) || !canRefineResults) return;
     void submit(query,false,'refine');
   }
-  return { state, dispatch, currentIntent, reconcileAuthority, authorityVersion, authorityCurrent:authority.current.current,lastError, edit, preset, submit, openSavedSearch, refineResults, resultIsCurrent, previewResultItinerary, pinResultItinerary, clearMapInspection, canRefineResults, refinementToken: dateInteractions.capture(), enterResults: resultEntryGeneration === state.generation, dateInteractions, commitDates, waitingDate, reset, validity, pending, resetting, feedback, accepted, startLimitReached, unresolvedStarts: startSnapshot.count, capacityMessage: startLimitReached && !resetting ? startCapacityMessage : '' };
+  return { state, dispatch, currentIntent, reconcileAuthority, authorityVersion, authorityCurrent:authority.current.current,lastError, edit, preset, submit, openSavedSearch, refineResults, resultIsCurrent, resultSelectionIsCurrent, previewResultItinerary, pinResultItinerary, clearMapInspection, canRefineResults, refinementToken: dateInteractions.capture(), enterResults: resultEntryGeneration === state.generation, dateInteractions, commitDates, waitingDate, reset, validity, pending, resetting, feedback, accepted, startLimitReached, unresolvedStarts: startSnapshot.count, capacityMessage: startLimitReached && !resetting ? startCapacityMessage : '' };
 }

@@ -17,7 +17,7 @@ export function useTripMap(controller:SearchController,catalog:CatalogSnapshot) 
  const view=mapView(state,Date.now());
  const presentationView=mapPresentationView(state,Date.now());
  const owner=search.generation&&search.searchId?{generation:search.generation,searchId:search.searchId}:undefined;
- const owns=(expected:MapOwner|undefined)=>Boolean(expected&&controller.resultIsCurrent(expected.generation,expected.searchId));
+ const owns=(expected:MapOwner|undefined)=>Boolean(expected&&controller.resultSelectionIsCurrent(expected.generation,expected.searchId));
  function inspection(itinerary:Itinerary,expected:MapOwner):MapInspection|undefined {const query=readContext().committed;return query&&owns(expected)?{itinerary,query,owner:expected}:undefined;}
  function preview(itinerary?:Itinerary,source:'hover'|'focus'='hover',leavingId?:string) {if(!owns(owner)||!owner)return;const item=itinerary?inspection(itinerary,owner):undefined;if(itinerary&&!item)return;const next=send({type:'preview',owner,inspection:item,source,leavingId});controller.previewResultItinerary(next.preview?.itinerary.itineraryId,owner.generation,owner.searchId);}
  function pin(itinerary:Itinerary) {if(!owns(owner)||!owner)return;const item=inspection(itinerary,owner);if(!item)return;controller.pinResultItinerary(itinerary.itineraryId,owner.generation,owner.searchId);send({type:'pin',inspection:item});}

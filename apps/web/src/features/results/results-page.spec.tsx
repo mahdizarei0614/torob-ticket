@@ -10,6 +10,27 @@ import { group, observedAt, recovery } from './results-test-data';
 import { catalog, query } from '../search/search-test-data';
 vi.mock('./use-results',()=>({useResults:vi.fn()}));
 afterEach(()=>{vi.restoreAllMocks();vi.unstubAllGlobals();});
+it('keeps edited-trip results readable but disables representative/provider choices and continuation',()=>{
+ vi.spyOn(Date,'now').mockReturnValue(Date.parse(observedAt)+5000);const item=group('a'),value=recovery([item]);
+ let state=resultsReducer(createResultsState('generation','search'),{type:'receive',recovery:value});
+ state=resultsReducer(state,{type:'select',selection:{groupId:'a',quoteId:item.eligibleQuotes[0]!.quoteId,version:1},now:Date.now()});
+ const selected=vi.fn(),pin=vi.fn(),preview=vi.fn(),dispatch=vi.fn();
+ vi.mocked(useResults).mockReturnValue({state,dispatch,now:Date.now(),connectionError:false,connectionState:'settled',error:undefined,retryRead:vi.fn(),stored:value});
+ render(<ResultsList isCurrent={()=>true} generation="generation" searchId="search" query={query} catalog={catalog} refinementDisabled draftChanged onRefine={()=>undefined} onEdit={()=>undefined} onSelectQuote={selected} onPinItinerary={pin} onPreviewItinerary={preview} selectedAction={{quoteId:item.eligibleQuotes[0]!.quoteId,node:<button>continue old flight</button>}}/>);
+ expect(screen.getByRole('heading',{name:'مقایسه پروازها'})).toBeVisible();expect(screen.getByRole('button',{name:'انتخاب‌شده برای مقایسه'})).toBeDisabled();
+ fireEvent.click(screen.getByRole('button',{name:/جزئیات و/}));expect(screen.getByRole('button',{name:'پیشنهاد انتخاب‌شده'})).toBeDisabled();
+ expect(screen.queryByRole('button',{name:'continue old flight'})).not.toBeInTheDocument();expect(screen.getByText(/ابتدا سفر ویرایش‌شده را جست‌وجو کنید/)).toBeVisible();
+ fireEvent.mouseEnter(screen.getByRole('article'));expect(pin).not.toHaveBeenCalled();expect(preview).not.toHaveBeenCalled();expect(selected).not.toHaveBeenCalled();
+});
+it('an already-rendered result cannot select after synchronous draft invalidation before React rerenders',()=>{
+ vi.spyOn(Date,'now').mockReturnValue(Date.parse(observedAt)+5000);const value=recovery([group('a')]);const state=resultsReducer(createResultsState('generation','search'),{type:'receive',recovery:value});
+ let selectionCurrent=true;const selected=vi.fn(),pin=vi.fn(),preview=vi.fn(),dispatch=vi.fn();
+ vi.mocked(useResults).mockReturnValue({state,dispatch,now:Date.now(),connectionError:false,connectionState:'settled',error:undefined,retryRead:vi.fn(),stored:value});
+ render(<ResultsList isCurrent={()=>true} isSelectionCurrent={()=>selectionCurrent} generation="generation" searchId="search" query={query} catalog={catalog} refinementDisabled={false} draftChanged={false} onRefine={()=>undefined} onEdit={()=>undefined} onSelectQuote={selected} onPinItinerary={pin} onPreviewItinerary={preview}/>);
+ selected.mockClear();selectionCurrent=false;
+ fireEvent.click(screen.getByRole('button',{name:'انتخاب پیشنهاد'}));fireEvent.mouseEnter(screen.getByRole('article'));
+ expect(dispatch).not.toHaveBeenCalledWith(expect.objectContaining({type:'select'}));expect(pin).not.toHaveBeenCalled();expect(preview).not.toHaveBeenCalled();expect(selected).not.toHaveBeenCalled();
+});
 it('a newly adopted later provider observation is current on the first render, even before the expiry tick state updates',()=>{
  const initialTime=Date.parse(observedAt);vi.spyOn(Date,'now').mockReturnValue(initialTime+5000);
  const later=group('later');later.eligibleQuotes[0]!.observedAt='2026-10-25T06:00:04.000Z';const value=recovery([later]);

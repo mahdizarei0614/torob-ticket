@@ -45,10 +45,11 @@ describe('consumer map ownership and camera intent',()=>{
   expect(state.fitEpoch).toBe(fit);expect(mapView(state,now)).toMatchObject({historical:true,progress:0});
   state=mapReducer(state,{type:'context',context:{...context,generation:'restore',revision:3,cause:'restore'}});expect(mapView(state,now).itinerary).toBeUndefined();
  });
- it('rejects old operations, clears inspection after draft edits, and permits a fresh explicit current pin',()=>{
+ it('rejects old operations and blocks old-result pins while the draft differs from the committed trip',()=>{
   let state=mapReducer(createMapState(context),{type:'pin',inspection:inspect(a)});
   state=mapReducer(state,{type:'context',context:{...context,draft:{...query,party:{adults:2,children:0,infants:0}},revision:2,cause:'edit'}});expect(mapView(state,now).itinerary).toBeUndefined();expect(mapView(state,now).progress).toBe(0);
-  state=mapReducer(state,{type:'pin',inspection:inspect(a)});expect(mapView(state,now).itinerary?.itineraryId).toBe('a');
+  state=mapReducer(state,{type:'pin',inspection:inspect(a)});expect(mapView(state,now).itinerary).toBeUndefined();
+  state=mapReducer(state,{type:'selection',inspection:inspect(a),quote:group('a').eligibleQuotes[0]!,owner});expect(mapView(state,now).selectedValid).toBe(false);
   state=mapReducer(state,{type:'context',context:{...context,generation:'other',revision:3,cause:'restore'}});state=mapReducer(state,{type:'preview',inspection:inspect(b),owner});expect(mapView(state,now).itinerary).toBeUndefined();
  });
  it('only matching actual confirmed receipt completes; selection and changed/failed checks cannot fabricate100',()=>{
@@ -93,7 +94,7 @@ describe('consumer map ownership and camera intent',()=>{
  it('an unsearched draft cannot borrow comparison35 from old route, party, class or eligibility conditions',()=>{
   for(const patch of [{destinationCityId:'c'},{party:{adults:2,children:0,infants:0}},{classCode:'business'},{filters:{refundableOnly:true}}]) {
    const state=mapReducer(createMapState(context),{type:'context',context:{...context,draft:{...query,...patch},revision:2,cause:'edit'}});expect(mapView(state,now).progress).toBe(0);
-   expect(mapView(mapReducer(state,{type:'preview',inspection:inspect(a),owner}),now).progress).toBe(.35);
+   expect(mapView(mapReducer(state,{type:'preview',inspection:inspect(a),owner}),now).progress).toBe(0);
   }
  });
  it('a different payload with the same itinerary ID cannot inherit the bound fare progress',()=>{

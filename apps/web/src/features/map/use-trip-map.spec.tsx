@@ -4,7 +4,7 @@ import {BrowserRouter} from 'react-router';
 import {type ReactNode} from 'react';
 import {expect,it,vi} from 'vitest';
 import type {ApiClient} from '@torob-ticket/client';
-import type {SearchRequest,SearchRecovery} from '@torob-ticket/contracts';
+import type {Itinerary,SearchRequest,SearchRecovery} from '@torob-ticket/contracts';
 import {useSearchController} from '../search/use-search-controller';
 import {catalog,query,session} from '../search/search-test-data';
 import {group,observedAt} from '../results/results-test-data';
@@ -41,15 +41,22 @@ it('synchronously rejects retained direction callbacks after native restore and 
  expect(hook.result.current.controller.state.draft.destinationCityId).toBe('b');expect(hook.result.current.map.view.direction).toBe('outbound');expect(hook.result.current.map.view.itinerary).toBeUndefined();
  hook.unmount();
 });
-it('clears coherent IDs after edit and explicitly reselects the same committed fare without changing the edited train form',async()=>{
+it('keeps a train edit authoritative when an old flight is reselected, then renders a freshly searched train',async()=>{
  vi.spyOn(Date,'now').mockReturnValue(Date.parse(observedAt)+1000);
  const hook=setup();await act(()=>hook.result.current.controller.submit(query));
  const quote=group('a').eligibleQuotes[0]!;const itinerary=group('a').itinerary;
  act(()=>hook.result.current.map.selection(quote,itinerary,{groupId:'a',quoteId:quote.quoteId,version:1}));
  expect(hook.result.current.map.view.progress).toBe(.7);expect(hook.result.current.controller.state.pinnedItineraryId).toBe('a');
- act(()=>hook.result.current.controller.edit({mode:'train'}));expect(hook.result.current.controller.state.pinnedItineraryId).toBeUndefined();expect(hook.result.current.map.view.itinerary).toBeUndefined();
+ const before=hook.result.current.map;const referral=before.referralLease()!;
+ act(()=>{hook.result.current.controller.edit({mode:'train'});before.selection(quote,itinerary,{groupId:'a',quoteId:quote.quoteId,version:1});});
+ expect(referral.isCurrent()).toBe(false);expect(hook.result.current.map.referralLease()).toBeUndefined();expect(referral.accept({...quote,version:2},itinerary)).toBe(false);
  act(()=>hook.result.current.map.selection(quote,itinerary,{groupId:'a',quoteId:quote.quoteId,version:1}));
- expect(hook.result.current.map.view.progress).toBe(.7);expect(hook.result.current.map.view.mode).toBe('flight');expect(hook.result.current.controller.state.draft.mode).toBe('train');expect(hook.result.current.controller.state.pinnedItineraryId).toBe('a');
+ expect(hook.result.current.map.presentationView.mode).toBe('train');expect(hook.result.current.map.presentationView.itinerary).toBeUndefined();expect(hook.result.current.controller.state.pinnedItineraryId).toBeUndefined();
+ const trainQuery={...query,mode:'train' as const,destinationCityId:'c',classCode:'seat'};
+ await act(()=>hook.result.current.controller.submit(trainQuery));
+ const train:Itinerary={...itinerary,mode:'train',outbound:{...itinerary.outbound,segments:itinerary.outbound.segments.map(segment=>({...segment,mode:'train'}))}};
+ act(()=>hook.result.current.map.selection({...quote,conditions:{outbound:{...quote.conditions.outbound,classCode:'seat'}}},train,{groupId:'a',quoteId:quote.quoteId,version:1}));
+ expect(hook.result.current.map.presentationView.itinerary?.mode).toBe('train');expect(hook.result.current.map.presentationView.mode).toBe('train');expect(hook.result.current.map.referralLease()?.itinerary.mode).toBe('train');expect(hook.result.current.controller.state.draft.mode).toBe('train');
  hook.unmount();vi.restoreAllMocks();
 });
 it('uses the accepted recheck version own timer and keeps same-travel refinement camera as historical inspection',async()=>{
@@ -66,17 +73,18 @@ it('uses the accepted recheck version own timer and keeps same-travel refinement
  hook.unmount();vi.useRealTimers();
 });
 
-it('same-turn accepted inspections reconcile with the actual edited intent and keep controller IDs coherent',async()=>{
+it('same-turn form edits fence old pins, previews and selections before React delivery',async()=>{
  vi.spyOn(Date,'now').mockReturnValue(Date.parse(observedAt)+1000);
  for(const kind of ['pin','preview','selection'] as const){const hook=setup();await act(()=>hook.result.current.controller.submit(query));const before=hook.result.current.map;const itinerary=group('a').itinerary;const quote=group('a').eligibleQuotes[0]!;
  act(()=>{hook.result.current.controller.edit({party:{adults:2,children:0,infants:0}});if(kind==='selection')before.selection(quote,itinerary,{groupId:'a',quoteId:quote.quoteId,version:1});else before[kind](itinerary);});
- expect(hook.result.current.controller.state.draft.party.adults).toBe(2);expect(hook.result.current.map.view.itinerary?.itineraryId).toBe('a');expect(hook.result.current.map.view.progress).toBe(kind==='selection'?.7:.35);expect(kind==='preview'?hook.result.current.controller.state.previewItineraryId:hook.result.current.controller.state.pinnedItineraryId).toBe('a');hook.unmount();}
+ expect(hook.result.current.controller.state.draft.party.adults).toBe(2);expect(hook.result.current.map.view.itinerary).toBeUndefined();expect(hook.result.current.map.view.progress).toBe(0);expect(hook.result.current.map.referralLease()).toBeUndefined();expect(hook.result.current.controller.state.previewItineraryId).toBeUndefined();expect(hook.result.current.controller.state.pinnedItineraryId).toBeUndefined();hook.unmount();}
  vi.restoreAllMocks();
 });
 it('passive result delivery after edits or explicit inspection clear cannot resurrect the consumed fare intent',async()=>{
  vi.spyOn(Date,'now').mockReturnValue(Date.parse(observedAt)+1000);const hook=setup();await act(()=>hook.result.current.controller.submit(query));const itinerary=group('a').itinerary;const quote=group('a').eligibleQuotes[0]!;const intent={groupId:'a',quoteId:quote.quoteId,version:1};
  act(()=>hook.result.current.map.selection(quote,itinerary,intent));act(()=>{hook.result.current.controller.edit({party:{adults:2,children:0,infants:0}});hook.result.current.map.selection(quote,itinerary,intent);});expect(hook.result.current.map.view.itinerary).toBeUndefined();expect(hook.result.current.controller.state.pinnedItineraryId).toBeUndefined();expect(hook.result.current.map.view.progress).toBe(0);
- act(()=>hook.result.current.map.selection(quote,itinerary,{...intent}));expect(hook.result.current.map.view.progress).toBe(.7);act(()=>hook.result.current.map.clear());act(()=>hook.result.current.map.selection(quote,itinerary,hook.result.current.map.state.resultIntent));expect(hook.result.current.map.view.itinerary).toBeUndefined();hook.unmount();vi.restoreAllMocks();
+ act(()=>hook.result.current.map.selection(quote,itinerary,{...intent}));expect(hook.result.current.map.view.progress).toBe(0);
+ act(()=>hook.result.current.controller.edit({party:query.party}));act(()=>hook.result.current.map.selection(quote,itinerary,{...intent}));expect(hook.result.current.map.view.progress).toBe(.7);act(()=>hook.result.current.map.clear());act(()=>hook.result.current.map.selection(quote,itinerary,hook.result.current.map.state.resultIntent));expect(hook.result.current.map.view.itinerary).toBeUndefined();hook.unmount();vi.restoreAllMocks();
 });
 it('actual card→hook modality contract restores focus after cross-card hover and keeps pointer inspection after blur',async()=>{
  vi.spyOn(Date,'now').mockReturnValue(Date.parse(observedAt)+1000);const hook=setup();await act(()=>hook.result.current.controller.submit(query));const items=[group('a'),group('b')];const data=recovery(items);

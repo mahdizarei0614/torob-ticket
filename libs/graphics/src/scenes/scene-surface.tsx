@@ -63,6 +63,23 @@ export function SceneSurface({ label, camera, setZoom, context, markers, onMarke
   const viewport = useRef<HTMLDivElement>(null); const [dimensions, setDimensions] = useState({ width: 560, height: 400 });
   const pointers = useRef(new Map<number, { x: number; y: number }>()); const pinch = useRef<{ distance: number; zoom: number } | null>(null);
   const gesture = useRef(false);
+  const zoomControls = useRef({ zoom: camera.zoom, setZoom, isCurrent, pointer });
+  zoomControls.current = { zoom: camera.zoom, setZoom, isCurrent, pointer };
+  useEffect(() => {
+    const element = viewport.current;
+    if (!element) return;
+    // Desktop trackpads emit Ctrl+wheel for pinch. Ordinary wheel scrolling remains page scrolling.
+    const zoom = (event: WheelEvent) => {
+      const current = zoomControls.current;
+      if (!event.ctrlKey || !current.isCurrent()) return;
+      event.preventDefault();
+      if (current.pointer) current.pointer.current.active = false;
+      const delta = event.deltaY * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? element.clientHeight : 1);
+      current.setZoom(Math.max(.5, Math.min(8, current.zoom * Math.exp(-Math.max(-200, Math.min(200, delta)) * .006))));
+    };
+    element.addEventListener('wheel', zoom, { passive: false });
+    return () => element.removeEventListener('wheel', zoom);
+  }, []);
   useLayoutEffect(()=>{
     const element=viewport.current!;
     const measure=()=>{const box=element.getBoundingClientRect();if(box.width&&box.height){setDimensions(previous=>previous.width===box.width&&previous.height===box.height?previous:{width:box.width,height:box.height});if(portalLabels)setRect(previous=>previous.left===box.left&&previous.top===box.top&&previous.width===box.width&&previous.height===box.height?previous:{left:box.left,top:box.top,width:box.width,height:box.height});}};
@@ -111,7 +128,7 @@ export function SceneSurface({ label, camera, setZoom, context, markers, onMarke
         if ((event.target as HTMLElement).closest('button')) return;
         pointers.current.set(event.pointerId, { x: event.clientX, y: event.clientY });
         if (pointers.current.size === 1) gesture.current = false;
-        if (pointers.current.size === 2) { const [a, b] = [...pointers.current.values()]; pinch.current = { distance: Math.hypot(a!.x - b!.x, a!.y - b!.y), zoom: camera.zoom }; gesture.current = true; event.currentTarget.setPointerCapture(event.pointerId); }
+        if (pointers.current.size === 2) { if(pointer)pointer.current.active=false; const [a, b] = [...pointers.current.values()]; pinch.current = { distance: Math.hypot(a!.x - b!.x, a!.y - b!.y), zoom: camera.zoom }; gesture.current = true; event.currentTarget.setPointerCapture(event.pointerId); }
       }} onPointerMove={event => {
         if(!isCurrent()){pointers.current.clear();pinch.current=null;if(pointer)pointer.current.active=false;return;}
         if(pointer && event.pointerType!=='touch') {
@@ -124,7 +141,7 @@ export function SceneSurface({ label, camera, setZoom, context, markers, onMarke
         const previous = pointers.current.get(event.pointerId); if (!previous) return;
         if (Math.hypot(event.clientX - previous.x, event.clientY - previous.y) > 4) gesture.current = true;
         pointers.current.set(event.pointerId, { x: event.clientX, y: event.clientY });
-        if (pinch.current && pointers.current.size === 2) { const [a, b] = [...pointers.current.values()]; const distance = Math.hypot(a!.x - b!.x, a!.y - b!.y); if (pinch.current.distance > 0) setZoom(Math.max(.5, Math.min(8, pinch.current.zoom * distance / pinch.current.distance))); }
+        if (pinch.current && pointers.current.size === 2) { if(pointer)pointer.current.active=false; const [a, b] = [...pointers.current.values()]; const distance = Math.hypot(a!.x - b!.x, a!.y - b!.y); if (pinch.current.distance > 0) setZoom(Math.max(.5, Math.min(8, pinch.current.zoom * distance / pinch.current.distance))); }
       }} onPointerLeave={()=>{if(pointer)pointer.current.active=false;}} onPointerCancel={event => { pointers.current.delete(event.pointerId); pinch.current = null; gesture.current = true;if(pointer)pointer.current.active=false; }} onPointerUp={event => {
         if(!isCurrent()){pointers.current.clear();pinch.current=null;return;}
         if (!gesture.current && pointers.current.has(event.pointerId) && onPointChange && !(event.target as HTMLElement).closest('button')) {

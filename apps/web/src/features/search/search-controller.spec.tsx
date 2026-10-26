@@ -188,11 +188,22 @@ it('StrictMode lifetime replay does not duplicate an outstanding authorized star
 });
 
 describe('live accepted result ownership',()=>{
- it('allows committed-result inspection during draft edits but fences wrong IDs, native restoration and unmount',async()=>{
+ it.each([
+  {mode:'train' as const}, {scope:'international' as const}, {originCityId:'c'}, {destinationCityId:'c'},
+  {departureDate:'2026-10-26'}, {party:{adults:2,children:0,infants:0}}, {filters:{refundableOnly:true}},
+ ])('rejects retained result selection synchronously after trip edit %j',async patch=>{
+  const client={startSearch:vi.fn(async(request:SearchRequest)=>recovery(request)),cancelSearch:vi.fn(async()=>undefined)} as unknown as ApiClient;
+  const hook=setup(client);await act(()=>hook.result.current.submit(query));const owner=hook.result.current;const generation=owner.state.generation!;
+  expect(owner.resultSelectionIsCurrent(generation,'operation')).toBe(true);
+  act(()=>{owner.edit(patch);expect(owner.resultSelectionIsCurrent(generation,'operation')).toBe(false);owner.pinResultItinerary('stale',generation,'operation');});
+  expect(owner.resultIsCurrent(generation,'operation')).toBe(true);expect(hook.result.current.state.pinnedItineraryId).toBeUndefined();
+  hook.unmount();
+ });
+ it('keeps committed evidence current while draft edits fence selection, pinning and preview',async()=>{
   const client={startSearch:vi.fn(async(request:SearchRequest)=>recovery(request)),cancelSearch:vi.fn(async()=>undefined)} as unknown as ApiClient;
   const hook=setup(client);await act(()=>hook.result.current.submit());const generation=hook.result.current.state.generation!;const owner=hook.result.current;expect(owner.resultIsCurrent(generation,'operation')).toBe(true);expect(owner.resultIsCurrent(generation,'other')).toBe(false);
   act(()=>hook.result.current.edit({party:{adults:2,children:0,infants:0}}));expect(hook.result.current.canRefineResults).toBe(false);expect(owner.resultIsCurrent(generation,'operation')).toBe(true);
-  act(()=>{owner.previewResultItinerary('kept-result',generation,'operation');owner.pinResultItinerary('kept-result',generation,'operation');});expect(hook.result.current.state.pinnedItineraryId).toBe('kept-result');
+  act(()=>{owner.previewResultItinerary('kept-result',generation,'operation');owner.pinResultItinerary('kept-result',generation,'operation');});expect(hook.result.current.state.pinnedItineraryId).toBeUndefined();expect(hook.result.current.state.previewItineraryId).toBeUndefined();expect(owner.resultSelectionIsCurrent(generation,'operation')).toBe(false);
   act(()=>{window.history.replaceState({},'','/');window.dispatchEvent(new PopStateEvent('popstate'));owner.previewResultItinerary('old',generation,'operation');owner.pinResultItinerary('old',generation,'operation');});expect(hook.result.current.state.pinnedItineraryId).toBeUndefined();expect(hook.result.current.state.previewItineraryId).toBeUndefined();expect(owner.resultIsCurrent(generation,'operation')).toBe(false);expect(owner.resultIsCurrent(hook.result.current.state.generation!,'operation')).toBe(false);hook.unmount();expect(owner.resultIsCurrent(generation,'operation')).toBe(false);
  });
 });

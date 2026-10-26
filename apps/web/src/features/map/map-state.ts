@@ -27,7 +27,7 @@ const travelKey = (query:SearchDraft) => JSON.stringify([query.mode,query.scope,
 const networkKey = (query:SearchDraft) => JSON.stringify([query.mode,query.scope,query.originCityId,query.destinationCityId]);
 export const contextKey = (context:MapContext) => JSON.stringify([context.revision,context.cause,context.generation,context.searchId,context.current,context.resetting,context.draft,context.committed]);
 export function createMapState(context:MapContext):MapState {return {context,direction:'outbound',fitEpoch:0,projection:{centralLongitude:0},cameraMode:'geography'};}
-function current(state:MapState,owner:MapOwner) {return sameOwner(ownerFor(state.context),owner);}
+function current(state:MapState,owner:MapOwner) {return sameOwner(ownerFor(state.context),owner) && Boolean(state.context.committed) && canonical(state.context.draft)===canonical(state.context.committed);}
 /** Context reconciliation is also used at render, so an old payload never flashes before an effect. */
 export function reconcileMapState(state:MapState,context:MapContext):MapState {
   if(contextKey(state.context)===contextKey(context)) return state;

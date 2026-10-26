@@ -1,5 +1,5 @@
 import {displayPlaceName} from '@torob-ticket/ui';
-import { memo, useMemo, useEffect, useRef, useCallback, useSyncExternalStore } from 'react';
+import { memo, useMemo, useEffect, useLayoutEffect, useRef, useCallback, useSyncExternalStore } from 'react';
 import type { City, GeoPoint, Itinerary, Mode, Place } from '@torob-ticket/contracts';
 import { buildRouteGeometry, type IllustrativePath, type RouteSegmentGeometry } from '../geo/route-geometry';
 import { DEFAULT_PROJECTION, fitRouteBounds, projectPoint, projectRoute, type ProjectionContext, type RouteBounds } from '../geo/projection';
@@ -9,6 +9,8 @@ import { useGraphics } from '../graphics-provider';
 import { buildJourneyPresentation, sampleJourneyPresentation, type JourneyPresentation, type JourneyPresentationFrame } from './journey-presentation';
 import { placeAnnotations } from './annotation-layout';
 import { createSceneFrameStore, fitPresentationBounds, type SceneFrameStore } from './camera-transition';
+import { contextCityLabels, DOMESTIC_DOT_BASE_SPACING, INTERNATIONAL_DOT_BASE_SPACING, worldDotWeights, type ContextCity, type ContextLabel, type WorldCountry, type WorldContext } from '../geo/world-context';
+import { WorldGeography, StaticWorldGeography } from './world-geography';
 import styles from './scenes.module.css';
 import presentationStyles from './route-presentation.module.css';
 export interface RouteCityMarker { city:City;enabled:boolean;role:'origin'|'destination'|'network' }
@@ -36,8 +38,11 @@ export interface RouteSceneProps {
   onPlaceSelect?: (placeId: string) => void;
   /** Selected journey visual choreography; independent of comparison/referral progress. */
   presentation?: RoutePresentation;
+  /** Locally bundled cartographic context; does not add selectable destinations. */
+  worldContext?: WorldContext;
+  geography?:readonly WorldCountry[];
 }
-export const RouteScene = memo(function RouteScene({ places, dots, scope, itinerary, direction = 'outbound', paths = NO_PATHS, illustrative, projection = DEFAULT_PROJECTION, fitMode = 'route', fitKey, originKey = '', progress = 0, reveal = 1, onPlaceSelect,cities=NO_CITIES,onCitySelect,initialCamera,onCameraIntentChange,isCurrent=()=>true,fitBothDirections=false,showTimeline=true,showNotes=true,animateProgress=false,onMotionChange,motionKey,portalLabels=false,labelsVisible=true,showControls=true,presentation }: RouteSceneProps) {
+export const RouteScene = memo(function RouteScene({ places, dots, scope, itinerary, direction = 'outbound', paths = NO_PATHS, illustrative, projection = DEFAULT_PROJECTION, fitMode = 'route', fitKey, originKey = '', progress = 0, reveal = 1, onPlaceSelect,cities=NO_CITIES,onCitySelect,initialCamera,onCameraIntentChange,isCurrent=()=>true,fitBothDirections=false,showTimeline=true,showNotes=true,animateProgress=false,onMotionChange,motionKey,portalLabels=false,labelsVisible=true,showControls=true,presentation,worldContext,geography }: RouteSceneProps) {
   const { status } = useGraphics();
   const pointer = useRef({ x: 0, y: 0, active: false });
   const cameraFrames = useMemo(()=>createSceneFrameStore(),[]);
@@ -86,13 +91,15 @@ export const RouteScene = memo(function RouteScene({ places, dots, scope, itiner
   useEffect(()=>{if(isCurrent()) onCameraIntentChange?.(camera);},[camera,onCameraIntentChange,isCurrent]);
   const chooseMarker=(id:string)=>{if(!isCurrent()) return;const city=cities.find(item=>'city:'+item.city.id===id);if(city){if(city.enabled) onCitySelect?.(city.city.id);}else onPlaceSelect?.(id);};
   const label = 'نقشه مسیر';
-  return <div data-route-scene data-direction={direction} data-progress={progress}>
+  const world=presentation && scope==='international'?worldContext:undefined;
+  const land=presentation ? world?.countries??geography:undefined;
+  return <div data-route-scene data-world-country-borders={world?.countries.length??0} data-direction={direction} data-progress={progress}>
     <SceneSurface portalLabels={presentation ? true : portalLabels} labelsVisible={labelsVisible && !presentation} showControls={showControls} label={label} camera={camera} setZoom={zoom => setCamera(value => ({ ...value, zoom }))} context={projection} markers={markers} onMarkerSelect={onPlaceSelect||onCitySelect?chooseMarker:undefined} isCurrent={isCurrent} markerSelectLabel={cities.length?'انتخاب شهر روی نقشه':undefined}
       pointer={presentation ? pointer : undefined}
       displayFrame={presentation ? cameraFrames : undefined}
-      overlay={presentation ? (frame,dimensions) => <PresentationOverlay key={presentation.key} plan={plan} store={store} endpoints={endpoints} context={projection} frame={frame} cameraFrames={cameraFrames} dimensions={dimensions} reducedMotion={presentation.reducedMotion} finalState={status !== 'ready' && status !== 'loading'} active={presentation.active} /> : undefined}
-      fallback={frame => <StaticMap dots={dots} markers={markers} segments={segments} context={projection} frame={frame} progress={presentation ? 1 : progress} mode={itinerary?.mode??illustrative?.mode} presentation={presentation ? plan : undefined} majorCities={presentation?.majorCities} />}>
-      {frame => <><SceneCamera frame={frame} transition={presentation ? {active:presentation.active,reducedMotion:presentation.reducedMotion,initialFrame:initialCamera?undefined:frameForAspect({...overview,zoom:1},frame.width/frame.height),projectionLongitude:projection.centralLongitude,store:cameraFrames}:undefined} /><SceneDrawing dots={dots} markers={markers} segments={segments} context={projection} frame={frame} mode={itinerary?.mode ?? illustrative?.mode} progress={progress} reveal={reveal} animateProgress={animateProgress} onMotionChange={onMotionChange} motionKey={motionKey} presentation={presentation ? plan : undefined} presentationKey={presentation?.key} presentationReducedMotion={presentation?.reducedMotion} onPresentationFrame={presentation ? reportPresentation : undefined} pointer={presentation ? pointer : undefined} ambientMotion={presentation?.active} majorCities={presentation?.majorCities} /></>}
+      overlay={presentation ? (frame,dimensions) => <PresentationOverlay key={presentation.key} plan={plan} store={store} endpoints={endpoints} worldContext={world} dotSpacing={land?scope==='domestic'?DOMESTIC_DOT_BASE_SPACING:INTERNATIONAL_DOT_BASE_SPACING:undefined} dotRefinement={scope==='domestic'?2:4} context={projection} frame={frame} cameraFrames={cameraFrames} dimensions={dimensions} reducedMotion={presentation.reducedMotion} finalState={status !== 'ready' && status !== 'loading'} active={presentation.active} /> : undefined}
+      fallback={frame => <StaticMap hideGeography={Boolean(land)} background={land ? <StaticWorldGeography countries={land} context={projection} frame={frame} domestic={scope==='domestic'}/> : undefined} dots={dots} markers={markers} segments={segments} context={projection} frame={frame} progress={presentation ? 1 : progress} mode={itinerary?.mode??illustrative?.mode} presentation={presentation ? plan : undefined} majorCities={presentation?.majorCities} />}>
+      {frame => <><SceneCamera frame={frame} transition={presentation ? {active:presentation.active,reducedMotion:presentation.reducedMotion,initialFrame:initialCamera?undefined:frameForAspect({...overview,zoom:1},frame.width/frame.height),projectionLongitude:projection.centralLongitude,store:cameraFrames}:undefined} /><SceneDrawing hideGeography={Boolean(land)} dots={dots} markers={markers} segments={segments} context={projection} frame={frame} mode={itinerary?.mode ?? illustrative?.mode} progress={progress} reveal={reveal} animateProgress={animateProgress} onMotionChange={onMotionChange} motionKey={motionKey} presentation={presentation ? plan : undefined} presentationKey={presentation?.key} presentationReducedMotion={presentation?.reducedMotion} onPresentationFrame={presentation ? reportPresentation : undefined} pointer={presentation ? pointer : undefined} ambientMotion={presentation?.active} majorCities={presentation?.majorCities} />{land && <WorldGeography countries={land} context={projection} frame={frame} pointer={pointer} reducedMotion={presentation!.reducedMotion} domestic={scope==='domestic'} active={presentation!.active} resetKey={presentation!.key}/>}</>}
     </SceneSurface>
     {showNotes && <p role="note">مسیر روی نقشه تقریبی است و راهنمای مسیریابی نیست.</p>}
     {showNotes && !leg && <p>{illustrative?.label ?? (itinerary ? 'اطلاعات مسیر برگشت موجود نیست.' : 'برای نمایش مسیر، مبدأ و مقصد را انتخاب کنید.')}</p>}
@@ -110,9 +117,9 @@ function createPresentationStore(initial: JourneyPresentationFrame) {
     update: (next: JourneyPresentationFrame) => { value = next; listeners.forEach(listener => listener()); },
   };
 }
-function PresentationOverlay({ plan, store, endpoints, context, frame:targetFrame, cameraFrames, dimensions, reducedMotion, finalState, active }: {
+function PresentationOverlay({ plan, store, endpoints, context, frame:targetFrame, cameraFrames, dimensions, reducedMotion, finalState, active, worldContext, dotSpacing, dotRefinement }: {
   plan: JourneyPresentation; store: ReturnType<typeof createPresentationStore>; endpoints: readonly RoutePresentationEndpoint[];
-  context: ProjectionContext; frame: RouteBounds; cameraFrames:SceneFrameStore; dimensions: {width:number;height:number}; reducedMotion: boolean; finalState: boolean; active: boolean;
+  worldContext?:WorldContext; dotSpacing?:number; dotRefinement:number; context: ProjectionContext; frame: RouteBounds; cameraFrames:SceneFrameStore; dimensions: {width:number;height:number}; reducedMotion: boolean; finalState: boolean; active: boolean;
 }) {
   const sampled = useSyncExternalStore(store.subscribe, store.getSnapshot, store.getSnapshot);
   const displayedFrame = useSyncExternalStore(cameraFrames.subscribe,cameraFrames.getSnapshot,cameraFrames.getSnapshot);
@@ -125,6 +132,11 @@ function PresentationOverlay({ plan, store, endpoints, context, frame:targetFram
     const anchors = points.map(item => { const [x,y] = projectPoint(item.point,context); return {id:item.id,width:item.width,height:item.height,preferBelow:item.preferBelow,x:dimensions.width*(.5+(x-frame.x)/frame.width),y:dimensions.height*(.5-(y-frame.y)/frame.height)}; }).filter(item=>item.x>=0 && item.y>=0 && item.x<=dimensions.width && item.y<=dimensions.height);
     return new Map(placeAnnotations(anchors,dimensions).map(item=>[item.id,item]));
   },[endpoints,plan,context,frame.x,frame.y,frame.width,frame.height,dimensions.width,dimensions.height]);
+  const contextual=useMemo(()=>{
+    if(!worldContext)return [];
+    const reserved=[...placements.values()].flatMap(item=>[{left:item.left,top:item.top,width:item.width,height:item.height},{left:item.x-22,top:item.y-22,width:44,height:44}]);
+    return contextCityLabels(worldContext.cities,frame,dimensions,context,reserved,new Set([...endpoints.flatMap(endpoint=>[endpoint.id,endpoint.name]),...plan.stops.map(stop=>stop.name)]));
+  },[worldContext,placements,endpoints,plan,frame,dimensions,context]);
   const textPosition = (id:string) => { const item=placements.get(id);return item ? {left:item.left-item.x,top:item.top-item.y,width:item.width,height:item.height}:undefined; };
   const visibleLabels = new Set([...endpoints.map(endpoint=>`endpoint:${endpoint.role}:${endpoint.id}`),...current.revealedStops.map(stop=>stop.id)]);
   const number = (value: number) => value.toLocaleString('fa-IR');
@@ -133,7 +145,8 @@ function PresentationOverlay({ plan, store, endpoints, context, frame:targetFram
     return { left: `${50 + (x - frame.x) / frame.width * 100}%`, top: `${50 - (y - frame.y) / frame.height * 100}%` };
   };
   const visible = (point: GeoPoint) => { const [x, y] = projectPoint(point, context); return Math.abs(x - frame.x) <= frame.width / 2 && Math.abs(y - frame.y) <= frame.height / 2; };
-  return <div className={presentationStyles.overlay} data-route-presentation data-route-reveal={current.reveal.toFixed(3)} data-route-complete={current.complete} data-journey-phase={current.complete ? 'complete' : current.activeStop === null ? 'travel' : 'stop'} data-reduced-motion={reducedMotion} data-motion-active={active} aria-label="نقاط مسیر انتخاب‌شده" role="group">
+  return <div className={presentationStyles.overlay} data-route-presentation data-context-label-count={contextual.length} data-map-dot-spacing={dotSpacing} data-map-dot-refinement={dotRefinement} data-map-dot-weights={dotSpacing?worldDotWeights(frame.width/dimensions.width,dotSpacing,dotRefinement).map(value=>value.toFixed(3)).join(','):undefined} data-route-reveal={current.reveal.toFixed(3)} data-route-complete={current.complete} data-journey-phase={current.complete ? 'complete' : current.activeStop === null ? 'travel' : 'stop'} data-reduced-motion={reducedMotion} data-motion-active={active} aria-label="نقاط مسیر انتخاب‌شده" role="group">
+    {worldContext && <div className={presentationStyles.contextCities} aria-hidden="true">{worldContext.cities.map(city=>{const p=projectPoint(city.point,context);return <ContextCityName key={city.id} city={city} label={contextual.find(item=>item.id===city.id)} x={dimensions.width*(.5+(p[0]-frame.x)/frame.width)} y={dimensions.height*(.5-(p[1]-frame.y)/frame.height)}/>;})}</div>}
     <svg className={presentationStyles.leaders} viewBox={`0 0 ${dimensions.width} ${dimensions.height}`} aria-hidden="true">{[...placements.values()].filter(item=>item.leader && visibleLabels.has(item.id)).map(item=><line key={item.id} {...item.leader!} />)}</svg>
     {endpoints.filter(endpoint => visible(endpoint.point)).map(endpoint => <div key={`${endpoint.role}:${endpoint.id}`} className={presentationStyles.endpoint} data-route-endpoint={endpoint.role} data-journey-endpoint={endpoint.role} data-city-id={endpoint.id} data-arrived={endpoint.role === 'origin' || current.complete} style={position(endpoint.point)}>
       <span className={presentationStyles.orbit} aria-hidden="true" />
@@ -148,6 +161,14 @@ function PresentationOverlay({ plan, store, endpoints, context, frame:targetFram
       </div>;
     })}
   </div>;
+}
+
+
+function ContextCityName({city,label,x,y}:{city:ContextCity;label?:ContextLabel;x:number;y:number}){
+  const last=useRef({offset:7,width:70});
+  const placement=label?{offset:label.top-label.y,width:label.width}:last.current;
+  useLayoutEffect(()=>{if(label)last.current={offset:label.top-label.y,width:label.width};},[label]);
+  return <span data-context-city={city.id} data-visible={Boolean(label)} className={presentationStyles.contextCity} style={{left:x-placement.width/2,top:y+placement.offset,width:placement.width,opacity:label?.opacity??0}}><i style={{left:placement.width/2-1.5,top:-placement.offset-1.5}}/>{city.name}</span>;
 }
 
 export function RouteTimeline({ itinerary, places, direction = 'outbound' }: Pick<RouteSceneProps, 'itinerary' | 'places' | 'direction'>) {

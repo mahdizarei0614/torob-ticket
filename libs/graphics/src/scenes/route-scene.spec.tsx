@@ -118,3 +118,15 @@ it('fits an international endpoint region before a ticket exists and refits when
   expect(camera(view.container).x).not.toBe(first.x);expectVisible(view.container,changed.presentation.endpoints.map(endpoint=>endpoint.point),changed);
   expect(view.container.querySelector('[data-segment-id]')).toBeNull();
 });
+
+it('keeps world context passive, sparse and separate from selected endpoint labels in static fallback',async()=>{
+  const measure=vi.spyOn(HTMLElement.prototype,'getBoundingClientRect').mockReturnValue({left:0,top:0,width:560,height:400,right:560,bottom:400,x:0,y:0,toJSON:()=>({})});
+  const props:RouteSceneProps={...base,scope:'international',projection:{centralLongitude:0},showNotes:false,showTimeline:false,showControls:false,labelsVisible:false,presentation:{key:'context',endpoints:[],active:false,reducedMotion:true},worldContext:{countries:[{geometry:{type:'Polygon',coordinates:[[[0,0],[30,0],[30,40],[0,40],[0,0]]]}}],cities:[{id:'capital',name:'پایتخت',point:{longitude:15,latitude:20},tier:0}]}};
+  const view=render(element(props));await act(async()=>undefined);
+  expect(view.container.querySelector('[data-world-country-borders]')).toHaveAttribute('data-world-country-borders','1');
+  expect(view.container.querySelector('[data-world-geography] path')).not.toBeNull();
+  expect(view.container.querySelector('[data-context-city="capital"]')).toHaveAttribute('data-visible','true');
+  expect(view.queryByRole('button')).toBeNull();expect(view.container.querySelector('[data-journey-endpoint]')).toBeNull();
+  view.rerender(element({...props,scope:'domestic'}));expect(view.container.querySelector('[data-context-city]')).toBeNull();expect(view.container.querySelector('[data-world-geography]')).toBeNull();
+  measure.mockRestore();
+});
