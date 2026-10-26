@@ -1,6 +1,6 @@
 # TorobTicket — Product and Architecture Specification
 
-**Revision:** 1.5 · 2026-10-26
+**Revision:** 1.6 · 2026-10-26
 
 **Purpose:** Authoritative design companion to the master implementation plan.  
 **Status:** Product scope and architecture approved in conversation. Implementation defaults below are explicit engineering decisions made while preparing the plan; they are not additional claims of user approval.
@@ -106,7 +106,7 @@ During initial collection, results can reorder. Once the user scrolls results, f
 
 The vertical wheel explores nearby dates. It has faded ends, a clear center, daily minimum prices, and a snapped date after release. Dragging previews the date and linked price chart. Settling commits once. Arrow controls, keyboard operation, clicking a date, and the calendar provide equivalent alternatives.
 
-**Defaults:** five visible rows; a 250 ms settle/debounce target, tuned through usability testing. Every committed valid query has a generation ID; stale responses cannot replace the active generation. Pointer cancellation restores the last committed selection.
+**Defaults:** five visible44px rows with unchanged typography; a250ms settle/debounce target, tuned through usability testing. Desktop arrows sit beside the wheel and price evidence below the chart to reduce form height. Every committed valid query has a generation ID; stale responses cannot replace the active generation. Pointer cancellation restores the last committed selection.
 
 Clicking a chart point synchronizes the wheel. The line describes the minimum eligible offer by departure date under current conditions, not historical price movement. The minimum does not change merely because the result sort changes.
 
@@ -122,13 +122,17 @@ Date states are priced, checking, no matching offer, and outside coverage. If re
 
 The desktop map stays on the left while the right-hand content scrolls. It starts with dotted Iran for domestic scope or dotted world geography for international scope, with shallow depth and a stable camera.
 
-**Owner adjustment,2026-10-26:** The main travel map is display-only for origin/destination. Only search-form controls change cities. Desktop shows the start→end title and map/route, with no city labels, endpoint controls/dropdown, visible zoom toolbar, duplicate details or progress/footer data. Keep existing route rendering/preview/pin and internal progress/camera state; add no search/domain logic. This supersedes the earlier map-dot city-selection requirement. The hotel location picker remains interactive and unchanged. After form endpoints are selected, show an illustrative route until a specific itinerary is available.
+**Owner adjustments,2026-10-26:** The main travel map remains display-only for origin/destination. Only search-form controls change cities. Desktop shows the start→end title and map, without endpoint controls/dropdown, visible zoom toolbar, duplicate details or progress/footer. The subsequent atmosphere/choreography request permits compact selected-endpoint and progressively revealed stop names; general network city labels remain hidden. Selecting cities reveals their locations with a flat halo/pop effect. There is no connecting route before an explicit ticket pin/selection. The hotel location picker remains interactive and unchanged.
 
-Hover or keyboard focus previews an itinerary without moving the camera. Selecting an itinerary pins it and deliberately fits the camera. Leaving a preview restores the pinned itinerary. Sorting or scrolling results does not reset the camera. Pinch zoom remains supported. The desktop map has no additional direction toolbar; it displays its current itinerary direction. Round-trip details remain in the ticket details, and mobile route panels retain outbound/return controls.
+Selecting an itinerary pins it and deliberately fits the camera. Hover/focus metadata may still support ticket/mobile inspection, but does not replace or restart the desktop's selected journey. Sorting or scrolling results does not reset the camera. Pinch zoom remains supported. The desktop map has no additional direction toolbar; it displays its current itinerary direction. Round-trip details remain in ticket details, and mobile route panels retain outbound/return controls.
 
-Flights use elevated curves, rail uses line segments between stations, and buses use authored winding paths. Paths are illustrative mock geometry, not navigation guidance. Stops expose location, arrival/departure, wait duration, vehicle changes, and airport transfers. Required ground transfers have distinct segments. Equivalent information is available in the textual route timeline.
+International endpoint selection gently zooms to the selected cities with surrounding margin before a ticket is chosen. An explicit itinerary selection fits all relevant stops and curves, including outlying connections. Camera and annotation easing share the renderer clock; reduced motion settles directly. No separator line divides map and results. Train and bus icons use side profiles, and the thicker route carries a directional shooting-star head and fading tail.
 
-The flat pixel vehicle shows progress through the comparison/referral flow: origin, comparison, chosen offer, and handoff. Completion means referral, never a confirmed booking. **Default progress markers:** 0%, 35%, 70%, 100%; reduced motion changes position without travel animation.
+Flights use visible shallow arcs, rail uses two parallel straight rails between stations, and buses use smoothly curved authored road paths. Paths remain illustrative mock geometry, not navigation guidance. A selected route draws in canonical segment order: reach the next stop, reveal its city and count up its known wait minutes, then continue. Unknown waits remain unknown. One light strand travels the route, with a stronger pulse at intermediate stops, and mode-specific glossy glass vehicle icons. Required ground transfers retain their actual mode. Equivalent canonical facts remain in the textual route timeline.
+
+The route animation is visual presentation, separate from comparison/referral authority. It must never change a quote, create a referral, or suggest a confirmed booking. Internal comparison/referral markers remain 0%, 35%, 70%, 100%, backed by the existing state/receipt rules. The consumer vehicle follows the visual route, while generic laboratory progress controls retain their prior semantics. Reduced motion shows the complete selected route and exact stop values immediately.
+
+Geography dots breathe slowly with varied phases. Pointer proximity smoothly brightens dots within a bounded radius and eases them back to the ambient level. An authored subset of major-city locations has slightly larger/brighter dots, with no population/ranking inference or additional city-selection logic. Ambient dot motion and the route strand share the existing application renderer/clock and run only while the desktop map is visible, uncovered, and motion is permitted.
 
 **Layout defaults:** main travel map at widths ≥1120 CSS px, approximately 46% of desktop content width. Below that threshold, omit the main map and use itinerary timelines. Map controls cannot intercept ordinary results scrolling.
 
@@ -250,6 +254,8 @@ Use React Aria primitives, custom CSS Modules, and semantic CSS variables for al
 
 Local font defaults are Vazirmatn for Persian and Inter for English; verify and bundle font licenses. The visual reference is compact comparison UI with clear hierarchy, not a dashboard template. Density must not remove readable price conditions or focus targets.
 
+**Owner layout adjustment,2026-10-26:** Compact the right-hand desktop controls through shared rows and reduced empty space without reducing font sizes. Origin/destination/class share a row; passenger counts and the search action share a row. Keep the date wheel/chart, required ages, errors and price provenance available. A normal desktop viewport should contain the default search controls with minimal scrolling; expanded requirements and result lists may extend the page.
+
 A persistent app-owned WebGL2 renderer uses clipped views for transport maps and charts. Context/material/geometry resources are shared, not allocated per ticket card. **Owner’s free-map exception:** the on-demand hotel picker uses a separate MapLibre renderer inside its native dialog, with at most one active provider map and complete cleanup on dismissal. It does not create another app-owned renderer or alter the transport scene. HTML owns labels, controls, forms, calendars, dialogs, and selectable information. App WebGL handles dotted transport geography, routes, vehicle progress, chart emphasis, and selected flat effects.
 
 Official OSM-hosted VersaTiles styles and required OpenStreetMap contributor attribution are third-party assets; authored hotel controls and custom markers still use semantic tokens. Record its lazy SDK/network weight separately from app-owned bundles and disclose the total map cost. No provider key or account is required. Provider map styles and SDK UI are vendor assets; custom controls and markers remain subject to semantic theme tokens.
@@ -268,7 +274,7 @@ Shaders consume resolved theme tokens through typed uniforms. Theme transitions 
 
 **Transition default:** a 260 ms flat reveal centered on the toggle, with no animation under reduced motion. Unsupported browsers update theme directly. Loading the app applies the stored/system theme before the first visible frame.
 
-Use on-demand rendering; suspend hidden scenes and document-hidden animation. Default DPR caps are 1.75 desktop and 1.5 mobile, with a lower-quality tier. Context loss or unavailable WebGL produces a static map/route or textual timeline and an SVG price chart; all selections remain available.
+Use on-demand rendering outside explicitly active animation. The owner-requested desktop map ambience permits a visible animation loop through the existing scheduler; suspend covered/hidden/document-hidden scenes and all continuous motion under reduced motion. Dark palettes use very dim shaded blue/green/red backgrounds with semantic gradient haze, rather than a bright solid fill. Default DPR caps are 1.75 desktop and 1.5 mobile, with a lower-quality tier. Context loss or unavailable WebGL produces a static map/route or textual timeline and an SVG price chart; all selections remain available.
 
 Target WCAG 2.2 AA behaviors through explicit audits: keyboard completion, visible focus, meaningful names, dialog focus/return, sufficient contrast, non-color-only status, and reduced motion. Mobile targets are at least 44 × 44 CSS px; compact desktop controls may have smaller visible surfaces while preserving practical hit areas. A test tool alone does not establish compliance.
 

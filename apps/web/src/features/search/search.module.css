@@ -1,4 +1,4 @@
-.shell { min-height: 100dvh; color: var(--text); background: var(--canvas); }
+.shell { min-height: 100dvh; color: var(--text); background: radial-gradient(ellipse at 95% 5%,var(--canvas-haze),var(--color-clear) 65%),var(--canvas); }
 .content { width: 100%; max-width: 900px; margin-inline: auto; padding: 0 28px; }
 .header { min-height: 80px; display: flex; align-items: center; justify-content: space-between; gap: 12px; border-bottom: 1px solid var(--border); }
 .brand { display: flex; align-items: baseline; gap: 5px; color: var(--accent); text-decoration: none; font-size: 27px; font-weight: 850; white-space: nowrap; }
@@ -17,3 +17,27 @@
 @media (max-width: 600px) { .content { padding-inline: 16px; }.header { min-height: 70px; }.brand small { display: none; }.intro { padding-top: 18px; }.composer { padding: 16px; gap: 16px; }.segments { gap: 16px; }.fieldGrid { gap: 16px 12px; }.muted { font-size: 10px; }.counts { gap: 8px; }.submitRow > button:first-child { flex: 1; }.mapPlaceholder { display: none; } }
 
 @media(max-width:360px){.header{flex-wrap:wrap;gap:var(--space-2);padding-block:var(--space-2)}.headerActions{flex:1;justify-content:space-between}}
+
+/* Compact the desktop form by sharing rows, without reducing type or hit targets. */
+@media(min-width:1120px){
+ .header{min-height:52px;}
+ .intro{padding:6px 0 8px;display:grid;grid-template-columns:1fr auto;gap:2px 10px;align-items:center;}
+ .intro h1{grid-column:1/-1;grid-row:1;margin:0;line-height:1.35;}
+ .intro p{grid-column:1;grid-row:2;margin:0;}
+ .intro .eyebrow{grid-column:2;grid-row:2;}
+ .composer{padding:12px;gap:10px;grid-template-columns:minmax(0,1fr) 176px;}
+ .composer>*{grid-column:1/-1;}
+ .segments{gap:10px;justify-content:space-between;--space-1:2px;--space-2:.2rem;}
+ .tripFields{grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(110px,.66fr);gap:12px;align-items:start;}
+ .party{grid-column:1;padding:0;border:0;}
+ .party legend{margin-bottom:5px;}
+ .counts{gap:10px;}
+ .counts .field{display:grid;grid-template-columns:auto minmax(40px,1fr);align-items:center;gap:5px;}
+ .counts input{padding-inline:6px;}
+ .submitRow{grid-column:2;align-self:end;display:grid;gap:5px;}
+ .submitRow>button:first-child{min-width:0;width:100%;}
+ .submitRow>span{text-align:center;}
+ .composer:has(.filterNote) .party{grid-column:1/-1;}
+ .composer:has(.filterNote) .submitRow{grid-column:1/-1;display:flex;}
+ .footer{padding:8px 0 12px;}
+}

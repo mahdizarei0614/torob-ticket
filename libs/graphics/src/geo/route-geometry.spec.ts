@@ -57,7 +57,10 @@ it('curves/elevates flights, segments rail, winds buses; absent bus path stays e
   expect(flight.paths[0]).toHaveLength(49);
   expect(buildRouteGeometry(byMode('train'), places, paths)[0]!.paths[0]).toHaveLength(2);
   const bus = buildRouteGeometry(byMode('bus'), places, paths)[0]!;
-  expect(bus.paths[0]).toHaveLength(13);
+  expect(bus.paths[0]).toHaveLength(97);
+  // The road is a smooth interpolation of all thirteen authored waypoints.
+  const authored = paths.find(path => path.originPlaceId === bus.originPlaceId && path.destinationPlaceId === bus.destinationPlaceId)!;
+  authored.points.forEach((point, index) => expect(bus.paths[0]![index * 8]).toEqual(projectPoint(point)));
   expect(buildRouteGeometry(byMode('bus'), places, [])[0]).toMatchObject({ geometryStatus: 'unavailable', paths: [] });
   expect(() => buildRouteGeometry(byMode('bus'), places, paths.map(path => ({ ...path, points: [{ longitude: 0, latitude: 0 }, ...path.points.slice(1)] })))).toThrow('exact transport endpoints');
 });
@@ -85,7 +88,7 @@ it('samples full polygon holes/multipolygons with a bounded deterministic budget
 });
 
 
-import { createRouteLineGeometry } from './route-buffer';
+import { createRouteLineGeometry, createRouteRibbonGeometry } from './route-buffer';
 it('keeps antimeridian fragments disconnected in the final GPU line buffer', () => {
   const paths = projectRoute([{ longitude: 179, latitude: 30 }, { longitude: -179, latitude: 32 }]);
   const geometry = createRouteLineGeometry([{ segmentId: 'seam', mode: 'train', transfer: false, originPlaceId: 'a', destinationPlaceId: 'b', paths, geometryStatus: 'illustrative', provenance: null }]);
@@ -93,4 +96,30 @@ it('keeps antimeridian fragments disconnected in the final GPU line buffer', () 
   expect(geometry.getIndex()).toBeNull(); expect(positions.count).toBe(4);
   for (let i = 0; i < positions.count; i += 2) expect(Math.abs(positions.getX(i + 1) - positions.getX(i))).toBeLessThanOrEqual(2);
   geometry.dispose();
+});
+
+it('uses physical arc length for route reveal and preserves fragment boundaries in GPU ribbons', () => {
+  const segment = { segmentId: 'road', mode: 'bus' as const, transfer: false, originPlaceId: 'a', destinationPlaceId: 'b', paths: [[[0,0,0],[1,0,0],[4,0,0]]] as [number,number,number][][], geometryStatus: 'illustrative' as const, provenance: null };
+  const geometry = createRouteRibbonGeometry([segment]);
+  const progress = geometry.getAttribute('routeProgress');
+  // A one-unit first edge occupies a quarter of the reveal, regardless of point count.
+  expect(progress.getX(2)).toBeCloseTo(.25);
+  expect(progress.getX(progress.count - 1)).toBe(1);
+  expect(geometry.getAttribute('routeMode').getX(0)).toBe(2);
+  expect(Array.from(geometry.getAttribute('routeNormal').array).every(Number.isFinite)).toBe(true);
+  geometry.dispose();
+  const split = createRouteRibbonGeometry([{ ...segment, paths: projectRoute([{ longitude: 179, latitude: 30 }, { longitude: -179, latitude: 32 }]) }]);
+  const position = split.getAttribute('position');
+  expect(position.count).toBe(12);
+  for (let i = 0; i < position.count; i += 6) expect(Math.abs(position.getX(i + 2) - position.getX(i))).toBeLessThanOrEqual(2);
+  split.dispose();
+});
+
+it('keeps vertical flight routes visibly arched in the map plane', () => {
+  const base = ItinerarySchema.parse(fixtures.scenarios.find(scenario => scenario.itinerary.mode === 'flight')!.itinerary);
+  const source = base.outbound.segments[0]!;
+  const verticalPlaces = places.map(place => place.id === source.destinationPlaceId ? { ...place, point: { latitude: 50, longitude: places.find(item => item.id === source.originPlaceId)!.point.longitude } } : place);
+  const path = buildRouteGeometry({ ...base, outbound: { ...base.outbound, segments: [source] } }, verticalPlaces, [])[0]!.paths[0]!;
+  expect(Math.abs(path[24]![0] - path[0]![0])).toBeGreaterThan(.1);
+  expect(path.at(-1)![0]).toBeCloseTo(path[0]![0]);
 });

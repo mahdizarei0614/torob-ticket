@@ -3,7 +3,7 @@ import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
 import type { DatePriceCell } from '@torob-ticket/contracts';
 import { cellLabel, dateLabel, disabledCell, settleMs, type DateLeg } from './date-state';
 import styles from './dates.module.css';
-const rowHeight = 54;
+const rowHeight = 44;
 /** Nearby wheel/trackpad intent settles once; outward motion at an edge chains to the page. */
 export function DateWheel({ dates, value, cells, onPreview, onCommit, onInteractionChange, leg = 'outbound', interaction: controlledInteraction, interactionKey = leg, missingLabel }: { dates: readonly string[]; value: string; cells: readonly DatePriceCell[]; onPreview: (date: string) => void; onCommit: (date: string) => void; onInteractionChange?: (active: boolean) => void; leg?: DateLeg; interaction?: DateInteractions; interactionKey?: string; missingLabel?: string }) {
   const [ownedInteraction] = useState(createDateInteractions); const interaction = controlledInteraction ?? ownedInteraction;

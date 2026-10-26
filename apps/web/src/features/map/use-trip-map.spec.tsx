@@ -18,6 +18,17 @@ function setup() {
  window.history.replaceState(null,'','/');
  return renderHook(()=>{const controller=useSearchController(catalog,session,client);return {controller,map:useTripMap(controller,catalog)};},{wrapper:Wrapper});
 }
+it('keeps selected presentation leases across hover but revokes them on a new pin or form edit',async()=>{
+ const hook=setup();await act(()=>hook.result.current.controller.submit(query));
+ act(()=>hook.result.current.map.pin(group('a').itinerary));const selected=hook.result.current.map;
+ act(()=>hook.result.current.map.preview(group('b').itinerary));
+ expect(selected.isPresentationCurrent()).toBe(true);expect(hook.result.current.map.presentationView.itinerary?.itineraryId).toBe('a');
+ const camera={x:1,y:2,width:3,height:4,zoom:2};act(()=>selected.savePresentationCamera(camera));expect(hook.result.current.map.readCamera()).toEqual(camera);
+ act(()=>hook.result.current.map.pin(group('b').itinerary));expect(selected.isPresentationCurrent()).toBe(false);
+ const next=hook.result.current.map;act(()=>{hook.result.current.controller.edit({party:{adults:2,children:0,infants:0}});next.savePresentationCamera({...camera,zoom:8});});
+ expect(next.isPresentationCurrent()).toBe(false);expect(hook.result.current.map.presentationView.itinerary).toBeUndefined();expect(hook.result.current.map.readCamera()?.zoom).not.toBe(8);
+ hook.unmount();
+});
 it('synchronously rejects retained direction callbacks after native restore and camera delivery after a newer pin',async()=>{
  const hook=setup();await act(()=>hook.result.current.controller.submit(query));
  act(()=>hook.result.current.map.pin(group('a').itinerary));

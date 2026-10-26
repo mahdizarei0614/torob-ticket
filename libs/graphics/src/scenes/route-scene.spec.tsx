@@ -83,3 +83,38 @@ it('uses friendly station labels for real marker controls, dropdown options and 
  expect(screen.getByRole('button',{name:'ایستگاه تهران'})).toBeVisible();expect(screen.getByRole('option',{name:'ایستگاه تهران'})).toBeInTheDocument();
  expect(view.container.querySelector('[aria-label="ترتیب بخش‌های مسیر"]')).toHaveTextContent('ایستگاه تهران');expect(view.container.textContent).not.toContain('ایستگاه نمونه تهران (خیالی)');expect(JSON.stringify(source)).toBe(before);
 });
+
+it('presents only chosen endpoints before selection and settles canonical stop facts directly for reduced motion', async () => {
+  const measure = vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockReturnValue({ left: 20, top: 30, width: 560, height: 400, right: 580, bottom: 430, x: 20, y: 30, toJSON: () => ({}) });
+  const endpoints = [
+    { id: 'tehran', name: 'تهران', point: places.find(place => place.id === 'thr')!.point, role: 'origin' as const },
+    { id: 'mashhad', name: 'مشهد', point: places.find(place => place.id === 'mhd')!.point, role: 'destination' as const },
+  ];
+  const props: RouteSceneProps = { ...base, showNotes: false, showTimeline: false, showControls: false, labelsVisible: false, presentation: { key: 'endpoints', endpoints, active: false, reducedMotion: true, cityNames: { tabriz: 'تبریز' } } };
+  const view = render(element(props)); await act(async () => undefined);
+  expect(view.container.querySelectorAll('[data-journey-endpoint]')).toHaveLength(2);
+  expect(view.container.querySelector('[data-journey-stop]')).toBeNull();
+  expect(view.container.querySelector('[data-scene-labels]')).toBeNull();
+  expect(view.queryByRole('button')).toBeNull(); expect(view.queryByRole('combobox')).toBeNull();
+  view.rerender(element({ ...props, itinerary, fitKey: 'selected', presentation: { ...props.presentation!, key: 'selected' } }));
+  await act(async () => undefined);
+  const stop = view.container.querySelector('[data-journey-stop]');
+  expect(stop).toHaveAttribute('data-route-stop', 'tbz'); expect(stop).toHaveAttribute('data-wait-minutes', '45');
+  expect(stop).toHaveTextContent('تبریز'); expect(stop).toHaveTextContent('۴۵ دقیقه توقف');
+  expect(view.container.querySelector('[data-route-presentation]')).toHaveAttribute('data-route-reveal', '1.000');
+  view.rerender(element({ ...props, presentation: { ...props.presentation!, key: 'changed-city' } }));
+  expect(view.container.querySelector('[data-journey-stop]')).toBeNull();
+  measure.mockRestore();
+});
+
+it('fits an international endpoint region before a ticket exists and refits when the form destination changes', async () => {
+  const endpoints = [{ id:'tehran',name:'تهران',point:{longitude:51,latitude:35},role:'origin' as const },{ id:'istanbul',name:'استانبول',point:{longitude:29,latitude:41},role:'destination' as const }];
+  const props:RouteSceneProps={...base,scope:'international',fitMode:'geography',showNotes:false,showTimeline:false,showControls:false,presentation:{key:'world-endpoints',endpoints,active:false,reducedMotion:true}};
+  const view=render(element(props));await act(async()=>undefined);
+  expect(camera(view.container).width).toBeLessThan(60);expectVisible(view.container,endpoints.map(endpoint=>endpoint.point),props);
+  expect(view.container.querySelector('[data-segment-id]')).toBeNull();
+  const changed={...props,presentation:{...props.presentation!,endpoints:[endpoints[0]!,{...endpoints[1]!,id:'bangkok',point:{longitude:100,latitude:14}}]}};
+  const first=camera(view.container);view.rerender(element(changed));await act(async()=>undefined);
+  expect(camera(view.container).x).not.toBe(first.x);expectVisible(view.container,changed.presentation.endpoints.map(endpoint=>endpoint.point),changed);
+  expect(view.container.querySelector('[data-segment-id]')).toBeNull();
+});

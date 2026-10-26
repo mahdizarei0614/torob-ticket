@@ -1,0 +1,71 @@
+import { describe, expect, it } from 'vitest';
+import type { JourneyLeg, Place } from '@torob-ticket/contracts';
+import type { RouteSegmentGeometry } from '../geo/route-geometry';
+import { buildJourneyPresentation, sampleJourneyPresentation } from './journey-presentation';
+
+const place = (id: string, x: number): Place => ({ id, cityId: id, name: id, kind: 'station', timeZone: 'Asia/Tehran', point: { longitude: x, latitude: 30 } });
+const places = [place('a', 0), place('b', 2), place('c', 10)];
+function makeRoute(ids: string[], waits: (number | undefined)[] = []) {
+  const segments: RouteSegmentGeometry[] = ids.slice(1).map((id, i) => ({ segmentId: `s${i}`, originPlaceId: ids[i]!, destinationPlaceId: id, mode: 'train', transfer: false, geometryStatus: 'illustrative', provenance: null, paths: [[[places.find(item => item.id === ids[i])!.point.longitude, 30, 0], [places.find(item => item.id === id)!.point.longitude, 30, 0]]] }));
+  const leg: JourneyLeg = {
+    segments: segments.map((segment, i) => ({ ...segment, serviceId: 'service', operatorId: 'operator', departureAt: `2026-10-26T${String(i * 2).padStart(2, '0')}:00:00Z`, arrivalAt: `2026-10-26T${String(i * 2 + 1).padStart(2, '0')}:00:00Z`, departureTimeZone: 'Asia/Tehran', arrivalTimeZone: 'Asia/Tehran' })),
+    stops: waits.map((wait, i) => ({ placeId: ids[i + 1]!, kind: 'dwell', waitMinutes: wait as number, vehicleChange: false, arrivalAt: `2026-10-26T${String(i * 2 + 1).padStart(2, '0')}:00:00Z` })),
+  };
+  return { segments, leg };
+}
+
+describe('selected-journey visual choreography', () => {
+  it('draws by arc length, pauses at a stop, counts its declared wait, and only then travels onward', () => {
+    const { segments, leg } = makeRoute(['a', 'b', 'c'], [90]);
+    const plan = buildJourneyPresentation(segments, leg, places, { b: 'شهر میانی' });
+    const first = plan.stages[0]!;
+    expect(plan.stops[0]).toMatchObject({ name: 'شهر میانی', progress: .2, waitMinutes: 90 });
+    const early = sampleJourneyPresentation(plan, first.arriveMs - 1);
+    expect(early.reveal).toBeLessThan(.2); expect(early.revealedStops).toEqual([]);
+    const arrival = sampleJourneyPresentation(plan, first.arriveMs);
+    expect(arrival.reveal).toBe(.2); expect(arrival.activeStop).toBe(0); expect(arrival.revealedStops[0]!.count).toBe(0);
+    const middle = sampleJourneyPresentation(plan, (first.arriveMs + first.endMs) / 2);
+    expect(middle.reveal).toBe(.2); expect(middle.stopGlow).toBeCloseTo(1);
+    expect(middle.revealedStops[0]!.count).toBeGreaterThan(0); expect(middle.revealedStops[0]!.count).toBeLessThan(90);
+    const onward = sampleJourneyPresentation(plan, first.endMs + 200);
+    expect(onward.reveal).toBeGreaterThan(.2); expect(onward.revealedStops[0]!.count).toBe(90);
+  });
+
+  it('preserves repeated city visits as separate canonical occurrences', () => {
+    const { segments, leg } = makeRoute(['a', 'b', 'a', 'b', 'c'], [15, 20, 45]);
+    const plan = buildJourneyPresentation(segments, leg, places);
+    expect(plan.stops.map(stop => [stop.placeId, stop.waitMinutes])).toEqual([['b', 15], ['a', 20], ['b', 45]]);
+    expect(new Set(plan.stops.map(stop => stop.id)).size).toBe(3);
+    expect(plan.stops[2]!.progress).toBeGreaterThan(plan.stops[0]!.progress);
+    expect(sampleJourneyPresentation(plan, plan.stops[2]!.arriveMs - 1).revealedStops).toHaveLength(2);
+  });
+
+  it('keeps unknown wait values distinct from a known zero', () => {
+    const { segments, leg } = makeRoute(['a', 'b', 'a', 'c'], [undefined, 0]);
+    const plan = buildJourneyPresentation(segments, leg, places);
+    const final = sampleJourneyPresentation(plan, 0, { reducedMotion: true });
+    expect(final.revealedStops.map(stop => [stop.waitMinutes, stop.count])).toEqual([[null, null], [0, 0]]);
+  });
+
+  it('repeats only the light strand after drawing, keeping revealed stop facts final', () => {
+    const { segments, leg } = makeRoute(['a', 'b', 'c'], [45]);
+    const plan = buildJourneyPresentation(segments, leg, places);
+    const nextPass = sampleJourneyPresentation(plan, plan.durationMs + plan.stops[0]!.arriveMs * 1.8 + 500);
+    expect(nextPass).toMatchObject({ reveal: 1, travel: .2, activeStop: 0, complete: true });
+    expect(nextPass.stopGlow).toBeGreaterThan(0); expect(nextPass.revealedStops[0]!.count).toBe(45);
+  });
+
+  it('settles reduced motion directly and starts a newly selected plan at the origin', () => {
+    const { segments, leg } = makeRoute(['a', 'b', 'c'], [45]);
+    const plan = buildJourneyPresentation(segments, leg, places);
+    expect(sampleJourneyPresentation(plan, 0, { reducedMotion: true })).toMatchObject({ reveal: 1, travel: 1, complete: true, activeStop: null, stopGlow: 0 });
+    expect(sampleJourneyPresentation(plan, 0)).toMatchObject({ reveal: 0, travel: 0, complete: false, revealedStops: [] });
+  });
+
+  it('does not invent geometry or stops when no priced itinerary or route geometry exists', () => {
+    const { segments, leg } = makeRoute(['a', 'b', 'c'], [45]);
+    expect(buildJourneyPresentation(segments, undefined, places)).toEqual({ stages: [], stops: [], durationMs: 0 });
+    const missing = segments.map(segment => ({ ...segment, paths: [] }));
+    expect(buildJourneyPresentation(missing, leg, places)).toEqual({ stages: [], stops: [], durationMs: 0 });
+  });
+});

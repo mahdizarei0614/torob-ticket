@@ -120,3 +120,7 @@ export function mapView(raw:MapState,now:number) {
   if(displayedSelected && state.receipt && receiptMatches(state,state.receipt,now)) progress=1;
   return {itinerary,inspection,query:inspection?.query??state.context.draft,scope:inspection?.query.scope??state.context.draft.scope,mode:itinerary?.mode??state.context.draft.mode,progress,historical,direction,selectedValid:Boolean(displayedSelected && state.selection?.valid && validQuote(state.selection.quote,now))};
 }
+/** Decorative route playback belongs to an explicit pin, never a transient result hover. */
+export function mapPresentationView(state:MapState,now:number) {
+  return mapView({...state,preview:undefined},now);
+}

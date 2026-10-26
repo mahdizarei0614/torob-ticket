@@ -3,7 +3,7 @@ import type {CatalogSnapshot,Itinerary,QuoteSnapshot,ReferralReceipt} from '@tor
 import type {CameraIntent} from '@torob-ticket/graphics/host';
 import type {useSearchController} from '../search/use-search-controller';
 import type {QuoteSelection} from '../results/results-reducer';
-import {contextKey,createMapState,mapReducer,mapView,reconcileMapState,type MapAction,type MapContext,type MapInspection,type MapOwner} from './map-state';
+import {contextKey,createMapState,mapReducer,mapView,mapPresentationView,reconcileMapState,type MapAction,type MapContext,type MapInspection,type MapOwner} from './map-state';
 export type SearchController=ReturnType<typeof useSearchController>;
 export function useTripMap(controller:SearchController,catalog:CatalogSnapshot) {
  const search=controller.state;
@@ -15,6 +15,7 @@ export function useTripMap(controller:SearchController,catalog:CatalogSnapshot) 
  function send(action:MapAction) {const base=reconcileMapState(current.current,readContext());const next=mapReducer(base,action);current.current=next;setStored(next);return next;}
  useEffect(()=>{const expiry=state.selection?.quote.expiresAt;if(!expiry)return;const remaining=Date.parse(expiry)-Date.now();if(remaining<=0)return;const timer=setTimeout(()=>tick(value=>value+1),remaining);return()=>clearTimeout(timer);},[state.selection?.quote]);
  const view=mapView(state,Date.now());
+ const presentationView=mapPresentationView(state,Date.now());
  const owner=search.generation&&search.searchId?{generation:search.generation,searchId:search.searchId}:undefined;
  const owns=(expected:MapOwner|undefined)=>Boolean(expected&&controller.resultIsCurrent(expected.generation,expected.searchId));
  function inspection(itinerary:Itinerary,expected:MapOwner):MapInspection|undefined {const query=readContext().committed;return query&&owns(expected)?{itinerary,query,owner:expected}:undefined;}
@@ -24,9 +25,12 @@ export function useTripMap(controller:SearchController,catalog:CatalogSnapshot) 
  const lease=controller.dateInteractions.capture();const fitKey=String(state.fitEpoch);
  const sceneKey=(value=mapView(current.current,Date.now()))=>[current.current.fitEpoch,value.itinerary?.itineraryId??'illustrative:'+value.query.originCityId+':'+value.query.destinationCityId,value.direction,current.current.projection.centralLongitude].join('|');
  const renderedSceneKey=sceneKey(view);
+ const presentationSceneKey=sceneKey(presentationView);
  const camera=useRef<{key:string;value:CameraIntent}|undefined>(undefined);
  function mapCurrent(){return controller.dateInteractions.isCurrent(lease)&&String(current.current.fitEpoch)===fitKey&&sceneKey()===renderedSceneKey&&!controller.resetting;}
+ function isPresentationCurrent(){return controller.dateInteractions.isCurrent(lease)&&String(current.current.fitEpoch)===fitKey&&sceneKey(mapPresentationView(current.current,Date.now()))===presentationSceneKey&&!controller.resetting;}
  function saveCamera(value:CameraIntent) {if(mapCurrent())camera.current={key:fitKey,value:{...value}};}
+ function savePresentationCamera(value:CameraIntent) {if(isPresentationCurrent())camera.current={key:fitKey,value:{...value}};}
  function direction(value:'outbound'|'return'){if(mapCurrent())send({type:'direction',direction:value});}
  function clear(){if(!mapCurrent())return;controller.clearMapInspection(lease);send({type:'clear-inspection'});}
 
@@ -49,6 +53,6 @@ export function useTripMap(controller:SearchController,catalog:CatalogSnapshot) 
   if(value.origin&&value.pin){selection(value.origin,value.pin,value.intent);if(value.receipt)hydrateReceipt(value.origin,value.pin,value.receipt);}
   send({type:'direction',direction:value.direction});if(value.camera)camera.current={key:String(current.current.fitEpoch),value:{...value.camera}};
  }
- return {referralLease,restoreUi,readState:()=>current.current,readCamera:()=>camera.current?.key===String(current.current.fitEpoch)?camera.current.value:undefined,hydrateReceipt,selectionCurrent,state,view,preview,pin,selection,direction,clear,fitKey,lease,sceneKey:renderedSceneKey,isCurrent:mapCurrent,saveCamera,initialCamera:camera.current?.key===fitKey?camera.current.value:undefined,bindAcceptedQuote,confirmReferral};
+ return {referralLease,restoreUi,readState:()=>current.current,readCamera:()=>camera.current?.key===String(current.current.fitEpoch)?camera.current.value:undefined,hydrateReceipt,selectionCurrent,state,view,presentationView,presentationSceneKey,isPresentationCurrent,savePresentationCamera,preview,pin,selection,direction,clear,fitKey,lease,sceneKey:renderedSceneKey,isCurrent:mapCurrent,saveCamera,initialCamera:camera.current?.key===fitKey?camera.current.value:undefined,bindAcceptedQuote,confirmReferral};
 }
 export type TripMapController=ReturnType<typeof useTripMap>;

@@ -1,13 +1,15 @@
-import { useEffect, useLayoutEffect, useRef, useState, useId, type ReactNode } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, useId, type ReactNode, type RefObject } from 'react';
 import { createPortal } from 'react-dom';
 import { useGraphics } from '../graphics-provider';
-import { useThree } from '@react-three/fiber';
+import { useFrame, useThree } from '@react-three/fiber';
 import { OrthographicCamera } from 'three';
 import type { GeoPoint } from '@torob-ticket/contracts';
 import { GraphicsView } from '../graphics-view';
 import { projectPoint, unprojectPoint, type ProjectionContext, type RouteBounds } from '../geo/projection';
 import styles from './scenes.module.css';
+import { createCameraTransition, type SceneFrameStore } from './camera-transition';
 export interface SceneMarker { id: string; name: string; point: GeoPoint; kind?: 'landmark' | 'accommodation' | 'custom' | 'place' | 'city'; cityId?:string; enabled?:boolean; role?:'origin'|'destination'|'network'; selectable?:boolean; showLabel?:boolean }
+export interface ScenePointer { x: number; y: number; active: boolean }
 export interface CameraIntent extends RouteBounds { zoom: number }
 export function useCameraIntent(bounds: RouteBounds, fitKey: string, originKey: string, initialCamera?:CameraIntent) {
   const [camera, setCamera] = useState<CameraIntent>(() => initialCamera ? {...initialCamera} : ({ ...bounds, zoom: 1 }));
@@ -23,20 +25,38 @@ export function frameForAspect(camera: CameraIntent, aspect: number): RouteBound
   const width = Math.max(camera.width, camera.height * aspect) / camera.zoom;
   return { x: camera.x, y: camera.y, width, height: width / aspect };
 }
-export function SceneCamera({ frame }: { frame: RouteBounds }) {
+export function SceneCamera({ frame, transition }: { frame: RouteBounds; transition?: {active:boolean;reducedMotion:boolean;initialFrame?:RouteBounds;projectionLongitude?:number;store:SceneFrameStore} }) {
   const get = useThree(state => state.get); const set = useThree(state => state.set);
   const [camera] = useState(() => Object.assign(new OrthographicCamera(-1, 1, 1, -1, .1, 1000), { manual: true }));
+  const [motion] = useState(()=>createCameraTransition(transition && !transition.reducedMotion ? transition.initialFrame ?? frame : frame));
+  const last = useRef(performance.now());
+  const previousProjection = useRef(transition?.projectionLongitude??0);
+  const apply = (actual:RouteBounds) => {
+    camera.left = -actual.width / 2; camera.right = actual.width / 2; camera.top = actual.height / 2; camera.bottom = -actual.height / 2;
+    camera.position.set(actual.x, actual.y, 200); camera.updateProjectionMatrix(); camera.updateMatrixWorld();
+    transition?.store.update(actual);
+  };
   useLayoutEffect(() => {
-    camera.left = -frame.width / 2; camera.right = frame.width / 2; camera.top = frame.height / 2; camera.bottom = -frame.height / 2;
-    camera.position.set(frame.x, frame.y, 200); camera.updateProjectionMatrix(); camera.updateMatrixWorld();
-  }, [camera, frame]);
+    last.current=performance.now();
+    const longitude=transition?.projectionLongitude??0;
+    if(transition && previousProjection.current!==longitude)motion.rebaseLongitude(previousProjection.current-longitude);
+    previousProjection.current=longitude;
+    apply(transition ? motion.setTarget(frame,transition.reducedMotion) : frame);
+  }, [camera, frame.x,frame.y,frame.width,frame.height,transition?.active,transition?.reducedMotion,transition?.store,transition?.projectionLongitude,motion]);
+  useFrame(()=>{
+    if(!transition)return;
+    const now=performance.now(),delta=now-last.current;last.current=now;
+    apply(motion.sample(delta,transition.active,transition.reducedMotion));
+  },-1);
   useLayoutEffect(() => { const previous = get().camera; set({ camera }); return () => set({ camera: previous }); }, [get, set, camera]);
   return null;
 }
-export function SceneSurface({ label, camera, setZoom, context, markers, onMarkerSelect, onPointChange, children, fallback, onFrame, isCurrent = () => true, markerSelectLabel,portalLabels=false,labelsVisible=true,showControls=true }: {
+export function SceneSurface({ label, camera, setZoom, context, markers, onMarkerSelect, onPointChange, children, fallback, onFrame, isCurrent = () => true, markerSelectLabel,portalLabels=false,labelsVisible=true,showControls=true,pointer,overlay,displayFrame }: {
   label: string; camera: CameraIntent; setZoom: (zoom: number) => void; context: ProjectionContext; markers: readonly SceneMarker[];
   onMarkerSelect?: (id: string) => void; onPointChange?: (point: GeoPoint) => void;
   children: (frame: RouteBounds) => ReactNode; fallback: (frame: RouteBounds) => ReactNode; onFrame?: (frame: RouteBounds) => void; isCurrent?:()=>boolean; markerSelectLabel?:string;portalLabels?:boolean;labelsVisible?:boolean;showControls?:boolean;
+  pointer?: RefObject<ScenePointer>; overlay?: (frame: RouteBounds, dimensions: { width: number; height: number }) => ReactNode;
+  displayFrame?: SceneFrameStore;
 }) {
   const {labelLayer}=useGraphics();const labelId=useId();
   const [rect,setRect]=useState({left:0,top:0,width:0,height:0});
@@ -51,6 +71,11 @@ export function SceneSurface({ label, camera, setZoom, context, markers, onMarke
     return()=>{observer.disconnect();window.removeEventListener('scroll',measure,true);window.removeEventListener('resize',measure);};
   },[portalLabels]);
   const frame = frameForAspect(camera, dimensions.width / dimensions.height);
+  useEffect(()=>{
+    if(!displayFrame)return;
+    const update=()=>{const actual=displayFrame.getSnapshot();if(actual&&viewport.current)viewport.current.dataset['camera']=JSON.stringify({...actual,zoom:camera.zoom});};
+    update();return displayFrame.subscribe(update);
+  },[displayFrame,camera.zoom]);
   useEffect(() => { onFrame?.(frame); }, [frame.x, frame.y, frame.width, frame.height, onFrame]);
   const position = (point: GeoPoint) => { const projected = projectPoint(point, context); return { left: `${50 + (projected[0] - frame.x) / frame.width * 100}%`, top: `${50 - (projected[1] - frame.y) / frame.height * 100}%` }; };
   // Preserve actual marker anchors; spread clustered local labels with DOM leader lines.
@@ -88,12 +113,19 @@ export function SceneSurface({ label, camera, setZoom, context, markers, onMarke
         if (pointers.current.size === 1) gesture.current = false;
         if (pointers.current.size === 2) { const [a, b] = [...pointers.current.values()]; pinch.current = { distance: Math.hypot(a!.x - b!.x, a!.y - b!.y), zoom: camera.zoom }; gesture.current = true; event.currentTarget.setPointerCapture(event.pointerId); }
       }} onPointerMove={event => {
-        if(!isCurrent()){pointers.current.clear();pinch.current=null;return;}
+        if(!isCurrent()){pointers.current.clear();pinch.current=null;if(pointer)pointer.current.active=false;return;}
+        if(pointer && event.pointerType!=='touch') {
+          const box=event.currentTarget.getBoundingClientRect();
+          const actual=displayFrame?.getSnapshot()??frame;
+          pointer.current.x=actual.x+((event.clientX-box.left)/box.width-.5)*actual.width;
+          pointer.current.y=actual.y+(.5-(event.clientY-box.top)/box.height)*actual.height;
+          pointer.current.active=true;
+        }
         const previous = pointers.current.get(event.pointerId); if (!previous) return;
         if (Math.hypot(event.clientX - previous.x, event.clientY - previous.y) > 4) gesture.current = true;
         pointers.current.set(event.pointerId, { x: event.clientX, y: event.clientY });
         if (pinch.current && pointers.current.size === 2) { const [a, b] = [...pointers.current.values()]; const distance = Math.hypot(a!.x - b!.x, a!.y - b!.y); if (pinch.current.distance > 0) setZoom(Math.max(.5, Math.min(8, pinch.current.zoom * distance / pinch.current.distance))); }
-      }} onPointerCancel={event => { pointers.current.delete(event.pointerId); pinch.current = null; gesture.current = true; }} onPointerUp={event => {
+      }} onPointerLeave={()=>{if(pointer)pointer.current.active=false;}} onPointerCancel={event => { pointers.current.delete(event.pointerId); pinch.current = null; gesture.current = true;if(pointer)pointer.current.active=false; }} onPointerUp={event => {
         if(!isCurrent()){pointers.current.clear();pinch.current=null;return;}
         if (!gesture.current && pointers.current.has(event.pointerId) && onPointChange && !(event.target as HTMLElement).closest('button')) {
           const box = event.currentTarget.getBoundingClientRect();
@@ -104,6 +136,8 @@ export function SceneSurface({ label, camera, setZoom, context, markers, onMarke
       <GraphicsView label={`${label}؛ نقشه نقطه‌ای`} fallback={fallback(frame)}>{children(frame)}</GraphicsView>
       {!portalLabels && labelsVisible && labels}
       {portalLabels && labelLayer && labelsVisible && rect.width>0 && createPortal(<div className={styles.portalViewport} style={rect}>{labels}</div>,labelLayer)}
+      {!portalLabels && overlay?.(frame,dimensions)}
+      {portalLabels && labelLayer && overlay && rect.width>0 && createPortal(<div className={styles.portalViewport} style={rect}>{overlay(frame,dimensions)}</div>,labelLayer)}
     </div>
     {onMarkerSelect && <label className={styles.markerSelect}>{markerSelectLabel??'انتخاب نقطه'} <select aria-label={`انتخاب نقطه ${label}`} value="" onChange={event => {const marker=markers.find(item=>item.id===event.target.value);if(isCurrent() && marker?.enabled!==false && marker?.selectable!==false) onMarkerSelect(event.target.value);}}><option value="" disabled>انتخاب کنید</option>{markers.filter(marker=>marker.selectable!==false).map(marker => <option disabled={marker.enabled===false} key={marker.id} value={marker.id}>{marker.name}</option>)}</select></label>}
   </section>;

@@ -1,6 +1,6 @@
 import {describe,it,expect} from 'vitest';
 import type {Itinerary,ReferralReceipt,QuoteSnapshot} from '@torob-ticket/contracts';
-import {createMapState,mapReducer,mapView,type MapContext,type MapInspection} from './map-state';
+import {createMapState,mapReducer,mapView,mapPresentationView,type MapContext,type MapInspection} from './map-state';
 import {query} from '../search/search-test-data';
 import {group,observedAt} from '../results/results-test-data';
 const owner={generation:'g',searchId:'s'};const now=Date.parse(observedAt)+1000;
@@ -13,6 +13,18 @@ function via(id:string,middle:string):Itinerary {
 const a=via('a','TBZ');const b=via('b','RAS');
 const inspect=(itinerary:Itinerary):MapInspection=>({itinerary,query,owner});
 describe('consumer map ownership and camera intent',()=>{
+ it('starts route playback only for an explicit pin and ignores later hover previews',()=>{
+  let state=mapReducer(createMapState(context),{type:'preview',inspection:inspect(a),owner});
+  expect(mapPresentationView(state,now).itinerary).toBeUndefined();
+  state=mapReducer(state,{type:'pin',inspection:inspect(a)});
+  state=mapReducer(state,{type:'selection',inspection:inspect(a),quote:group('a').eligibleQuotes[0]!,owner});
+  state=mapReducer(state,{type:'preview',inspection:inspect(b),owner});
+  expect(mapPresentationView(state,now)).toMatchObject({itinerary:a,progress:.7});
+  expect(mapView(state,now).itinerary).toBe(b);
+  state=mapReducer(state,{type:'context',context:{...context,draft:{...query,destinationCityId:'other'},revision:2,cause:'edit'}});
+  expect(mapPresentationView(state,now).itinerary).toBeUndefined();
+  expect(mapPresentationView(state,now).query.destinationCityId).toBe('other');
+ });
  it('initial accepted comparison stays illustrative',()=>{
   const state=createMapState(context);expect(mapView(state,now).itinerary).toBeUndefined();expect(mapView(state,now).progress).toBe(.35);
  });

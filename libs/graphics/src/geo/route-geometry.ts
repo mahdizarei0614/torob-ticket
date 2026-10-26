@@ -25,18 +25,42 @@ export function buildRouteGeometry(itinerary: Itinerary, places: readonly Place[
     if (authored && (!samePoint(authored.points[0], a.point) || !samePoint(authored.points.at(-1), b.point))) throw new RangeError('Authored path must match exact transport endpoints');
     const points = segment.mode === 'bus' ? authored!.points : [a.point, b.point];
     const paths = projectRoute(points, context);
+    if (segment.mode === 'bus') {
+      // Smooth only inside each projected fragment; never bridge the longitude seam.
+      for (let index = 0; index < paths.length; index++) paths[index] = smoothRoad(paths[index]!);
+    }
     if (segment.mode === 'flight') {
       for (let index = 0; index < paths.length; index++) {
         const path = paths[index]!; const start = path[0]!; const end = path.at(-1)!;
         const distance = Math.hypot(end[0] - start[0], end[1] - start[1]);
+        const dx = end[0] - start[0], dy = end[1] - start[1];
+        const orientation = dx < 0 ? -1 : 1;
+        const nx = distance ? -dy / distance * orientation : 0;
+        const ny = distance ? dx / distance * orientation : 0;
         paths[index] = Array.from({ length: 49 }, (_, n) => {
           const t = n / 48; const lift = Math.sin(Math.PI * t);
-          return [start[0] + (end[0] - start[0]) * t, start[1] + (end[1] - start[1]) * t + distance * .12 * lift, Math.min(2, distance * .025) * lift];
+          return [Math.max(-180, Math.min(180, start[0] + dx * t + nx * distance * .19 * lift)), start[1] + dy * t + ny * distance * .19 * lift, Math.min(2, distance * .025) * lift];
         });
       }
     }
     return { ...base, paths, geometryStatus: 'illustrative', provenance: authored?.provenance ?? { source: 'canonical transport endpoints', revision: 'route-v1', illustrative: true, navigation: false } };
   });
+}
+/** Cubic interpolation retains every authored waypoint and both exact transport endpoints. */
+function smoothRoad(path: readonly ProjectedPoint[]): ProjectedPoint[] {
+  if (path.length < 3) return [...path];
+  const result: ProjectedPoint[] = [];
+  for (let i = 0; i < path.length - 1; i++) {
+    const a = path[Math.max(0, i - 1)]!, b = path[i]!, c = path[i + 1]!, d = path[Math.min(path.length - 1, i + 2)]!;
+    for (let sample = 0; sample < 8; sample++) {
+      const t = sample / 8, t2 = t * t, t3 = t2 * t;
+      const point = b.map((value, axis) => .5 * ((2 * value) + (-a[axis]! + c[axis]!) * t + (2 * a[axis]! - 5 * value + 4 * c[axis]! - d[axis]!) * t2 + (-a[axis]! + 3 * value - 3 * c[axis]! + d[axis]!) * t3)) as ProjectedPoint;
+      point[0] = Math.max(-180, Math.min(180, point[0]));
+      result.push(point);
+    }
+  }
+  result.push([...path.at(-1)!]);
+  return result;
 }
 function samePoint(a: GeoPoint | undefined, b: GeoPoint) { return !!a && a.latitude === b.latitude && a.longitude === b.longitude; }
 /** Arc-length progress over separate fragments; no teleport edge across the projection seam. */

@@ -19,3 +19,11 @@ export function createVehicleGeometry(mode: Mode) {
   geometry.setAttribute('routeKind', new Float32BufferAttribute(new Array(positions.length / 3).fill(2), 1));
   return geometry;
 }
+
+/** A flat signed-distance logo: its rounded silhouette and refraction are entirely shader drawn. */
+export function createGlassVehicleGeometry() {
+  const geometry = new BufferGeometry();
+  geometry.setAttribute('position', new Float32BufferAttribute([-1,-1,0, 1,-1,0, -1,1,0, -1,1,0, 1,-1,0, 1,1,0], 3));
+  geometry.setAttribute('uv', new Float32BufferAttribute([0,0, 1,0, 0,1, 0,1, 1,0, 1,1], 2));
+  return geometry;
+}
