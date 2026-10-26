@@ -9,3 +9,4 @@ export * from './components/price';
 export * from './components/language';
 export * from './theme/theme-provider';
 export * from './components/price-chart-fallback';
+export * from './presentation/travel-labels';
