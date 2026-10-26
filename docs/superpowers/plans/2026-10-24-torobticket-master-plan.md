@@ -10,7 +10,7 @@
 
 **Tech Stack:** Nx, pnpm, TypeScript, React, Vite, React Router, TanStack Query, React Aria, CSS Modules, CSS custom properties, Zod, NestJS, PostgreSQL, Prisma, Three.js, React Three Fiber, selected Drei utilities, Motion, @internationalized/date, Vitest, Testing Library, Playwright, Storybook, Docker Compose, Caddy.
 
-**Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.3, 2026-10-26 (working official OSM vector basemap).
+**Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.6, 2026-10-26 (selected-journey map atmosphere and choreography).
 
 **Plan state:** Approved. M1–M6 and T29 packaging are complete with independent reviews and packaged acceptance evidence. **29/35 tasks complete; M7 PARTIAL, T30 ACTIVE.** Owner requested a fast checkpoint before substantial design/logic changes: finish durable harness checks now; full T30 matrix and T31–T33 audits/rehearsal remain unfinished. M8 retains its planned scope.
 
@@ -62,8 +62,8 @@ This table is the implementation index of the complete decisions in the companio
 | D09 | Progressive collection; freeze order on interaction; explicit updates; recheck referral | T09, T11, T17, T22, T28 |
 | D10 | Wheel previews then settles; chart linked; calendar applies; stale queries discarded | T10, T15–T16 |
 | D11 | Date prices share eligibility; fixed opposite return leg; missing prices are gaps | T03, T07, T10, T16 |
-| D12 | Fixed display-only desktop dotted map, start→end title, no city labels/editing, preview/pin, stable camera | T13–T15, T18 |
-| D13 | Mode-specific paths, ticket/mobile stops and directions, internal pixel vehicle progress | T14, T18 |
+| D12 | Fixed display-only desktop dotted map, start→end title, selected endpoints/stops only, explicit ticket pin, stable camera | T13–T15, T18 |
+| D13 | Arced flight/double rail/curved road, staged stops, glass vehicles and light strand; separate referral authority | T14, T18 |
 | D14 | Hotel modal/full-page modal, state restoration, arrival-local stay dates | T20–T21 |
 | D15 | Eligible whole-stay/room totals, four sorts, mode-aware arrival point, custom point | T20–T21 |
 | D16 | Hotel dates independent; early check-in caveat; direct hotel referral | T20–T22 |
@@ -2192,7 +2192,7 @@ Commit the accepted implementation and evidence with no unrelated changes. Repor
 | Ranking | All three orders and ties; waits included; destination stay excluded; dwell vs transfer handled correctly |
 | Dates | Wheel snap, preview/commit split, chart sync, Jalali calendar apply/cancel, same-day valid returns, opposite-leg consistency |
 | Results | Honest coverage, no stale-query overwrite, stable order after interaction, explicit late-update adoption |
-| Map | Fixed left desktop layout, dropdown/dot parity, preview/pin restore, no camera resets while scrolling, stops/waits/ground transfers |
+| Map | Fixed left desktop layout; form-owned endpoints and read-only map; selected endpoint labels; explicit pin-only route with ordered stops/waits; stable selection on hover; eased international fit; no camera resets while scrolling |
 | Hotels | Correct arrival-local dates, independent edits, occupancy/all-room totals, all sorts, custom point, straight-line units, modal state restoration |
 | Referral | Guest works; changed terms require acceptance; sold-out recovery; expiry and idempotency; exact local handoff without purchase claims |
 | Admin | Real telemetry, scoped provider/scenario changes, mapping preview/collision checks/replay, factual referral counts |
@@ -2234,3 +2234,15 @@ Before release, all tasks are DONE or an explicit approved scope change removes 
 ## Owner adjustment — compact travel map,2026-10-26
 
 Desktop travel map is display-only: start→end title and existing route scene, no city labels/endpoint controls/duplicate map panels. Only the search form edits cities. Internal route/pin/progress/camera semantics, mobile route panel and interactive hotel picker remain. [Decision0031](../../decisions/0031-display-only-travel-map.md), [checkpoint](../../evidence/adjustments/read-only-map/checkpoint.md). This is an owner-directed adjustment; M7 remains partial29/35 and unfinished acceptance is not reclassified.
+
+## Owner adjustment — map atmosphere and selected-journey choreography,2026-10-26
+
+The subsequent request supersedes the previous all-labels-hidden and pre-ticket illustrative-route behavior: show only selected endpoint names and sequentially revealed stop names/waits; draw a connecting route only after explicit ticket selection. Preserve read-only endpoint editing. Dim shaded dark themes, breathing/pointer-responsive dots, emphasized major cities, distinct transport geometry, glossy vehicle icons and a traveling light strand share the existing renderer. [Decision0032](../../decisions/0032-atmospheric-selected-journey-map.md). M7 remains partial29/35.
+
+| Adjustment | Subtasks | Status | Evidence |
+|---|---|---|---|
+| Map atmosphere | Dim semantic palettes and gradients; breathing/proximity dots; major-city emphasis | DONE | `a602193`; native shader/pointer checks and six palettes; [checkpoint](../../evidence/adjustments/atmospheric-map/checkpoint.md) |
+| Selected journey | Pin-only route; endpoint pop-ins; staged stop names/wait counts; mode-specific route and glass vehicle | DONE | `a602193`; canonical stop reveal, hover stability, reduced motion and fallback; 93 focused tests pass |
+| Follow-up polish | Side-view ground vehicles; thicker comet trail; eased endpoint/stop framing; remove map divider | DONE | `a602193`; camera continuity, international fit and native screenshots verified |
+| Compact controls | Shared desktop rows; date wheel/chart/evidence layout; preserve font sizes and 44px controls | DONE | `a602193`; final default-form fit at 1440×900, 1366×768, 1280×800 and 390px mobile check pass |
+| Review and integration | Independent review; local packaged rebuild; browser captures; tracker/export sync | DONE | [Independent review](../../evidence/adjustments/atmospheric-map/review.md); 14 Nx tasks pass; native 15 passes plus corrected layout pass separately; local app healthy; M7 remains partial |
