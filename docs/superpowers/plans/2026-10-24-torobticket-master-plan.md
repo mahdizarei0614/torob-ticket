@@ -12,7 +12,7 @@
 
 **Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.3, 2026-10-26 (working official OSM vector basemap).
 
-**Plan state:** Approved. M1 foundation, M2 comparison engine, M3 signature search, M4 traveler flow and M5 inspectable operations are complete through T26, with independent reviews and packaged evidence. **26/35 tasks complete; T27 TODO, T29 ACTIVE.** The earlier throwaway date explorer remains separate from implemented product code. Remaining milestones retain their planned scope.
+**Plan state:** Approved. M1–M6 are complete through T28 with independent reviews and packaged acceptance evidence. **28/35 tasks complete; M6 COMPLETE, T29 ACTIVE.** The earlier throwaway date explorer remains separate from implemented product code. Remaining M7 work retains its planned scope.
 
 **Delivery location:** This outputs directory contains the user-facing source documents. On repository creation, copy the spec to docs/superpowers/specs/2026-10-24-torobticket-design.md and this plan to docs/superpowers/plans/2026-10-24-torobticket-master-plan.md. Preserve the revision, task IDs, and decision authority, and rewrite the Spec link to ../specs/2026-10-24-torobticket-design.md.
 
@@ -376,8 +376,8 @@ Each row indexes the detailed checkbox steps in section 6. DONE requires indepen
 | [T24 — Provider health and inspectable search runs](#t24) | T24.1 Pin telemetry provenance<br>T24.2 Run inspection tests red<br>T24.3 Implement inspection APIs<br>T24.4 Implement admin views and replay<br>T24.5 Verify and commit | T09, T23 | DONE | 27868e0 backend; fb5366d review5 +e895f10 review4 +12e3d8a frontend6; integrated264cdb4; real PG7/native PASS |
 | [T25 — Normalization workspace, alias preview, collision checks, and replay](#t25) | T25.1 Pin material correction behavior<br>T25.2 Run mapping tests red<br>T25.3 Implement preview and apply<br>T25.4 Implement the quality workspace<br>T25.5 Verify and commit | T06, T07, T23, T24 | DONE | fb5366d backend;27868e0 independent10; integrated264cdb4; real PG2/native correction-replay PASS |
 | [T26 — Referral analytics and end-to-end provenance trail](#t26) | T26.1 Pin real metric counts<br>T26.2 Run analytics tests red<br>T26.3 Implement metrics and joins<br>T26.4 Implement the referral views<br>T26.5 Verify and commit | T11, T23, T24 | DONE | 264cdb4 backend/frontend; e895f10 independent8; full PG1 +corrected PG2/native actual referral PASS |
-| [T27 — Flat artwork, coordinated motion, and all theme transitions](#t27) | T27.1 Author the visual assets<br>T27.2 Implement useful motion<br>T27.3 Implement theme coordination<br>T27.4 Verify motion and all palettes<br>T27.5 Review and commit | T12, T13, T14, T16, T17, T21 | TODO | Unassigned / — |
-| [T28 — Failure recovery and coherent state across features](#t28) | T28.1 Pin the scenario recovery matrix<br>T28.2 Run recovery cases red<br>T28.3 Implement recovery actions<br>T28.4 Reconcile stale selections<br>T28.5 Verify and commit | T09, T10, T16, T17, T18, T20, T21, T22, T24, T25 | TODO | Unassigned / — |
+| [T27 — Flat artwork, coordinated motion, and all theme transitions](#t27) | T27.1 Author the visual assets<br>T27.2 Implement useful motion<br>T27.3 Implement theme coordination<br>T27.4 Verify motion and all palettes<br>T27.5 Review and commit | T12, T13, T14, T16, T17, T21 | DONE | Source6451d55; independent reviews and M6 packaged20+17 acceptance; [checkpoint](../../evidence/M6/checkpoint.md) |
+| [T28 — Failure recovery and coherent state across features](#t28) | T28.1 Pin the scenario recovery matrix<br>T28.2 Run recovery cases red<br>T28.3 Implement recovery actions<br>T28.4 Reconcile stale selections<br>T28.5 Verify and commit | T09, T10, T16, T17, T18, T20, T21, T22, T24, T25 | DONE | Source6451d55; independent reviews and M6 packaged20+17 acceptance; [checkpoint](../../evidence/M6/checkpoint.md) |
 | [T29 — Docker packaging, gateway, initialization, and one-command startup](#t29) | T29.1 Define container lifecycle<br>T29.2 Implement ordered initialization<br>T29.3 Implement gateway and assets<br>T29.4 Implement one-command runner<br>T29.5 Verify and commit | T01, T04, T05 | ACTIVE | implement_t29_early / T05–T11 engine and T13 graphics packaged-verified; startup, SSE, referrals, production GL/lazy assets and data preservation pass; future artwork and full T33 acceptance pending |
 | [T30 — Complete behavioral regression and multi-reviewer acceptance](#t30) | T30.1 Build stable e2e fixtures<br>T30.2 Exercise the full matrix<br>T30.3 Exercise cross-feature journeys<br>T30.4 Exercise hostile timing and isolation<br>T30.5 Verify and commit | T19, T22, T24, T25, T26, T28, T29 | TODO | Unassigned / — |
 | [T31 — Accessibility, RTL, responsive behavior, and browser compatibility](#t31) | T31.1 Define representative coverage<br>T31.2 Run semantic checks<br>T31.3 Inspect visual accessibility<br>T31.4 Run browser coverage<br>T31.5 Fix, verify, and commit | T27, T28, T30 | TODO | Unassigned / — |
@@ -1798,23 +1798,23 @@ Run integration tests and pnpm nx run e2e:e2e --grep @admin-referrals. Complete 
 - Consumes: Six token palettes, scene lifecycle/uniform bridge, established app feature states.
 - Produces: Local flat illustration/icon set, meaningful microinteraction policy, synchronized View Transition theme update, reduced-motion behavior.
 
-- [ ] **T27.1 — Author the visual assets**
+- [x] **T27.1 — Author the visual assets**
 
 Create flat city/travel/empty/loading illustrations and fictional provider/operator marks consistent with the compact interface. Prefer tokenized SVG for themeable artwork. If raster art is needed, use the image-generation skill and bundle approved outputs/provenance locally.
 
-- [ ] **T27.2 — Implement useful motion**
+- [x] **T27.2 — Implement useful motion**
 
 Use Motion for list/detail/modal transitions and flat vehicle/interface accents; GLSL for route/chart/selected atmospheric emphasis. Preserve layout stability and avoid animating large lists on every provider arrival.
 
-- [ ] **T27.3 — Implement theme coordination**
+- [x] **T27.3 — Implement theme coordination**
 
 Apply persisted/system appearance before first paint. Preserve animation:none and mix-blend-mode:normal on old/new root View Transition pseudo-elements. Implement runThemeTransition(nextTheme, {onApplied?: () => Promise<void>}) in UI; the web app supplies the graphics callback so UI does not import graphics. Update CSS tokens and GPU uniforms before the new frame; use the 260 ms reveal or direct fallback.
 
-- [ ] **T27.4 — Verify motion and all palettes**
+- [x] **T27.4 — Verify motion and all palettes**
 
 Run pnpm nx run e2e:e2e --grep @theme-motion. Inspect all three transport modes in light/dark, interrupted rapid toggles, reduced motion, unsupported View Transition, and WebGL fallback. Verify no stale shader color flash.
 
-- [ ] **T27.5 — Review and commit**
+- [x] **T27.5 — Review and commit**
 
 Inspect actual desktop/mobile interactions and token coverage; document the purposeful motion rules. Commit artwork/motion with screenshots and asset provenance.
 
@@ -1842,27 +1842,30 @@ Inspect actual desktop/mobile interactions and token coverage; document the purp
 - Consumes: Stable API error codes, terminal search states, snapshot fallback, all demo scenarios.
 - Produces: Consistent partial/empty/error/expired/interrupted recovery flows, retry policy, and precise Persian/English recovery copy.
 
-- [ ] **T28.1 — Pin the scenario recovery matrix**
+- [x] **T28.1 — Pin the scenario recovery matrix**
 
 Create one e2e case for each scenario plus session expiry, interrupted API restart, broken SSE with working REST, unsupported route from a URL, and a scenario revision changed in another tab.
 
-- [ ] **T28.2 — Run recovery cases red**
+- [x] **T28.2 — Run recovery cases red**
 
 Run pnpm nx run e2e:e2e --grep @recovery. Identify which current state loses query intent or implies missing providers returned no offers.
 
-- [ ] **T28.3 — Implement recovery actions**
+- [x] **T28.3 — Implement recovery actions**
 
 Offer retry, apply updated results, change date, relax only the chosen filter, select a supported route, or choose another quote as appropriate. Keep user intent visible. Do not silently change dates/filters or reset hotel edits.
 
-- [ ] **T28.4 — Reconcile stale selections**
+- [x] **T28.4 — Reconcile stale selections**
 
 On scenario/mapping/session changes, refresh metadata, invalidate only affected caches, label retained evidence, and require a fresh quote before referral. Detect disconnected/recovered transport without false all-provider success.
 
-- [ ] **T28.5 — Verify and commit**
+- [x] **T28.5 — Verify and commit**
 
 Run the recovery suite plus affected client/web tests. Confirm all actions work by keyboard and no blank/error-only dead end remains. Commit coherent recovery.
 
 **Acceptance:** Every seeded failure has an honest explanation and an actionable way forward without hidden changes to the user's trip.
+
+**M6 complete — 2026-10-26:** T27 artwork/motion290f24e, themes833f4df/db5d170; T28 core7b92720; integrated compositionc10da8b; final credential/copy correction6451d55; independent correction review1e41193; acceptance assertionsa23dd5f. All10 T27–T28 subtasks close. Shared finite motion and semantic CSS/GLSL themes retain one renderer/scheduler and camera intent. Recovery preserves edited trip/hotel/admin intent while revoking obsolete quote/referral authority. Ordinary responses never echo/clear credentials; explicit bootstrap/reset alone issues a browser-session cookie, with PostgreSQL24h inactivity authoritative. Final affected40/40, native M6 twenty and separate referral/account/admin seventeen cases pass. Dedicated actual HTTP/lifecycle20pass; fullPG125/126 with only an obsolete cookie-header assertion corrected and its9-case auth file passing separately. Independent combined T27eight plus five-source binding review, T28core8 then14, UI13 and final cookie8/copy2 probes approve their exact candidate boundaries. Original DB/container/full immutable2/90/308/924 inventories and3migrations remain preserved; served JS/CSS and compiled session service match local bytes. Temporary owned stacks, volume and image tags removed;4300 remains healthy and4313/4314/4327/62328 free. Initial native18/20, corrected catalog expectation, cookie race, copied-harness syntax error and lint/type failures remain attributed in raw evidence. **28/35 tasks complete; M6 COMPLETE, T29 ACTIVE.** No owner input required. [M6 checkpoint](../../evidence/M6/checkpoint.md), [T27](../../evidence/T27/checkpoint.md), [T28](../../evidence/T28/checkpoint.md), [review hash audit](../../evidence/M6/review-hash-audit.json). Evidence snapshot `3248cc3` archives309 committed payloads in310 verified metadata-free members; [archive audit](../../evidence/M6/archive-audit.json). Full M7 acceptance/performance/accessibility remains planned. No push/publication/deployment/submission or real provider/OAuth/booking/payment/LLM occurred.
+
 
 ---
 
