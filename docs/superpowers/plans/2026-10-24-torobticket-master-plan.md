@@ -12,7 +12,7 @@
 
 **Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.3, 2026-10-26 (working official OSM vector basemap).
 
-**Plan state:** Approved; M1 foundation, T05 inventory, T06 normalization, T07 eligible comparison, T08 ranking, T09 durable search orchestration, SSE and recovery, T10 source-backed date prices, and T11 recheck/idempotent referrals are complete and independently reviewed. M2 comparison engine is complete; M3 is complete: T13 shared rendering, T14 geography/routes, T15 consumer shell/composer, T16 date exploration, T17 streamed comparison results and T18 canonical consumer map integration are independently reviewed and verified. T19 optional identity, saved intent and local preferences are complete; T20 hotel eligibility, complete stay pricing, four sorts and shared referral authority are complete and independently reviewed; T21 hotel discovery UI and its free OSM vector map are complete and independently reviewed; M4 is complete: T22 traveler/provider handoff and its production-style presentation amendment are independently reviewed and verified (22/35 tasks complete; T23 TODO, T29 ACTIVE). Remaining product tasks and evidence are tracked below. The earlier date explorer is a completed throwaway interaction study, not implemented product code.
+**Plan state:** Approved. M1 foundation, M2 comparison engine, M3 signature search, M4 traveler flow and M5 inspectable operations are complete through T26, with independent reviews and packaged evidence. **26/35 tasks complete; T27 TODO, T29 ACTIVE.** The earlier throwaway date explorer remains separate from implemented product code. Remaining milestones retain their planned scope.
 
 **Delivery location:** This outputs directory contains the user-facing source documents. On repository creation, copy the spec to docs/superpowers/specs/2026-10-24-torobticket-design.md and this plan to docs/superpowers/plans/2026-10-24-torobticket-master-plan.md. Preserve the revision, task IDs, and decision authority, and rewrite the Spec link to ../specs/2026-10-24-torobticket-design.md.
 
@@ -372,10 +372,10 @@ Each row indexes the detailed checkbox steps in section 6. DONE requires indepen
 | [T20 — Hotel eligibility, stay pricing, distance sorting, and recheck](#t20) | T20.1 Pin occupancy and total-stay cases<br>T20.2 Run hotel tests red<br>T20.3 Implement allocation and pricing<br>T20.4 Implement dates and four sorts<br>T20.5 Register recheck and persistence<br>T20.6 Verify and commit | T03, T04, T05, T11 | DONE | implement_t20 / cc4aea0; full/fresh reviews, pure484/API106/affected48 and root production/cleanup/archive pass; [checkpoint](../../evidence/T20/checkpoint.md) |
 | [T21 — Hotel discovery modal, custom-location map, and trip-state restoration](#t21) | T21.1 Pin opening, edits, and restoration<br>T21.2 Run hotel UI tests red<br>T21.3 Implement hotel browsing<br>T21.4 Implement location selection<br>T21.5 Implement modal/canvas coordination<br>T21.6 Verify and commit | T12, T13, T14, T15, T20 | DONE | implement_t21 / OSM `50381c8` + L1 `dd09ee5`; reviews `241ee40`/`33a8c33`, evidence `e026bfd`; 38 affected, 5 native, 4 packaged checks PASS; [checkpoint](../../evidence/T21/checkpoint.md) |
 | [T22 — Traveler referral UI and simulated provider landing page](#t22) | T22.1 Pin user-visible handoff behavior<br>T22.2 Run referral UI tests red<br>T22.3 Implement recheck UI<br>T22.4 Implement handoff and return<br>T22.5 Verify and commit | T11, T17, T18, T19, T21 | DONE | implement_t22; review_t22 approval76fa70a; runtime852cf02, policy-test31b388d, Dockerfc5ae78, native db7e0be; packaged99d5fed and exact-byte archive audit |
-| [T23 — Admin shell, scenario controls, provider overrides, and session reset](#t23) | T23.1 Pin scoped control effects<br>T23.2 Run controls tests red<br>T23.3 Implement admin navigation and controls<br>T23.4 Implement revision and invalidation<br>T23.5 Implement reset recovery<br>T23.6 Verify and commit | T04, T12, T06 | TODO | Unassigned / — |
-| [T24 — Provider health and inspectable search runs](#t24) | T24.1 Pin telemetry provenance<br>T24.2 Run inspection tests red<br>T24.3 Implement inspection APIs<br>T24.4 Implement admin views and replay<br>T24.5 Verify and commit | T09, T23 | TODO | Unassigned / — |
-| [T25 — Normalization workspace, alias preview, collision checks, and replay](#t25) | T25.1 Pin material correction behavior<br>T25.2 Run mapping tests red<br>T25.3 Implement preview and apply<br>T25.4 Implement the quality workspace<br>T25.5 Verify and commit | T06, T07, T23, T24 | TODO | Unassigned / — |
-| [T26 — Referral analytics and end-to-end provenance trail](#t26) | T26.1 Pin real metric counts<br>T26.2 Run analytics tests red<br>T26.3 Implement metrics and joins<br>T26.4 Implement the referral views<br>T26.5 Verify and commit | T11, T23, T24 | TODO | Unassigned / — |
+| [T23 — Admin shell, scenario controls, provider overrides, and session reset](#t23) | T23.1 Pin scoped control effects<br>T23.2 Run controls tests red<br>T23.3 Implement admin navigation and controls<br>T23.4 Implement revision and invalidation<br>T23.5 Implement reset recovery<br>T23.6 Verify and commit | T04, T12, T06 | DONE | e895f10 backend; fb5366d independent7; integrated264cdb4; real PG5/native PASS |
+| [T24 — Provider health and inspectable search runs](#t24) | T24.1 Pin telemetry provenance<br>T24.2 Run inspection tests red<br>T24.3 Implement inspection APIs<br>T24.4 Implement admin views and replay<br>T24.5 Verify and commit | T09, T23 | DONE | 27868e0 backend; fb5366d review5 +e895f10 review4 +12e3d8a frontend6; integrated264cdb4; real PG7/native PASS |
+| [T25 — Normalization workspace, alias preview, collision checks, and replay](#t25) | T25.1 Pin material correction behavior<br>T25.2 Run mapping tests red<br>T25.3 Implement preview and apply<br>T25.4 Implement the quality workspace<br>T25.5 Verify and commit | T06, T07, T23, T24 | DONE | fb5366d backend;27868e0 independent10; integrated264cdb4; real PG2/native correction-replay PASS |
+| [T26 — Referral analytics and end-to-end provenance trail](#t26) | T26.1 Pin real metric counts<br>T26.2 Run analytics tests red<br>T26.3 Implement metrics and joins<br>T26.4 Implement the referral views<br>T26.5 Verify and commit | T11, T23, T24 | DONE | 264cdb4 backend/frontend; e895f10 independent8; full PG1 +corrected PG2/native actual referral PASS |
 | [T27 — Flat artwork, coordinated motion, and all theme transitions](#t27) | T27.1 Author the visual assets<br>T27.2 Implement useful motion<br>T27.3 Implement theme coordination<br>T27.4 Verify motion and all palettes<br>T27.5 Review and commit | T12, T13, T14, T16, T17, T21 | TODO | Unassigned / — |
 | [T28 — Failure recovery and coherent state across features](#t28) | T28.1 Pin the scenario recovery matrix<br>T28.2 Run recovery cases red<br>T28.3 Implement recovery actions<br>T28.4 Reconcile stale selections<br>T28.5 Verify and commit | T09, T10, T16, T17, T18, T20, T21, T22, T24, T25 | TODO | Unassigned / — |
 | [T29 — Docker packaging, gateway, initialization, and one-command startup](#t29) | T29.1 Define container lifecycle<br>T29.2 Implement ordered initialization<br>T29.3 Implement gateway and assets<br>T29.4 Implement one-command runner<br>T29.5 Verify and commit | T01, T04, T05 | ACTIVE | implement_t29_early / T05–T11 engine and T13 graphics packaged-verified; startup, SSE, referrals, production GL/lazy assets and data preservation pass; future artwork and full T33 acceptance pending |
@@ -394,7 +394,7 @@ Each row indexes the detailed checkbox steps in section 6. DONE requires indepen
 | M2 — Credible comparison engine | T05–T11 | COMPLETE: T05–T11 independently reviewed. Provider normalization, complete round trips, ranking, durable streams, date/result equality and explicit versioned/idempotent referrals verified; T11 corrected lifecycle53 and packaged gateway/restart/preservation gates pass |
 | M3 — Signature search experience | T13–T18 | COMPLETE: shared renderer, geography/routes, consumer composer, date exploration, streamed comparison and canonical map binding independently verified. Wheel/calendar/chart/map linked to real mock-provider API data; stable results/camera and desktop/mobile route details. |
 | M4 — Complete traveler flow | T19–T22 | COMPLETE: optional identity/saves, hotel eligibility/discovery/custom point, explicit recheck consent, immutable handoff and exact authorized return context; independent review and final Docker/browser evidence pass. |
-| M5 — Inspectable admin | T23–T26 | Session-scoped controls actually alter pipeline; raw-to-normalized trace; mapping preview/replay; real referral evidence |
+| M5 — Inspectable admin | T23–T26 | COMPLETE: session-scoped revisioned controls alter actual work; provider health/search source/ranking inspection; bounded material mapping preview/apply/replay; factual referral metrics/trail. Independent reviews, actual PG and four packaged browser journeys pass. |
 | M6 — Visual finish and resilience | T27–T28 | All themes/modes, local flat artwork, coordinated motion, empty/partial/error recovery |
 | M7 — Reproducible quality gates | T29–T33 | Clean Docker boot, browser journeys, accessibility audit, measured graphics/bundles, isolation/reset/restart evidence |
 | M8 — Reviewer handoff | T34–T35 | <5-minute timed walkthrough script, honest AI evidence, final independent review, no unresolved critical/high-impact defects |
@@ -1609,27 +1609,27 @@ Run web tests and pnpm nx run e2e:e2e --grep @referral. Confirm no login gate, n
 - Consumes: SessionInfo/Scenario schemas, scoped provider registry, UI primitives, session lifecycle.
 - Produces: English admin layout and demo-only access; provider/scenario override APIs; revisioned configuration and audit events; reset UX.
 
-- [ ] **T23.1 — Pin scoped control effects**
+- [x] **T23.1 — Pin scoped control effects**
 
 Test pausing/slow/timeout overrides change actual search participation and timing; scenario change increments revision; reset clears only current session. Inspect two browser contexts so one reviewer's controls cannot affect the other.
 
-- [ ] **T23.2 — Run controls tests red**
+- [x] **T23.2 — Run controls tests red**
 
 Run pnpm nx run api:test-integration and create @admin-scenarios e2e cases.
 
-- [ ] **T23.3 — Implement admin navigation and controls**
+- [x] **T23.3 — Implement admin navigation and controls**
 
-Build the four admin areas and compact scenario drawer. Clearly label sandbox access; no production-admin implication or credential prerequisite. Expose normal/slow/timeout/price-change/sold-out/conflicting/no-results presets.
+Build the four admin areas and compact scenario drawer. Explain that controls affect the current session, using ordinary production-style copy under specification1.4; no credential prerequisite. Expose normal/slow/timeout/price-change/sold-out/conflicting/no-results presets.
 
-- [ ] **T23.4 — Implement revision and invalidation**
+- [x] **T23.4 — Implement revision and invalidation**
 
 Persist scoped overrides and audit before applying them. Cancel active affected searches with an explicit reason; invalidate date/hotel caches and expired intents. Existing evidence stays immutable. New searches/rechecks use the new revision. Consumer refresh/focus retrieves updated session configuration.
 
-- [ ] **T23.5 — Implement reset recovery**
+- [x] **T23.5 — Implement reset recovery**
 
 Explain the reset scope, execute the current session reset, and return to the default preset. Preserve immutable fixtures and other sessions. A recoverable admin error keeps the prior controls visible.
 
-- [ ] **T23.6 — Verify and commit**
+- [x] **T23.6 — Verify and commit**
 
 Run integration tests and pnpm nx run e2e:e2e --grep @admin-scenarios. Compare actual provider run traces before/after a control change. Commit the admin shell and controls.
 
@@ -1659,23 +1659,23 @@ Run integration tests and pnpm nx run e2e:e2e --grep @admin-scenarios. Compare a
 - Consumes: Persisted SearchRun/ProviderRun/raw/normalized/quote/event evidence and current session.
 - Produces: Scoped provider summaries, paginated search list/detail, immutable event timeline, new-run replay API and UI.
 
-- [ ] **T24.1 — Pin telemetry provenance**
+- [x] **T24.1 — Pin telemetry provenance**
 
 Create a known normal and timeout run. Assert displayed response durations/status/counts derive from recorded events, failed providers are not empty successes, and a zero-activity session has no invented chart points.
 
-- [ ] **T24.2 — Run inspection tests red**
+- [x] **T24.2 — Run inspection tests red**
 
 Run pnpm nx run api:test-integration. Assert pagination and foreign-session IDs cannot leak raw records.
 
-- [ ] **T24.3 — Implement inspection APIs**
+- [x] **T24.3 — Implement inspection APIs**
 
 Return bounded, paginated summaries and a selected run's coverage, rank inputs, exclusion reasons, source/normalization links, revisions, and request IDs. Raw content is plain data, never executable HTML.
 
-- [ ] **T24.4 — Implement admin views and replay**
+- [x] **T24.4 — Implement admin views and replay**
 
 Build compact tables, filters, detail panels, and event timelines. Replay creates a new search linked to the old one using current settings; old evidence remains unchanged. Show normal/partial/interrupted states clearly.
 
-- [ ] **T24.5 — Verify and commit**
+- [x] **T24.5 — Verify and commit**
 
 Run integration tests and pnpm nx run e2e:e2e --grep @admin-searches. Trace a chosen consumer result to its provider records and explain its order using admin facts. Commit inspection views.
 
@@ -1704,23 +1704,23 @@ Run integration tests and pnpm nx run e2e:e2e --grep @admin-searches. Trace a ch
 - Consumes: NormalizationTrace/Result, MappingPatch/Preview, versioned source records, replay API.
 - Produces: Scoped mapping preview/apply endpoints; raw→normalized→group inspection; immutable mapping revisions and reprocessing.
 
-- [ ] **T25.1 — Pin material correction behavior**
+- [x] **T25.1 — Pin material correction behavior**
 
 Use a rejected alias fixture. Preview a valid canonical mapping and an invalid cross-entity/colliding mapping. Assert only valid preview can apply; revision changes affect a replay but do not mutate the old quote or source trace.
 
-- [ ] **T25.2 — Run mapping tests red**
+- [x] **T25.2 — Run mapping tests red**
 
 Run pnpm nx run api:test-integration. Assert stale preview revisions require refresh before apply.
 
-- [ ] **T25.3 — Implement preview and apply**
+- [x] **T25.3 — Implement preview and apply**
 
 Scope alias keys by provider namespace/entity type. Return affected record IDs, before/after normalized fields, candidate grouping changes, and collision issues. Apply in a transaction with audit/revision and invalidate relevant cached queries.
 
-- [ ] **T25.4 — Implement the quality workspace**
+- [x] **T25.4 — Implement the quality workspace**
 
 Display source fields beside normalized fields, reasons, unknown values, and grouping outcome. Let reviewers preview/apply a correction and explicitly replay. Render hostile-looking provider strings safely as text.
 
-- [ ] **T25.5 — Verify and commit**
+- [x] **T25.5 — Verify and commit**
 
 Run integration tests and pnpm nx run e2e:e2e --grep @admin-normalization. Show one rejected record becoming valid in a new search while historic evidence remains unchanged. Commit normalization workspace.
 
@@ -1748,27 +1748,30 @@ Run integration tests and pnpm nx run e2e:e2e --grep @admin-normalization. Show 
 - Consumes: ReferralEvent/Intent and immutable quote/search/source evidence; session scope.
 - Produces: Factual ReferralMetrics and paginated trail linking source, search, selection, recheck, accepted version, and handoff.
 
-- [ ] **T26.1 — Pin real metric counts**
+- [x] **T26.1 — Pin real metric counts**
 
 Create one successful transport referral, one hotel referral, a changed-price cancellation, and a duplicate confirmation. Assert only two confirmed referrals, no duplicate landing-refresh count, and no booking/revenue inference.
 
-- [ ] **T26.2 — Run analytics tests red**
+- [x] **T26.2 — Run analytics tests red**
 
 Run pnpm nx run api:test-integration. Include a second session with independent counts and safe empty-state output.
 
-- [ ] **T26.3 — Implement metrics and joins**
+- [x] **T26.3 — Implement metrics and joins**
 
 Count recorded events with precise definitions; expose provider/type/time filters and exact price/condition versions. Join through immutable evidence IDs. Missing conversion reporting stays unknown rather than zero bookings.
 
-- [ ] **T26.4 — Implement the referral views**
+- [x] **T26.4 — Implement the referral views**
 
 Show concise counts, provider distribution, event table, and a source-to-handoff detail panel. Include changed/cancelled/unavailable recheck states without mislabeling them as outbound clicks.
 
-- [ ] **T26.5 — Verify and commit**
+- [x] **T26.5 — Verify and commit**
 
 Run integration tests and pnpm nx run e2e:e2e --grep @admin-referrals. Complete a consumer referral and locate its exact record in admin. Commit referral evidence.
 
 **Acceptance:** Monetization-related evidence is accurate, bounded to recorded clicks, and traceable to the accepted offer.
+
+
+**M5 complete — 2026-10-26:** T23backend `e895f10`, T24backend `27868e0`, T25backend and independent reviews `fb5366d`, T24frontend review `12e3d8a`, integrated frontend/T26/assembly `264cdb4`. All21 T23–T26 subtasks close. Operational controls persist scoped revisions/audits, stop affected live work, preserve completed evidence and detect foreground namespace changes. Search/provider views expose actual bounded processing evidence and new terminal-run replay; city-alias preview/apply/replay materially fixes authored rejected data without rewriting history. Referrals use recorded event counts, independent filtered tables and exact accepted offer/source lineage, with no invented conversions. Independent T23seven, T24five+four+six across separate runs, T25ten and T26eight probes approve current scope. Final48/48 affected checks, real PostgreSQL121/16files plus corrected T26two cases in a separate run, normal Docker startup and four actual packaged Chrome journeys pass. Evidence commit `ae3939f` retains201 committed payloads in202 verified metadata-free archive members. Original DB/container/full immutable2/90/308/924 inventories and3migrations remain preserved; consumer/admin served JS/CSS SHA256 match builds. Owned test DB/volume removed; scoped browsers reset201/closed,4313/4314/62325free. Desktop/dark/mobile admin was visually checked; all original harness/source failures remain attributed. Preview caps500 public-comparison evidence rows/runs/revisions explicitly; only effective city-alias operations are offered. **26/35 tasks complete; M5 COMPLETE, T27 TODO, T29 ACTIVE.** No owner inputs required. [M5 checkpoint](../../evidence/M5/checkpoint.md), [packaged acceptance](../../evidence/M5/packaged/README.md), [archive audit](../../evidence/M5/archive-audit.json), task checkpoints [T23](../../evidence/T23/checkpoint.md), [T24](../../evidence/T24/checkpoint.md), [T25](../../evidence/T25/checkpoint.md), [T26](../../evidence/T26/checkpoint.md). No remote push/publication/deployment/submission or real provider/OAuth/booking/payment/LLM occurred.
 
 ---
 
