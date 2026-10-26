@@ -24,7 +24,7 @@ export function useSearchController(catalog: CatalogSnapshot, session: SessionIn
   const navigate = useNavigate();
   const cache = useQueryClient();
   const initial = useRef(parseSearchUrl(location.search, catalog, session));
-  const [state, reduceDispatch] = useReducer(searchReducer, undefined, () => restore?{...createSearchState(restore.draft),committed:restore.recovery.snapshot.query,generation:restore.recovery.snapshot.clientGeneration,searchId:restore.recovery.snapshot.searchId}:{ ...createSearchState(initial.current.query ?? initialDraft(catalog, session)), committed: initial.current.query, generation: crypto.randomUUID(), notice: initial.current.message ?? '' });
+  const [state, reduceDispatch] = useReducer(searchReducer, undefined, () => restore?{...createSearchState(restore.draft),committed:restore.recovery.snapshot.query,generation:restore.recovery.snapshot.clientGeneration,searchId:restore.recovery.snapshot.searchId}:{ ...createSearchState(initial.current.draft ?? initial.current.query ?? initialDraft(catalog, session)), committed: initial.current.query, generation: crypto.randomUUID(), notice: initial.current.message ?? '' });
   // Apply the same authoritative reducer before React delivery so map/result intent joins
   // observe edits, history and accepted pins atomically within one event turn.
   const intentState=useRef(state);
@@ -49,6 +49,9 @@ export function useSearchController(catalog: CatalogSnapshot, session: SessionIn
   const [waitingDate, setWaitingDate] = useState(false);
   const [pending, setPending] = useState(false);
   const [feedback, setFeedback] = useState('');
+  const [lastError,setLastError]=useState<unknown>();
+  const [authorityVersion,setAuthorityVersion]=useState(0);
+  const authority=useRef({version:0,current:true});
   const [accepted, setAccepted] = useState(Boolean(restore));
   const [resultEntryGeneration,setResultEntryGeneration] = useState<string | undefined>();
   const resetting = startSnapshot.resetting;
@@ -59,7 +62,7 @@ export function useSearchController(catalog: CatalogSnapshot, session: SessionIn
     const parsed = parseSearchUrl(search, catalog, session);
     const next = crypto.randomUUID();
     generation.current = next; intendedGeneration.current = next; queuedDate.current = undefined; starts.prioritize(datePriority.current, false); setWaitingDate(false);
-    dispatch({ type: 'restore', draft: parsed.query ?? initialDraft(catalog, session), query: parsed.query, generation: next, notice: parsed.message });
+    dispatch({ type: 'restore', draft: parsed.draft ?? parsed.query ?? initialDraft(catalog, session), query: parsed.query, generation: next, notice: parsed.message });
     setFeedback(''); setAccepted(false); setPending(false);
     return parsed;
   }
@@ -84,15 +87,16 @@ export function useSearchController(catalog: CatalogSnapshot, session: SessionIn
       const canonical = serializeSearchUrl(parsed.query);
       if (canonical !== location.search) { ownNavigation.current = canonical; void navigate({ pathname: '/', search: canonical }, { replace: true }); }
     }
-  }, [location.key, location.search, catalog, session, navigate]);
+  }, [location.key, location.search, navigate]);
   const validity = validateDraft(state.draft, catalog, session);
   function cancelQueuedDate() { if (!queuedDate.current) return; queuedDate.current = undefined; starts.prioritize(datePriority.current, false); setWaitingDate(false); setPending(false); }
-  function edit(patch: Partial<SearchDraft>) { dateInteractions.invalidate(); setResultEntryGeneration(undefined); cancelQueuedDate(); dispatch({ type: 'draft', patch, catalog }); setFeedback(''); }
-  function preset(draft: SearchDraft) { dateInteractions.invalidate(); setResultEntryGeneration(undefined); cancelQueuedDate(); dispatch({ type: 'preset', draft }); setFeedback(''); }
+  function edit(patch: Partial<SearchDraft>) { dateInteractions.invalidate(); setResultEntryGeneration(undefined); cancelQueuedDate(); dispatch({ type: 'draft', patch, catalog }); setFeedback('');setLastError(undefined); }
+  function preset(draft: SearchDraft) { dateInteractions.invalidate(); setResultEntryGeneration(undefined); cancelQueuedDate(); dispatch({ type: 'preset', draft }); setFeedback('');setLastError(undefined); }
   function commitIntent(query: TransportSearchQuery, next: string, cause: SearchIntentCause = 'search') {
     dateInteractions.invalidate();
     generation.current = next; intendedGeneration.current = next;
     dispatch({ type: 'commit', query, generation: next, cause });
+    authority.current.current=true;setLastError(undefined);
     setPending(true); setAccepted(false); setFeedback('');
     const search = serializeSearchUrl(query);
     if ((popTarget.current !== undefined ? window.location.search : location.search) !== search) { ownNavigation.current = search; void navigate({ pathname: '/', search }); }
@@ -109,7 +113,7 @@ export function useSearchController(catalog: CatalogSnapshot, session: SessionIn
       cache.setQueryData(['search', next, recovery.snapshot.searchId], recovery);
       dispatch({ type: 'adopt', generation: next, searchId: recovery.snapshot.searchId });
       setAccepted(true);
-    } catch (error) { if (live.current && generation.current === next) setFeedback(errorMessage(error)); }
+    } catch (error) { if (live.current && generation.current === next) {setFeedback(errorMessage(error));setLastError(error);} }
     finally {
       if (pendingGeneration.current === next) pendingGeneration.current = undefined;
       if (live.current && generation.current === next) setPending(false);
@@ -171,10 +175,17 @@ export function useSearchController(catalog: CatalogSnapshot, session: SessionIn
       cache.removeQueries({ queryKey: ['search'] }); cache.removeQueries({ queryKey: ['date-prices'] });
       const valid = state.committed && validateDraft(state.committed, catalog, next);
       window.location.assign(valid && valid.valid ? serializeSearchUrl(valid.query!) : '/');
-    } catch (error) { setFeedback(errorMessage(error)); starts.resetFailed(); }
+    } catch (error) { {setFeedback(errorMessage(error));setLastError(error);} starts.resetFailed(); }
+  }
+  function reconcileAuthority(){
+    setLastError(undefined);setFeedback('');
+    dateInteractions.invalidate();cancelQueuedDate();setResultEntryGeneration(undefined);
+    generation.current=crypto.randomUUID();intendedGeneration.current=generation.current;ownedSearchId.current=undefined;acceptedResult.current=undefined;
+    starts.invalidateAuthority();authority.current={version:authority.current.version+1,current:false};setAuthorityVersion(authority.current.version);setPending(false);setAccepted(false);
+    dispatch({type:'authority'});
   }
   function resultIsCurrent(expectedGeneration: string, expectedSearchId: string) {
-    return live.current && !starts.getSnapshot().resetting && generation.current === expectedGeneration && acceptedResult.current?.generation === expectedGeneration && acceptedResult.current.searchId === expectedSearchId;
+    return live.current && authority.current.current && !starts.getSnapshot().resetting && generation.current === expectedGeneration && acceptedResult.current?.generation === expectedGeneration && acceptedResult.current.searchId === expectedSearchId;
   }
   function previewResultItinerary(id: string | undefined, expectedGeneration: string, expectedSearchId: string) {
     if (resultIsCurrent(expectedGeneration,expectedSearchId)) dispatch({type:'preview-itinerary',id});
@@ -183,10 +194,10 @@ export function useSearchController(catalog: CatalogSnapshot, session: SessionIn
     if (resultIsCurrent(expectedGeneration,expectedSearchId)) dispatch({type:'pin-itinerary',id});
   }
   function clearMapInspection(token:number) {if(live.current && !starts.getSnapshot().resetting && dateInteractions.isCurrent(token)) dispatch({type:'pin-itinerary',id:undefined});}
-  const canRefineResults = Boolean(state.committed && validity.query && serializeSearchUrl(state.committed) === serializeSearchUrl(validity.query));
+  const canRefineResults = Boolean(authority.current.current&&state.committed && validity.query && serializeSearchUrl(state.committed) === serializeSearchUrl(validity.query));
   function refineResults(query: TransportSearchQuery, expectedGeneration: string, interactionToken: number) {
     if (!live.current || generation.current !== expectedGeneration || !dateInteractions.isCurrent(interactionToken) || !canRefineResults) return;
     void submit(query,false,'refine');
   }
-  return { state, dispatch, currentIntent, edit, preset, submit, openSavedSearch, refineResults, resultIsCurrent, previewResultItinerary, pinResultItinerary, clearMapInspection, canRefineResults, refinementToken: dateInteractions.capture(), enterResults: resultEntryGeneration === state.generation, dateInteractions, commitDates, waitingDate, reset, validity, pending, resetting, feedback, accepted, startLimitReached, unresolvedStarts: startSnapshot.count, capacityMessage: startLimitReached && !resetting ? startCapacityMessage : '' };
+  return { state, dispatch, currentIntent, reconcileAuthority, authorityVersion, authorityCurrent:authority.current.current,lastError, edit, preset, submit, openSavedSearch, refineResults, resultIsCurrent, previewResultItinerary, pinResultItinerary, clearMapInspection, canRefineResults, refinementToken: dateInteractions.capture(), enterResults: resultEntryGeneration === state.generation, dateInteractions, commitDates, waitingDate, reset, validity, pending, resetting, feedback, accepted, startLimitReached, unresolvedStarts: startSnapshot.count, capacityMessage: startLimitReached && !resetting ? startCapacityMessage : '' };
 }

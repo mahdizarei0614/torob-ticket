@@ -9,14 +9,14 @@ import {ProviderAction} from '../referral/referral-dialog';
 import type {ReferralSource,useReferralController} from '../referral/referral-controller';
 import type {ReturnCheckpoint} from '../referral/return-checkpoint';
 import styles from './hotels.module.css';
-interface ReferralProps {flow?:ReturnType<typeof useReferralController>;restore?:HotelRestore;onCheckpoint?:(value:ReturnCheckpoint['hotel'])=>void;onOriginScroll?:(y:number)=>void}
-export function HotelEntry({controller,map,catalog,session,onCovered,onSelectHotelQuote,flow,restore,onCheckpoint,onOriginScroll}:{controller:SearchController;map:TripMapController;catalog:CatalogSnapshot;session:SessionInfo;onCovered:(open:boolean)=>void;onSelectHotelQuote?:(quote:HotelQuoteSnapshot|undefined)=>void}&ReferralProps){
+interface ReferralProps {authorityKey?:string;blocked?:boolean;onResume?:()=>void;onSessionExpired?:()=>void;flow?:ReturnType<typeof useReferralController>;restore?:HotelRestore;onCheckpoint?:(value:ReturnCheckpoint['hotel'])=>void;onOriginScroll?:(y:number)=>void}
+export function HotelEntry({controller,map,catalog,session,onCovered,onSelectHotelQuote,flow,restore,onCheckpoint,onOriginScroll,authorityKey,blocked,onResume,onSessionExpired}:{controller:SearchController;map:TripMapController;catalog:CatalogSnapshot;session:SessionInfo;onCovered:(open:boolean)=>void;onSelectHotelQuote?:(quote:HotelQuoteSnapshot|undefined)=>void}&ReferralProps){
  const accepted=useRef<TransportSearchQuery|undefined>(undefined);const s=controller.state;
  if(s.committed&&s.generation&&s.searchId&&controller.resultIsCurrent(s.generation,s.searchId))accepted.current=s.committed;
  if(!accepted.current)return null;
- return <HotelEntryContent controller={controller} map={map} catalog={catalog} session={session} query={accepted.current} onCovered={onCovered} onSelectHotelQuote={onSelectHotelQuote} flow={flow} restore={restore} onCheckpoint={onCheckpoint} onOriginScroll={onOriginScroll}/>;
+ return <HotelEntryContent controller={controller} map={map} catalog={catalog} session={session} query={accepted.current} onCovered={onCovered} onSelectHotelQuote={onSelectHotelQuote} flow={flow} restore={restore} onCheckpoint={onCheckpoint} onOriginScroll={onOriginScroll} authorityKey={authorityKey} blocked={blocked} onResume={onResume} onSessionExpired={onSessionExpired}/>;
 }
-function HotelEntryContent({controller,map,catalog,session,query,onCovered,onSelectHotelQuote,flow,restore,onCheckpoint,onOriginScroll}:{controller:SearchController;map:TripMapController;catalog:CatalogSnapshot;session:SessionInfo;query:TransportSearchQuery;onCovered:(open:boolean)=>void;onSelectHotelQuote?:(quote:HotelQuoteSnapshot|undefined)=>void}&ReferralProps){
+function HotelEntryContent({controller,map,catalog,session,query,onCovered,onSelectHotelQuote,flow,restore,onCheckpoint,onOriginScroll,authorityKey,blocked,onResume,onSessionExpired}:{controller:SearchController;map:TripMapController;catalog:CatalogSnapshot;session:SessionInfo;query:TransportSearchQuery;onCovered:(open:boolean)=>void;onSelectHotelQuote?:(quote:HotelQuoteSnapshot|undefined)=>void}&ReferralProps){
  const hotelReceipt=useRef<ReferralReceipt|undefined>(restore?.receipt);const opened=useRef(Boolean(restore));const retained=useRef<{key:string;itinerary?:Itinerary}>({key:tripKey(query),itinerary:restore?.tripItinerary});
  const selection=map.state.selection;const actual=selection&&selection.valid&&Date.parse(selection.quote.expiresAt)>Date.now()&&selection.quote.completeness.status==='complete'&&selection.quote.eligibility.status==='eligible'&&controller.resultIsCurrent(selection.inspection.owner.generation,selection.inspection.owner.searchId)&&tripKey(selection.inspection.query)===tripKey(query)?selection.inspection.itinerary:undefined;
  const key=tripKey(query);
@@ -28,7 +28,7 @@ function HotelEntryContent({controller,map,catalog,session,query,onCovered,onSel
  const draftKey=tripKey(controller.state.draft);
  const available=Boolean(controller.state.committed&&tripKey(controller.state.committed)===key&&draftKey===key&&!controller.resetting);
  const trip:HotelTrip={query,draftKey,available,itinerary:opened.current?retained.current.itinerary:actual};
- const model=useHotelDiscovery({trip,catalog,session,resetting:controller.resetting,onSelectHotelQuote,restore});
+ const model=useHotelDiscovery({trip,catalog,session,resetting:controller.resetting,onSelectHotelQuote,restore,authorityKey,blocked,onResume,onSessionExpired});
  useLayoutEffect(()=>{onCovered(model.open);return()=>onCovered(false);},[model.open,onCovered]);
  function source():ReferralSource|undefined{
   const lease=model.selectionLease();if(!lease)return undefined;

@@ -1,6 +1,6 @@
 import { useEffect, useReducer, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { apiClient, subscribeSearch, type ApiClient, type SubscribeSearchOptions } from '@torob-ticket/client';
+import { apiClient, subscribeSearch,errorPolicy,ClientError, type ApiClient, type SubscribeSearchOptions, type SearchConnectionState } from '@torob-ticket/client';
 import type { SearchRecovery, TransportSearchQuery } from '@torob-ticket/contracts';
 import { serializeSearchUrl } from '../search/search-url';
 import { createResultsState, resultsReducer, type ResultsState } from './results-reducer';
@@ -10,24 +10,29 @@ export function useResults(generation: string, searchId: string, query: Transpor
  const stored = useQuery({ queryKey: key, queryFn: ({ signal }) => client.snapshot(searchId, signal), enabled: false, staleTime: Infinity, retry: false });
  const [state, dispatch] = useReducer(resultsReducer, undefined, () => ({...createResultsState(generation, searchId),...restore}));
  const [connectionError, setConnectionError] = useState(false);
+ const [connectionState,setConnectionState]=useState<SearchConnectionState>('connecting');const [error,setError]=useState<unknown>();const [readAttempt,setReadAttempt]=useState(0);
  const [now, setNow] = useState(Date.now);
  useEffect(() => {
   let live = true;
   const accept = (recovery: SearchRecovery) => {
-   if (!live || recovery.snapshot.searchId !== searchId || recovery.snapshot.clientGeneration !== generation || serializeSearchUrl(recovery.snapshot.query) !== serializeSearchUrl(query)) return;
+   if (!live || recovery.snapshot.searchId !== searchId || recovery.snapshot.clientGeneration !== generation || serializeSearchUrl(recovery.snapshot.query) !== serializeSearchUrl(query)) return false;
    const prior = cache.getQueryData<SearchRecovery>(key);
-   if (prior && recovery.sequence < prior.sequence) return;
-   cache.setQueryData(key, recovery); dispatch({ type: 'receive', recovery }); setConnectionError(false);
+   if (prior && recovery.sequence < prior.sequence) return false;
+   cache.setQueryData(key, recovery); dispatch({ type: 'receive', recovery }); setConnectionError(false);setError(undefined);return true;
   };
-  const initial = cache.getQueryData<SearchRecovery>(key);
-  if (initial) accept(initial);
-  if (!initial || initial.snapshot.status !== 'collecting') return () => { live = false; };
-  const stop = subscribe({ searchId, clientGeneration: generation, sequence: initial.sequence,
-   onEvent: event => { if (event.type !== 'provider-status') accept({ sequence: event.sequence, snapshot: event.payload }); },
-   onSnapshot: accept, onError: () => { if (live) setConnectionError(true); },
-  });
-  return () => { live = false; stop(); };
- }, [generation, searchId, cache, client, subscribe]);
+  const lifetime=new AbortController();let stop=()=>undefined as void;
+  async function connect(){
+   try{
+    let initial=cache.getQueryData<SearchRecovery>(key);
+    if(!initial||readAttempt){const timer=setTimeout(()=>lifetime.abort(),5000);try{initial=await client.snapshot(searchId,lifetime.signal);}finally{clearTimeout(timer);}}
+    if(!live||lifetime.signal.aborted||!initial)return;
+    if(!accept(initial))throw new ClientError('schema','recovery-context-mismatch');
+    if(initial.snapshot.status!=='collecting'){setConnectionState('settled');return;}
+    stop=subscribe({searchId,clientGeneration:generation,sequence:initial.sequence,onEvent:event=>{if(event.type!=='provider-status')accept({sequence:event.sequence,snapshot:event.payload});},onSnapshot:accept,onStatus:value=>{if(live)setConnectionState(value);},onError:value=>{if(live){setConnectionError(true);setError(value);}}});
+   }catch(value){if(live){setError(value);setConnectionError(true);setConnectionState(errorPolicy(value).kind==='expired'?'expired':'unavailable');}}
+  }
+  void connect();return()=>{live=false;lifetime.abort();stop();};
+ }, [generation, searchId, cache, client, subscribe,readAttempt]);
  // Expiry is derived from original timestamps and updates even without another provider event.
  useEffect(() => {
   const expiries = state.adopted?.snapshot.groups.flatMap(group => group.eligibleQuotes.map(quote => Date.parse(quote.expiresAt))) ?? [];
@@ -40,5 +45,5 @@ export function useResults(generation: string, searchId: string, query: Transpor
   schedule();
   return () => clearTimeout(timer);
  }, [state.adopted]);
- return { state, dispatch, now, connectionError, stored: stored.data };
+ return { state, dispatch, now, connectionError, connectionState,error,retryRead:()=>setReadAttempt(value=>value+1), stored: stored.data };
 }

@@ -37,15 +37,17 @@ function ordered(query: TransportSearchQuery): TransportSearchQuery {
   return { mode: q.mode, scope: q.scope, tripType: q.tripType, originCityId: q.originCityId, destinationCityId: q.destinationCityId, departureDate: q.departureDate, ...(q.returnDate ? { returnDate: q.returnDate } : {}), party: { adults: q.party.adults, children: q.party.children, infants: q.party.infants, ...(q.party.childAges ? { childAges: q.party.childAges } : {}), ...(q.party.infantAgesMonths ? { infantAgesMonths: q.party.infantAgesMonths } : {}) }, classCode: q.classCode, filters: Object.fromEntries(Object.entries(q.filters).sort(([a], [b]) => a.localeCompare(b))), sort: q.sort };
 }
 export function serializeSearchUrl(query: TransportSearchQuery): string { return '?' + new URLSearchParams({ q: JSON.stringify(ordered(query)) }).toString(); }
-export function parseSearchUrl(search: string, catalog: CatalogSnapshot, session: SessionInfo): { kind: 'empty' | 'valid' | 'invalid'; query?: TransportSearchQuery; message?: string } {
+export function parseSearchUrl(search: string, catalog: CatalogSnapshot, session: SessionInfo): { kind: 'empty' | 'valid' | 'invalid'; query?: TransportSearchQuery; draft?: TransportSearchQuery; message?: string } {
   if (!search || search === '?') return { kind: 'empty' };
   const invalid = { kind: 'invalid' as const, message: 'پیوند جست‌وجو معتبر نیست. می‌توانید فرم را اصلاح کنید و دوباره جست‌وجو کنید.' };
   if (search.length > 12000 || /%(?![\da-f]{2})/i.test(search)) return invalid;
   const params = new URLSearchParams(search);
   if ([...params.keys()].some(key => key !== 'q') || params.getAll('q').length !== 1 || !params.get('q')) return invalid;
   try {
-    const result = validateDraft(JSON.parse(params.get('q')!), catalog, session);
-    return result.valid ? { kind: 'valid', query: result.query! } : { ...invalid, message: `${invalid.message} ${result.errors.join(' ')}` };
+    const raw = JSON.parse(params.get('q')!);
+    const draft = TransportSearchQuerySchema.safeParse(raw);
+    const result = validateDraft(raw, catalog, session);
+    return result.valid ? { kind: 'valid', query: result.query! } : { ...invalid, ...(draft.success ? { draft: draft.data } : {}), message: `${invalid.message} ${result.errors.join(' ')}` };
   } catch { return invalid; }
 }
 export function initialDraft(catalog: CatalogSnapshot, session: SessionInfo): SearchDraft {

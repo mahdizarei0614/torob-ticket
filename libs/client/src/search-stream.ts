@@ -1,9 +1,13 @@
-import { SearchEventSchema, SearchRecoverySchema, type SearchEvent, type SearchRecovery } from '@torob-ticket/contracts';
+import {ClientError} from './api-client';
+import {errorPolicy} from './error-policy';
+import { ApiErrorSchema, SearchEventSchema, SearchRecoverySchema, type SearchEvent, type SearchRecovery } from '@torob-ticket/contracts';
 export interface SearchTransport {
   stream(searchId: string, after: number, signal: AbortSignal, emit: (event: unknown) => void): Promise<void>;
   snapshot(searchId: string, signal: AbortSignal): Promise<unknown>;
 }
+export type SearchConnectionState='connecting'|'live'|'recovering'|'snapshot-only'|'settled'|'expired'|'unavailable';
 export interface SubscribeSearchOptions {
+  onStatus?: (status:SearchConnectionState)=>void;
   searchId: string;
   clientGeneration: string;
   sequence?: number;
@@ -11,6 +15,20 @@ export interface SubscribeSearchOptions {
   onSnapshot?: (recovery: SearchRecovery) => void;
   onError?: (error: unknown) => void;
   transport?: SearchTransport;
+}
+/** Error JSON is bounded and read before aborting the response; non-JSON streams are never consumed as JSON. */
+async function streamResponseError(response:Response,signal:AbortSignal){
+ let problem:unknown;
+ if(response.headers.get('content-type')?.includes('application/json')&&response.body){
+  const reader=response.body.getReader(),decoder=new TextDecoder();let text='';
+  const cancel=()=>{void reader.cancel().catch(()=>undefined);};signal.addEventListener('abort',cancel,{once:true});if(signal.aborted)cancel();
+  const timer=setTimeout(cancel,5000);
+  try{while(!signal.aborted){const value=await reader.read();if(value.done)break;text+=decoder.decode(value.value,{stream:true});if(text.length>65536)break;}try{problem=JSON.parse(text);}catch{/* Invalid error content is not interpreted as protocol metadata. */}}
+  finally{clearTimeout(timer);signal.removeEventListener('abort',cancel);await reader.cancel().catch(()=>undefined);reader.releaseLock();}
+ }
+ if(signal.aborted)throw new DOMException('Aborted','AbortError');
+ const parsed=ApiErrorSchema.safeParse(problem);
+ return parsed.success?new ClientError('api',parsed.data.code,parsed.data,response.status):new ClientError('http','search-stream-unavailable',undefined,response.status);
 }
 /** Same-origin cookie transport. Fetch permits explicit Last-Event-ID and cancellation. */
 export const searchTransport: SearchTransport = {
@@ -36,9 +54,8 @@ export const searchTransport: SearchTransport = {
     if (!response.ok || !response.body || !response.headers.get('content-type')?.includes('text/event-stream')) {
       // Headers detached the parent forwarding listener; rejected responses never
       // enter reader cleanup, so release their fetch and body here.
-      connection.abort();
-      void response.body?.cancel().catch(() => undefined);
-      throw new Error('search-stream-unavailable');
+      try{throw await streamResponseError(response,signal);}
+      finally{connection.abort();void response.body?.cancel().catch(()=>undefined);}
     }
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
@@ -72,7 +89,7 @@ export const searchTransport: SearchTransport = {
   },
   async snapshot(id, signal) {
     const response = await fetch(`/api/v1/searches/${encodeURIComponent(id)}`, { credentials: 'same-origin', signal });
-    if (!response.ok) throw new Error('search-snapshot-unavailable');
+    if (!response.ok){const problem=await response.json().catch(()=>undefined);const parsed=ApiErrorSchema.safeParse(problem);throw parsed.success?new ClientError('api',parsed.data.code,parsed.data,response.status):new ClientError('http','search-snapshot-unavailable',undefined,response.status);}
     return response.json();
   },
 };
@@ -83,12 +100,15 @@ export function subscribeSearch(options: SubscribeSearchOptions): () => void {
   let cursor = options.sequence ?? 0;
   let terminal = false;
   let connection: AbortController | undefined;
-  let recovering: Promise<void> | undefined;
+  let recovering: Promise<void> | undefined;let snapshotOnly=false;
+  const status=(value:SearchConnectionState)=>{if(!lifetime.signal.aborted)options.onStatus?.(value);};
+  const failed=(error:unknown)=>{if(!active())return;const policy=errorPolicy(error);options.onError?.(error);if(policy.kind==='expired'||policy.kind==='missing'){status(policy.kind==='expired'?'expired':'unavailable');terminal=true;connection?.abort();}else status(snapshotOnly?'snapshot-only':'recovering');};
   const active = () => !lifetime.signal.aborted && !terminal;
   const stop = () => { lifetime.abort(); connection?.abort(); };
   const matches = (value: { searchId: string; clientGeneration: string }) => value.searchId === options.searchId && value.clientGeneration === options.clientGeneration;
   const recover = () => {
     if (recovering) return recovering;
+    status(snapshotOnly?'snapshot-only':'recovering');
     recovering = (async () => {
       const request = new AbortController();
       const abort = () => request.abort();
@@ -104,7 +124,7 @@ export function subscribeSearch(options: SubscribeSearchOptions): () => void {
       cursor = recovery.sequence;
       if (options.onSnapshot) options.onSnapshot(recovery);
       else if (recovery.sequence > 0) options.onEvent({ searchId: options.searchId, clientGeneration: options.clientGeneration, sequence: recovery.sequence, type: recovery.snapshot.status === 'collecting' ? 'snapshot' : 'terminal', payload: recovery.snapshot });
-      if (recovery.snapshot.status !== 'collecting') { terminal = true; connection?.abort(); }
+      if (recovery.snapshot.status !== 'collecting') { status('settled'); terminal = true; connection?.abort(); }
     })().finally(() => { recovering = undefined; });
     return recovering;
   };
@@ -114,12 +134,12 @@ export function subscribeSearch(options: SubscribeSearchOptions): () => void {
     if (!matches(event) || event.sequence <= cursor) return;
     if (event.sequence !== cursor + 1) {
       connection?.abort();
-      void recover().catch(error => { if (active()) options.onError?.(error); });
+      void recover().catch(error => { failed(error); });
       return;
     }
-    cursor = event.sequence;
+    cursor = event.sequence;status('live');
     options.onEvent(event);
-    if (event.type === 'terminal') { terminal = true; connection?.abort(); }
+    if (event.type === 'terminal') { status('settled');terminal = true; connection?.abort(); }
   };
   const delay = (ms: number) => new Promise<void>(resolve => {
     const done = () => { clearTimeout(timer); lifetime.signal.removeEventListener('abort', done); resolve(); };
@@ -130,25 +150,27 @@ export function subscribeSearch(options: SubscribeSearchOptions): () => void {
   void (async () => {
     const retryDelays = [250, 500, 1000];
     for (let attempt = 0; active() && attempt <= retryDelays.length; attempt++) {
-      connection = new AbortController();
+      status('connecting');connection = new AbortController();
       const currentConnection = connection;
       const abort = () => currentConnection.abort();
       lifetime.signal.addEventListener('abort', abort, { once: true });
       try { await transport.stream(options.searchId, cursor, currentConnection.signal, raw => {
         if (connection === currentConnection && !currentConnection.signal.aborted) receive(raw);
       }); }
-      catch (error) { if (active() && !connection.signal.aborted) options.onError?.(error); }
+      catch (error) { if(active()&&!connection.signal.aborted)failed(error); }
       finally { lifetime.signal.removeEventListener('abort', abort); connection.abort(); }
       if (recovering) await recovering.catch(() => undefined);
       if (!active()) return;
       // An EOF may arrive after a terminal frame was lost. Recover before reconnect.
-      try { await recover(); } catch (error) { if (active()) options.onError?.(error); }
+      try { await recover(); } catch (error) { failed(error); }
       if (active() && attempt < retryDelays.length) await delay(retryDelays[attempt]!);
     }
+    if(!active())return;
+    snapshotOnly=true;status('snapshot-only');
     while (active()) {
-      try { await recover(); } catch (error) { if (active()) options.onError?.(error); }
+      try { await recover(); } catch (error) { failed(error); }
       if (active()) await delay(1000);
     }
-  })().catch(error => { if (active()) options.onError?.(error); });
+  })().catch(error => { failed(error); });
   return stop;
 }

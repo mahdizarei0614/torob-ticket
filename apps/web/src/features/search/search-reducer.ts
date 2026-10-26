@@ -16,6 +16,7 @@ export interface SearchState {
   notice: string;
 }
 export type SearchAction =
+  | { type: 'authority' }
   | { type: 'draft'; patch: Partial<SearchDraft>; catalog: CatalogSnapshot }
   | { type: 'restore'; draft: SearchDraft; query?: TransportSearchQuery; generation: string; notice?: string }
   | { type: 'preset'; draft: SearchDraft }
@@ -29,6 +30,7 @@ export type SearchAction =
 export function createSearchState(draft: SearchDraft): SearchState { return { draft: structuredClone(draft), notice: '', intentRevision: 0, intentCause: 'initial' }; }
 export function searchReducer(state: SearchState, action: SearchAction): SearchState {
   switch (action.type) {
+    case 'authority': return {...state,intentRevision:state.intentRevision+1,pinnedItineraryId:undefined,pinnedItineraryHistorical:undefined,previewItineraryId:undefined,notice:'تنظیمات مقایسه تغییر کرده است؛ فرم شما و شواهد قبلی حفظ شدند. برای ادامه قیمت تازه بگیرید.'};
     case 'draft': {
       const draft = { ...state.draft, ...action.patch };
       const clears: string[] = [];

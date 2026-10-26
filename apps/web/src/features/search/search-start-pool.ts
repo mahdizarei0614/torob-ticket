@@ -40,6 +40,8 @@ class SearchStartPool {
       },
     };
   }
+  /** Revoke obsolete fetch leases while retaining every unknown slot until its owner settles. */
+  invalidateAuthority(){this.epoch++;this.priorities.clear();for(const entry of this.entries.values())entry.abort.abort();this.publish();}
   beginReset() {
     if (this.snapshot.resetting) return false;
     this.epoch++; this.priorities.clear();

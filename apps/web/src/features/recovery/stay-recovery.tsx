@@ -1,0 +1,5 @@
+import { HotelStayIllustration, RecoveryState } from '@torob-ticket/ui';
+import type { HotelDiscovery } from '../hotels/use-hotel-discovery';
+export function StayRecovery({ model }: { model: HotelDiscovery }) {
+  return <RecoveryState label="بازیابی مقایسه اقامت" title={model.authorityStale ? 'قیمت اقامت به مقایسه تازه نیاز دارد' : 'دریافت اقامتگاه‌ها کامل نشد'} description={model.authorityStale ? 'تاریخ‌ها، اتاق‌ها، سن کودکان و موقعیت انتخابی شما حفظ شدند. شواهد قبلی قابل بررسی است؛ برای انتخاب یا ادامه، همین اقامت را دوباره مقایسه کنید.' : model.state.error ?? 'پاسخ ناموفق به معنی نبود اتاق نیست. شرایط اقامت حفظ شده است.'} illustration={<HotelStayIllustration size="compact" />} actions={[...(model.blocked&&model.resumeSession?[{id:'resume',label:'بازیابی نشست و حفظ اقامت',onPress:model.resumeSession}]:[]),{ id: 'stay', label: 'مقایسه تازه با همین شرایط اقامت', onPress: () => { void model.submit(); }, disabled: !model.query || model.stale || model.state.status === 'loading' || model.blocked }]} />;
+}
