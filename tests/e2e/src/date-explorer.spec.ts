@@ -69,8 +69,9 @@ test.describe('@dates real date exploration', () => {
       record('no-match-recovery.json',{actualScenario:'no-eligible-results',actualSnapshot,networkFailure:'Playwright transport abort; not provider evidence',onlineRecovery:true});
     } finally { await resetOwn(page); }
   });
-  test('mobile physical touch drag keeps the chart and calendar usable', async ({ browser }) => {
-    const context=await browser.newContext({viewport:{width:390,height:844},hasTouch:true,isMobile:true}); const page=await context.newPage(); const cdp=await context.newCDPSession(page);
+  test('mobile physical touch drag keeps the chart and calendar usable', async ({ browser, browserName, baseURL }) => {
+    test.skip(browserName !== 'chromium', 'Physical CDP touch injection is Chromium-specific; portable keyboard/date coverage runs separately.');
+    const context=await browser.newContext({baseURL,viewport:{width:390,height:844},hasTouch:true,isMobile:true}); const page=await context.newPage(); const cdp=await context.newCDPSession(page);
     let searches=0;page.on('request',request=>{if(request.method()==='POST'&&request.url().endsWith('/api/v1/searches'))searches++;});
     try {
       await page.goto('/');await ready(page);const date=(await page.getByRole('region',{name:'کاوش تاریخ سفر'}).getAttribute('data-selected-outbound'))!;const wheel=page.getByRole('listbox',{name:'روزهای نزدیک'});await wheel.scrollIntoViewIfNeeded();const box=(await wheel.boundingBox())!;const x=box.x+box.width/2,y=box.y+140;
