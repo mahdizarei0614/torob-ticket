@@ -1,8 +1,8 @@
 import {HotelRepository} from './hotel-repository';
 import {assertSearchAdmission} from './admission';
 import { createHash, randomUUID } from 'node:crypto';
-import { NormalizedOfferSchema, QuoteSnapshotSchema, ReferralIntentSchema, ReferralReceiptSchema, SearchSnapshotSchema, TransportSearchQuerySchema, type ConfirmReferralInput, type NormalizedOffer, type QuoteSnapshot, type ReferralIntent, type ReferralSelection, type RecheckResult } from '@torob-ticket/contracts';
-import { canonicalValue, quoteOffer, type ComparisonContext, type RealClock, type SourceFareEvidence } from '@torob-ticket/domain';
+import { ItinerarySchema, NormalizedOfferSchema, QuoteSnapshotSchema, ReferralIntentSchema, ReferralReceiptSchema, SearchSnapshotSchema, TransportSearchQuerySchema, type ConfirmReferralInput, type Itinerary, type NormalizedOffer, type QuoteSnapshot, type ReferralIntent, type ReferralSelection, type RecheckResult } from '@torob-ticket/contracts';
+import { canonicalValue, itineraryKey, quoteOffer, type ComparisonContext, type RealClock, type SourceFareEvidence } from '@torob-ticket/domain';
 import type { Prisma, PrismaClient } from './generated/client';
 import { RepositoryError, scopedTransaction, type DataScope } from './scope';
 import { readProviderContext, type ProviderContextSnapshot } from './search-repository';
@@ -23,6 +23,8 @@ export interface RecheckOperation {
     fingerprint: string;
     previous: NormalizedOffer;
     previousQuote: QuoteSnapshot;
+    /** Frozen public display lineage; absent on already-stored legacy operations. */
+    publicItinerary?: Itinerary;
 }
 export interface RecheckCompletion {
     providerId: string;
@@ -68,6 +70,12 @@ export class ReferralRepository {
             throw new RepositoryError(evaluation.status === 'incomplete' ? 'INCOMPLETE_PRICE' : 'OFFER_UNAVAILABLE');
         return { offer, quote: evaluation.quote };
     }
+    private checkedPublicItinerary(value: unknown, expectedId: string) {
+        const parsed = ItinerarySchema.safeParse(value);
+        if (!parsed.success || parsed.data.itineraryId !== expectedId || itineraryKey(parsed.data) !== expectedId)
+            throw new RepositoryError('QUOTE_CHANGED');
+        return parsed.data;
+    }
     private async selected(tx: Prisma.TransactionClient, scope: DataScope, selection: ReferralSelection, now: Date) {
         if (selection.kind !== 'transport')
             throw new RepositoryError('OFFER_UNAVAILABLE');
@@ -88,15 +96,22 @@ export class ReferralRepository {
             throw new RepositoryError('NOT_FOUND');
         const origin = await tx.searchRun.findUnique({ where: { sessionId_id: { sessionId: scope.sessionId, id: originSearchId } } });
         const snapshot = SearchSnapshotSchema.safeParse(origin?.snapshot);
-        if (!origin || !snapshot.success || !snapshot.data.groups.some(group => group.eligibleQuotes.some(q => q.quoteId === selection.quoteId && canonicalValue(q) === canonicalValue(original.payload))))
+        const group = snapshot.success ? snapshot.data.groups.find(candidate => candidate.eligibleQuotes.some(q => q.quoteId === selection.quoteId && canonicalValue(q) === canonicalValue(original.payload))) : undefined;
+        if (!origin || !group)
             throw new RepositoryError('NOT_FOUND');
+        // Public comparison identity may retain another seller's local segment IDs.
+        if (group.groupId !== quote.itineraryId)
+            throw new RepositoryError('QUOTE_CHANGED');
+        let itinerary = this.checkedPublicItinerary(group.itinerary, quote.itineraryId);
         if (row.version > 1) {
             const parent = await tx.searchRun.findUnique({ where: { sessionId_id: { sessionId: scope.sessionId, id: row.offer.searchId } } });
             const operation = parent?.snapshot as unknown as RecheckOperation;
             if (operation?.kind !== 'referral-recheck' || operation.originSearchId !== originSearchId || operation.selection.quoteId !== selection.quoteId || operation.selection.quoteVersion !== row.version - 1)
                 throw new RepositoryError('NOT_FOUND');
+            if (operation.publicItinerary !== undefined)
+                itinerary = this.checkedPublicItinerary(operation.publicItinerary, quote.itineraryId);
         }
-        return { row, quote, query: TransportSearchQuerySchema.parse(origin.query), originSearchId };
+        return { row, quote, query: TransportSearchQuerySchema.parse(origin.query), originSearchId, itinerary };
     }
     admit(scope: DataScope, selection: ReferralSelection, clock: RealClock) {
         return scopedTransaction(this.db, scope, async (tx) => {
@@ -108,7 +123,7 @@ export class ReferralRepository {
                 throw new RepositoryError('QUOTE_CHANGED');
             await assertSearchAdmission(tx,scope);
             const id = randomUUID();
-            const operation: RecheckOperation = { kind: 'referral-recheck', originSearchId: selected.originSearchId, selection, frozen, fingerprint: this.fingerprint(frozen), previous: checked.offer, previousQuote: selected.quote };
+            const operation: RecheckOperation = { kind: 'referral-recheck', originSearchId: selected.originSearchId, selection, frozen, fingerprint: this.fingerprint(frozen), previous: checked.offer, previousQuote: selected.quote, publicItinerary: selected.itinerary };
             await tx.searchRun.create({ data: { sessionId: scope.sessionId, id, query: json(selected.query), clientGeneration: id, status: 'collecting', snapshot: json(operation), mappingRevision: frozen.info.mappingRevision, fixtureVersion: frozen.info.fixtureVersion, createdAt: now, updatedAt: now } });
             await this.audit(tx, scope, 'referral-recheck-started', { searchId: id, ...operation }, now);
             return { id, operation, query: selected.query };
@@ -125,6 +140,7 @@ export class ReferralRepository {
             if (this.fingerprint(frozen) !== operation.fingerprint)
                 throw new RepositoryError('QUOTE_CHANGED');
             const selected = await this.selected(tx, scope, operation.selection, now);
+            const publicItinerary = operation.publicItinerary === undefined ? selected.itinerary : this.checkedPublicItinerary(operation.publicItinerary, selected.quote.itineraryId);
             if (evidence.providerId !== operation.previous.providerId)
                 throw new RepositoryError('OFFER_UNAVAILABLE');
             await tx.providerRun.upsert({ where: { sessionId_searchId_providerId: { sessionId: scope.sessionId, searchId: id, providerId: evidence.providerId } }, create: { sessionId: scope.sessionId, searchId: id, id: randomUUID(), providerId: evidence.providerId, status: evidence.status, payload: json(evidence) }, update: { status: evidence.status, payload: json(evidence) } });
@@ -136,15 +152,15 @@ export class ReferralRepository {
                 try {
                     const fresh = this.evaluate(row.payload, selected.query, frozen, now);
                     // The selected fare/service is immutable; a new journey is not acceptance of this selection.
-                    if (fresh.offer.providerId !== operation.previous.providerId || fresh.offer.fareId !== operation.previous.fareId || canonicalValue(fresh.offer.itinerary) !== canonicalValue(operation.previous.itinerary))
+                    if (fresh.offer.providerId !== operation.previous.providerId || fresh.offer.fareId !== operation.previous.fareId || canonicalValue(fresh.offer.itinerary) !== canonicalValue(operation.previous.itinerary) || fresh.quote.itineraryId !== selected.quote.itineraryId)
                         throw new RepositoryError('OFFER_UNAVAILABLE');
                     const quote = { ...fresh.quote, quoteId: selected.quote.quoteId, version: selected.quote.version + 1 };
                     await tx.quote.create({ data: { sessionId: scope.sessionId, id: quote.quoteId, version: quote.version, offerId: row.id, payload: json(quote), observedAt: now, expiresAt: new Date(quote.expiresAt) } });
-                    const intent = ReferralIntentSchema.parse({ intentId: randomUUID(), selection: { kind: 'transport', quoteId: quote.quoteId, quoteVersion: quote.version }, quote: { kind: 'transport', quote, itinerary: fresh.offer.itinerary }, createdAt: now.toISOString(), expiresAt: new Date(now.getTime() + 120000).toISOString() });
+                    const intent = ReferralIntentSchema.parse({ intentId: randomUUID(), selection: { kind: 'transport', quoteId: quote.quoteId, quoteVersion: quote.version }, quote: { kind: 'transport', quote, itinerary: publicItinerary }, createdAt: now.toISOString(), expiresAt: new Date(now.getTime() + 120000).toISOString() });
                     const payload: StoredIntent = { intent, fingerprint: operation.fingerprint, digest: digest(intent) };
                     await tx.referralIntent.create({ data: { sessionId: scope.sessionId, id: intent.intentId, quoteId: quote.quoteId, quoteVersion: quote.version, payload: json(payload), createdAt: now, expiresAt: new Date(intent.expiresAt) } });
                     const materialChanges = (['total', 'breakdown', 'conditions'] as const).filter(key => canonicalValue(selected.quote[key]) !== canonicalValue(quote[key]));
-                    result = materialChanges.length ? { status: 'changed', intent, previousQuoteVersion: selected.quote.version, previousQuote: { kind: 'transport', quote: selected.quote, itinerary: operation.previous.itinerary }, materialChanges } : { status: 'ready', intent };
+                    result = materialChanges.length ? { status: 'changed', intent, previousQuoteVersion: selected.quote.version, previousQuote: { kind: 'transport', quote: selected.quote, itinerary: publicItinerary }, materialChanges } : { status: 'ready', intent };
                 }
                 catch (error) {
                     if (!(error instanceof RepositoryError) || !['OFFER_UNAVAILABLE', 'INCOMPLETE_PRICE'].includes(error.code))
@@ -217,8 +233,12 @@ export class ReferralRepository {
                     throw new RepositoryError('QUOTE_CHANGED');
                 const selected = await this.selected(tx, scope, intent.selection, now);
                 const checked = this.evaluate(selected.row.offer!.payload, selected.query, current, new Date(selected.quote.observedAt));
-                const exact = { kind: 'transport', quote: { ...checked.quote, quoteId: selected.quote.quoteId, version: selected.quote.version }, itinerary: checked.offer.itinerary };
-                if (canonicalValue(exact) !== canonicalValue(intent.quote) || canonicalValue(selected.quote) !== canonicalValue(intent.quote.quote))
+                const quote = { ...checked.quote, quoteId: selected.quote.quoteId, version: selected.quote.version };
+                const exact = { kind: 'transport', quote, itinerary: selected.itinerary };
+                // Existing pending intents retain their exact legacy private payload.
+                // Accept only a byte-equivalent re-evaluation; never rewrite history.
+                const legacy = { kind: 'transport', quote, itinerary: checked.offer.itinerary };
+                if ((canonicalValue(exact) !== canonicalValue(intent.quote) && canonicalValue(legacy) !== canonicalValue(intent.quote)) || canonicalValue(selected.quote) !== canonicalValue(intent.quote.quote))
                     throw new RepositoryError('QUOTE_CHANGED');
             }
             const id = randomUUID();
