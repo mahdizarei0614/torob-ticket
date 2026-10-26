@@ -12,13 +12,16 @@ export function ReferralFacts({payload,catalog}:{payload:ReferralPayload;catalog
  {payload.kind==='transport'?<><Price total={payload.quote.total} scope={{kind:'party',travelers:payload.quote.party.adults+payload.quote.party.children+payload.quote.party.infants}}/><FareConditions quote={payload.quote} catalog={catalog}/><details><summary>ریز مبلغ همه مسافران</summary><Breakdown quote={payload.quote}/></details></>:<><p><bdi>{payload.quote.query.checkIn}</bdi> تا <bdi>{payload.quote.query.checkOut}</bdi> · {number(nights(payload.quote.query.checkIn,payload.quote.query.checkOut))} شب</p><RoomRates quote={payload.quote} disabled selected onSelect={()=>undefined}/></>}
  </div>;
 }
-export function ProviderAction({source,flow,catalog}:{source:ReferralSource;flow:ReturnType<typeof useReferralController>;catalog:CatalogSnapshot}){
+export function ProviderAction({source,flow,catalog,compact=false}:{source:ReferralSource;flow:ReturnType<typeof useReferralController>;catalog:CatalogSnapshot;compact?:boolean}){
+ const payload=source.payload;
  const blocked=flow.needsFresh(source),recovery=flow.hasRecovery(source),expired=Date.parse(source.payload.quote.expiresAt)<=Date.now();
  return <section className={styles.selected} aria-label="ادامه پیشنهاد انتخاب‌شده" data-referral-source={source.payload.kind}>
  <div><strong>پیشنهاد انتخاب‌شده برای ادامه</strong><p>قیمت و شرایط پیش از انتقال دوباره بررسی می‌شود؛ خرید در این نسخه انجام نمی‌شود.</p></div>
- <ReferralFacts payload={source.payload} catalog={catalog}/>
+ {compact&&<div><strong>{catalog.providerCapabilities.find(p=>p.providerId===payload.quote.providerId)?.name??'فروشنده نمایشی'} · نسخه {number(payload.quote.version)}</strong><Price total={payload.quote.total} scope={payload.kind==='transport'?{kind:'party',travelers:payload.quote.party.adults+payload.quote.party.children+payload.quote.party.infants}:{kind:'stay',rooms:payload.quote.query.rooms,nights:nights(payload.quote.query.checkIn,payload.quote.query.checkOut)}}/></div>}
+ {!compact&&<ReferralFacts payload={source.payload} catalog={catalog}/>}
  {blocked?<p role="status">این نسخه به مقایسه تازه نیاز دارد؛ پیشنهادهای قبلی به عنوان سابقه حفظ شده‌اند.</p>:expired&&!recovery?<p role="status">اعتبار قیمت پایان یافته است؛ برای قیمت قابل انتخاب دوباره مقایسه کنید.</p>:null}
  <Button onPress={()=>void flow.start(source)} isDisabled={flow.state.phase!=='idle'}>{recovery?'بررسی نتیجه انتقال قبلی':blocked||expired?'مقایسه تازه همین سفر':'ادامه با فروشنده'}</Button>
+ {compact&&<details><summary>مبلغ، شرایط و نسخه دقیق انتخاب برای ادامه</summary><ReferralFacts payload={source.payload} catalog={catalog}/></details>}
  </section>;
 }
 export function ReferralDialog({flow,catalog}:{flow:ReturnType<typeof useReferralController>;catalog:CatalogSnapshot}){

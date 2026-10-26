@@ -1,4 +1,4 @@
-import { useId, useState, useRef } from 'react';
+import { useId, useState, useRef, type ReactNode } from 'react';
 import type { CatalogSnapshot, ComparisonGroup, Itinerary, JourneyLeg, SearchSnapshot } from '@torob-ticket/contracts';
 import { Button, Price, Tooltip } from '@torob-ticket/ui';
 import { Breakdown, FareConditions, ProviderOffers } from './provider-offers';
@@ -27,8 +27,8 @@ export function RouteTimeline({leg,catalog,label,transportMode=leg.segments[0]?.
   return <li className={styles.stop} key={'stop:'+event.index} data-stop-place={stop.placeId} data-stop-occurrence={event.index} data-stop-unmatched={!segment||undefined}>{({connection:'اتصال',dwell:'توقف میانی','technical-stop':'توقف فنی','ground-transfer':'انتقال زمینی'} as const)[stop.kind]} در {placeName(catalog.places,stop.placeId)} · {minutes(stop.waitMinutes)} انتظار · {stop.vehicleChange?'تعویض وسیله':'بدون تعویض وسیله'} · ورود {time(stop.arrivalAt,arrivalZone)} · حرکت {time(stop.departureAt,departureZone)}{!segment&&<small> · جایگاه این توقف در بخش‌های مسیر مشخص نیست؛ ترتیب اعلام‌شده حفظ شده است.</small>}</li>;
  })}</ol></section>;
 }
-export interface JourneyCardProps { group: ComparisonGroup; snapshot: SearchSnapshot; catalog: CatalogSnapshot; state: ResultsState; now: number; onFreeze: () => void; onSelect: (selection: QuoteSelection) => void; onPreviewItinerary?: (itinerary?: Itinerary,source?:'hover'|'focus',leavingId?:string) => void; onPinItinerary?: (itinerary: Itinerary) => void }
-export function JourneyCard({ group, snapshot, catalog, state, now, onFreeze, onSelect, onPreviewItinerary, onPinItinerary }: JourneyCardProps) {
+export interface JourneyCardProps { continuation?:ReactNode; group: ComparisonGroup; snapshot: SearchSnapshot; catalog: CatalogSnapshot; state: ResultsState; now: number; onFreeze: () => void; onSelect: (selection: QuoteSelection) => void; onPreviewItinerary?: (itinerary?: Itinerary,source?:'hover'|'focus',leavingId?:string) => void; onPinItinerary?: (itinerary: Itinerary) => void }
+export function JourneyCard({ group, snapshot, catalog, state, now, onFreeze, onSelect, onPreviewItinerary, onPinItinerary,continuation }: JourneyCardProps) {
  const hovered=useRef(false);
  const [expanded,setExpanded] = useState(false); const detailsId = useId();
  const ownSelection = state.selected?.groupId === group.groupId ? state.selected : undefined;
@@ -44,6 +44,7 @@ export function JourneyCard({ group, snapshot, catalog, state, now, onFreeze, on
   {quote && <div className={styles.selectedFacts} aria-label="شرایط پیشنهاد نمایش‌داده‌شده"><span>{catalog.providerCapabilities.find(p => p.providerId === quote.providerId)?.name ?? quote.providerId}</span><FareConditions quote={quote} catalog={catalog}/>{ownSelection && <details><summary>ریز مبلغ انتخاب‌شده</summary><Breakdown quote={quote}/></details>}</div>}
   {quote && status !== 'current' && <p className={styles.invalid} role={ownSelection ? 'alert' : undefined}>{status === 'expired' ? 'اعتبار قیمت پایان یافته است؛ برای انتخاب دوباره جست‌وجو کنید.' : 'پیشنهاد نمایش‌داده‌شده دیگر معتبر نیست؛ نتایج تازه را اعمال کنید.'}</p>}
   <div className={styles.cardActions}><Button variant="quiet" aria-expanded={expanded} aria-controls={detailsId} onPress={() => { onFreeze(); setExpanded(!expanded); }}>جزئیات و {number(group.eligibleQuotes.length)} پیشنهاد فروشندگان</Button><Button variant={ownSelection ? 'secondary' : 'primary'} isDisabled={!quote || status !== 'current'} aria-pressed={Boolean(ownSelection)} onPress={() => { if (quote) { onFreeze(); onSelect(selectionFor(group.groupId,quote)); onPinItinerary?.(group.itinerary); } }}>{ownSelection ? 'انتخاب‌شده برای مقایسه' : 'انتخاب پیشنهاد'}</Button></div>
+  {continuation}
   {expanded && <div id={detailsId} className={styles.details}><div className={styles.timelines}><RouteTimeline leg={group.itinerary.outbound} catalog={catalog} label="رفت"/>{group.itinerary.return && <RouteTimeline leg={group.itinerary.return} catalog={catalog} label="برگشت"/>}</div><ProviderOffers group={group} catalog={catalog} state={state} now={now} onSelect={onSelect}/></div>}
  </article>;
 }

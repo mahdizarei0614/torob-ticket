@@ -9,9 +9,11 @@ import {HotelCard} from './hotel-card';
 import {LocationPicker} from './location-picker';
 import {dateText,faNumber,nights} from './hotel-format';
 import styles from './hotels.module.css';
-export function HotelDialog({model,catalog,session,canApplyTrip,referralAction,initialScrollTop}:{model:HotelDiscovery;catalog:CatalogSnapshot;session:SessionInfo;canApplyTrip:boolean;referralAction?:ReactNode;initialScrollTop?:number}){
+export function HotelDialog({model,catalog,session,canApplyTrip,referralAction,initialScrollTop}:{model:HotelDiscovery;catalog:CatalogSnapshot;session:SessionInfo;canApplyTrip:boolean;referralAction?:{quoteId:string;node:ReactNode};initialScrollTop?:number}){
  const locationTrigger=useRef<HTMLDivElement>(null);const cycle=useRef({open:model.open,epoch:0});const focusRequest=useRef<number|undefined>(undefined);if(cycle.current.open!==model.open){cycle.current={open:model.open,epoch:cycle.current.epoch+1};focusRequest.current=undefined;}
  useLayoutEffect(()=>{if(!model.state.point&&model.open&&focusRequest.current===cycle.current.epoch){focusRequest.current=undefined;locationTrigger.current?.querySelector('button')?.focus({preventScroll:true});}},[model.state.point,model.open]);const {state}=model,trip=state.trip,draft=state.draft,snapshot=state.snapshot;
+ const revealedQuote=useRef(state.selected?.quoteId);
+ useLayoutEffect(()=>{const id=state.selected?.quoteId;if(!id||revealedQuote.current===id||referralAction?.quoteId!==id)return;const action=document.querySelector<HTMLButtonElement>('[data-referral-source=hotel] button');if(!action||action.disabled)return;revealedQuote.current=id;action.focus({preventScroll:true});action.scrollIntoView({block:'nearest',behavior:'instant'});},[state.selected?.quoteId,referralAction?.quoteId]);
  const city=catalog.cities.find(c=>c.id===trip.query.destinationCityId)!;const bounds=hotelBounds(session.anchorInstant,city.timeZone);
  const places=arrivalPlaces(trip,catalog);const modeLabel=trip.query.mode==='flight'?'فرودگاه':trip.query.mode==='train'?'ایستگاه':'پایانه';
  const fresh=Boolean(snapshot&&model.query&&queryKey(snapshot.query)===queryKey(model.query)&&state.status==='ready'&&!model.stale);
@@ -41,10 +43,9 @@ export function HotelDialog({model,catalog,session,canApplyTrip,referralAction,i
     {state.error&&<div role="alert" className={styles.stale}><p>{state.error}</p><Button variant="secondary" isDisabled={!model.query||model.stale} onPress={()=>void model.submit()}>تلاش دوباره برای اقامتگاه‌ها</Button></div>}
     {snapshot&&!fresh&&state.status!=='loading'&&<p role="status" className={styles.note}>شرایط اقامت تغییر کرده است؛ برای قیمت قابل انتخاب، دوباره مقایسه کنید.</p>}
     {model.selected&&<div className={styles.selection} role="status" data-selected-hotel-quote={model.selected.quoteId}><strong>ترکیب اتاق برای بررسی انتخاب شد</strong><p>{snapshot?.hotels.find(h=>h.hotelId===model.selected?.hotelId)?.name} · مجموع {faNumber(model.selected.total.amountRial/10)} تومان برای همه اتاق‌ها و شب‌ها. خرید یا رزرو انجام نشده است.</p></div>}
-    {referralAction}
     {snapshot&&<section aria-label="نتایج مقایسه اقامتگاه‌ها" className={styles.results} data-hotel-search-id={snapshot.hotelSearchId} data-hotel-query={queryKey(snapshot.query)} data-hotel-status={snapshot.status}>
      <header className={styles.resultHead}><h2>{snapshot.status==='failed'?'دریافت اقامتگاه‌ها کامل نشد':snapshot.status==='empty'?'اقامت کامل مطابق این شرایط پیدا نشد':`${faNumber(snapshot.results?.filter(r=>r.status==='priced').length??0)} اقامتگاه با قیمت کامل`}</h2><p>{snapshot.status==='empty'?'تعداد اتاق، سن کودکان یا تاریخ‌ها را بررسی کنید. اطلاعات ناقص با نبود اتاق یکسان نیست.':snapshot.status==='failed'?'دریافت ناموفق به معنی نبود اتاق نیست؛ دوباره تلاش کنید.':'مبلغ اصلی برای همه اتاق‌ها و همه شب‌هاست.'}</p></header>
-     {snapshot.results?.map(result=>{const hotel=snapshot.hotels.find(h=>h.hotelId===result.hotelId);return hotel?<HotelCard key={hotel.hotelId} hotel={hotel} result={result} quotes={snapshot.quotes.filter(q=>q.hotelId===hotel.hotelId)} catalog={catalog} disabled={!fresh} selected={model.selected} onSelect={model.selectQuote}/>:null;})}
+     {snapshot.results?.map(result=>{const hotel=snapshot.hotels.find(h=>h.hotelId===result.hotelId);return hotel?<HotelCard referralAction={referralAction} key={hotel.hotelId} hotel={hotel} result={result} quotes={snapshot.quotes.filter(q=>q.hotelId===hotel.hotelId)} catalog={catalog} disabled={!fresh} selected={model.selected} onSelect={model.selectQuote}/>:null;})}
     </section>}
     <p className={styles.footnote}>همه اقامتگاه‌ها و فروشندگان این نسخه خیالی‌اند. فاصله‌ها خط مستقیم‌اند؛ نقشه شهری برای انتخاب موقعیت است و مسیر رانندگی را نشان نمی‌دهد. خرید و رزرو انجام نمی‌شود.</p>
    </>}

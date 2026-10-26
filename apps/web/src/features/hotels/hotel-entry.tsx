@@ -42,5 +42,5 @@ function HotelEntryContent({controller,map,catalog,session,query,onCovered,onSel
   <div className={styles.entryIcon} aria-hidden="true"><svg width="30" height="30" viewBox="0 0 32 32"><path d="M5 28V8h14v20M19 16h8v12M2 28h28M10 13h4m-4 5h4m-4 5h4m9-3h1" fill="none" stroke="currentColor" strokeWidth="1.7"/></svg></div>
   <div><strong>اقامت در {city?.name??'مقصد'}</strong><span>هزینه همه اتاق‌ها و شب‌ها را کنار هم ببینید.</span></div>
   <Button variant="secondary" isDisabled={controller.resetting} onPress={()=>{if(model.openDialog()&&!opened.current){retained.current={key,itinerary:actual};opened.current=true;}}}>مقایسه اقامتگاه‌های {city?.name??'مقصد'}</Button>
- </div><HotelDialog model={model} catalog={catalog} session={session} canApplyTrip={available} initialScrollTop={restore?.scrollTop} referralAction={flow&&selectedSource?<ProviderAction flow={flow} source={selectedSource} catalog={catalog}/>:undefined}/></>;
+ </div><HotelDialog model={model} catalog={catalog} session={session} canApplyTrip={available} initialScrollTop={restore?.scrollTop} referralAction={flow&&selectedSource?{quoteId:selectedSource.payload.quote.quoteId,node:<ProviderAction compact flow={flow} source={selectedSource} catalog={catalog}/ >}:undefined}/></>;
 }
