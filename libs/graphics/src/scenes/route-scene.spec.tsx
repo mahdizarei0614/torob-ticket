@@ -130,3 +130,19 @@ it('keeps world context passive, sparse and separate from selected endpoint labe
   view.rerender(element({...props,scope:'domestic'}));expect(view.container.querySelector('[data-context-city]')).toBeNull();expect(view.container.querySelector('[data-world-geography]')).toBeNull();
   measure.mockRestore();
 });
+
+it('retains a decorative endpoint exit across a presentation key change while preserving exactly one live origin',async()=>{
+  const measure=vi.spyOn(HTMLElement.prototype,'getBoundingClientRect').mockReturnValue({left:0,top:0,width:560,height:400,right:560,bottom:400,x:0,y:0,toJSON:()=>({})});
+  const origin={id:'tehran',name:'تهران',point:{longitude:51,latitude:35},role:'origin' as const};
+  const destination={id:'mashhad',name:'مشهد',point:{longitude:59,latitude:36},role:'destination' as const};
+  const props:RouteSceneProps={...base,fitMode:'geography',showNotes:false,showTimeline:false,showControls:false,presentation:{key:'before',endpoints:[origin,destination],active:true,reducedMotion:false}};
+  const view=render(element(props));await act(async()=>undefined);
+  const originElement=view.container.querySelector('[data-journey-endpoint="origin"]');
+  view.rerender(element({...props,presentation:{...props.presentation!,key:'after-clear',endpoints:[origin]}}));
+  expect(view.container.querySelector('[data-journey-endpoint="origin"]')).toBe(originElement);
+  expect(view.container.querySelectorAll('[data-journey-endpoint]')).toHaveLength(1);
+  expect(view.container.querySelector('[data-exiting-city-id="mashhad"]')).toHaveAttribute('aria-hidden','true');
+  expect(view.container.querySelector('[data-exiting-city-id="mashhad"]')).not.toHaveAttribute('data-route-endpoint');
+  view.rerender(element({...props,presentation:{...props.presentation!,key:'reduced',endpoints:[origin],reducedMotion:true}}));
+  expect(view.container.querySelector('[data-endpoint-ghost]')).toBeNull();measure.mockRestore();
+});

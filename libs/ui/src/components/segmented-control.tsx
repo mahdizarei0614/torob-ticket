@@ -9,6 +9,7 @@ export interface SegmentedControlProps {
   onChange: (value: string) => void;
   options: readonly { id: string; label: string; icon?: ReactNode; disabled?: boolean }[];
   isDisabled?: boolean;
+  hideLabel?: boolean;
 }
 export function SegmentedControl({
   label,
@@ -17,6 +18,7 @@ export function SegmentedControl({
   onChange,
   options,
   isDisabled,
+  hideLabel = false,
 }: SegmentedControlProps) {
   return (
     <I18nProvider locale={language}>
@@ -28,7 +30,7 @@ export function SegmentedControl({
         orientation="horizontal"
         isDisabled={isDisabled}
       >
-        <Label className={styles.label}>{label}</Label>
+        <Label className={hideLabel ? styles.srOnly : styles.label}>{label}</Label>
         <div className={styles.segments}>
           {options.map((option) => (
             <Radio className={styles.radio} key={option.id} value={option.id} isDisabled={option.disabled}>

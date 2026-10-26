@@ -1,7 +1,20 @@
 import { describe, expect, it } from 'vitest';
-import { dateBounds, parseSearchUrl, serializeSearchUrl, validateDraft } from './search-url';
+import { consumerDraft, dateBounds, defaultClassCode, parseConsumerSearchUrl, parseSearchUrl, serializeSearchUrl, validateDraft } from './search-url';
 import { catalog, query, session } from './search-test-data';
 describe('canonical committed search intent', () => {
+  it('normalizes new consumer links to one adult without rewriting the general evidence codec',()=>{
+    const prior={...query,party:{adults:2,children:1,infants:1,childAges:[8],infantAgesMonths:[6]}};
+    const url=serializeSearchUrl(prior);
+    expect(parseSearchUrl(url,catalog,session).query?.party).toEqual(prior.party);
+    expect(parseConsumerSearchUrl(url,catalog,session).query?.party).toEqual({adults:1,children:0,infants:0});
+    expect(prior.party.adults).toBe(2);expect(consumerDraft(prior,catalog).party).not.toHaveProperty('childAges');
+  });
+  it('selects a valid class by preference, preserves compatible choices, and falls back to the actual catalog',()=>{
+    const choices={...catalog,classChoices:[{mode:'flight' as const,code:'business',name:'Business'},...catalog.classChoices,{mode:'bus' as const,code:'standard',name:'Standard'},{mode:'bus' as const,code:'vip',name:'VIP'}]};
+    expect(defaultClassCode('flight',choices)).toBe('economy');expect(defaultClassCode('flight',choices,'business')).toBe('business');expect(defaultClassCode('train',choices,'economy')).toBe('seat');expect(defaultClassCode('bus',choices)).toBe('standard');
+    expect(defaultClassCode('bus',{...choices,classChoices:choices.classChoices.filter(choice=>choice.code!=='standard')})).toBe('vip');
+    expect(parseConsumerSearchUrl(serializeSearchUrl({...query,classCode:'outdated'}),catalog,session).query?.classCode).toBe('economy');
+  });
   it('round trips every field, including filter canonicalization without preview state', () => {
     const input = { ...query, filters: { providerIds: ['p','p'], refundableOnly: true }, party: { adults: 1, children: 1, infants: 0, childAges: [8] } };
     const url = serializeSearchUrl(input);

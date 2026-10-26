@@ -112,7 +112,11 @@
   border-radius: var(--radius-md);
   background: var(--surface);
   overflow: visible;
+  transition: border-color var(--motion-fast), box-shadow var(--motion-fast), background var(--motion-fast);
 }
+.inputRow:focus-within { border-color: var(--focus); box-shadow: 0 0 0 3px var(--accent-soft); background: var(--surface-raised); }
+.inputRow .input:focus-visible { outline: none; }
+.input::placeholder { color: var(--text-muted); opacity: 1; }
 .inputRow[data-invalid] {
   border-color: var(--danger);
 }
@@ -137,7 +141,13 @@
   min-width: var(--control-size);
   min-height: var(--control-size);
   cursor: pointer;
+  display: grid;
+  place-items: center;
 }
+.clearButton { display: grid; place-items: center; flex: 0 0 var(--control-size); min-width: var(--control-size); min-height: var(--control-size); border: 0; border-radius: var(--radius-sm); background: var(--color-clear); color: var(--text-muted); cursor: pointer; }
+.clearButton:hover,.openButton[data-hovered] { color: var(--text); background: var(--accent-soft); }
+.clearButton:focus-visible,.openButton[data-focus-visible] { outline: var(--focus-width) solid var(--focus); outline-offset: -3px; }
+.clearButton:disabled { color: var(--disabled-text); cursor: default; }
 .description {
   color: var(--text-muted);
   font-size: var(--text-xs);
@@ -204,6 +214,9 @@
   box-shadow: var(--elevation);
 }
 .modal[data-dialog-size='wide'] { width:min(68rem,100%); }
+.modal[data-dialog-size='compact'] { width:min(27rem,100%); }
+.modal[data-dialog-size='compact'] .dialog { padding: var(--space-4); }
+.modal[data-dialog-size='compact'] .dialogHeader { margin-bottom: var(--space-2); gap: var(--space-2); }
 .dialog {
   padding: var(--space-5);
   outline: none;
@@ -312,4 +325,8 @@
   .radio {
     padding-inline: var(--space-3);
   }
+}
+@media (max-width:360px) {
+  .overlay:has([data-dialog-size='compact']) { padding:2px; }
+  .modal[data-dialog-size='compact'] .dialog { padding:1px; }
 }

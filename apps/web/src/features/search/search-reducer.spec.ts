@@ -7,8 +7,13 @@ describe('search controller state boundaries', () => {
     expect(state.draft.originCityId).toBe('a');
     expect(state.draft.destinationCityId).toBe('');
     expect(state.draft.departureDate).toBe(query.departureDate);
-    expect(state.draft.classCode).toBe('');
-    expect(state.notice).toMatch(/مقصد.*کلاس/);
+    expect(state.draft.classCode).toBe('seat');
+    expect(state.notice).toMatch(/مقصد/);expect(state.notice).not.toMatch(/کلاس/);
+  });
+  it('keeps a compatible class through a scope change and defaults only an unavailable class',()=>{
+    const international={...catalog,supportedConnections:[...catalog.supportedConnections,{...catalog.supportedConnections[0]!,scope:'international' as const}],classChoices:[...catalog.classChoices,{mode:'flight' as const,code:'business',name:'Business'}]};
+    const state=searchReducer(createSearchState({...query,classCode:'business'}),{type:'draft',patch:{scope:'international'},catalog:international});expect(state.draft.classCode).toBe('business');
+    expect(searchReducer(state,{type:'draft',patch:{classCode:''},catalog:international}).draft.classCode).toBe('economy');
   });
   it('preview is separate from committed intent and stale generations never adopt', () => {
     let state = createSearchState(query);

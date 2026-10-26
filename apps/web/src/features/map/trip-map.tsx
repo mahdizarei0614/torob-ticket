@@ -38,7 +38,7 @@ function RouteSummary({map,catalog,compact=false}:{map:TripMapController;catalog
  const committed=Boolean(view.inspection&&JSON.stringify(view.inspection.query)!==JSON.stringify(map.state.context.draft));
  return <><span className={styles.eyebrow}>{view.historical?'بررسی قبلی':view.inspection?committed?'سفر ثبت‌شده برای مقایسه':'مسیر پیشنهاد': 'انتخاب مسیر سفر'}</span>{title}<p>{modes[view.mode]} · {view.direction==='return'?'مسیر برگشت':'مسیر رفت'}{committed?' · با فرم ویرایش‌شده متفاوت است':''}</p></>;
 }
-export function TripMap({map,catalog,desktop,covered,onMotionChange}:{map:TripMapController;catalog:CatalogSnapshot;desktop:boolean;covered:boolean;onMotionChange:(active:boolean)=>void}) {
+export function TripMap({map,catalog,desktop,covered,onMotionChange,onHotelDock}:{map:TripMapController;catalog:CatalogSnapshot;desktop:boolean;covered:boolean;onMotionChange:(active:boolean)=>void;onHotelDock?:(element:HTMLDivElement|null)=>void}) {
  const assets=useQuery({queryKey:['consumer-map-assets'],queryFn:({signal})=>mapAssets(signal),enabled:desktop,staleTime:Infinity,retry:false,refetchOnWindowFocus:false});
  const [visible,setVisible]=useState(()=>!document.hidden);const [reduced,setReduced]=useState(()=>typeof matchMedia!=='function'||matchMedia('(prefers-reduced-motion:reduce)').matches);
  useEffect(()=>{if(typeof matchMedia!=='function')return;const visibility=()=>setVisible(!document.hidden);const query=matchMedia('(prefers-reduced-motion:reduce)');const motion=()=>setReduced(query.matches);document.addEventListener('visibilitychange',visibility);query.addEventListener('change',motion);return()=>{document.removeEventListener('visibilitychange',visibility);query.removeEventListener('change',motion);};},[]);
@@ -66,10 +66,11 @@ export function TripMap({map,catalog,desktop,covered,onMotionChange}:{map:TripMa
    <Suspense fallback={<p role="status">آماده‌سازی نقشه…</p>}><Scene labelsVisible={false} showControls={false} places={catalog.places} dots={assets.data?(view.scope==='domestic'?assets.data.dots.dots.iran:assets.data.dots.dots.world):NO_DOTS} paths={assets.data?.geometry.paths} worldContext={view.scope==='international'?assets.data?.worldContext:undefined} geography={view.scope==='domestic'?assets.data?.iran:undefined} scope={view.scope} itinerary={view.itinerary} presentation={presentation} direction={view.direction} fitMode={map.state.cameraMode} fitBothDirections fitKey={map.fitKey} originKey="consumer-map" projection={map.state.projection} progress={view.progress} initialCamera={map.initialCamera} onCameraIntentChange={map.savePresentationCamera} isCurrent={capturedCurrent} animateProgress={active} onMotionChange={reportMotion} motionKey={map.presentationSceneKey} showTimeline={false} showNotes={false}/></Suspense>
   </div>
   {assets.error&&<p role="status">داده محلی نقشه در دسترس نیست؛ انتخاب شهر در فرم سفر همچنان قابل استفاده است. <Button variant="quiet" onPress={()=>void assets.refetch()}>تلاش دوباره برای نقشه</Button></p>}
-
+  <div ref={onHotelDock} className={styles.hotelDock} data-map-hotel-dock />
  </aside>;
 }
 export function MobileRoutePanel({map,catalog}:{map:TripMapController;catalog:CatalogSnapshot}) {
  const {view}=map;
+ if(!view.itinerary)return null;
  return <section className={styles.mobile} aria-label="جزئیات مسیر سفر" data-mobile-itinerary={view.itinerary?.itineraryId} data-map-progress={view.progress}><div className={styles.mobileSummary}><RouteSummary map={map} catalog={catalog}/><span>{labelFor(map)}</span></div><Direction map={map}/><div className={styles.mobileDetails}>{view.itinerary?<details><summary>نمایش توقف‌ها و زمان‌های مسیر {view.direction==='return'?'برگشت':'رفت'}</summary><RouteTimeline itinerary={view.itinerary} direction={view.direction} catalog={catalog}/></details>:<p>برای زمان‌ها و توقف‌های دقیق، یکی از پیشنهادها را بررسی کنید.</p>}</div></section>;
 }

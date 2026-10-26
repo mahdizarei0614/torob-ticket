@@ -4,6 +4,8 @@ uniform vec4 highlight;
 uniform vec4 background;
 uniform float vehicleMode;
 uniform float stopGlow;
+uniform float vehicleOpacity;
+uniform float vehicleBlur;
 varying vec2 vUv;
 float capsule(vec2 p, vec2 a, vec2 b, float radius) {
   vec2 pa = p - a, ba = b - a;
@@ -42,7 +44,7 @@ void main() {
     shape = min(shape,capsule(p,vec2(-0.35,0.35),vec2(-0.12,0.48),0.022));
     shape = min(shape,capsule(p,vec2(-0.12,0.48),vec2(0.04,0.35),0.022));
     shape = min(shape,capsule(p,vec2(-0.27,0.50),vec2(0.03,0.50),0.025));
-  } else {
+  } else if (vehicleMode < 2.5) {
     // A side-profile coach with a panoramic window row, front door and round wheels.
     shape = roundBox(p - vec2(0.0,0.055),vec2(0.79,0.36),0.14);
     float panes = roundBox(vec2(mod(p.x + 0.70,0.29)-0.145,p.y-0.18),vec2(0.112,0.13),0.037);
@@ -54,17 +56,28 @@ void main() {
     detail = exp(-pow((p.y+0.10)*58.0,2.0)) * (1.0-smoothstep(0.58,0.74,abs(p.x)));
     detail = max(detail,1.0-smoothstep(0.025,0.055,length(p-vec2(0.72,-0.08))));
     shape = min(shape,capsule(p,vec2(0.73,0.21),vec2(0.85,0.18),0.025));
+  } else {
+    // A distinct passenger carriage, with couplers and two bogies; no locomotive cab.
+    shape = roundBox(p - vec2(0.0,0.035),vec2(0.72,0.29),0.105);
+    float panes = roundBox(vec2(mod(p.x + 0.62,0.25)-0.125,p.y-0.13),vec2(0.085,0.085),0.03);
+    window = (1.0-smoothstep(0.0,0.022,panes))*step(-0.58,p.x)*(1.0-step(0.58,p.x));
+    float wheels = min(length(p-vec2(-0.45,-0.27)),length(p-vec2(0.45,-0.27)));
+    shape = min(shape,wheels-0.10);
+    shape = min(shape,capsule(p,vec2(-0.83,-0.12),vec2(0.83,-0.12),0.025));
+    wheel = 1.0-smoothstep(0.05,0.08,wheels);
+    detail = exp(-pow((p.y+0.115)*65.0,2.0))*(1.0-smoothstep(0.58,0.71,abs(p.x)));
   }
-  float body = 1.0 - smoothstep(-0.015,0.025,shape);
-  float rim = exp(-abs(shape) * 57.0);
-  float halo = exp(-max(shape,0.0) * 17.0) * 0.13;
+  float softness = vehicleBlur * 0.12;
+  float body = 1.0 - smoothstep(-0.015-softness,0.025+softness,shape);
+  float rim = exp(-abs(shape) * mix(57.0,13.0,vehicleBlur));
+  float halo = exp(-max(shape,0.0) * mix(17.0,7.0,vehicleBlur)) * 0.13;
   float glass = clamp(0.43 + p.y * 0.3 + p.x * -0.16,0.12,0.78);
   float shine = exp(-pow((p.y-p.x*0.4-0.36)*7.5,2.0));
   vec3 tint = mix(routeMuted.rgb,route.rgb,glass);
   tint = mix(tint,highlight.rgb,clamp(shine*0.62+rim*0.7+detail*0.75,0.0,0.94));
-  tint = mix(tint,mix(background.rgb,route.rgb,0.12),window*0.74);
-  tint = mix(tint,mix(background.rgb,routeMuted.rgb,0.3),wheel*0.9);
+  tint = mix(tint,mix(background.rgb,route.rgb,0.12),window*0.74*(1.0-vehicleBlur));
+  tint = mix(tint,mix(background.rgb,routeMuted.rgb,0.3),wheel*0.9*(1.0-vehicleBlur));
   float alpha = body * 0.95 + halo * (1.0 + stopGlow*0.9);
-  gl_FragColor = vec4(tint,clamp(alpha,0.0,1.0));
+  gl_FragColor = vec4(tint,clamp(alpha,0.0,1.0)*vehicleOpacity);
   #include <colorspace_fragment>
 }

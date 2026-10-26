@@ -14,7 +14,7 @@ describe('date gesture authorization is fenced by external intent changes', () =
   function setup() {
     const client = { startSearch: vi.fn(async (request: SearchRequest) => ({ snapshot: { searchId: 'selected-date', query: request.query, clientGeneration: request.clientGeneration, status: 'collecting', groups: [], providerStatuses: [], coverage: { complete: false, expectedProviderIds: [], successfulProviderIds: [], failedProviderIds: [], pendingProviderIds: [] }, observedAt: session.anchorInstant }, sequence: 0 })), cancelSearch: vi.fn(async () => undefined) } as unknown as ApiClient;
     let back!: () => void, edit!: () => void;
-    function Harness() { const controller = useSearchController(catalog,session,client); const navigate = useNavigate(); back = () => { void navigate(-1); }; edit = () => controller.edit({ party: { adults: 2, children: 0, infants: 0 } }); return <DateWheel dates={['2026-10-25','2026-10-26','2026-10-27']} value={controller.state.draft.departureDate} cells={[]} interaction={controller.dateInteractions} onPreview={date => controller.dispatch({ type: 'preview-date',date })} onCommit={date => controller.commitDates(commitDate(controller.state.draft,'outbound',date))} />; }
+    function Harness() { const controller = useSearchController(catalog,session,client); const navigate = useNavigate(); back = () => { void navigate(-1); }; edit = () => controller.edit({ filters: { refundableOnly: true } }); return <DateWheel dates={['2026-10-25','2026-10-26','2026-10-27']} value={controller.state.draft.departureDate} cells={[]} interaction={controller.dateInteractions} onPreview={date => controller.dispatch({ type: 'preview-date',date })} onCommit={date => controller.commitDates(commitDate(controller.state.draft,'outbound',date))} />; }
     const view = render(<QueryClientProvider client={new QueryClient()}><MemoryRouter initialEntries={['/',serializeSearchUrl(query)]} initialIndex={1}><Harness /></MemoryRouter></QueryClientProvider>);
     return { client, back: () => back(), edit: () => edit(), ...view };
   }
@@ -26,6 +26,6 @@ describe('date gesture authorization is fenced by external intent changes', () =
   it('cancels old-basis timers on nondate edits and authorizes a fresh gesture once', async () => {
     vi.useFakeTimers(); const view = setup(); fireEvent.keyDown(screen.getByRole('listbox'),{key:'ArrowDown'}); act(() => view.edit());
     await act(async () => { await vi.advanceTimersByTimeAsync(300); }); expect(view.client.startSearch).not.toHaveBeenCalled();
-    fireEvent.keyDown(screen.getByRole('listbox'),{key:'ArrowDown'}); await act(async () => { await vi.advanceTimersByTimeAsync(300); }); expect(view.client.startSearch).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ query: expect.objectContaining({ departureDate: '2026-10-26', party: { adults: 2,children: 0,infants: 0 } }) }),expect.any(AbortSignal)); view.unmount();
+    fireEvent.keyDown(screen.getByRole('listbox'),{key:'ArrowDown'}); await act(async () => { await vi.advanceTimersByTimeAsync(300); }); expect(view.client.startSearch).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ query: expect.objectContaining({ departureDate: '2026-10-26', filters: { refundableOnly: true }, party: { adults: 1,children: 0,infants: 0 } }) }),expect.any(AbortSignal)); view.unmount();
   });
 });

@@ -9,6 +9,7 @@ uniform float baseSpacing;
 uniform vec4 latticeSpacings;
 uniform vec2 gridOrigin;
 uniform vec4 trailSamples[16];
+uniform float mapOpacity;
 varying vec2 vPosition;
 float trailAt(vec2 position) {
   float strength = 0.0;
@@ -43,5 +44,6 @@ void main() {
     vec3 color = (a.rgb*levels.x+b.rgb*levels.y+c.rgb*levels.z+d.rgb*levels.w)/max(0.0001,alpha);
     gl_FragColor = vec4(color,alpha);
   }
+  gl_FragColor.a *= mapOpacity;
   #include <colorspace_fragment>
 }

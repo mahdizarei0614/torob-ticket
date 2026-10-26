@@ -159,7 +159,8 @@ test('@map-navigation editing flight to train cannot select an old flight and th
   expect(current.snapshot.groups.length).toBeGreaterThan(0);
   expect(current.snapshot.groups.every(group => group.itinerary.mode === 'train')).toBe(true);
   await pinFirst(page); await assertRendering(page);
-  await expect.poll(async () => (await gpu(page)).vehicleModes.at(-1)).toBe(1);
+  await expect.poll(async () => (await gpu(page)).vehicleModes.includes(1)).toBe(true);
+  await expect.poll(async () => (await gpu(page)).vehicleModes.includes(3)).toBe(true);
   expect(errors).toEqual([]); record('train-after-flight', { query: current.snapshot.query, stats: await gpu(page), errors });
   await page.screenshot({ path: resolve(evidence, 'train-after-flight.png') });
 });

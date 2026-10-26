@@ -33,6 +33,8 @@ export interface JourneyPresentationFrame {
   activeStop: number | null;
   revealedStops: { id: string; waitMinutes: number | null; count: number | null }[];
   complete: boolean;
+  vehicleOpacity: number;
+  vehicleBlur: number;
 }
 const clamp = (value: number) => Math.max(0, Math.min(1, value));
 const ease = (value: number) => value * value * (3 - 2 * value);
@@ -78,7 +80,7 @@ export function sampleJourneyPresentation(plan: JourneyPresentation, elapsedMs: 
     const amount = complete ? 1 : 1 - Math.pow(1 - clamp((elapsed - stop.arriveMs) / Math.max(1, stop.endMs - stop.arriveMs)), 3);
     return { id: stop.id, waitMinutes: stop.waitMinutes, count: stop.waitMinutes === null ? null : Math.round(stop.waitMinutes * amount) };
   });
-  if (reducedMotion || !plan.stages.length) return { reveal: 1, travel: 1, stopGlow: 0, activeStop: null, revealedStops, complete: true };
+  if (reducedMotion || !plan.stages.length) return { reveal: 1, travel: 1, stopGlow: 0, activeStop: null, revealedStops, complete: true, vehicleOpacity: 1, vehicleBlur: 0 };
   // Once drawn, only the strand repeats; the route and revealed facts stay present.
   const time = complete ? ((elapsed - plan.durationMs) / 1.8) % plan.durationMs : elapsed;
   const stage = plan.stages.find(item => time < item.endMs) ?? plan.stages.at(-1)!;
@@ -87,5 +89,9 @@ export function sampleJourneyPresentation(plan: JourneyPresentation, elapsedMs: 
   const travel = stage.from + (stage.to - stage.from) * amount;
   const activeStop = !travelling && time < stage.endMs ? stage.stopIndex : null;
   const stopGlow = activeStop === null ? 0 : Math.sin(Math.PI * clamp((time - stage.arriveMs) / Math.max(1, stage.endMs - stage.arriveMs)));
-  return { reveal: complete ? 1 : travel, travel, stopGlow, activeStop, revealedStops, complete };
+  const arrival = plan.stages.at(-1)!.arriveMs;
+  const entrance = ease(clamp(time / 330));
+  const departure = 1 - ease(clamp((time - arrival + 160) / 500));
+  const vehicleOpacity = entrance * departure;
+  return { reveal: complete ? 1 : travel, travel, stopGlow, activeStop, revealedStops, complete, vehicleOpacity, vehicleBlur: 1 - vehicleOpacity };
 }

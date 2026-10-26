@@ -68,4 +68,17 @@ describe('selected-journey visual choreography', () => {
     const missing = segments.map(segment => ({ ...segment, paths: [] }));
     expect(buildJourneyPresentation(missing, leg, places)).toEqual({ stages: [], stops: [], durationMs: 0 });
   });
+
+  it('softly blurs/fades the vehicle across arrival and loop restart without retracting route facts', () => {
+    const { segments, leg } = makeRoute(['a', 'b', 'c'], [45]);
+    const plan = buildJourneyPresentation(segments, leg, places);
+    const end = plan.stages.at(-1)!.arriveMs;
+    const middle = sampleJourneyPresentation(plan, end);
+    expect(middle.vehicleOpacity).toBeGreaterThan(0); expect(middle.vehicleOpacity).toBeLessThan(1); expect(middle.vehicleBlur).toBeGreaterThan(0);
+    const before = sampleJourneyPresentation(plan, plan.durationMs - 1), after = sampleJourneyPresentation(plan, plan.durationMs + 1);
+    expect(before.vehicleOpacity).toBe(0); expect(after.vehicleOpacity).toBeLessThan(.001);
+    expect(after.reveal).toBe(1); expect(after.revealedStops[0]!.count).toBe(45);
+    expect(sampleJourneyPresentation(plan, plan.durationMs + 330 * 1.8).vehicleOpacity).toBe(1);
+    expect(sampleJourneyPresentation(plan, 0, { reducedMotion: true })).toMatchObject({ vehicleOpacity: 1, vehicleBlur: 0 });
+  });
 });

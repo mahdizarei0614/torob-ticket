@@ -19,6 +19,7 @@ function CityField() {
   return (
     <>
       <ComboBox
+        clearable
         label="مبدأ"
         language="fa"
         items={cities}
@@ -36,6 +37,7 @@ function Choice() {
   return (
     <>
       <SegmentedControl
+        hideLabel
         label="Transport"
         language="en"
         value={value}
@@ -65,6 +67,13 @@ function ModalExample({ mounted = true }: { mounted?: boolean }) {
   );
 }
 describe('shared interaction contracts', () => {
+  it('clears the selected city and query together, returns input focus, and permits another selection',async()=>{
+    const user=userEvent.setup();render(<CityField/>);
+    const input=screen.getByRole('combobox',{name:'مبدأ'});expect(input).toHaveAttribute('placeholder','جست‌وجو…');
+    await user.click(input);await user.keyboard('{ArrowDown}{Enter}');expect(input).toHaveValue('تهران');
+    await user.click(screen.getByRole('button',{name:'پاک کردن مبدأ'}));expect(input).toHaveValue('');expect(screen.getByLabelText('selected city')).toBeEmptyDOMElement();expect(input).toHaveFocus();
+    await user.type(input,'مشهد');await user.keyboard('{ArrowDown}{Enter}');expect(input).toHaveValue('مشهد');expect(screen.getByLabelText('selected city')).toHaveTextContent('mhd');
+  });
   it('commits the controlled city ID using keyboard and keeps its LTR code readable', async () => {
     const user = userEvent.setup();
     render(<CityField />);
@@ -79,6 +88,7 @@ describe('shared interaction contracts', () => {
   it('moves the controlled radio choice with arrows and skips disabled segments', async () => {
     const user = userEvent.setup();
     render(<Choice />);
+    expect(screen.getByRole('radiogroup',{name:'Transport'})).toBeInTheDocument();
     await user.tab();
     await user.keyboard('{ArrowRight}');
     expect(screen.getByRole('radio', { name: 'Train' })).toBeChecked();

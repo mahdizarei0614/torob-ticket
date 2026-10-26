@@ -10,7 +10,7 @@ import {
   Popover,
   Text,
 } from 'react-aria-components';
-import { useId } from 'react';
+import { useId, useRef } from 'react';
 import { Code, languageProps, type Language } from './language';
 import styles from '../styles/primitives.module.css';
 export interface ComboBoxItem {
@@ -31,6 +31,8 @@ export interface ComboBoxProps {
   error?: string;
   isDisabled?: boolean;
   isLoading?: boolean;
+  placeholder?: string;
+  clearable?: boolean;
 }
 export function ComboBox({
   label,
@@ -44,8 +46,11 @@ export function ComboBox({
   error,
   isDisabled,
   isLoading,
+  placeholder,
+  clearable = false,
 }: ComboBoxProps) {
   const errorId = useId();
+  const input = useRef<HTMLInputElement>(null);
   const filtered = items.filter(
     (item) =>
       item.label.toLocaleLowerCase(language).includes(inputValue.toLocaleLowerCase(language)) ||
@@ -73,15 +78,18 @@ export function ComboBox({
         <Label className={styles.label}>{label}</Label>
         <Group className={styles.inputRow}>
           <Input
+            ref={input}
             className={styles.input}
+            placeholder={placeholder ?? (language === 'fa' ? 'جست‌وجو…' : 'Search…')}
             aria-describedby={error ? errorId : undefined}
             aria-busy={isLoading || undefined}
           />
+          {clearable && (inputValue || selectedKey) && <button type="button" className={styles.clearButton} disabled={isDisabled} aria-label={language === 'fa' ? `پاک کردن ${label}` : `Clear ${label}`} onClick={() => { onSelectionChange(null); onInputChange(''); input.current?.focus(); }}><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="m7 7 10 10M17 7 7 17"/></svg></button>}
           <Button
             className={styles.openButton}
             aria-label={language === 'fa' ? 'نمایش گزینه‌ها' : 'Show options'}
           >
-            <span aria-hidden="true">⌄</span>
+            <svg aria-hidden="true" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4.5 4.5"/></svg>
           </Button>
         </Group>
         {description && (

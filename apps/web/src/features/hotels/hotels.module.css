@@ -8,3 +8,10 @@
 
 /* Compact visual pins retain full touch targets on every viewport. */
 .mapMarker,.mapMarker[data-custom-point='true']{width:44px;height:44px;border:0;background:transparent;box-shadow:none;isolation:isolate;}.mapMarker::before{content:'';position:absolute;inset:8px;z-index:-1;background:var(--accent);border:2px solid var(--surface);border-radius:50%;box-shadow:var(--elevation);}.mapMarker[data-custom-point='true']::before{inset:6px;background:var(--surface);border:3px solid var(--accent);}
+
+/* The single discovery model portals only its entry card into the desktop map. */
+.dockedEntry{margin:0;padding:12px;gap:10px;border-radius:var(--radius-md);background:color-mix(in srgb,var(--surface) 86%,var(--scene-background));font-size:13px;}
+.dockedEntry .entryIcon{width:38px;height:38px;}
+.dockedEntry .entryIcon svg{width:25px;height:25px;}
+.dockedEntry>button{flex:none;min-height:40px;padding-inline:12px;}
+.dockedEntry span{font-size:11px;}

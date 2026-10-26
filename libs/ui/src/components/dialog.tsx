@@ -19,7 +19,7 @@ export interface DialogProps {
   mobileFullscreen?: boolean;
   /** Keep dismissal available while a long dialog body scrolls; opt-in. */
   stickyHeader?: boolean;
-  size?: 'standard'|'wide';
+  size?: 'standard'|'wide'|'compact';
   initialScrollTop?: number;
   isDismissable?: boolean;
 }

@@ -60,6 +60,5 @@ export function DateWheel({ dates, value, cells, onPreview, onCommit, onInteract
       <div className={styles.wheelRows} style={{ transform: `translateY(${(2 - index) * rowHeight}px)` }}>{dates.map((date, i) => <div id={`${id}-${i}`} role="option" aria-selected={date === preview} aria-disabled={disabledCell(cells.find(cell => cell.date === date), leg) || undefined} key={date} className={styles.wheelRow} onClick={() => { if (suppressClick.current) { suppressClick.current = false; return; } if (enabled(date)) settle(date); }}><span>{dateLabel(date)}</span><small>{cells.find(cell => cell.date === date) ? cellLabel(cells.find(cell => cell.date === date), leg) : missingLabel ?? cellLabel(undefined)}</small></div>)}</div>
     </div>
     <button type="button" className={styles.arrow} aria-label="روز بعد" disabled={!enabled(dates[index + 1])} onClick={() => step(1)}>⌄</button>
-    <span className={styles.caption}>بکشید یا از کلیدهای بالا و پایین استفاده کنید</span>
   </div>;
 }

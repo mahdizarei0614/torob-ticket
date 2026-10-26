@@ -1,5 +1,5 @@
 import type { CatalogSnapshot, TransportSearchQuery } from '@torob-ticket/contracts';
-import type { SearchDraft } from './search-url';
+import { defaultClassCode, type SearchDraft } from './search-url';
 export type SearchIntentCause = 'initial'|'edit'|'preset'|'restore'|'search'|'refine'|'date';
 export interface SearchState {
   intentRevision: number;
@@ -33,11 +33,11 @@ export function searchReducer(state: SearchState, action: SearchAction): SearchS
     case 'authority': return {...state,intentRevision:state.intentRevision+1,pinnedItineraryId:undefined,pinnedItineraryHistorical:undefined,previewItineraryId:undefined,notice:'تنظیمات مقایسه تغییر کرده است؛ فرم شما و شواهد قبلی حفظ شدند. برای ادامه قیمت تازه بگیرید.'};
     case 'draft': {
       const draft = { ...state.draft, ...action.patch };
+      draft.classCode = defaultClassCode(draft.mode,action.catalog,draft.classCode);
       const clears: string[] = [];
       if (draft.mode !== state.draft.mode || draft.scope !== state.draft.scope || draft.originCityId !== state.draft.originCityId) {
         if (!action.catalog.supportedConnections.some(c => c.mode === draft.mode && c.scope === draft.scope && c.originCityId === draft.originCityId)) { draft.originCityId = ''; clears.push('مبدا'); }
         if (!action.catalog.supportedConnections.some(c => c.mode === draft.mode && c.scope === draft.scope && c.originCityId === draft.originCityId && c.destinationCityId === draft.destinationCityId)) { draft.destinationCityId = ''; clears.push('مقصد'); }
-        if (!action.catalog.classChoices.some(c => c.mode === draft.mode && c.code === draft.classCode)) { draft.classCode = ''; clears.push('کلاس'); }
         const filters = { ...draft.filters };
         if (draft.mode !== 'flight' && filters.checkedBaggageMinKg !== undefined) { delete filters.checkedBaggageMinKg; clears.push('فیلتر بار'); }
         if (filters.providerIds?.some(id => !action.catalog.providerCapabilities.some(p => p.providerId === id && p.modes.includes(draft.mode) && p.scopes.includes(draft.scope)))) { delete filters.providerIds; clears.push('فیلتر فروشنده'); }

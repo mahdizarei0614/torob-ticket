@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useLayoutEffect, useId, type RefObject, type ReactNode } from 'react';
+import { useEffect, useState, useRef, useLayoutEffect, useId, useMemo, type RefObject, type ReactNode } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import { BufferGeometry, DoubleSide, DynamicDrawUsage, Float32BufferAttribute, ShaderMaterial, type Mesh, type OrthographicCamera } from 'three';
 import type { GeoPoint, Mode } from '@torob-ticket/contracts';
@@ -11,6 +11,7 @@ import { createProgressTransition } from '../progress-transition';
 import { sampleJourneyPresentation, type JourneyPresentation, type JourneyPresentationFrame } from './journey-presentation';
 import type { SceneMarker, ScenePointer } from './scene-surface';
 import { createPointerTrail, POINTER_TRAIL_RADIUS_PX } from './pointer-trail';
+import { buildVehicleTrack, sampleVehiclePose, sampleTrainWagons, vehicleRotation, type VehiclePose } from './vehicle-motion';
 import mapVertex from '../shaders/map-dots.vert.glsl?raw';
 import mapFragment from '../shaders/map-dots.frag.glsl?raw';
 import routeVertex from '../shaders/route.vert.glsl?raw';
@@ -30,7 +31,7 @@ interface DrawingProps {
 }
 interface Resources {
   dots: BufferGeometry; line: BufferGeometry; sprites: Record<Mode, BufferGeometry>; glass: BufferGeometry;
-  dotsMaterial: ShaderMaterial; routeMaterial: ShaderMaterial; spriteMaterial: ShaderMaterial; atmospheric: boolean;
+  dotsMaterial: ShaderMaterial; routeMaterial: ShaderMaterial; spriteMaterial: ShaderMaterial; wagonMaterials: ShaderMaterial[]; atmospheric: boolean;
 }
 const NO_CITIES: readonly GeoPoint[] = [];
 const modeCode = (mode: Mode) => mode === 'train' ? 1 : mode === 'bus' ? 2 : 0;
@@ -44,7 +45,8 @@ export function SceneDrawing({ dots, markers, segments, context, frame, progress
   const dpr = useThree(state => state.viewport.dpr);
   const uniforms = useThemeUniforms(invalidate);
   const mesh = useRef<Mesh>(null);
-  const facing = useRef(1);
+  const wagonMeshes = useRef<(Mesh | null)[]>([]);
+  const track = useMemo(() => buildVehicleTrack(segments), [segments]);
   const outward = useRef(onMotionChange); outward.current = onMotionChange;
   const presentationOutward = useRef(onPresentationFrame); presentationOutward.current = onPresentationFrame;
   const [transition] = useState(() => createProgressTransition(motionKey, progress));
@@ -72,15 +74,11 @@ export function SceneDrawing({ dots, markers, segments, context, frame, progress
     resources.routeMaterial.uniforms['routeWidth']!.value = unit * 9.2;
     resources.routeMaterial.uniforms['headLength']!.value = Math.min(.035, Math.max(.002, unit * 7 / length));
     resources.routeMaterial.uniforms['tailLength']!.value = Math.min(.28, Math.max(.04, unit * 115 / length));
-    if (mesh.current) {
-      const vehicle = resources.spriteMaterial.uniforms['vehicleMode']!.value as number;
-      const size = unit * (vehicle === 1 ? 30 : vehicle === 2 ? 28 : 24);
-      mesh.current.scale.set(size * (vehicle === 0 ? 1 : facing.current), size, size);
-    }
   };
 
-  const applyVehicle = (value: number, stopGlow = 0) => {
-    const vehicle = vehicleAlongRoute(segments, value);
+  const applyVehicle = (value: number, stopGlow = 0, opacity = 1, blur = 0) => {
+    const pose = resources?.atmospheric ? sampleVehiclePose(track, track.length * Math.max(0, Math.min(1, value))) : null;
+    const vehicle = pose ?? vehicleAlongRoute(segments, value);
     const currentMode = vehicle.mode ?? mode ?? 'flight';
     if (mesh.current) {
       mesh.current.position.set(vehicle.point[0], vehicle.point[1], vehicle.point[2] + .5);
@@ -89,11 +87,28 @@ export function SceneDrawing({ dots, markers, segments, context, frame, progress
         if (resources.atmospheric) {
           resources.spriteMaterial.uniforms['vehicleMode']!.value = modeCode(currentMode);
           resources.spriteMaterial.uniforms['stopGlow']!.value = stopGlow;
-          const before = vehicleAlongRoute(segments, Math.max(0, value - .0005)).point;
-          const after = vehicleAlongRoute(segments, Math.min(1, value + .0005)).point;
-          if (Math.abs(after[0] - before[0]) > .00001) facing.current = after[0] >= before[0] ? 1 : -1;
-          if (currentMode === 'flight' && Math.hypot(after[0] - before[0], after[1] - before[1]) > .00001) mesh.current.rotation.z = Math.atan2(after[1] - before[1], after[0] - before[0]) - Math.PI / 2;
-          else mesh.current.rotation.z = 0;
+          resources.spriteMaterial.uniforms['vehicleOpacity']!.value = opacity;
+          resources.spriteMaterial.uniforms['vehicleBlur']!.value = blur;
+          const state = get(), camera = state.camera as OrthographicCamera;
+          const unit = (camera.isOrthographicCamera ? (camera.right - camera.left) / camera.zoom : frame.width) / Math.max(1, state.size.width);
+          const applyPose = (target: Mesh, point: VehiclePose, size: number) => {
+            target.position.set(point.point[0], point.point[1], point.point[2] + .5);
+            target.rotation.z = vehicleRotation(point);
+            target.scale.set(size * (point.mode === 'flight' ? 1 : point.facing), size, size);
+          };
+          if (pose) applyPose(mesh.current, pose, unit * (currentMode === 'train' ? 22 : currentMode === 'bus' ? 28 : 24));
+          const gap = unit * 36;
+          const wagons = pose?.mode === 'train' ? sampleTrainWagons(track, pose, gap) : [null, null];
+          wagonMeshes.current.forEach((target, index) => {
+            if (!target) return;
+            const wagon = wagons[index]; target.visible = Boolean(wagon);
+            const material = resources.wagonMaterials[index]!;
+            if (wagon) applyPose(target, wagon, unit * 21);
+            const emergence = wagon ? Math.min(1, wagon.distance / Math.max(.000001, gap * .4)) : 0;
+            material.uniforms['vehicleOpacity']!.value = opacity * emergence;
+            material.uniforms['vehicleBlur']!.value = Math.max(blur, 1 - emergence);
+            material.uniforms['stopGlow']!.value = stopGlow;
+          });
         }
       }
     }
@@ -104,7 +119,7 @@ export function SceneDrawing({ dots, markers, segments, context, frame, progress
     resources.routeMaterial.uniforms['reveal']!.value = value.reveal;
     resources.routeMaterial.uniforms['travel']!.value = value.travel;
     resources.routeMaterial.uniforms['stopGlow']!.value = value.stopGlow;
-    applyVehicle(value.travel, value.stopGlow);
+    applyVehicle(value.travel, value.stopGlow, value.vehicleOpacity, value.vehicleBlur);
     if (force || clock.current.elapsed - clock.current.reported >= 80) {
       presentationOutward.current?.(value);
       clock.current.reported = clock.current.elapsed;
@@ -159,6 +174,7 @@ export function SceneDrawing({ dots, markers, segments, context, frame, progress
       if (!transition.active()) outward.current?.(false);
     }
     // SceneCamera advances its frustum first; keep ribbons/icons constant in CSS pixels.
+    if (atmospheric && !moving) applyPresentation();
     applyScreenSizes();
   });
   useEffect(() => {
@@ -174,13 +190,15 @@ export function SceneDrawing({ dots, markers, segments, context, frame, progress
       sprites: { flight: createVehicleGeometry('flight'), train: createVehicleGeometry('train'), bus: createVehicleGeometry('bus') }, glass: createGlassVehicleGeometry(), atmospheric,
       dotsMaterial: new ShaderMaterial({ ...base, uniforms: { ...uniforms, geographyOpacity: { value:hideGeography?0:1 }, pointSize: { value: atmospheric ? 8.5 * get().gl.getPixelRatio() : 3.5 }, atmosphere: { value: atmospheric ? 1 : 0 }, time: { value: ambientSeconds.current }, motionReduced: { value: presentationReducedMotion ? 1 : 0 } }, vertexShader: mapVertex, fragmentShader: mapFragment }),
       routeMaterial: new ShaderMaterial({ ...base, side: DoubleSide, uniforms: { ...uniforms, reveal: { value: atmospheric ? 0 : reveal }, emphasis: { value: 0 }, routeWidth: { value: 0 }, travel: { value: 0 }, stopGlow: { value: 0 }, headLength: { value: .015 }, tailLength: { value: .15 } }, vertexShader: atmospheric ? ribbonVertex : routeVertex, fragmentShader: atmospheric ? ribbonFragment : ambientFragment }),
-      spriteMaterial: new ShaderMaterial({ ...base, side: DoubleSide, uniforms: { ...uniforms, reveal: { value: 1 }, vehicleMode: { value: modeCode(mode ?? 'flight') }, stopGlow: { value: 0 } }, vertexShader: atmospheric ? glassVertex : routeVertex, fragmentShader: atmospheric ? glassFragment : routeFragment }),
+      spriteMaterial: new ShaderMaterial({ ...base, side: DoubleSide, uniforms: { ...uniforms, reveal: { value: 1 }, vehicleMode: { value: modeCode(mode ?? 'flight') }, stopGlow: { value: 0 }, vehicleOpacity: { value: 1 }, vehicleBlur: { value: 0 } }, vertexShader: atmospheric ? glassVertex : routeVertex, fragmentShader: atmospheric ? glassFragment : routeFragment }),
+      wagonMaterials: [0, 1].map(() => new ShaderMaterial({ ...base, side: DoubleSide, uniforms: { ...uniforms, vehicleMode: { value: 3 }, stopGlow: { value: 0 }, vehicleOpacity: { value: 0 }, vehicleBlur: { value: 0 } }, vertexShader: glassVertex, fragmentShader: glassFragment })),
     };
     setResources(next); invalidate();
     return () => {
       next.dots.dispose(); next.line.dispose(); next.glass.dispose();
       Object.values(next.sprites).forEach(sprite => sprite.dispose());
       next.dotsMaterial.dispose(); next.routeMaterial.dispose(); next.spriteMaterial.dispose();
+      next.wagonMaterials.forEach(material => material.dispose());
     };
   }, [dots, markers, majorCities, segments, context, uniforms, invalidate, atmospheric, get]);
   useLayoutEffect(() => {
@@ -197,13 +215,18 @@ export function SceneDrawing({ dots, markers, segments, context, frame, progress
   return <group dispose={null}>
     <points geometry={resources.dots} material={resources.dotsMaterial} frustumCulled={false} />
     {resources.atmospheric ? <mesh geometry={resources.line} material={resources.routeMaterial} frustumCulled={false} /> : <lineSegments geometry={resources.line} material={resources.routeMaterial} frustumCulled={false} />}
-    {mode && segments.some(segment => segment.paths.length) && <mesh ref={mesh} geometry={resources.atmospheric ? resources.glass : resources.sprites[mode]} material={resources.spriteMaterial} frustumCulled={false} />}
+    {mode && segments.some(segment => segment.paths.length) && <mesh name="journey-vehicle-head" ref={mesh} geometry={resources.atmospheric ? resources.glass : resources.sprites[mode]} material={resources.spriteMaterial} frustumCulled={false} />}
+    {resources.atmospheric && resources.wagonMaterials.map((material,index) => <mesh key={index} name={`journey-vehicle-wagon-${index + 1}`} ref={value => { wagonMeshes.current[index] = value; }} geometry={resources.glass} material={material} frustumCulled={false} visible={false} />)}
   </group>;
 }
 export function StaticMap({ dots, markers, segments, context, frame, progress = 0, mode, presentation, majorCities = NO_CITIES, background, hideGeography = false }: DrawingProps & {background?:ReactNode}) {
   const id = useId().replace(/:/g, '');
   const radius = frame.width / 360;
   const vehicle = vehicleAlongRoute(segments, presentation ? 1 : progress); const vehicleMode = vehicle.mode ?? mode;
+  const track = useMemo(() => buildVehicleTrack(segments), [segments]);
+  const head = sampleVehiclePose(track, track.length * (presentation ? 1 : progress));
+  const wagons = presentation && head?.mode === 'train' ? sampleTrainWagons(track, head, frame.width / 600 * 36) : [];
+  const poseTransform = (pose: VehiclePose, carriage = false) => `translate(${pose.point[0]},${-pose.point[1]}) rotate(${-vehicleRotation(pose) * 180 / Math.PI}) scale(${frame.width / 600 * (carriage ? 2.1 : pose.mode === 'train' ? 2.2 : pose.mode === 'bus' ? 2.8 : 2.4) * (pose.mode === 'flight' ? 1 : pose.facing)},${frame.width / 600 * (carriage ? 2.1 : pose.mode === 'train' ? 2.2 : pose.mode === 'bus' ? 2.8 : 2.4)})`;
   const xy = (point: GeoPoint): ProjectedPoint => projectPoint(point, context);
   const glassPaths: Record<Mode, string> = {
     flight: 'M0 -7 Q1 -7 1 -5 L1 -1 L7 2 Q8 3 6 3 L1 2 L1 5 L3 6 L3 7 L0 6 L-3 7 L-3 6 L-1 5 L-1 2 L-6 3 Q-8 3 -7 2 L-1 -1 L-1 -5 Q-1 -7 0 -7Z',
@@ -217,6 +240,7 @@ export function StaticMap({ dots, markers, segments, context, frame, progress = 
     {majorCities.map((point, i) => { const p = xy(point); return <circle key={`major-${i}`} cx={p[0]} cy={-p[1]} r={radius * .9} fill="var(--scene-highlight)" opacity=".7" />; })}
     {segments.flatMap(segment => segment.paths.map((path, i) => <g key={`${segment.segmentId}-${i}`}><polyline points={path.map(point => `${point[0]},${-point[1]}`).join(' ')} fill="none" stroke={segment.transfer ? 'var(--scene-route-muted)' : 'var(--scene-route)'} strokeWidth={radius * (presentation ? segment.mode === 'train' ? 3.2 : 1.7 : 1)} />{presentation && segment.mode === 'train' && <polyline points={path.map(point => `${point[0]},${-point[1]}`).join(' ')} fill="none" stroke="var(--scene-background)" strokeWidth={radius * 1.4} />}</g>))}
     {markers.map(marker => { const p = xy(marker.point); return <circle key={marker.id} cx={p[0]} cy={-p[1]} r={radius * 2} fill={marker.enabled === false ? 'var(--scene-dot)' : presentation ? 'var(--scene-route)' : marker.kind === 'custom' || marker.role === 'origin' || marker.role === 'destination' ? 'var(--focus)' : 'var(--scene-highlight)'} />; })}
-    {vehicleMode && segments.some(segment => segment.paths.length) && <g transform={`translate(${vehicle.point[0]},${-vehicle.point[1]}) scale(${frame.width / (presentation ? 260 : 220)})`} fill="var(--scene-route)">{presentation ? <path d={glassPaths[vehicleMode]} fill={`url(#glass-${id})`} stroke="var(--scene-highlight)" strokeWidth=".35" fillRule="evenodd" /> : VEHICLE_PIXELS[vehicleMode].flatMap((row, y) => [...row].map((pixel, x) => pixel === '1' ? <rect key={y + '-' + x} x={x - 3.5} y={y - 2.5} width="1" height="1" /> : null))}</g>}
+    {vehicleMode && segments.some(segment => segment.paths.length) && <g data-static-vehicle="head" transform={presentation && head ? poseTransform(head) : `translate(${vehicle.point[0]},${-vehicle.point[1]}) scale(${frame.width / 220})`} fill="var(--scene-route)">{presentation ? <path d={glassPaths[vehicleMode]} fill={`url(#glass-${id})`} stroke="var(--scene-highlight)" strokeWidth=".35" fillRule="evenodd" /> : VEHICLE_PIXELS[vehicleMode].flatMap((row, y) => [...row].map((pixel, x) => pixel === '1' ? <rect key={y + '-' + x} x={x - 3.5} y={y - 2.5} width="1" height="1" /> : null))}</g>}
+    {wagons.map((wagon,index) => wagon && <g key={index} data-static-vehicle={`wagon-${index + 1}`} transform={poseTransform(wagon,true)} fill={`url(#glass-${id})`} stroke="var(--scene-highlight)" strokeWidth=".35"><path d="M-7 -3 H7 Q8 -3 8 -2 V2 Q8 3 7 3 H-7 Q-8 3 -8 2 V-2 Q-8 -3 -7 -3Z M-6 -2 H-4 V0 H-6Z M-3 -2 H-1 V0 H-3Z M0 -2 H2 V0 H0Z M3 -2 H5 V0 H3Z M-6 3 A1 1 0 1 0 -4 3 A1 1 0 1 0 -6 3Z M4 3 A1 1 0 1 0 6 3 A1 1 0 1 0 4 3Z" fillRule="evenodd"/></g>)}
   </svg>;
 }

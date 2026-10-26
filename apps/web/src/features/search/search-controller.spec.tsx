@@ -1,5 +1,4 @@
 import { act, render, renderHook, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter, MemoryRouter, useNavigate } from 'react-router';
 import { StrictMode, useEffect, useRef, type ReactNode } from 'react';
@@ -9,13 +8,14 @@ import type { SearchRecovery, SearchRequest } from '@torob-ticket/contracts';
 import { useSearchController } from './use-search-controller';
 import { SearchComposer } from './search-composer';
 import { catalog, query, session } from './search-test-data';
+import { serializeSearchUrl } from './search-url';
 function recovery(input: SearchRequest): SearchRecovery { return { snapshot: { searchId: 'operation', clientGeneration: input.clientGeneration, query: input.query, status: 'collecting', groups: [], providerStatuses: [], coverage: { expectedProviderIds: [], successfulProviderIds: [], failedProviderIds: [], pendingProviderIds: [], complete: false }, observedAt: session.anchorInstant }, sequence: 0 }; }
-function setup(client: ApiClient, initialPath = '/') {
+function setup(client: ApiClient, initialPath = '/', restore?: Parameters<typeof useSearchController>[3]) {
   const cache = new QueryClient();
   let navigate: ReturnType<typeof useNavigate>;
   function Navigation() { navigate = useNavigate(); return null; }
   function Wrapper({ children }: { children: ReactNode }) { return <StrictMode><QueryClientProvider client={cache}><MemoryRouter initialEntries={[initialPath]}><Navigation />{children}</MemoryRouter></QueryClientProvider></StrictMode>; }
-  const hook = renderHook(() => useSearchController(catalog, session, client), { wrapper: Wrapper });
+  const hook = renderHook(() => useSearchController(catalog, session, client, restore), { wrapper: Wrapper });
   return { ...hook, cache, navigate: (path: string) => navigate(path) };
 }
 describe('controller request and navigation ownership', () => {
@@ -73,21 +73,80 @@ describe('controller request and navigation ownership', () => {
       hook.unmount();
     }
   });
-  it('bounds traveler age edits under oversized counts rather than allocating that count', async () => {
-    const user = userEvent.setup();
-    const edit = vi.fn();
-    render(<SearchComposer draft={{ ...query, party: { adults: 1, children: 1000000000, infants: 0 } }} catalog={catalog} session={session} edit={edit} onSubmit={() => undefined} errors={['invalid']} pending={false} disabled={false} />);
-    const ages = screen.getAllByRole('spinbutton', { name: /سن کودک/ });
-    expect(ages).toHaveLength(8);
-    expect(ages.every(input => (input as HTMLInputElement).disabled)).toBe(true);
-    await user.click(ages[0]!);
-    expect(edit).not.toHaveBeenCalled();
-    await waitFor(() => expect(screen.getByRole('button', { name: 'جست‌وجوی سفر' })).toBeDisabled());
+  it('shows compact named choices and city search fields without transport passenger controls',()=>{
+    render(<SearchComposer draft={query} catalog={catalog} session={session} edit={vi.fn()} onSubmit={vi.fn()} errors={[]} pending={false} disabled={false}/>);
+    expect(screen.queryByRole('spinbutton')).not.toBeInTheDocument();
+    for(const name of ['وسیله سفر','محدوده سفر','نوع سفر'])expect(screen.getByRole('radiogroup',{name})).toBeInTheDocument();
+    expect(screen.getByRole('combobox',{name:'مبدا'})).toHaveAttribute('placeholder','جست‌وجوی شهر مبدا');expect(screen.getByRole('combobox',{name:'مقصد'})).toHaveAttribute('placeholder','جست‌وجوی شهر مقصد');expect(screen.getByLabelText('کلاس سفر')).toHaveValue('economy');
+  });
+});
+
+describe('single-adult consumer intent', () => {
+  const previous = { ...query, party: { adults: 2, children: 1, infants: 1, childAges: [8], infantAgesMonths: [6] } };
+  it.each(['submit', 'preset', 'saved'] as const)('normalizes a new %s comparison without mutating its source', async entry => {
+    const start = vi.fn(async (request: SearchRequest) => recovery(request));
+    const client = { startSearch: start, cancelSearch: vi.fn(async () => undefined) } as unknown as ApiClient;
+    const hook = setup(client);
+    if (entry === 'submit') await act(() => hook.result.current.submit(previous));
+    if (entry === 'preset') {
+      act(() => hook.result.current.preset(previous));
+      expect(start).not.toHaveBeenCalled();
+      await act(() => hook.result.current.submit());
+    }
+    if (entry === 'saved') {
+      act(() => hook.result.current.openSavedSearch(previous));
+      await waitFor(() => expect(hook.result.current.accepted).toBe(true));
+    }
+    expect(start).toHaveBeenCalledTimes(1);
+    expect(start.mock.calls[0]![0].query.party).toEqual({ adults: 1, children: 0, infants: 0 });
+    expect(hook.result.current.state.draft.party).toEqual({ adults: 1, children: 0, infants: 0 });
+    expect(previous.party).toEqual({ adults: 2, children: 1, infants: 1, childAges: [8], infantAgesMonths: [6] });
+    hook.unmount();
+  });
+  it('normalizes initial links and subsequent history before exposing draft or date-price intent', () => {
+    const client = { startSearch: vi.fn() } as unknown as ApiClient;
+    const hook = setup(client, '/' + serializeSearchUrl(previous));
+    expect(hook.result.current.validity.query?.party).toEqual({ adults: 1, children: 0, infants: 0 });
+    act(() => hook.navigate('/' + serializeSearchUrl({ ...previous, departureDate: '2026-10-26' })));
+    expect(hook.result.current.state.draft).toMatchObject({ departureDate: '2026-10-26', party: { adults: 1, children: 0, infants: 0 } });
+    expect(client.startSearch).not.toHaveBeenCalled();
+    hook.unmount();
+  });
+  it('keeps restored historical party evidence readable while fencing its selections from the new one-adult draft', async () => {
+    const historical = recovery({ query: previous, clientGeneration: 'historical-generation' });
+    historical.snapshot.status = 'complete';
+    const start = vi.fn(async (request: SearchRequest) => recovery(request));
+    const client = { startSearch: start, cancelSearch: vi.fn(async () => undefined) } as unknown as ApiClient;
+    const hook = setup(client, '/' + serializeSearchUrl(previous), { recovery: historical, draft: previous });
+    expect(hook.result.current.state.committed).toEqual(previous);
+    expect(hook.result.current.state.draft.party).toEqual({ adults: 1, children: 0, infants: 0 });
+    expect(hook.result.current.resultIsCurrent('historical-generation', 'operation')).toBe(true);
+    expect(hook.result.current.resultSelectionIsCurrent('historical-generation', 'operation')).toBe(false);
+    expect(hook.result.current.canRefineResults).toBe(false);
+    act(() => hook.result.current.pinResultItinerary('old-choice', 'historical-generation', 'operation'));
+    expect(hook.result.current.state.pinnedItineraryId).toBeUndefined();
+    expect(start).not.toHaveBeenCalled();
+    await act(() => hook.result.current.submit());
+    expect(start.mock.calls[0]![0].query.party).toEqual({ adults: 1, children: 0, infants: 0 });
+    expect(historical.snapshot.query.party).toEqual(previous.party);
+    hook.unmount();
+  });
+  it('preselects a valid train class on a mode change so choosing a destination is enough to search', async () => {
+    const start = vi.fn(async (request: SearchRequest) => recovery(request));
+    const client = { startSearch: start, cancelSearch: vi.fn(async () => undefined) } as unknown as ApiClient;
+    const hook = setup(client);
+    act(() => hook.result.current.edit({ mode: 'train' }));
+    expect(hook.result.current.state.draft.classCode).toBe('seat');
+    act(() => hook.result.current.edit({ destinationCityId: 'c' }));
+    expect(hook.result.current.validity.valid).toBe(true);
+    await act(() => hook.result.current.submit());
+    expect(start.mock.calls[0]![0].query).toMatchObject({ mode: 'train', destinationCityId: 'c', classCode: 'seat' });
+    hook.unmount();
   });
 });
 
 describe('authorized date intent admission', () => {
-  it('commits current whole-query dates immediately and drains only the latest authorized intent after capacity frees', async () => {
+  it('commits single-adult dates immediately and drains only the latest authorized intent after capacity frees', async () => {
     const { searchStartPool } = await import('./search-start-pool');
     const client = { startSearch: vi.fn(async (request: SearchRequest) => recovery(request)), cancelSearch: vi.fn(async () => undefined) } as unknown as ApiClient;
     const pool = searchStartPool(client); const first = pool.reserve()!, second = pool.reserve()!;
@@ -97,7 +156,7 @@ describe('authorized date intent admission', () => {
     expect(hook.result.current.state.committed?.departureDate).toBe('2026-10-27'); expect(hook.result.current.waitingDate).toBe(true); expect(client.startSearch).not.toHaveBeenCalled();
     await act(async () => { first.finish(); });
     await waitFor(() => expect(client.startSearch).toHaveBeenCalledTimes(1));
-    expect((client.startSearch as ReturnType<typeof vi.fn>).mock.calls[0]![0].query).toMatchObject({ departureDate: '2026-10-27', party: { adults: 3 } });
+    expect((client.startSearch as ReturnType<typeof vi.fn>).mock.calls[0]![0].query).toMatchObject({ departureDate: '2026-10-27', party: { adults: 1, children: 0, infants: 0 } });
     expect(hook.result.current.waitingDate).toBe(false); second.finish(); hook.unmount();
   });
   it('drops queued authorization on history or nondate edit, and never serializes an incomplete round trip', async () => {
@@ -105,7 +164,7 @@ describe('authorized date intent admission', () => {
     const client = { startSearch: vi.fn(async (request: SearchRequest) => recovery(request)), cancelSearch: vi.fn(async () => undefined) } as unknown as ApiClient;
     const pool = searchStartPool(client); const first = pool.reserve()!, second = pool.reserve()!; const hook = setup(client);
     act(() => hook.result.current.commitDates({ ...query, departureDate: '2026-10-26' }));
-    act(() => hook.result.current.edit({ party: { adults: 2, children: 0, infants: 0 } }));
+    act(() => hook.result.current.edit({ filters: { refundableOnly: true } }));
     await act(async () => first.finish()); expect(client.startSearch).not.toHaveBeenCalled();
     act(() => hook.result.current.commitDates({ ...query, tripType: 'round-trip', returnDate: undefined }));
     expect(hook.result.current.state.draft.returnDate).toBeUndefined(); expect(hook.result.current.accepted).toBe(false); expect(client.startSearch).not.toHaveBeenCalled();
@@ -149,7 +208,7 @@ describe('result refinement authorization',()=>{
  it('rejects a refinement from an old interaction token or restored generation and preserves changed draft fields',async()=>{
   const client={startSearch:vi.fn(async(request:SearchRequest)=>recovery(request)),cancelSearch:vi.fn(async()=>undefined)} as unknown as ApiClient;
   const hook=setup(client);await act(()=>hook.result.current.submit());const basis=hook.result.current.state.generation!;const token=hook.result.current.refinementToken;const refine=hook.result.current.refineResults;
-  act(()=>{hook.result.current.edit({party:{adults:2,children:0,infants:0}});refine({...query,sort:'fastest'},basis,token);});expect(client.startSearch).toHaveBeenCalledTimes(1);expect(hook.result.current.state.draft.party.adults).toBe(2);expect(hook.result.current.canRefineResults).toBe(false);
+  act(()=>{hook.result.current.edit({filters:{refundableOnly:true}});refine({...query,sort:'fastest'},basis,token);});expect(client.startSearch).toHaveBeenCalledTimes(1);expect(hook.result.current.state.draft.filters.refundableOnly).toBe(true);expect(hook.result.current.canRefineResults).toBe(false);
   act(()=>hook.navigate('/'));act(()=>refine({...query,sort:'fastest'},basis,token));expect(client.startSearch).toHaveBeenCalledTimes(1);hook.unmount();
  });
  it('authorizes exactly one explicit same-basis sort and scopes results entry to form Search',async()=>{
@@ -190,7 +249,7 @@ it('StrictMode lifetime replay does not duplicate an outstanding authorized star
 describe('live accepted result ownership',()=>{
  it.each([
   {mode:'train' as const}, {scope:'international' as const}, {originCityId:'c'}, {destinationCityId:'c'},
-  {departureDate:'2026-10-26'}, {party:{adults:2,children:0,infants:0}}, {filters:{refundableOnly:true}},
+  {departureDate:'2026-10-26'}, {filters:{refundableOnly:true}},
  ])('rejects retained result selection synchronously after trip edit %j',async patch=>{
   const client={startSearch:vi.fn(async(request:SearchRequest)=>recovery(request)),cancelSearch:vi.fn(async()=>undefined)} as unknown as ApiClient;
   const hook=setup(client);await act(()=>hook.result.current.submit(query));const owner=hook.result.current;const generation=owner.state.generation!;
@@ -202,7 +261,7 @@ describe('live accepted result ownership',()=>{
  it('keeps committed evidence current while draft edits fence selection, pinning and preview',async()=>{
   const client={startSearch:vi.fn(async(request:SearchRequest)=>recovery(request)),cancelSearch:vi.fn(async()=>undefined)} as unknown as ApiClient;
   const hook=setup(client);await act(()=>hook.result.current.submit());const generation=hook.result.current.state.generation!;const owner=hook.result.current;expect(owner.resultIsCurrent(generation,'operation')).toBe(true);expect(owner.resultIsCurrent(generation,'other')).toBe(false);
-  act(()=>hook.result.current.edit({party:{adults:2,children:0,infants:0}}));expect(hook.result.current.canRefineResults).toBe(false);expect(owner.resultIsCurrent(generation,'operation')).toBe(true);
+  act(()=>hook.result.current.edit({filters:{refundableOnly:true}}));expect(hook.result.current.canRefineResults).toBe(false);expect(owner.resultIsCurrent(generation,'operation')).toBe(true);
   act(()=>{owner.previewResultItinerary('kept-result',generation,'operation');owner.pinResultItinerary('kept-result',generation,'operation');});expect(hook.result.current.state.pinnedItineraryId).toBeUndefined();expect(hook.result.current.state.previewItineraryId).toBeUndefined();expect(owner.resultSelectionIsCurrent(generation,'operation')).toBe(false);
   act(()=>{window.history.replaceState({},'','/');window.dispatchEvent(new PopStateEvent('popstate'));owner.previewResultItinerary('old',generation,'operation');owner.pinResultItinerary('old',generation,'operation');});expect(hook.result.current.state.pinnedItineraryId).toBeUndefined();expect(hook.result.current.state.previewItineraryId).toBeUndefined();expect(owner.resultIsCurrent(generation,'operation')).toBe(false);expect(owner.resultIsCurrent(hook.result.current.state.generation!,'operation')).toBe(false);hook.unmount();expect(owner.resultIsCurrent(generation,'operation')).toBe(false);
  });

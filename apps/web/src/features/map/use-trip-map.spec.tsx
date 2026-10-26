@@ -25,7 +25,7 @@ it('keeps selected presentation leases across hover but revokes them on a new pi
  expect(selected.isPresentationCurrent()).toBe(true);expect(hook.result.current.map.presentationView.itinerary?.itineraryId).toBe('a');
  const camera={x:1,y:2,width:3,height:4,zoom:2};act(()=>selected.savePresentationCamera(camera));expect(hook.result.current.map.readCamera()).toEqual(camera);
  act(()=>hook.result.current.map.pin(group('b').itinerary));expect(selected.isPresentationCurrent()).toBe(false);
- const next=hook.result.current.map;act(()=>{hook.result.current.controller.edit({party:{adults:2,children:0,infants:0}});next.savePresentationCamera({...camera,zoom:8});});
+ const next=hook.result.current.map;act(()=>{hook.result.current.controller.edit({filters:{refundableOnly:true}});next.savePresentationCamera({...camera,zoom:8});});
  expect(next.isPresentationCurrent()).toBe(false);expect(hook.result.current.map.presentationView.itinerary).toBeUndefined();expect(hook.result.current.map.readCamera()?.zoom).not.toBe(8);
  hook.unmount();
 });
@@ -76,15 +76,15 @@ it('uses the accepted recheck version own timer and keeps same-travel refinement
 it('same-turn form edits fence old pins, previews and selections before React delivery',async()=>{
  vi.spyOn(Date,'now').mockReturnValue(Date.parse(observedAt)+1000);
  for(const kind of ['pin','preview','selection'] as const){const hook=setup();await act(()=>hook.result.current.controller.submit(query));const before=hook.result.current.map;const itinerary=group('a').itinerary;const quote=group('a').eligibleQuotes[0]!;
- act(()=>{hook.result.current.controller.edit({party:{adults:2,children:0,infants:0}});if(kind==='selection')before.selection(quote,itinerary,{groupId:'a',quoteId:quote.quoteId,version:1});else before[kind](itinerary);});
- expect(hook.result.current.controller.state.draft.party.adults).toBe(2);expect(hook.result.current.map.view.itinerary).toBeUndefined();expect(hook.result.current.map.view.progress).toBe(0);expect(hook.result.current.map.referralLease()).toBeUndefined();expect(hook.result.current.controller.state.previewItineraryId).toBeUndefined();expect(hook.result.current.controller.state.pinnedItineraryId).toBeUndefined();hook.unmount();}
+ act(()=>{hook.result.current.controller.edit({filters:{refundableOnly:true}});if(kind==='selection')before.selection(quote,itinerary,{groupId:'a',quoteId:quote.quoteId,version:1});else before[kind](itinerary);});
+ expect(hook.result.current.controller.state.draft.filters.refundableOnly).toBe(true);expect(hook.result.current.map.view.itinerary).toBeUndefined();expect(hook.result.current.map.view.progress).toBe(0);expect(hook.result.current.map.referralLease()).toBeUndefined();expect(hook.result.current.controller.state.previewItineraryId).toBeUndefined();expect(hook.result.current.controller.state.pinnedItineraryId).toBeUndefined();hook.unmount();}
  vi.restoreAllMocks();
 });
 it('passive result delivery after edits or explicit inspection clear cannot resurrect the consumed fare intent',async()=>{
  vi.spyOn(Date,'now').mockReturnValue(Date.parse(observedAt)+1000);const hook=setup();await act(()=>hook.result.current.controller.submit(query));const itinerary=group('a').itinerary;const quote=group('a').eligibleQuotes[0]!;const intent={groupId:'a',quoteId:quote.quoteId,version:1};
- act(()=>hook.result.current.map.selection(quote,itinerary,intent));act(()=>{hook.result.current.controller.edit({party:{adults:2,children:0,infants:0}});hook.result.current.map.selection(quote,itinerary,intent);});expect(hook.result.current.map.view.itinerary).toBeUndefined();expect(hook.result.current.controller.state.pinnedItineraryId).toBeUndefined();expect(hook.result.current.map.view.progress).toBe(0);
+ act(()=>hook.result.current.map.selection(quote,itinerary,intent));act(()=>{hook.result.current.controller.edit({filters:{refundableOnly:true}});hook.result.current.map.selection(quote,itinerary,intent);});expect(hook.result.current.map.view.itinerary).toBeUndefined();expect(hook.result.current.controller.state.pinnedItineraryId).toBeUndefined();expect(hook.result.current.map.view.progress).toBe(0);
  act(()=>hook.result.current.map.selection(quote,itinerary,{...intent}));expect(hook.result.current.map.view.progress).toBe(0);
- act(()=>hook.result.current.controller.edit({party:query.party}));act(()=>hook.result.current.map.selection(quote,itinerary,{...intent}));expect(hook.result.current.map.view.progress).toBe(.7);act(()=>hook.result.current.map.clear());act(()=>hook.result.current.map.selection(quote,itinerary,hook.result.current.map.state.resultIntent));expect(hook.result.current.map.view.itinerary).toBeUndefined();hook.unmount();vi.restoreAllMocks();
+ act(()=>hook.result.current.controller.edit({filters:query.filters}));act(()=>hook.result.current.map.selection(quote,itinerary,{...intent}));expect(hook.result.current.map.view.progress).toBe(.7);act(()=>hook.result.current.map.clear());act(()=>hook.result.current.map.selection(quote,itinerary,hook.result.current.map.state.resultIntent));expect(hook.result.current.map.view.itinerary).toBeUndefined();hook.unmount();vi.restoreAllMocks();
 });
 it('actual card→hook modality contract restores focus after cross-card hover and keeps pointer inspection after blur',async()=>{
  vi.spyOn(Date,'now').mockReturnValue(Date.parse(observedAt)+1000);const hook=setup();await act(()=>hook.result.current.controller.submit(query));const items=[group('a'),group('b')];const data=recovery(items);

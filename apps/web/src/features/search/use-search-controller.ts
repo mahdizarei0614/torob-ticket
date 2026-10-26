@@ -7,7 +7,7 @@ import { apiClient, ClientError, type ApiClient } from '@torob-ticket/client';
 import type { CatalogSnapshot, SessionInfo, TransportSearchQuery, SearchRecovery } from '@torob-ticket/contracts';
 import { createSearchState, searchReducer, type SearchIntentCause, type SearchAction } from './search-reducer';
 import { searchStartPool, startCapacityMessage, unresolvedStartLimit } from './search-start-pool';
-import { initialDraft, parseSearchUrl, serializeSearchUrl, validateDraft, type SearchDraft } from './search-url';
+import { consumerDraft, initialDraft, parseConsumerSearchUrl, serializeSearchUrl, validateDraft, type SearchDraft } from './search-url';
 export function errorMessage(error: unknown): string {
   if (error instanceof ClientError) {
     if (error.api?.code === 'SESSION_EXPIRED') return 'مهلت این صفحه پایان یافته است. صفحه را تازه کنید و دوباره جست‌وجو کنید.';
@@ -23,8 +23,8 @@ export function useSearchController(catalog: CatalogSnapshot, session: SessionIn
   const location = useLocation();
   const navigate = useNavigate();
   const cache = useQueryClient();
-  const initial = useRef(parseSearchUrl(location.search, catalog, session));
-  const [state, reduceDispatch] = useReducer(searchReducer, undefined, () => restore?{...createSearchState(restore.draft),committed:restore.recovery.snapshot.query,generation:restore.recovery.snapshot.clientGeneration,searchId:restore.recovery.snapshot.searchId}:{ ...createSearchState(initial.current.draft ?? initial.current.query ?? initialDraft(catalog, session)), committed: initial.current.query, generation: crypto.randomUUID(), notice: initial.current.message ?? '' });
+  const initial = useRef(parseConsumerSearchUrl(location.search, catalog, session));
+  const [state, reduceDispatch] = useReducer(searchReducer, undefined, () => restore?{...createSearchState(consumerDraft(restore.draft,catalog)),committed:restore.recovery.snapshot.query,generation:restore.recovery.snapshot.clientGeneration,searchId:restore.recovery.snapshot.searchId}:{ ...createSearchState(initial.current.draft ?? initial.current.query ?? initialDraft(catalog, session)), committed: initial.current.query, generation: crypto.randomUUID(), notice: initial.current.message ?? '' });
   // Apply the same authoritative reducer before React delivery so map/result intent joins
   // observe edits, history and accepted pins atomically within one event turn.
   const intentState=useRef(state);
@@ -59,7 +59,7 @@ export function useSearchController(catalog: CatalogSnapshot, session: SessionIn
   useEffect(() => { live.current = true; generation.current = intendedGeneration.current; return () => { live.current = false; dateInteractions.invalidate(); generation.current = undefined; queuedDate.current = undefined; starts.prioritize(datePriority.current, false); }; }, []);
   function restoreIntent(search: string) {
     dateInteractions.invalidate(); setResultEntryGeneration(undefined);
-    const parsed = parseSearchUrl(search, catalog, session);
+    const parsed = parseConsumerSearchUrl(search, catalog, session);
     const next = crypto.randomUUID();
     generation.current = next; intendedGeneration.current = next; queuedDate.current = undefined; starts.prioritize(datePriority.current, false); setWaitingDate(false);
     dispatch({ type: 'restore', draft: parsed.draft ?? parsed.query ?? initialDraft(catalog, session), query: parsed.query, generation: next, notice: parsed.message });
@@ -81,7 +81,7 @@ export function useSearchController(catalog: CatalogSnapshot, session: SessionIn
       ownNavigation.current = undefined; popTarget.current = undefined; return;
     }
     if (popTarget.current !== undefined && popTarget.current !== location.search) return;
-    const parsed = popTarget.current !== undefined ? parseSearchUrl(location.search, catalog, session) : restoreRef.current(location.search);
+    const parsed = popTarget.current !== undefined ? parseConsumerSearchUrl(location.search, catalog, session) : restoreRef.current(location.search);
     popTarget.current = undefined;
     if (parsed.query) {
       const canonical = serializeSearchUrl(parsed.query);
@@ -90,8 +90,8 @@ export function useSearchController(catalog: CatalogSnapshot, session: SessionIn
   }, [location.key, location.search, navigate]);
   const validity = validateDraft(state.draft, catalog, session);
   function cancelQueuedDate() { if (!queuedDate.current) return; queuedDate.current = undefined; starts.prioritize(datePriority.current, false); setWaitingDate(false); setPending(false); }
-  function edit(patch: Partial<SearchDraft>) { dateInteractions.invalidate(); setResultEntryGeneration(undefined); cancelQueuedDate(); dispatch({ type: 'draft', patch, catalog }); setFeedback('');setLastError(undefined); }
-  function preset(draft: SearchDraft) { dateInteractions.invalidate(); setResultEntryGeneration(undefined); cancelQueuedDate(); dispatch({ type: 'preset', draft }); setFeedback('');setLastError(undefined); }
+  function edit(patch: Partial<SearchDraft>) { dateInteractions.invalidate(); setResultEntryGeneration(undefined); cancelQueuedDate(); dispatch({ type: 'draft', patch: {...patch,party:{adults:1,children:0,infants:0}}, catalog }); setFeedback('');setLastError(undefined); }
+  function preset(draft: SearchDraft) { dateInteractions.invalidate(); setResultEntryGeneration(undefined); cancelQueuedDate(); dispatch({ type: 'preset', draft:consumerDraft(draft,catalog) }); setFeedback('');setLastError(undefined); }
   function commitIntent(query: TransportSearchQuery, next: string, cause: SearchIntentCause = 'search') {
     dateInteractions.invalidate();
     generation.current = next; intendedGeneration.current = next;
@@ -122,24 +122,25 @@ export function useSearchController(catalog: CatalogSnapshot, session: SessionIn
   }
   async function submit(query: TransportSearchQuery = validity.query!, enterResults = false, cause: SearchIntentCause = 'search') {
     if (!live.current || !query || starts.getSnapshot().resetting || (pendingGeneration.current !== undefined && pendingGeneration.current === generation.current)) return;
-    const checked = validateDraft(query, catalog, session);
+    const checked = validateDraft(consumerDraft(query,catalog), catalog, session);
     if (!checked.valid) { setFeedback(checked.errors.join(' ')); return; }
     const slot = starts.reserve(); if (!slot) return;
     cancelQueuedDate();
     const next = crypto.randomUUID(); commitIntent(checked.query!, next, cause); setResultEntryGeneration(enterResults ? next : undefined);
     await startCommitted(checked.query!, next, slot);
   }
-  /** Saved intent is explicit; restore exact fields, then use normal admission for fresh prices. */
+  /** Saved intent starts a fresh single-adult comparison; its stored evidence stays unchanged. */
   function openSavedSearch(query:TransportSearchQuery) {
     if(!live.current||starts.getSnapshot().resetting)return;
     preset(query);
-    const checked=validateDraft(query,catalog,session);
+    const checked=validateDraft(consumerDraft(query,catalog),catalog,session);
     if(!checked.valid){setFeedback('جست‌وجوی ذخیره‌شده در فرم قرار گرفت؛ برای قیمت تازه آن را اصلاح کنید. '+checked.errors.join(' '));return;}
     if(starts.getSnapshot().count>=unresolvedStartLimit){setFeedback('قصد سفر ذخیره‌شده در فرم قرار گرفت؛ هنوز جست‌وجوی تازه شروع نشده است. '+startCapacityMessage);return;}
     if(pendingGeneration.current!==undefined&&pendingGeneration.current===generation.current){setFeedback('قصد سفر ذخیره‌شده در فرم قرار گرفت؛ برای ثبت جست‌وجوی تازه صبر کنید تا درخواست قبلی پاسخ بگیرد.');return;}
     void submit(checked.query!,true);
   }
   function commitDates(draft: SearchDraft) {
+    draft = consumerDraft(draft,catalog);
     setResultEntryGeneration(undefined);
     if (!live.current || starts.getSnapshot().resetting) return;
     const checked = validateDraft(draft, catalog, session);

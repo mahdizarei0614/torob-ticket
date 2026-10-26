@@ -1,9 +1,9 @@
 import {useSyncExternalStore} from 'react';
 export interface MotionEnvironment {reducedMotion:boolean;documentVisible:boolean;covered?:boolean;disabled?:boolean}
 export function resolveMotionPolicy(environment:MotionEnvironment):boolean{return !environment.reducedMotion&&environment.documentVisible&&!environment.covered&&!environment.disabled;}
-export type MotionPurpose='content'|'detail'|'dialog'|'emphasis';
+export type MotionPurpose='content'|'detail'|'dialog'|'emphasis'|'dock';
 export const motionSpecifications={
- content:{duration:0.18,offset:6},detail:{duration:0.2,offset:4},dialog:{duration:0.22,offset:8},emphasis:{duration:0.18,offset:0},
+ content:{duration:0.18,offset:6},detail:{duration:0.2,offset:4},dialog:{duration:0.22,offset:8},emphasis:{duration:0.18,offset:0},dock:{duration:0.36,offset:24},
 } as const satisfies Record<MotionPurpose,{duration:number;offset:number}>;
 const listeners=new Set<()=>void>();
 let detach:(()=>void)|undefined;

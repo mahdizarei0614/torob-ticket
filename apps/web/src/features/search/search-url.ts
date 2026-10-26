@@ -2,6 +2,16 @@ import { TransportSearchQuerySchema, type CatalogSnapshot, type SessionInfo, typ
 import { localDateAt } from '@torob-ticket/domain';
 import { parseDate } from '@internationalized/date';
 export type SearchDraft = Omit<TransportSearchQuery, 'returnDate'> & { returnDate?: string };
+export function defaultClassCode(mode: SearchDraft['mode'], catalog: CatalogSnapshot, preferred?: string): string {
+  const choices = catalog.classChoices.filter(choice => choice.mode === mode);
+  if (choices.some(choice => choice.code === preferred)) return preferred!;
+  const defaults = { flight: 'economy', train: 'seat', bus: 'standard' } as const;
+  return choices.find(choice => choice.code === defaults[mode])?.code ?? choices[0]?.code ?? '';
+}
+/** New consumer intent compares one adult; persisted evidence keeps its original party. */
+export function consumerDraft(draft: SearchDraft, catalog: CatalogSnapshot): SearchDraft {
+  return { ...draft, party: { adults: 1, children: 0, infants: 0 }, classCode: defaultClassCode(draft.mode,catalog,draft.classCode) };
+}
 export function dateBounds(session: SessionInfo, timeZone: string) {
   const min = localDateAt(session.anchorInstant, timeZone);
   return { min, max: parseDate(min).add({ days: 89 }).toString() };
@@ -12,7 +22,7 @@ export function requiredAges(draft: SearchDraft, catalog: CatalogSnapshot) {
 }
 export function validateDraft(draft: unknown, catalog: CatalogSnapshot, session: SessionInfo): { valid: boolean; errors: string[]; query?: TransportSearchQuery } {
   const parsed = TransportSearchQuerySchema.safeParse(draft);
-  if (!parsed.success) return { valid: false, errors: ['مبدا، مقصد، تاریخ و تعداد مسافران را کامل و معتبر وارد کنید. حداقل یک بزرگسال، حداکثر ۹ مسافر و تعداد نوزاد حداکثر برابر بزرگسالان است.'] };
+  if (!parsed.success) return { valid: false, errors: ['مبدا، مقصد و تاریخ سفر را کامل و معتبر انتخاب کنید.'] };
   const q = parsed.data;
   const errors: string[] = [];
   if (!catalog.supportedConnections.some(c => c.mode === q.mode && c.scope === q.scope && c.originCityId === q.originCityId && c.destinationCityId === q.destinationCityId)) errors.push('این مسیر برای وسیله و محدوده انتخاب‌شده در دسترس نیست.');
@@ -50,9 +60,17 @@ export function parseSearchUrl(search: string, catalog: CatalogSnapshot, session
     return result.valid ? { kind: 'valid', query: result.query! } : { ...invalid, ...(draft.success ? { draft: draft.data } : {}), message: `${invalid.message} ${result.errors.join(' ')}` };
   } catch { return invalid; }
 }
+export function parseConsumerSearchUrl(search: string, catalog: CatalogSnapshot, session: SessionInfo): ReturnType<typeof parseSearchUrl> {
+  const parsed = parseSearchUrl(search,catalog,session);
+  const source = parsed.draft ?? parsed.query;
+  if (!source) return parsed;
+  const draft = consumerDraft(source,catalog);
+  const checked = validateDraft(draft,catalog,session);
+  return checked.query ? {kind:'valid',query:checked.query} : {...parsed,query:undefined,draft};
+}
 export function initialDraft(catalog: CatalogSnapshot, session: SessionInfo): SearchDraft {
   const route = catalog.supportedConnections.find(c => c.mode === 'flight' && c.scope === 'domestic') ?? catalog.supportedConnections[0];
   const mode = route?.mode ?? 'flight';
   const origin = catalog.cities.find(c => c.id === route?.originCityId);
-  return { mode, scope: route?.scope ?? 'domestic', tripType: 'one-way', originCityId: route?.originCityId ?? '', destinationCityId: route?.destinationCityId ?? '', departureDate: dateBounds(session, origin?.timeZone ?? 'Asia/Tehran').min, party: { adults: 1, children: 0, infants: 0 }, classCode: catalog.classChoices.find(c => c.mode === mode)?.code ?? '', filters: {}, sort: 'cheapest' };
+  return { mode, scope: route?.scope ?? 'domestic', tripType: 'one-way', originCityId: route?.originCityId ?? '', destinationCityId: route?.destinationCityId ?? '', departureDate: dateBounds(session, origin?.timeZone ?? 'Asia/Tehran').min, party: { adults: 1, children: 0, infants: 0 }, classCode: defaultClassCode(mode,catalog), filters: {}, sort: 'cheapest' };
 }
