@@ -2399,3 +2399,14 @@ The subsequent request supersedes the previous all-labels-hidden and pre-ticket 
 | Adaptive pmndrs bloom | Map-only effect; bounded targets; actual cadence/submission/GPU trial; fresh timing/degradation; isolated chart/context cleanup | DONE | Independent10probes; packaged3/3 native cases;72001lit map pixels/zero outside pixels; [bloom review](../../evidence/adjustments/staggered-particles-bloom/review-bloom.md) |
 | Readiness prerequisite | One bounded expired-owner batch; immediate auth expiry; rollback/locking/live peer/restart retention | DONE | Author/independent18integration +5reviewer PG probes,3unitcases; actual25s cancellation; normalDockerstartuphealthy; [review](../../evidence/adjustments/staggered-particles-bloom/review-readiness-recovery.md) |
 | Assembly and device check | Final package performance; source/static checks; evidence/spec/SDD/export checkpoint | DONE | [Checkpoint](../../evidence/adjustments/staggered-particles-bloom/checkpoint.md):577tests/92files,11Nxchecks,API/data-access checks; actualM3Pro worldGPUmedian3.966ms/p958.268ms and16.7ms submittedcadence; one context, noerrors, no push |
+
+
+## Owner adjustment — continuous particle morph and pointer repulsion, 2026-10-29
+
+[Decision0046](../../decisions/0046-continuous-morph-and-pointer-repulsion.md), specification1.20. Source73499d8. M7 remains partial,29/35; T30 active.
+
+| Adjustment | Subtasks | Status | Evidence |
+|---|---|---|---|
+| Continuous morph | Live4.6s independently staggered field; terminal position/velocity join; actual camera; interrupted residual wander; covered pause | DONE | `73499d8`; [review](../../evidence/adjustments/continuous-morph-repulsion/review-morph.md):1,545GPU observations/2probes,≤0.000382CSSpx mismatch; immutable active-pointer rebase and policy tests |
+| Pointer response | Soft bounded flee/return from visible particles; stable seeds; stronger local light; strength-scaled candidate budget | DONE | [review](../../evidence/adjustments/continuous-morph-repulsion/review-pointer.md):3source probes,11.74px away,1.208×prior local light,46.43px zoom-stable radius;45actualGPU neighborhood comparisons match |
+| Assembly | Integrated/final-focused/static; normal Docker; native map/bloom; device performance; spec/SDD/export sync | DONE | [Checkpoint](../../evidence/adjustments/continuous-morph-repulsion/checkpoint.md):587integrated/18final-focused,11Nxchecks,3packagednative; bothDPRbloom-enabled/onecontext,16.7–16.8ms steady submissionp95; startup stalls retained separately |
