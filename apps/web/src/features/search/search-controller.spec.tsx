@@ -19,6 +19,19 @@ function setup(client: ApiClient, initialPath = '/', restore?: Parameters<typeof
   return { ...hook, cache, navigate: (path: string) => navigate(path) };
 }
 describe('controller request and navigation ownership', () => {
+  it('makes the first round-trip toggle searchable but requires reselecting an invalidated return',async()=>{
+    const client={startSearch:vi.fn(async(input:SearchRequest)=>recovery(input)),cancelSearch:vi.fn(async()=>undefined)} as unknown as ApiClient;
+    const hook=setup(client,serializeSearchUrl(query));
+    act(()=>hook.result.current.edit({tripType:'round-trip'}));
+    expect(hook.result.current.state.draft.returnDate).toBe('2026-10-28');expect(hook.result.current.validity.valid).toBe(true);
+    expect(client.startSearch).not.toHaveBeenCalled();
+    await act(()=>hook.result.current.submit());
+    expect(vi.mocked(client.startSearch).mock.calls[0]![0].query).toMatchObject({tripType:'round-trip',returnDate:'2026-10-28'});
+    act(()=>hook.result.current.edit({departureDate:'2026-10-29'}));
+    expect(hook.result.current.state.draft.returnDate).toBeUndefined();expect(hook.result.current.validity.valid).toBe(false);
+    act(()=>hook.result.current.edit({classCode:'economy'}));expect(hook.result.current.state.draft.returnDate).toBeUndefined();
+    hook.unmount();
+  });
   it('cancels a same-generation response with a different query, never adopting it', async () => {
     const cancel = vi.fn(async () => undefined);
     const client = { startSearch: vi.fn(async (request: SearchRequest) => recovery({ ...request, query: { ...request.query, departureDate: '2026-10-26' } })), cancelSearch: cancel } as unknown as ApiClient;

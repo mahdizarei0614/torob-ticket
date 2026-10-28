@@ -11,7 +11,13 @@ import { DateChart } from './date-chart';
 import { useDatePrices } from './use-date-prices';
 import styles from './dates.module.css';
 export function DateExplorer({ draft, catalog, session, onCommit, onPreview, onCovered, onInteractionChange, interaction: controlledInteraction, disabled = false, waiting = false }: { draft: SearchDraft; catalog: CatalogSnapshot; session: SessionInfo; onCommit: (draft: SearchDraft) => void; onPreview: (date?: string) => void; onCovered: (covered: boolean) => void; onInteractionChange: (active: boolean) => void; disabled?: boolean; waiting?: boolean; interaction?: DateInteractions }) {
-  const [leg, setLeg] = useState<DateLeg>('outbound'); const activeLeg = draft.tripType === 'one-way' ? 'outbound' : leg;
+  const [leg, setLeg] = useState<DateLeg>(() => draft.tripType === 'round-trip' && !draft.returnDate ? 'return' : 'outbound');
+  const activeLeg = draft.tripType === 'one-way' ? 'outbound' : leg;
+  const priorReturn = useRef(draft.returnDate);
+  useLayoutEffect(() => {
+    if (priorReturn.current && !draft.returnDate && draft.tripType === 'round-trip') setLeg('return');
+    priorReturn.current = draft.returnDate;
+  }, [draft.returnDate, draft.tripType]);
   const [ownedInteraction] = useState(createDateInteractions); const interaction = controlledInteraction ?? ownedInteraction;
   const externalBasis = JSON.stringify([draft,session]); const basisRef = useRef(externalBasis); basisRef.current = externalBasis;
   const [provisional, setProvisional] = useState<{ draft: SearchDraft; basis: string; token: number } | undefined>(undefined);

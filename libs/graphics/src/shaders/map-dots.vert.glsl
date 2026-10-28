@@ -10,6 +10,9 @@ varying float vBreath;
 uniform float pointSize;
 uniform float atmosphere;
 uniform float time;
+uniform float unitsPerPixel;
+uniform float dotDriftAmplitude;
+uniform float centralLongitude;
 void main() {
   vEmphasis = emphasis;
   vGeography = geography;
@@ -19,6 +22,10 @@ void main() {
   float size = pointSize * (1.0 + min(emphasis,1.0) * 0.55 + hoverGlow * 0.10);
   if (emphasis > 1.5) size = pointSize * 3.3;
   gl_PointSize = mix(legacySize,size,atmosphere);
-  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+  vec3 displayedPosition = position;
+  if (atmosphere > 0.5 && geography > 0.5) {
+    displayedPosition.xy += livingDotOffset(position.xy + vec2(centralLongitude,0.0), time, dotDriftAmplitude) * unitsPerPixel;
+  }
+  gl_Position = projectionMatrix * modelViewMatrix * vec4(displayedPosition, 1.0);
   vMapUv = gl_Position.xy / gl_Position.w * 0.5 + 0.5;
 }

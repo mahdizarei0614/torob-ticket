@@ -1,12 +1,13 @@
 import {useEffect,useRef,useState} from 'react';
 import {apiClient,type ApiClient} from '@torob-ticket/client';
 import type {CatalogSnapshot,SessionInfo,TransportSearchQuery} from '@torob-ticket/contracts';
-import {Button,Dialog,useTheme} from '@torob-ticket/ui';
+import {Button,useTheme} from '@torob-ticket/ui';
 import type {useSearchController} from '../search/use-search-controller';
 import {serializeSearchUrl,validateDraft} from '../search/search-url';
 import {DemoLogin} from './demo-login';
 import {SavedSearches} from './saved-searches';
 import {useDemoAccount,type DemoAccount} from './use-demo-account';
+import {AccountPopover} from './account-popover';
 import styles from './account.module.css';
 type SaveTransaction={query:TransportSearchQuery;lease:number};
 export function AccountPanel({controller,catalog,session,onCovered,client=apiClient}:{
@@ -31,7 +32,7 @@ export function AccountPanel({controller,catalog,session,onCovered,client=apiCli
  const formCurrent=(expected:SaveTransaction|undefined)=>Boolean(expected&&viewCurrent()&&transactionRef.current===expected&&controller.dateInteractions.isCurrent(expected.lease));
  function discard(){transactionRef.current=undefined;setTransaction(undefined);setName('');}
  function changeDialog(next:boolean){
-  dialog.current={open:next,epoch:dialog.current.epoch+1};setOpen(next);onCovered(next);
+  dialog.current={open:next,epoch:dialog.current.epoch+1};setOpen(next);onCovered(false);
   if(!next){discard();setNotice('');}
  }
  useEffect(()=>{
@@ -42,9 +43,10 @@ export function AccountPanel({controller,catalog,session,onCovered,client=apiCli
  useEffect(()=>{if(controller.resetting)changeDialog(false);},[controller.resetting]);
  useEffect(()=>()=>{dialog.current={open:false,epoch:dialog.current.epoch+1};onCovered(false);},[]);
  useEffect(()=>{discard();setNotice('');},[account.identity?.identityId]);
- function show(){
-  if(dialog.current.open||dialog.current.epoch!==dialogEpoch||!account.isCurrent())return;
-  changeDialog(true);void account.refresh();
+ function changePopover(next:boolean){
+  if(dialog.current.epoch!==dialogEpoch)return;
+  if(next){if(dialog.current.open||!account.isCurrent())return;changeDialog(true);void account.refresh();}
+  else changeDialog(false);
  }
  function prepare(){
   if(!actionCurrent()||!account.identity||transactionRef.current!==transaction)return;
@@ -68,12 +70,10 @@ export function AccountPanel({controller,catalog,session,onCovered,client=apiCli
   refresh:()=>guarded(account.refresh),signIn:()=>guarded(account.signIn),signOut:()=>guarded(account.signOut),
   save:input=>guarded(()=>account.save(input)),remove:id=>guarded(()=>account.remove(id)),isCurrent:actionCurrent,
  };
- return <>
-  <Button variant="quiet" aria-label="حساب کاربری" isDisabled={controller.resetting||account.pending==='write'} onPress={show}>
+ return <AccountPopover isOpen={open} onOpenChange={changePopover} trigger={<Button variant="quiet" aria-label="حساب کاربری" isDisabled={controller.resetting||account.pending==='write'}>
    <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a5 5 0 1 0 0 10 5 5 0 0 0 0-10ZM3 22a9 9 0 0 1 18 0h-2a7 7 0 0 0-14 0Z"/></svg>
    <span className={styles.triggerLabel}>حساب کاربری</span>
-  </Button>
-  <Dialog title="حساب کاربری و جست‌وجوهای ذخیره‌شده" isOpen={open} onOpenChange={next=>{if(dialog.current.epoch===dialogEpoch)changeDialog(next);}} mobileFullscreen stickyHeader>
+  </Button>}>
    <div className={styles.panel}>
     <DemoLogin account={visibleAccount}/>
     {account.pending==='read'&&<p role="status">دریافت وضعیت حساب…</p>}
@@ -102,6 +102,5 @@ export function AccountPanel({controller,catalog,session,onCovered,client=apiCli
      }}/>
     </>}
    </div>
-  </Dialog>
- </>;
+ </AccountPopover>;
 }

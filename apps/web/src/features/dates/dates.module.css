@@ -18,8 +18,8 @@
 @media(prefers-reduced-motion:reduce) { .wheelRows { transition: none; } }
 @media(max-width:600px) { .calendar td { padding: 0; }.calendarFooter { position: sticky; bottom: 0; z-index: 3; background: var(--surface); border-top: 1px solid var(--border); padding-block: 10px; }.calendarFooter button { min-height: 44px; } }
 
-.range{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px;font-size:10px;color:var(--text-muted);line-height:1.9}.range>span{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px;min-block-size:1lh}.range bdi{overflow-wrap:anywhere}
-@media(max-width:600px){.range{grid-template-columns:1fr}}
+.range{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 14px;font-size:10px;color:var(--text-muted);line-height:1.9}.range>span{display:inline-flex;align-items:baseline;justify-content:flex-start;gap:4px;min-block-size:1lh;white-space:nowrap}.range bdi{direction:ltr;unicode-bidi:isolate}
+@media(max-width:600px){.range{flex-direction:column;align-items:flex-start}}
 
 /* Three full-size date rows and a full-width calendar action share the chart's plot height. */
 @media(min-width:760px){

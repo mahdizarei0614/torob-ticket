@@ -3,6 +3,7 @@ uniform vec4 highlight;
 uniform float layer;
 uniform float time;
 uniform float unitsPerPixel;
+uniform float dotDriftAmplitude;
 uniform vec4 levelWeights;
 uniform float centralLongitude;
 uniform float baseSpacing;
@@ -26,7 +27,8 @@ vec4 lattice(float spacing, float proximity) {
   vec2 absolutePosition = vPosition + vec2(centralLongitude, 0.0);
   vec2 cell = floor((absolutePosition - gridOrigin) / spacing + 0.5);
   vec2 center = cell * spacing + gridOrigin;
-  float radius = length(absolutePosition - center) / unitsPerPixel;
+  vec2 drift = livingDotOffset(center, time, dotDriftAmplitude) * unitsPerPixel;
+  float radius = length(absolutePosition - center - drift) / unitsPerPixel;
   float phase = sin(center.x * 12.9898 + center.y * 78.233) * 6.283185;
   float core = 1.0 - smoothstep(0.75, 1.45 + proximity * 0.14, radius);
   float halo = exp(-radius * radius * 0.8) * (0.06 + proximity * 0.07);

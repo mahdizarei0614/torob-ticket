@@ -16,6 +16,17 @@ export function dateBounds(session: SessionInfo, timeZone: string) {
   const min = localDateAt(session.anchorInstant, timeZone);
   return { min, max: parseDate(min).add({ days: 89 }).toString() };
 }
+/** A first explicit round-trip toggle gets an editable return; subsequent date edits never repair it silently. */
+export function initialReturnDate(draft: SearchDraft, catalog: CatalogSnapshot, session: SessionInfo): string | undefined {
+  const destination = catalog.cities.find(city => city.id === draft.destinationCityId);
+  if (!destination) return undefined;
+  try {
+    const bounds = dateBounds(session, destination.timeZone);
+    const suggested = parseDate(draft.departureDate).add({ days: 3 }).toString();
+    const limited = suggested > bounds.max ? bounds.max : suggested < bounds.min ? bounds.min : suggested;
+    return limited >= draft.departureDate ? limited : undefined;
+  } catch { return undefined; }
+}
 export function requiredAges(draft: SearchDraft, catalog: CatalogSnapshot) {
   const providers = catalog.providerCapabilities.filter(p => p.modes.includes(draft.mode) && p.scopes.includes(draft.scope) && p.classCodes.includes(draft.classCode) && (!draft.filters.providerIds || draft.filters.providerIds.includes(p.providerId)));
   return { children: providers.some(p => p.requiresChildAges), infants: providers.some(p => p.requiresInfantAges) };

@@ -1,17 +1,18 @@
 import type { ProjectionContext, RouteBounds } from '../geo/projection';
 import { DOMESTIC_DOT_BASE_SPACING, INTERNATIONAL_DOT_BASE_SPACING, worldDotWeights } from '../geo/world-context';
+import { sampleLivingDotOffset } from './living-dot-drift';
 
 export const SCOPE_MORPH_PARTICLE_LIMIT = 1800;
 export const SCOPE_MORPH_DURATION_MS = 1700;
 export interface MorphDot { x: number; y: number; opacity: number }
 export interface MorphParticle { from: MorphDot; to: MorphDot; seed: number }
-export interface MorphLand { positions: ArrayLike<number>; context: ProjectionContext; domestic: boolean; frame: RouteBounds; width: number }
+export interface MorphLand { positions: ArrayLike<number>; context: ProjectionContext; domestic: boolean; frame: RouteBounds; width: number; motion?: { seconds: number; amplitudePx: number } }
 const clamp = (value: number) => Math.max(0, Math.min(1, value));
 const smooth = (value: number) => { const t = clamp(value); return t * t * (3 - 2 * t); };
 const random = (index: number) => { const value = Math.sin(index * 127.1 + 311.7) * 43758.5453; return value - Math.floor(value); };
 
 /** Snapshot visible lattice centers only when scope changes. Triangle row buckets bound the land lookup. */
-export function snapshotLandDots({ positions, context, domestic, frame, width }: MorphLand): MorphDot[] {
+export function snapshotLandDots({ positions, context, domestic, frame, width, motion }: MorphLand): MorphDot[] {
   const base = domestic ? DOMESTIC_DOT_BASE_SPACING : INTERNATIONAL_DOT_BASE_SPACING;
   const ratio = domestic ? 2 : 4, weights = worldDotWeights(frame.width / Math.max(1, width), base, ratio);
   const left = Math.max(-180, frame.x - frame.width / 2), right = Math.min(180, frame.x + frame.width / 2);
@@ -52,7 +53,11 @@ export function snapshotLandDots({ positions, context, domestic, frame, width }:
         const key = `${x.toFixed(5)}:${y.toFixed(5)}`;
         const old = points.get(key);
         if (old) old.opacity = Math.min(1, old.opacity + weight);
-        else points.set(key, { x: (x - frame.x) / frame.width * 2, y: (y - frame.y) / frame.height * 2, opacity: weight });
+        else {
+          const drift = motion ? sampleLivingDotOffset(x + context.centralLongitude, y, motion.seconds, motion.amplitudePx) : [0, 0];
+          const unit = frame.width / Math.max(1, width);
+          points.set(key, { x: (x + drift[0]! * unit - frame.x) / frame.width * 2, y: (y + drift[1]! * unit - frame.y) / frame.height * 2, opacity: weight });
+        }
       }
     }
   });

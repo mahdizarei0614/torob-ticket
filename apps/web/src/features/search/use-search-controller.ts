@@ -7,7 +7,7 @@ import { apiClient, ClientError, type ApiClient } from '@torob-ticket/client';
 import type { CatalogSnapshot, SessionInfo, TransportSearchQuery, SearchRecovery } from '@torob-ticket/contracts';
 import { createSearchState, searchReducer, type SearchIntentCause, type SearchAction } from './search-reducer';
 import { searchStartPool, startCapacityMessage, unresolvedStartLimit } from './search-start-pool';
-import { consumerDraft, initialDraft, parseConsumerSearchUrl, serializeSearchUrl, validateDraft, type SearchDraft } from './search-url';
+import { consumerDraft, initialDraft, initialReturnDate, parseConsumerSearchUrl, serializeSearchUrl, validateDraft, type SearchDraft } from './search-url';
 export function errorMessage(error: unknown): string {
   if (error instanceof ClientError) {
     if (error.api?.code === 'SESSION_EXPIRED') return 'مهلت این صفحه پایان یافته است. صفحه را تازه کنید و دوباره جست‌وجو کنید.';
@@ -90,7 +90,12 @@ export function useSearchController(catalog: CatalogSnapshot, session: SessionIn
   }, [location.key, location.search, navigate]);
   const validity = validateDraft(state.draft, catalog, session);
   function cancelQueuedDate() { if (!queuedDate.current) return; queuedDate.current = undefined; starts.prioritize(datePriority.current, false); setWaitingDate(false); setPending(false); }
-  function edit(patch: Partial<SearchDraft>) { dateInteractions.invalidate(); setResultEntryGeneration(undefined); cancelQueuedDate(); dispatch({ type: 'draft', patch: {...patch,party:{adults:1,children:0,infants:0}}, catalog }); setFeedback('');setLastError(undefined); }
+  function edit(patch: Partial<SearchDraft>) {
+    const prior=currentIntent().draft;
+    const returning=patch.tripType==='round-trip'&&prior.tripType==='one-way'&&!patch.returnDate;
+    const next=returning?{...patch,returnDate:initialReturnDate({...prior,...patch},catalog,session)}:patch;
+    dateInteractions.invalidate(); setResultEntryGeneration(undefined); cancelQueuedDate(); dispatch({ type: 'draft', patch: {...next,party:{adults:1,children:0,infants:0}}, catalog }); setFeedback('');setLastError(undefined);
+  }
   function preset(draft: SearchDraft) { dateInteractions.invalidate(); setResultEntryGeneration(undefined); cancelQueuedDate(); dispatch({ type: 'preset', draft:consumerDraft(draft,catalog) }); setFeedback('');setLastError(undefined); }
   function commitIntent(query: TransportSearchQuery, next: string, cause: SearchIntentCause = 'search') {
     dateInteractions.invalidate();

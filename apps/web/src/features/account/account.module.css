@@ -1,3 +1,15 @@
 .panel{display:grid;gap:var(--space-3);color:var(--text);}.panel p{margin:0;color:var(--text-muted);font-size:var(--text-sm);line-height:1.8}.theme,.panel form,.panel label{display:grid;gap:var(--space-2)}.panel select,.panel input{font:inherit;color:var(--text);background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:var(--space-3);min-width:0}.panel select:focus-visible,.panel input:focus-visible{outline:2px solid var(--focus);outline-offset:2px}.items{display:grid;gap:var(--space-3);margin-block-start:var(--space-3)}.item{display:grid;gap:var(--space-2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:var(--space-3);background:var(--surface-subtle)}.actions{display:flex;flex-wrap:wrap;gap:var(--space-2);margin-block-start:var(--space-2)}
 
 @media(max-width:600px){.triggerLabel{display:none}}
+
+.popover{z-index:110;width:min(360px,calc(100vw - 24px));max-height:min(640px,calc(100dvh - 24px));overflow:auto;padding:var(--space-4);border:1px solid var(--border-strong);border-radius:var(--radius-lg);background:var(--surface-raised);color:var(--text);box-shadow:var(--elevation);font-family:var(--font-fa);font-size:var(--text-sm);transform-origin:var(--trigger-anchor-point);}
+.profileDialog{outline:none;min-width:0;}
+.profileHeader{display:flex;align-items:center;justify-content:space-between;gap:var(--space-3);margin-block-end:var(--space-3);position:sticky;top:0;z-index:1;background:var(--surface-raised);}
+.profileHeader h2{font-size:var(--text-md);margin:0;}
+.profileHeader>button{min-width:36px;min-height:36px;padding:var(--space-1);font-size:var(--text-lg);}
+.popover[data-motion-policy='finite'][data-entering]{animation:profileEnter 220ms ease-out;}
+.popover[data-motion-policy='finite'][data-exiting]{animation:profileExit 160ms ease-in;pointer-events:none;}
+@keyframes profileEnter{from{opacity:0;transform:translateY(-6px);}to{opacity:1;transform:translateY(0);}}
+@keyframes profileExit{from{opacity:1;transform:translateY(0);}to{opacity:0;transform:translateY(-4px);}}
+@media(prefers-reduced-motion:reduce){.popover[data-motion-policy][data-entering],.popover[data-motion-policy][data-exiting]{animation:none;}}
+@media(max-width:600px){.profileHeader>button{min-width:44px;min-height:44px;}}

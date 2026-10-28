@@ -58,3 +58,8 @@
  .tripFields{grid-template-columns:repeat(2,minmax(0,1fr));}
  .classField{grid-column:1/-1;}
 }
+
+/* Title and suggested trips share a compact row and a vertical center. */
+.intro { display:flex; align-items:center; justify-content:space-between; gap:12px; padding-block:10px; }
+.intro h1 { margin:0; min-width:0; line-height:1.4; }
+.intro .suggestions { flex-shrink:0; }

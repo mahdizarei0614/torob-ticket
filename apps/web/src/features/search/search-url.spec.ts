@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { consumerDraft, dateBounds, defaultClassCode, parseConsumerSearchUrl, parseSearchUrl, serializeSearchUrl, validateDraft } from './search-url';
+import { consumerDraft, dateBounds, initialReturnDate, defaultClassCode, parseConsumerSearchUrl, parseSearchUrl, serializeSearchUrl, validateDraft } from './search-url';
 import { catalog, query, session } from './search-test-data';
 describe('canonical committed search intent', () => {
   it('normalizes new consumer links to one adult without rewriting the general evidence codec',()=>{
@@ -14,6 +14,13 @@ describe('canonical committed search intent', () => {
     expect(defaultClassCode('flight',choices)).toBe('economy');expect(defaultClassCode('flight',choices,'business')).toBe('business');expect(defaultClassCode('train',choices,'economy')).toBe('seat');expect(defaultClassCode('bus',choices)).toBe('standard');
     expect(defaultClassCode('bus',{...choices,classChoices:choices.classChoices.filter(choice=>choice.code!=='standard')})).toBe('vip');
     expect(parseConsumerSearchUrl(serializeSearchUrl({...query,classCode:'outdated'}),catalog,session).query?.classCode).toBe('economy');
+  });
+  it('seeds an editable three-day return only within the destination-local horizon',()=>{
+    expect(initialReturnDate(query,catalog,session)).toBe('2026-10-28');
+    expect(initialReturnDate({...query,departureDate:'2027-01-21'},catalog,session)).toBe('2027-01-22');
+    expect(initialReturnDate({...query,departureDate:'2027-01-23'},catalog,session)).toBeUndefined();
+    expect(initialReturnDate({...query,destinationCityId:'missing'},catalog,session)).toBeUndefined();
+    expect(initialReturnDate({...query,departureDate:'invalid'},catalog,session)).toBeUndefined();
   });
   it('round trips every field, including filter canonicalization without preview state', () => {
     const input = { ...query, filters: { providerIds: ['p','p'], refundableOnly: true }, party: { adults: 1, children: 1, infants: 0, childAges: [8] } };
