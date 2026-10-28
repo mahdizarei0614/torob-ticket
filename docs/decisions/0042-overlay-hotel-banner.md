@@ -1,0 +1,7 @@
+# 0042 — Overlay hotel banner without moving the map
+
+Owner adjustment,2026-10-28: selecting a destination reveals the hotel banner and wrongly shrinks/pushes the map upward. Position the desktop hotel dock absolutely at the bottom of the existing fixed map container, inset24px on its sides and bottom. It no longer participates in the map's flex layout. Keep its upward fade, real hotel discovery model, accessible trigger and mobile inline placement.
+
+Verify actual viewport geometry before selection, after banner appearance, after removal and while scrolling results. The map viewport must retain the same origin and size; geographic framing may deliberately change for an international route, but the banner must never resize the canvas. Preserve all particle and route lifecycle behavior. M7 remains partial,29/35; T30 active. No push or publication.
+
+Implemented at `49fe01c`. Independent review approves. Native camera and WebGL-track bounds remain x24/y110/580.359375×634 through all five desktop states; the banner ends24px above the viewport bottom. Explicit cheapest-card selection and map pin precede its post-selection check. Mobile remains inline without horizontal overflow. Final native case passes15.1s; owned session reset201. Initial harness timeout came from semantic-role exclusion while the destination popup marked background content aria-hidden; geometry now uses a stable aside selector, without an additional product change. Normal final Docker startup healthy; no data volumes removed.

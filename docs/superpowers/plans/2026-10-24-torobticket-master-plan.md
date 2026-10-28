@@ -10,7 +10,7 @@
 
 **Tech Stack:** Nx, pnpm, TypeScript, React, Vite, React Router, TanStack Query, React Aria, CSS Modules, CSS custom properties, Zod, NestJS, PostgreSQL, Prisma, Three.js, React Three Fiber, selected Drei utilities, Motion, @internationalized/date, Vitest, Testing Library, Playwright, Storybook, Docker Compose, Caddy.
 
-**Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.14, 2026-10-28 (visible positional map-dot motion).
+**Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.16, 2026-10-28 (living particles and a hotel overlay that preserves map geometry).
 
 **Plan state:** Approved. M1–M6 and T29 packaging are complete with independent reviews and packaged acceptance evidence. **29/35 tasks complete; M7 PARTIAL, T30 ACTIVE.** Owner requested a fast checkpoint before substantial design/logic changes: finish durable harness checks now; full T30 matrix and T31–T33 audits/rehearsal remain unfinished. M8 retains its planned scope.
 
@@ -2337,3 +2337,24 @@ The subsequent request supersedes the previous all-labels-hidden and pre-ticket 
 | Visible gentle float | Increase positional motion below5 CSSpx; varied phases; unchanged density, colors and canonical route anchors | DONE | `28c6dc1`; 79 graphics tests; native Iran802 centers median2.22px and world704 centers median2.75px over roughly2 seconds |
 | Whole dots and morph landing | Neighbor-aware lattice; skip inactive levels; hold live clock while morph particles approach their matching target | DONE | `28c6dc1`; independent15 tests; actual linked initial/post-morph shader captures with identical camera matrices and geographic scale |
 | Review and local preview | Independent review; focused native regression, coverage/reduced motion, normal Docker startup; documentation/SDD/export sync | DONE | [Review](../../evidence/adjustments/visible-dot-motion/review.md) approved; [checkpoint](../../evidence/adjustments/visible-dot-motion/checkpoint.md); 5 Nx checks, E2E type/lint, both native cases pass; preview refreshed; no push |
+
+
+## Owner refinement — living map particles, 2026-10-28
+
+[Decision0041](../../decisions/0041-living-map-particle-lifecycles.md) follows the owner corrections from local movement to wider random-looking drift, then appear→move→fade lifecycles. Earlier ellipse evidence is historical. M7 remains partial,29/35; T30 active.
+
+| Adjustment | Subtasks | Status | Evidence |
+|---|---|---|---|
+| Particle presence and wandering | Staggered entry/drift/exit; nonperiodic smooth waypoint curves; nine-pixel envelope; dim semantic colors and anchored route facts | DONE | `f7cf6ec`; 88 source tests/17 files; actual linked particle program and high-density native idle/morph/resume pass |
+| Continuity and ownership | Shared CPU/GPU positions+opacity; bounded neighbor search and zoom cap; live morph snapshot; wall-time ambience and explicit visible loop ownership | DONE | `f7cf6ec`; actual GPU/CPU position+opacity agree over480 samples; independent review28 tests and lifecycle ownership regressions pass |
+| Review and local preview | Actual idle/post-morph/resume pixels/video, HiDPI cadence, independent review, packaging, SDD and exports | DONE | [Checkpoint](../../evidence/adjustments/continuous-dot-motion/checkpoint.md), [review](../../evidence/adjustments/continuous-dot-motion/review.md); three final native cases across particle/parity/hotel scopes; local stack healthy; SDD/exports synchronized |
+
+
+## Owner correction — overlay hotel banner, 2026-10-28
+
+[Decision0042](../../decisions/0042-overlay-hotel-banner.md) removes the hotel dock from flex sizing. M7 remains partial,29/35; T30 active.
+
+| Adjustment | Subtasks | Status | Evidence |
+|---|---|---|---|
+| Stable desktop map | Absolute banner at24px side/bottom inset; retain upward entry and hotel model; preserve mobile inline branch | DONE | `49fe01c`; one CSS rule; no viewport/camera resizing due to banner |
+| Independent/native verification | Show, remove, reappear, selected result and scroll; same camera/graphics bounds; mobile width/inline check | DONE | [Review](../../evidence/adjustments/continuous-dot-motion/hotel-overlay-review.md); all five desktop states x24/y110/580.359375×634, map scrollHeight768; native1/1 pass15.1s; cleanup201 |
