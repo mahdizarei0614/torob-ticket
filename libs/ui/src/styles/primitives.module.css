@@ -74,6 +74,8 @@
   font-size: var(--text-sm);
 }
 .segments {
+  position: relative;
+  isolation: isolate;
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-1);
@@ -85,6 +87,8 @@
   max-width: 100%;
 }
 .radio {
+  position: relative;
+  z-index: 1;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -101,6 +105,23 @@
   color: var(--accent);
   background: var(--surface);
   border-color: var(--border-strong);
+}
+.segmentIndicator {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  pointer-events: none;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  z-index: 0;
+}
+.segments[data-indicator-ready] .radio[data-selected] {
+  background: var(--color-clear);
+  border-color: var(--color-clear);
 }
 .radio[data-disabled] {
   color: var(--disabled-text);
