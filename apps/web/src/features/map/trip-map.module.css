@@ -5,7 +5,7 @@
 .header h2 {font-size:21px;font-weight:550;letter-spacing:-.025em;}.header h2 span {display:inline-block;padding-inline:9px;color:var(--text-muted);font-weight:400;}
 .mobile {margin-block:16px;padding:12px;border:1px solid var(--border);border-radius:var(--radius-md);background:var(--surface);color:var(--text);font-size:12px;}.mobile h2 {font-size:16px;line-height:1.7;margin:3px 0;}.mobileSummary>span:last-child {display:block;color:var(--text-muted);font-size:11px;line-height:1.8;}.mobile>div[role='radiogroup'] {margin-block:8px;}.mobile summary {min-height:44px;}.mobileDetails {margin-block-start:8px;min-block-size:44px;display:flow-root;}.mobileDetails>p {margin:0;}.mobile :focus-visible,.map :focus-visible {outline:var(--focus-width) solid var(--focus);outline-offset:3px;}
 @media(max-width:1119px){.map{display:none;}}
-.hotelDock {flex:none;position:relative;z-index:2;min-width:0;}
+.hotelDock {position:absolute;inset-inline:24px;inset-block-end:24px;z-index:2;min-width:0;}
 .hotelDock:empty {display:none;}
 @media(min-width:768px){.mobile{display:none;}}
 
