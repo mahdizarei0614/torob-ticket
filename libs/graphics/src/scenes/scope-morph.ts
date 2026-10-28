@@ -1,6 +1,6 @@
 import type { ProjectionContext, RouteBounds } from '../geo/projection';
 import { DOMESTIC_DOT_BASE_SPACING, INTERNATIONAL_DOT_BASE_SPACING, worldDotWeights } from '../geo/world-context';
-import { sampleLivingDotOffset } from './living-dot-drift';
+import { sampleLivingDotOffset, sampleLivingDotOpacity, livingDotAmplitudeForSpacing } from './living-dot-drift';
 
 export const SCOPE_MORPH_PARTICLE_LIMIT = 1800;
 export const SCOPE_MORPH_DURATION_MS = 1700;
@@ -51,12 +51,14 @@ export function snapshotLandDots({ positions, context, domestic, frame, width, m
         const x = ox + col * spacing;
         if (!land(x, y)) continue;
         const key = `${x.toFixed(5)}:${y.toFixed(5)}`;
+        const unit = frame.width / Math.max(1, width);
+        const amplitude = motion ? livingDotAmplitudeForSpacing(spacing / unit, motion.amplitudePx) : 0;
+        const opacity = weight * (motion ? sampleLivingDotOpacity(x + context.centralLongitude,y,motion.seconds,amplitude) : 1);
         const old = points.get(key);
-        if (old) old.opacity = Math.min(1, old.opacity + weight);
+        if (old) old.opacity = Math.min(1, old.opacity + opacity);
         else {
-          const drift = motion ? sampleLivingDotOffset(x + context.centralLongitude, y, motion.seconds, motion.amplitudePx) : [0, 0];
-          const unit = frame.width / Math.max(1, width);
-          points.set(key, { x: (x + drift[0]! * unit - frame.x) / frame.width * 2, y: (y + drift[1]! * unit - frame.y) / frame.height * 2, opacity: weight });
+          const drift = motion ? sampleLivingDotOffset(x + context.centralLongitude, y, motion.seconds,amplitude) : [0, 0];
+          points.set(key, { x: (x + drift[0]! * unit - frame.x) / frame.width * 2, y: (y + drift[1]! * unit - frame.y) / frame.height * 2, opacity });
         }
       }
     }

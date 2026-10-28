@@ -85,7 +85,7 @@ export function WorldGeography({countries,context,frame,pointer,reducedMotion,do
     const width=camera.isOrthographicCamera?(camera.right-camera.left)/camera.zoom:frame.width;
     const unit=width/Math.max(1,get().size.width);
     const values=resources.landMaterial.uniforms;
-    const now=performance.now(),delta=Math.min(.05,Math.max(0,(now-last.current)/1000));last.current=now;
+    const now=performance.now(),visibleSeconds=Math.max(0,(now-last.current)/1000),delta=Math.min(.05,visibleSeconds);last.current=now;
     const progress=morph.advance(delta*1000,active,reducedMotion),blend=scopeMorphLandOpacity(progress);
     values['mapOpacity']!.value=blend;
     morphResources.material.uniforms['morphProgress']!.value=progress;
@@ -96,7 +96,7 @@ export function WorldGeography({countries,context,frame,pointer,reducedMotion,do
     (values['levelWeights']!.value as Vector4).set(...worldDotWeights(unit,baseSpacing,domestic?2:4));
     // The morph target snapshots this clock. Hold it until the particles arrive
     // so the stronger live float does not pull away from their landing points.
-    if(active && !reducedMotion && !morph.active()){elapsed.current+=delta;values['time']!.value=elapsed.current;}
+    if(active && !reducedMotion && !morph.active()){elapsed.current+=visibleSeconds;values['time']!.value=elapsed.current;}
     const radius=Math.min(POINTER_TRAIL_RADIUS_PX,get().size.width*.08,get().size.height*.1)*unit;
     trail.advance(delta*1000,pointer?.current,radius,{active,reducedMotion});
     displayed.current={positions:resources.land.getAttribute('position').array,context,domestic,frame:{x:camera.position.x,y:camera.position.y,width,height:camera.isOrthographicCamera?(camera.top-camera.bottom)/camera.zoom:frame.height},width:get().size.width,motion:{seconds:elapsed.current,amplitudePx:active&&!reducedMotion?LIVING_DOT_AMPLITUDE_PX:0}};

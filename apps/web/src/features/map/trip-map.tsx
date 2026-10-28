@@ -64,7 +64,9 @@ export function TripMap({map,catalog,desktop,covered,onMotionChange,onHotelDock}
  useEffect(()=>{if(typeof matchMedia!=='function')return;const visibility=()=>setVisible(!document.hidden);const query=matchMedia('(prefers-reduced-motion:reduce)');const motion=()=>setReduced(query.matches);document.addEventListener('visibilitychange',visibility);query.addEventListener('change',motion);return()=>{document.removeEventListener('visibilitychange',visibility);query.removeEventListener('change',motion);};},[]);
  const active=desktop&&!covered&&visible&&!reduced;
  const activity=useRef(active);activity.current=active;
- useEffect(()=>{if(!active)onMotionChange(false);return()=>onMotionChange(false);},[active]);
+ // Visible ambience owns the loop even after a finite route finishes or a
+ // covered scene's cleanup reports its previous animation has stopped.
+ useEffect(()=>{activity.current=active;onMotionChange(active);return()=>{activity.current=false;onMotionChange(false);};},[active,onMotionChange]);
  const view=map.presentationView;
  const origin=catalog.cities.find(city=>city.id===view.query.originCityId);const destination=catalog.cities.find(city=>city.id===view.query.destinationCityId);
  const presentationData=useMemo<Omit<NonNullable<RouteSceneProps['presentation']>,'active'|'reducedMotion'>>(()=>{
@@ -78,7 +80,7 @@ export function TripMap({map,catalog,desktop,covered,onMotionChange,onHotelDock}
  },[origin,destination,view.itinerary,view.direction,view.scope,map.presentationSceneKey,catalog]);
  const presentation={...presentationData,active,reducedMotion:reduced};
  const capturedCurrent=map.isPresentationCurrent;
- const reportMotion=(running:boolean)=>{if(capturedCurrent()&&(!running||activity.current))onMotionChange(running);};
+ const reportMotion=()=>onMotionChange(activity.current);
  if(!desktop)return null;
  return <aside className={styles.map} aria-label="نقشه سفر" data-map-itinerary={view.itinerary?.itineraryId} data-map-direction={view.direction} data-map-progress={view.progress} data-map-fit={map.fitKey} data-map-historical={view.historical}>
   <header className={styles.header}><MapHeading map={map} catalog={catalog} covered={covered}/></header>

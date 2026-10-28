@@ -27,19 +27,21 @@ vec4 lattice(float spacing, float proximity) {
   vec2 absolutePosition = vPosition + vec2(centralLongitude, 0.0);
   vec2 cell = floor((absolutePosition - gridOrigin) / spacing + 0.5);
   float alpha = 0.0;
+  float amplitude = min(dotDriftAmplitude, max(0.0, (spacing / unitsPerPixel * 2.5 - 2.0) / 0.70710678118));
   // A moving center can leave its static cell. Neighbor evaluation keeps the
   // complete dot visible across cell boundaries, including the world overview.
-  for (int y = -1; y <= 1; y++) for (int x = -1; x <= 1; x++) {
+  for (int y = -2; y <= 2; y++) for (int x = -2; x <= 2; x++) {
     vec2 center = (cell + vec2(float(x), float(y))) * spacing + gridOrigin;
     vec2 separation = (absolutePosition - center) / unitsPerPixel;
-    if (length(separation) > dotDriftAmplitude + 4.0) continue;
-    vec2 drift = livingDotOffset(center, time, dotDriftAmplitude);
-    float radius = length(separation - drift);
+    if (any(greaterThan(abs(separation), vec2(amplitude * 0.70710678118 + 2.0)))) continue;
+    vec3 particle = livingDotParticle(center, time, amplitude);
+    if (particle.z < 0.0001) continue;
+    float radius = length(separation - particle.xy);
     float phase = sin(center.x * 12.9898 + center.y * 78.233) * 6.283185;
     float core = 1.0 - smoothstep(0.75, 1.45 + proximity * 0.14, radius);
     float halo = exp(-radius * radius * 0.8) * (0.06 + proximity * 0.07);
     float breath = 0.66 + 0.19 * sin(time * 0.43 + phase) + 0.07 * sin(time * 0.19 - phase * 1.7);
-    alpha = max(alpha, (core * min(1.0, breath + proximity * 0.13) + halo) * dot.a);
+    alpha = max(alpha, (core * min(1.0, breath + proximity * 0.13) + halo) * dot.a * particle.z);
   }
   return vec4(mix(dot.rgb, highlight.rgb, proximity * 0.22), alpha);
 }

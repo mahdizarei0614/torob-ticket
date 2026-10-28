@@ -155,11 +155,12 @@ export function SceneDrawing({ dots, markers, segments, context, frame, progress
     // Refresh before every submitted frame, including the single reduced-motion frame.
     if (resources?.atmospheric) resources.dotsMaterial.uniforms['pointSize']!.value = 8.5 * get().gl.getPixelRatio();
     const now = performance.now();
-    const delta = Math.min(.05, Math.max(0, (now - clock.current.last) / 1000));
+    const visibleSeconds = Math.max(0, (now - clock.current.last) / 1000);
+    const delta = Math.min(.05, visibleSeconds);
     clock.current.last = now;
     if (moving && resources) {
       clock.current.elapsed += delta * 1000;
-      ambientSeconds.current += delta;
+      ambientSeconds.current += visibleSeconds;
       resources.dotsMaterial.uniforms['time']!.value = ambientSeconds.current;
       const position = resources.dots.getAttribute('position');
       const hover = resources.dots.getAttribute('hoverGlow');

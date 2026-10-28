@@ -10,6 +10,7 @@ varying float vEmphasis;
 varying float vGeography;
 varying float vHover;
 varying float vBreath;
+varying float vLife;
 void main() {
   float radius = length(gl_PointCoord - vec2(0.5));
   if (radius > 0.5) discard;
@@ -32,6 +33,7 @@ void main() {
     gl_FragColor = vec4(tint,clamp(alpha,0.0,1.0));
   }
   if (vEmphasis < 0.5) gl_FragColor.a *= geographyOpacity;
+  gl_FragColor.a *= vLife;
   gl_FragColor.a *= mix(1.0, mapEdgeOpacity(), vGeography);
   #include <colorspace_fragment>
 }

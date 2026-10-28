@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { worldLandPositions } from '../geo/world-context';
 import { createScopeMorph, sampleMorphParticle, snapshotLandDots } from './scope-morph';
-import { LIVING_DOT_AMPLITUDE_PX, LIVING_DOT_MAX_OFFSET_PX, sampleLivingDotOffset } from './living-dot-drift';
+import { LIVING_DOT_AMPLITUDE_PX, LIVING_DOT_MAX_OFFSET_PX, sampleLivingDotOffset, sampleLivingDotOpacity, livingDotAmplitudeForSpacing } from './living-dot-drift';
 
 describe('bounded living geography', () => {
   it('moves slowly with spatial variation while keeping every dot within a small CSS pixel envelope', () => {
@@ -9,11 +9,42 @@ describe('bounded living geography', () => {
     for (const [x, y] of points) for (let time = 0; time < 300; time += .75) {
       const current = sampleLivingDotOffset(x, y, time), next = sampleLivingDotOffset(x, y, time + .25);
       expect(Math.hypot(...current)).toBeLessThanOrEqual(LIVING_DOT_MAX_OFFSET_PX);
-      expect(Math.hypot(next[0] - current[0], next[1] - current[1])).toBeLessThan(.6);
+      expect(Math.hypot(next[0] - current[0], next[1] - current[1])).toBeLessThan(5.5);
     }
-    expect(LIVING_DOT_MAX_OFFSET_PX).toBeLessThan(5);
+    expect(LIVING_DOT_MAX_OFFSET_PX).toBeLessThanOrEqual(9);
     expect(sampleLivingDotOffset(51.4, 35.7, 2)).not.toEqual(sampleLivingDotOffset(59.6, 36.3, 2));
     expect(sampleLivingDotOffset(51.4, 35.7, 2)).not.toEqual(sampleLivingDotOffset(51.4, 35.7, 8));
+  });
+
+  it('starts on the grid, keeps wandering during long idle periods, and has no repeating five-second path', () => {
+    expect(sampleLivingDotOffset(51.4, 35.7, 0)).toEqual([0, 0]);
+    for (const start of [5, 30, 300, 3600]) {
+      const points = Array.from({ length: 121 }, (_, i) => sampleLivingDotOffset(51.4, 35.7, start + i / 20));
+      const distance = points.slice(1).reduce((sum, point, i) => sum + Math.hypot(point[0]-points[i]![0],point[1]-points[i]![1]),0);
+      expect(distance).toBeGreaterThan(7);
+      points.forEach(point => expect(Math.hypot(...point)).toBeLessThanOrEqual(LIVING_DOT_MAX_OFFSET_PX + .000001));
+      expect(points[0]).not.toEqual(sampleLivingDotOffset(51.4,35.7,start+5));
+    }
+  });
+
+  it('caps only extreme zoom-out excursions so a complete core fits its searched neighborhood', () => {
+    expect(livingDotAmplitudeForSpacing(6)).toBe(9);
+    for (const spacing of [1,2,3,4]) {
+      const amplitude=livingDotAmplitudeForSpacing(spacing);
+      expect(amplitude*Math.SQRT1_2+2).toBeLessThanOrEqual(spacing*2.5+.000001);
+    }
+  });
+
+  it('fades individual particles in and out smoothly with staggered lifetimes', () => {
+    for (const [x,y] of [[51.4,35.7],[-73.9,40.7],[139.7,35.7]]) {
+      const opacity=Array.from({length:301},(_,i)=>sampleLivingDotOpacity(x!,y!,i/10));
+      expect(Math.min(...opacity)).toBe(0); expect(Math.max(...opacity)).toBe(1);
+      opacity.slice(1).forEach((value,i)=>expect(Math.abs(value-opacity[i]!)).toBeLessThan(.15));
+      for (const time of [0,5,100]) expect(sampleLivingDotOpacity(x!,y!,time,0)).toBe(1);
+    }
+    const visible=Array.from({length:200},(_,i)=>sampleLivingDotOpacity(44+i*.44,30,10));
+    expect(visible.filter(value=>value>.5).length).toBeGreaterThan(100);
+    expect(visible.filter(value=>value<.1).length).toBeGreaterThan(10);
   });
 
   it('travels visibly within two seconds instead of only changing brightness or subpixel positions', () => {

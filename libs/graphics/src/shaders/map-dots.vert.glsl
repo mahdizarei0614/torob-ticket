@@ -7,6 +7,7 @@ varying float vGeography;
 varying vec2 vMapUv;
 varying float vHover;
 varying float vBreath;
+varying float vLife;
 uniform float pointSize;
 uniform float atmosphere;
 uniform float time;
@@ -23,8 +24,11 @@ void main() {
   if (emphasis > 1.5) size = pointSize * 3.3;
   gl_PointSize = mix(legacySize,size,atmosphere);
   vec3 displayedPosition = position;
+  vLife = 1.0;
   if (atmosphere > 0.5 && geography > 0.5) {
-    displayedPosition.xy += livingDotOffset(position.xy + vec2(centralLongitude,0.0), time, dotDriftAmplitude) * unitsPerPixel;
+    vec3 particle = livingDotParticle(position.xy + vec2(centralLongitude,0.0), time, dotDriftAmplitude);
+    displayedPosition.xy += particle.xy * unitsPerPixel;
+    vLife = particle.z;
   }
   gl_Position = projectionMatrix * modelViewMatrix * vec4(displayedPosition, 1.0);
   vMapUv = gl_Position.xy / gl_Position.w * 0.5 + 0.5;
