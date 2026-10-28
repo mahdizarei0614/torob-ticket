@@ -1,7 +1,9 @@
 import {SearchRecovery} from '../recovery/search-recovery';
 import { useEffect, useLayoutEffect, useRef, useState, type MutableRefObject, type ReactNode } from 'react';
 import type { CatalogSnapshot, ComparisonGroup, Itinerary, QuoteSnapshot, SearchSnapshot, SortOrder, TransportSearchQuery } from '@torob-ticket/contracts';
-import {Button, SegmentedControl,MotionSurface,ProviderDelayIllustration,priceBand,priceRange} from '@torob-ticket/ui';
+import {Button, SegmentedControl,useMotionPolicy,priceBand,priceRange} from '@torob-ticket/ui';
+import { LayoutGroup, motion } from 'motion/react';
+import { ResultPresence, ResultsPresence, ResultsSkeleton } from './result-motion';
 import { JourneyCard } from './journey-card';
 import { priceCardId, priceCards } from './price-cards';
 import { ResultFilters } from './result-filters';
@@ -20,6 +22,7 @@ function Coverage({ snapshot }: { snapshot: SearchSnapshot }) {
 }
 export function ResultsList(props: ResultsPageProps) {
  const { generation, searchId, query, catalog } = props;
+ const motionPolicy = useMotionPolicy();
  const { state, dispatch, connectionError,connectionState,error,retryRead } = useResults(generation,searchId,query,undefined,undefined,props.restore);
  const region = useRef<HTMLElement>(null); const heading = useRef<HTMLHeadingElement>(null); const entered = useRef(false);
  const snapshot = state.adopted?.snapshot; const latest = state.latest?.snapshot;
@@ -32,7 +35,7 @@ export function ResultsList(props: ResultsPageProps) {
  const [scrollAnchor] = useState(()=>createScrollAnchor({measure:id=>!ownsCurrent() ? undefined : Array.from(region.current?.querySelectorAll<HTMLElement>('[data-price-card-id]') ?? []).find(card=>card.dataset.priceCardId===id)?.getBoundingClientRect().top,adjust:delta=>{if(ownsCurrent()) window.scrollBy({top:delta,behavior:'instant'});},frame:callback=>requestAnimationFrame(callback),cancelFrame:id=>cancelAnimationFrame(id)}));
  useLayoutEffect(()=>{if(ownsCurrent()) scrollAnchor.layout();else scrollAnchor.cancel();},[state.adopted,scrollAnchor]);
  useLayoutEffect(()=>{mounted.current=true;return()=>{mounted.current=false;scrollAnchor.cancel();};},[scrollAnchor]);
- useEffect(()=>{if(connectionState==='expired')outward.current.onSessionExpired?.();},[connectionState]);
+ useEffect(()=>{if(ownsCurrent()&&connectionState==='expired')outward.current.onSessionExpired?.();},[connectionState]);
  const renderedAt = Date.now();
  const selected = selectedQuote(state,renderedAt);
  const defaultSelectionDone = useRef(Boolean(props.restore) || props.allowDefaultSelection === false);
@@ -92,7 +95,7 @@ export function ResultsList(props: ResultsPageProps) {
   dispatch({type:'select-default',sequence:state.latest.sequence,now:Date.now()});
  },[state.adopted,state.latest,state.selected,props.allowDefaultSelection,props.restore,props.historical,props.draftChanged]);
 
- if(props.evidenceRef)props.evidenceRef.current={state,select};
+ if(props.evidenceRef&&ownsCurrent())props.evidenceRef.current={state,select};
  const restoredLayout=useRef(false);
  useLayoutEffect(()=>{if(!restoredLayout.current&&props.restore&&snapshot&&ownsCurrent()){restoredLayout.current=true;outward.current.onRestoreReady?.();}},[snapshot,props.restore]);
  const revealedSelection=useRef(props.restore?.selected);
@@ -107,7 +110,9 @@ export function ResultsList(props: ResultsPageProps) {
   {!props.historical&&(connectionError||snapshot&&snapshot.status!=='collecting'&&snapshot.groups.length>0&&snapshot.groups.every(g=>g.eligibleQuotes.length===0)||['snapshot-only','expired','unavailable'].includes(connectionState)||latest&&['partial','interrupted','failed','cancelled'].includes(latest.status)&&Boolean(snapshot?.groups.length)||snapshot?.groups.some(g=>g.eligibleQuotes.length)&&snapshot.groups.flatMap(g=>g.eligibleQuotes).every(q=>Date.parse(q.expiresAt)<=renderedAt))&&<SearchRecovery query={query} catalog={catalog} status={latest?.status} historical={props.historical} expired={connectionState==='expired'} quoteExpired={Boolean(snapshot?.groups.some(g=>g.eligibleQuotes.length)&&snapshot.groups.flatMap(g=>g.eligibleQuotes).every(q=>Date.parse(q.expiresAt)<=renderedAt))} error={error} connection={connectionState} onFresh={props.historical||connectionState!=='expired'?props.onFreshSearch:undefined} onRead={retryRead} onEdit={props.onEdit} onDate={props.onEditDate} onResume={props.onResume} onClearFilter={props.draftChanged?undefined:props.onClearFilter}/>}
   {suggestion && suggestionTarget && <aside className={styles.suggestion} aria-label="پیشنهاد جایگزین"><div><strong>{minutes(suggestion.delta.minutes)} زودتر برسید</strong><p>{suggestion.delta.amountRial > 0 ? `${toman(suggestion.delta.amountRial)} بیشتر` : suggestion.delta.amountRial < 0 ? `${toman(-suggestion.delta.amountRial)} کمتر` : 'با همان مبلغ'} نسبت به کم‌قیمت‌ترین پیشنهاد کامل همین جست‌وجو</p></div><Button variant="quiet" onPress={() => { if(!ownsCurrent() || !resolveSuggestion(stateRef.current,Date.now())) return; dispatch({type:'freeze'}); const card = Array.from(region.current?.querySelectorAll<HTMLElement>('[data-price-card-id]') ?? []).find(node => node.dataset.priceCardId === priceCardId(suggestionTarget.group.groupId,suggestionTarget.quote)); card?.querySelector<HTMLElement>('button')?.focus(); card?.scrollIntoView({block:'center'}); }}>نمایش مسیر پیشنهادی</Button><Button variant="quiet" aria-label="بستن پیشنهاد جایگزین" onPress={() => {if(ownsCurrent()) dispatch({type:'dismiss-suggestion'});}}>×</Button></aside>}
   {state.selected && !selected && !props.draftChanged && !props.historical && <div className={styles.invalid} role="status">پیشنهاد انتخاب‌شده دیگر معتبر نیست؛ برای ادامه نتایج تازه را بررسی یا دوباره جست‌وجو کنید.</div>}
-  {!snapshot&&error?null:!snapshot || snapshot.status === 'collecting' && snapshot.groups.length === 0 ? <div role="status" className={styles.empty}><ProviderDelayIllustration mode={query.mode} size="compact"/><h3>در حال دریافت پیشنهادهای فروشندگان…</h3><p>به محض آماده شدن، پیشنهادهای قابل مقایسه نمایش داده می‌شوند.</p></div> : snapshot.groups.length > 0 ? <MotionSurface purpose="content" motionKey={generation+'/'+searchId} className={styles.list} role="list" aria-label="مسیرها و پیشنهادهای مقایسه‌شده">{cards.map(({id,group,source}) => <div role="listitem" key={id}><JourneyCard cardId={id} priceBand={priceBand(group.eligibleQuotes[0]?.total.amountRial,range)} selectionDisabled={!canSelect()} renderProviderAction={canSelect()&&props.renderProviderAction?quote=>props.renderProviderAction!(quote,source):undefined} continuation={canSelect()&&state.selected?.groupId===group.groupId&&props.selectedAction?.quoteId===state.selected.quoteId?props.selectedAction.node:undefined} group={group} snapshot={snapshot} catalog={catalog} state={state} now={renderedAt} onFreeze={() => {if(ownsCurrent()) dispatch({type:'freeze'});}} onSelect={select} onPreviewItinerary={(itinerary,source,leavingId) => {if(canSelect()) outward.current.onPreviewItinerary?.(itinerary,source,leavingId);}}/></div>)}</MotionSurface> : props.historical?<p role="status">در شواهد قبلی پیشنهاد قابل نمایش دریافت نشده است.</p>:<SearchRecovery query={query} catalog={catalog} status={snapshot.status} onFresh={props.onFreshSearch} onEdit={props.onEdit} onDate={props.onEditDate} onClearFilter={props.draftChanged?undefined:props.onClearFilter}/>}
+  <LayoutGroup id={generation+'/'+searchId}><ResultsPresence pop>
+   {!snapshot&&error ? null : !snapshot || snapshot.status === 'collecting' && snapshot.groups.length === 0 ? <ResultPresence key="loading"><ResultsSkeleton/></ResultPresence> : snapshot.groups.length > 0 ? <ResultPresence key="cards"><motion.div layout={motionPolicy.enabled ? "position" : false} className={styles.list} role="list" aria-label="مسیرها و پیشنهادهای مقایسه‌شده"><ResultsPresence pop>{cards.map(({id,group,source}) => <ResultPresence role="listitem" key={id} layout><JourneyCard cardId={id} priceBand={priceBand(group.eligibleQuotes[0]?.total.amountRial,range)} selectionDisabled={!canSelect()} renderProviderAction={canSelect()&&props.renderProviderAction?quote=>props.renderProviderAction!(quote,source):undefined} continuation={canSelect()&&state.selected?.groupId===group.groupId&&props.selectedAction?.quoteId===state.selected.quoteId?props.selectedAction.node:undefined} group={group} snapshot={snapshot} catalog={catalog} state={state} now={renderedAt} onFreeze={() => {if(ownsCurrent()) dispatch({type:'freeze'});}} onSelect={select} onPreviewItinerary={(itinerary,source,leavingId) => {if(canSelect()) outward.current.onPreviewItinerary?.(itinerary,source,leavingId);}}/></ResultPresence>)}</ResultsPresence></motion.div></ResultPresence> : <ResultPresence key="empty">{props.historical?<p role="status">در شواهد قبلی پیشنهاد قابل نمایش دریافت نشده است.</p>:<SearchRecovery query={query} catalog={catalog} status={snapshot.status} onFresh={props.onFreshSearch} onEdit={props.onEdit} onDate={props.onEditDate} onClearFilter={props.draftChanged?undefined:props.onClearFilter}/>}</ResultPresence>}
+  </ResultsPresence></LayoutGroup>
   {latest && ['partial','interrupted'].includes(latest.status) && snapshot?.groups.length !== 0 && <p className={styles.notice}>فقط پیشنهادهای دریافت‌شده نمایش داده شده‌اند؛ پوشش این جست‌وجو کامل و موفق نیست.</p>}
  </section>;
 }

@@ -1,7 +1,8 @@
+import { AnimatePresence } from 'motion/react';
 import {StayRecovery} from '../recovery/stay-recovery';
 import {useLayoutEffect,useRef,type ReactNode} from 'react';
 import type {CatalogSnapshot,SessionInfo} from '@torob-ticket/contracts';
-import {Button,Dialog,SegmentedControl,displayHotelName,displayPlaceName} from '@torob-ticket/ui';
+import {Button,Dialog,SegmentedControl,displayHotelName,displayPlaceName,LoadingSkeleton,ContentSwap,ContentItem} from '@torob-ticket/ui';
 import {suggestHotelStay} from '@torob-ticket/domain';
 import type {HotelDiscovery} from './use-hotel-discovery';
 import {arrivalPlaces,hotelBounds,queryKey} from './hotel-state';
@@ -41,13 +42,13 @@ export function HotelDialog({model,catalog,session,canApplyTrip,referralAction,i
     </form>
     <div className={styles.sorts}><SegmentedControl label="مرتب‌سازی اقامتگاه‌ها" value={draft.sort} isDisabled={model.stale||state.status==='loading'} onChange={value=>{void model.changeSort(value as typeof draft.sort);}} options={[{id:'cheapest',label:'کمترین هزینه اقامت'},{id:'stars',label:'ستاره بیشتر'},{id:'arrival-distance',label:`نزدیک به ${modeLabel}`},{id:'location-distance',label:'نزدیک به موقعیت من'}]}/></div>
     {early.length>0?<p className={styles.note}>زمان رسیدن شما پیش از ساعت پذیرش اعلام‌شده برای برخی اتاق‌ها ({early.join('، ')}) است؛ ورود زودهنگام تضمین نمی‌شود. شرایط هر اتاق را بررسی کنید.</p>:<p className={styles.muted}>زمان پذیرش به شرایط هر اتاق بستگی دارد؛ ورود زودهنگام تضمین نمی‌شود.</p>}
-    {state.status==='loading'&&<div role="status" className={styles.loading}><span/>در حال بررسی اتاق‌ها و همه شب‌های اقامت…</div>}
+    <ContentSwap identity={state.status==='loading'?'loading':'ready'}>{state.status==='loading'&&<div role="status"><p>در حال بررسی اتاق‌ها و همه شب‌های اقامت…</p><LoadingSkeleton rows={2}/></div>}</ContentSwap>
 
     {snapshot&&!fresh&&state.status!=='loading'&&<p role="status" className={styles.note}>شرایط اقامت تغییر کرده است؛ برای قیمت قابل انتخاب، دوباره مقایسه کنید.</p>}
-    {model.selected&&<div className={styles.selection} role="status" data-selected-hotel-quote={model.selected.quoteId}><strong>ترکیب اتاق برای بررسی انتخاب شد</strong><p>{displayHotelName(snapshot?.hotels.find(h=>h.hotelId===model.selected?.hotelId))} · مجموع {faNumber(model.selected.total.amountRial/10)} تومان برای همه اتاق‌ها و شب‌ها.</p></div>}
+    <ContentSwap identity={model.selected?.quoteId??'no-selection'}>{model.selected&&<div className={styles.selection} role="status" data-selected-hotel-quote={model.selected.quoteId}><strong>ترکیب اتاق برای بررسی انتخاب شد</strong><p>{displayHotelName(snapshot?.hotels.find(h=>h.hotelId===model.selected?.hotelId))} · مجموع {faNumber(model.selected.total.amountRial/10)} تومان برای همه اتاق‌ها و شب‌ها.</p></div>}</ContentSwap>
     {snapshot&&<section aria-label="نتایج مقایسه اقامتگاه‌ها" className={styles.results} data-hotel-search-id={snapshot.hotelSearchId} data-hotel-query={queryKey(snapshot.query)} data-hotel-status={snapshot.status}>
      <header className={styles.resultHead}><h2>{snapshot.status==='failed'?'دریافت اقامتگاه‌ها کامل نشد':snapshot.status==='empty'?'اقامت کامل مطابق این شرایط پیدا نشد':`${faNumber(snapshot.results?.filter(r=>r.status==='priced').length??0)} اقامتگاه با قیمت کامل`}</h2><p>{snapshot.status==='empty'?'تعداد اتاق، سن کودکان یا تاریخ‌ها را بررسی کنید. اطلاعات ناقص با نبود اتاق یکسان نیست.':snapshot.status==='failed'?'دریافت ناموفق به معنی نبود اتاق نیست؛ دوباره تلاش کنید.':'مبلغ اصلی برای همه اتاق‌ها و همه شب‌هاست.'}</p></header>
-     {snapshot.results?.map(result=>{const hotel=snapshot.hotels.find(h=>h.hotelId===result.hotelId);return hotel?<HotelCard referralAction={referralAction} key={hotel.hotelId} hotel={hotel} result={result} quotes={snapshot.quotes.filter(q=>q.hotelId===hotel.hotelId)} catalog={catalog} disabled={!fresh} selected={model.selected} onSelect={model.selectQuote}/>:null;})}
+     <AnimatePresence initial={false}>{snapshot.results?.map(result=>{const hotel=snapshot.hotels.find(h=>h.hotelId===result.hotelId);return hotel?<ContentItem layout key={hotel.hotelId}><HotelCard referralAction={referralAction} hotel={hotel} result={result} quotes={snapshot.quotes.filter(q=>q.hotelId===hotel.hotelId)} catalog={catalog} disabled={!fresh} selected={model.selected} onSelect={model.selectQuote}/></ContentItem>:null;})}</AnimatePresence>
     </section>}
     <p className={styles.footnote}>فاصله‌ها خط مستقیم‌اند؛ نقشه شهری برای انتخاب موقعیت است و مسیر رانندگی را نشان نمی‌دهد.</p>
    </>}

@@ -28,7 +28,7 @@ test.afterEach(async ({ context }, info) => {
 
 test('@compact-journey compact forms keep defaults and searchable city controls', async ({ page }) => {
   await open(page, { ...base, party: { adults: 2, children: 1, infants: 0, childAges: [8] }, classCode: 'seat' });
-  await expect(page.getByRole('combobox', { name: 'کلاس سفر', exact: true })).toHaveValue('economy');
+  await expect(page.getByRole('radiogroup', { name: 'کلاس سفر', exact: true }).getByRole('radio', {name:'اقتصادی',exact:true})).toBeChecked();
   const response = page.waitForResponse(r => r.request().method() === 'POST' && r.url().endsWith('/api/v1/searches'));
   await form(page).getByRole('button', { name: 'جست‌وجوی سفر', exact: true }).click();
   const body = await (await response).json();
@@ -39,7 +39,7 @@ test('@compact-journey compact forms keep defaults and searchable city controls'
   await expect(page.getByText('بکشید یا از کلیدهای بالا و پایین استفاده کنید', { exact: true })).toHaveCount(0);
   for (const [name, value] of [['قطار', 'seat'], ['اتوبوس', 'standard'], ['پرواز', 'economy']]) {
     await page.getByRole('radiogroup', { name: 'وسیله سفر', exact: true }).getByText(name!, { exact: true }).click();
-    await expect(page.getByRole('combobox', { name: 'کلاس سفر', exact: true })).toHaveValue(value!);
+    await expect(page.getByRole('radiogroup', { name: 'کلاس سفر', exact: true }).getByRole('radio', {name:({seat:'صندلی',standard:'معمولی',economy:'اقتصادی'} as Record<string,string>)[value!]!,exact:true})).toBeChecked();
   }
   const destination = page.getByRole('combobox', { name: 'مقصد', exact: true });
   await page.getByRole('button', { name: 'پاک کردن مقصد', exact: true }).click();

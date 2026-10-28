@@ -77,3 +77,11 @@
 .sellerChoice { display:grid; justify-items:center; gap:3px; min-width:0; }
 .sellerChoice > small { font-size:10px; color:var(--text-muted); }
 .sellers :is(a,button) { min-width:56px; min-height:56px; }
+
+/* Presence keeps departing content inert; layout movement is limited to explicit updates. */
+.list { position:relative; }
+.presenceClip { overflow:hidden; min-width:0; }
+.card > .presenceClip:not(.cardSelect):not(.srOnly) { pointer-events:auto; }
+.skeletons { display:grid; gap:8px; }
+.skeletons [data-loading-skeleton] { gap:8px; }
+.skeletons [data-loading-skeleton] > div { min-height:158px; }

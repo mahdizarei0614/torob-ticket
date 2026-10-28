@@ -18,5 +18,7 @@ export * from './icons/transport-icons';
 export * from './icons/provider-mark';
 export * from './motion/motion-policy';
 export * from './motion/motion-surface';
+export * from './motion/content-presence';
+export * from './components/loading-skeleton';
 export * from './components/recovery-state';
 export * from './theme/theme-transition';

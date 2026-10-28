@@ -1,4 +1,4 @@
-import {useMotionPolicy} from '../motion/motion-surface';
+import {useMotionPolicy,ForegroundMotionPolicy} from '../motion/motion-surface';
 import {motion} from 'motion/react';
 import {useMotionEnvironment,resolveMotionPolicy} from '../motion/motion-policy';
 import { Dialog as AriaDialog, Heading, Modal, ModalOverlay } from 'react-aria-components';
@@ -40,9 +40,9 @@ export function Dialog({
   const scroll=useRef(initialScrollTop);
   const modalRef=useCallback((node:HTMLDivElement|null)=>{if(node)node.scrollTop=scroll.current;},[]);
   return (
-    <ModalOverlay className={styles.overlay} isOpen={isOpen && !suspended} onOpenChange={next=>{if(!suspended)onOpenChange(next);}} isDismissable={isDismissable}>
+    <ModalOverlay className={styles.overlay} data-modal-motion={motionEnabled?'finite':'static'} isOpen={isOpen && !suspended} onOpenChange={next=>{if(!suspended)onOpenChange(next);}} isDismissable={isDismissable}>
       <Modal ref={modalRef} data-dialog-scroll onScroll={event=>{scroll.current=event.currentTarget.scrollTop;}} className={styles.modal} data-mobile-fullscreen={mobileFullscreen} data-dialog-size={size} {...languageProps(language)}>
-        <MotionDialog className={styles.dialog} data-modal-motion={motionEnabled?'finite':'static'} initial={motionEnabled?{opacity:0,y:8}:false} animate={{opacity:1,y:0}} transition={{duration:motionEnabled?.22:0,ease:'easeOut'}}>
+        <MotionDialog className={styles.dialog} data-modal-motion={motionEnabled?'finite':'static'} initial={motionEnabled?{opacity:0,y:10}:false} animate={{opacity:1,y:0}} transition={{duration:motionEnabled?.3:0,ease:'easeOut'}}>
           <div className={styles.dialogHeader} data-sticky={stickyHeader || undefined}>
             <Heading slot="title" className={styles.dialogTitle}>
               {title}
@@ -56,7 +56,7 @@ export function Dialog({
               <span aria-hidden="true">×</span>
             </Button>
           </div>
-          {children}
+          <ForegroundMotionPolicy suspended={suspended}>{children}</ForegroundMotionPolicy>
         </MotionDialog>
       </Modal>
     </ModalOverlay>

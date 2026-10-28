@@ -2,7 +2,7 @@ import {useLayoutEffect,useState} from 'react';
 import {act,render,screen} from '@testing-library/react';
 import {afterEach,expect,it,vi} from 'vitest';
 import {ThemeProvider,useTheme} from '@torob-ticket/ui';
-import {useThemeUniforms,type ThemeUniforms} from './theme-uniforms';
+import {useThemeUniforms,resolveTokenColor,type ThemeUniforms} from './theme-uniforms';
 it('publishes stable resolved uniforms before paint and the application flush across all six palettes',async()=>{
  const colors:Record<string,string>={'flight:light':'#ffffff','flight:dark':'#808080','train:light':'#00ff00','train:dark':'#008000','bus:light':'#ff0000','bus:dark':'#800000'};
  vi.spyOn(window,'getComputedStyle').mockImplementation(()=>({getPropertyValue:()=>colors[`${document.documentElement.dataset.mode}:${document.documentElement.dataset.appearance}`]} as CSSStyleDeclaration));
@@ -15,3 +15,7 @@ it('publishes stable resolved uniforms before paint and the application flush ac
  for(const [control,expected] of [['Dark',[expect.closeTo(.215861,5),expect.closeTo(.215861,5),expect.closeTo(.215861,5),1]],['Train',[0,expect.closeTo(.215861,5),0,1]],['Light',[0,1,0,1]],['Bus',[1,0,0,1]],['Dark',[expect.closeTo(.215861,5),0,0,1]]] as const){await act(async()=>screen.getByText(control).click());expect(uniforms.route.value).toBe(vector);expect(vector.toArray()).toEqual(expected);expect(phases.at(-1)).toBe('flushed');}
 });
 afterEach(()=>{vi.restoreAllMocks();vi.unstubAllGlobals();});
+it('converts fractional interpolated RGB channels to linear shader values without falling back to white',()=>{
+ const color=resolveTokenColor('rgba(25.5,127.5,229.5,0.75)');
+ expect(color).toEqual({r:expect.closeTo(.010022826,7),g:expect.closeTo(.21404114,7),b:expect.closeTo(.78741229,7),a:.75});
+});

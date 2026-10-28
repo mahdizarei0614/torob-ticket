@@ -27,7 +27,7 @@
  .intro .suggestions{grid-column:2;grid-row:2;}
  .composer{padding:12px;gap:10px;}
  .segments{gap:8px;justify-content:space-between;--space-1:2px;--space-2:.2rem;}
- .tripFields{grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(110px,.58fr);gap:10px;align-items:start;}
+ .tripFields{grid-template-columns:minmax(0,1fr) minmax(0,1fr) max-content;gap:10px;align-items:start;}
  .submitRow{justify-content:space-between;gap:10px;}
  .submitRow>button:first-child{width:100%;min-width:0;}
  .footer{padding:8px 0 12px;}
@@ -47,4 +47,14 @@
    var(--scene-background);
   background-attachment:fixed;
  }
+}
+
+/* Field labels share the UI primitive rhythm; class choices retain their own usable width. */
+.tripFields{--space-2:6px;align-items:start;}
+.classField{min-width:0;--space-1:0px;--space-4:8px;}
+.classField [role='radiogroup']>div{min-height:46px;gap:2px;padding:0;}
+.classField [role='radio']{white-space:nowrap;min-height:44px;}
+@media(max-width:759px),(min-width:1120px) and (max-width:1279px){
+ .tripFields{grid-template-columns:repeat(2,minmax(0,1fr));}
+ .classField{grid-column:1/-1;}
 }

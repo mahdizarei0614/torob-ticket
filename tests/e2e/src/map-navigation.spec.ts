@@ -154,7 +154,7 @@ test('@map-navigation editing flight to train cannot select an old flight and th
   await expect(map(page)).not.toHaveAttribute('data-map-itinerary', /.+/);
   const old = results(page).locator('article[data-group-id]').last();
   await expect(old.getByRole('button', { name: 'انتخاب پیشنهاد', exact: true })).toBeDisabled();
-  await page.getByRole('combobox', { name: 'کلاس سفر', exact: true }).selectOption('seat');
+  await page.getByRole('radiogroup', { name: 'کلاس سفر', exact: true }).getByText('صندلی',{exact:true}).click();
   const current = await search(page); expect(current.snapshot.query.mode).toBe('train');
   expect(current.snapshot.groups.length).toBeGreaterThan(0);
   expect(current.snapshot.groups.every(group => group.itinerary.mode === 'train')).toBe(true);

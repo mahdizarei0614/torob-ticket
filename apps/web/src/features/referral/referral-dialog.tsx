@@ -1,5 +1,5 @@
 import type {CatalogSnapshot,QuoteSnapshot} from '@torob-ticket/contracts';
-import {Button,Dialog,Price,ProviderMark,displayProviderName} from '@torob-ticket/ui';
+import {Button,Dialog,Price,ProviderMark,displayProviderName,MotionSurface,LoadingSkeleton} from '@torob-ticket/ui';
 import {FareConditions,Breakdown} from '../results/provider-offers';
 import {RoomRates} from '../hotels/room-rates';
 import {nights} from '../hotels/hotel-format';
@@ -39,8 +39,8 @@ export function ProviderAction({source,flow,catalog,compact=false,layout='standa
 export function ReferralDialog({flow,catalog}:{flow:ReturnType<typeof useReferralController>;catalog:CatalogSnapshot}){
  const s=flow.state,busy=s.phase==='checking'||s.phase==='confirming';const alternatives=s.source?.alternatives?.().filter(a=>s.alternativeQuoteIds?.includes(a.quoteId))??[];
  return <Dialog isDismissable={false} title={s.phase==='changed'?'شرایط تازه پیشنهاد':'ادامه با فروشنده'} isOpen={s.phase!=='idle'&&s.phase!=='completed'} onOpenChange={open=>{if(!open)flow.cancel();}} mobileFullscreen size={s.phase==='changed'?'wide':'standard'} stickyHeader>
- <div className={styles.dialog} data-referral-phase={s.phase}>
- {busy&&<p role="status">{s.phase==='checking'?'در حال بررسی قیمت و شرایط همین پیشنهاد…':'در حال ثبت ارجاع و دریافت نتیجه…'}</p>}
+ <div className={styles.dialog} data-referral-phase={s.phase}><MotionSurface purpose="detail" motionKey={s.phase}>
+ {busy&&<div role="status"><p>{s.phase==='checking'?'در حال بررسی قیمت و شرایط همین پیشنهاد…':'در حال ثبت ارجاع و دریافت نتیجه…'}</p><LoadingSkeleton rows={1} compact/></div>}
  {s.error&&<p role="alert">{s.error}</p>}
  {s.phase==='changed'&&s.source&&s.intent&&<><p role="alert">مبلغ یا شرایط نسبت به پیشنهاد انتخاب‌شده تغییر کرده است. هر دو نسخه برای کل مسافران یا همه اتاق‌ها و شب‌هاست؛ پذیرش فقط برای نسخه تازه زیر است.</p><div className={styles.comparison}><section><h3>پیشنهاد قبلی</h3><ReferralFacts payload={s.source.payload} catalog={catalog}/></section><section><h3>نسخه تازه برای پذیرش</h3><ReferralFacts payload={s.intent.quote} catalog={catalog}/></section></div><p>بعضی شرایط هنوز اعلام نشده است؛ جزئیات هر پیشنهاد را بررسی کنید.</p><Button onPress={()=>void flow.accept()}>پذیرش نسخه تازه و ادامه</Button></>}
  {s.phase==='unavailable'&&alternatives.length>0&&<section><h3>پیشنهادهای دیگر همین مقایسه</h3><p>انتخاب هر پیشنهاد، بررسی جداگانه همان قیمت منبع را شروع می‌کند.</p>{alternatives.map(a=><Button variant="secondary" key={a.quoteId} onPress={()=>void flow.chooseAlternative(a)}>{a.label}</Button>)}</section>}
@@ -49,5 +49,5 @@ export function ReferralDialog({flow,catalog}:{flow:ReturnType<typeof useReferra
  {(s.phase==='refresh-required'||s.phase==='unavailable')&&<Button onPress={flow.freshComparison}>مقایسه تازه همین سفر</Button>}
  <Button variant="quiet" onPress={flow.cancel}>{busy?'بستن و بازگشت به مقایسه':'انصراف و بازگشت به مقایسه'}</Button>
  {busy&&<small>بستن این پنجره، بازگشت درخواست ثبت‌شده در سرور را تضمین نمی‌کند.</small>}
- </div></Dialog>;
+ </MotionSurface></div></Dialog>;
 }

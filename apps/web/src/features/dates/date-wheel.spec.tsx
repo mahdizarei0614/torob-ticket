@@ -3,7 +3,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { DateWheel } from './date-wheel';
 const dates = ['2026-10-25','2026-10-26','2026-10-27','2026-10-28','2026-10-29','2026-10-30'];
 afterEach(() => { vi.useRealTimers(); vi.unstubAllGlobals(); });
-describe('five-row wheel previews and authorized settle', () => {
+describe('compact wheel previews and authorized settle', () => {
   it('previews drag frames, commits once after release at 250ms, and restores committed selection on pointer cancel', () => {
     vi.stubGlobal('PointerEvent', MouseEvent); vi.useFakeTimers(); const preview = vi.fn(), commit = vi.fn();
     render(<DateWheel dates={dates} value={dates[2]!} cells={[]} onPreview={preview} onCommit={commit} />);

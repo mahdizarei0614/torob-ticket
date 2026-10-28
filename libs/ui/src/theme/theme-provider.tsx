@@ -10,6 +10,7 @@ import {
 } from 'react';
 import { flushSync } from 'react-dom';
 import {runThemeTransition,type ThemeTransitionRun} from './theme-transition';
+import {readThemePalette,runPaletteMorph} from './palette-morph';
 import { I18nProvider } from 'react-aria-components';
 import { type Mode } from '@torob-ticket/contracts';
 import { languageProps, type Language } from '../components/language';
@@ -127,9 +128,10 @@ export function ThemeProvider({
   const currentMode=useRef(activeMode);currentMode.current=activeMode;
   const target=useRef({preference,appearance});
   const applied=useRef(onThemeApplied);applied.current=onThemeApplied;
-  const publish=useCallback((next:typeof target.current,nextMode:Mode)=>{
+  const publish=useCallback((next:typeof target.current,nextMode:Mode,notify=true)=>{
     const root=document.documentElement;
     root.dataset.appearance=next.appearance;root.dataset.preference=next.preference;root.dataset.mode=nextMode;root.style.colorScheme=next.appearance;
+    if(!notify)return;
     const theme={appearance:next.appearance,mode:nextMode,colors:readThemeColors(root)};
     snapshot.current=theme;
     for(const listener of subscribers.current)listener(theme);
@@ -137,17 +139,22 @@ export function ThemeProvider({
     bridge.current?.(theme);
   },[]);
   const change=useCallback((next:typeof target.current,nextMode:Mode,origin?:HTMLElement,inLayout=false,animate=true)=>{
+    // Capture the displayed palette before cancelling its previous owner's temporary overrides.
+    const from=readThemePalette();
+    const paletteOnly=next.appearance===snapshot.current?.appearance&&nextMode!==snapshot.current?.mode;
     const generation=++requestGeneration.current;
     activeTransition.current?.skip();
     const isCurrent=()=>rootActive.current&&generation===requestGeneration.current;
-    const update=()=>{
+    const update=(notify=true)=>{
       if(!isCurrent())return;
       const state=()=>{setStoredPreference(next.preference);setAppearance(next.appearance);};
       // A direct layout-effect update is already before paint; deferred native callbacks need flushSync.
       if(inLayout)state();else flushSync(state);
-      publish(next,nextMode);
+      publish(next,nextMode,notify);
     };
-    activeTransition.current=runThemeTransition(update,{origin,isCurrent,animate,onApplied:()=>applied.current?.()??Promise.resolve()});
+    activeTransition.current=paletteOnly
+      ?runPaletteMorph(()=>update(false),{from,isCurrent,onFrame:()=>{if(isCurrent())publish(next,nextMode);},onApplied:()=>applied.current?.()??Promise.resolve()})
+      :runThemeTransition(update,{origin,isCurrent,animate,onApplied:()=>applied.current?.()??Promise.resolve()});
     inLayout=false;
   },[publish]);
   const previousOwner=useRef<{active:boolean;mode:Mode}|null>(null);

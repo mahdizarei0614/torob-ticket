@@ -1,12 +1,14 @@
-import {lazy,Suspense,useEffect,useMemo,useRef,useState} from 'react';
+import {forwardRef,lazy,Suspense,useEffect,useLayoutEffect,useMemo,useRef,useState} from 'react';
 import {useQuery} from '@tanstack/react-query';
 import {z} from 'zod';
 import {GeoPointSchema,type CatalogSnapshot} from '@torob-ticket/contracts';
-import {Button} from '@torob-ticket/ui';
+import {Button,useMotionPolicy} from '@torob-ticket/ui';
+import {AnimatePresence,motion,useAnimationControls,useIsPresent,usePresence} from 'motion/react';
 import type {RouteSceneProps} from '@torob-ticket/graphics';
 import type {TripMapController} from './use-trip-map';
 import {RouteTimeline} from './route-timeline';
 import {RouteDirectionControl} from './route-direction-control';
+import {routeHeading} from './route-heading';
 import styles from './trip-map.module.css';
 const NO_DOTS:[]=[];
 // Authored cartographic emphasis only; no population, inventory or ranking inference.
@@ -31,10 +33,28 @@ export function useDesktopMap() {
 }
 const labelFor=(map:TripMapController)=>map.view.progress===1?'ارجاع به فروشنده ثبت شده':map.view.selectedValid?'پیشنهاد برای مقایسه انتخاب شده':map.view.historical?'مسیر بررسی قبلی؛ بدون پیشنهاد قابل ادامه':map.view.inspection?'در حال بررسی این مسیر':map.view.progress===.35?'در حال مقایسه پیشنهادها':'مسیر کلی شهرها؛ پیش از انتخاب پیشنهاد';
 function Direction({map}:{map:TripMapController}) {return <RouteDirectionControl value={map.view.direction} hasReturn={Boolean(map.view.itinerary?.return||!map.view.itinerary&&map.view.query.tripType==='round-trip'&&map.view.query.returnDate)} onChange={map.direction}/>;}
-function RouteSummary({map,catalog,compact=false}:{map:TripMapController;catalog:CatalogSnapshot;compact?:boolean}) {
- const view=compact?map.presentationView:map.view;const city=(id:string)=>catalog.cities.find(city=>city.id===id)?.name??'انتخاب نشده';const modes={flight:'پرواز',train:'قطار',bus:'اتوبوس'};
+const HeadingFrame=forwardRef<HTMLDivElement,{heading:ReturnType<typeof routeHeading>;disabled:boolean}>(function HeadingFrame({heading,disabled},ref) {
+ const present=useIsPresent();const policy=useMotionPolicy({disabled});
+ const [,safeToRemove]=usePresence();
+ const controls=useAnimationControls(),entered=useRef(false);
+ useLayoutEffect(()=>{
+  controls.stop();let cancelled=false;
+  if(!present){const exit={opacity:0,y:policy.enabled?-7:0};if(!policy.enabled)controls.set(exit);else{const complete=()=>{if(!cancelled)safeToRemove?.();};void controls.start({...exit,transition:{duration:.3,ease:'easeOut'}}).then(complete,complete);}return()=>{cancelled=true;controls.stop();};}
+  const fresh=!entered.current;entered.current=true;if(!policy.enabled||!fresh)controls.set({opacity:1,y:0});else{controls.set({opacity:0,y:9});void controls.start({opacity:1,y:0,transition:{duration:.3,ease:'easeOut'}});}return()=>controls.stop();
+ },[controls,present,policy.enabled,safeToRemove]);
+ useEffect(()=>{if(!present&&!policy.enabled)safeToRemove?.();},[present,policy.enabled,safeToRemove]);
+ return <motion.div ref={ref} className={styles.headingFrame} aria-hidden={!present||undefined} data-map-heading-key={heading.key} initial={false} animate={controls} transition={{duration:policy.enabled?.3:0,ease:'easeOut'}}>
+  <h2>{heading.labels.map((name,index)=><span key={index} className={styles.headingCity}>{index>0&&<i aria-hidden="true">←</i>}{name}</span>)}</h2>
+  {heading.service&&<p className={styles.service}><span>{heading.service}</span>{heading.codes&&<bdi dir="ltr">{heading.codes}</bdi>}</p>}
+ </motion.div>;
+});
+export function MapHeading({map,catalog,covered=false}:{map:TripMapController;catalog:CatalogSnapshot;covered?:boolean}) {
+ const heading=routeHeading(map.presentationView,catalog);const policy=useMotionPolicy({covered});
+ return <div className={styles.headingSwap} data-map-heading><AnimatePresence initial={false} mode="popLayout"><HeadingFrame key={heading.key} heading={heading} disabled={!policy.enabled}/></AnimatePresence></div>;
+}
+function RouteSummary({map,catalog}:{map:TripMapController;catalog:CatalogSnapshot}) {
+ const view=map.view;const city=(id:string)=>catalog.cities.find(city=>city.id===id)?.name??'انتخاب نشده';const modes={flight:'پرواز',train:'قطار',bus:'اتوبوس'};
  const title=<h2>{city(view.direction==='return'?view.query.destinationCityId:view.query.originCityId)} <span aria-hidden="true">←</span> {city(view.direction==='return'?view.query.originCityId:view.query.destinationCityId)}</h2>;
- if(compact)return title;
  const committed=Boolean(view.inspection&&JSON.stringify(view.inspection.query)!==JSON.stringify(map.state.context.draft));
  return <><span className={styles.eyebrow}>{view.historical?'بررسی قبلی':view.inspection?committed?'سفر ثبت‌شده برای مقایسه':'مسیر پیشنهاد': 'انتخاب مسیر سفر'}</span>{title}<p>{modes[view.mode]} · {view.direction==='return'?'مسیر برگشت':'مسیر رفت'}{committed?' · با فرم ویرایش‌شده متفاوت است':''}</p></>;
 }
@@ -61,7 +81,7 @@ export function TripMap({map,catalog,desktop,covered,onMotionChange,onHotelDock}
  const reportMotion=(running:boolean)=>{if(capturedCurrent()&&(!running||activity.current))onMotionChange(running);};
  if(!desktop)return null;
  return <aside className={styles.map} aria-label="نقشه سفر" data-map-itinerary={view.itinerary?.itineraryId} data-map-direction={view.direction} data-map-progress={view.progress} data-map-fit={map.fitKey} data-map-historical={view.historical}>
-  <header className={styles.header}><RouteSummary map={map} catalog={catalog} compact/></header>
+  <header className={styles.header}><MapHeading map={map} catalog={catalog} covered={covered}/></header>
   <div className={styles.scene}>
    <Suspense fallback={<p role="status">آماده‌سازی نقشه…</p>}><Scene featherGeography labelsVisible={false} showControls={false} places={catalog.places} dots={assets.data?(view.scope==='domestic'?assets.data.dots.dots.iran:assets.data.dots.dots.world):NO_DOTS} paths={assets.data?.geometry.paths} worldContext={view.scope==='international'?assets.data?.worldContext:undefined} geography={view.scope==='domestic'?assets.data?.iran:undefined} scope={view.scope} itinerary={view.itinerary} presentation={presentation} direction={view.direction} fitMode={map.state.cameraMode} fitBothDirections fitKey={map.fitKey} originKey="consumer-map" projection={map.state.projection} progress={view.progress} initialCamera={map.initialCamera} onCameraIntentChange={map.savePresentationCamera} isCurrent={capturedCurrent} animateProgress={active} onMotionChange={reportMotion} motionKey={map.presentationSceneKey} showTimeline={false} showNotes={false}/></Suspense>
   </div>

@@ -5,6 +5,7 @@ export interface ThemeTransitionOptions {
   animate?: boolean;
 }
 export interface ThemeTransitionRun { skip: () => void; finished: Promise<void> }
+export const appearanceRevealDuration = 780;
 /** The callback owns the atomic update; applications can supply an independent graphics flush. */
 export function runThemeTransition(nextTheme: () => void, options: ThemeTransitionOptions = {}): ThemeTransitionRun {
   let cancelled = false, settled = false, failed = false, revealSkipped = false;
@@ -14,11 +15,14 @@ export function runThemeTransition(nextTheme: () => void, options: ThemeTransiti
   const finished = new Promise<void>(resolve => { finish = resolve; });
   const appliedFrame = new Promise<void>(resolve => { applied = resolve; });
   const media = typeof matchMedia === 'function' ? matchMedia('(prefers-reduced-motion: reduce)') : undefined;
+  const forced = typeof matchMedia === 'function' ? matchMedia('(forced-colors: active)') : undefined;
   const current = () => !cancelled && options.isCurrent?.() !== false;
   const settle = () => {
     if (settled) return;
     settled = true;
     media?.removeEventListener?.('change', motionChanged);
+    forced?.removeEventListener?.('change', motionChanged);
+    if(typeof document!=='undefined')document.removeEventListener('visibilitychange',motionChanged);
     finish();
   };
   const skip = () => {
@@ -40,7 +44,7 @@ export function runThemeTransition(nextTheme: () => void, options: ThemeTransiti
     return application;
   };
   function motionChanged() {
-    if (!media?.matches) return;
+    if (!media?.matches && !forced?.matches && document.visibilityState !== 'hidden') return;
     // Reducing motion settles the requested theme; superseding ownership instead cancels it.
     revealSkipped = true;
     transition?.skipTransition();
@@ -48,11 +52,13 @@ export function runThemeTransition(nextTheme: () => void, options: ThemeTransiti
     void apply().then(settle, settle);
   }
   if (!current()) { settle(); return { skip, finished }; }
-  if (typeof document === 'undefined' || !document.startViewTransition || media?.matches || options.animate === false) {
+  if (typeof document === 'undefined' || !document.startViewTransition || media?.matches || forced?.matches || document.visibilityState === 'hidden' || options.animate === false) {
     void apply().then(settle, settle);
     return { skip, finished };
   }
   media?.addEventListener?.('change', motionChanged);
+  forced?.addEventListener?.('change', motionChanged);
+  document.addEventListener('visibilitychange',motionChanged);
   try { transition = document.startViewTransition(apply); }
   catch { void apply().then(settle, settle); return { skip, finished }; }
   const nativeFinished = Promise.resolve(transition.finished).catch(() => undefined);
@@ -65,7 +71,7 @@ export function runThemeTransition(nextTheme: () => void, options: ThemeTransiti
     const radius = Math.hypot(Math.max(x, width - x), Math.max(y, height - y));
     animation = document.documentElement.animate?.(
       { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${radius}px at ${x}px ${y}px)`] },
-      { duration: 260, easing: 'ease-out', pseudoElement: '::view-transition-new(root)' },
+      { duration: appearanceRevealDuration, easing: 'cubic-bezier(0.22, 1, 0.36, 1)', pseudoElement: '::view-transition-new(root)' },
     );
     await animation?.finished.catch(() => undefined);
     await nativeFinished;

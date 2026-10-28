@@ -1,9 +1,10 @@
 import { useId, useState, useRef, type ReactNode } from 'react';
 import type { CatalogSnapshot, ComparisonGroup, Itinerary, JourneyLeg, QuoteSnapshot, SearchSnapshot } from '@torob-ticket/contracts';
-import {Button, Price, Tooltip,ProviderMark,MotionSurface,displayProviderName,displayPlaceName,type PriceBand} from '@torob-ticket/ui';
+import {Button, Price, Tooltip,ProviderMark,displayProviderName,displayPlaceName,type PriceBand} from '@torob-ticket/ui';
 import { ProviderOffers } from './provider-offers';
 import { Explanation } from './explanation';
 import { priceCardId } from './price-cards';
+import { ResultPresence, ResultsPresence } from './result-motion';
 import { localDay, localTime, minutes, number, operatorLabel, placeName, routePlaces, selectionFor, travelerCount } from './format';
 import { quoteStatus, type QuoteSelection, type ResultsState } from './results-reducer';
 import styles from './results.module.css';
@@ -60,7 +61,8 @@ export function JourneyCard({ group, snapshot, catalog, state, now, onFreeze, on
    {!ownSelection && <Explanation group={group} snapshot={snapshot}/>}
    <Button variant="quiet" aria-label="جزئیات سفر" aria-expanded={expanded} aria-controls={detailsId} onPress={() => { onFreeze(); setExpanded(!expanded); }}>جزئیات سفر <svg className={styles.detailChevron} viewBox="0 0 16 16" aria-hidden="true" data-open={expanded || undefined}><path d="m4 6 4 4 4-4"/></svg></Button>
   </div>
-  {ownSelection && !selectionDisabled && (renderProviderAction || continuation) && <div className={styles.sellers} aria-label="فروشندگان با این قیمت" data-price-sellers>{renderProviderAction ? group.eligibleQuotes.filter(offer => quoteStatus(state,selectionFor(group.groupId,offer),now) === 'current').map(offer => <div className={styles.sellerChoice} key={offer.quoteId+':'+offer.version} data-seller-quote-id={offer.quoteId} data-seller-amount-rial={offer.total.amountRial}>{renderProviderAction(offer)}{group.eligibleQuotes.filter(other=>other.providerId===offer.providerId).length > 1 && <small>گزینه {number(group.eligibleQuotes.filter(other=>other.providerId===offer.providerId).findIndex(other=>other.quoteId===offer.quoteId)+1)}</small>}</div>) : continuation}</div>}
-  {expanded && <MotionSurface purpose="detail" motionKey={cardId ?? priceCardId(group.groupId,quote)} id={detailsId} className={styles.details}><div className={styles.timelines}><RouteTimeline leg={group.itinerary.outbound} catalog={catalog} label="رفت"/>{group.itinerary.return && <RouteTimeline leg={group.itinerary.return} catalog={catalog} label="برگشت"/>}</div><ProviderOffers group={group} catalog={catalog} state={state} now={now}/></MotionSurface>}
+  <ResultsPresence>{ownSelection && !selectionDisabled && (renderProviderAction || continuation) && <ResultPresence key="sellers" collapse className={styles.presenceClip}><div className={styles.sellers} aria-label="فروشندگان با این قیمت" data-price-sellers>{renderProviderAction ? group.eligibleQuotes.filter(offer => quoteStatus(state,selectionFor(group.groupId,offer),now) === 'current').map(offer => <div className={styles.sellerChoice} key={offer.quoteId+':'+offer.version} data-seller-quote-id={offer.quoteId} data-seller-amount-rial={offer.total.amountRial}>{renderProviderAction(offer)}{group.eligibleQuotes.filter(other=>other.providerId===offer.providerId).length > 1 && <small>گزینه {number(group.eligibleQuotes.filter(other=>other.providerId===offer.providerId).findIndex(other=>other.quoteId===offer.quoteId)+1)}</small>}</div>) : continuation}</div></ResultPresence>}
+  {expanded && <ResultPresence key="details" collapse className={styles.presenceClip}><div id={detailsId} className={styles.details}><div className={styles.timelines}><RouteTimeline leg={group.itinerary.outbound} catalog={catalog} label="رفت"/>{group.itinerary.return && <RouteTimeline leg={group.itinerary.return} catalog={catalog} label="برگشت"/>}</div><ProviderOffers group={group} catalog={catalog} state={state} now={now}/></div></ResultPresence>}
+  </ResultsPresence>
  </article>;
 }

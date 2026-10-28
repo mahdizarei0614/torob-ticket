@@ -3,6 +3,7 @@ import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
 import type { DatePriceCell } from '@torob-ticket/contracts';
 import { priceBand, type PriceRange } from '@torob-ticket/ui';
 import { cellLabel, dateLabel, disabledCell, settleMs, type DateLeg } from './date-state';
+import { DateAmount } from './date-amount';
 import styles from './dates.module.css';
 const rowHeight = 44;
 /** Nearby wheel/trackpad intent settles once; outward motion at an edge chains to the page. */
@@ -40,7 +41,7 @@ export function DateWheel({ dates, value, cells, range, onPreview, onCommit, onI
       if ((at === 0 && event.deltaY < 0) || (at === dates.length - 1 && event.deltaY > 0)) return;
       event.preventDefault(); suppressClick.current = false;
       const motion = wheelGesture.current ?? { index: at, delta: 0 }; wheelGesture.current = motion;
-      motion.delta += event.deltaY * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? rowHeight * 5 : 1);
+      motion.delta += event.deltaY * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? rowHeight * 3 : 1);
       const next = dates[Math.max(0, Math.min(dates.length - 1, motion.index + Math.round(motion.delta / rowHeight)))];
       if (next && !disabledCell(cells.find(cell => cell.date === next), leg)) settle(next);
     }
@@ -58,7 +59,7 @@ export function DateWheel({ dates, value, cells, range, onPreview, onCommit, onI
       onPointerUp={() => { const drag = gesture.current; if (!drag) return; gesture.current = undefined; suppressClick.current = drag.moved; if (drag.moved) settle(current.current); else { authorization.current = undefined; callbacks.current.onInteractionChange?.(false); } }}
       onPointerCancel={cancel}>
       <div className={styles.wheelCenter} aria-hidden="true" />
-      <div className={styles.wheelRows} style={{ transform: `translateY(${(2 - index) * rowHeight}px)` }}>{dates.map((date, i) => { const cell = cells.find(cell => cell.date === date); return <div id={`${id}-${i}`} role="option" aria-selected={date === preview} aria-disabled={disabledCell(cells.find(cell => cell.date === date), leg) || undefined} key={date} className={styles.wheelRow} onClick={() => { if (suppressClick.current) { suppressClick.current = false; return; } if (enabled(date)) settle(date); }}><span>{dateLabel(date)}</span><small data-price-band={priceBand(cell?.status === 'priced' ? cell.minimum.amountRial : undefined, range)}>{cell ? cellLabel(cell, leg) : missingLabel ?? cellLabel(undefined)}</small></div>; })}</div>
+      <div className={styles.wheelRows} style={{ transform: `translateY(${(1 - index) * rowHeight}px)` }}>{dates.map((date, i) => { const cell = cells.find(cell => cell.date === date); return <div id={`${id}-${i}`} role="option" aria-selected={date === preview} aria-disabled={disabledCell(cells.find(cell => cell.date === date), leg) || undefined} key={date} className={styles.wheelRow} onClick={() => { if (suppressClick.current) { suppressClick.current = false; return; } if (enabled(date)) settle(date); }}><span>{dateLabel(date)}</span><DateAmount key={cell?.status === 'priced' ? cell.minimum.amountRial : cell?.status ?? 'checking'} band={priceBand(cell?.status === 'priced' ? cell.minimum.amountRial : undefined, range)}>{cell ? cellLabel(cell, leg) : missingLabel ?? cellLabel(undefined)}</DateAmount></div>; })}</div>
     </div>
     <button type="button" className={styles.arrow} aria-label="روز بعد" disabled={!enabled(dates[index + 1])} onClick={() => step(1)}>⌄</button>
   </div>;

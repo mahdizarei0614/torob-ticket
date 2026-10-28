@@ -8,3 +8,10 @@
 .hotelDock {flex:none;position:relative;z-index:2;min-width:0;}
 .hotelDock:empty {display:none;}
 @media(min-width:768px){.mobile{display:none;}}
+
+.headingSwap { position:relative; min-height:68px; }
+.headingFrame { width:100%; }
+.header .headingCity { padding:0; color:var(--text); font-weight:inherit; }
+.headingCity i { display:inline-block; padding-inline:9px; color:var(--text-muted); font-style:normal; font-weight:400; }
+.header .service { display:flex; flex-wrap:wrap; align-items:center; gap:4px 12px; margin-top:3px; font-size:11px; }
+.service bdi { font-family:var(--font-en); font-size:10px; letter-spacing:.035em; }

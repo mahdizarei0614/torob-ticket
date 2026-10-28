@@ -330,3 +330,11 @@
   .overlay:has([data-dialog-size='compact']) { padding:2px; }
   .modal[data-dialog-size='compact'] .dialog { padding:1px; }
 }
+
+.overlay[data-modal-motion='finite'][data-entering] { animation: overlayReveal 220ms ease-out; }
+.overlay[data-modal-motion='finite'][data-exiting] { animation: overlayDismiss 180ms ease-in; pointer-events: none; }
+.overlay[data-modal-motion='finite'][data-exiting] .modal { animation: modalDismiss 180ms ease-in; }
+@keyframes overlayReveal { from { opacity: 0; } to { opacity: 1; } }
+@keyframes overlayDismiss { from { opacity: 1; } to { opacity: 0; } }
+@keyframes modalDismiss { from { transform: translateY(0); } to { transform: translateY(6px); } }
+@media (prefers-reduced-motion: reduce) { .overlay[data-modal-motion][data-entering], .overlay[data-modal-motion][data-exiting], .overlay[data-modal-motion][data-exiting] .modal { animation: none; } }

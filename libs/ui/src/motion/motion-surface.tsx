@@ -7,6 +7,11 @@ export function MotionPolicyProvider({children,covered=false,disabled=false}:{ch
  const parent=useContext(CoverageContext);
  return <CoverageContext.Provider value={{covered:parent.covered||covered,disabled:parent.disabled||disabled}}>{children}</CoverageContext.Provider>;
 }
+/** A native foreground dialog owns its motion while the underlying page is covered. */
+export function ForegroundMotionPolicy({children,suspended=false}:{children:ReactNode;suspended?:boolean}) {
+ const inherited=useContext(CoverageContext);
+ return <CoverageContext.Provider value={{covered:suspended,disabled:inherited.disabled}}>{children}</CoverageContext.Provider>;
+}
 export function useMotionPolicy({covered=false,disabled=false}:{covered?:boolean;disabled?:boolean}={}) {
  const inherited=useContext(CoverageContext),environment=useMotionEnvironment();
  const state={...environment,covered:inherited.covered||covered,disabled:inherited.disabled||disabled};

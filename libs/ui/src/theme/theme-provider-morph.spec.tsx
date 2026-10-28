@@ -1,0 +1,25 @@
+import {act,render} from '@testing-library/react';
+import {afterEach,expect,it,vi} from 'vitest';
+import {ThemeProvider,type ThemeSnapshot} from './theme-provider';
+import {modePaletteDuration} from './palette-morph';
+afterEach(()=>{vi.restoreAllMocks();vi.unstubAllGlobals();delete(document as Document&{startViewTransition?:unknown}).startViewTransition;document.documentElement.removeAttribute('style');});
+it('uses the visible palette on mode interruption, publishes matching CSS/GPU colors, and clears overrides when ownership ends',async()=>{
+ const root=document.documentElement;const stylesheet=document.createElement('style');
+ stylesheet.textContent=':root{--canvas:#000000;--scene-route:#204060;--scene-background:#000000}[data-mode="train"]{--canvas:#808080;--scene-route:#608020;--scene-background:#808080}[data-mode="bus"]{--canvas:#202020;--scene-route:#305030;--scene-background:#202020}';document.head.append(stylesheet);
+ let now=0;const callbacks=new Map<number,FrameRequestCallback>();let id=0;
+ vi.spyOn(performance,'now').mockImplementation(()=>now);
+ vi.stubGlobal('requestAnimationFrame',(callback:FrameRequestCallback)=>{callbacks.set(++id,callback);return id;});
+ vi.stubGlobal('cancelAnimationFrame',(key:number)=>callbacks.delete(key));
+ vi.stubGlobal('matchMedia',()=>({matches:false,addEventListener(){},removeEventListener(){}}));
+ const native=vi.fn();Object.assign(document,{startViewTransition:native});const themes:ThemeSnapshot[]=[];const flush=vi.fn(async()=>undefined);
+ const frame=(time:number)=>act(()=>{now=time;const pending=[...callbacks.values()];callbacks.clear();pending.forEach(callback=>callback(time));});
+ const tree=(mode:'flight'|'train'|'bus',active=true)=><ThemeProvider initialPreference="dark" active={active} mode={mode} onThemeChange={theme=>themes.push(theme)} onThemeApplied={flush}><span>content</span></ThemeProvider>;
+ const view=render(tree('flight'));view.rerender(tree('train'));
+ expect(native).not.toHaveBeenCalled();expect(root.dataset.mode).toBe('train');expect(themes.at(-1)?.colors.background).toBe('rgba(0,0,0,1)');
+ frame(modePaletteDuration/2);expect(themes.at(-1)?.colors.route).toBe('rgba(64,96,64,1)');const displayed=themes.at(-1)?.colors;
+ view.rerender(tree('bus'));expect(themes.at(-1)?.colors).toEqual(displayed);expect(themes.at(-1)?.mode).toBe('bus');
+ frame(modePaletteDuration*1.5);await act(async()=>{await Promise.resolve();});
+ expect(themes.at(-1)?.colors.route).toBe('#305030');expect(root.style.getPropertyValue('--scene-route')).toBe('');expect(root.dataset.paletteTransition).toBeUndefined();expect(flush).toHaveBeenCalledTimes(1);expect(callbacks.size).toBe(0);
+ view.rerender(tree('train'));expect(root.dataset.paletteTransition).toBe('morph');const count=themes.length;view.rerender(tree('train',false));frame(3000);
+ expect(root.style.getPropertyValue('--scene-route')).toBe('');expect(themes).toHaveLength(count);expect(callbacks.size).toBe(0);view.unmount();stylesheet.remove();
+});

@@ -6,6 +6,14 @@ export type ThemeUniforms = { [Key in keyof ThemeColors]: { value: Vector4 } };
 export function resolveTokenColor(css: string) {
   let alpha = 1;
   let opaque = css.trim();
+  // CSS palette interpolation emits fractional channels; Three's setStyle rgb parser accepts integers only.
+  if (/^rgba?\(/i.test(opaque)) {
+    const parts = opaque.slice(opaque.indexOf('(') + 1, -1).split(/[\s,/]+/).filter(Boolean).map(Number);
+    if (parts.length >= 3 && parts.every(Number.isFinite)) {
+      const color = new Color().setRGB(parts[0]! / 255, parts[1]! / 255, parts[2]! / 255, SRGBColorSpace);
+      return { r: color.r, g: color.g, b: color.b, a: parts[3] ?? 1 };
+    }
+  }
   if (/^#[\da-f]{8}$/i.test(opaque)) {
     alpha = parseInt(opaque.slice(7, 9), 16) / 255;
     opaque = opaque.slice(0, 7);

@@ -1,4 +1,4 @@
-import { act, render, renderHook, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, renderHook, screen, waitFor, within } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter, MemoryRouter, useNavigate } from 'react-router';
 import { StrictMode, useEffect, useRef, type ReactNode } from 'react';
@@ -77,7 +77,18 @@ describe('controller request and navigation ownership', () => {
     render(<SearchComposer draft={query} catalog={catalog} session={session} edit={vi.fn()} onSubmit={vi.fn()} errors={[]} pending={false} disabled={false}/>);
     expect(screen.queryByRole('spinbutton')).not.toBeInTheDocument();
     for(const name of ['وسیله سفر','محدوده سفر','نوع سفر'])expect(screen.getByRole('radiogroup',{name})).toBeInTheDocument();
-    expect(screen.getByRole('combobox',{name:'مبدا'})).toHaveAttribute('placeholder','جست‌وجوی شهر مبدا');expect(screen.getByRole('combobox',{name:'مقصد'})).toHaveAttribute('placeholder','جست‌وجوی شهر مقصد');expect(screen.getByLabelText('کلاس سفر')).toHaveValue('economy');
+    expect(screen.getByRole('combobox',{name:'مبدا'})).toHaveAttribute('placeholder','جست‌وجوی شهر مبدا');expect(screen.getByRole('combobox',{name:'مقصد'})).toHaveAttribute('placeholder','جست‌وجوی شهر مقصد');expect(within(screen.getByRole('radiogroup',{name:'کلاس سفر'})).getByRole('radio',{name:'اقتصادی'})).toBeChecked();
+  });
+  it('changes the class through named segmented choices without submitting or editing the route',()=>{
+    const edit=vi.fn(),submit=vi.fn();const choices={...catalog,classChoices:[...catalog.classChoices,{mode:'flight' as const,code:'business',name:'تجاری'}]};
+    const view=render(<SearchComposer draft={query} catalog={choices} session={session} edit={edit} onSubmit={submit} errors={[]} pending={false} disabled={false}/>);
+    const classes=screen.getByRole('radiogroup',{name:'کلاس سفر'});
+    expect(within(classes).getByRole('radio',{name:'اقتصادی'})).toBeChecked();
+    fireEvent.click(within(classes).getByRole('radio',{name:'تجاری'}));
+    expect(edit).toHaveBeenCalledExactlyOnceWith({classCode:'business'});expect(submit).not.toHaveBeenCalled();
+    view.rerender(<SearchComposer draft={{...query,mode:'train',classCode:'seat'}} catalog={choices} session={session} edit={edit} onSubmit={submit} errors={[]} pending={false} disabled={false}/>);
+    expect(within(screen.getByRole('radiogroup',{name:'کلاس سفر'})).getByRole('radio',{name:'صندلی'})).toBeChecked();
+    expect(screen.queryByRole('radio',{name:'تجاری'})).not.toBeInTheDocument();
   });
 });
 

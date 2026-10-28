@@ -108,7 +108,7 @@ it('updates CSS and the graphics callback inside the transition update before re
   expect(events.slice(0, 3)).toEqual(['capture', 'bridge:dark:dark', 'frame:dark']);
   expect(animate).toHaveBeenCalledWith(
     expect.objectContaining({ clipPath: expect.any(Array) }),
-    expect.objectContaining({ duration: 260, pseudoElement: '::view-transition-new(root)' }),
+    expect.objectContaining({ duration: 780, pseudoElement: '::view-transition-new(root)' }),
   );
 });
 it('skips animation for reduced motion and uses direct updates without View Transitions', async () => {
