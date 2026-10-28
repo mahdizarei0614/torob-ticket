@@ -10,7 +10,7 @@
 
 **Tech Stack:** Nx, pnpm, TypeScript, React, Vite, React Router, TanStack Query, React Aria, CSS Modules, CSS custom properties, Zod, NestJS, PostgreSQL, Prisma, Three.js, React Three Fiber, selected Drei utilities, Motion, @internationalized/date, Vitest, Testing Library, Playwright, Storybook, Docker Compose, Caddy.
 
-**Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.18, 2026-10-28 (round-trip returns, chart lifecycle, identity-only profile and shared squircle corners).
+**Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.19, 2026-10-29 (staggered particle arrivals, brighter dots and measured adaptive map bloom).
 
 **Plan state:** Approved. M1–M6 and T29 packaging are complete with independent reviews and packaged acceptance evidence. **29/35 tasks complete; M7 PARTIAL, T30 ACTIVE.** Owner requested a fast checkpoint before substantial design/logic changes: finish durable harness checks now; full T30 matrix and T31–T33 audits/rehearsal remain unfinished. M8 retains its planned scope.
 
@@ -2386,3 +2386,16 @@ The subsequent request supersedes the previous all-labels-hidden and pre-ticket 
 | Profile and notices | Identity/logout only; danger inline icon; remove saving/appearance UI and unused reads; concise card invalidation; silent incompatible-city clearing | DONE | 165 scoped tests +80 independent checks; real focus/mobile/logout/legacy20-record preservation and invalid-card native cases pass; [review](../../evidence/adjustments/roundtrip-chart-profile/review-profile-corners.md) |
 | Shared corners | Semantic radius/native squircle variables; rounded fallback; preserve true circles, native focus and vendor styles | DONE | 107 final CSS declarations audited; actual card/control/indicator computed shapes, native fallback/circles and screenshots verified |
 | Assembly and review | Independent reviews; source/native/package checks; specification/SDD/export checkpoint | DONE | [Checkpoint](../../evidence/adjustments/roundtrip-chart-profile/checkpoint.md):566 source tests/89 files,11 Nx checks,11 unique native cases across scoped runs; original10/1 run retained; Docker healthy; preview refreshed; no push |
+
+
+## Owner adjustment — staggered particles and adaptive bloom, 2026-10-29
+
+[Decision0045](../../decisions/0045-staggered-particles-and-adaptive-bloom.md), specification1.19. M7 remains partial,29/35; T30 active. Feature `e5ad5d7`; packaging prerequisite `6b3ff24`.
+
+| Adjustment | Subtasks | Status | Evidence |
+|---|---|---|---|
+| Staggered scope morph | Independent delays/durations; per-anchor land handoff; interruption parity; stable shader/material ownership | DONE | Independent10,240native samples/zero seed mismatches;14 focused tests + lifecycle review; [morph review](../../evidence/adjustments/staggered-particles-bloom/review-morph.md) |
+| Brighter particles | Modest semantic dark-dot adjustment; preserve light contrast, edge blending and dim background | DONE | Roughly15%dark RGB; actual source/packaged captures; native alpha boundaries preserved |
+| Adaptive pmndrs bloom | Map-only effect; bounded targets; actual cadence/submission/GPU trial; fresh timing/degradation; isolated chart/context cleanup | DONE | Independent10probes; packaged3/3 native cases;72001lit map pixels/zero outside pixels; [bloom review](../../evidence/adjustments/staggered-particles-bloom/review-bloom.md) |
+| Readiness prerequisite | One bounded expired-owner batch; immediate auth expiry; rollback/locking/live peer/restart retention | DONE | Author/independent18integration +5reviewer PG probes,3unitcases; actual25s cancellation; normalDockerstartuphealthy; [review](../../evidence/adjustments/staggered-particles-bloom/review-readiness-recovery.md) |
+| Assembly and device check | Final package performance; source/static checks; evidence/spec/SDD/export checkpoint | DONE | [Checkpoint](../../evidence/adjustments/staggered-particles-bloom/checkpoint.md):577tests/92files,11Nxchecks,API/data-access checks; actualM3Pro worldGPUmedian3.966ms/p958.268ms and16.7ms submittedcadence; one context, noerrors, no push |
