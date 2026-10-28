@@ -11,7 +11,7 @@ float scopeMorphSeed(vec2 center) {
 vec2 scopeMorphTiming(float seed) {
   uint quantized = uint(floor(seed * 65535.0 + 0.5));
   float variation = float(scopeMorphHash(quantized ^ 0x51ed270bu) & 65535u) / 65535.0;
-  return vec2(0.28 * seed, 0.45 + 0.17 * variation);
+  return vec2(0.34 * seed, 0.32 + 0.20 * variation);
 }
 float scopeMorphParticleProgress(float progress, float seed) {
   vec2 timing = scopeMorphTiming(seed);
@@ -19,5 +19,5 @@ float scopeMorphParticleProgress(float progress, float seed) {
 }
 float scopeMorphLandOpacity(float progress, float seed) {
   vec2 timing = scopeMorphTiming(seed);
-  return smoothstep(0.0, 1.0, (progress - timing.x - timing.y) / 0.09);
+  return smoothstep(0.0, 1.0, (progress - timing.x - timing.y) / 0.12);
 }

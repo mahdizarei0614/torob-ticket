@@ -7,13 +7,13 @@ const hash = (value: number) => {
   n = Math.imul(n ^ n >>> 15, 0x846ca68b);
   return (n ^ n >>> 16) >>> 0;
 };
-const seedFor = (x: number, y: number) => hash((Math.floor(x * 128 + .5) >>> 0) ^ hash((Math.floor(y * 128 + .5) + 0x9e3779b9) >>> 0));
+export const livingDotSeed = (x: number, y: number) => hash((Math.floor(x * 128 + .5) >>> 0) ^ hash((Math.floor(y * 128 + .5) + 0x9e3779b9) >>> 0));
 const smooth = (a: number, b: number, value: number) => { const t=Math.max(0,Math.min(1,(value-a)/(b-a))); return t*t*(3-2*t); };
 
 /** Staggered six-to-ten-second lives keep the silhouette visible while individual dots come and go. */
 export function sampleLivingDotOpacity(x: number, y: number, time: number, amplitude = LIVING_DOT_AMPLITUDE_PX) {
   if (amplitude <= 0) return 1;
-  const seed=seedFor(x,y);
+  const seed=livingDotSeed(x,y);
   const age=time/(6.5+3.5*(seed&65535)/65535)+(hash(seed^0x68bc21eb)&65535)/65535;
   const phase=age-Math.floor(age);
   return smooth(0,.18,phase)*(1-smooth(.68,.94,phase));
@@ -24,7 +24,7 @@ export const livingDotAmplitudeForSpacing = (spacingPx: number, requested = LIVI
 
 /** Matches the lattice shader; scope changes snapshot these displayed positions, not a rigid grid. */
 export function sampleLivingDotOffset(x: number, y: number, time: number, amplitude = LIVING_DOT_AMPLITUDE_PX): readonly [number, number] {
-  const seed = seedFor(x,y);
+  const seed = livingDotSeed(x,y);
   const strength = Math.max(0, Math.min(LIVING_DOT_AMPLITUDE_PX, amplitude));
   if (strength === 0 || time <= 0) return [0, 0];
   const t = Math.min(1, Math.max(0, time / .9));

@@ -34,25 +34,26 @@ vec4 lattice(float spacing, float proximity) {
   for (int y = -2; y <= 2; y++) for (int x = -2; x <= 2; x++) {
     vec2 center = (cell + vec2(float(x), float(y))) * spacing + gridOrigin;
     vec2 separation = (absolutePosition - center) / unitsPerPixel;
-    if (any(greaterThan(abs(separation), vec2(amplitude * 0.70710678118 + 2.0)))) continue;
+    if (any(greaterThan(abs(separation), vec2(amplitude * 0.70710678118 + min(12.0,max(0.0,spacing/unitsPerPixel*2.5-2.0-amplitude*0.70710678118))*clamp(pointerField.w,0.0,1.0) + 2.0)))) continue;
     vec3 particle = livingDotParticle(center, time, amplitude);
     if (particle.z < 0.0001) continue;
-    float radius = length(separation - particle.xy);
+    vec2 repel = dotPointerOffset(center,unitsPerPixel,centralLongitude,amplitude,spacing/unitsPerPixel,particle.xy,center);
+    float radius = length(separation - particle.xy - repel);
     float phase = sin(center.x * 12.9898 + center.y * 78.233) * 6.283185;
-    float core = 1.0 - smoothstep(0.75, 1.45 + proximity * 0.14, radius);
-    float halo = exp(-radius * radius * 0.8) * (0.06 + proximity * 0.07);
+    float core = 1.0 - smoothstep(0.75, 1.45 + proximity * 0.24, radius);
+    float halo = exp(-radius * radius * 0.8) * (0.06 + proximity * 0.19);
     float breath = 0.66 + 0.19 * sin(time * 0.43 + phase) + 0.07 * sin(time * 0.19 - phase * 1.7);
     float landed = 1.0;
     if (scopeMorphProgress < 1.0) landed = scopeMorphLandOpacity(scopeMorphProgress, scopeMorphSeed(center));
-    alpha = max(alpha, landed * (core * min(1.0, breath + proximity * 0.13) + halo) * dot.a * particle.z);
+    alpha = max(alpha, landed * (core * min(1.0, breath + proximity * 0.38) + halo) * dot.a * particle.z);
   }
-  return vec4(mix(dot.rgb, highlight.rgb, proximity * 0.22), alpha);
+  return vec4(mix(dot.rgb, highlight.rgb, proximity * 0.52), alpha);
 }
 void main() {
   if (layer < 0.5) {
     gl_FragColor = vec4(dot.rgb, dot.a * 0.32);
   } else {
-    if (scopeMorphProgress < 0.45) { gl_FragColor = vec4(0.0); return; }
+    if (scopeMorphProgress < 0.32) { gl_FragColor = vec4(0.0); return; }
     float trace = trailAt(vPosition);
     vec4 a=vec4(0.0),b=vec4(0.0),c=vec4(0.0),d=vec4(0.0);
     // Only the one or two visible density levels need fragment work.

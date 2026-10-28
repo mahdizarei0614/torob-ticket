@@ -78,7 +78,7 @@ describe('bounded living geography', () => {
       });
       expect(displayed).not.toEqual(rigid);
       const morph = createScopeMorph(); const particles = morph.start(displayed, rigid);
-      particles.forEach((particle, index) => expect(sampleMorphParticle(particle, 0)).toEqual(displayed[index]));
+      particles.forEach((particle, index) => expect(sampleMorphParticle(particle, 0)).toMatchObject({x:displayed[index]!.x,y:displayed[index]!.y,opacity:displayed[index]!.opacity}));
       expect(snapshotLandDots({ ...land, motion: { seconds: 8, amplitudePx: 0 } })).toEqual(rigid);
     }
   });
