@@ -2410,3 +2410,16 @@ The subsequent request supersedes the previous all-labels-hidden and pre-ticket 
 | Continuous morph | Live4.6s independently staggered field; terminal position/velocity join; actual camera; interrupted residual wander; covered pause | DONE | `73499d8`; [review](../../evidence/adjustments/continuous-morph-repulsion/review-morph.md):1,545GPU observations/2probes,≤0.000382CSSpx mismatch; immutable active-pointer rebase and policy tests |
 | Pointer response | Soft bounded flee/return from visible particles; stable seeds; stronger local light; strength-scaled candidate budget | DONE | [review](../../evidence/adjustments/continuous-morph-repulsion/review-pointer.md):3source probes,11.74px away,1.208×prior local light,46.43px zoom-stable radius;45actualGPU neighborhood comparisons match |
 | Assembly | Integrated/final-focused/static; normal Docker; native map/bloom; device performance; spec/SDD/export sync | DONE | [Checkpoint](../../evidence/adjustments/continuous-morph-repulsion/checkpoint.md):587integrated/18final-focused,11Nxchecks,3packagednative; bothDPRbloom-enabled/onecontext,16.7–16.8ms steady submissionp95; startup stalls retained separately |
+
+
+## Owner adjustment — faster morph, provinces and bounded glow, 2026-10-29
+
+[Decision0047](../../decisions/0047-faster-morph-provinces-and-bounded-glow.md), specification1.21. Source6289787; M7 remains partial29/35; T30 active.
+
+| Adjustment | Subtasks | Status | Evidence |
+|---|---|---|---|
+| Faster morph |2s, all delays0; arrival1.08–1.72s; live join, interrupted parity | DONE | `6289787`; [independent review](../../evidence/adjustments/faster-morph-provinces/review-independent.md):3nativeprobes/1545GPU observations, all64 sample departures nonzero by1% |
+| Wider pointer | Up to110px force, separate48px illumination; same bounded12px excursion and soft release | DONE | Actual app110px force versus46.43px illumination, zoom/camera/budget tests; reviewed without route/city displacement |
+| Iran provinces |75sourced features/39KB; sequential300ms exit/1s enter; bounded validation, retained resource/policy handling | DONE | Exact pinned-source/hash reproduction;3338province vertices/native sequential draw alpha/max2owners; retirement hazard fixed;29focused tests |
+| Restrained glow | Bound seeded pulse0.58–.80; geography tint avoids pale highlight; preserve selected semantic emphasis | DONE | Major-city sprite cause closed;12native raster cases maxRGB158/255/highlight perturbation0bytes, semantic positive-control136bytes;25focused tests |
+| Assembly | Integrated/static, normal Docker, native/device/visual proof, spec/SDD/exports | DONE | [Checkpoint](../../evidence/adjustments/faster-morph-provinces/checkpoint.md):599tests/96files,11Nxchecks,3packagednative; stable16.7–16.8ms submissionp95, adaptiveDPR2bloomfallback truthfully retained |
