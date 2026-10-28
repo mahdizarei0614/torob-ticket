@@ -97,5 +97,8 @@ test('@soft-motion skeleton, selected heading and list replacement retain safe f
   await detail.click(); const exiting = ticket.locator('[data-result-presence="exiting"]'); await expect(exiting.first()).toHaveAttribute('inert'); await expect(exiting).toHaveCount(0);
   await page.getByRole('radiogroup', { name: 'مرتب‌سازی پیشنهادها', exact: true }).getByText('سریع‌ترین', { exact: true }).click(); await expect(results(page)).toHaveAttribute('data-status', 'complete', { timeout: 20000 });
   await page.waitForTimeout(450);
+  const layers=await map.evaluate(node=>({map:Number(getComputedStyle(node).zIndex),header:Number(getComputedStyle(node.querySelector('header')!).zIndex),canvas:Math.max(...Array.from(document.querySelectorAll('canvas')).map(canvas=>Number(getComputedStyle(canvas).zIndex)||0))}));
+  expect(layers.map).toBeGreaterThan(layers.canvas);expect(layers.header).toBeGreaterThan(1);save('heading-layers',layers);
+  save('heading-visibility', await map.evaluate(node=>({scrollTop:node.scrollTop,height:node.clientHeight,scrollHeight:node.scrollHeight,frames:Array.from(node.querySelectorAll('[data-map-heading-key]')).map(frame=>({key:frame.getAttribute('data-map-heading-key'),hidden:frame.getAttribute('aria-hidden'),opacity:getComputedStyle(frame).opacity,rect:{top:frame.getBoundingClientRect().top,bottom:frame.getBoundingClientRect().bottom,height:frame.getBoundingClientRect().height}}))})));
   save('content', { before: headingBefore, after: await map.locator('[data-map-heading]').innerText(), selected: await map.getAttribute('data-map-itinerary') }); await page.screenshot({ path: resolve(out, 'selected-heading.png') });
 });

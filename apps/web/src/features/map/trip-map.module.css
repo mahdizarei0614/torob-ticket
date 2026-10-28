@@ -15,3 +15,6 @@
 .headingCity i { display:inline-block; padding-inline:9px; color:var(--text-muted); font-style:normal; font-weight:400; }
 .header .service { display:flex; flex-wrap:wrap; align-items:center; gap:4px 12px; margin-top:3px; font-size:11px; }
 .service bdi { font-family:var(--font-en); font-size:10px; letter-spacing:.035em; }
+/* Keep selected route text above the shared fixed WebGL canvas. */
+.header { position:relative; z-index:2; }
+.map { z-index:2; }
