@@ -10,7 +10,7 @@
 
 **Tech Stack:** Nx, pnpm, TypeScript, React, Vite, React Router, TanStack Query, React Aria, CSS Modules, CSS custom properties, Zod, NestJS, PostgreSQL, Prisma, Three.js, React Three Fiber, selected Drei utilities, Motion, @internationalized/date, Vitest, Testing Library, Playwright, Storybook, Docker Compose, Caddy.
 
-**Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.16, 2026-10-28 (living particles and a hotel overlay that preserves map geometry).
+**Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.17, 2026-10-28 (chart inspection, sliding controls, airline assets and stable result states).
 
 **Plan state:** Approved. M1–M6 and T29 packaging are complete with independent reviews and packaged acceptance evidence. **29/35 tasks complete; M7 PARTIAL, T30 ACTIVE.** Owner requested a fast checkpoint before substantial design/logic changes: finish durable harness checks now; full T30 matrix and T31–T33 audits/rehearsal remain unfinished. M8 retains its planned scope.
 
@@ -2358,3 +2358,18 @@ The subsequent request supersedes the previous all-labels-hidden and pre-ticket 
 |---|---|---|---|
 | Stable desktop map | Absolute banner at24px side/bottom inset; retain upward entry and hotel model; preserve mobile inline branch | DONE | `49fe01c`; one CSS rule; no viewport/camera resizing due to banner |
 | Independent/native verification | Show, remove, reappear, selected result and scroll; same camera/graphics bounds; mobile width/inline check | DONE | [Review](../../evidence/adjustments/continuous-dot-motion/hotel-overlay-review.md); all five desktop states x24/y110/580.359375×634, map scrollHeight768; native1/1 pass15.1s; cleanup201 |
+
+
+## Owner refinement — chart, controls, airlines and results, 2026-10-28
+
+[Decision0043](../../decisions/0043-chart-controls-and-result-refinements.md) maps all six requests. Task-scoped implementation agents and distinct independent reviews completed; M7 remains partial,29/35, T30 active.
+
+| Adjustment | Subtasks | Status | Evidence |
+|---|---|---|---|
+| Chart inspection | Animated exact-cell tooltip; bounded smooth3.25px ribbon; round ringed hover markers; persistent selected ring/guide; touch ownership; GPU/SVG parity | DONE | `fb1ef64`; [chart review](../../evidence/adjustments/chart-controls-results/chart-review.md); final native exact-value/finite tooltip and real GPU source/gap/resize proof pass |
+| Sliding segments | Measured RTL/LTR position/width; finite interruption; responsive/font changes; reduced/covered/disabled policy; native radios | DONE | `d584be7`; [review](../../evidence/adjustments/chart-controls-results/segmented-review.md); actual intermediate x/width frames, exact final alignment and four mobile groups pass |
+| Airline PNGs |52 identities/156 transparent variants; source/rights/hash registry; matching operator aliases; local images and neutral fallback | DONE | `7d78493`; [review](../../evidence/adjustments/chart-controls-results/airline-review.md); all156 independently decoded/verified;739,272 bytes; real list images load |
+| Trip details | Finite height disclosure; stable trigger/card/focus/scroll; avoid competing list projection and stale anchor adjustments | DONE | `2485c1e`; first/middle/last of11 cards, six native open/close traces have0px trigger/cardTop/scroll movement and intermediate heights |
+| Form and ranking | Clear old comparison on form choices; fence obsolete starts; remove generic card; retain local ranking through fresh/save/return paths | DONE | `2485c1e`; [results review](../../evidence/adjustments/chart-controls-results/results-review.md); same search/no start during sort, immutable query, form clear then fresh search; race/return/account regressions pass |
+| Empty lists | Completed no-match/filter-empty; truthful incomplete/failure state; date/form/filter adjustment | DONE | `2485c1e`; actual no-match and budget-empty browser journeys pass; coverage/unknown/historical-action regressions pass |
+| Assembly | Independent reviews and source/native checks; normal Docker startup; tracker/SDD/export sync | DONE | [Checkpoint](../../evidence/adjustments/chart-controls-results/checkpoint.md);550 integrated tests/88 files,9 Nx checks,5 unique native cases pass across scoped runs; original failures retained |
