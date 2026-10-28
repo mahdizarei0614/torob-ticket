@@ -11,7 +11,7 @@
   min-width: var(--control-size);
   padding: var(--space-2) var(--space-4);
   border: 1px solid var(--accent);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-md); corner-shape: var(--corner-shape);
   background: var(--accent);
   color: var(--on-accent);
   font-weight: 650;
@@ -55,7 +55,7 @@
   height: 1em;
   border: 2px solid currentColor;
   border-inline-end-color: var(--color-clear);
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-pill); corner-shape: var(--corner-shape-round);
   animation: turn 750ms linear infinite;
 }
 @keyframes turn {
@@ -81,7 +81,7 @@
   gap: var(--space-1);
   padding: var(--space-1);
   border: 1px solid var(--border);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-md); corner-shape: var(--corner-shape);
   background: var(--surface-subtle);
   width: fit-content;
   max-width: 100%;
@@ -96,7 +96,7 @@
   min-height: var(--control-size);
   padding: var(--space-2) var(--space-4);
   border: 1px solid var(--color-clear);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-sm); corner-shape: var(--corner-shape);
   color: var(--text-muted);
   cursor: pointer;
   font-weight: 550;
@@ -115,7 +115,7 @@
   opacity: 0;
   pointer-events: none;
   border: 1px solid var(--border-strong);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-sm); corner-shape: var(--corner-shape);
   background: var(--surface);
   z-index: 0;
 }
@@ -130,7 +130,7 @@
 .inputRow {
   display: flex;
   border: 1px solid var(--border-strong);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-md); corner-shape: var(--corner-shape);
   background: var(--surface);
   overflow: visible;
   transition: border-color var(--motion-fast), box-shadow var(--motion-fast), background var(--motion-fast);
@@ -147,7 +147,7 @@
   min-height: var(--control-size);
   padding: var(--space-2) var(--space-3);
   border: 0;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-md); corner-shape: var(--corner-shape);
   background: var(--color-clear);
   color: var(--text);
 }
@@ -156,7 +156,7 @@
 }
 .openButton {
   border: 0;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-md); corner-shape: var(--corner-shape);
   background: var(--color-clear);
   color: var(--icon);
   min-width: var(--control-size);
@@ -165,7 +165,7 @@
   display: grid;
   place-items: center;
 }
-.clearButton { display: grid; place-items: center; flex: 0 0 var(--control-size); min-width: var(--control-size); min-height: var(--control-size); border: 0; border-radius: var(--radius-sm); background: var(--color-clear); color: var(--text-muted); cursor: pointer; }
+.clearButton { display: grid; place-items: center; flex: 0 0 var(--control-size); min-width: var(--control-size); min-height: var(--control-size); border: 0; border-radius: var(--radius-sm); corner-shape: var(--corner-shape); background: var(--color-clear); color: var(--text-muted); cursor: pointer; }
 .clearButton:hover,.openButton[data-hovered] { color: var(--text); background: var(--accent-soft); }
 .clearButton:focus-visible,.openButton[data-focus-visible] { outline: var(--focus-width) solid var(--focus); outline-offset: -3px; }
 .clearButton:disabled { color: var(--disabled-text); cursor: default; }
@@ -183,7 +183,7 @@
   background: var(--surface-raised);
   color: var(--text);
   border: 1px solid var(--border-strong);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-md); corner-shape: var(--corner-shape);
   box-shadow: var(--elevation);
   padding: var(--space-1);
 }
@@ -199,7 +199,7 @@
   gap: var(--space-4);
   min-height: var(--control-size);
   padding: var(--space-2) var(--space-3);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-sm); corner-shape: var(--corner-shape);
   cursor: pointer;
 }
 .item[data-focused],
@@ -229,7 +229,7 @@
   max-height: calc(100dvh - 2rem);
   overflow: auto;
   border: 1px solid var(--border-strong);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-lg); corner-shape: var(--corner-shape);
   background: var(--surface);
   color: var(--text);
   box-shadow: var(--elevation);
@@ -262,7 +262,7 @@
 .tooltip {
   max-width: min(20rem, calc(100vw - 2rem));
   border: 1px solid var(--border-strong);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-sm); corner-shape: var(--corner-shape);
   padding: var(--space-2) var(--space-3);
   color: var(--text);
   background: var(--surface-raised);
@@ -277,7 +277,7 @@
   width: fit-content;
   max-width: 100%;
   padding: var(--space-1) var(--space-2);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-sm); corner-shape: var(--corner-shape);
   color: var(--text-muted);
   background: var(--surface-subtle);
   font-size: var(--text-xs);
@@ -338,7 +338,7 @@
     height: 100dvh;
     max-height: 100dvh;
     width: 100vw;
-    border-radius: 0;
+    border-radius: var(--radius-none); corner-shape: var(--corner-shape);
   }
   .overlay:has([data-mobile-fullscreen='true']) {
     padding: 0;

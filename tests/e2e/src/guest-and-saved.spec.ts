@@ -1,37 +1,78 @@
-import {test,expect,type Page} from '@playwright/test';
-import {mkdirSync,writeFileSync} from 'node:fs';
-import {resolve} from 'node:path';
-import type {TransportSearchQuery} from '@torob-ticket/contracts';
-// Failed traces can include HttpOnly demo cookies; evidence is explicit public receipts only.
-test.use({trace:'off'});
-const evidence=process.env.T19_EVIDENCE_DIR;
-const query:TransportSearchQuery={mode:'flight',scope:'domestic',tripType:'one-way',originCityId:'tehran',destinationCityId:'mashhad',departureDate:'2026-10-25',party:{adults:1,children:0,infants:0},classCode:'economy',filters:{},sort:'cheapest'};
-const account=(page:Page)=>page.getByRole('dialog',{name:'حساب کاربری',exact:true});
-const map=(page:Page)=>page.getByRole('complementary',{name:'نقشه سفر',exact:true});
-function record(name:string,value:unknown){if(evidence){mkdirSync(evidence,{recursive:true});writeFileSync(resolve(evidence,name+'.json'),JSON.stringify(value,null,2)+'\n');}}
-async function capture(page:Page,name:string){if(evidence){await page.evaluate(()=>document.fonts.ready);await page.screenshot({path:resolve(evidence,name+'.png')});}}
-async function setup(page:Page){const response=await page.request.post('/api/v1/demo/session',{data:{seed:1919,anchorInstant:'2026-10-25T06:00:00Z',scenario:'normal'}});expect(response.status()).toBe(201);const metadata=await response.json();await page.goto('/?'+new URLSearchParams({q:JSON.stringify(query)}));await expect(page.getByRole('button',{name:'جست‌وجوی سفر',exact:true})).toBeEnabled();return metadata;}
-async function open(page:Page){await page.getByRole('button',{name:'حساب کاربری',exact:true}).click();await expect(account(page)).toBeVisible();await expect(account(page).getByText('دریافت وضعیت حساب…',{exact:true})).toHaveCount(0);}
-async function login(page:Page){await account(page).getByRole('button',{name:'ادامه با ترب',exact:true}).click();await expect(account(page).getByRole('button',{name:'ذخیره جست‌وجوی فعلی',exact:true})).toBeEnabled();}
-async function close(page:Page){await account(page).getByRole('button',{name:'بستن حساب کاربری',exact:true}).click();await expect(account(page)).toHaveCount(0);}
-async function search(page:Page){const response=page.waitForResponse(r=>r.url().endsWith('/api/v1/searches')&&r.request().method()==='POST');await page.getByRole('button',{name:'جست‌وجوی سفر',exact:true}).click();const http=await response;expect(http.status()).toBe(201);await expect(page.getByRole('region',{name:'نتایج مقایسه سفر',exact:true})).toHaveAttribute('data-status','complete',{timeout:15000});return http.json();}
-test.describe('@guest-saved optional identity and fresh intent persistence',()=>{
- test.afterEach(async({page})=>{const reset=await page.request.post('/api/v1/demo/reset',{data:{}});expect(reset.status()).toBe(201);record('last-reset',{explicitBody:{},status:reset.status()});});
- test('guest comparison remains selected through real sign-in/save/sign-out and every saved reopen searches fresh',async({page,browser})=>{
-  test.setTimeout(90000);await page.setViewportSize({width:1440,height:1080});const metadata=await setup(page);const starts:string[]=[];page.on('request',r=>{if(r.url().endsWith('/api/v1/searches')&&r.method()==='POST')starts.push(r.postDataJSON().clientGeneration);});const initial=await search(page);const first=page.getByRole('region',{name:'نتایج مقایسه سفر',exact:true}).locator('article[data-group-id]').first();await first.getByRole('button',{name:'انتخاب پیشنهاد',exact:true}).press('Enter');await page.mouse.move(1438,4);await expect(map(page)).toHaveAttribute('data-map-progress','0.7');const pinned=await map(page).getAttribute('data-map-itinerary');const camera=await map(page).locator('[data-camera-intent]').getAttribute('data-camera-intent');
-  await open(page);await expect(page.getByRole('region',{name:'نقاط نقشه مسیر',exact:true})).toHaveCount(0);await login(page);expect(starts).toHaveLength(1);await account(page).getByRole('button',{name:'ذخیره جست‌وجوی فعلی',exact:true}).click();await account(page).getByRole('textbox',{name:'نام جست‌وجو',exact:true}).fill('سفر من به مشهد');await account(page).getByRole('button',{name:'ذخیره این جست‌وجو',exact:true}).click();await expect(account(page).locator('article[data-saved-search-id]')).toHaveCount(1);await expect(account(page).getByText(/^جست‌وجو ذخیره شد/)).toBeVisible();await capture(page,'desktop-account');await close(page);await expect(map(page)).toHaveAttribute('data-map-itinerary',pinned!);await expect(map(page)).toHaveAttribute('data-map-progress','0.7');expect(await map(page).locator('[data-camera-intent]').getAttribute('data-camera-intent')).toBe(camera);
-  await open(page);await account(page).getByRole('button',{name:'خروج از حساب',exact:true}).click();await expect(account(page).getByRole('button',{name:'ادامه با ترب',exact:true})).toBeVisible();await close(page);await expect(map(page)).toHaveAttribute('data-map-progress','0.7');expect(starts).toHaveLength(1);
-  await open(page);await login(page);await expect(account(page).locator('article[data-saved-search-id]')).toHaveCount(1);const opened=[];for(let i=0;i<2;i++){const response=page.waitForResponse(r=>r.url().endsWith('/api/v1/searches')&&r.request().method()==='POST');await account(page).getByRole('button',{name:'باز کردن و دریافت قیمت تازه',exact:true}).click();const http=await response;expect(http.status()).toBe(201);const actual=await http.json();opened.push({searchId:actual.snapshot.searchId,generation:actual.snapshot.clientGeneration,query:actual.snapshot.query});await expect(page.getByRole('region',{name:'نتایج مقایسه سفر',exact:true})).toHaveAttribute('data-status','complete',{timeout:15000});if(i===0)await open(page);}expect(new Set(opened.map(o=>o.searchId)).size).toBe(2);expect(new Set(starts).size).toBe(3);expect(opened.every(o=>o.query.departureDate===query.departureDate)).toBe(true);record('fresh-reopen',{metadata,browser:browser.version(),initialSearchId:initial.snapshot.searchId,pinned,camera,opened,starts});
- });
- test('schema-valid old saved date restores unchanged with visible correction and never starts a selected search',async({page})=>{
-  test.setTimeout(60000);const metadata=await setup(page);expect((await page.request.post('/api/v1/auth/demo/sign-in',{data:{}})).status()).toBe(201);const stale={...query,departureDate:'2026-10-01'};const created=await page.request.post('/api/v1/saved-searches',{data:{name:'قصد قدیمی',query:stale}});expect(created.status()).toBe(201);const saved=await created.json();let starts=0;page.on('request',r=>{if(r.url().endsWith('/api/v1/searches')&&r.method()==='POST')starts++;});await open(page);await account(page).getByRole('button',{name:'باز کردن و دریافت قیمت تازه',exact:true}).click();await expect(page.getByRole('region',{name:'کاوش تاریخ سفر',exact:true})).toHaveAttribute('data-selected-outbound','2026-10-01');await expect(page.getByText(/جست‌وجوی ذخیره‌شده در فرم قرار گرفت؛ برای قیمت تازه آن را اصلاح کنید/)).toBeVisible();await expect(page.getByRole('button',{name:'جست‌وجوی سفر',exact:true})).toBeDisabled();expect(starts).toBe(0);record('stale-intent',{metadata,saved,selectedSearches:starts,restoredDate:await page.getByRole('region',{name:'کاوش تاریخ سفر',exact:true}).getAttribute('data-selected-outbound')});
- });
- test('twenty saved intents keep the final mobile action reachable and the opt-in Close header in the viewport',async({page})=>{
-  test.setTimeout(60000);await page.setViewportSize({width:390,height:1000});const metadata=await setup(page);expect((await page.request.post('/api/v1/auth/demo/sign-in',{data:{}})).status()).toBe(201);
-  for(let i=0;i<20;i++){const departureDate=new Date(Date.UTC(2026,9,25+i)).toISOString().slice(0,10);const saved=await page.request.post('/api/v1/saved-searches',{data:{name:'قصد سفر '+(i+1),query:{...query,departureDate}}});expect(saved.status()).toBe(201);}
-  await open(page);const rows=account(page).locator('article[data-saved-search-id]');await expect(rows).toHaveCount(20);const last=rows.last().getByRole('button',{name:'حذف جست‌وجو',exact:true});await last.scrollIntoViewIfNeeded();await expect(last).toBeInViewport({ratio:1});const closeButton=account(page).getByRole('button',{name:'بستن حساب کاربری',exact:true});await expect(closeButton).toBeInViewport({ratio:1});const outer=page.locator('[data-profile-popover]');const bounds=(await outer.boundingBox())!;expect(bounds.width).toBeLessThanOrEqual(390);expect(bounds.height).toBeLessThanOrEqual(1000);const closeBounds=(await closeButton.boundingBox())!;await capture(page,'mobile-twenty-items');await closeButton.click();await expect(account(page)).toHaveCount(0);await expect(page.getByRole('button',{name:'حساب کاربری',exact:true})).toBeFocused();record('twenty-items',{metadata,items:20,viewport:{width:390,height:1000},outerBounds:bounds,closeBounds,lastActionVisible:true});
- });
- test('mobile guest theme persists locally and Cancel/Escape restore focus without saving or searching',async({page})=>{
-  test.setTimeout(60000);await page.setViewportSize({width:390,height:844});const metadata=await setup(page);let starts=0,saves=0;page.on('request',r=>{if(r.method()==='POST'&&r.url().endsWith('/api/v1/searches'))starts++;if(r.method()==='POST'&&r.url().endsWith('/api/v1/saved-searches'))saves++;});await open(page);await account(page).getByRole('combobox',{name:'پوسته نمایش',exact:true}).selectOption('dark');await expect(page.locator('html')).toHaveAttribute('data-preference','dark');await login(page);await account(page).getByRole('button',{name:'ذخیره جست‌وجوی فعلی',exact:true}).click();await account(page).getByRole('textbox',{name:'نام جست‌وجو',exact:true}).fill('ذخیره نشود');await capture(page,'mobile-account');await page.keyboard.press('Escape');await expect(account(page)).toHaveCount(0);await expect(page.getByRole('button',{name:'حساب کاربری',exact:true})).toBeFocused();await open(page);await account(page).getByRole('button',{name:'ذخیره جست‌وجوی فعلی',exact:true}).click();await expect(account(page).getByRole('textbox',{name:'نام جست‌وجو',exact:true})).toHaveValue('');await account(page).getByRole('button',{name:'انصراف از ذخیره',exact:true}).click();await account(page).getByRole('button',{name:'خروج از حساب',exact:true}).click();await close(page);await page.reload();await expect(page.locator('html')).toHaveAttribute('data-preference','dark');expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);await expect(map(page)).toHaveCount(0);expect(starts).toBe(0);expect(saves).toBe(0);record('mobile-preferences',{metadata,viewport:{width:390,height:844},selectedSearches:starts,saves,preference:await page.locator('html').getAttribute('data-preference')});
- });
+import { test, expect, type Page } from '@playwright/test';
+import { mkdirSync, writeFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import type { TransportSearchQuery } from '@torob-ticket/contracts';
+// Failed traces can include HttpOnly session cookies; keep explicit public receipts only.
+test.use({ trace: 'off' });
+const evidence = process.env.T19_EVIDENCE_DIR;
+const query: TransportSearchQuery = { mode: 'flight', scope: 'domestic', tripType: 'one-way', originCityId: 'tehran', destinationCityId: 'mashhad', departureDate: '2026-11-01', party: { adults: 1, children: 0, infants: 0 }, classCode: 'economy', filters: {}, sort: 'cheapest' };
+const account = (page: Page) => page.getByRole('dialog', { name: 'حساب کاربری', exact: true });
+const map = (page: Page) => page.getByRole('complementary', { name: 'نقشه سفر', exact: true });
+function record(name: string, value: unknown) { if (evidence) { mkdirSync(evidence, { recursive: true }); writeFileSync(resolve(evidence, name + '.json'), JSON.stringify(value, null, 2) + '\n'); } }
+async function setup(page: Page) {
+  expect((await page.request.post('/api/v1/demo/session', { data: { seed: 1919, anchorInstant: '2026-10-25T06:00:00Z', scenario: 'normal' } })).status()).toBe(201);
+  await page.goto('/?' + new URLSearchParams({ q: JSON.stringify(query) }));
+  await expect(page.getByRole('button', { name: 'جست‌وجوی سفر', exact: true })).toBeEnabled();
+  await expect(page.locator('[data-date-price-status]')).toHaveAttribute('data-date-price-status', 'complete', { timeout: 20000 });
+}
+async function open(page: Page) { const trigger = page.getByRole('button', { name: 'حساب کاربری', exact: true }); await trigger.scrollIntoViewIfNeeded(); await page.waitForTimeout(180); await trigger.click(); await expect(account(page)).toBeVisible(); }
+async function login(page: Page) { await account(page).getByRole('button', { name: 'ادامه با ترب', exact: true }).click(); await expect(account(page).getByRole('button', { name: 'خروج از حساب', exact: true })).toBeEnabled(); }
+async function close(page: Page) { await account(page).getByRole('button', { name: 'بستن حساب کاربری', exact: true }).click(); await expect(account(page)).toHaveCount(0); }
+
+test.describe('@guest-saved optional identity without saved-search presentation', () => {
+  test.afterEach(async ({ page }) => { if (!page.isClosed()) expect((await page.request.post('/api/v1/admin/reset', { data: {} })).status()).toBe(201); });
+  test('sign-in and sign-out preserve the guest comparison and pinned journey without searching or saving', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 1080 }); await setup(page);
+    let starts = 0, saves = 0;
+    page.on('request', r => { if (r.method() === 'POST' && r.url().endsWith('/api/v1/searches')) starts++; if (r.method() === 'POST' && r.url().endsWith('/api/v1/saved-searches')) saves++; });
+    await page.getByRole('button', { name: 'جست‌وجوی سفر', exact: true }).click();
+    const results = page.getByRole('region', { name: 'نتایج مقایسه سفر', exact: true });
+    await expect(results).toHaveAttribute('data-status', 'complete', { timeout: 20000 });
+    await expect(map(page)).toHaveAttribute('data-map-itinerary', /.+/);
+    const id = await results.getAttribute('data-search-id'), pinned = await map(page).getAttribute('data-map-itinerary');
+    await open(page); await login(page); await expect(account(page).getByRole('button')).toHaveCount(2);
+    await expect(account(page).getByRole('button', { name: /ذخیره/ })).toHaveCount(0); await close(page);
+    await expect(results).toHaveAttribute('data-search-id', id!); await expect(map(page)).toHaveAttribute('data-map-itinerary', pinned!);
+    await open(page); await account(page).getByRole('button', { name: 'خروج از حساب', exact: true }).click();
+    await expect(account(page).getByRole('button', { name: 'ادامه با ترب', exact: true })).toBeEnabled(); await close(page);
+    await expect(map(page)).toHaveAttribute('data-map-itinerary', pinned!); expect(starts).toBe(1); expect(saves).toBe(0);
+    record('identity-comparison', { searchId: id, pinned, starts, saves });
+  });
+  test('legacy saved records remain on the server and never populate the compact mobile profile', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 }); await setup(page);
+    expect((await page.request.post('/api/v1/auth/demo/sign-in', { data: {} })).status()).toBe(201);
+    for (let i = 0; i < 20; i++) {
+      const departureDate = new Date(Date.UTC(2026, 9, 25 + i)).toISOString().slice(0, 10);
+      expect((await page.request.post('/api/v1/saved-searches', { data: { name: 'قصد سفر ' + (i + 1), query: { ...query, departureDate } } })).status()).toBe(201);
+    }
+    await page.reload(); let savedReads = 0;
+    page.on('request', r => { if (r.method() === 'GET' && r.url().endsWith('/api/v1/saved-searches')) savedReads++; });
+    await open(page); await expect(account(page).getByRole('button', { name: 'خروج از حساب', exact: true })).toBeEnabled();
+    await expect(account(page).locator('[data-saved-search-id]')).toHaveCount(0); await expect(account(page).getByRole('button')).toHaveCount(2);
+    await expect(account(page).getByRole('button', { name: 'بستن حساب کاربری', exact: true })).toBeInViewport({ ratio: 1 });
+    const bounds = (await page.locator('[data-profile-popover]').boundingBox())!; expect(bounds.x + bounds.width).toBeLessThanOrEqual(390); expect(bounds.y + bounds.height).toBeLessThanOrEqual(844);
+    expect(savedReads).toBe(0); await close(page);
+    const retained = await (await page.request.get('/api/v1/saved-searches')).json();
+    expect(retained.items).toHaveLength(20); record('legacy-records-hidden', { retainedCount: retained.items.length, savedReads, bounds });
+  });
+  test('toolbar appearance persists for guests while the profile has no theme or save controls', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.addInitScript(() => {
+      const transitions: Promise<void>[] = [], original = document.startViewTransition?.bind(document);
+      Object.assign(window, { profileThemeTransitions: transitions });
+      if (original) document.startViewTransition = ((update: Parameters<Document['startViewTransition']>[0]) => {
+        const transition = original(update); transitions.push(transition.finished.catch(() => undefined)); return transition;
+      }) as Document['startViewTransition'];
+    });
+    await setup(page);
+    await page.getByRole('button', { name: 'نمای تیره', exact: true }).click();
+    await expect(page.locator('html')).toHaveAttribute('data-preference', 'dark');
+    await expect.poll(() => page.evaluate(() => (window as unknown as { profileThemeTransitions: Promise<void>[] }).profileThemeTransitions.length)).toBeGreaterThan(0);
+    await page.evaluate(() => Promise.all((window as unknown as { profileThemeTransitions: Promise<void>[] }).profileThemeTransitions));
+    await open(page); await expect(account(page).getByRole('combobox')).toHaveCount(0); await login(page);
+    await page.keyboard.press('Escape'); await expect(account(page)).toHaveCount(0); await expect(page.getByRole('button', { name: 'حساب کاربری', exact: true })).toBeFocused();
+    await page.reload(); await expect(page.locator('html')).toHaveAttribute('data-preference', 'dark');
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390); await expect(map(page)).toHaveCount(0);
+    record('toolbar-preference', { preference: await page.locator('html').getAttribute('data-preference'), viewport: { width: 390, height: 844 } });
+  });
 });

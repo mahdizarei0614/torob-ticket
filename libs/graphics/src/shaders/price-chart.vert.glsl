@@ -2,6 +2,8 @@ attribute vec2 strokeDirection;
 attribute float strokeSide;
 attribute float emphasis;
 attribute float pointBand;
+attribute float selectedMarker;
+attribute float visualOpacity;
 uniform vec2 viewport;
 uniform float kind;
 uniform float lineWidth;
@@ -15,11 +17,15 @@ varying float vStrokeSide;
 varying float vMarkerRadius;
 varying float vSelected;
 varying float vPointBand;
+varying float vChartX;
+varying float vVisualOpacity;
 void main() {
   vPricePosition = (position.y + 0.65) / 1.3;
   vStrokeSide = strokeSide;
   vPointBand = pointBand;
-  vSelected = abs(position.x - selectedX) < 0.0001 ? 1.0 : 0.0;
+  vChartX = position.x;
+  vVisualOpacity = visualOpacity;
+  vSelected = selectedMarker;
   vMarkerRadius = mix(markerRadius, selectedRadius, vSelected) + emphasis * hoverGrowth;
   vec2 point = position.xy;
   if (kind < 0.5 || kind > 1.5) {

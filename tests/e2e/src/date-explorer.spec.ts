@@ -30,7 +30,7 @@ async function observeNativeChartBuffers(page: Page) {
     const proof: NativeChartProof = { draws: [], uploads: 0, chartPrograms: 0, compiled: true, linked: true };
     const contents = new WeakMap<WebGLBuffer, Float32Array>(), programs = new WeakSet<WebGLProgram>();
     (window as unknown as { nativeChartProof: NativeChartProof }).nativeChartProof = proof;
-    const proto = WebGL2RenderingContext.prototype, upload = proto.bufferData, link = proto.linkProgram, draw = proto.drawArrays;
+    const proto = WebGL2RenderingContext.prototype, upload = proto.bufferData, update = proto.bufferSubData, link = proto.linkProgram, draw = proto.drawArrays;
     proto.bufferData = function (this: WebGL2RenderingContext, ...args: Parameters<WebGL2RenderingContext['bufferData']>) {
       upload.apply(this, args);
       const source = args[1], buffer = this.getParameter(this.ARRAY_BUFFER_BINDING) as WebGLBuffer | null;
@@ -39,6 +39,17 @@ async function observeNativeChartBuffers(page: Page) {
         contents.set(buffer, source.slice(offset, offset + length)); proof.uploads++;
       }
     } as WebGL2RenderingContext['bufferData'];
+    proto.bufferSubData = function (this: WebGL2RenderingContext, ...args: Parameters<WebGL2RenderingContext['bufferSubData']>) {
+      update.apply(this, args);
+      const source = args[2], buffer = this.getParameter(this.ARRAY_BUFFER_BINDING) as WebGLBuffer | null;
+      if (args[0] === this.ARRAY_BUFFER && buffer && source instanceof Float32Array) {
+        const offset = args[3] ?? 0, length = args[4] ?? source.length - offset, destination = args[1] / 4;
+        const previous = contents.get(buffer);
+        const next = previous && previous.length >= destination + length ? previous : new Float32Array(Math.max(previous?.length ?? 0, destination + length));
+        if (previous && next !== previous) next.set(previous);
+        next.set(source.subarray(offset, offset + length), destination); contents.set(buffer, next); proof.uploads++;
+      }
+    } as WebGL2RenderingContext['bufferSubData'];
     proto.linkProgram = function (program) {
       link.call(this, program);
       const shaders = this.getAttachedShaders(program) ?? [], source = shaders.map(shader => this.getShaderSource(shader) ?? '').join('\n');

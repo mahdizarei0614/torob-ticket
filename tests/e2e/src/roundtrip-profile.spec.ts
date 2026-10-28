@@ -24,7 +24,7 @@ test.beforeEach(async ({ page }) => {
 });
 test.afterEach(async ({ page }, info) => { const response = await page.request.post('/api/v1/admin/reset', { data: {} }); save('cleanup-' + info.title.replace(/[^a-zA-Z0-9]/g, '-').slice(0, 65), { status: response.status() }); expect(response.status()).toBe(201); });
 
-test('@roundtrip-profile compact intro, paired price bounds and anchored profile keep real saved actions', async ({ page }) => {
+test('@roundtrip-profile compact intro, paired price bounds and anchored identity-only profile', async ({ page }) => {
   await open(page);
   await expect(page.getByText('پرواز، قطار یا اتوبوس؛ شرایط سفر را کنار هم ببینید.', { exact: true })).toHaveCount(0);
   const title = page.getByRole('heading', { name: 'سفر بعدی از کجا شروع می‌شود؟', exact: true });
@@ -38,12 +38,9 @@ test('@roundtrip-profile compact intro, paired price bounds and anchored profile
   await expect(profile(page)).not.toHaveAttribute('aria-modal', 'true');
   await expect(page.getByRole('button', { name: 'جست‌وجوی سفر', exact: true })).toBeEnabled();
   await profile(page).getByRole('button', { name: 'ادامه با ترب', exact: true }).click();
-  await expect(profile(page).getByRole('button', { name: 'ذخیره جست‌وجوی فعلی', exact: true })).toBeEnabled();
-  for (const text of ['جست‌وجوهای ذخیره‌شده', 'قصد سفر ذخیره می‌شود؛ هر بار باز کردن، قیمت تازه می‌گیرد و قیمت قبلی تضمین نمی‌شود.', 'هنوز جست‌وجویی ذخیره نکرده‌اید.']) await expect(profile(page).getByText(text, { exact: true })).toHaveCount(0);
-  await profile(page).getByRole('button', { name: 'ذخیره جست‌وجوی فعلی', exact: true }).click();
-  await profile(page).getByRole('textbox', { name: 'نام جست‌وجو', exact: true }).fill('سفر من');
-  await profile(page).getByRole('button', { name: 'ذخیره این جست‌وجو', exact: true }).click();
-  await expect(profile(page).locator('[data-saved-search-id]')).toHaveCount(1);
+  await expect(profile(page).getByRole('button', { name: 'خروج از حساب', exact: true })).toBeEnabled();
+  await expect(profile(page).getByRole('button', { name: /ذخیره/ })).toHaveCount(0);
+  await expect(profile(page).getByRole('combobox')).toHaveCount(0);
   await capture(page, 'profile-desktop');
   await page.keyboard.press('Escape'); await expect(profile(page)).toHaveCount(0); await expect(trigger).toBeFocused();
   await page.setViewportSize({ width: 390, height: 844 }); await trigger.click(); await expect(profile(page)).toBeVisible();

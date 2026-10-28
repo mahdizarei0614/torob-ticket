@@ -34,6 +34,8 @@ describe('exact date chart inspection and selection', () => {
   it('shows a custom exact-cell tooltip on hover while retaining the selected ring on another date', () => {
     const view = mountChart();
     expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+    expect(screen.getByText('کمترین قیمت:')).toBeInTheDocument(); expect(screen.getByText('بیشترین قیمت:')).toBeInTheDocument();
+    expect(screen.queryByText('کمینه:')).not.toBeInTheDocument(); expect(screen.queryByText('بیشینه:')).not.toBeInTheDocument();
     fireEvent.pointerMove(view.slider, view.position(3));
     const tooltip = screen.getByRole('tooltip');
     expect(within(tooltip).getByText(dateLabel(cells[3]!.date))).toBeInTheDocument();

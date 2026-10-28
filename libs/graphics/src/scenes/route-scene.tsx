@@ -6,7 +6,7 @@ import { DEFAULT_PROJECTION, fitRouteBounds, projectPoint, projectRoute, type Pr
 import { SceneCamera, SceneSurface, useCameraIntent, frameForAspect, type CameraIntent, type SceneMarker } from './scene-surface';
 import { SceneDrawing, StaticMap } from './scene-drawing';
 import { useGraphics } from '../graphics-provider';
-import { buildJourneyPresentation, sampleJourneyPresentation, type JourneyPresentation, type JourneyPresentationFrame } from './journey-presentation';
+import { buildJourneyPresentation, buildRoundTripPresentation, sampleJourneyPresentation, type JourneyPresentation, type JourneyPresentationFrame } from './journey-presentation';
 import { placeAnnotations } from './annotation-layout';
 import { createSceneFrameStore, fitPresentationBounds, type SceneFrameStore } from './camera-transition';
 import { contextCityLabels, DOMESTIC_DOT_BASE_SPACING, INTERNATIONAL_DOT_BASE_SPACING, worldDotWeights, type ContextCity, type ContextLabel, type WorldCountry, type WorldContext } from '../geo/world-context';
@@ -50,12 +50,16 @@ export const RouteScene = memo(function RouteScene({ places, dots, scope, itiner
   const pointer = useRef({ x: 0, y: 0, active: false });
   const cameraFrames = useMemo(()=>createSceneFrameStore(),[]);
   const leg = itinerary && (direction === 'outbound' ? itinerary.outbound : itinerary.return);
-  const segments = useMemo<readonly RouteSegmentGeometry[]>(() => {
+  const legSegments = useMemo<readonly RouteSegmentGeometry[]>(() => {
     if (itinerary && leg) return buildRouteGeometry(itinerary, places, paths, direction, projection);
     if (!illustrative) return [];
     return [{ segmentId: 'endpoint-illustration', mode: illustrative.mode, transfer: false, originPlaceId: '', destinationPlaceId: '', paths: projectRoute(illustrative.points, projection), geometryStatus: 'illustrative', provenance: { source: illustrative.label, revision: 'endpoint-v1', illustrative: true, navigation: false } }];
   }, [itinerary, leg, places, paths, direction, projection, illustrative]);
-  const plan = useMemo(() => buildJourneyPresentation(segments, leg, places, presentation?.cityNames), [segments, leg, places, presentation?.cityNames]);
+  const returnSegments = useMemo(() => presentation && direction === 'outbound' && itinerary?.return ? buildRouteGeometry(itinerary, places, paths, 'return', projection) : [], [Boolean(presentation), direction, itinerary, places, paths, projection]);
+  const plan = useMemo(() => presentation && direction === 'outbound' && itinerary?.return
+    ? buildRoundTripPresentation(legSegments, itinerary.outbound, returnSegments, itinerary.return, places, presentation.cityNames)
+    : buildJourneyPresentation(legSegments, leg, places, presentation?.cityNames), [legSegments, returnSegments, direction, itinerary, leg, places, Boolean(presentation), presentation?.cityNames]);
+  const segments = useMemo(() => plan.roundTrip ? [...legSegments, ...returnSegments] : legSegments, [plan.roundTrip, legSegments, returnSegments]);
   const endpoints = useMemo(() => (presentation?.endpoints ?? []).map(endpoint => {
     const placeId = endpoint.role === 'origin' ? leg?.segments[0]?.originPlaceId : leg?.segments.at(-1)?.destinationPlaceId;
     const place = placeId && places.find(item => item.id === placeId);
@@ -150,19 +154,19 @@ function PresentationOverlay({ plan, store, endpoints, context, frame:targetFram
     return { left: `${50 + (x - frame.x) / frame.width * 100}%`, top: `${50 - (y - frame.y) / frame.height * 100}%` };
   };
   const visible = (point: GeoPoint) => { const [x, y] = projectPoint(point, context); return Math.abs(x - frame.x) <= frame.width / 2 && Math.abs(y - frame.y) <= frame.height / 2; };
-  return <div className={presentationStyles.overlay} data-route-presentation data-context-label-count={contextual.length} data-map-dot-spacing={dotSpacing} data-map-dot-refinement={dotRefinement} data-map-dot-weights={dotSpacing?worldDotWeights(frame.width/dimensions.width,dotSpacing,dotRefinement).map(value=>value.toFixed(3)).join(','):undefined} data-route-reveal={current.reveal.toFixed(3)} data-route-travel={current.travel.toFixed(3)} data-vehicle-opacity={current.vehicleOpacity.toFixed(3)} data-vehicle-blur={current.vehicleBlur.toFixed(3)} data-route-complete={current.complete} data-journey-phase={current.complete ? 'complete' : current.activeStop === null ? 'travel' : 'stop'} data-reduced-motion={reducedMotion} data-motion-active={active} aria-label="نقاط مسیر انتخاب‌شده" role="group">
+  return <div className={presentationStyles.overlay} data-route-presentation data-context-label-count={contextual.length} data-map-dot-spacing={dotSpacing} data-map-dot-refinement={dotRefinement} data-map-dot-weights={dotSpacing?worldDotWeights(frame.width/dimensions.width,dotSpacing,dotRefinement).map(value=>value.toFixed(3)).join(','):undefined} data-route-reveal={current.reveal.toFixed(3)} data-route-travel={current.travel.toFixed(3)} data-vehicle-opacity={current.vehicleOpacity.toFixed(3)} data-vehicle-blur={current.vehicleBlur.toFixed(3)} data-vehicle-point={current.vehiclePoint?.map(value=>value.toFixed(6)).join(',')} data-route-round-trip={Boolean(plan.roundTrip)} data-route-animation-direction={current.direction ?? 'outbound'} data-route-turn-progress={current.turnProgress?.toFixed(3)} data-route-turn-mode={plan.roundTrip?.mode} data-route-complete={current.complete} data-journey-phase={current.complete ? 'complete' : current.turnProgress !== undefined ? 'turn' : current.activeStop === null ? 'travel' : 'stop'} data-reduced-motion={reducedMotion} data-motion-active={active} aria-label="نقاط مسیر انتخاب‌شده" role="group">
     {worldContext && <div className={presentationStyles.contextCities} aria-hidden="true">{worldContext.cities.map(city=>{const p=projectPoint(city.point,context);return <ContextCityName key={city.id} city={city} label={contextual.find(item=>item.id===city.id)} x={dimensions.width*(.5+(p[0]-frame.x)/frame.width)} y={dimensions.height*(.5-(p[1]-frame.y)/frame.height)}/>;})}</div>}
     <svg className={presentationStyles.leaders} viewBox={`0 0 ${dimensions.width} ${dimensions.height}`} aria-hidden="true">{[...placements.values()].filter(item=>item.leader && visibleLabels.has(item.id)).map(item=><line key={item.id} {...item.leader!} />)}</svg>
     <EndpointPresence reducedMotion={reducedMotion} endpoints={endpoints.map(endpoint=>{
       const [x,y]=projectPoint(endpoint.point,context),left=dimensions.width*(.5+(x-frame.x)/frame.width),top=dimensions.height*(.5-(y-frame.y)/frame.height);
-      return {...endpoint,key:`${endpoint.role}:${endpoint.id}:${endpoint.point.longitude}:${endpoint.point.latitude}`,arrived:endpoint.role==='origin'||current.complete,left,top,opacity:endpointEdgeOpacity(left,top,dimensions.width,dimensions.height),text:textPosition(`endpoint:${endpoint.role}:${endpoint.id}`)??{left:-66,top:-58,width:132,height:44}};
+      return {...endpoint,key:`${endpoint.role}:${endpoint.id}:${endpoint.point.longitude}:${endpoint.point.latitude}`,arrived:endpoint.role==='origin'||current.complete||current.direction==='return'||current.turnProgress!==undefined,left,top,opacity:endpointEdgeOpacity(left,top,dimensions.width,dimensions.height),text:textPosition(`endpoint:${endpoint.role}:${endpoint.id}`)??{left:-66,top:-58,width:132,height:44}};
     })}/>
     {current.revealedStops.map((revealed, index) => {
       const stop = plan.stops.find(item => item.id === revealed.id);
       if (!stop || !visible(stop.point)) return null;
-      return <div key={stop.id} className={presentationStyles.stop} style={position(stop.point)} data-route-stop={stop.placeId} data-journey-stop={stop.id} data-stop-occurrence={stop.id} data-wait-minutes={revealed.count ?? 'unknown'} data-side={index % 2 ? 'below' : 'above'} data-stop-active={plan.stops[current.activeStop ?? -1]?.id === stop.id}>
+      return <div key={stop.id} className={presentationStyles.stop} style={position(stop.point)} data-route-stop={stop.placeId} data-journey-stop={stop.id} data-stop-direction={plan.roundTrip ? stop.id.startsWith('return:') ? 'return' : 'outbound' : undefined} data-stop-occurrence={stop.id} data-wait-minutes={revealed.count ?? 'unknown'} data-side={index % 2 ? 'below' : 'above'} data-stop-active={plan.stops[current.activeStop ?? -1]?.id === stop.id}>
         <span className={presentationStyles.stopOrbit} aria-hidden="true" />
-        <div className={presentationStyles.stopText} style={textPosition(stop.id)} dir="rtl"><strong>{stop.name}</strong><span aria-label={stop.waitMinutes === null ? 'زمان توقف نامعلوم' : `توقف ${number(stop.waitMinutes)} دقیقه`}><span data-wait-count>{revealed.count === null ? 'نامعلوم' : number(revealed.count)}</span>{revealed.count !== null && ' دقیقه توقف'}</span></div>
+        <div className={presentationStyles.stopText} style={textPosition(stop.id)} dir="rtl"><strong>{stop.name}</strong><span aria-label={stop.waitMinutes === null ? 'زمان توقف نامعلوم' : `توقف ${number(stop.waitMinutes)} دقیقه`}>{plan.roundTrip && (stop.id.startsWith('return:') ? 'برگشت · ' : 'رفت · ')}<span data-wait-count>{revealed.count === null ? 'نامعلوم' : number(revealed.count)}</span>{revealed.count !== null && ' دقیقه توقف'}</span></div>
       </div>;
     })}
   </div>;

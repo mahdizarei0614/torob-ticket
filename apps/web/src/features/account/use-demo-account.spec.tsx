@@ -43,3 +43,16 @@ for(const action of ['signIn','signOut','save','remove'] as const)it('rejects re
 it('publishes a current standalone StrictMode account lease after replay and rejects it after real unmount',async()=>{
  const api=client();const hook=renderHook(()=>useDemoAccount(null,api),{wrapper:StrictMode});expect(hook.result.current.isCurrent()).toBe(true);await act(()=>hook.result.current.signIn());expect(api.signIn).toHaveBeenCalledTimes(1);const old=hook.result.current;hook.unmount();await old.signOut();expect(api.signOut).not.toHaveBeenCalled();
 });
+
+it('profile identity reads and sign-in do not request stored searches or alter their API records',async()=>{
+ const api=client();const hook=renderHook(()=>useDemoAccount(null,api,false));
+ await act(()=>hook.result.current.refresh());expect(hook.result.current.identity).toEqual(identity);expect(api.listSavedSearches).not.toHaveBeenCalled();
+ await act(()=>hook.result.current.signOut());await act(()=>hook.result.current.signIn());
+ expect(hook.result.current.identity).toEqual(identity);expect(api.listSavedSearches).not.toHaveBeenCalled();expect(api.saveSearch).not.toHaveBeenCalled();expect(api.deleteSavedSearch).not.toHaveBeenCalled();hook.unmount();
+});
+it('keeps explicit stored-search APIs functional outside the consumer profile presentation',async()=>{
+ const api=client(),hook=renderHook(()=>useDemoAccount(null,api));await act(()=>hook.result.current.refresh());
+ await act(()=>hook.result.current.save({name:saved.name,query:saved.query}));await act(()=>hook.result.current.remove(saved.savedSearchId));
+ expect(api.saveSearch).toHaveBeenCalledExactlyOnceWith({name:saved.name,query:saved.query},expect.any(AbortSignal));expect(api.deleteSavedSearch).toHaveBeenCalledExactlyOnceWith(saved.savedSearchId,expect.any(AbortSignal));
+ expect(api.listSavedSearches).toHaveBeenCalledTimes(3);hook.unmount();
+});

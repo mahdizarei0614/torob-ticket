@@ -4,6 +4,7 @@ uniform vec4 highlight;
 uniform float reveal;
 uniform float travel;
 uniform float stopGlow;
+uniform float strandOpacity;
 uniform float headLength;
 uniform float tailLength;
 varying float vProgress;
@@ -28,10 +29,10 @@ void main() {
   // The tail exists only behind the moving head, making direction legible.
   // Lengths are updated in CSS pixels as the camera eases or zooms.
   float behind = travel - vProgress;
-  float tail = exp(-max(0.0,behind) / max(tailLength,0.0001) * 2.5) * (1.0 - smoothstep(0.0,headLength * 0.8,-behind));
-  float head = exp(-pow(behind / max(headLength,0.0001),2.0));
+  float tail = exp(-max(0.0,behind) / max(tailLength,0.0001) * 2.5) * (1.0 - smoothstep(0.0,headLength * 0.8,-behind)) * strandOpacity;
+  float head = exp(-pow(behind / max(headLength,0.0001),2.0)) * strandOpacity;
   float ray = exp(-side * side * 25.0);
-  float spark = exp(-pow(behind / max(headLength * 0.32,0.0001),2.0)) * exp(-side * side * 2.5);
+  float spark = exp(-pow(behind / max(headLength * 0.32,0.0001),2.0)) * exp(-side * side * 2.5) * strandOpacity;
   float flare = tail * ray * 0.88 + head * (0.8 + stopGlow * 1.4) + spark * (0.5 + stopGlow * 0.7);
   vec4 base = vKind > 0.5 ? routeMuted : route;
   vec3 light = mix(base.rgb, highlight.rgb, clamp(flare, 0.0, 1.0));

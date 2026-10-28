@@ -4,16 +4,16 @@ import type { DemoIdentity, SavedSearch, SaveSearchInput } from '@torob-ticket/c
 import { searchStartPool } from '../search/search-start-pool';
 export function accountError(error: unknown) { if (error instanceof ClientError) {
     if (error.api?.code === 'IDENTITY_REQUIRED')
-        return 'برای دسترسی به جست‌وجوهای ذخیره‌شده، دوباره وارد شوید.';
+        return 'برای ادامه، دوباره وارد حساب کاربری شوید.';
     if (error.api?.code === 'SAVED_SEARCH_LIMIT')
         return '۲۰ جست‌وجوی متفاوت ذخیره شده است. یکی را حذف کنید و دوباره ذخیره کنید.';
     if (error.api?.code === 'SESSION_EXPIRED')
         return 'دسترسی به حساب پایان یافته است. صفحه را تازه کنید.';
     if (error.kind === 'network')
         return 'ارتباط برقرار نشد. دوباره تلاش کنید.';
-} return 'اطلاعات حساب دریافت یا ذخیره نشد. دوباره تلاش کنید.'; }
+} return 'درخواست حساب تکمیل نشد. دوباره تلاش کنید.'; }
 /** Account authority is separate from the immutable consumer bootstrap/query controller. */
-export function useDemoAccount(initialIdentity: DemoIdentity | null, client: ApiClient = apiClient) {
+export function useDemoAccount(initialIdentity: DemoIdentity | null, client: ApiClient = apiClient, includeSavedSearches = true) {
     const pool = searchStartPool(client);
     const reset = useSyncExternalStore(pool.subscribe, pool.getSnapshot);
     const [identity, setIdentity] = useState(initialIdentity);
@@ -68,14 +68,14 @@ export function useDemoAccount(initialIdentity: DemoIdentity | null, client: Api
         setListStatus('complete');
     } }
     function refresh() { return run('read', async (signal, current) => { const result = await client.authState(signal); if (!current())
-        return; setIdentity(result.identity); setReady(true); if (result.identity)
+        return; setIdentity(result.identity); setReady(true); if (result.identity && includeSavedSearches)
         await load(signal, current);
     else {
         setItems([]);
         setListStatus('idle');
     } }); }
     function signIn() { return run('write', async (signal, current) => { const result = await client.signIn(signal); if (!current())
-        return; setIdentity(result.identity); setReady(true); if (result.identity)
+        return; setIdentity(result.identity); setReady(true); if (result.identity && includeSavedSearches)
         await load(signal, current); }); }
     function signOut() { return run('write', async (signal, current) => { const result = await client.signOut(signal); if (current()) {
         setIdentity(result.identity);
@@ -83,9 +83,9 @@ export function useDemoAccount(initialIdentity: DemoIdentity | null, client: Api
         setListStatus('idle');
         setReady(true);
     } }); }
-    function save(input: SaveSearchInput) { return run('write', async (signal, current) => { await client.saveSearch(input, signal); if (current())
+    function save(input: SaveSearchInput) { return run('write', async (signal, current) => { await client.saveSearch(input, signal); if (current() && includeSavedSearches)
         await load(signal, current); }); }
-    function remove(id: string) { return run('write', async (signal, current) => { await client.deleteSavedSearch(id, signal); if (current())
+    function remove(id: string) { return run('write', async (signal, current) => { await client.deleteSavedSearch(id, signal); if (current() && includeSavedSearches)
         await load(signal, current); }); }
     const renderedEpoch = epoch.current, renderedScope = pool.epoch, renderedIdentity = identity?.identityId;
     const isCurrent = () => valid(renderedEpoch, renderedScope) && !writing.current && identityRef.current?.identityId === renderedIdentity;

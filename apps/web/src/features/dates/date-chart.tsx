@@ -1,27 +1,51 @@
-import { lazy, Suspense, useEffect, useId, useRef, useState, type PointerEvent } from 'react';
+import { lazy, Suspense, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore, type PointerEvent } from 'react';
 import { GraphicsView } from '@torob-ticket/graphics/host';
-import { MotionSurface, PriceChartFallback, priceChartGeometry, priceChartX, priceBand, useMotionPolicy, type PriceRange } from '@torob-ticket/ui';
+import { MotionSurface, PriceChartFallback, priceChartGeometry, priceChartX, priceBand, useMotionPolicy, usePriceChartLifecycle, type PriceChartLifecycle, type PriceRange } from '@torob-ticket/ui';
 import type { DatePriceCell } from '@torob-ticket/contracts';
 import { cellLabel, dateLabel, disabledCell, type DateLeg } from './date-state';
 import styles from './dates.module.css';
 const Scene = lazy(() => import('@torob-ticket/graphics').then(module => ({ default: module.PriceChartScene })));
 interface Inspection { date: string; source: 'pointer' | 'touch' }
 interface PointerStart { id: number; x: number; y: number; moved: boolean }
+function ChartTooltip({ cell, cells, leg, range, lifecycle, id }: { cell: DatePriceCell; cells: readonly DatePriceCell[]; leg: DateLeg; range: PriceRange; lifecycle: PriceChartLifecycle; id: string }) {
+  const frame = useSyncExternalStore(lifecycle.subscribe, lifecycle.getSnapshot, lifecycle.getSnapshot);
+  const point = frame.phase === 'exiting' ? undefined : frame.points.find(point => point.date === cell.date);
+  const index = cells.indexOf(cell), x = point ? (point.x + 1) * 50 : (priceChartX(cells, Math.max(0, index)) + 1) * 50, y = point ? (1 - point.y) * 50 : 50;
+  return <div className={styles.chartTooltipAnchor} data-placement={y < 42 ? 'below' : 'above'} style={{ left: `clamp(0px, calc(${x}% - 68px), max(0px, calc(100% - 136px)))`, top: `${y}%` }}>
+    <MotionSurface id={id} role="tooltip" className={styles.chartTooltip} purpose="emphasis" motionKey={cell.date}>
+      <bdi className={styles.chartTooltipDate} dir="ltr">{dateLabel(cell.date)}</bdi>
+      <span className={styles.chartTooltipPrice} data-price-band={priceBand(cell.status === 'priced' ? cell.minimum.amountRial : undefined, range)}>{cell.status === 'priced' ? <><bdi>{new Intl.NumberFormat('fa-IR', { maximumFractionDigits: 1 }).format(cell.minimum.amountRial / 10)}</bdi><span>تومان</span></> : cellLabel(cell, leg)}</span>
+    </MotionSurface>
+  </div>;
+}
 export function DateChart({ cells, selected, onSelect, leg, range }: { cells: readonly DatePriceCell[]; selected: string; onSelect: (date: string) => void; leg: DateLeg; range?: PriceRange }) {
-  const geometry = priceChartGeometry(cells);
-  const presentation = priceChartGeometry(cells, range);
+  const geometry = useMemo(() => priceChartGeometry(cells), [cells]);
+  const presentation = useMemo(() => priceChartGeometry(cells, range), [cells, range]);
   const policy = useMotionPolicy();
   const chart = useRef<HTMLDivElement>(null), pointerStart = useRef<PointerStart | null>(null), activePointers = useRef(new Set<number>());
   const [inspection, setInspection] = useState<Inspection | null>(null), [focused, setFocused] = useState(false), [dismissed, setDismissed] = useState(false);
+  const [visible, setVisible] = useState(true), moving = policy.enabled && visible;
+  const [gpuReady, setGpuReady] = useState(false);
+  const lifecycle = usePriceChartLifecycle(cells, range, moving, selected);
+  useLayoutEffect(() => {
+    const update = () => {
+      const frame = lifecycle.getSnapshot(), element = chart.current;
+      if (!element) return;
+      element.dataset['chartPhase'] = frame.phase; element.dataset['chartReveal'] = String(frame.reveal);
+      element.dataset['chartOpacity'] = String(frame.opacity); element.dataset['chartMorphProgress'] = String(frame.morphProgress);
+    };
+    update(); return lifecycle.subscribe(update);
+  }, [lifecycle]);
   const tooltipId = useId();
   const selectedIndex = Math.max(0, cells.findIndex(cell => cell.date === selected));
   const activeCell = dismissed ? undefined : cells.find(cell => cell.date === inspection?.date) ?? (focused ? cells.find(cell => cell.date === selected) ?? cells[0] : undefined);
   const activePoint = presentation.points.find(point => point.date === activeCell?.date);
   const hovered = activePoint?.date;
-  const activeIndex = activeCell ? cells.indexOf(activeCell) : -1;
-  const tooltipX = activeIndex < 0 ? 0 : (priceChartX(cells, activeIndex) + 1) * 50;
-  const tooltipY = activePoint ? (1 - activePoint.y) * 50 : 50;
-  const below = tooltipY < 42;
+  useEffect(() => {
+    if (!chart.current || typeof IntersectionObserver === 'undefined') return;
+    const observer = new IntersectionObserver(entries => { const entry = entries[0]; if (entry) setVisible(entry.isIntersecting); });
+    observer.observe(chart.current); return () => observer.disconnect();
+  }, []);
   useEffect(() => {
     if (inspection?.source !== 'touch') return;
     const dismissOutside = (event: globalThis.PointerEvent) => { if (!chart.current?.contains(event.target as Node)) { pointerStart.current = null; setInspection(null); setDismissed(true); } };
@@ -43,8 +67,8 @@ export function DateChart({ cells, selected, onSelect, leg, range }: { cells: re
   };
   return <div className={styles.chartSection}>
     <div className={styles.chartHeading}><span>کمترین قیمت روزهای سفر</span><span>تومان</span></div>
-    <div ref={chart} className={styles.chart} data-chart-selected={selected} data-motion-policy={policy.enabled ? 'finite' : 'static'}>
-      <GraphicsView label="نمودار کمترین قیمت واجد شرایط به تاریخ حرکت" fallback={<PriceChartFallback cells={cells} selected={selected} hovered={hovered} range={range} motionEnabled={policy.enabled} />}><Suspense fallback={null}><Scene cells={cells} selected={selected} hovered={hovered} range={range} motionEnabled={policy.enabled} /></Suspense></GraphicsView>
+    <div ref={chart} className={styles.chart} data-chart-selected={selected} data-chart-gpu-ready={gpuReady} data-motion-policy={moving ? 'finite' : 'static'}>
+      <GraphicsView label="نمودار کمترین قیمت واجد شرایط به تاریخ حرکت" fallback={<PriceChartFallback cells={cells} selected={selected} hovered={hovered} range={range} motionEnabled={moving} lifecycle={lifecycle} />}><Suspense fallback={null}><Scene cells={cells} selected={selected} hovered={hovered} range={range} motionEnabled={moving} lifecycle={lifecycle} onReadyChange={setGpuReady} /></Suspense></GraphicsView>
       <div className={styles.chartPoints} role="slider" tabIndex={cells.length ? 0 : -1} aria-label="انتخاب روز از نمودار" aria-orientation="horizontal" aria-valuemin={0} aria-valuemax={Math.max(0, cells.length - 1)} aria-valuenow={selectedIndex} aria-valuetext={`${dateLabel(selected)}، ${cellLabel(cells.find(cell => cell.date === selected), leg)}`} aria-describedby={activeCell ? tooltipId : undefined}
         onFocus={() => { setFocused(true); setDismissed(false); }} onBlur={() => { setFocused(false); setInspection(null); }}
         onPointerDown={event => {
@@ -78,14 +102,9 @@ export function DateChart({ cells, selected, onSelect, leg, range }: { cells: re
           const cell = cells[index]; if (!cell) return;
           setInspection(null); setDismissed(false); onSelect(cell.date);
         }} />
-      {activeCell && <div className={styles.chartTooltipAnchor} data-placement={below ? 'below' : 'above'} style={{ left: `clamp(0px, calc(${tooltipX}% - 68px), max(0px, calc(100% - 136px)))`, top: `${tooltipY}%` }}>
-        <MotionSurface id={tooltipId} role="tooltip" className={styles.chartTooltip} purpose="emphasis" motionKey={activeCell.date}>
-          <bdi className={styles.chartTooltipDate} dir="ltr">{dateLabel(activeCell.date)}</bdi>
-          <span className={styles.chartTooltipPrice} data-price-band={priceBand(activeCell.status === 'priced' ? activeCell.minimum.amountRial : undefined, range ?? { min: presentation.min, max: presentation.max })}>{activeCell.status === 'priced' ? <><bdi>{new Intl.NumberFormat('fa-IR', { maximumFractionDigits: 1 }).format(activeCell.minimum.amountRial / 10)}</bdi><span>تومان</span></> : cellLabel(activeCell, leg)}</span>
-        </MotionSurface>
-      </div>}
+      {activeCell && <ChartTooltip id={tooltipId} cell={activeCell} cells={cells} leg={leg} range={range ?? { min: presentation.min, max: presentation.max }} lifecycle={lifecycle}/>}
     </div>
     <div className={styles.axis} aria-hidden="true"><span>{cells[0] ? dateLabel(cells[0].date) : ''}</span><span>{cells.at(-1) ? dateLabel(cells.at(-1)!.date) : ''}</span></div>
-    <div className={styles.range} aria-label="بازه قیمت روزهای قابل مقایسه"><span><span>کمینه:</span><bdi data-price-band={priceBand(geometry.points.length ? geometry.min : undefined, range)}>{geometry.points.length?new Intl.NumberFormat('fa-IR').format(geometry.min/10):'نامشخص'}</bdi></span><span><span>بیشینه:</span><bdi data-price-band={priceBand(geometry.points.length ? geometry.max : undefined, range)}>{geometry.points.length?new Intl.NumberFormat('fa-IR').format(geometry.max/10):'نامشخص'}</bdi></span></div>
+    <div className={styles.range} aria-label="بازه قیمت روزهای قابل مقایسه"><span><span>کمترین قیمت:</span><bdi data-price-band={priceBand(geometry.points.length ? geometry.min : undefined, range)}>{geometry.points.length?new Intl.NumberFormat('fa-IR').format(geometry.min/10):'نامشخص'}</bdi></span><span><span>بیشترین قیمت:</span><bdi data-price-band={priceBand(geometry.points.length ? geometry.max : undefined, range)}>{geometry.points.length?new Intl.NumberFormat('fa-IR').format(geometry.max/10):'نامشخص'}</bdi></span></div>
   </div>;
 }

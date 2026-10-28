@@ -47,6 +47,10 @@ it('uses the selected return leg and falls back to form city names before a tick
  const itinerary = { ...first, return: { segments: [{ ...first.outbound.segments[0]!, originPlaceId: 'MHD', destinationPlaceId: 'IKA' }], stops: [] } };
  expect(routeHeading({ itinerary, direction: 'return', query }, routeCatalog).labels).toEqual(['پایان', 'آغاز']);
  expect(routeHeading({ direction: 'return', query }, routeCatalog)).toMatchObject({ labels: ['پایان', 'آغاز'], service: undefined, codes: undefined });
+ const wholeTrip = routeHeading({ itinerary, direction: 'outbound', query }, routeCatalog);
+ expect(wholeTrip.labels).toEqual(['آغاز', 'پایان', 'آغاز']);
+ expect(wholeTrip.codes).toBe('IKA → MHD → IKA');
+ expect(wholeTrip.service).toContain('رفت'); expect(wholeTrip.service).toContain('برگشت');
 });
 
 it('fades and finitely removes the previous heading under actual normal motion', async () => {

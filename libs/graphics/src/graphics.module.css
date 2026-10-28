@@ -10,10 +10,10 @@
 .fallback svg { width: 100%; height: 100%; }
 .lab { max-width: 900px; margin: auto; padding: var(--space-6); }
 .controls { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; margin-block: var(--space-4); }
-.controls button, .controls select, .lab dialog button { min-height: var(--control-size); border: 1px solid var(--border-strong); border-radius: var(--radius-sm); color: var(--text); background: var(--surface); padding: var(--space-2) var(--space-4); }
+.controls button, .controls select, .lab dialog button { min-height: var(--control-size); border: 1px solid var(--border-strong); border-radius: var(--radius-sm); corner-shape: var(--corner-shape); color: var(--text); background: var(--surface); padding: var(--space-2) var(--space-4); }
 .controls :focus-visible, .lab dialog :focus-visible { outline: var(--focus-width) solid var(--focus); outline-offset: 3px; }
 .views { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-6); }
-.lab dialog { border: 1px solid var(--border); background: var(--surface); color: var(--text); border-radius: var(--radius-lg); padding: var(--space-6); }
+.lab dialog { border: 1px solid var(--border); background: var(--surface); color: var(--text); border-radius: var(--radius-lg); corner-shape: var(--corner-shape); padding: var(--space-6); }
 .lab dialog::backdrop { background: var(--overlay); }
 .report { white-space: pre-wrap; overflow-wrap: anywhere; direction: ltr; text-align: left; font-size: var(--text-xs); max-height: 340px; overflow: auto; background: var(--surface-subtle); padding: var(--space-4); }
 .spacer { height: 65vh; }

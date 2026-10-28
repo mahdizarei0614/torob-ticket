@@ -4,11 +4,44 @@ import { createElement } from 'react';
 import type { Mode } from '@torob-ticket/contracts';
 import type { ProjectedPoint } from '../geo/projection';
 import type { RouteSegmentGeometry } from '../geo/route-geometry';
-import { buildVehicleTrack, sampleTrainWagons, sampleVehiclePose, vehicleRotation } from './vehicle-motion';
+import { buildVehicleTrack, buildRoundTripVehicleTrack, roundTripVehicleDistance, sampleTrainWagons, sampleVehiclePose, vehicleRotation } from './vehicle-motion';
 import { StaticMap } from './scene-drawing';
 
 const segment = (paths: ProjectedPoint[][], mode: Mode = 'train', id = 'a'): RouteSegmentGeometry => ({ segmentId: id, paths, mode, transfer: false, originPlaceId: 'from', destinationPlaceId: 'to', geometryStatus: 'illustrative', provenance: null });
 describe('vehicle tangent and train consist', () => {
+  it('does not enter the decorative loop early at a short-route boundary or a rounded outgoing sample', () => {
+    const prepared = buildRoundTripVehicleTrack([segment([[[0,0,0],[1,0,0]]]), segment([[[1,0,0],[0,0,0]]], 'train', 'return')], 1, .01)!;
+    const before = .5 - 1e-9;
+    expect(roundTripVehicleDistance(prepared, before)).toBeLessThan(prepared.turnStart);
+    expect(roundTripVehicleDistance(prepared, .5, undefined, 'outbound')).toBe(prepared.turnStart);
+    expect(roundTripVehicleDistance(prepared, .5, 0, 'outbound')).toBe(prepared.turnStart);
+    expect(roundTripVehicleDistance(prepared, .5, undefined, 'return')).toBeCloseTo(prepared.turnStart + prepared.turnLength);
+  });
+  it.each(['flight', 'train', 'bus'] as const)('turns %s along its own decorative maneuver, then follows the supplied return to the original start', mode => {
+    const segments = [segment([[[0, 0, 0], [100, 0, 0]]], mode), segment([[[100, 0, 0], [45, 12, 0], [0, 0, 0]]], mode, 'return')];
+    const prepared = buildRoundTripVehicleTrack(segments, 1, .1)!;
+    const middle = sampleVehiclePose(prepared.track, roundTripVehicleDistance(prepared, .5, .5))!;
+    expect(middle.point[0]).toBeGreaterThan(100); expect(middle.point[1]).toBeGreaterThan(0);
+    expect(prepared.discontinuous).toBe(false);
+    const before = sampleVehiclePose(prepared.track, prepared.turnStart + .001)!;
+    const after = sampleVehiclePose(prepared.track, prepared.turnStart + prepared.turnLength + .001)!;
+    expect(Math.cos(before.angle)).toBeGreaterThan(.99); expect(Math.cos(after.angle)).toBeLessThan(-.9);
+    sampleVehiclePose(prepared.track, roundTripVehicleDistance(prepared, 1))!.point.forEach(value => expect(value).toBeCloseTo(0, 9));
+    if (mode === 'train') {
+      const wagons = sampleTrainWagons(prepared.track, middle, .1 * 36);
+      expect(wagons.every(Boolean)).toBe(true);
+      expect(new Set([middle, ...wagons].map(pose=>pose!.point.join(','))).size).toBe(3);
+    }
+    const larger = buildRoundTripVehicleTrack(segments, 1, .2)!;
+    expect(larger.turnLength).toBeCloseTo(prepared.turnLength * 2);
+  });
+  it('keeps an unmatched return station as a discontinuity instead of drawing a made-up transfer', () => {
+    const prepared = buildRoundTripVehicleTrack([segment([[[0,0,0],[100,0,0]]]), segment([[[110,10,0],[0,0,0]]], 'train', 'return')], 1, .1)!;
+    expect(prepared.discontinuous).toBe(true);
+    const returnPose = sampleVehiclePose(prepared.track, prepared.turnStart + prepared.turnLength + .01)!;
+    expect(returnPose.point[0]).toBeGreaterThan(109);
+    expect(sampleTrainWagons(prepared.track, returnPose, 3)).toEqual([null,null]);
+  });
   it.each(['flight', 'train', 'bus'] as const)('orients %s along an oblique local path', mode => {
     const pose = sampleVehiclePose(buildVehicleTrack([segment([[[0, 0, 0], [10, 10, 0]]], mode)]), 5)!;
     expect(pose.angle).toBeCloseTo(Math.PI / 4);

@@ -20,7 +20,8 @@ it('keeps edited-trip results readable but disables representative/provider choi
  render(<ResultsList isCurrent={()=>true} generation="generation" searchId="search" query={query} catalog={catalog} refinementDisabled draftChanged onRefine={()=>undefined} onEdit={()=>undefined} onSelectQuote={selected} onPinItinerary={pin} onPreviewItinerary={preview} selectedAction={{quoteId:item.eligibleQuotes[0]!.quoteId,node:<button>continue old flight</button>}}/>);
  expect(screen.getByRole('heading',{name:/مقایسه پروازها/})).toBeVisible();expect(screen.getByRole('button',{name:'انتخاب پیشنهاد'})).toBeDisabled();
  fireEvent.click(screen.getByRole('button',{name:'جزئیات سفر'}));expect(screen.queryByRole('button',{name:'پیشنهاد انتخاب‌شده'})).not.toBeInTheDocument();expect(screen.getByText('بار همراه: نامشخص')).toBeVisible();
- expect(screen.queryByRole('button',{name:'continue old flight'})).not.toBeInTheDocument();expect(screen.getByText(/ابتدا سفر ویرایش‌شده را جست‌وجو کنید/)).toBeVisible();
+ expect(screen.queryByRole('button',{name:'continue old flight'})).not.toBeInTheDocument();expect(screen.queryByText(/ابتدا سفر ویرایش‌شده را جست‌وجو کنید/)).not.toBeInTheDocument();
+ expect(screen.getByText('اعتبار قیمت پایان یافته',{exact:false})).toBeVisible();expect(document.querySelector('[data-invalid-price]')).toHaveAttribute('data-invalid-price','changed-intent');
  fireEvent.mouseEnter(screen.getByRole('article'));expect(pin).not.toHaveBeenCalled();expect(preview).not.toHaveBeenCalled();expect(selected).not.toHaveBeenCalled();
 });
 it('an already-rendered result cannot select after synchronous draft invalidation before React rerenders',()=>{
@@ -38,7 +39,7 @@ it('a newly adopted later provider observation is current on the first render, e
  const state=resultsReducer(createResultsState('generation','search'),{type:'receive',recovery:value});
  vi.mocked(useResults).mockReturnValue({state,dispatch:vi.fn(),now:initialTime,connectionError:false,connectionState:'settled' as const,error:undefined,retryRead:vi.fn(),stored:value});
  render(<ResultsList isCurrent={()=>true} generation="generation" searchId="search" query={query} catalog={catalog} refinementDisabled={false} draftChanged={false} onRefine={()=>undefined} onEdit={()=>undefined}/>);
- expect(screen.getByRole('button',{name:'انتخاب پیشنهاد'})).toBeEnabled();expect(screen.queryByText('اعتبار قیمت پایان یافته است؛ برای انتخاب دوباره جست‌وجو کنید.')).not.toBeInTheDocument();
+ expect(screen.getByRole('button',{name:'انتخاب پیشنهاد'})).toBeEnabled();expect(document.querySelector('[data-invalid-price]')).toBeNull();
 });
 
 it('obsolete already-rendered result callbacks emit no selection, pin, preview, adoption, edit or refinement',()=>{

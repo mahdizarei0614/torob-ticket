@@ -8,11 +8,17 @@ uniform float kind;
 uniform float lineWidth;
 uniform float ringWidth;
 uniform float selectionRingWidth;
+uniform float reveal;
+uniform float revealStart;
+uniform float revealEnd;
+uniform float curveOpacity;
 varying float vPricePosition;
 varying float vStrokeSide;
 varying float vMarkerRadius;
 varying float vSelected;
 varying float vPointBand;
+varying float vChartX;
+varying float vVisualOpacity;
 void main() {
   vec4 price = vPricePosition <= 0.25 ? priceLow : vPricePosition >= 0.75 ? priceHigh : priceMid;
   vec4 color = kind > 2.5 ? chartMarker : kind > 1.5 ? chartGrid : price;
@@ -33,6 +39,8 @@ void main() {
     alpha = 1.0 - smoothstep(solid, 1.0, abs(vStrokeSide));
     if (kind > 2.5) alpha *= 0.3;
   }
+  if (kind < 0.5 && reveal < 0.99999 && vChartX > mix(revealStart, revealEnd, reveal)) discard;
+  if (kind < 1.5) alpha *= curveOpacity * vVisualOpacity;
   gl_FragColor = vec4(color.rgb, color.a * alpha);
   #include <colorspace_fragment>
 }

@@ -4,7 +4,7 @@
   vertical-align: middle;
   object-fit: contain;
   background: var(--brand-mark-surface);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-sm); corner-shape: var(--corner-shape);
 }
 
 @media (forced-colors: active) {

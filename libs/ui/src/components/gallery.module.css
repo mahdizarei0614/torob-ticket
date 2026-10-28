@@ -34,7 +34,7 @@
   width: 5px;
   height: 14px;
   background: var(--accent);
-  border-radius: 2px;
+  border-radius: var(--radius-xs); corner-shape: var(--corner-shape);
 }
 .brandMark i:nth-child(2) {
   height: 24px;
@@ -91,7 +91,7 @@
   background: var(--surface);
   border: 1px solid var(--border);
   border-top: 3px solid var(--accent);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-lg); corner-shape: var(--corner-shape);
   padding: var(--space-5);
 }
 .searchTop {
@@ -136,7 +136,7 @@
 .ticket {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-lg); corner-shape: var(--corner-shape);
 }
 .ticketTop {
   padding: var(--space-4) var(--space-5);
@@ -154,7 +154,7 @@
   height: 40px;
   background: var(--accent-soft);
   color: var(--accent);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-md); corner-shape: var(--corner-shape);
 }
 .journey {
   display: grid;
@@ -185,7 +185,7 @@
   width: 7px;
   height: 7px;
   border: 1.5px solid var(--accent);
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-pill); corner-shape: var(--corner-shape-round);
 }
 .routeLine span {
   flex: 1;
@@ -235,7 +235,7 @@
 .sample {
   padding: var(--space-5);
   border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-lg); corner-shape: var(--corner-shape);
   background: var(--surface);
   display: flex;
   flex-direction: column;
@@ -255,7 +255,7 @@
 .codeSample {
   padding: var(--space-3);
   border: 1px dashed var(--border-strong);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-sm); corner-shape: var(--corner-shape);
   color: var(--text-muted);
   line-height: 2;
 }

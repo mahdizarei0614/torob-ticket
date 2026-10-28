@@ -8,7 +8,7 @@ describe('search controller state boundaries', () => {
     expect(state.draft.destinationCityId).toBe('');
     expect(state.draft.departureDate).toBe(query.departureDate);
     expect(state.draft.classCode).toBe('seat');
-    expect(state.notice).toMatch(/مقصد/);expect(state.notice).not.toMatch(/کلاس/);
+    expect(state.notice).toBe('');
   });
   it('keeps a compatible class through a scope change and defaults only an unavailable class',()=>{
     const international={...catalog,supportedConnections:[...catalog.supportedConnections,{...catalog.supportedConnections[0]!,scope:'international' as const}],classChoices:[...catalog.classChoices,{mode:'flight' as const,code:'business',name:'Business'}]};

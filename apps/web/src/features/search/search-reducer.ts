@@ -44,7 +44,7 @@ export function searchReducer(state: SearchState, action: SearchAction): SearchS
       const clears: string[] = [];
       if (draft.mode !== state.draft.mode || draft.scope !== state.draft.scope || draft.originCityId !== state.draft.originCityId) {
         if (!action.catalog.supportedConnections.some(c => c.mode === draft.mode && c.scope === draft.scope && c.originCityId === draft.originCityId)) { draft.originCityId = ''; clears.push('مبدا'); }
-        if (!action.catalog.supportedConnections.some(c => c.mode === draft.mode && c.scope === draft.scope && c.originCityId === draft.originCityId && c.destinationCityId === draft.destinationCityId)) { draft.destinationCityId = ''; clears.push('مقصد'); }
+        if (!action.catalog.supportedConnections.some(c => c.mode === draft.mode && c.scope === draft.scope && c.originCityId === draft.originCityId && c.destinationCityId === draft.destinationCityId)) draft.destinationCityId = '';
         const filters = { ...draft.filters };
         if (draft.mode !== 'flight' && filters.checkedBaggageMinKg !== undefined) { delete filters.checkedBaggageMinKg; clears.push('فیلتر بار'); }
         if (filters.providerIds?.some(id => !action.catalog.providerCapabilities.some(p => p.providerId === id && p.modes.includes(draft.mode) && p.scopes.includes(draft.scope)))) { delete filters.providerIds; clears.push('فیلتر فروشنده'); }

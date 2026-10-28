@@ -1,4 +1,4 @@
-import type { GeoPoint, JourneyLeg, Place } from '@torob-ticket/contracts';
+import type { GeoPoint, JourneyLeg, Mode, Place } from '@torob-ticket/contracts';
 import { displayPlaceName } from '@torob-ticket/ui';
 import type { RouteSegmentGeometry } from '../geo/route-geometry';
 
@@ -25,6 +25,13 @@ export interface JourneyPresentation {
   stages: JourneyPresentationStage[];
   stops: JourneyPresentationStop[];
   durationMs: number;
+  roundTrip?: {
+    splitProgress: number;
+    splitSegment: number;
+    turnStartMs: number;
+    turnEndMs: number;
+    mode: Mode;
+  };
 }
 export interface JourneyPresentationFrame {
   reveal: number;
@@ -35,6 +42,9 @@ export interface JourneyPresentationFrame {
   complete: boolean;
   vehicleOpacity: number;
   vehicleBlur: number;
+  direction?: 'outbound' | 'return';
+  turnProgress?: number;
+  vehiclePoint?: readonly number[];
 }
 const clamp = (value: number) => Math.max(0, Math.min(1, value));
 const ease = (value: number) => value * value * (3 - 2 * value);
@@ -73,6 +83,30 @@ export function buildJourneyPresentation(segments: readonly RouteSegmentGeometry
   return { stages, stops, durationMs: time + 700 };
 }
 
+/** Combine supplied legs, retaining their own stop occurrences and actual relative lengths. */
+export function buildRoundTripPresentation(outbound: readonly RouteSegmentGeometry[], outboundLeg: JourneyLeg, inbound: readonly RouteSegmentGeometry[], returnLeg: JourneyLeg, places: readonly Place[], cityNames: Readonly<Record<string, string>> = {}): JourneyPresentation {
+  const first = buildJourneyPresentation(outbound, outboundLeg, places, cityNames);
+  const second = buildJourneyPresentation(inbound, returnLeg, places, cityNames);
+  if (!first.stages.length || !second.stages.length) return first;
+  const length = (segments: readonly RouteSegmentGeometry[]) => segments.reduce((total, segment) => total + segment.paths.reduce((sum, path) => sum + path.slice(1).reduce((distance, point, index) => distance + Math.hypot(...point.map((value, axis) => value - path[index]![axis]!)), 0), 0), 0);
+  const outLength = length(outbound), backLength = length(inbound);
+  const splitProgress = outLength / (outLength + backLength);
+  const turnStartMs = first.stages.at(-1)!.endMs;
+  const mode = outbound.at(-1)!.mode;
+  const turnEndMs = turnStartMs + (mode === 'train' ? 2100 : mode === 'flight' ? 1650 : 1400);
+  const remap = (value: number, isReturn: boolean) => isReturn ? splitProgress + value * (1 - splitProgress) : value * splitProgress;
+  const stages = [first, second].flatMap((plan, direction) => plan.stages.map(stage => ({ ...stage,
+    from: remap(stage.from, Boolean(direction)), to: remap(stage.to, Boolean(direction)),
+    startMs: stage.startMs + (direction ? turnEndMs : 0), arriveMs: stage.arriveMs + (direction ? turnEndMs : 0), endMs: stage.endMs + (direction ? turnEndMs : 0),
+    stopIndex: stage.stopIndex === null ? null : stage.stopIndex + (direction ? first.stops.length : 0),
+  })));
+  const stops = [first, second].flatMap((plan, direction) => plan.stops.map(stop => ({ ...stop,
+    id: `${direction ? 'return' : 'outbound'}:${stop.id}`, progress: remap(stop.progress, Boolean(direction)),
+    arriveMs: stop.arriveMs + (direction ? turnEndMs : 0), endMs: stop.endMs + (direction ? turnEndMs : 0),
+  })));
+  return { stages, stops, durationMs: turnEndMs + second.durationMs, roundTrip: { splitProgress, splitSegment: outbound.length, turnStartMs, turnEndMs, mode } };
+}
+
 export function sampleJourneyPresentation(plan: JourneyPresentation, elapsedMs: number, { reducedMotion = false }: { reducedMotion?: boolean } = {}): JourneyPresentationFrame {
   const elapsed = Number.isFinite(elapsedMs) ? Math.max(0, elapsedMs) : 0;
   const complete = reducedMotion || !plan.stages.length || elapsed >= plan.durationMs;
@@ -80,7 +114,14 @@ export function sampleJourneyPresentation(plan: JourneyPresentation, elapsedMs: 
     const amount = complete ? 1 : 1 - Math.pow(1 - clamp((elapsed - stop.arriveMs) / Math.max(1, stop.endMs - stop.arriveMs)), 3);
     return { id: stop.id, waitMinutes: stop.waitMinutes, count: stop.waitMinutes === null ? null : Math.round(stop.waitMinutes * amount) };
   });
-  if (reducedMotion || !plan.stages.length) return { reveal: 1, travel: 1, stopGlow: 0, activeStop: null, revealedStops, complete: true, vehicleOpacity: 1, vehicleBlur: 0 };
+  if (reducedMotion || !plan.stages.length) return { reveal: 1, travel: 1, stopGlow: 0, activeStop: null, revealedStops, complete: true, vehicleOpacity: plan.roundTrip ? 0 : 1, vehicleBlur: 0, ...(plan.roundTrip ? { direction: 'return' as const } : {}) };
+  // A round trip makes one complete pass and leaves its actual route and facts visible.
+  if (plan.roundTrip && complete) return { reveal: 1, travel: 1, stopGlow: 0, activeStop: null, revealedStops, complete: true, vehicleOpacity: 0, vehicleBlur: 1, direction: 'return' };
+  if (plan.roundTrip && elapsed >= plan.roundTrip.turnStartMs && elapsed < plan.roundTrip.turnEndMs) return {
+    reveal: plan.roundTrip.splitProgress, travel: plan.roundTrip.splitProgress, stopGlow: 0, activeStop: null, revealedStops, complete: false,
+    vehicleOpacity: 1, vehicleBlur: 0, direction: 'outbound',
+    turnProgress: ease(clamp((elapsed - plan.roundTrip.turnStartMs) / (plan.roundTrip.turnEndMs - plan.roundTrip.turnStartMs))),
+  };
   // Once drawn, only the strand repeats; the route and revealed facts stay present.
   const time = complete ? ((elapsed - plan.durationMs) / 1.8) % plan.durationMs : elapsed;
   const stage = plan.stages.find(item => time < item.endMs) ?? plan.stages.at(-1)!;
@@ -93,5 +134,6 @@ export function sampleJourneyPresentation(plan: JourneyPresentation, elapsedMs: 
   const entrance = ease(clamp(time / 330));
   const departure = 1 - ease(clamp((time - arrival + 160) / 500));
   const vehicleOpacity = entrance * departure;
-  return { reveal: complete ? 1 : travel, travel, stopGlow, activeStop, revealedStops, complete, vehicleOpacity, vehicleBlur: 1 - vehicleOpacity };
+  return { reveal: complete ? 1 : travel, travel, stopGlow, activeStop, revealedStops, complete, vehicleOpacity, vehicleBlur: 1 - vehicleOpacity,
+    ...(plan.roundTrip ? { direction: elapsed >= plan.roundTrip.turnEndMs ? 'return' as const : 'outbound' as const } : {}) };
 }

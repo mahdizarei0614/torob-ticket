@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { JourneyLeg, Place } from '@torob-ticket/contracts';
 import type { RouteSegmentGeometry } from '../geo/route-geometry';
-import { buildJourneyPresentation, sampleJourneyPresentation } from './journey-presentation';
+import { buildJourneyPresentation, buildRoundTripPresentation, sampleJourneyPresentation } from './journey-presentation';
 
 const place = (id: string, x: number): Place => ({ id, cityId: id, name: id, kind: 'station', timeZone: 'Asia/Tehran', point: { longitude: x, latitude: 30 } });
 const places = [place('a', 0), place('b', 2), place('c', 10)];
@@ -15,6 +15,25 @@ function makeRoute(ids: string[], waits: (number | undefined)[] = []) {
 }
 
 describe('selected-journey visual choreography', () => {
+  it('plays supplied outbound/return geometry and separate stop occurrences, then fades at the original start without looping', () => {
+    const out = makeRoute(['a', 'b', 'c'], [45]), back = makeRoute(['c', 'b', 'a'], [18]);
+    const plan = buildRoundTripPresentation(out.segments, out.leg, back.segments, back.leg, places);
+    const turn = plan.roundTrip!;
+    expect(turn.splitProgress).toBeCloseTo(.5);
+    expect(plan.stops.map(stop => [stop.id.split(':')[0], stop.waitMinutes])).toEqual([['outbound', 45], ['return', 18]]);
+    const outbound = sampleJourneyPresentation(plan, turn.turnStartMs - 50);
+    expect(outbound.direction).toBe('outbound'); expect(outbound.travel).toBeLessThanOrEqual(.5); expect(outbound.vehicleOpacity).toBe(1);
+    const maneuver = sampleJourneyPresentation(plan, (turn.turnStartMs + turn.turnEndMs) / 2);
+    expect(maneuver).toMatchObject({ direction: 'outbound', turnProgress: .5, travel: .5, vehicleOpacity: 1 });
+    const returning = sampleJourneyPresentation(plan, turn.turnEndMs + 700);
+    expect(returning.direction).toBe('return'); expect(returning.travel).toBeGreaterThan(.5); expect(returning.turnProgress).toBeUndefined();
+    const returnStop = plan.stops[1]!;
+    expect(sampleJourneyPresentation(plan, returnStop.arriveMs).revealedStops.map(stop=>stop.count)).toEqual([45, 0]);
+    expect(sampleJourneyPresentation(plan, plan.durationMs + 20000)).toMatchObject({ reveal: 1, travel: 1, vehicleOpacity: 0, vehicleBlur: 1, direction: 'return', complete: true });
+    expect(sampleJourneyPresentation(plan, 0, { reducedMotion: true })).toMatchObject({ reveal: 1, travel: 1, vehicleOpacity: 0, direction: 'return', complete: true });
+    expect(buildRoundTripPresentation(out.segments, out.leg, [], back.leg, places)).not.toHaveProperty('roundTrip');
+  });
+
   it('draws by arc length, pauses at a stop, counts its declared wait, and only then travels onward', () => {
     const { segments, leg } = makeRoute(['a', 'b', 'c'], [90]);
     const plan = buildJourneyPresentation(segments, leg, places, { b: 'شهر میانی' });
