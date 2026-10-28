@@ -39,9 +39,23 @@ export class SessionRepository {
   }
   async cleanup(now: Date): Promise<string[]> {
     return this.db.$transaction(async tx => {
-      const expired = await tx.$queryRaw<{ id: string }[]>`DELETE FROM "DemoSession" WHERE "expiresAt" <= ${now} RETURNING id`;
+      // One reviewer's cascade can outlive Prisma's default five-second interactive
+      // transaction. Bound each collection job, instead of rolling back an entire backlog.
+      await tx.$executeRaw`SET LOCAL statement_timeout = '25000ms'`;
+      const expired = await tx.$queryRaw<{ id: string }[]>`
+        WITH expired AS (
+          SELECT id FROM "DemoSession"
+          WHERE "expiresAt" <= ${now}
+          ORDER BY "expiresAt", id
+          LIMIT 1 FOR UPDATE SKIP LOCKED
+        )
+        DELETE FROM "DemoSession" AS session
+        USING expired
+        WHERE session.id = expired.id AND session."expiresAt" <= ${now}
+        RETURNING session.id
+      `;
       return expired.map(row => row.id);
-    });
+    }, { maxWait: 2000, timeout: 30000 });
   }
   async appendAudit(scope: DataScope, kind: string, payload: Prisma.InputJsonValue, now: Date) {
     return scopedTransaction(this.db, scope, tx => tx.auditEvent.create({ data: { sessionId: scope.sessionId, id: randomUUID(), kind, payload, createdAt: now } }));

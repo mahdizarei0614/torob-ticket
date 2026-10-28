@@ -62,6 +62,16 @@ describe('session isolation and lifecycle', () => {
     ids.push(context.sessionId);
     return {cookie, info, context};
   }
+  async function drainExpiredOwnedSession(id: string) {
+    // Collection now commits one reviewer per maintenance call. Earlier cases in
+    // this file deliberately leave expired peers; do not assume this ID is first.
+    const maximumCalls = await db.demoSession.count({ where: { id: { in: ids }, expiresAt: { lte: clock.now() } } });
+    for (let attempt = 0; attempt < maximumCalls; attempt++) {
+      if (!await db.demoSession.findUnique({ where: { id } })) return;
+      await sessions.maintenance();
+    }
+    expect(await db.demoSession.findUnique({ where: { id } })).toBeNull();
+  }
   beforeAll(async () => {
     const url = requireTestDatabaseUrl(process.env.TEST_DATABASE_URL);
     process.env.DATABASE_URL = url; db = createPrisma(url); await start();
@@ -114,7 +124,7 @@ describe('session isolation and lifecycle', () => {
     const expired = await fetch(`${base}/api/v1/demo/session`,{headers:{cookie:a.cookie}});
     expect(expired.status).toBe(401); expect(await expired.json()).toMatchObject({code: 'SESSION_EXPIRED'});
     expect(expired.headers.has('set-cookie')).toBe(false);
-    await sessions.maintenance();
+    await drainExpiredOwnedSession(a.context.sessionId);
     expect(await db.demoSession.findUnique({where: {id: a.context.sessionId}})).toBeNull();
   });
   it('reset cancels only current controllers, removes only current evidence, and fences stale work', async () => {
@@ -176,12 +186,17 @@ describe('session isolation and lifecycle', () => {
     }
     await db.demoSession.update({where:{id:expired.context.sessionId},data:{expiresAt:clock.now()}});
     await app.close(); await start();
+    const rejected = await fetch(`${base}/api/v1/demo/session`, { headers: { cookie: expired.cookie } });
+    expect(rejected.status).toBe(401); expect(rejected.headers.has('set-cookie')).toBe(false);
     expect(await repo.getAudit(a.context.scope,audit.id)).toMatchObject({kind:'persistent'});
     const runs = await db.searchRun.findMany({where:{sessionId:a.context.sessionId},orderBy:{id:'asc'}});
     expect(runs.map(r=>r.status)).toEqual(['interrupted','complete']);
     expect(runs[0]?.snapshot).toEqual({status:'interrupted'});
     expect(await db.searchEventRecord.count({where:{sessionId:a.context.sessionId,searchId:'collecting-run'}})).toBe(1);
+    await drainExpiredOwnedSession(expired.context.sessionId);
     expect(await db.demoSession.findUnique({where:{id:expired.context.sessionId}})).toBeNull();
+    expect(await db.demoSession.findUnique({where:{id:a.context.sessionId}})).not.toBeNull();
+    expect(await repo.getAudit(a.context.scope,audit.id)).toMatchObject({kind:'persistent'});
     await app.close(); await start();
     expect(await db.searchEventRecord.count({where:{sessionId:a.context.sessionId,searchId:'collecting-run'}})).toBe(1);
   });
