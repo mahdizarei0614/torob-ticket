@@ -5,7 +5,7 @@ import { useLocation, useNavigate } from 'react-router';
 import { useQueryClient } from '@tanstack/react-query';
 import { apiClient, ClientError, type ApiClient } from '@torob-ticket/client';
 import type { CatalogSnapshot, SessionInfo, TransportSearchQuery, SearchRecovery } from '@torob-ticket/contracts';
-import { createSearchState, searchReducer, type SearchIntentCause, type SearchAction } from './search-reducer';
+import { changesSearchChoice, createSearchState, searchReducer, type SearchIntentCause, type SearchAction } from './search-reducer';
 import { searchStartPool, startCapacityMessage, unresolvedStartLimit } from './search-start-pool';
 import { consumerDraft, initialDraft, initialReturnDate, parseConsumerSearchUrl, serializeSearchUrl, validateDraft, type SearchDraft } from './search-url';
 export function errorMessage(error: unknown): string {
@@ -24,7 +24,7 @@ export function useSearchController(catalog: CatalogSnapshot, session: SessionIn
   const navigate = useNavigate();
   const cache = useQueryClient();
   const initial = useRef(parseConsumerSearchUrl(location.search, catalog, session));
-  const [state, reduceDispatch] = useReducer(searchReducer, undefined, () => restore?{...createSearchState(consumerDraft(restore.draft,catalog)),committed:restore.recovery.snapshot.query,generation:restore.recovery.snapshot.clientGeneration,searchId:restore.recovery.snapshot.searchId}:{ ...createSearchState(initial.current.draft ?? initial.current.query ?? initialDraft(catalog, session)), committed: initial.current.query, generation: crypto.randomUUID(), notice: initial.current.message ?? '' });
+  const [state, reduceDispatch] = useReducer(searchReducer, undefined, () => restore?{...createSearchState(consumerDraft({...restore.draft,sort:restore.recovery.snapshot.query.sort},catalog)),resultSort:restore.draft.sort,committed:restore.recovery.snapshot.query,generation:restore.recovery.snapshot.clientGeneration,searchId:restore.recovery.snapshot.searchId}:{ ...createSearchState(initial.current.draft ?? initial.current.query ?? initialDraft(catalog, session)), committed: initial.current.query, generation: crypto.randomUUID(), notice: initial.current.message ?? '' });
   // Apply the same authoritative reducer before React delivery so map/result intent joins
   // observe edits, history and accepted pins atomically within one event turn.
   const intentState=useRef(state);
@@ -45,6 +45,7 @@ export function useSearchController(catalog: CatalogSnapshot, session: SessionIn
   const datePriority = useRef(Symbol('authorized-date-intent'));
   const startSnapshot = useSyncExternalStore(starts.subscribe, starts.getSnapshot);
   const pendingGeneration = useRef<string | undefined>(undefined);
+  const activeStarts = useRef(new Map<string,()=>void>());
   const queuedDate = useRef<{ query: TransportSearchQuery; generation: string } | undefined>(undefined);
   const [waitingDate, setWaitingDate] = useState(false);
   const [pending, setPending] = useState(false);
@@ -94,7 +95,19 @@ export function useSearchController(catalog: CatalogSnapshot, session: SessionIn
     const prior=currentIntent().draft;
     const returning=patch.tripType==='round-trip'&&prior.tripType==='one-way'&&!patch.returnDate;
     const next=returning?{...patch,returnDate:initialReturnDate({...prior,...patch},catalog,session)}:patch;
-    dateInteractions.invalidate(); setResultEntryGeneration(undefined); cancelQueuedDate(); dispatch({ type: 'draft', patch: {...next,party:{adults:1,children:0,infants:0}}, catalog }); setFeedback('');setLastError(undefined);
+    const normalizedPatch={...next,party:{adults:1,children:0,infants:0}};
+    dateInteractions.invalidate(); setResultEntryGeneration(undefined); cancelQueuedDate();
+    let nextGeneration: string | undefined;
+    if (changesSearchChoice(prior,searchReducer(currentIntent(),{type:'draft',patch:normalizedPatch,catalog}).draft)) {
+      nextGeneration = crypto.randomUUID();
+      generation.current = nextGeneration; intendedGeneration.current = nextGeneration;
+      acceptedResult.current = undefined; pendingGeneration.current = undefined;
+      for (const cancel of activeStarts.current.values()) cancel();
+      // Terminal evidence is retained by the server; cancellation only stops an active collection.
+      if (ownedSearchId.current) void client.cancelSearch(ownedSearchId.current).catch(()=>undefined);
+      setAccepted(false); setPending(false);
+    }
+    dispatch({ type: 'draft', patch: normalizedPatch, catalog, generation:nextGeneration }); setFeedback('');setLastError(undefined);
   }
   function preset(draft: SearchDraft) { dateInteractions.invalidate(); setResultEntryGeneration(undefined); cancelQueuedDate(); dispatch({ type: 'preset', draft:consumerDraft(draft,catalog) }); setFeedback('');setLastError(undefined); }
   function commitIntent(query: TransportSearchQuery, next: string, cause: SearchIntentCause = 'search') {
@@ -108,6 +121,7 @@ export function useSearchController(catalog: CatalogSnapshot, session: SessionIn
   }
   async function startCommitted(query: TransportSearchQuery, next: string, slot: NonNullable<ReturnType<typeof starts.reserve>>) {
     pendingGeneration.current = next;
+    activeStarts.current.set(next,slot.cancel);
     const priorId = ownedSearchId.current;
     try {
       const recovery = await client.startSearch({ query, clientGeneration: next, ...(priorId ? { supersedesSearchId: priorId } : {}) }, slot.signal);
@@ -120,14 +134,17 @@ export function useSearchController(catalog: CatalogSnapshot, session: SessionIn
       setAccepted(true);
     } catch (error) { if (live.current && generation.current === next) {setFeedback(errorMessage(error));setLastError(error);} }
     finally {
+      activeStarts.current.delete(next);
       if (pendingGeneration.current === next) pendingGeneration.current = undefined;
       if (live.current && generation.current === next) setPending(false);
       slot.finish();
     }
   }
-  async function submit(query: TransportSearchQuery = validity.query!, enterResults = false, cause: SearchIntentCause = 'search') {
+  async function submit(query: TransportSearchQuery | undefined = validity.query, enterResults = false, cause: SearchIntentCause = 'search') {
     if (!live.current || !query || starts.getSnapshot().resetting || (pendingGeneration.current !== undefined && pendingGeneration.current === generation.current)) return;
-    const checked = validateDraft(consumerDraft(query,catalog), catalog, session);
+    // A fresh read changes inventory, not the traveler's displayed ranking. Presets
+    // and saved searches synchronously establish their own resultSort before entry.
+    const checked = validateDraft(consumerDraft({...query,sort:currentIntent().resultSort},catalog), catalog, session);
     if (!checked.valid) { setFeedback(checked.errors.join(' ')); return; }
     const slot = starts.reserve(); if (!slot) return;
     cancelQueuedDate();
@@ -145,7 +162,7 @@ export function useSearchController(catalog: CatalogSnapshot, session: SessionIn
     void submit(checked.query!,true);
   }
   function commitDates(draft: SearchDraft) {
-    draft = consumerDraft(draft,catalog);
+    draft = consumerDraft({...draft,sort:currentIntent().resultSort},catalog);
     setResultEntryGeneration(undefined);
     if (!live.current || starts.getSnapshot().resetting) return;
     const checked = validateDraft(draft, catalog, session);
@@ -210,6 +227,12 @@ export function useSearchController(catalog: CatalogSnapshot, session: SessionIn
   const canRefineResults = Boolean(authority.current.current&&state.committed && validity.query && serializeSearchUrl(state.committed) === serializeSearchUrl(validity.query));
   function refineResults(query: TransportSearchQuery, expectedGeneration: string, interactionToken: number) {
     if (!live.current || generation.current !== expectedGeneration || !dateInteractions.isCurrent(interactionToken) || !canRefineResults) return;
+    const committed=currentIntent().committed;
+    if (committed && serializeSearchUrl({...query,sort:committed.sort}) === serializeSearchUrl(committed)) {
+      setResultEntryGeneration(undefined);
+      dispatch({type:'result-sort',sort:query.sort});
+      return;
+    }
     void submit(query,false,'refine');
   }
   return { state, dispatch, currentIntent, reconcileAuthority, authorityVersion, authorityCurrent:authority.current.current,lastError, edit, preset, submit, openSavedSearch, refineResults, resultIsCurrent, resultSelectionIsCurrent, previewResultItinerary, pinResultItinerary, clearMapInspection, canRefineResults, refinementToken: dateInteractions.capture(), enterResults: resultEntryGeneration === state.generation, dateInteractions, commitDates, waitingDate, reset, validity, pending, resetting, feedback, accepted, startLimitReached, unresolvedStarts: startSnapshot.count, capacityMessage: startLimitReached && !resetting ? startCapacityMessage : '' };

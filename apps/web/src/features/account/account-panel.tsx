@@ -24,7 +24,8 @@ export function AccountPanel({controller,catalog,session,onCovered,client=apiCli
  const dialog=useRef({open:false,epoch:0});
  const dialogEpoch=dialog.current.epoch;
  const actionLease=controller.dateInteractions.capture();
- const draft=controller.currentIntent().draft;
+ const intent=controller.currentIntent();
+ const draft={...intent.draft,sort:intent.resultSort??intent.draft.sort};
  const valid=validateDraft(draft,catalog,session);
  const queryKey=valid.query?serializeSearchUrl(valid.query):'';
  const viewCurrent=()=>dialog.current.open&&dialog.current.epoch===dialogEpoch;
@@ -50,14 +51,16 @@ export function AccountPanel({controller,catalog,session,onCovered,client=apiCli
  }
  function prepare(){
   if(!actionCurrent()||!account.identity||transactionRef.current!==transaction)return;
-  const checked=validateDraft(controller.currentIntent().draft,catalog,session);
+  const intent=controller.currentIntent();
+  const checked=validateDraft({...intent.draft,sort:intent.resultSort??intent.draft.sort},catalog,session);
   if(!checked.valid){setNotice('برای ذخیره، اطلاعات سفر در فرم را کامل و معتبر کنید.');return;}
   const next={query:checked.query!,lease:controller.dateInteractions.capture()};
   transactionRef.current=next;setTransaction(next);setName('');setNotice('');
  }
  async function save(captured:SaveTransaction|undefined){
   if(!actionCurrent()||!captured||!formCurrent(captured)||!account.identity)return;
-  const current=validateDraft(controller.currentIntent().draft,catalog,session);
+  const intent=controller.currentIntent();
+  const current=validateDraft({...intent.draft,sort:intent.resultSort??intent.draft.sort},catalog,session);
   if(!current.query||serializeSearchUrl(current.query)!==serializeSearchUrl(captured.query))return;
   const success=await account.save({name,query:captured.query});
   if(!viewCurrent()||transactionRef.current!==captured||!controller.dateInteractions.isCurrent(captured.lease))return;

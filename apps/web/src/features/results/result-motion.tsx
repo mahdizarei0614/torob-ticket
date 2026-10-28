@@ -4,7 +4,7 @@ import { LoadingSkeleton, useMotionPolicy } from '@torob-ticket/ui';
 import styles from './results.module.css';
 
 /** Retained exits are decorative immediately; their old quote controls cannot receive input. */
-export const ResultPresence = forwardRef<HTMLDivElement, { children: ReactNode; className?: string; role?: string; label?: string; collapse?: boolean; layout?: boolean }>(function ResultPresence({ children, className, role, label, collapse = false, layout = false }, ref) {
+export const ResultPresence = forwardRef<HTMLDivElement, { children: ReactNode; className?: string; role?: string; label?: string; collapse?: boolean; layout?: boolean; layoutDependency?: string }>(function ResultPresence({ children, className, role, label, collapse = false, layout = false, layoutDependency }, ref) {
  const present = useIsPresent();
  const [, safeToRemove] = usePresence();
  const policy = useMotionPolicy();
@@ -13,7 +13,7 @@ export const ResultPresence = forwardRef<HTMLDivElement, { children: ReactNode; 
   controls.stop();
   let cancelled = false;
   if (!present) {
-   const exitFrame = { opacity: 0, y: policy.enabled ? -5 : 0, ...(collapse ? { height: 0 } : {}) };
+   const exitFrame = { opacity: 0, y: policy.enabled && !collapse ? -5 : 0, ...(collapse ? { height: 0 } : {}) };
    if (!policy.enabled) controls.set(exitFrame);
    else {
     const complete = () => { if (!cancelled) safeToRemove?.(); };
@@ -25,7 +25,7 @@ export const ResultPresence = forwardRef<HTMLDivElement, { children: ReactNode; 
   const finalFrame = { opacity: 1, y: 0, ...(collapse ? { height: 'auto' } : {}) };
   if (!policy.enabled || !fresh) controls.set(finalFrame);
   else {
-   controls.set({ opacity: 0, y: 12, ...(collapse ? { height: 0 } : {}) });
+   controls.set({ opacity: 0, y: collapse ? 0 : 12, ...(collapse ? { height: 0 } : {}) });
    void controls.start({ ...finalFrame, transition: { duration: .28, ease: [.22, .68, .24, 1] } });
   }
   return () => controls.stop();
@@ -34,6 +34,7 @@ export const ResultPresence = forwardRef<HTMLDivElement, { children: ReactNode; 
  useEffect(() => { if (!present && !policy.enabled) safeToRemove?.(); }, [present, policy.enabled, safeToRemove]);
  return <motion.div ref={ref} className={className} role={role} aria-label={label} inert={!present || undefined} aria-hidden={!present || undefined} data-result-presence={present ? 'current' : 'exiting'} data-result-motion={policy.enabled ? 'finite' : 'static'}
   layout={policy.enabled && layout ? 'position' : false}
+  layoutDependency={layoutDependency}
   initial={false} animate={controls}
   transition={{ duration: policy.enabled ? .28 : 0, ease: [.22, .68, .24, 1], layout: { duration: policy.enabled ? .36 : 0, ease: [.22, .68, .24, 1] } }}
   style={!present ? { pointerEvents: 'none' } : undefined}>{children}</motion.div>;

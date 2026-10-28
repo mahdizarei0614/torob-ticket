@@ -37,10 +37,27 @@ it('keeps focused card and expanded evidence identities through an authorized pr
  const initial = screen.getAllByRole('article');
  const details = within(initial[0]!).getByRole('button', { name: 'جزئیات سفر' });
  fireEvent.click(details); details.focus();
- view.rerender(<ResultsList {...props} query={{ ...query, sort: 'fastest' }}/>);
+ view.rerender(<ResultsList {...props} sort="fastest"/>);
  const reordered = screen.getAllByRole('article');
  expect(reordered[0]).toBe(initial[1]); expect(reordered[1]).toBe(initial[0]);
  expect(details).toHaveAttribute('aria-expanded', 'true'); expect(details).toHaveFocus();
+});
+
+it('opens, rapidly reverses and reopens details without moving focus, selecting a fare or requesting any scrolling',async()=>{
+ policy.enabled=true;
+ vi.spyOn(Date,'now').mockReturnValue(Date.parse(observedAt)+1000);
+ const value=recovery([group('disclosure'),group('following')]);
+ const state=resultsReducer(createResultsState('generation','search'),{type:'receive',recovery:value});
+ const dispatch=vi.fn(),scroll=vi.fn(),select=vi.fn();HTMLElement.prototype.scrollIntoView=scroll;
+ const scrollBy=vi.spyOn(window,'scrollBy').mockImplementation(()=>undefined);
+ vi.mocked(useResults).mockReturnValue({state,dispatch,now:Date.now(),connectionError:false,connectionState:'settled',error:undefined,retryRead:vi.fn(),stored:value});
+ const view=render(<ResultsList {...props} onSelectQuote={select}/>);select.mockClear();
+ const initial=screen.getAllByRole('article'),heading=within(initial[0]!).getByRole('heading',{level:3}),toggle=within(initial[0]!).getByRole('button',{name:'جزئیات سفر'});
+ toggle.focus();
+ for(const expanded of [true,false,true]){fireEvent.click(toggle);expect(toggle).toHaveAttribute('aria-expanded',String(expanded));expect(toggle).toHaveFocus();expect(screen.getAllByRole('article')[0]).toBe(initial[0]);expect(within(initial[0]!).getByRole('heading',{level:3})).toBe(heading);}
+ expect(initial[0]).toHaveAttribute('data-details-open','true');expect(select).not.toHaveBeenCalled();expect(scroll).not.toHaveBeenCalled();expect(scrollBy).not.toHaveBeenCalled();
+ await waitFor(()=>expect(view.container.querySelector('[data-result-presence="exiting"]')).toBeNull(),{timeout:1500});
+ expect(screen.getAllByRole('article')[1]).toBe(initial[1]);
 });
 
 it('makes normal-motion exits inert immediately and removes them after their finite fade', async () => {

@@ -81,6 +81,33 @@ function completed(groups: ReturnType<typeof group>[],sequence=1) {
  const value=recovery(groups,sequence);value.snapshot.status='complete';value.snapshot.coverage={expectedProviderIds:['p'],successfulProviderIds:['p'],pendingProviderIds:[],failedProviderIds:[],complete:true};return value;
 }
 const resultProps: ResultsPageProps={isCurrent:()=>true,generation:'generation',searchId:'search',query,catalog,refinementDisabled:false,draftChanged:false,onRefine:()=>undefined,onEdit:()=>undefined};
+it('renders a compact completed filter-empty result and keeps its adjustment callbacks owned by the current comparison',()=>{
+ const value=completed([]);value.snapshot.query={...query,filters:{refundableOnly:true}};
+ const state=resultsReducer(createResultsState('generation','search'),{type:'receive',recovery:value});
+ vi.mocked(useResults).mockReturnValue({state,dispatch:vi.fn(),now:Date.now(),connectionError:false,connectionState:'settled',error:undefined,retryRead:vi.fn(),stored:value});
+ let current=true;const clear=vi.fn(),edit=vi.fn();
+ const view=render(<ResultsList {...resultProps} query={value.snapshot.query} isCurrent={()=>current} onClearFilter={clear} onEdit={edit}/>);
+ expect(view.container.querySelector('[data-results-empty]')).toHaveAttribute('data-results-empty','filter-empty');
+ expect(screen.queryByRole('region',{name:'بازیابی مقایسه سفر'})).not.toBeInTheDocument();
+ const remove=screen.getByRole('button',{name:'حذف استرداد'});fireEvent.click(remove);expect(clear).toHaveBeenCalledExactlyOnceWith('refundableOnly');
+ current=false;fireEvent.click(remove);fireEvent.click(screen.getByRole('button',{name:'تغییر شرایط سفر'}));expect(clear).toHaveBeenCalledTimes(1);expect(edit).not.toHaveBeenCalled();
+});
+it('does not turn a failed result read into an empty-inventory claim or duplicate the compact recovery',()=>{
+ const value=completed([]),state=resultsReducer(createResultsState('generation','search'),{type:'receive',recovery:value});
+ vi.mocked(useResults).mockReturnValue({state,dispatch:vi.fn(),now:Date.now(),connectionError:true,connectionState:'unavailable',error:Error('read failed'),retryRead:vi.fn(),stored:value});
+ const fresh=vi.fn();const view=render(<ResultsList {...resultProps} onFreshSearch={fresh}/>);
+ expect(view.container.querySelector('[data-results-empty]')).toHaveAttribute('data-results-empty','unavailable');
+ expect(screen.getByRole('heading',{name:'پاسخ فروشندگان کامل دریافت نشد'})).toBeVisible();
+ expect(screen.queryByText('برای این سفر پیشنهادی پیدا نشد')).not.toBeInTheDocument();expect(screen.queryByRole('region',{name:'بازیابی مقایسه سفر'})).not.toBeInTheDocument();
+ fireEvent.click(screen.getByRole('button',{name:'تلاش دوباره'}));expect(fresh).toHaveBeenCalledOnce();
+});
+it('a historical empty comparison offers inspection without exposing a fresh mutation through the result panel',()=>{
+ const value=completed([]),state=resultsReducer(createResultsState('generation','search'),{type:'receive',recovery:value});
+ vi.mocked(useResults).mockReturnValue({state,dispatch:vi.fn(),now:Date.now(),connectionError:false,connectionState:'expired',error:undefined,retryRead:vi.fn(),stored:value});
+ const fresh=vi.fn();const view=render(<ResultsList {...resultProps} historical onFreshSearch={fresh}/>);
+ expect(view.container.querySelector('[data-results-empty]')).toHaveAttribute('data-results-empty','historical');
+ expect(screen.queryByRole('button',{name:'تلاش دوباره'})).not.toBeInTheDocument();expect(fresh).not.toHaveBeenCalled();
+});
 function controlledResults(initial: ResultsState | ((generation:string,searchId:string)=>ResultsState)) {
  let current!:ResultsState,send!:(action:ResultsAction)=>void;
  function useControlledResults(generation:string,searchId:string) {

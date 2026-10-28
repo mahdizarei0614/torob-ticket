@@ -4,18 +4,18 @@ import { BrowserRouter, MemoryRouter, useNavigate } from 'react-router';
 import { StrictMode, useEffect, useRef, type ReactNode } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import type { ApiClient } from '@torob-ticket/client';
-import type { SearchRecovery, SearchRequest } from '@torob-ticket/contracts';
+import type { CatalogSnapshot, SearchRecovery, SearchRequest } from '@torob-ticket/contracts';
 import { useSearchController } from './use-search-controller';
 import { SearchComposer } from './search-composer';
 import { catalog, query, session } from './search-test-data';
 import { serializeSearchUrl } from './search-url';
 function recovery(input: SearchRequest): SearchRecovery { return { snapshot: { searchId: 'operation', clientGeneration: input.clientGeneration, query: input.query, status: 'collecting', groups: [], providerStatuses: [], coverage: { expectedProviderIds: [], successfulProviderIds: [], failedProviderIds: [], pendingProviderIds: [], complete: false }, observedAt: session.anchorInstant }, sequence: 0 }; }
-function setup(client: ApiClient, initialPath = '/', restore?: Parameters<typeof useSearchController>[3]) {
+function setup(client: ApiClient, initialPath = '/', restore?: Parameters<typeof useSearchController>[3], choices:CatalogSnapshot=catalog) {
   const cache = new QueryClient();
   let navigate: ReturnType<typeof useNavigate>;
   function Navigation() { navigate = useNavigate(); return null; }
   function Wrapper({ children }: { children: ReactNode }) { return <StrictMode><QueryClientProvider client={cache}><MemoryRouter initialEntries={[initialPath]}><Navigation />{children}</MemoryRouter></QueryClientProvider></StrictMode>; }
-  const hook = renderHook(() => useSearchController(catalog, session, client, restore), { wrapper: Wrapper });
+  const hook = renderHook(() => useSearchController(choices, session, client, restore), { wrapper: Wrapper });
   return { ...hook, cache, navigate: (path: string) => navigate(path) };
 }
 describe('controller request and navigation ownership', () => {
@@ -235,10 +235,79 @@ describe('result refinement authorization',()=>{
   act(()=>{hook.result.current.edit({filters:{refundableOnly:true}});refine({...query,sort:'fastest'},basis,token);});expect(client.startSearch).toHaveBeenCalledTimes(1);expect(hook.result.current.state.draft.filters.refundableOnly).toBe(true);expect(hook.result.current.canRefineResults).toBe(false);
   act(()=>hook.navigate('/'));act(()=>refine({...query,sort:'fastest'},basis,token));expect(client.startSearch).toHaveBeenCalledTimes(1);hook.unmount();
  });
- it('authorizes exactly one explicit same-basis sort and scopes results entry to form Search',async()=>{
+ it('sorts the current evidence without another search, losing its pin or replacing its immutable query',async()=>{
   const client={startSearch:vi.fn(async(request:SearchRequest)=>recovery(request)),cancelSearch:vi.fn(async()=>undefined)} as unknown as ApiClient;
   const hook=setup(client);await act(()=>hook.result.current.submit(undefined,true));expect(hook.result.current.enterResults).toBe(true);
-  act(()=>hook.result.current.refineResults({...query,sort:'fastest'},hook.result.current.state.generation!,hook.result.current.refinementToken));await waitFor(()=>expect(hook.result.current.accepted).toBe(true));expect(client.startSearch).toHaveBeenCalledTimes(2);expect(hook.result.current.state.committed?.sort).toBe('fastest');expect(hook.result.current.enterResults).toBe(false);hook.unmount();
+  const generation=hook.result.current.state.generation!,committed=hook.result.current.state.committed,token=hook.result.current.refinementToken;
+  act(()=>hook.result.current.pinResultItinerary('chosen',generation,'operation'));
+  const revision=hook.result.current.state.intentRevision;
+  act(()=>hook.result.current.refineResults({...query,sort:'fastest'},generation,token));
+  expect(client.startSearch).toHaveBeenCalledTimes(1);expect(hook.result.current.state.committed).toBe(committed);expect(committed?.sort).toBe('cheapest');
+  expect(hook.result.current.state).toMatchObject({generation,searchId:'operation',resultSort:'fastest',pinnedItineraryId:'chosen',intentRevision:revision});
+  expect(hook.result.current.resultSelectionIsCurrent(generation,'operation')).toBe(true);expect(hook.result.current.enterResults).toBe(false);hook.unmount();
+ });
+ it('restores presentation sort from the checkpoint while preserving exact evidence/query and selection authority',()=>{
+  const value=recovery({query,clientGeneration:'restored'});value.snapshot.status='complete';
+  const client={startSearch:vi.fn(),cancelSearch:vi.fn(async()=>undefined)} as unknown as ApiClient;
+  const hook=setup(client,serializeSearchUrl(query),{recovery:value,draft:{...query,sort:'fastest'}});
+  expect(hook.result.current.state.resultSort).toBe('fastest');expect(hook.result.current.state.committed).toBe(value.snapshot.query);
+  expect(hook.result.current.state.draft.sort).toBe('cheapest');expect(hook.result.current.resultSelectionIsCurrent('restored','operation')).toBe(true);
+  expect(client.startSearch).not.toHaveBeenCalled();expect(value.snapshot.query.sort).toBe('cheapest');hook.unmount();
+ });
+ it.each(['date','filter','refresh','form'] as const)('carries the displayed ranking into a fresh %s comparison without rewriting its old snapshot',async entry=>{
+  const client={startSearch:vi.fn(async(request:SearchRequest)=>recovery(request)),cancelSearch:vi.fn(async()=>undefined)} as unknown as ApiClient;
+  const hook=setup(client);await act(()=>hook.result.current.submit());
+  const generation=hook.result.current.state.generation!,original=hook.result.current.state.committed!,evidence=hook.cache.getQueryData<SearchRecovery>(['search',generation,'operation']);
+  act(()=>hook.result.current.refineResults({...original,sort:'fastest'},generation,hook.result.current.refinementToken));
+  expect(original.sort).toBe('cheapest');expect(hook.result.current.state.resultSort).toBe('fastest');
+  if(entry==='date')act(()=>hook.result.current.commitDates({...hook.result.current.state.draft,departureDate:'2026-10-26'}));
+  if(entry==='filter')await act(async()=>{const draft=hook.result.current.state.draft,filters={refundableOnly:true};hook.result.current.edit({filters});await hook.result.current.submit({...draft,filters},true);});
+  if(entry==='refresh')await act(()=>hook.result.current.submit(original,true));
+  if(entry==='form')await act(()=>hook.result.current.submit());
+  await waitFor(()=>expect(client.startSearch).toHaveBeenCalledTimes(2));
+  expect(vi.mocked(client.startSearch).mock.calls[1]![0].query.sort).toBe('fastest');expect(hook.result.current.state.resultSort).toBe('fastest');
+  expect(hook.cache.getQueryData(['search',generation,'operation'])).toBe(evidence);expect(evidence?.snapshot.query.sort).toBe('cheapest');expect(original.sort).toBe('cheapest');hook.unmount();
+ });
+ it.each(['preset','saved'] as const)('lets an explicit %s ranking replace the displayed preference before submission',async entry=>{
+  const client={startSearch:vi.fn(async(request:SearchRequest)=>recovery(request)),cancelSearch:vi.fn(async()=>undefined)} as unknown as ApiClient;
+  const hook=setup(client);await act(()=>hook.result.current.submit());
+  act(()=>hook.result.current.refineResults({...query,sort:'fastest'},hook.result.current.state.generation!,hook.result.current.refinementToken));
+  const requested={...query,departureDate:'2026-10-26',sort:'fewest-connections' as const};
+  if(entry==='preset'){act(()=>hook.result.current.preset(requested));await act(()=>hook.result.current.submit());}
+  else act(()=>hook.result.current.openSavedSearch(requested));
+  await waitFor(()=>expect(client.startSearch).toHaveBeenCalledTimes(2));
+  expect(vi.mocked(client.startSearch).mock.calls[1]![0].query).toMatchObject({departureDate:'2026-10-26',sort:'fewest-connections'});
+  expect(hook.result.current.state.resultSort).toBe('fewest-connections');hook.unmount();
+ });
+});
+
+describe('form choice result invalidation',()=>{
+ const choices={...catalog,classChoices:[...catalog.classChoices,{mode:'flight' as const,code:'business',name:'تجاری'}]};
+ it('fences and aborts an unresolved start immediately, accepts the valid edited search and cleans up the late old ID',async()=>{
+  const held:{request:SearchRequest;signal:AbortSignal;release:(value:SearchRecovery)=>void}[]=[];
+  const client={startSearch:vi.fn((request:SearchRequest,signal:AbortSignal)=>new Promise<SearchRecovery>(release=>held.push({request,signal,release}))),cancelSearch:vi.fn(async()=>undefined)} as unknown as ApiClient;
+  const hook=setup(client,'/',undefined,choices);let first!:Promise<void>,second!:Promise<void>;
+  act(()=>{first=hook.result.current.submit();});const oldGeneration=held[0]!.request.clientGeneration;
+  act(()=>hook.result.current.edit({classCode:'business'}));
+  expect(held[0]!.signal.aborted).toBe(true);expect(hook.result.current.state.searchId).toBeUndefined();expect(hook.result.current.state.generation).not.toBe(oldGeneration);
+  expect(hook.result.current.accepted).toBe(false);expect(hook.result.current.pending).toBe(false);expect(hook.result.current.validity.valid).toBe(true);
+  act(()=>{second=hook.result.current.submit();});expect(held).toHaveLength(2);expect(held[1]!.request.query.classCode).toBe('business');
+  const fresh=recovery(held[1]!.request);fresh.snapshot.searchId='edited-search';
+  await act(async()=>{held[1]!.release(fresh);await second;});
+  const late=recovery(held[0]!.request);late.snapshot.searchId='obsolete-search';
+  await act(async()=>{held[0]!.release(late);await first;});
+  expect(client.cancelSearch).toHaveBeenCalledWith('obsolete-search');expect(hook.result.current.state.searchId).toBe('edited-search');expect(hook.result.current.accepted).toBe(true);
+  expect(hook.cache.getQueryCache().findAll({queryKey:['search',oldGeneration]})).toHaveLength(0);expect(hook.result.current.feedback).toBe('');hook.unmount();
+ });
+ it('clears an accepted comparison/selection immediately while retaining its cached terminal evidence',async()=>{
+  const client={startSearch:vi.fn(async(input:SearchRequest)=>{const value=recovery(input);value.snapshot.status='complete';return value;}),cancelSearch:vi.fn(async()=>undefined)} as unknown as ApiClient;
+  const hook=setup(client);await act(()=>hook.result.current.submit());const generation=hook.result.current.state.generation!,committed=hook.result.current.state.committed;
+  const key=['search',generation,'operation'],evidence=hook.cache.getQueryData<SearchRecovery>(key),saved=structuredClone(evidence);
+  act(()=>hook.result.current.pinResultItinerary('selected',generation,'operation'));
+  act(()=>hook.result.current.edit({tripType:'round-trip'}));
+  expect(hook.result.current.state.searchId).toBeUndefined();expect(hook.result.current.state.pinnedItineraryId).toBeUndefined();expect(hook.result.current.resultIsCurrent(generation,'operation')).toBe(false);
+  expect(hook.result.current.state.committed).toBe(committed);expect(hook.cache.getQueryData(key)).toBe(evidence);expect(evidence).toEqual(saved);expect(hook.result.current.validity.valid).toBe(true);
+  expect(client.cancelSearch).toHaveBeenCalledWith('operation');expect(hook.result.current.feedback).toBe('');hook.unmount();
  });
 });
 
@@ -279,7 +348,7 @@ describe('live accepted result ownership',()=>{
   const hook=setup(client);await act(()=>hook.result.current.submit(query));const owner=hook.result.current;const generation=owner.state.generation!;
   expect(owner.resultSelectionIsCurrent(generation,'operation')).toBe(true);
   act(()=>{owner.edit(patch);expect(owner.resultSelectionIsCurrent(generation,'operation')).toBe(false);owner.pinResultItinerary('stale',generation,'operation');});
-  expect(owner.resultIsCurrent(generation,'operation')).toBe(true);expect(hook.result.current.state.pinnedItineraryId).toBeUndefined();
+  expect(owner.resultIsCurrent(generation,'operation')).toBe(!('mode' in patch || 'scope' in patch));expect(hook.result.current.state.pinnedItineraryId).toBeUndefined();
   hook.unmount();
  });
  it('keeps committed evidence current while draft edits fence selection, pinning and preview',async()=>{

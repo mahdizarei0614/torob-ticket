@@ -32,6 +32,7 @@ class SearchStartPool {
     this.publish();
     return {
       signal: abort.signal,
+      cancel: () => abort.abort(),
       epoch: this.epoch,
       finish: () => {
         if (!this.entries.delete(key)) return;

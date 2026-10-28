@@ -36,4 +36,21 @@ describe('search controller state boundaries', () => {
     expect(state.draft.returnDate).toBeUndefined();
     expect(state.notice).toMatch(/برگشت/);
   });
+  it.each([{mode:'train'},{scope:'international'},{tripType:'round-trip'},{classCode:'business'}] as const)('clears the visible comparison on a changed form choice %j without rewriting its evidence',patch=>{
+    const choices={...catalog,classChoices:[...catalog.classChoices,{mode:'flight' as const,code:'business',name:'تجاری'}]};
+    const committed=searchReducer(createSearchState(query),{type:'commit',query,generation:'old'});
+    const accepted=searchReducer({...committed,pinnedItineraryId:'selected'},{type:'adopt',generation:'old',searchId:'old-search'});
+    const next=searchReducer(accepted,{type:'draft',patch,catalog:choices,generation:'edited'});
+    expect(next.searchId).toBeUndefined();expect(next.generation).toBe('edited');expect(next.pinnedItineraryId).toBeUndefined();
+    expect(next.committed).toBe(accepted.committed);expect(accepted.searchId).toBe('old-search');expect(accepted.committed).toEqual(query);
+    expect(searchReducer(next,{type:'adopt',generation:'old',searchId:'late'})).toBe(next);
+  });
+  it('keeps the same comparison and intent lease for presentation sorting or an unchanged form choice',()=>{
+    const committed=searchReducer(createSearchState(query),{type:'commit',query,generation:'current'});
+    const accepted=searchReducer({...committed,pinnedItineraryId:'selected'},{type:'adopt',generation:'current',searchId:'search'});
+    const sorted=searchReducer(accepted,{type:'result-sort',sort:'fastest'});
+    expect(sorted).toMatchObject({searchId:'search',generation:'current',resultSort:'fastest',pinnedItineraryId:'selected',intentRevision:accepted.intentRevision});
+    expect(sorted.committed).toBe(accepted.committed);expect(sorted.draft).toBe(accepted.draft);
+    expect(searchReducer(sorted,{type:'draft',patch:{mode:query.mode},catalog}).searchId).toBe('search');
+  });
 });

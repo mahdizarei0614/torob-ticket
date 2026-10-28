@@ -1,4 +1,4 @@
-import type { CatalogSnapshot, TransportSearchQuery } from '@torob-ticket/contracts';
+import type { CatalogSnapshot, SortOrder, TransportSearchQuery } from '@torob-ticket/contracts';
 import { defaultClassCode, type SearchDraft } from './search-url';
 export type SearchIntentCause = 'initial'|'edit'|'preset'|'restore'|'search'|'refine'|'date';
 export interface SearchState {
@@ -8,6 +8,8 @@ export interface SearchState {
   committed?: TransportSearchQuery;
   generation?: string;
   searchId?: string;
+  /** Presentation order is reversible UI state; the server query remains immutable. */
+  resultSort: SortOrder;
   previewDate?: string;
   pinnedItineraryId?: string;
   pinnedItineraryHistorical?: boolean;
@@ -17,7 +19,8 @@ export interface SearchState {
 }
 export type SearchAction =
   | { type: 'authority' }
-  | { type: 'draft'; patch: Partial<SearchDraft>; catalog: CatalogSnapshot }
+  | { type: 'draft'; patch: Partial<SearchDraft>; catalog: CatalogSnapshot; generation?: string }
+  | { type: 'result-sort'; sort: SortOrder }
   | { type: 'restore'; draft: SearchDraft; query?: TransportSearchQuery; generation: string; notice?: string }
   | { type: 'preset'; draft: SearchDraft }
   | { type: 'date-draft'; draft: SearchDraft; generation: string }
@@ -27,10 +30,14 @@ export type SearchAction =
   | { type: 'preview-itinerary'; id?: string }
   | { type: 'pin-itinerary'; id?: string }
   | { type: 'modal'; draft?: SearchDraft };
-export function createSearchState(draft: SearchDraft): SearchState { return { draft: structuredClone(draft), notice: '', intentRevision: 0, intentCause: 'initial' }; }
+export function changesSearchChoice(draft: SearchDraft, patch: Partial<SearchDraft>): boolean {
+  return (['mode','scope','tripType','classCode'] as const).some(key => patch[key] !== undefined && patch[key] !== draft[key]);
+}
+export function createSearchState(draft: SearchDraft): SearchState { return { draft: structuredClone(draft), resultSort: draft.sort, notice: '', intentRevision: 0, intentCause: 'initial' }; }
 export function searchReducer(state: SearchState, action: SearchAction): SearchState {
   switch (action.type) {
     case 'authority': return {...state,intentRevision:state.intentRevision+1,pinnedItineraryId:undefined,pinnedItineraryHistorical:undefined,previewItineraryId:undefined,notice:'تنظیمات مقایسه تغییر کرده است؛ فرم شما و شواهد قبلی حفظ شدند. برای ادامه قیمت تازه بگیرید.'};
+    case 'result-sort': return {...state,resultSort:action.sort};
     case 'draft': {
       const draft = { ...state.draft, ...action.patch };
       draft.classCode = defaultClassCode(draft.mode,action.catalog,draft.classCode);
@@ -46,10 +53,10 @@ export function searchReducer(state: SearchState, action: SearchAction): SearchS
       }
       if (draft.tripType === 'one-way') delete draft.returnDate;
       if (draft.returnDate && draft.returnDate < draft.departureDate) { delete draft.returnDate; clears.push('تاریخ برگشت'); }
-      return { ...state, draft, pinnedItineraryId: undefined,pinnedItineraryHistorical:undefined, previewItineraryId: undefined, intentRevision: state.intentRevision+1, intentCause: 'edit', previewDate: undefined, notice: clears.length ? `${clears.join('، ')} با انتخاب تازه سازگار نبود؛ دوباره انتخاب کنید.` : '' };
+      return { ...state, draft, ...(changesSearchChoice(state.draft,draft) ? {searchId:undefined,generation:action.generation} : {}), pinnedItineraryId: undefined,pinnedItineraryHistorical:undefined, previewItineraryId: undefined, intentRevision: state.intentRevision+1, intentCause: 'edit', previewDate: undefined, notice: clears.length ? `${clears.join('، ')} با انتخاب تازه سازگار نبود؛ دوباره انتخاب کنید.` : '' };
     }
     case 'restore': return { ...createSearchState(action.draft), committed: action.query, generation: action.generation, intentRevision: state.intentRevision+1, intentCause: 'restore', notice: action.notice ?? '' };
-    case 'preset': return { ...state, draft: structuredClone(action.draft), pinnedItineraryId: undefined,pinnedItineraryHistorical:undefined, previewItineraryId: undefined, intentRevision: state.intentRevision+1, intentCause: 'preset', previewDate: undefined, notice: 'سفر پیشنهادی در فرم قرار گرفت؛ برای ثبت آن جست‌وجو کنید.' };
+    case 'preset': return { ...state, draft: structuredClone(action.draft), resultSort:action.draft.sort, pinnedItineraryId: undefined,pinnedItineraryHistorical:undefined, previewItineraryId: undefined, intentRevision: state.intentRevision+1, intentCause: 'preset', previewDate: undefined, notice: 'سفر پیشنهادی در فرم قرار گرفت؛ برای ثبت آن جست‌وجو کنید.' };
     case 'date-draft': return { ...state, pinnedItineraryId: undefined,pinnedItineraryHistorical:undefined, previewItineraryId: undefined, intentRevision: state.intentRevision+1, intentCause: 'date', draft: structuredClone(action.draft), generation: action.generation, searchId: undefined, previewDate: undefined, notice: 'تاریخ برگشت را دوباره انتخاب کنید.' };
     case 'commit': return { ...createSearchState(action.query), committed: action.query, generation: action.generation, intentRevision: state.intentRevision+1, intentCause: action.cause ?? 'search',...(action.cause==='refine' && state.pinnedItineraryId && state.committed && JSON.stringify([state.committed.mode,state.committed.scope,state.committed.originCityId,state.committed.destinationCityId,state.committed.departureDate,state.committed.returnDate,state.committed.tripType,state.committed.party,state.committed.classCode])===JSON.stringify([action.query.mode,action.query.scope,action.query.originCityId,action.query.destinationCityId,action.query.departureDate,action.query.returnDate,action.query.tripType,action.query.party,action.query.classCode]) ? {pinnedItineraryId:state.pinnedItineraryId,pinnedItineraryHistorical:true}:{}) };
     case 'adopt': return action.generation === state.generation ? { ...state, searchId: action.searchId } : state;
