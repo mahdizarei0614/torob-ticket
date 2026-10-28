@@ -105,7 +105,7 @@ test('@roundtrip-profile geography drift renders initially and after scope morph
   });
   const proof = () => page.evaluate(() => (window as unknown as { livingMapProof: { programs: number; linked: boolean; amplitudes: number[]; times: number[]; landOpacity: number[]; morphProgress: number[] } }).livingMapProof);
   await open(page); await expect.poll(async () => (await proof()).programs).toBeGreaterThan(0);
-  await expect.poll(async () => (await proof()).amplitudes.at(-1)).toBe(1);
+  await expect.poll(async () => (await proof()).amplitudes.at(-1)).toBe(4);
   const initial = await proof(); const start = initial.times.at(-1)!;
   await expect.poll(async () => (await proof()).times.at(-1) ?? 0).toBeGreaterThan(start + .4);
   await page.evaluate(() => { const proof=(window as unknown as {livingMapProof:{landOpacity:number[];morphProgress:number[]}}).livingMapProof; proof.landOpacity=[];proof.morphProgress=[]; });
@@ -113,7 +113,7 @@ test('@roundtrip-profile geography drift renders initially and after scope morph
   await expect.poll(async () => { const state=await proof(); return state.morphProgress.some(value=>value<.99) && state.landOpacity.at(-1)===1; }, {timeout:15000}).toBe(true);
   const settledTime=(await proof()).times.at(-1)!; await expect.poll(async () => (await proof()).times.at(-1)??0).toBeGreaterThan(settledTime+.3);
   const world = await proof();
-  expect(world.linked).toBe(true); expect(world.amplitudes.at(-1)).toBe(1); expect(world.times.at(-1)!).toBeGreaterThan(start + 1);
+  expect(world.linked).toBe(true); expect(world.amplitudes.at(-1)).toBe(4); expect(world.times.at(-1)!).toBeGreaterThan(start + .4);
   await capture(page, 'living-world');
   await page.getByRole('button', { name: 'تقویم جلالی و انتخاب تاریخ', exact: true }).click(); await page.waitForTimeout(300);
   const covered = (await proof()).times.at(-1); await page.waitForTimeout(350); expect((await proof()).times.at(-1)).toBe(covered);

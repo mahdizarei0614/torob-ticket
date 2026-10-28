@@ -94,7 +94,9 @@ export function WorldGeography({countries,context,frame,pointer,reducedMotion,do
     values['unitsPerPixel']!.value=unit;
     values['dotDriftAmplitude']!.value=active&&!reducedMotion?LIVING_DOT_AMPLITUDE_PX:0;
     (values['levelWeights']!.value as Vector4).set(...worldDotWeights(unit,baseSpacing,domestic?2:4));
-    if(active && !reducedMotion){elapsed.current+=delta;values['time']!.value=elapsed.current;}
+    // The morph target snapshots this clock. Hold it until the particles arrive
+    // so the stronger live float does not pull away from their landing points.
+    if(active && !reducedMotion && !morph.active()){elapsed.current+=delta;values['time']!.value=elapsed.current;}
     const radius=Math.min(POINTER_TRAIL_RADIUS_PX,get().size.width*.08,get().size.height*.1)*unit;
     trail.advance(delta*1000,pointer?.current,radius,{active,reducedMotion});
     displayed.current={positions:resources.land.getAttribute('position').array,context,domestic,frame:{x:camera.position.x,y:camera.position.y,width,height:camera.isOrthographicCamera?(camera.top-camera.bottom)/camera.zoom:frame.height},width:get().size.width,motion:{seconds:elapsed.current,amplitudePx:active&&!reducedMotion?LIVING_DOT_AMPLITUDE_PX:0}};
