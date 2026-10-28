@@ -10,7 +10,7 @@
 
 **Tech Stack:** Nx, pnpm, TypeScript, React, Vite, React Router, TanStack Query, React Aria, CSS Modules, CSS custom properties, Zod, NestJS, PostgreSQL, Prisma, Three.js, React Three Fiber, selected Drei utilities, Motion, @internationalized/date, Vitest, Testing Library, Playwright, Storybook, Docker Compose, Caddy.
 
-**Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.17, 2026-10-28 (chart inspection, sliding controls, airline assets and stable result states).
+**Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.18, 2026-10-28 (round-trip returns, chart lifecycle, identity-only profile and shared squircle corners).
 
 **Plan state:** Approved. M1–M6 and T29 packaging are complete with independent reviews and packaged acceptance evidence. **29/35 tasks complete; M7 PARTIAL, T30 ACTIVE.** Owner requested a fast checkpoint before substantial design/logic changes: finish durable harness checks now; full T30 matrix and T31–T33 audits/rehearsal remain unfinished. M8 retains its planned scope.
 
@@ -2373,3 +2373,16 @@ The subsequent request supersedes the previous all-labels-hidden and pre-ticket 
 | Form and ranking | Clear old comparison on form choices; fence obsolete starts; remove generic card; retain local ranking through fresh/save/return paths | DONE | `2485c1e`; [results review](../../evidence/adjustments/chart-controls-results/results-review.md); same search/no start during sort, immutable query, form clear then fresh search; race/return/account regressions pass |
 | Empty lists | Completed no-match/filter-empty; truthful incomplete/failure state; date/form/filter adjustment | DONE | `2485c1e`; actual no-match and budget-empty browser journeys pass; coverage/unknown/historical-action regressions pass |
 | Assembly | Independent reviews and source/native checks; normal Docker startup; tracker/SDD/export sync | DONE | [Checkpoint](../../evidence/adjustments/chart-controls-results/checkpoint.md);550 integrated tests/88 files,9 Nx checks,5 unique native cases pass across scoped runs; original failures retained |
+
+
+## Owner adjustment — round-trip motion, chart lifecycle and profile, 2026-10-28
+
+[Decision0044](../../decisions/0044-roundtrip-chart-profile-and-corners.md) maps all eight requests. M7 remains partial,29/35; T30 active. Source commit `68c2d92`.
+
+| Adjustment | Subtasks | Status | Evidence |
+|---|---|---|---|
+| Round-trip vehicle | Actual outbound/return; distinct flat turns; two train wagons; final return-arrival fade; canonical headings/stops and policy | DONE | 23 scoped tests; independent12 probes +49 graphics/32 web map tests; all three native return/fade cases pass; [review](../../evidence/adjustments/roundtrip-chart-profile/review-map.md) |
+| Chart lifecycle and labels | Eased draw/morph/exit/re-entry; interruption continuity; new-edge fade; lazy SVG/GPU parity; exact data/gaps; full min/max labels | DONE | 36 focused tests, independent3 probes;233 native fractional reveal/opacity pairs match frame store; actual width/gap/price buffer proof passes; [review](../../evidence/adjustments/roundtrip-chart-profile/review-chart.md) |
+| Profile and notices | Identity/logout only; danger inline icon; remove saving/appearance UI and unused reads; concise card invalidation; silent incompatible-city clearing | DONE | 165 scoped tests +80 independent checks; real focus/mobile/logout/legacy20-record preservation and invalid-card native cases pass; [review](../../evidence/adjustments/roundtrip-chart-profile/review-profile-corners.md) |
+| Shared corners | Semantic radius/native squircle variables; rounded fallback; preserve true circles, native focus and vendor styles | DONE | 107 final CSS declarations audited; actual card/control/indicator computed shapes, native fallback/circles and screenshots verified |
+| Assembly and review | Independent reviews; source/native/package checks; specification/SDD/export checkpoint | DONE | [Checkpoint](../../evidence/adjustments/roundtrip-chart-profile/checkpoint.md):566 source tests/89 files,11 Nx checks,11 unique native cases across scoped runs; original10/1 run retained; Docker healthy; preview refreshed; no push |

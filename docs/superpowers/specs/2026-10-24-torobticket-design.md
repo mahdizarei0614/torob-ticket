@@ -1,6 +1,6 @@
 # TorobTicket — Product and Architecture Specification
 
-**Revision:** 1.17 · 2026-10-28
+**Revision:** 1.18 · 2026-10-28
 
 **Purpose:** Authoritative design companion to the master implementation plan.  
 **Status:** Product scope and architecture approved in conversation. Implementation defaults below are explicit engineering decisions made while preparing the plan; they are not additional claims of user approval.
@@ -34,7 +34,7 @@ Quality takes precedence over an artificial deadline. Scope discipline, measurab
 - Nx monorepo; consumer frontend, backend, and admin.
 - Domestic/international flights, trains, and buses; one-way and round-trip.
 - Mock provider inventory and a local simulated provider handoff.
-- Guest comparison and referral, optional simulated identity for saved searches/preferences.
+- Guest comparison and referral, optional local identity with a compact profile.
 - Wheel for nearby-date exploration; calendar for jumping ahead.
 - Cheapest, fastest, and fewest stops/transfers; factual explanations.
 - Fixed desktop map on the left; results scroll independently; no main travel map on small screens.
@@ -64,7 +64,7 @@ The search contract contains:
 - Party composition and any ages required for eligibility.
 - Mode-specific class and eligibility filters.
 
-Changing mode preserves compatible cities and dates. An incompatible destination is cleared with an explanation; it is not silently replaced. Origin selection enables supported destinations. Network support is distinct from availability for a particular date.
+Changing mode preserves compatible cities and dates. An incompatible destination is cleared without the routine compatibility notice; it is not silently replaced. Required field validation remains available. Origin selection enables supported destinations. Network support is distinct from availability for a particular date.
 
 **Owner adjustment, 2026-10-27:** New consumer transport searches compare one adult; the passenger calculator is removed. URL, presets, saved-search opens and new submissions normalize consumer intent consistently. Historical result/quote/referral evidence retains its original party; a changed draft cannot select that old evidence. The general domain/admin contracts still support parties of up to nine, at least one adult, and infants no greater than adults. Hotel room/guest eligibility remains independently enforced. Mock providers own their age/seat rules; no passenger names, passports, or dates of birth are collected. A hotel age is age at check-in and is not inferred from transport age at a different date. Keep a compatible selected class; otherwise preselect economy, seat or standard from the catalog, falling back to its first valid class.
 
@@ -110,6 +110,8 @@ During initial collection, results can reorder. Once the user scrolls results, f
 
 A fresh current search reaching usable terminal results selects its cheapest complete eligible unexpired quote once, independently of displayed sort, and pins its map route. Adopt final evidence through the existing scroll anchor first when needed. A manual choice during collection wins; automatic selection never starts a referral or focuses/scrolls to the provider action. Restored checkpoints, stale/historical intent, empty/cancelled results and sort/filter refinements do not receive an automatic replacement. Expiry and later same-generation changes cannot trigger repeated selection. Decision0035 records this superseding default.
 
+**Owner notice refinement,2026-10-28 (decision0044):** remove the separate long changed-form notice. A concise card-level invalid-price indicator covers changed intent as well as expired evidence, while distinguishing genuinely replaced/invalidated offers. A different or incomplete draft cannot select or refer old quotes. Retain the matching search action and required input validation; removing copy never restores authority.
+
 ## 5. Date exploration
 
 The vertical wheel explores nearby dates. It has faded ends, a clear center, daily minimum prices, and a snapped date after release. Dragging previews the date and linked price chart. Settling commits once. Arrow controls, keyboard operation, clicking a date, and the calendar provide equivalent alternatives.
@@ -119,6 +121,8 @@ The vertical wheel explores nearby dates. It has faded ends, a clear center, dai
 Clicking a chart point synchronizes the wheel. The line describes the minimum eligible offer by departure date under current conditions, not historical price movement. The minimum does not change merely because the result sort changes.
 
 **Owner chart refinement,2026-10-28:** exact-date/price custom tooltips enter with a finite fade and move smoothly between cells. Use a gently smoothed3.25 CSSpx line with round ringed markers that grow on hover/focus; a persistent distinct ring and date guide retain the chosen day while another is inspected. Shared bounded monotone geometry never bridges unavailable days or introduces synthetic price observations. Tooltips show only actual cell values/statuses. Keyboard, touch, Escape and outside dismissal remain usable; overlapping or mismatched pointers cannot commit a date. GPU and SVG match; before each GPU draw read the actual renderer CSS viewport/DPR so narrow plots retain their intended stroke and marker proportions. Hover uses the existing finite Motion service even when the desktop map loop is absent.
+
+**Owner chart lifecycle refinement,2026-10-28 (decision0044):** first appearance and re-entry draw the curve from its chronological start to end with eased progress. Changed dates/inventory reshape from the currently displayed geometry; rapid interruptions continue there. No-priced-data transitions fade/retract the retained visual before clearing it. One finite frame store owns both GPU and SVG presentation, including tooltip coordinates, exact target-cell facts, gap topology and point opacity. Reduced/covered/hidden motion settles without a new persistent renderer loop. Range labels read «کمترین قیمت» and «بیشترین قیمت».
 
 Calendar and wheel use one date-price model. Calendar interaction is provisional until “Apply dates.” Cancel restores the previous selection and focus. Jalali month boundaries, leap years, keyboard navigation, and valid Gregorian conversion are explicit test cases.
 
@@ -152,6 +156,8 @@ The international map has very faint country boundaries. Both travel maps use ai
 
 Flights use visible shallow arcs, rail uses two parallel straight rails between stations, and buses use smoothly curved authored road paths. Paths remain illustrative mock geometry, not navigation guidance. A selected route draws in canonical segment order: reach the next stop, reveal its city and count up its known wait minutes, then continue. Unknown waits remain unknown. One light strand travels the route, with a stronger pulse at intermediate stops, and mode-specific glossy glass vehicle icons. Required ground transfers retain their actual mode. Equivalent canonical facts remain in the textual route timeline.
 
+**Owner round-trip motion refinement,2026-10-28 (decision0044):** a selected complete round trip reveals its supplied outbound path and stops, turns its vehicle at the destination, then follows its actual return segments and stops to the origin and blur-fades there. Flight uses a banking loop, train a wider turn with two wagons following the same track, and bus a tighter road U-turn. The small maneuver affects only the decorative vehicle, never the geographic line or itinerary facts. Different airports/stations or modes blur-handoff to the supplied return, without inventing a connecting journey. The complete round trip makes one pass; its line and stop facts remain visible. Whole-trip desktop headings show A→B→A and both local departures; explicit mobile return inspection remains return-only. Reduced motion shows complete facts immediately with the finished round-trip vehicle hidden.
+
 The route animation is visual presentation, separate from comparison/referral authority. It must never change a quote, create a referral, or suggest a confirmed booking. Internal comparison/referral markers remain 0%, 35%, 70%, 100%, backed by the existing state/receipt rules. The consumer vehicle follows the visual route, while generic laboratory progress controls retain their prior semantics. Reduced motion shows the complete selected route and exact stop values immediately.
 
 Geography dots have staggered particle lifecycles. **Owner refinements, 2026-10-28 (decision0041):** each dot softly appears, moves along a smooth random-looking path near its geographic anchor, then fades away. Independent6.5–10s lives and a short invisible interval keep the silhouette visible without synchronized blinking. Seeded time-varying waypoints joined by a convex cubic B-spline provide continuous position, velocity and acceleration, without a fixed looping path. The excursion is bounded by9 CSSpx and capped further only at extreme zoom-out to preserve a complete core inside the searched neighborhood. This supersedes the earlier drift/orbit presentation. Neighbor-aware shading skips invisible density levels and distant candidates. Shared shader/CPU position and opacity math makes scope morph snapshots begin at displayed particles; the land clock holds during the morph so particles meet its displayed target, then resumes. Visible ambience explicitly owns continuous animation and follows active wall time on slow frames; finite route/morph simulation retains bounded steps. Borders, named endpoints/stops and routes keep their canonical anchors. Coverage/hidden state pauses clocks, normal visibility resumes them, and reduced motion shows steady anchored dots. No additional renderer or scheduler loop is added. Mouse movement leaves a dim, geographically anchored trail with a soft onset and gradual decay after the cursor passes. A bounded history and non-additive glow prevent bright accumulation. An authored subset of major-city locations has slightly larger/brighter decorative dots with the same particle/trail effect, with no population/ranking inference or additional city-selection logic. Ambient particles and the route strand share the existing application renderer and run only while the desktop map is visible, uncovered, and motion is permitted.
@@ -184,11 +190,9 @@ Hotel dates may be edited independently. A later trip change offers an update an
 
 ## 8. Sessions, optional login, and referrals
 
-Guest search, comparison, hotel discovery, and referral are fully supported. Optional “Continue with Torob” establishes a local identity inside the same isolated session. It unlocks saved searches and preferences. No password, real OAuth, OTP delivery, or real personal information is needed.
+Guest search, comparison, hotel discovery, and referral are fully supported. Optional “Continue with Torob” establishes a local identity inside the same isolated session. No password, real OAuth, OTP delivery, or real personal information is needed.
 
-**Owner profile adjustment, 2026-10-28:** account controls use a compact anchored nonmodal popover with keyboard/Escape/outside dismissal and focus return. Keep it within the viewport, with a sticky close/header and 44px mobile close target. The underlying map stays active. Remove the visible saved-search heading, general explanation and empty-state copy; actual saved records and actions remain available. Close/reopen, intent and session leases continue to fence mutations.
-
-Saved searches store search intent, not a promise of a historic fare. Opening one performs a fresh search. Theme preferences persist locally; session-linked saved searches remain for the lifetime of the demo session.
+**Owner profile refinement,2026-10-28 (decision0044):** account controls use a compact anchored nonmodal popover with keyboard/Escape/outside dismissal and focus return. Keep it within the viewport, with a sticky close/header and44px mobile close target; the underlying map stays active. A signed-in profile contains only user details and a danger logout button with an inline icon. Guest sign-in remains reachable. Remove all consumer saved-search presentation and saving actions, including existing-record lists; do not fetch unused saved records for the profile. Remove the profile appearance control; the toolbar theme action and local preference persistence remain. Existing server saved-search APIs and records remain intact for compatibility, without consumer entry points. Close/reopen, intent and session leases continue to fence identity mutations.
 
 A provider click triggers a fresh quote check. An unchanged eligible quote proceeds. A changed total or material condition requires explicit acceptance of the new version. A sold-out/expired/incomplete quote cannot be handed off; show alternatives.
 
@@ -280,6 +284,8 @@ Use React Aria primitives, custom CSS Modules, and semantic CSS variables for al
 
 **Owner intro/price-label adjustment, 2026-10-28:** remove the intro subtitle; align the main title and suggested-trips control at their vertical centers in one compact row. Keep each minimum/maximum label attached to its own numerical price with a small explicit gap and bidi isolation; narrow layouts may stack complete pairs.
 
+**Owner corner refinement,2026-10-28 (decision0044):** all authored CSS corner radii use shared semantic variables. Cards, buttons, fields, dialogs and segmented tracks/indicators apply native `corner-shape: var(--corner-shape)` with `squircle`; unsupported browsers retain the ordinary tokenized rounded radius. At the default root size, small/medium/large radii are10/16/24px. True circles, geographic markers and spinners explicitly retain the round shape; vendor-owned map styles stay intact. Native border/focus/shadow/overflow behavior is preserved without polygon clipping.
+
 Local font defaults are Vazirmatn for Persian and Inter for English; verify and bundle font licenses. The visual reference is compact comparison UI with clear hierarchy, not a dashboard template. Density must not remove readable price conditions or focus targets.
 
 **Owner layout adjustment,2026-10-26:** Compact the right-hand desktop controls through shared rows and reduced empty space without reducing font sizes. Origin/destination/class share a row; passenger counts and the search action share a row. Keep the date wheel/chart, required ages, errors and price provenance available. A normal desktop viewport should contain the default search controls with minimal scrolling; expanded requirements and result lists may extend the page.
@@ -347,6 +353,7 @@ No product source, repository scaffold, container, deployment, or application su
 - Shared graphics views: https://drei.docs.pmnd.rs/portals/view
 - On-demand rendering: https://r3f.docs.pmnd.rs/advanced/scaling-performance
 - Motion: https://motion.dev/docs/react
+- CSS corner shaping: https://www.w3.org/TR/css-borders-4/#corner-shaping
 - SSE: https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events
 - Prisma seeding: https://www.prisma.io/docs/orm/prisma-migrate/workflows/seeding
 - Compose readiness: https://docs.docker.com/compose/how-tos/startup-order/
