@@ -96,5 +96,6 @@ test('@soft-motion skeleton, selected heading and list replacement retain safe f
   await page.getByRole('button', { name: 'تقویم جلالی و انتخاب تاریخ', exact: true }).click(); await page.getByRole('button', { name: 'انصراف', exact: true }).click(); await expect(detail).toHaveAttribute('aria-expanded', 'true');
   await detail.click(); const exiting = ticket.locator('[data-result-presence="exiting"]'); await expect(exiting.first()).toHaveAttribute('inert'); await expect(exiting).toHaveCount(0);
   await page.getByRole('radiogroup', { name: 'مرتب‌سازی پیشنهادها', exact: true }).getByText('سریع‌ترین', { exact: true }).click(); await expect(results(page)).toHaveAttribute('data-status', 'complete', { timeout: 20000 });
+  await page.waitForTimeout(450);
   save('content', { before: headingBefore, after: await map.locator('[data-map-heading]').innerText(), selected: await map.getAttribute('data-map-itinerary') }); await page.screenshot({ path: resolve(out, 'selected-heading.png') });
 });

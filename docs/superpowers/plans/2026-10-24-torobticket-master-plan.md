@@ -2304,3 +2304,14 @@ The subsequent request supersedes the previous all-labels-hidden and pre-ticket 
 | Price bands | Shared comparable-range rule; semantic tokens; wheel/calendar/card amounts and SVG/GLSL chart | DONE | `ed75038`; source bands/theme checks and native dark/light/calendar/mobile/SVG evidence pass |
 | Same-price sellers | Exact-total card projections; seller icon actions; fare variants; sort/scroll/focus and source authority | DONE | `ed75038`; same-price component fixtures plus native exact seller receipt/read-only return and changed-price consent verified |
 | Integration and review | Independent review; packaged visual and referral checks; tracker/SDD/exports | DONE | [Review](../../evidence/adjustments/price-colors-sellers/review.md) approved; 365 integrated source tests, 26 final date tests, type/lint and 8 unique native cases pass; final single-provider/reduced-motion captures explicitly scoped; local stack ready; M7 remains partial |
+
+## Owner adjustment — soft transitions and aligned controls, 2026-10-28
+
+[Decision0038](../../decisions/0038-soft-transitions-and-aligned-controls.md) maps the seven owner requests. M7 remains partial, 29/35; T30 active.
+
+| Adjustment | Subtasks | Status | Evidence |
+|---|---|---|---|
+| Palette and appearance | Continuous vehicle palette interpolation through CSS/GPU; slower light/dark clip; interruptions and lifecycle cleanup | DONE | `c1f4a74`; 760ms palette / 780ms clip, actual intermediate GPU/CSS equality; [checkpoint](../../evidence/adjustments/soft-transitions/checkpoint.md) |
+| Route/date controls | Aligned city/class row; class segments; shorter wheel; calendar below; equal combined chart height | DONE | `c1f4a74`; 46px aligned controls; wheel132 + gap8 + calendar44 = chart184; desktop/mobile and keyboard/calendar native checks pass |
+| Content and selected heading | Skeletons, finite entry/exit/reorder, inert obsolete visuals, preserved details/focus; pinned service heading | DONE | `c1f4a74`; real Motion lifecycle/source regressions and selected route/sort/detail-preservation native case pass |
+| Integration and review | Independent review, source/native/packaged checks, tracker/SDD/export synchronization | DONE | [Review](../../evidence/adjustments/soft-transitions/review.md); 447 integrated source tests, 9 Nx checks, 4 native cases including provider return pass; local stack ready; M7 remains partial |
