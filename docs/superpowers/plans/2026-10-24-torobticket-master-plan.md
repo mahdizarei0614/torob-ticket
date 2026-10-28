@@ -10,7 +10,7 @@
 
 **Tech Stack:** Nx, pnpm, TypeScript, React, Vite, React Router, TanStack Query, React Aria, CSS Modules, CSS custom properties, Zod, NestJS, PostgreSQL, Prisma, Three.js, React Three Fiber, selected Drei utilities, Motion, @internationalized/date, Vitest, Testing Library, Playwright, Storybook, Docker Compose, Caddy.
 
-**Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.13, 2026-10-28 (compact profile, round-trip discovery and living dots).
+**Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.14, 2026-10-28 (visible positional map-dot motion).
 
 **Plan state:** Approved. M1–M6 and T29 packaging are complete with independent reviews and packaged acceptance evidence. **29/35 tasks complete; M7 PARTIAL, T30 ACTIVE.** Owner requested a fast checkpoint before substantial design/logic changes: finish durable harness checks now; full T30 matrix and T31–T33 audits/rehearsal remain unfinished. M8 retains its planned scope.
 
@@ -2327,3 +2327,13 @@ The subsequent request supersedes the previous all-labels-hidden and pre-ticket 
 | Round-trip discovery | First-toggle bounded +3-day return; explicit later date reselection; complete fares and selected map playback | DONE | `fbb56e9`; all six native mode/scope combinations return complete eligible round trips and animate selected itineraries |
 | Living dots | Bounded slow per-cell drift; common shader/CPU morph snapshots; fixed anchors and existing lifecycle | DONE | `fbb56e9`; 78 graphics tests; actual linked drift programs, completed morph/continued clock, covered freeze and reduced amplitude zero verified |
 | Integration and review | Independent review; packaged source/native evidence; tracker/SDD/export synchronization | DONE | [Review](../../evidence/adjustments/roundtrip-profile/review.md) approved; final 487 source tests / 82 files, 9 Nx checks and 9 unique native cases pass across scoped runs; local stack ready; M7 remains partial |
+
+## Owner correction — visibly moving map dots, 2026-10-28
+
+[Decision0040](../../decisions/0040-visible-living-dot-motion.md) supersedes the imperceptible motion bound in decision0039. M7 remains partial, 29/35; T30 active.
+
+| Adjustment | Subtasks | Status | Evidence |
+|---|---|---|---|
+| Visible gentle float | Increase positional motion below5 CSSpx; varied phases; unchanged density, colors and canonical route anchors | DONE | `28c6dc1`; 79 graphics tests; native Iran802 centers median2.22px and world704 centers median2.75px over roughly2 seconds |
+| Whole dots and morph landing | Neighbor-aware lattice; skip inactive levels; hold live clock while morph particles approach their matching target | DONE | `28c6dc1`; independent15 tests; actual linked initial/post-morph shader captures with identical camera matrices and geographic scale |
+| Review and local preview | Independent review; focused native regression, coverage/reduced motion, normal Docker startup; documentation/SDD/export sync | DONE | [Review](../../evidence/adjustments/visible-dot-motion/review.md) approved; [checkpoint](../../evidence/adjustments/visible-dot-motion/checkpoint.md); 5 Nx checks, E2E type/lint, both native cases pass; preview refreshed; no push |

@@ -1,0 +1,9 @@
+# 0040 — Visible positional motion for map dots
+
+Owner correction, 2026-10-28: the previous dots still look static. Current task brief: make calm, actual center movement visible in the initial map and after Iran/world morphs. Keep this a narrow correction; M7 remains partial, 29/35, T30 active.
+
+The previous maximum displacement was below 1.2 CSS pixels with a maximum speed around 0.27 pixels/second. Time-uniform uploads proved the shader ran but did not establish visibly moving centers. Increase the varied float to a bounded envelope below five CSS pixels, with a typical two-second displacement above two pixels. Preserve dot density, dim semantic colors, pointer history, selected endpoint/route anchors, existing renderer ownership and reduced-motion/coverage policy.
+
+Evaluate neighboring lattice cells so moving centers remain whole across the static cell boundaries, and skip invisible density levels. CPU snapshots and GLSL use matching motion math; pause the land drift clock during scope morphs so particles land on the currently displayed centers. Verify actual rendered center displacement in native Chrome, including post-morph, rather than relying on clock changes or brightness differences.
+
+Implemented at local commit `28c6dc1`. Evidence and approved independent review: `docs/evidence/adjustments/visible-dot-motion/`. Graphics79 tests/15 files, independent15 tests/3 files, five Nx checks, E2E types/lint and both targeted native cases pass. Final actual rendered centers move a median2.22px in Iran and2.75px in the post-morph world with identical camera matrices/scale between captures. Coverage freezes the clock; reduced motion sets amplitude0 and freezes time. Normal Docker startup is healthy and the existing preview is refreshed. Specification1.14, master tracker, SDD and local exports are synchronized. M7 remains partial, 29/35; no remote push or publication.
