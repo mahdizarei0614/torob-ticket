@@ -11,6 +11,7 @@ uniform vec4 latticeSpacings;
 uniform vec2 gridOrigin;
 uniform vec4 trailSamples[16];
 uniform float mapOpacity;
+uniform float scopeMorphProgress;
 varying vec2 vPosition;
 float trailAt(vec2 position) {
   float strength = 0.0;
@@ -41,7 +42,9 @@ vec4 lattice(float spacing, float proximity) {
     float core = 1.0 - smoothstep(0.75, 1.45 + proximity * 0.14, radius);
     float halo = exp(-radius * radius * 0.8) * (0.06 + proximity * 0.07);
     float breath = 0.66 + 0.19 * sin(time * 0.43 + phase) + 0.07 * sin(time * 0.19 - phase * 1.7);
-    alpha = max(alpha, (core * min(1.0, breath + proximity * 0.13) + halo) * dot.a * particle.z);
+    float landed = 1.0;
+    if (scopeMorphProgress < 1.0) landed = scopeMorphLandOpacity(scopeMorphProgress, scopeMorphSeed(center));
+    alpha = max(alpha, landed * (core * min(1.0, breath + proximity * 0.13) + halo) * dot.a * particle.z);
   }
   return vec4(mix(dot.rgb, highlight.rgb, proximity * 0.22), alpha);
 }
@@ -49,6 +52,7 @@ void main() {
   if (layer < 0.5) {
     gl_FragColor = vec4(dot.rgb, dot.a * 0.32);
   } else {
+    if (scopeMorphProgress < 0.45) { gl_FragColor = vec4(0.0); return; }
     float trace = trailAt(vPosition);
     vec4 a=vec4(0.0),b=vec4(0.0),c=vec4(0.0),d=vec4(0.0);
     // Only the one or two visible density levels need fragment work.

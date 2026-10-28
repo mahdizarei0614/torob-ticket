@@ -1,6 +1,7 @@
 import { Component, createContext, lazy, Suspense, useCallback, useContext, useMemo, useRef, useState, type ReactNode, type RefObject } from 'react';
 import type { GraphicsStatus } from './context-lifecycle';
 import type { GraphicsQuality } from './quality-policy';
+import type { BloomBudgetSnapshot } from './bloom-policy';
 import styles from './graphics.module.css';
 const Renderer = lazy(() => import('./shared-renderer'));
 export interface GraphicsViewRegistration {
@@ -9,6 +10,7 @@ export interface GraphicsViewRegistration {
   track: RefObject<HTMLElement>;
   scene: ReactNode;
   visible: boolean;
+  bloom?: boolean;
 }
 export interface GraphicsDiagnostics {
   status: GraphicsStatus;
@@ -28,6 +30,7 @@ export interface GraphicsDiagnostics {
   lost: number;
   restored: number;
   disposed: boolean;
+  bloom?: BloomBudgetSnapshot & { active: boolean; draws: number; width: number; height: number; gpuMs: number[] };
 }
 export interface GraphicsController {
   invalidate: () => void;

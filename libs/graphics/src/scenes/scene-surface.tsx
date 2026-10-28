@@ -51,12 +51,13 @@ export function SceneCamera({ frame, transition }: { frame: RouteBounds; transit
   useLayoutEffect(() => { const previous = get().camera; set({ camera }); return () => set({ camera: previous }); }, [get, set, camera]);
   return null;
 }
-export function SceneSurface({ label, camera, setZoom, context, markers, onMarkerSelect, onPointChange, children, fallback, onFrame, isCurrent = () => true, markerSelectLabel,portalLabels=false,labelsVisible=true,showControls=true,pointer,overlay,displayFrame }: {
+export function SceneSurface({ label, camera, setZoom, context, markers, onMarkerSelect, onPointChange, children, fallback, onFrame, isCurrent = () => true, markerSelectLabel,portalLabels=false,labelsVisible=true,showControls=true,pointer,overlay,displayFrame,bloom=false }: {
   label: string; camera: CameraIntent; setZoom: (zoom: number) => void; context: ProjectionContext; markers: readonly SceneMarker[];
   onMarkerSelect?: (id: string) => void; onPointChange?: (point: GeoPoint) => void;
   children: (frame: RouteBounds) => ReactNode; fallback: (frame: RouteBounds, dimensions: {width:number;height:number}) => ReactNode; onFrame?: (frame: RouteBounds) => void; isCurrent?:()=>boolean; markerSelectLabel?:string;portalLabels?:boolean;labelsVisible?:boolean;showControls?:boolean;
   pointer?: RefObject<ScenePointer>; overlay?: (frame: RouteBounds, dimensions: { width: number; height: number }) => ReactNode;
   displayFrame?: SceneFrameStore;
+  bloom?: boolean;
 }) {
   const {labelLayer}=useGraphics();const labelId=useId();
   const [rect,setRect]=useState({left:0,top:0,width:0,height:0});
@@ -150,7 +151,7 @@ export function SceneSurface({ label, camera, setZoom, context, markers, onMarke
         }
         pointers.current.delete(event.pointerId); if (pointers.current.size < 2) pinch.current = null;
       }}>
-      <GraphicsView label={`${label}؛ نقشه نقطه‌ای`} fallback={fallback(frame,dimensions)}>{children(frame)}</GraphicsView>
+      <GraphicsView bloom={bloom} label={`${label}؛ نقشه نقطه‌ای`} fallback={fallback(frame,dimensions)}>{children(frame)}</GraphicsView>
       {!portalLabels && labelsVisible && labels}
       {portalLabels && labelLayer && labelsVisible && rect.width>0 && createPortal(<div className={styles.portalViewport} style={rect}>{labels}</div>,labelLayer)}
       {!portalLabels && overlay?.(frame,dimensions)}

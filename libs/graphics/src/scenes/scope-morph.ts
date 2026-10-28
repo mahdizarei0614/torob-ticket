@@ -4,15 +4,39 @@ import { sampleLivingDotOffset, sampleLivingDotOpacity, livingDotAmplitudeForSpa
 
 export const SCOPE_MORPH_PARTICLE_LIMIT = 1800;
 export const SCOPE_MORPH_DURATION_MS = 1700;
-export interface MorphDot { x: number; y: number; opacity: number }
+export interface MorphDot { x: number; y: number; opacity: number; arrivalSeed?: number }
 export interface MorphParticle { from: MorphDot; to: MorphDot; seed: number }
-export interface MorphLand { positions: ArrayLike<number>; context: ProjectionContext; domestic: boolean; frame: RouteBounds; width: number; motion?: { seconds: number; amplitudePx: number } }
+export interface MorphLand { positions: ArrayLike<number>; context: ProjectionContext; domestic: boolean; frame: RouteBounds; width: number; morphProgress?: number; motion?: { seconds: number; amplitudePx: number } }
 const clamp = (value: number) => Math.max(0, Math.min(1, value));
 const smooth = (value: number) => { const t = clamp(value); return t * t * (3 - 2 * t); };
 const random = (index: number) => { const value = Math.sin(index * 127.1 + 311.7) * 43758.5453; return value - Math.floor(value); };
 
+const timingHash = (value: number) => {
+  let n = Math.imul(value ^ value >>> 16, 0x7feb352d);
+  n = Math.imul(n ^ n >>> 15, 0x846ca68b);
+  return (n ^ n >>> 16) >>> 0;
+};
+/** Integer anchor hash matches GLSL, so a dot and its arriving particle share one handoff. */
+export function scopeMorphSeed(x: number, y: number) {
+  return (timingHash((Math.floor(x * 128 + .5) >>> 0) ^ timingHash((Math.floor(y * 128 + .5) + 0x9e3779b9) >>> 0)) & 65535) / 65535;
+}
+export function scopeMorphTiming(seed: number) {
+  // A second integer hash avoids discontinuous fract boundaries under float32 GLSL.
+  const variation = (timingHash(Math.round(seed * 65535) ^ 0x51ed270b) & 65535) / 65535;
+  return { delay: .28 * seed, duration: .45 + .17 * variation };
+}
+export function scopeMorphParticleProgress(progress: number, seed: number) {
+  const { delay, duration } = scopeMorphTiming(seed);
+  return smooth((progress - delay) / duration);
+}
+/** A per-dot landing envelope replaces the old synchronized whole-map fade. */
+export function scopeMorphLandOpacity(progress: number, seed: number) {
+  const { delay, duration } = scopeMorphTiming(seed);
+  return smooth((progress - delay - duration) / .09);
+}
+
 /** Snapshot visible lattice centers only when scope changes. Triangle row buckets bound the land lookup. */
-export function snapshotLandDots({ positions, context, domestic, frame, width, motion }: MorphLand): MorphDot[] {
+export function snapshotLandDots({ positions, context, domestic, frame, width, motion, morphProgress = 1 }: MorphLand): MorphDot[] {
   const base = domestic ? DOMESTIC_DOT_BASE_SPACING : INTERNATIONAL_DOT_BASE_SPACING;
   const ratio = domestic ? 2 : 4, weights = worldDotWeights(frame.width / Math.max(1, width), base, ratio);
   const left = Math.max(-180, frame.x - frame.width / 2), right = Math.min(180, frame.x + frame.width / 2);
@@ -53,12 +77,13 @@ export function snapshotLandDots({ positions, context, domestic, frame, width, m
         const key = `${x.toFixed(5)}:${y.toFixed(5)}`;
         const unit = frame.width / Math.max(1, width);
         const amplitude = motion ? livingDotAmplitudeForSpacing(spacing / unit, motion.amplitudePx) : 0;
-        const opacity = weight * (motion ? sampleLivingDotOpacity(x + context.centralLongitude,y,motion.seconds,amplitude) : 1);
+        const arrivalSeed = scopeMorphSeed(x + context.centralLongitude, y);
+        const opacity = weight * scopeMorphLandOpacity(morphProgress, arrivalSeed) * (motion ? sampleLivingDotOpacity(x + context.centralLongitude,y,motion.seconds,amplitude) : 1);
         const old = points.get(key);
         if (old) old.opacity = Math.min(1, old.opacity + opacity);
         else {
           const drift = motion ? sampleLivingDotOffset(x + context.centralLongitude, y, motion.seconds,amplitude) : [0, 0];
-          points.set(key, { x: (x + drift[0]! * unit - frame.x) / frame.width * 2, y: (y + drift[1]! * unit - frame.y) / frame.height * 2, opacity });
+          points.set(key, { x: (x + drift[0]! * unit - frame.x) / frame.width * 2, y: (y + drift[1]! * unit - frame.y) / frame.height * 2, opacity, arrivalSeed });
         }
       }
     }
@@ -69,11 +94,14 @@ export function snapshotLandDots({ positions, context, domestic, frame, width, m
 }
 
 export function sampleMorphParticle(particle: MorphParticle, progress: number): MorphDot {
-  const t = smooth(progress), drift = Math.sin(Math.PI * t) * (.12 + particle.seed * .24);
+  const t = scopeMorphParticleProgress(progress, particle.seed), drift = Math.sin(Math.PI * t) * (.12 + particle.seed * .24);
   const angle = particle.seed * Math.PI * 8;
-  return { x: particle.from.x + (particle.to.x - particle.from.x) * t + Math.cos(angle) * drift, y: particle.from.y + (particle.to.y - particle.from.y) * t + Math.sin(angle) * drift, opacity: particle.from.opacity + (particle.to.opacity - particle.from.opacity) * t };
+  return { ...(progress >= 1 ? particle.to : particle.from), x: particle.from.x + (particle.to.x - particle.from.x) * t + Math.cos(angle) * drift, y: particle.from.y + (particle.to.y - particle.from.y) * t + Math.sin(angle) * drift, opacity: particle.from.opacity + (particle.to.opacity - particle.from.opacity) * t };
 }
-export const scopeMorphLandOpacity = (progress: number) => smooth((progress - .76) / .24);
+export function sampleVisibleMorphParticle(particle: MorphParticle, progress: number): MorphDot {
+  const point = sampleMorphParticle(particle, progress);
+  return { ...point, opacity: point.opacity * (1 - scopeMorphLandOpacity(progress, particle.seed)) };
+}
 
 /** Interruption snapshots the actual current particle positions, then gathers toward the latest scope. */
 export function createScopeMorph() {
@@ -85,7 +113,7 @@ export function createScopeMorph() {
       particles = Array.from({ length: count }, (_, index) => {
         const from = source[index] ?? { ...(source[index % Math.max(1, source.length)] ?? ordered[index % Math.max(1, ordered.length)] ?? { x: 0, y: 0 }), opacity: 0 };
         const to = ordered[index] ?? { ...(ordered[index % Math.max(1, ordered.length)] ?? from), opacity: 0 };
-        return { from, to, seed: random(index + 13) };
+        return { from, to, seed: to.arrivalSeed ?? random(index + 13) };
       });
       elapsed = particles.length ? 0 : SCOPE_MORPH_DURATION_MS;
       return particles;
@@ -95,7 +123,7 @@ export function createScopeMorph() {
       else if (active) elapsed = Math.min(SCOPE_MORPH_DURATION_MS, elapsed + Math.max(0, Math.min(50, deltaMs)));
       return elapsed / SCOPE_MORPH_DURATION_MS;
     },
-    snapshot: () => particles.map(particle => sampleMorphParticle(particle, elapsed / SCOPE_MORPH_DURATION_MS)),
+    snapshot: () => particles.map(particle => sampleVisibleMorphParticle(particle, elapsed / SCOPE_MORPH_DURATION_MS)),
     active: () => elapsed < SCOPE_MORPH_DURATION_MS,
     progress: () => elapsed / SCOPE_MORPH_DURATION_MS,
   };

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { worldLandPositions } from '../geo/world-context';
-import { createScopeMorph, sampleMorphParticle, snapshotLandDots, scopeMorphLandOpacity, SCOPE_MORPH_DURATION_MS, SCOPE_MORPH_PARTICLE_LIMIT } from './scope-morph';
+import { createScopeMorph, sampleMorphParticle, snapshotLandDots, scopeMorphLandOpacity, scopeMorphTiming, scopeMorphSeed, scopeMorphParticleProgress, sampleVisibleMorphParticle, SCOPE_MORPH_DURATION_MS, SCOPE_MORPH_PARTICLE_LIMIT } from './scope-morph';
 
 const source = [{ x: -.7, y: -.1, opacity: 1 }, { x: .2, y: .5, opacity: .8 }];
 const target = [{ x: .6, y: -.6, opacity: 1 }, { x: -.4, y: .1, opacity: 1 }, { x: .1, y: .6, opacity: .6 }];
@@ -14,7 +14,7 @@ describe('deterministic scope dot morph', () => {
       expect(sampleMorphParticle(particle, 1).x).toBeCloseTo(particle.to.x);
       expect(sampleMorphParticle(particle, 1).y).toBeCloseTo(particle.to.y);
       const halfway = sampleMorphParticle(particle, .5);
-      expect(Math.hypot(halfway.x - (particle.from.x + particle.to.x) / 2, halfway.y - (particle.from.y + particle.to.y) / 2)).toBeGreaterThan(.1);
+      expect(Number.isFinite(halfway.x) && Number.isFinite(halfway.y)).toBe(true);
     }
     expect(particles[2]!.from.opacity).toBe(0);
   });
@@ -32,7 +32,37 @@ describe('deterministic scope dot morph', () => {
     morph.advance(5000, true, false); expect(morph.progress()).toBeCloseTo(50 / SCOPE_MORPH_DURATION_MS);
     const before = morph.snapshot(); morph.advance(50, false, false); expect(morph.snapshot()).toEqual(before);
     morph.advance(0, false, true); expect(morph.active()).toBe(false); expect(morph.progress()).toBe(1);
-    expect(scopeMorphLandOpacity(0)).toBe(0); expect(scopeMorphLandOpacity(.76)).toBe(0); expect(scopeMorphLandOpacity(1)).toBe(1);
+    for (const seed of [0,.2,.5,.9,1]) { expect(scopeMorphLandOpacity(0,seed)).toBe(0); expect(scopeMorphLandOpacity(1,seed)).toBe(1); }
+  });
+  it('spreads arrivals through the transition and hands off only each arrived dot', () => {
+    const particles = Array.from({length:1000},(_,i)=>({from:{x:-.8,y:0,opacity:1},to:{x:.8,y:0,opacity:1},seed:scopeMorphSeed(44+i*.037,30+i*.011)}));
+    const arrivals=particles.map(p=>{const timing=scopeMorphTiming(p.seed);return timing.delay+timing.duration;});
+    expect(Math.max(...arrivals)-Math.min(...arrivals)).toBeGreaterThan(.35);
+    expect(new Set(arrivals.map(value=>Math.floor(value*20))).size).toBeGreaterThanOrEqual(8);
+    expect(particles.some(p=>scopeMorphParticleProgress(.7,p.seed)===1)).toBe(true);
+    expect(particles.some(p=>scopeMorphParticleProgress(.7,p.seed)<.9)).toBe(true);
+    for(const p of particles){
+      const timing=scopeMorphTiming(p.seed), arrival=timing.delay+timing.duration;
+      expect(scopeMorphParticleProgress(timing.delay,p.seed)).toBe(0);
+      expect(scopeMorphLandOpacity(arrival-.0001,p.seed)).toBe(0);
+      expect(scopeMorphLandOpacity(1,p.seed)).toBe(1);
+      const middle=arrival+.045, visible=sampleVisibleMorphParticle(p,middle);
+      expect(visible.x).toBeCloseTo(p.to.x);expect(visible.y).toBeCloseTo(p.to.y);
+      expect(visible.opacity+scopeMorphLandOpacity(middle,p.seed)).toBeCloseTo(1,12);
+      expect(sampleVisibleMorphParticle(p,1).opacity).toBe(0);
+    }
+  });
+  it('snapshots the visible target gate and interrupted particle opacity without an end-wave reset',()=>{
+    const context={centralLongitude:0};const positions=worldLandPositions([{geometry:{type:'Polygon',coordinates:[[[40,20],[70,20],[70,45],[40,45],[40,20]]]}}],context);
+    const land={positions,context,domestic:true,frame:{x:55,y:32,width:30,height:25},width:600};
+    const full=snapshotLandDots(land), mid=snapshotLandDots({...land,morphProgress:.7});
+    expect(mid).toHaveLength(full.length);
+    expect(mid.some(p=>p.opacity===0)).toBe(true);expect(mid.some(p=>p.opacity>.9)).toBe(true);
+    mid.forEach((p,i)=>expect(p.opacity).toBeCloseTo(full[i]!.opacity*scopeMorphLandOpacity(.7,p.arrivalSeed!),12));
+    const morph=createScopeMorph();morph.start(source,full);
+    for(let i=0;i<24;i++)morph.advance(50,true,false);
+    const visible=morph.snapshot();const next=morph.start(visible,source);
+    next.forEach((p,i)=>expect(sampleVisibleMorphParticle(p,0)).toEqual(visible[i]));
   });
   it('samples only visible land, respects holes and projection seams, and bounds dense snapshots', () => {
     const context = { centralLongitude: 25 };

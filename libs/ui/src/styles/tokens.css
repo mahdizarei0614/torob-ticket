@@ -58,6 +58,8 @@
   --on-accent: #ffffff;
   --icon: var(--text-muted);
   --icon-active: var(--accent);
+  --scene-bloom-intensity: 0.12;
+  --scene-bloom-threshold: 0.025;
   --scene-background: var(--canvas);
   --scene-dot: var(--border-strong);
   --scene-route: var(--accent);
@@ -76,6 +78,7 @@
   color-scheme: light;
 }
 [data-appearance='dark'] {
+  --scene-bloom-intensity: 0.22;
   --surface: #0c121e;
   --canvas: #050911;
   --surface-raised: #111c2a;
@@ -105,7 +108,7 @@
   --scene-haze: #152b4a80;
   --scene-haze-secondary: #1a163f33;
   --scene-edge: #02040bbb;
-  --scene-dot: #344e70;
+  --scene-dot: #3e5b81;
   --scene-route: #82b4eb;
   --scene-route-muted: #345273;
   --scene-highlight: #d5eaff;
@@ -146,7 +149,7 @@
   --scene-haze: #123e2e80;
   --scene-haze-secondary: #15374233;
   --scene-edge: #020807bb;
-  --scene-dot: #335d4f;
+  --scene-dot: #3d6b5b;
   --scene-route: #82c8aa;
   --scene-route-muted: #355e4e;
   --scene-highlight: #d6f3e5;
@@ -186,7 +189,7 @@
   --scene-haze: #4b203180;
   --scene-haze-secondary: #2e1c4433;
   --scene-edge: #090307bb;
-  --scene-dot: #6b4156;
+  --scene-dot: #7b4c64;
   --scene-route: #d694a7;
   --scene-route-muted: #6a3f52;
   --scene-highlight: #f5dce5;

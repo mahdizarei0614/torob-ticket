@@ -6,6 +6,9 @@ import { useTheme } from '@torob-ticket/ui';
 import { observeContextLifecycle, type GraphicsStatus } from './context-lifecycle';
 import { createRenderScheduler } from './render-scheduler';
 import { chooseGraphicsQuality } from './quality-policy';
+import { createBloomBudget } from './bloom-policy';
+import { createGpuFrameTimer } from './gpu-frame-timer';
+import { installMapBloom, MAP_BLOOM_SCENE_KEY } from './map-bloom';
 import type { GraphicsController, GraphicsDiagnostics, GraphicsViewRegistration } from './graphics-provider';
 import styles from './graphics.module.css';
 interface RendererProps {
@@ -39,9 +42,15 @@ function Driver(props: RendererProps & { onVisibility: (ids: string[]) => void; 
     const reduced = matchMedia('(prefers-reduced-motion: reduce)');
     const initialQuality = chooseGraphicsQuality({ deviceDpr: devicePixelRatio, mobile: innerWidth <= 600, samples: [] });
     const info = context.getExtension('WEBGL_debug_renderer_info');
+    const rendererName = String(context.getParameter(info ? info.UNMASKED_RENDERER_WEBGL : context.RENDERER));
+    const supportsBloom = Boolean(context.getExtension('EXT_color_buffer_float')) && Number(context.getParameter(context.MAX_TEXTURE_SIZE)) >= 2048 && !/swiftshader|llvmpipe|software|microsoft basic/i.test(rendererName);
+    let gpuTimer = createGpuFrameTimer(context);
+    let bloomBudget = createBloomBudget(supportsBloom, gpuTimer.available);
+    const gpuSamples: number[] = [];
+    let sampleTime: number | undefined;
     const data: GraphicsDiagnostics = {
       status: 'loading', frames: 0, themeFrames: 0,
-      renderer: String(context.getParameter(info ? info.UNMASKED_RENDERER_WEBGL : context.RENDERER)),
+      renderer: rendererName,
       version: String(context.getParameter(context.VERSION)), quality: initialQuality,
       cpuSubmissionMs: [], programs: [], pixels: {}, uniforms: {}, geometries: 0, programsInMemory: 0, activeViews: 0, frameSubscribers: 0,
       lost: 0, restored: 0, disposed: false,
@@ -57,11 +66,29 @@ function Driver(props: RendererProps & { onVisibility: (ids: string[]) => void; 
     }));
     const clear = () => { gl.setScissorTest(false); gl.setViewport(0, 0, innerWidth, innerHeight); gl.clear(true, true, true); };
     const active = () => live && !lost && !failed && !document.hidden && !latest.current.covered;
+    const bloomEligible = () => active() && latest.current.motion && !reduced.matches && !stickyLow && innerWidth >= 1120 && latest.current.views.some(view => view.bloom && inViewport(view));
+    const bloom = installMapBloom(gl, () => bloomEligible() && bloomBudget.rendering(), reason => bloomBudget.fail(reason));
+    const publishBloom = () => {
+      const effect = bloom.inspect(), budget = bloomBudget.snapshot();
+      data.bloom = { ...budget, active: bloomEligible() && bloomBudget.rendering(), ...effect, gpuMs: [...gpuSamples] };
+      const canvas = gl.domElement;
+      const status = bloomEligible() ? budget.status : 'suspended';
+      if (canvas.dataset['bloomStatus'] !== status) canvas.dataset['bloomStatus'] = status;
+      canvas.dataset['bloomReason'] = budget.reason;
+      if (data.frames % 30 === 0) {
+        canvas.dataset['bloomDraws'] = String(effect.draws);
+        canvas.dataset['bloomTarget'] = `${effect.width}x${effect.height}`;
+        canvas.dataset['bloomGpuP90'] = String(budget.gpuP90 ?? 'unavailable');
+      }
+    };
     const scheduler = createRenderScheduler(time => {
       if (!active()) return;
       const start = performance.now();
+      const eligible = bloomEligible(), gpuMs = gpuTimer.poll();
+      gpuSamples.push(...gpuMs); if (gpuSamples.length > 30) gpuSamples.splice(0, gpuSamples.length - 30);
+      if (eligible && bloomBudget.measuring()) gpuTimer.begin();
       clear();
-      state.advance(time / 1000, false);
+      try { state.advance(time / 1000, false); } finally { gpuTimer.end(); }
       data.frames++;
       data.frameSubscribers = state.get().internal.subscribers.length;
       data.activeViews = latest.current.views.filter(inViewport).length;
@@ -69,6 +96,9 @@ function Driver(props: RendererProps & { onVisibility: (ids: string[]) => void; 
       data.programsInMemory = gl.info.programs?.length ?? 0;
       if (!ready && data.programsInMemory > 0 && !failed) { ready = true; status('ready'); }
       const elapsed = performance.now() - start;
+      if (eligible) {
+        bloomBudget.sample({ frameMs: sampleTime === undefined ? 0 : time - sampleTime, cpuMs: elapsed, gpuMs }); sampleTime = time;
+      } else { sampleTime = undefined; bloomBudget.suspend(); }
       if (latest.current.diagnostics) {
         data.programs = readPrograms();
         const program = gl.info.programs?.[0]?.program as WebGLProgram | undefined;
@@ -97,6 +127,9 @@ function Driver(props: RendererProps & { onVisibility: (ids: string[]) => void; 
       if (stickyLow) { quality.dpr = Math.min(1, devicePixelRatio); quality.tier = 'low'; quality.reason = 'measured-cpu-submission'; }
       if (gl.getPixelRatio() !== quality.dpr) { state.setDpr(quality.dpr); latest.current.onDpr(quality.dpr); scheduler.invalidate(); }
       data.quality = quality;
+      if (stickyLow) bloomBudget.fail('low-quality-tier');
+      if (bloomBudget.snapshot().status === 'disabled') bloom.release();
+      publishBloom();
     });
     const updatePolicy = () => {
       const visibleViews = latest.current.views.filter(inViewport);
@@ -104,6 +137,8 @@ function Driver(props: RendererProps & { onVisibility: (ids: string[]) => void; 
       data.activeViews = active() ? visibleViews.length : 0;
       latest.current.onVisibility(active() ? visibleViews.map(view => view.id) : []);
       scheduler.setPolicy({ active: active() && visible, motion: latest.current.motion, reducedMotion: reduced.matches });
+      if (!bloomEligible()) { sampleTime = undefined; bloomBudget.suspend(); }
+      publishBloom();
       if (active() && !visible) clear();
     };
     wake.current = updatePolicy;
@@ -114,9 +149,9 @@ function Driver(props: RendererProps & { onVisibility: (ids: string[]) => void; 
     // this bridge even though the renderer itself is manually advanced.
     state.set({ invalidate: requestSceneFrame });
     const stopContext = observeContextLifecycle(gl.domElement, () => {
-      lost = true; ready = false; data.lost++; status('context-lost'); updatePolicy();
+      lost = true; ready = false; data.lost++; gpuTimer.dispose(); bloom.release(); status('context-lost'); updatePolicy();
     }, () => {
-      lost = false; failed = false; ready = false; data.restored++; status('loading'); updatePolicy();
+      lost = false; failed = false; ready = false; data.restored++; gpuTimer = createGpuFrameTimer(context); bloomBudget = createBloomBudget(supportsBloom, gpuTimer.available); gpuSamples.length = 0; sampleTime = undefined; status('loading'); updatePolicy();
     });
     gl.debug.checkShaderErrors = true;
     gl.debug.onShaderError = (raw, program, vertex, fragment) => {
@@ -129,6 +164,7 @@ function Driver(props: RendererProps & { onVisibility: (ids: string[]) => void; 
     const flushTheme = () => {
       const theme=themeBridge.getSnapshot();
       if(theme===flushedTheme)return Promise.resolve();
+      bloom.refreshStyle();
       updatePolicy();
       const previous = data.frames;
       // Synchronous beforePaint subscribers already update every material. Avoid a second identical frame
@@ -159,6 +195,7 @@ function Driver(props: RendererProps & { onVisibility: (ids: string[]) => void; 
     return () => {
       live = false;
       scheduler.dispose();
+      gpuTimer.dispose(); bloom.dispose();
       if (getState().invalidate === requestSceneFrame) state.set({ invalidate: previousInvalidation });
       if (props.sceneInvalidation.current === requestSceneFrame) props.sceneInvalidation.current = () => {};
       unsubscribe(); stopContext();
@@ -183,9 +220,11 @@ function Driver(props: RendererProps & { onVisibility: (ids: string[]) => void; 
   }, [props.views, props.covered, props.motion]);
   return null;
 }
-function SceneInvalidation({ active, connection }: { active: boolean; connection: RefObject<() => void> }) {
+function SceneInvalidation({ active, connection, bloom = false }: { active: boolean; connection: RefObject<() => void>; bloom?: boolean }) {
   const get = useThree(state => state.get);
   const set = useThree(state => state.set);
+  const scene = useThree(state => state.scene);
+  useLayoutEffect(() => { scene.userData[MAP_BLOOM_SCENE_KEY] = bloom; return () => { delete scene.userData[MAP_BLOOM_SCENE_KEY]; }; }, [scene, bloom]);
   const enabled = useRef(active);
   enabled.current = active;
   useLayoutEffect(() => {
@@ -227,7 +266,7 @@ function SharedRenderer(props: RendererProps) {
       return renderer;
     }}>
     <Driver {...props} onVisibility={onVisibility} sceneInvalidation={sceneInvalidation} onDpr={setDpr} />
-    {props.views.map((view, index) => <View key={view.id} track={view.track} visible={activeIds.includes(view.id)} index={index + 1}><SceneInvalidation active={activeIds.includes(view.id)} connection={sceneInvalidation} /><Activity mode={activeIds.includes(view.id) ? 'visible' : 'hidden'}>{view.scene}<SceneCommit runtime={props.runtime} /></Activity></View>)}
+    {props.views.map((view, index) => <View key={view.id} track={view.track} visible={activeIds.includes(view.id)} index={index + 1}><SceneInvalidation active={activeIds.includes(view.id)} bloom={view.bloom} connection={sceneInvalidation} /><Activity mode={activeIds.includes(view.id) ? 'visible' : 'hidden'}>{view.scene}<SceneCommit runtime={props.runtime} /></Activity></View>)}
   </Canvas>;
 }
 

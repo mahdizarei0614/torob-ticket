@@ -11,10 +11,11 @@ import edgeFadeFragment from '../shaders/map-edge-fade.glsl?raw';
 import worldVertex from '../shaders/world-context.vert.glsl?raw';
 import worldFragment from '../shaders/world-context.frag.glsl?raw';
 import morphVertex from '../shaders/scope-morph.vert.glsl?raw';
+import morphTiming from '../shaders/scope-morph-timing.glsl?raw';
 import morphFragment from '../shaders/scope-morph.frag.glsl?raw';
 import livingDotDrift from '../shaders/living-dot-drift.glsl?raw';
 import { LIVING_DOT_AMPLITUDE_PX } from './living-dot-drift';
-import { createScopeMorph, snapshotLandDots, scopeMorphLandOpacity, SCOPE_MORPH_PARTICLE_LIMIT, type MorphLand } from './scope-morph';
+import { createScopeMorph, snapshotLandDots, SCOPE_MORPH_PARTICLE_LIMIT, type MorphLand } from './scope-morph';
 
 interface Props { countries:readonly WorldCountry[];context:ProjectionContext;frame:RouteBounds;pointer?:RefObject<ScenePointer>;reducedMotion:boolean;domestic?:boolean;active?:boolean;resetKey?:string;featherGeography?:boolean }
 /** A bounded land mesh carries all dot levels; zooming changes uniforms, never geometry. */
@@ -27,17 +28,30 @@ export function WorldGeography({countries,context,frame,pointer,reducedMotion,do
     const geometry=new BufferGeometry();
     for(const [name,size] of [['position',3],['targetPosition',2],['endpointOpacity',2],['seed',1]] as const)geometry.setAttribute(name,new Float32BufferAttribute(new Float32Array(SCOPE_MORPH_PARTICLE_LIMIT*size),size).setUsage(DynamicDrawUsage));
     geometry.setDrawRange(0,0);
-    const material=new ShaderMaterial({transparent:true,depthTest:false,depthWrite:false,toneMapped:false,uniforms:{...uniforms,...edgeFade,morphProgress:{value:1},morphOpacity:{value:0},pointSize:{value:6}},vertexShader:morphVertex,fragmentShader:edgeFadeFragment+'\n'+morphFragment});
+    const material=new ShaderMaterial({transparent:true,depthTest:false,depthWrite:false,toneMapped:false,uniforms:{...uniforms,...edgeFade,morphProgress:{value:1},morphOpacity:{value:0},pointSize:{value:6}},vertexShader:morphTiming+'\n'+morphVertex,fragmentShader:edgeFadeFragment+'\n'+morphFragment});
     return {geometry,material};
   },[uniforms,edgeFade]);
   const baseSpacing=domestic?DOMESTIC_DOT_BASE_SPACING:INTERNATIONAL_DOT_BASE_SPACING;
-  const resources=useMemo(()=>{
+  const geometry=useMemo(()=>{
     const borders=new BufferGeometry();borders.setAttribute('position',new Float32BufferAttribute(worldBorderPositions(countries,context),3));
     const land=new BufferGeometry();land.setAttribute('position',new Float32BufferAttribute(worldLandPositions(countries,context),3));
-    const shared={...uniforms,...edgeFade,mapOpacity:{value:1},baseSpacing:{value:baseSpacing},latticeSpacings:{value:domestic?new Vector4(baseSpacing,baseSpacing/2,baseSpacing/4,baseSpacing/8):new Vector4(baseSpacing,baseSpacing/4,baseSpacing/16,baseSpacing/64)},gridOrigin:{value:new Vector2(domestic?44:-179,domestic?25:-59)},time:{value:0},dotDriftAmplitude:{value:0},unitsPerPixel:{value:1},levelWeights:{value:new Vector4(1,0,0,0)},centralLongitude:{value:context.centralLongitude},trailSamples:{value:trail.uniforms}};
-    const options={transparent:true,depthTest:false,depthWrite:false,toneMapped:false,side:DoubleSide,vertexShader:worldVertex,fragmentShader:edgeFadeFragment+'\n'+livingDotDrift+'\n'+worldFragment};
-    return {borders,land,borderMaterial:new ShaderMaterial({...options,uniforms:{...shared,layer:{value:0}}}),landMaterial:new ShaderMaterial({...options,uniforms:{...shared,layer:{value:1}}})};
-  },[countries,context,uniforms,domestic,baseSpacing,trail,edgeFade]);
+    return {borders,land};
+  },[countries,context.centralLongitude]);
+  // Both scopes use the same programs. Keep their material owners alive across
+  // geometry changes, including the normal and bloom render-target variants.
+  const materials=useMemo(()=>{
+    const shared={...uniforms,...edgeFade,mapOpacity:{value:1},scopeMorphProgress:{value:1},baseSpacing:{value:4},latticeSpacings:{value:new Vector4(4,1,.25,.0625)},gridOrigin:{value:new Vector2(-179,-59)},time:{value:0},dotDriftAmplitude:{value:0},unitsPerPixel:{value:1},levelWeights:{value:new Vector4(1,0,0,0)},centralLongitude:{value:0},trailSamples:{value:trail.uniforms}};
+    const options={transparent:true,depthTest:false,depthWrite:false,toneMapped:false,side:DoubleSide,vertexShader:worldVertex,fragmentShader:edgeFadeFragment+'\n'+livingDotDrift+'\n'+morphTiming+'\n'+worldFragment};
+    return {borderMaterial:new ShaderMaterial({...options,uniforms:{...shared,layer:{value:0}}}),landMaterial:new ShaderMaterial({...options,uniforms:{...shared,layer:{value:1}}})};
+  },[uniforms,trail,edgeFade]);
+  const resources=useMemo(()=>({...geometry,...materials}),[geometry,materials]);
+  useLayoutEffect(()=>{
+    const values=materials.landMaterial.uniforms;
+    values['baseSpacing']!.value=baseSpacing;
+    (values['latticeSpacings']!.value as Vector4).set(baseSpacing,baseSpacing/(domestic?2:4),baseSpacing/(domestic?4:16),baseSpacing/(domestic?8:64));
+    (values['gridOrigin']!.value as Vector2).set(domestic?44:-179,domestic?25:-59);
+    values['centralLongitude']!.value=context.centralLongitude;
+  },[materials,baseSpacing,domestic,context.centralLongitude]);
   const last=useRef(performance.now());const elapsed=useRef(0);
   const displayed=useRef<MorphLand|null>(null);
   const previousTarget=useRef('');
@@ -46,10 +60,9 @@ export function WorldGeography({countries,context,frame,pointer,reducedMotion,do
     const targetKey=`${domestic}:${context.centralLongitude}:${frame.x}:${frame.y}:${frame.width}:${frame.height}`;
     const previous=displayed.current;
     if(previous && !reducedMotion && (previous.domestic!==domestic || (morph.active() && targetKey!==previousTarget.current))){
-      const blend=scopeMorphLandOpacity(morph.progress());
       const old=morph.active()?[
-        ...morph.snapshot().map(point=>({...point,opacity:point.opacity*(1-blend)})),
-        ...(blend>0?snapshotLandDots(previous).map(point=>({...point,opacity:point.opacity*blend})):[]),
+        ...morph.snapshot(),
+        ...snapshotLandDots(previous),
       ].filter(point=>point.opacity>.001):snapshotLandDots(previous);
       const source=old.length>SCOPE_MORPH_PARTICLE_LIMIT?Array.from({length:SCOPE_MORPH_PARTICLE_LIMIT},(_,i)=>old[Math.floor(i*old.length/SCOPE_MORPH_PARTICLE_LIMIT)]!):old;
       const particles=morph.start(source,snapshotLandDots(next));
@@ -64,11 +77,12 @@ export function WorldGeography({countries,context,frame,pointer,reducedMotion,do
       geometry.setDrawRange(0,particles.length);trail.clear();if(pointer)pointer.current.active=false;
     }
     if(reducedMotion)morph.advance(0,false,true);
-    const progress=morph.progress(),blend=scopeMorphLandOpacity(progress);
-    resources.landMaterial.uniforms['mapOpacity']!.value=blend;
+    const progress=morph.progress();
+    resources.landMaterial.uniforms['mapOpacity']!.value=1;
+    resources.landMaterial.uniforms['scopeMorphProgress']!.value=progress;
     morphResources.material.uniforms['morphProgress']!.value=progress;
-    morphResources.material.uniforms['morphOpacity']!.value=1-blend;
-    displayed.current=next;previousTarget.current=targetKey;last.current=performance.now();invalidate();
+    morphResources.material.uniforms['morphOpacity']!.value=progress<1?1:0;
+    displayed.current={...next,morphProgress:progress};previousTarget.current=targetKey;last.current=performance.now();invalidate();
   },[resources,morph,morphResources,context,domestic,frame.x,frame.y,frame.width,frame.height,reducedMotion,get,invalidate,trail,pointer]);
   useLayoutEffect(()=>{trail.clear();if(pointer)pointer.current.active=false;last.current=performance.now();invalidate();},[trail,context.centralLongitude,resetKey,reducedMotion,invalidate,pointer]);
   useLayoutEffect(()=>{
@@ -77,7 +91,8 @@ export function WorldGeography({countries,context,frame,pointer,reducedMotion,do
     resources.landMaterial.uniforms['time']!.value=elapsed.current;
     invalidate();
   },[active,reducedMotion,resources,invalidate]);
-  useEffect(()=>{invalidate();return()=>{resources.borders.dispose();resources.land.dispose();resources.borderMaterial.dispose();resources.landMaterial.dispose();};},[resources,invalidate]);
+  useEffect(()=>{invalidate();return()=>{geometry.borders.dispose();geometry.land.dispose();};},[geometry,invalidate]);
+  useEffect(()=>()=>{materials.borderMaterial.dispose();materials.landMaterial.dispose();},[materials]);
   useEffect(()=>()=>{morphResources.geometry.dispose();morphResources.material.dispose();},[morphResources]);
   useFrame(()=>{
     updateMapEdgeFadeUniforms(edgeFade,get().size,featherGeography);
@@ -86,10 +101,11 @@ export function WorldGeography({countries,context,frame,pointer,reducedMotion,do
     const unit=width/Math.max(1,get().size.width);
     const values=resources.landMaterial.uniforms;
     const now=performance.now(),visibleSeconds=Math.max(0,(now-last.current)/1000),delta=Math.min(.05,visibleSeconds);last.current=now;
-    const progress=morph.advance(delta*1000,active,reducedMotion),blend=scopeMorphLandOpacity(progress);
-    values['mapOpacity']!.value=blend;
+    const progress=morph.advance(delta*1000,active,reducedMotion);
+    values['mapOpacity']!.value=1;
+    values['scopeMorphProgress']!.value=progress;
     morphResources.material.uniforms['morphProgress']!.value=progress;
-    morphResources.material.uniforms['morphOpacity']!.value=1-blend;
+    morphResources.material.uniforms['morphOpacity']!.value=progress<1?1:0;
     morphResources.material.uniforms['pointSize']!.value=6*get().gl.getPixelRatio();
     values['unitsPerPixel']!.value=unit;
     values['dotDriftAmplitude']!.value=active&&!reducedMotion?LIVING_DOT_AMPLITUDE_PX:0;
@@ -99,7 +115,7 @@ export function WorldGeography({countries,context,frame,pointer,reducedMotion,do
     if(active && !reducedMotion && !morph.active()){elapsed.current+=visibleSeconds;values['time']!.value=elapsed.current;}
     const radius=Math.min(POINTER_TRAIL_RADIUS_PX,get().size.width*.08,get().size.height*.1)*unit;
     trail.advance(delta*1000,pointer?.current,radius,{active,reducedMotion});
-    displayed.current={positions:resources.land.getAttribute('position').array,context,domestic,frame:{x:camera.position.x,y:camera.position.y,width,height:camera.isOrthographicCamera?(camera.top-camera.bottom)/camera.zoom:frame.height},width:get().size.width,motion:{seconds:elapsed.current,amplitudePx:active&&!reducedMotion?LIVING_DOT_AMPLITUDE_PX:0}};
+    displayed.current={positions:resources.land.getAttribute('position').array,context,domestic,frame:{x:camera.position.x,y:camera.position.y,width,height:camera.isOrthographicCamera?(camera.top-camera.bottom)/camera.zoom:frame.height},width:get().size.width,morphProgress:progress,motion:{seconds:elapsed.current,amplitudePx:active&&!reducedMotion?LIVING_DOT_AMPLITUDE_PX:0}};
   });
   return <group dispose={null}><mesh geometry={resources.land} material={resources.landMaterial} frustumCulled={false}/>{!domestic && <lineSegments geometry={resources.borders} material={resources.borderMaterial} frustumCulled={false}/>}<points name="scope-dot-morph" geometry={morphResources.geometry} material={morphResources.material} frustumCulled={false}/></group>;
 }
