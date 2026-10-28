@@ -1,4 +1,4 @@
-import { render } from '@testing-library/react';
+import { act, render } from '@testing-library/react';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { OrthographicCamera, type ShaderMaterial, type BufferGeometry } from 'three';
 import type { WorldCountry } from '../geo/world-context';
@@ -31,7 +31,7 @@ it('retains compiled material owners through scope/projection changes while rele
   const oldGeography = observed.geometries.slice(1).map(geometry => vi.spyOn(geometry, 'dispose'));
   view.rerender(<WorldGeography countries={second} context={{ centralLongitude: 20 }} frame={{ x: 0, y: 15, width: 360, height: 160 }} reducedMotion={false} />);
   expect(observed.materials).toEqual([morph, border, land]);
-  disposed.forEach(dispose => expect(dispose).not.toHaveBeenCalled()); oldGeography.forEach(dispose => expect(dispose).toHaveBeenCalledOnce());
+  disposed.forEach(dispose => expect(dispose).not.toHaveBeenCalled()); expect(oldGeography[0]).not.toHaveBeenCalled();expect(oldGeography[1]).toHaveBeenCalledOnce();
   expect(land!.uniforms['baseSpacing']!.value).toBe(4); expect(land!.uniforms['latticeSpacings']!.value.toArray()).toEqual([4, 1, .25, .0625]);
   expect(land!.uniforms['gridOrigin']!.value.toArray()).toEqual([-179, -59]); expect(land!.uniforms['centralLongitude']!.value).toBe(20);
   view.rerender(<WorldGeography countries={first} context={{ centralLongitude: 54 }} frame={frame} domestic reducedMotion={false} />);
@@ -52,7 +52,7 @@ it('interrupts from the actually displayed live frame before a changed projectio
   for(let i=0;i<100;i++)tick();
   view.rerender(<WorldGeography countries={second} context={{centralLongitude:0}} frame={{x:0,y:15,width:360,height:240}} pointer={pointer} reducedMotion={false}/>);
   pointer.current.active=true;pointer.current.x=55;pointer.current.y=32;
-  for(let i=0;i<110;i++)tick();
+  for(let i=0;i<45;i++)tick();
   const morphMaterial=observed.materials[0]!,geometry=observed.geometries[0]!;
   const uniforms=morphMaterial.uniforms;
   const motion={seconds:uniforms['time']!.value as number,width:600,height:400,unit:uniforms['unitsPerPixel']!.value as number,centralLongitude:0,frame:{x:55,y:32,width:30,height:20},pointer:Float32Array.from(uniforms['pointerField']!.value as Float32Array)};
@@ -98,4 +98,22 @@ it('freezes a covered live field in place and resumes its same bounded clock wit
   expect(land.uniforms['time']!.value).toBeCloseTo(seconds+.016,8);
   view.rerender(<WorldGeography countries={first} context={context} frame={frame} domestic pointer={pointer} reducedMotion/>);
   expect(land.uniforms['dotDriftAmplitude']!.value).toBe(0);expect([...land.uniforms['pointerField']!.value]).toEqual([0,0,0,0]);view.unmount();
+});
+
+
+it('retires outgoing boundaries after their final committed removal and keeps border opacity separate from land',()=>{
+ vi.spyOn(console,'error').mockImplementation(()=>undefined);
+ let clock=1000;vi.spyOn(performance,'now').mockImplementation(()=>clock);
+ const camera=new OrthographicCamera(-15,15,10,-10,.1,1000);camera.position.set(55,32,200);
+ observed.get.mockReturnValue({size:{width:600,height:400},camera,gl:{getPixelRatio:()=>1}});
+ const view=render(<WorldGeography countries={first} context={{centralLongitude:0}} frame={{x:55,y:32,width:30,height:20}} domestic reducedMotion={false}/>);
+ const border=observed.materials[1]!,land=observed.materials[2]!,geometry=observed.geometries[1]!;
+ expect(border.uniforms['mapOpacity']).not.toBe(land.uniforms['mapOpacity']);
+ border.uniforms['mapOpacity']!.value=.25;expect(land.uniforms['mapOpacity']!.value).toBe(1);
+ const dispose=vi.spyOn(geometry,'dispose');
+ view.rerender(<WorldGeography countries={second} context={{centralLongitude:20}} frame={{x:0,y:15,width:360,height:240}} reducedMotion={false}/>);
+ expect(dispose).not.toHaveBeenCalled();
+ act(()=>{for(let i=0;i<6;i++){clock+=50;observed.frames.at(-1)!();}expect(dispose).not.toHaveBeenCalled();});
+ expect(dispose).toHaveBeenCalledOnce();
+ view.unmount();expect(dispose).toHaveBeenCalledOnce();
 });

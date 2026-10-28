@@ -40,3 +40,13 @@ export function sampleLivingDotOffset(x: number, y: number, time: number, amplit
   }
   return [dx * AXIS_SCALE * strength * onset, dy * AXIS_SCALE * strength * onset];
 }
+
+/** Authored geography glow never approaches an unbounded/white highlight. */
+export const LIVING_DOT_GLOW_MIN = .58;
+export const LIVING_DOT_GLOW_MAX = .80;
+export function sampleLivingDotGlow(x: number, y: number, seconds: number) {
+  const seed=livingDotSeed(x,y),clock=seconds*(.18+.10*(seed&65535)/65535)+(seed>>>16)/65535*16;
+  const step=Math.floor(clock),t=clock-step,weight=t*t*(3-2*t);
+  const a=(hash(seed^Math.imul(step,0x85ebca6b))&65535)/65535,b=(hash(seed^Math.imul(step+1,0x85ebca6b))&65535)/65535;
+  return LIVING_DOT_GLOW_MIN+(LIVING_DOT_GLOW_MAX-LIVING_DOT_GLOW_MIN)*(a+(b-a)*weight);
+}

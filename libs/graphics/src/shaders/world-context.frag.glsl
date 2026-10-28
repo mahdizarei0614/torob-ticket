@@ -1,5 +1,5 @@
 uniform vec4 dot;
-uniform vec4 highlight;
+uniform vec4 route;
 uniform float layer;
 uniform float time;
 uniform float unitsPerPixel;
@@ -39,21 +39,20 @@ vec4 lattice(float spacing, float proximity) {
     if (particle.z < 0.0001) continue;
     vec2 repel = dotPointerOffset(center,unitsPerPixel,centralLongitude,amplitude,spacing/unitsPerPixel,particle.xy,center);
     float radius = length(separation - particle.xy - repel);
-    float phase = sin(center.x * 12.9898 + center.y * 78.233) * 6.283185;
-    float core = 1.0 - smoothstep(0.75, 1.45 + proximity * 0.24, radius);
-    float halo = exp(-radius * radius * 0.8) * (0.06 + proximity * 0.19);
-    float breath = 0.66 + 0.19 * sin(time * 0.43 + phase) + 0.07 * sin(time * 0.19 - phase * 1.7);
+        float core = 1.0 - smoothstep(0.75, 1.45 + proximity * 0.24, radius);
+    float halo = exp(-radius * radius * 0.8) * (0.04 + proximity * 0.10);
+    float breath = livingDotGlow(center,time);
     float landed = 1.0;
     if (scopeMorphProgress < 1.0) landed = scopeMorphLandOpacity(scopeMorphProgress, scopeMorphSeed(center));
-    alpha = max(alpha, landed * (core * min(1.0, breath + proximity * 0.38) + halo) * dot.a * particle.z);
+    alpha = max(alpha, landed * (core * min(0.90, breath + proximity * 0.10) + halo) * dot.a * particle.z);
   }
-  return vec4(mix(dot.rgb, highlight.rgb, proximity * 0.52), alpha);
+  return vec4(mix(dot.rgb, route.rgb, proximity * 0.32), alpha);
 }
 void main() {
   if (layer < 0.5) {
     gl_FragColor = vec4(dot.rgb, dot.a * 0.32);
   } else {
-    if (scopeMorphProgress < 0.32) { gl_FragColor = vec4(0.0); return; }
+    if (scopeMorphProgress < 0.54) { gl_FragColor = vec4(0.0); return; }
     float trace = trailAt(vPosition);
     vec4 a=vec4(0.0),b=vec4(0.0),c=vec4(0.0),d=vec4(0.0);
     // Only the one or two visible density levels need fragment work.
@@ -64,7 +63,7 @@ void main() {
     vec4 levels = vec4(a.a,b.a,c.a,d.a) * levelWeights;
     float alpha = levels.x + levels.y + levels.z + levels.w;
     vec3 color = (a.rgb*levels.x+b.rgb*levels.y+c.rgb*levels.z+d.rgb*levels.w)/max(0.0001,alpha);
-    gl_FragColor = vec4(color,alpha);
+    gl_FragColor = vec4(color,min(0.94,alpha));
   }
   gl_FragColor.a *= mapOpacity * mapEdgeOpacity();
   #include <colorspace_fragment>

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
+import { POINTER_TRAIL_RADIUS_PX } from './pointer-trail';
 import { sampleLivingDotOffset } from './living-dot-drift';
-import { createPointerField, samplePointerRepulsion, POINTER_REPULSION_PX } from './pointer-field';
+import { createPointerField, samplePointerRepulsion, POINTER_REPULSION_PX, pointerRepulsionRadiusPx } from './pointer-field';
 
 describe('soft local pointer repulsion',()=>{
   it('attacks and releases smoothly, follows without teleporting, and freezes while covered',()=>{
@@ -18,15 +19,24 @@ describe('soft local pointer repulsion',()=>{
   });
   it('pushes away within radius, has stable finite center direction, and uses CSS pixels across zoom',()=>{
     for(const unit of [.01,.1,1]){
-      const field=[0,0,48*unit,1];
+      const field=[0,0,pointerRepulsionRadiusPx(580,634)*unit,1];
       const offset=samplePointerRepulsion(10*unit,0,unit,0,9,30,field);
       expect(offset[0]).toBeGreaterThan(9);expect(Math.abs(offset[1])).toBeLessThan(.001);
       expect(Math.hypot(...offset)).toBeLessThanOrEqual(POINTER_REPULSION_PX);
-      expect(samplePointerRepulsion(49*unit,0,unit,0,9,30,field)).toEqual([0,0]);
+      expect(samplePointerRepulsion(111*unit,0,unit,0,9,30,field)).toEqual([0,0]);
       const center=samplePointerRepulsion(0,0,unit,0,9,30,field);
       expect(Math.hypot(...center)).toBeCloseTo(12/Math.SQRT2);expect(center.every(Number.isFinite)).toBe(true);
       expect(samplePointerRepulsion(0,0,unit,0,9,30,field)).toEqual(center);
     }
+  });
+  it('separates broad repulsion from restrained illumination and influences particles beyond the old radius',()=>{
+    expect(POINTER_TRAIL_RADIUS_PX).toBe(48);expect(pointerRepulsionRadiusPx(580,634)).toBe(110);
+    expect(pointerRepulsionRadiusPx(580,634)).toBeGreaterThan(POINTER_TRAIL_RADIUS_PX*2);
+    for(const unit of [.01,.1,1]){
+      const offset=samplePointerRepulsion(80*unit,0,unit,0,9,30,[0,0,110*unit,1]);
+      expect(offset[0]).toBeGreaterThan(2);expect(Math.hypot(...offset)).toBeLessThanOrEqual(12);
+    }
+    expect(pointerRepulsionRadiusPx(200,200)).toBe(40);expect(pointerRepulsionRadiusPx(-1,200)).toBe(0);
   });
   it('keeps the seeded center direction when screen coordinates are reconstructed after projection changes',()=>{
     const seedAnchor=[53,32],before=samplePointerRepulsion(53,32,.1,0,9,30,[53,32,4.8,1],[0,0],seedAnchor);

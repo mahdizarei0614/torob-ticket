@@ -4,6 +4,8 @@ import type { AreaGeometry } from './geography';
 import { projectPoint, projectRoute, type ProjectionContext, type RouteBounds } from './projection';
 
 export interface WorldCountry { geometry: AreaGeometry }
+export interface WorldBoundary { geometry: {type:'LineString'|'MultiLineString';coordinates:number[][]|number[][][]} }
+
 export interface ContextCity { id: string; name: string; point: GeoPoint; tier: 0 | 1 | 2 }
 export interface WorldContext { countries: readonly WorldCountry[]; cities: readonly ContextCity[] }
 export interface ContextLabel { id: string; x: number; y: number; left: number; top: number; width: number; height: number; opacity: number }
@@ -26,6 +28,20 @@ export function worldBorderPositions(countries: readonly WorldCountry[], context
     }
   }
   return result;
+}
+
+/** Shared province linework uses exactly the same seam and deduplication rules. */
+export function worldBoundaryPositions(boundaries:readonly WorldBoundary[],context:ProjectionContext):number[]{
+ const result:number[]=[],seen=new Set<string>();
+ for(const {geometry} of boundaries){
+  const lines=geometry.type==='LineString'?[geometry.coordinates as number[][]]:geometry.coordinates as number[][][];
+  for(const line of lines)for(let i=1;i<line.length;i++){
+   const a=line[i-1]!,b=line[i]!,ka=a.join(','),kb=b.join(','),key=ka<kb?`${ka}:${kb}`:`${kb}:${ka}`;
+   if(ka===kb||seen.has(key))continue;seen.add(key);
+   for(const path of projectRoute([{longitude:a[0]!,latitude:a[1]!},{longitude:b[0]!,latitude:b[1]!}],context))for(let j=1;j<path.length;j++)result.push(...path[j-1]!,...path[j]!);
+  }
+ }
+ return result;
 }
 
 /** Four stable geographic lattices; three short crossfades as dots grow on screen. */

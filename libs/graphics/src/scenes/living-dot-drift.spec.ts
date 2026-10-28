@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { worldLandPositions } from '../geo/world-context';
 import { createScopeMorph, sampleMorphParticle, snapshotLandDots } from './scope-morph';
-import { LIVING_DOT_AMPLITUDE_PX, LIVING_DOT_MAX_OFFSET_PX, sampleLivingDotOffset, sampleLivingDotOpacity, livingDotAmplitudeForSpacing } from './living-dot-drift';
+import { LIVING_DOT_AMPLITUDE_PX, LIVING_DOT_MAX_OFFSET_PX, sampleLivingDotOffset, sampleLivingDotOpacity, livingDotAmplitudeForSpacing, sampleLivingDotGlow, LIVING_DOT_GLOW_MIN, LIVING_DOT_GLOW_MAX } from './living-dot-drift';
 
 describe('bounded living geography', () => {
   it('moves slowly with spatial variation while keeping every dot within a small CSS pixel envelope', () => {
@@ -45,6 +45,19 @@ describe('bounded living geography', () => {
     const visible=Array.from({length:200},(_,i)=>sampleLivingDotOpacity(44+i*.44,30,10));
     expect(visible.filter(value=>value>.5).length).toBeGreaterThan(100);
     expect(visible.filter(value=>value<.1).length).toBeGreaterThan(10);
+  });
+
+  it('keeps seeded random-looking geography glow inside one fixed restrained range with smooth changes',()=>{
+    const values:number[]=[];
+    for(let i=0;i<120;i++)for(let seconds=0;seconds<90;seconds+=.37){
+      const x=44+i*.44,y=25+i*.073,current=sampleLivingDotGlow(x,y,seconds),next=sampleLivingDotGlow(x,y,seconds+.016);
+      expect(current).toBeGreaterThanOrEqual(LIVING_DOT_GLOW_MIN);expect(current).toBeLessThanOrEqual(LIVING_DOT_GLOW_MAX);
+      expect(Math.abs(next-current)).toBeLessThan(.002);values.push(current);
+    }
+    expect(LIVING_DOT_GLOW_MIN).toBe(.58);expect(LIVING_DOT_GLOW_MAX).toBe(.8);
+    expect(Math.max(...values)-Math.min(...values)).toBeGreaterThan(.20);
+    expect(sampleLivingDotGlow(51.4,35.7,12)).not.toBe(sampleLivingDotGlow(59.6,36.3,12));
+    expect(sampleLivingDotGlow(51.4,35.7,12)).not.toBe(sampleLivingDotGlow(51.4,35.7,17));
   });
 
   it('travels visibly within two seconds instead of only changing brightness or subpixel positions', () => {

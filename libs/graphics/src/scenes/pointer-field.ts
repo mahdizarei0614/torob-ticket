@@ -2,6 +2,9 @@ import { livingDotSeed } from './living-dot-drift';
 import type { TrailPointer } from './pointer-trail';
 
 export const POINTER_REPULSION_PX = 12;
+export const POINTER_REPULSION_RADIUS_PX = 110;
+/** A broad, quiet response independent of the smaller illumination trail. */
+export const pointerRepulsionRadiusPx = (width: number, height: number) => Math.max(0,Math.min(POINTER_REPULSION_RADIUS_PX,width*.2,height*.22));
 export type PointerField = readonly [number, number, number, number];
 /** One soft live cursor; trailing illumination remains a separate bounded history. */
 export function createPointerField() {

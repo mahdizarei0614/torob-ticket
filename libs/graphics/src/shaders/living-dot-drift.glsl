@@ -27,3 +27,12 @@ vec3 livingDotParticle(vec2 center, float seconds, float amplitude) {
 vec2 livingDotOffset(vec2 center, float seconds, float amplitude) {
   return livingDotParticle(center,seconds,amplitude).xy;
 }
+// Seeded, smooth intensity in a fixed restrained range. No highlight-white mix.
+float livingDotGlow(vec2 center, float seconds) {
+  uint seed=livingDotHash(uint(int(floor(center.x*128.0+0.5))) ^ livingDotHash(uint(int(floor(center.y*128.0+0.5)))+0x9e3779b9u));
+  float clock=seconds*(0.18+0.10*float(seed&65535u)/65535.0)+float(seed>>16u)/65535.0*16.0;
+  int step=int(floor(clock));
+  float a=float(livingDotHash(seed^(uint(step)*0x85ebca6bu))&65535u)/65535.0;
+  float b=float(livingDotHash(seed^(uint(step+1)*0x85ebca6bu))&65535u)/65535.0;
+  return mix(0.58,0.80,mix(a,b,smoothstep(0.0,1.0,fract(clock))));
+}

@@ -44,6 +44,14 @@
       "licenseUrl": "https://www.naturalearthdata.com/about/terms-of-use/",
       "sha256": "a86028b083182b68c7620fc6e1a8a47ee547cb9cd2fb62ccbb78bea786440899",
       "retrievedOn": "2026-10-26"
+    },
+    {
+      "name": "Natural Earth 10m Iran Admin-1 boundary lines",
+      "url": "https://raw.githubusercontent.com/nvkelso/natural-earth-vector/v5.1.2/geojson/ne_10m_admin_1_states_provinces_lines.geojson",
+      "license": "Public domain",
+      "licenseUrl": "https://www.naturalearthdata.com/about/terms-of-use/",
+      "sha256": "1a1f30ccaaf4cc9c4bde34266f0b8cbb955d3a4cf254b756912255f2ec7c75b6",
+      "retrievedOn": "2026-10-29"
     }
   ],
   "transformations": [
@@ -54,14 +62,17 @@
     "Destination extent rectangles enclose all sourced arrival references and accommodation markers; they are illustrative display bounds, not municipal boundaries. Landmarks are sourced city reference centers; accommodation markers and all hotels are fictional.",
     "All transport paths, operators, services, timetables, prices, and room inventory are authored fiction. No navigation, live data, or actual hotel policy implied.",
     "Select cities for cartographic context only; retain source coordinates; translate names to Persian; author display tiers, not population ranks.",
-    "Merge already-bundled T05 catalog city reference points. No new selectable destinations or inventory."
+    "Merge already-bundled T05 catalog city reference points. No new selectable destinations or inventory.",
+    "Preserve every Iran Admin-1 line, including short junctions; no hand-authored borders.",
+    "Round longitude/latitude to four decimals; drop label/administrative metadata. No province names or inventory/selection facts."
   ],
   "attribution": "Made with Natural Earth. Airport data from OurAirports. Time zone identifiers from IANA tzdb.",
   "localAssets": [
     "geography/world.geojson",
     "geography/iran.geojson",
     "geography/destination-landmarks.geojson",
-    "geography/world-context-cities.json"
+    "geography/world-context-cities.json",
+    "geography/iran-provinces.json"
   ],
   "authoredAssets": [
     {

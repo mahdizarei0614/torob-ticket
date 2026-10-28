@@ -4,7 +4,7 @@ import { samplePointerRepulsion } from './pointer-field';
 import { sampleLivingDotOffset, sampleLivingDotOpacity, livingDotAmplitudeForSpacing } from './living-dot-drift';
 
 export const SCOPE_MORPH_PARTICLE_LIMIT = 1800;
-export const SCOPE_MORPH_DURATION_MS = 4600;
+export const SCOPE_MORPH_DURATION_MS = 2000;
 export interface LiveMorphDot { anchorX: number; anchorY: number; amplitudePx: number; spacingPx: number; spacingWorld: number; baseX: number; baseY: number; opacity: number; residualSeconds?: number }
 export interface MorphDot { x: number; y: number; opacity: number; arrivalSeed?: number; live?: LiveMorphDot }
 export interface MorphMotion { seconds: number; width: number; height: number; unit: number; centralLongitude: number; frame?: RouteBounds; pointer?: ArrayLike<number> }
@@ -26,7 +26,7 @@ export function scopeMorphSeed(x: number, y: number) {
 export function scopeMorphTiming(seed: number) {
   // A second integer hash avoids discontinuous fract boundaries under float32 GLSL.
   const variation = (timingHash(Math.round(seed * 65535) ^ 0x51ed270b) & 65535) / 65535;
-  return { delay: .34 * seed, duration: .32 + .20 * variation };
+  return { delay: 0, duration: .54 + .32 * variation };
 }
 export function scopeMorphParticleProgress(progress: number, seed: number) {
   const { delay, duration } = scopeMorphTiming(seed);

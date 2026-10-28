@@ -11,7 +11,7 @@ float scopeMorphSeed(vec2 center) {
 vec2 scopeMorphTiming(float seed) {
   uint quantized = uint(floor(seed * 65535.0 + 0.5));
   float variation = float(scopeMorphHash(quantized ^ 0x51ed270bu) & 65535u) / 65535.0;
-  return vec2(0.34 * seed, 0.32 + 0.20 * variation);
+  return vec2(0.0, 0.54 + 0.32 * variation);
 }
 float scopeMorphParticleProgress(float progress, float seed) {
   vec2 timing = scopeMorphTiming(seed);

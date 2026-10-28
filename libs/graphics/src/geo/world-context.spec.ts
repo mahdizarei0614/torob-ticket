@@ -58,3 +58,14 @@ describe('international map context',()=>{
     expect(contextCityLabels([...cities].reverse(),frame,size,context)).toEqual(labels);
   });
 });
+
+import { worldBoundaryPositions, type WorldBoundary } from './world-context';
+it('deduplicates province linework and splits it at the projection seam without turning it into selectable land',()=>{
+ const boundaries:WorldBoundary[]=[{geometry:{type:'MultiLineString',coordinates:[[[45,30],[50,32],[60,38]],[[50,32],[53,27]]]}}];
+ const positions=worldBoundaryPositions(boundaries,{centralLongitude:0});
+ expect(positions.length).toBe(18);
+ expect(worldBoundaryPositions([...boundaries,...boundaries],{centralLongitude:0})).toEqual(positions);
+ const split=worldBoundaryPositions(boundaries,{centralLongitude:-125});
+ for(let i=0;i<split.length;i+=6)expect(Math.abs(split[i+3]!-split[i]!)).toBeLessThanOrEqual(180);
+ expect(split).toContain(-180);expect(split).toContain(180);
+});

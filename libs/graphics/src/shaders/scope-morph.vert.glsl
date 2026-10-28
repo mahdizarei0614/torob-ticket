@@ -12,6 +12,7 @@ uniform float centralLongitude;
 uniform vec2 viewportCss;
 uniform vec4 liveFrame;
 varying float vOpacity;
+varying float vGlow;
 varying vec2 vMapUv;
 vec3 liveEndpoint(vec2 basePosition, vec4 anchor, float opacity, bool target) {
   if (anchor.z < -1.5) {
@@ -36,6 +37,7 @@ void main() {
   vec3 from = liveEndpoint(position.xy,sourceAnchor,endpointOpacity.x,false);
   vec3 to = liveEndpoint(targetPosition,targetAnchor,endpointOpacity.y,true);
   vec2 positionOnScreen = mix(from.xy,to.xy,t)+vec2(cos(angle),sin(angle))*drift;
+  vGlow=mix(livingDotGlow(sourceAnchor.xy,time),livingDotGlow(targetAnchor.xy,time),t);
   vOpacity = mix(from.z,to.z,t) * (1.0 - scopeMorphLandOpacity(morphProgress, seed));
   gl_Position = vec4(positionOnScreen,0.0,1.0);
   vMapUv = positionOnScreen * 0.5 + 0.5;

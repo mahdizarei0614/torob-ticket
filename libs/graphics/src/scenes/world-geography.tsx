@@ -3,7 +3,7 @@ import { useFrame, useThree } from '@react-three/fiber';
 import { BufferGeometry, DoubleSide, DynamicDrawUsage, Float32BufferAttribute, ShaderMaterial, Vector2, Vector4, type OrthographicCamera } from 'three';
 import { useThemeUniforms } from '../theme-uniforms';
 import type { ProjectionContext, RouteBounds } from '../geo/projection';
-import { DOMESTIC_DOT_BASE_SPACING, INTERNATIONAL_DOT_BASE_SPACING, worldDotWeights, worldLandPositions, worldBorderPositions, type WorldCountry } from '../geo/world-context';
+import { DOMESTIC_DOT_BASE_SPACING, INTERNATIONAL_DOT_BASE_SPACING, worldDotWeights, worldLandPositions, worldBorderPositions, worldBoundaryPositions, type WorldBoundary, type WorldCountry } from '../geo/world-context';
 import type { ScenePointer } from './scene-surface';
 import { createPointerTrail, POINTER_TRAIL_RADIUS_PX } from './pointer-trail';
 import { createMapEdgeFadeUniforms, updateMapEdgeFadeUniforms } from './map-edge-fade';
@@ -14,17 +14,22 @@ import morphVertex from '../shaders/scope-morph.vert.glsl?raw';
 import morphTiming from '../shaders/scope-morph-timing.glsl?raw';
 import morphFragment from '../shaders/scope-morph.frag.glsl?raw';
 import pointerFieldShader from '../shaders/dot-pointer-field.glsl?raw';
-import { createPointerField } from './pointer-field';
+import { createBoundaryTransition } from './boundary-transition';
+import { createPointerField, pointerRepulsionRadiusPx } from './pointer-field';
 import livingDotDrift from '../shaders/living-dot-drift.glsl?raw';
 import { LIVING_DOT_AMPLITUDE_PX } from './living-dot-drift';
 import { createScopeMorph, snapshotLandDots, SCOPE_MORPH_PARTICLE_LIMIT, type MorphLand, type MorphMotion } from './scope-morph';
 
-interface Props { countries:readonly WorldCountry[];context:ProjectionContext;frame:RouteBounds;pointer?:RefObject<ScenePointer>;reducedMotion:boolean;domestic?:boolean;active?:boolean;resetKey?:string;featherGeography?:boolean }
+const NO_BOUNDARIES:readonly WorldBoundary[]=[];
+interface Props { boundaries?:readonly WorldBoundary[];countries:readonly WorldCountry[];context:ProjectionContext;frame:RouteBounds;pointer?:RefObject<ScenePointer>;reducedMotion:boolean;domestic?:boolean;active?:boolean;resetKey?:string;featherGeography?:boolean }
 /** A bounded land mesh carries all dot levels; zooming changes uniforms, never geometry. */
-export function WorldGeography({countries,context,frame,pointer,reducedMotion,domestic=false,active=true,resetKey='map',featherGeography=false}:Props){
+export function WorldGeography({countries,boundaries=NO_BOUNDARIES,context,frame,pointer,reducedMotion,domestic=false,active=true,resetKey='map',featherGeography=false}:Props){
   const invalidate=useThree(state=>state.invalidate);const get=useThree(state=>state.get);const uniforms=useThemeUniforms(invalidate);
   const [trail]=useState(createPointerTrail);
   const [pointerField]=useState(createPointerField);
+  const [retiredBoundaries]=useState(()=>new Set<BufferGeometry>());
+  const [boundaryTransition]=useState(()=>createBoundaryTransition<BufferGeometry>(value=>retiredBoundaries.add(value)));
+  const [,updateBoundaries]=useState(0);
   const liveUniforms=useMemo(()=>({time:{value:0},dotDriftAmplitude:{value:0},unitsPerPixel:{value:1},centralLongitude:{value:0},viewportCss:{value:new Vector2(600,400)},liveFrame:{value:new Vector4(frame.x,frame.y,frame.width,frame.height)},pointerField:{value:pointerField.uniforms}}),[pointerField]);
   const [morph]=useState(createScopeMorph);
   const [edgeFade]=useState(createMapEdgeFadeUniforms);
@@ -37,17 +42,19 @@ export function WorldGeography({countries,context,frame,pointer,reducedMotion,do
   },[uniforms,edgeFade,liveUniforms]);
   const baseSpacing=domestic?DOMESTIC_DOT_BASE_SPACING:INTERNATIONAL_DOT_BASE_SPACING;
   const geometry=useMemo(()=>{
-    const borders=new BufferGeometry();borders.setAttribute('position',new Float32BufferAttribute(worldBorderPositions(countries,context),3));
+    const borders=new BufferGeometry();borders.setAttribute('position',new Float32BufferAttribute(domestic?worldBoundaryPositions(boundaries,context):worldBorderPositions(countries,context),3));
     const land=new BufferGeometry();land.setAttribute('position',new Float32BufferAttribute(worldLandPositions(countries,context),3));
     return {borders,land};
-  },[countries,context.centralLongitude]);
+  },[countries,boundaries,domestic,context.centralLongitude]);
   // Both scopes use the same programs. Keep their material owners alive across
   // geometry changes, including the normal and bloom render-target variants.
   const materials=useMemo(()=>{
     const shared={...uniforms,...edgeFade,...liveUniforms,mapOpacity:{value:1},scopeMorphProgress:{value:1},baseSpacing:{value:4},latticeSpacings:{value:new Vector4(4,1,.25,.0625)},gridOrigin:{value:new Vector2(-179,-59)},levelWeights:{value:new Vector4(1,0,0,0)},trailSamples:{value:trail.uniforms}};
     const options={transparent:true,depthTest:false,depthWrite:false,toneMapped:false,side:DoubleSide,vertexShader:worldVertex,fragmentShader:edgeFadeFragment+'\n'+livingDotDrift+'\n'+pointerFieldShader+'\n'+morphTiming+'\n'+worldFragment};
-    return {borderMaterial:new ShaderMaterial({...options,uniforms:{...shared,layer:{value:0}}}),landMaterial:new ShaderMaterial({...options,uniforms:{...shared,layer:{value:1}}})};
+    return {borderMaterial:new ShaderMaterial({...options,uniforms:{...shared,mapOpacity:{value:1},layer:{value:0}}}),landMaterial:new ShaderMaterial({...options,uniforms:{...shared,layer:{value:1}}})};
   },[uniforms,trail,edgeFade,liveUniforms]);
+  useLayoutEffect(()=>{boundaryTransition.change(geometry.borders,context.centralLongitude,reducedMotion);updateBoundaries(value=>value+1);invalidate();},[boundaryTransition,geometry.borders,context.centralLongitude,reducedMotion,invalidate]);
+  useEffect(()=>()=>{boundaryTransition.dispose();retiredBoundaries.forEach(value=>value.dispose());retiredBoundaries.clear();},[boundaryTransition,retiredBoundaries]);
   const resources=useMemo(()=>({...geometry,...materials}),[geometry,materials]);
   const pointerLongitude=useRef(context.centralLongitude);
   useLayoutEffect(()=>{
@@ -102,7 +109,7 @@ export function WorldGeography({countries,context,frame,pointer,reducedMotion,do
     resources.landMaterial.uniforms['time']!.value=elapsed.current;
     invalidate();
   },[active,reducedMotion,resources,invalidate]);
-  useEffect(()=>{invalidate();return()=>{geometry.borders.dispose();geometry.land.dispose();};},[geometry,invalidate]);
+  useEffect(()=>{invalidate();return()=>{geometry.land.dispose();};},[geometry,invalidate]);
   useEffect(()=>()=>{materials.borderMaterial.dispose();materials.landMaterial.dispose();},[materials]);
   useEffect(()=>()=>{morphResources.geometry.dispose();morphResources.material.dispose();},[morphResources]);
   useFrame(()=>{
@@ -112,6 +119,7 @@ export function WorldGeography({countries,context,frame,pointer,reducedMotion,do
     const unit=width/Math.max(1,get().size.width);
     const values=resources.landMaterial.uniforms;
     const now=performance.now(),visibleSeconds=Math.max(0,(now-last.current)/1000),delta=Math.min(.05,visibleSeconds);last.current=now;
+    if(boundaryTransition.advance(delta*1000,active,reducedMotion))updateBoundaries(value=>value+1);
     const progress=morph.advance(delta*1000,active,reducedMotion);
     values['mapOpacity']!.value=1;
     values['scopeMorphProgress']!.value=progress;
@@ -127,18 +135,25 @@ export function WorldGeography({countries,context,frame,pointer,reducedMotion,do
     liveUniforms.liveFrame.value.set(camera.position.x,camera.position.y,width,camera.isOrthographicCamera?(camera.top-camera.bottom)/camera.zoom:frame.height);
     const radius=Math.min(POINTER_TRAIL_RADIUS_PX,get().size.width*.08,get().size.height*.1)*unit;
     trail.advance(delta*1000,pointer?.current,radius,{active,reducedMotion});
-    pointerField.advance(delta*1000,pointer?.current,radius,{active,reducedMotion});
+    pointerField.advance(delta*1000,pointer?.current,pointerRepulsionRadiusPx(get().size.width,get().size.height)*unit,{active,reducedMotion});
     displayed.current={positions:resources.land.getAttribute('position').array,context,domestic,frame:{x:camera.position.x,y:camera.position.y,width,height:camera.isOrthographicCamera?(camera.top-camera.bottom)/camera.zoom:frame.height},width:get().size.width,morphProgress:progress,motion:{seconds:elapsed.current,amplitudePx:!reducedMotion?LIVING_DOT_AMPLITUDE_PX:0,pointer:pointerField.uniforms.slice()}};
   });
-  return <group dispose={null}><mesh geometry={resources.land} material={resources.landMaterial} frustumCulled={false}/>{!domestic && <lineSegments geometry={resources.borders} material={resources.borderMaterial} frustumCulled={false}/>}<points name="scope-dot-morph" geometry={morphResources.geometry} material={morphResources.material} frustumCulled={false}/></group>;
+  const renderedBoundaries=boundaryTransition.layers().slice();
+  // A disposed BufferGeometry still mounted during the current frame can be
+  // re-uploaded by Three. Retire only after the reconciler removes its node.
+  useLayoutEffect(()=>{
+    const mounted=new Set(renderedBoundaries.map(layer=>layer.value));
+    for(const value of retiredBoundaries)if(!mounted.has(value)){value.dispose();retiredBoundaries.delete(value);}
+  });
+  return <group dispose={null}><mesh geometry={resources.land} material={resources.landMaterial} frustumCulled={false}/>{renderedBoundaries.map((layer,index)=><lineSegments key={layer.value.uuid} name="map-boundary-layer" geometry={layer.value} material={resources.borderMaterial} position={[layer.longitude-context.centralLongitude,0,0]} userData={{boundaryOpacity:layer.opacity,boundaryIndex:index}} onBeforeRender={()=>{resources.borderMaterial.uniforms['mapOpacity']!.value=layer.opacity;resources.borderMaterial.uniformsNeedUpdate=true;}} frustumCulled={false}/>)}<points name="scope-dot-morph" geometry={morphResources.geometry} material={morphResources.material} frustumCulled={false}/></group>;
 }
 
-export function StaticWorldGeography({countries,context,frame,domestic=false}:Omit<Props,'reducedMotion'>){
+export function StaticWorldGeography({countries,boundaries=NO_BOUNDARIES,context,frame,domestic=false}:Omit<Props,'reducedMotion'>){
   const id=useId().replace(/:/g,'');
-  const positions=useMemo(()=>worldBorderPositions(countries,context),[countries,context]);
+  const positions=useMemo(()=>domestic?worldBoundaryPositions(boundaries,context):worldBorderPositions(countries,context),[countries,boundaries,domestic,context.centralLongitude]);
   const land=useMemo(()=>worldLandPositions(countries,context),[countries,context]);
   const lines=[];for(let i=0;i<positions.length;i+=6)lines.push(`M${positions[i]},${-positions[i+1]!}L${positions[i+3]},${-positions[i+4]!}`);
   const polygons=[];for(let i=0;i<land.length;i+=9)polygons.push(`M${land[i]},${-land[i+1]!}L${land[i+3]},${-land[i+4]!}L${land[i+6]},${-land[i+7]!}Z`);
   const base=domestic?DOMESTIC_DOT_BASE_SPACING:INTERNATIONAL_DOT_BASE_SPACING;const ratio=domestic?2:4;const weights=worldDotWeights(frame.width/600,base,ratio);const spacings=[base,base/ratio,base/ratio**2,base/ratio**3];
-  return <g data-world-geography={!domestic||undefined} data-map-geography aria-hidden="true"><defs><clipPath id={`land-${id}`}><path d={polygons.join(' ')}/></clipPath>{spacings.map((spacing,index)=><pattern key={index} id={`dots-${id}-${index}`} patternUnits="userSpaceOnUse" width={spacing} height={spacing} x={(domestic?44:-179)-context.centralLongitude-spacing/2} y={(domestic?-25:59)-spacing/2}><circle cx={spacing/2} cy={spacing/2} r={frame.width/450} fill="var(--scene-dot)" opacity=".65"/></pattern>)}</defs><g clipPath={`url(#land-${id})`}>{weights.map((weight,index)=>weight>0?<rect key={index} x={-180} y={-90} width={360} height={180} fill={`url(#dots-${id}-${index})`} opacity={weight}/>:null)}</g>{!domestic && <path d={lines.join(' ')} fill="none" stroke="var(--scene-dot)" strokeWidth=".7" vectorEffect="non-scaling-stroke" opacity=".32"/>}</g>;
+  return <g data-world-geography={!domestic||undefined} data-map-geography aria-hidden="true"><defs><clipPath id={`land-${id}`}><path d={polygons.join(' ')}/></clipPath>{spacings.map((spacing,index)=><pattern key={index} id={`dots-${id}-${index}`} patternUnits="userSpaceOnUse" width={spacing} height={spacing} x={(domestic?44:-179)-context.centralLongitude-spacing/2} y={(domestic?-25:59)-spacing/2}><circle cx={spacing/2} cy={spacing/2} r={frame.width/450} fill="var(--scene-dot)" opacity=".65"/></pattern>)}</defs><g clipPath={`url(#land-${id})`}>{weights.map((weight,index)=>weight>0?<rect key={index} x={-180} y={-90} width={360} height={180} fill={`url(#dots-${id}-${index})`} opacity={weight}/>:null)}</g>{<path d={lines.join(' ')} fill="none" stroke="var(--scene-dot)" strokeWidth=".7" vectorEffect="non-scaling-stroke" opacity=".32"/>}</g>;
 }

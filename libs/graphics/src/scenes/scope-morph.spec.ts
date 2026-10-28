@@ -37,10 +37,10 @@ describe('deterministic scope dot morph', () => {
   it('spreads arrivals through the transition and hands off only each arrived dot', () => {
     const particles = Array.from({length:1000},(_,i)=>({from:{x:-.8,y:0,opacity:1},to:{x:.8,y:0,opacity:1},seed:scopeMorphSeed(44+i*.037,30+i*.011)}));
     const arrivals=particles.map(p=>{const timing=scopeMorphTiming(p.seed);return timing.delay+timing.duration;});
-    expect(Math.max(...arrivals)-Math.min(...arrivals)).toBeGreaterThan(.35);
-    expect(new Set(arrivals.map(value=>Math.floor(value*20))).size).toBeGreaterThanOrEqual(8);
+    expect(Math.max(...arrivals)-Math.min(...arrivals)).toBeGreaterThan(.3);
+    expect(new Set(arrivals.map(value=>Math.floor(value*20))).size).toBeGreaterThanOrEqual(7);
     expect(particles.some(p=>scopeMorphParticleProgress(.7,p.seed)===1)).toBe(true);
-    expect(particles.some(p=>scopeMorphParticleProgress(.7,p.seed)<.9)).toBe(true);
+    expect(particles.some(p=>scopeMorphParticleProgress(.65,p.seed)<.9)).toBe(true);
     for(const p of particles){
       const timing=scopeMorphTiming(p.seed), arrival=timing.delay+timing.duration;
       expect(scopeMorphParticleProgress(timing.delay,p.seed)).toBe(0);
@@ -64,32 +64,37 @@ describe('deterministic scope dot morph', () => {
     const visible=morph.snapshot();const next=morph.start(visible,source);
     next.forEach((p,i)=>expect(sampleVisibleMorphParticle(p,0)).toEqual(visible[i]));
   });
-  it('keeps delayed sources floating and joins moving target position and velocity, including pointer displacement',()=>{
+  it('starts every source together and keeps floating and joins moving target position and velocity, including pointer displacement',()=>{
     const live={anchorX:55,anchorY:32,amplitudePx:9,spacingPx:12,spacingWorld:1.2,baseX:.3,baseY:.1,opacity:1};
     const from={x:-.7,y:-.1,opacity:1,live:{...live,anchorX:50,baseX:-.7,baseY:-.1}};
     const to={x:.3,y:.1,opacity:1,live};
     const particle={from,to,seed:.9};
     const timing=scopeMorphTiming(particle.seed),arrival=timing.delay+timing.duration;
     const at=(p:number):MorphMotion=>({seconds:8+p*SCOPE_MORPH_DURATION_MS/1000,width:600,height:400,unit:.1,centralLongitude:0,pointer:[54,32,4.8,1]});
-    const first=sampleMorphParticle(particle,0,at(0)),delayed=sampleMorphParticle(particle,timing.delay*.5,at(timing.delay*.5));
-    expect(scopeMorphParticleProgress(timing.delay*.5,particle.seed)).toBe(0);
-    expect(Math.hypot(delayed.x-first.x,delayed.y-first.y)).toBeGreaterThan(.001);
+    const first=sampleMorphParticle(particle,0,at(0)),moving=sampleMorphParticle(particle,.01,at(.01));
+    expect(timing.delay).toBe(0);expect(scopeMorphParticleProgress(.01,particle.seed)).toBeGreaterThan(0);
+    expect(Math.hypot(moving.x-first.x,moving.y-first.y)).toBeGreaterThan(.00001);
     const joined=sampleMorphParticle(particle,arrival,at(arrival)),target=sampleLiveMorphDot(to,at(arrival));
     expect(joined.x).toBeCloseTo(target.x,12);expect(joined.y).toBeCloseTo(target.y,12);expect(joined.opacity).toBeCloseTo(target.opacity,12);
     const eps=1e-5,before=sampleMorphParticle(particle,arrival-eps,at(arrival-eps)),after=sampleMorphParticle(particle,arrival+eps,at(arrival+eps));
     for(const axis of ['x','y'] as const)expect(Math.abs((joined[axis]-before[axis])-(after[axis]-joined[axis]))/eps).toBeLessThan(.002);
     const morph=createScopeMorph();morph.start([from],[{...to,arrivalSeed:.9}]);
-    for(let i=0;i<50;i++)morph.advance(50,true,false);
-    const motion=at(morph.progress()),snapshot=morph.snapshot(motion),expected=sampleVisibleMorphParticle(morph.start([from],[{...to,arrivalSeed:.9}])[0]!,2500/SCOPE_MORPH_DURATION_MS,motion);
+    for(let i=0;i<18;i++)morph.advance(50,true,false);
+    const motion=at(morph.progress()),snapshot=morph.snapshot(motion),expected=sampleVisibleMorphParticle(morph.start([from],[{...to,arrivalSeed:.9}])[0]!,900/SCOPE_MORPH_DURATION_MS,motion);
     expect(snapshot[0]!.x).toBeCloseTo(expected.x,12);expect(snapshot[0]!.y).toBeCloseTo(expected.y,12);expect(snapshot[0]!.opacity).toBeCloseTo(expected.opacity,12);
     const restarted=morph.start(snapshot,[from]);expect(sampleVisibleMorphParticle(restarted[0]!,0,motion)).toMatchObject({x:snapshot[0]!.x,y:snapshot[0]!.y,opacity:snapshot[0]!.opacity});
     const residual=sampleMorphParticle(restarted[0]!,.01,{...motion,seconds:motion.seconds+.046});
     expect(Math.hypot(residual.x-snapshot[0]!.x,residual.y-snapshot[0]!.y)).toBeGreaterThan(0);
   });
-  it('spreads arrivals over seconds rather than one end-wave and matches the target field during camera fitting',()=>{
-    expect(SCOPE_MORPH_DURATION_MS).toBeGreaterThanOrEqual(4000);
+  it('uses a compact common departure with varied arrivals and matches the target field during camera fitting',()=>{
+    expect(SCOPE_MORPH_DURATION_MS).toBe(2000);
     const arrivals=Array.from({length:1000},(_,i)=>{const t=scopeMorphTiming(scopeMorphSeed(i*.037,32));return (t.delay+t.duration)*SCOPE_MORPH_DURATION_MS;});
-    expect(Math.max(...arrivals)-Math.min(...arrivals)).toBeGreaterThan(2000);
+    expect(Math.max(...arrivals)-Math.min(...arrivals)).toBeGreaterThan(600);
+    for(let i=0;i<1000;i++){
+      const seed=scopeMorphSeed(i*.037,32);expect(scopeMorphTiming(seed).delay).toBe(0);
+      expect(scopeMorphParticleProgress(0,seed)).toBe(0);expect(scopeMorphParticleProgress(.001,seed)).toBeGreaterThan(0);
+      expect(scopeMorphLandOpacity(.99,seed)).toBe(1);
+    }
     const context={centralLongitude:0},positions=worldLandPositions([{geometry:{type:'Polygon',coordinates:[[[40,20],[70,20],[70,45],[40,45],[40,20]]]}}],context);
     const frame={x:55,y:32,width:30,height:20},base={positions,context,domestic:true,frame,width:600,motion:{seconds:10,amplitudePx:9,pointer:[55,32,2.4,1]}};
     const point=snapshotLandDots(base).find(p=>p.opacity>.5)!;
