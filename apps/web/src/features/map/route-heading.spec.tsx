@@ -21,7 +21,7 @@ it('uses the chosen service stops, operator, origin-local departure and transpor
  const next = routeHeading({ itinerary: connected, direction: 'outbound', query }, routeCatalog);
  expect(initial.labels).toEqual(['آغاز', 'پایان']);
  expect(next.labels).toEqual(['آغاز', 'دیگر', 'پایان']);
- expect(next.service).toContain('هواپیمایی آفاق‌سیر');
+ expect(next.service).toContain('ماهان');
  expect(next.service).not.toBe(initial.service);
  expect(next.codes).toBe('IKA → TBZ → MHD');
  expect(next.key).not.toBe(initial.key);
@@ -34,13 +34,13 @@ it('updates the visible heading for a new pinned ticket and keeps hover inspecti
  const view = render(<MapHeading map={map} catalog={routeCatalog} covered/>);
  expect(screen.getByRole('heading')).toHaveTextContent('آغاز');
  expect(screen.getByRole('heading')).not.toHaveTextContent('دیگر');
- expect(screen.getByText(/هواپیمایی آبیان/)).toBeVisible();
+ expect(screen.getByText(/ایران‌ایر/)).toBeVisible();
  view.rerender(<MapHeading map={{ ...map, presentationView: { ...map.presentationView, itinerary: connected } }} catalog={routeCatalog} covered/>);
  expect(screen.getByRole('heading')).toHaveTextContent('دیگر');
- expect(screen.getByText(/هواپیمایی آفاق‌سیر/)).toBeVisible();
- const leaving = screen.queryByText(/هواپیمایی آبیان/);
+ expect(screen.getByText(/ماهان/)).toBeVisible();
+ const leaving = screen.queryByText(/ایران‌ایر/);
  if (leaving) expect(leaving.closest('[data-map-heading-key]')).toHaveAttribute('aria-hidden', 'true');
- await waitFor(() => expect(screen.queryByText(/هواپیمایی آبیان/)).not.toBeInTheDocument());
+ await waitFor(() => expect(screen.queryByText(/ایران‌ایر/)).not.toBeInTheDocument());
 });
 
 it('uses the selected return leg and falls back to form city names before a ticket is pinned', () => {
@@ -53,7 +53,7 @@ it('fades and finitely removes the previous heading under actual normal motion',
  vi.stubGlobal('matchMedia', () => ({ matches: false, addEventListener: vi.fn(), removeEventListener: vi.fn() }));
  const map = { presentationView: { itinerary: first, direction: 'outbound', query } } as unknown as TripMapController;
  const view = render(<MapHeading map={map} catalog={routeCatalog}/>);
- const previous = screen.getByText(/هواپیمایی آبیان/).closest<HTMLElement>('[data-map-heading-key]')!;
+ const previous = screen.getByText(/ایران‌ایر/).closest<HTMLElement>('[data-map-heading-key]')!;
  await waitFor(() => expect(previous.style.opacity).toBe('1'));
  view.rerender(<MapHeading map={{ ...map, presentationView: { ...map.presentationView, itinerary: connected } }} catalog={routeCatalog}/>);
  expect(previous).toHaveAttribute('aria-hidden', 'true');

@@ -2,7 +2,7 @@ import {describe,expect,it} from 'vitest';
 import type {Mode} from '@torob-ticket/contracts';
 import {displayAccountName,displayHotelAddress,displayHotelName,displayOperatorName,displayPlaceName,displayProviderName} from './travel-labels';
 const providers=['راه‌آرا','سفرین','بلیت‌نو','هم‌مسیر','دورآوا','سفرآیین'];
-const operators:Record<Mode,string[]>={flight:['هواپیمایی آبیان','هواپیمایی آفاق‌سیر','هواپیمایی فرازین'],train:['قطار آبان','ریل‌آرا','سپهرریل'],bus:['راه‌پیما','جاده‌سیر','آبان‌سفر']};
+const operators:Record<Mode,string[]>={flight:['ایران‌ایر','ماهان','آسمان'],train:['قطار آبان','ریل‌آرا','سپهرریل'],bus:['راه‌پیما','جاده‌سیر','آبان‌سفر']};
 function freeze<T extends object>(value:T):Readonly<T>{for(const nested of Object.values(value)){if(nested&&typeof nested==='object')freeze(nested);}return Object.freeze(value);}
 describe('travel labels at the presentation boundary',()=>{
  it.each(providers.map((name,index)=>({name,index})))('gives an authorized provider its stable display name: $name',({name,index})=>{expect(displayProviderName({providerId:`demo-provider-0${index+1}`,name:`فروشنده نمونه ${index+1} (خیالی)`})).toBe(name);});

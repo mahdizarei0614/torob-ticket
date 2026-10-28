@@ -80,11 +80,25 @@
         "libs/ui/src/motion/motion-policy.ts",
         "libs/ui/src/motion/motion-surface.tsx"
       ],
-      "authorship": "Authored locally for TorobTicket with AI assistance; vector paths and geometric brand/carrier glyphs are original repository artwork.",
-      "sourceMaterial": "No copied third-party logo, reference image, generated raster asset, remote resource or proprietary carrier artwork.",
-      "scope": "Decorative abstract travel scenery and marks for the authored provider/operator identities. Not geographic evidence, a property depiction, amenity evidence, live delay estimate, availability or booking confirmation.",
+      "authorship": "Authored locally for TorobTicket with AI assistance; illustration paths, abstract provider marks and neutral/non-flight carrier glyphs are original repository artwork. Authentic airline PNGs have separate third-party provenance.",
+      "sourceMaterial": "The original illustration/vector paths do not copy a third-party logo. ProviderMark additionally displays authentic locally bundled airline images; their sources, rights metadata and transformations are recorded in airlines/manifest.json.",
+      "scope": "Decorative abstract travel scenery and marks for authored provider/non-flight operator identities, plus neutral unknown fallbacks. Airline names and logos are coordinated presentation aliases only. Not geographic evidence, a property depiction, amenity evidence, live delay estimate, availability or booking confirmation.",
       "theming": "All authored fills, strokes and text colors resolve semantic CSS tokens or inherited currentColor.",
       "motion": "Finite opacity/2D translations only; reduced motion, hidden documents and covered views settle to a static final frame. No SVG animation, background loop or per-provider entry animation."
+    }
+  ],
+  "thirdPartyCollections": [
+    {
+      "id": "airline-marks-v1",
+      "retrievedOn": "2026-10-28",
+      "manifest": "airlines/manifest.json",
+      "notice": "airlines/README.md",
+      "airlineCount": 52,
+      "iranianCount": 23,
+      "internationalCount": 29,
+      "pngCount": 156,
+      "scope": "Authentic local airline identity assets only; no inventory, current operating status, route coverage, integration, partnership or blanket reuse-permission claim. Technical travel fixtures remain mocked.",
+      "rights": "Per-file metadata distinguishes airline-hosted originals, repository public-domain/CC claims and explicitly non-free logo references. Trademark rights are separate. See the manifest and notice."
     }
   ]
 }

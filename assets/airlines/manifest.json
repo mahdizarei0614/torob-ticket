@@ -1,0 +1,4885 @@
+{
+  "revision": "airline-marks-v1",
+  "retrievedOn": "2026-10-28",
+  "purpose": "Local presentation assets for airline identity. Technical travel inventory remains mocked; assets establish no commercial relationship, integration, current operating status or route availability.",
+  "licenseScope": "Per-file source metadata and claims, not a blanket open license or trademark permission. Wikipedia fair-use references are explicitly non-free; the repository does not grant reuse permission.",
+  "identityPolicy": "Three owner-approved fixture presentation aliases use a matching name and mark together. Exact airline: identifiers are available for the collected library. Unmapped or transport-mismatched identities retain the neutral fallback.",
+  "airlines": [
+    {
+      "id": "iran-air",
+      "nameFa": "ایران‌ایر",
+      "nameEn": "Iran Air",
+      "country": "IR",
+      "source": {
+        "origin": "wikimedia-commons",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/d/db/Iran_Air.png",
+        "pageUrl": "https://commons.wikimedia.org/wiki/File:Iran_Air.png",
+        "retrievedOn": "2026-10-28",
+        "bytes": 46158,
+        "sha256": "951f510234d2f91870f8d7c6a8dfb26ea044427d0250522842a0951bccabfb05",
+        "license": "Source reports CC BY-SA 4.0; trademark rights retained",
+        "reportedLicense": "CC BY-SA 4.0",
+        "reportedNonFree": false,
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "attribution": "ادوارد زهرابیان",
+        "credit": "IranAir",
+        "creditUrls": []
+      },
+      "transformation": {
+        "renderedInputSize": [
+          512,
+          432
+        ],
+        "renderedInputSha256": "445d0f857c11342e9aaebd3190aa42fa605448ac044d931fd6d0257c94c4770a",
+        "trimmedAlphaBounds": [
+          0,
+          0,
+          512,
+          432
+        ],
+        "compactSymbolCrop": null,
+        "removedEdgeConnectedNearWhitePixels": 0,
+        "scaling": "Preserve aspect ratio; centered within 7/8 of a square; Lanczos; PNG RGBA 8-bit, optimize and zlib level 9; no recoloring or invented geometry."
+      },
+      "variants": [
+        {
+          "path": "airlines/iran-air-32.png",
+          "width": 32,
+          "height": 32,
+          "bytes": 1493,
+          "sha256": "14fd7a689cd724dd5ef624cc5d7f32c85e48728cdbfea83fcb58fb6f1a1d83a5",
+          "transparentPixels": 581,
+          "visiblePixels": 443,
+          "maxAlpha": 255,
+          "opaquePixels": 41,
+          "contentBounds": [
+            2,
+            4,
+            30,
+            28
+          ]
+        },
+        {
+          "path": "airlines/iran-air-64.png",
+          "width": 64,
+          "height": 64,
+          "bytes": 4237,
+          "sha256": "190fd14dc3b022f9c440fa70e3bd12d2f1371a6a00855310e72a71c5747e0d1b",
+          "transparentPixels": 2578,
+          "visiblePixels": 1518,
+          "maxAlpha": 255,
+          "opaquePixels": 449,
+          "contentBounds": [
+            4,
+            8,
+            60,
+            55
+          ]
+        },
+        {
+          "path": "airlines/iran-air-128.png",
+          "width": 128,
+          "height": 128,
+          "bytes": 12278,
+          "sha256": "5c151e73ce129ee817c497d51108c4ba4dad37d3f2bb78b006f330f7e4dd0202",
+          "transparentPixels": 10996,
+          "visiblePixels": 5388,
+          "maxAlpha": 255,
+          "opaquePixels": 2343,
+          "contentBounds": [
+            8,
+            17,
+            120,
+            111
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mahan-air",
+      "nameFa": "ماهان",
+      "nameEn": "Mahan Air",
+      "country": "IR",
+      "source": {
+        "origin": "airline-website",
+        "url": "https://www.mahanair.co.ir/favicon/apple-icon-180x180.png",
+        "pageUrl": "https://www.mahanair.co.ir/",
+        "retrievedOn": "2026-10-28",
+        "bytes": 11048,
+        "sha256": "0d7cf0b3011651ab66c51e866185db62f31af0b4c4422fa78ec71b0648ba1693",
+        "license": "Official website asset; no reuse license published with file",
+        "reportedLicense": null,
+        "reportedNonFree": false,
+        "licenseUrl": null,
+        "attribution": "Mahan Air",
+        "credit": null,
+        "creditUrls": []
+      },
+      "transformation": {
+        "renderedInputSize": [
+          180,
+          180
+        ],
+        "renderedInputSha256": "e6725c35750e38429eb80bedfe428ff6f3df00894809e4e5dafcc1319447828f",
+        "trimmedAlphaBounds": [
+          16,
+          41,
+          164,
+          139
+        ],
+        "compactSymbolCrop": null,
+        "removedEdgeConnectedNearWhitePixels": 27088,
+        "scaling": "Preserve aspect ratio; centered within 7/8 of a square; Lanczos; PNG RGBA 8-bit, optimize and zlib level 9; no recoloring or invented geometry."
+      },
+      "variants": [
+        {
+          "path": "airlines/mahan-air-32.png",
+          "width": 32,
+          "height": 32,
+          "bytes": 1623,
+          "sha256": "4f2e37fb40ca23c429867e2be47d4d92ae058edb80ebfb437b0673981259be43",
+          "transparentPixels": 688,
+          "visiblePixels": 336,
+          "maxAlpha": 255,
+          "opaquePixels": 70,
+          "contentBounds": [
+            2,
+            6,
+            30,
+            25
+          ]
+        },
+        {
+          "path": "airlines/mahan-air-64.png",
+          "width": 64,
+          "height": 64,
+          "bytes": 4064,
+          "sha256": "27c62e1eee272166b6f9e6074a2ba3c065b54f6ab8a97f4a1bc8370ce56a64b3",
+          "transparentPixels": 3029,
+          "visiblePixels": 1067,
+          "maxAlpha": 255,
+          "opaquePixels": 362,
+          "contentBounds": [
+            4,
+            13,
+            60,
+            50
+          ]
+        },
+        {
+          "path": "airlines/mahan-air-128.png",
+          "width": 128,
+          "height": 128,
+          "bytes": 9778,
+          "sha256": "336dda6256557dc9752795cb52f14a70e7749c86ac1d1af8e528d5e127a9e107",
+          "transparentPixels": 12678,
+          "visiblePixels": 3706,
+          "maxAlpha": 255,
+          "opaquePixels": 2001,
+          "contentBounds": [
+            8,
+            27,
+            120,
+            101
+          ]
+        }
+      ]
+    },
+    {
+      "id": "iran-aseman",
+      "nameFa": "آسمان",
+      "nameEn": "Iran Aseman Airlines",
+      "country": "IR",
+      "source": {
+        "origin": "wikipedia-file",
+        "url": "https://upload.wikimedia.org/wikipedia/en/b/b8/Iran_Aseman_Airlines_logo.png",
+        "pageUrl": "https://en.wikipedia.org/wiki/File:Iran_Aseman_Airlines_logo.png",
+        "retrievedOn": "2026-10-28",
+        "bytes": 8323,
+        "sha256": "2b656270c132c1b4b2bdf4b02801d932d1af5a66c5bb21a08da341a2c784eeb8",
+        "license": "Non-free logo reference; no reuse permission granted",
+        "reportedLicense": "Fair use",
+        "reportedNonFree": true,
+        "licenseUrl": null,
+        "attribution": "http://www.mediawego.com/images/partners/400x135/airlines/EP.png",
+        "credit": "http://www.mediawego.com/images/partners/400x135/airlines/EP.png",
+        "creditUrls": [
+          "http://www.mediawego.com/images/partners/400x135/airlines/EP.png"
+        ]
+      },
+      "transformation": {
+        "renderedInputSize": [
+          229,
+          135
+        ],
+        "renderedInputSha256": "006f53f3d1537e833ed606ebd900125da47db2c08742c19e29ee539192ff36b6",
+        "trimmedAlphaBounds": [
+          25,
+          2,
+          207,
+          134
+        ],
+        "compactSymbolCrop": null,
+        "removedEdgeConnectedNearWhitePixels": 0,
+        "scaling": "Preserve aspect ratio; centered within 7/8 of a square; Lanczos; PNG RGBA 8-bit, optimize and zlib level 9; no recoloring or invented geometry."
+      },
+      "variants": [
+        {
+          "path": "airlines/iran-aseman-32.png",
+          "width": 32,
+          "height": 32,
+          "bytes": 1276,
+          "sha256": "afbb5012ae3792ff7dc11ecda61072d5e889f58ea91fdb563bde5bda0fee4a4f",
+          "transparentPixels": 687,
+          "visiblePixels": 337,
+          "maxAlpha": 255,
+          "opaquePixels": 26,
+          "contentBounds": [
+            2,
+            6,
+            30,
+            26
+          ]
+        },
+        {
+          "path": "airlines/iran-aseman-64.png",
+          "width": 64,
+          "height": 64,
+          "bytes": 3640,
+          "sha256": "0211248780d724f82f8543ad82ac52281424b8c0e3edbf2be6aa0e480b1dbbaa",
+          "transparentPixels": 2979,
+          "visiblePixels": 1117,
+          "maxAlpha": 255,
+          "opaquePixels": 233,
+          "contentBounds": [
+            4,
+            11,
+            60,
+            52
+          ]
+        },
+        {
+          "path": "airlines/iran-aseman-128.png",
+          "width": 128,
+          "height": 128,
+          "bytes": 9667,
+          "sha256": "f70fff0ae5139580cabe3fdc6a682da33a7569f77047cab0f91b3aa523f2a68a",
+          "transparentPixels": 12685,
+          "visiblePixels": 3699,
+          "maxAlpha": 255,
+          "opaquePixels": 1238,
+          "contentBounds": [
+            8,
+            23,
+            120,
+            104
+          ]
+        }
+      ]
+    },
+    {
+      "id": "iran-airtour",
+      "nameFa": "ایران‌ایرتور",
+      "nameEn": "Iran Airtour",
+      "country": "IR",
+      "source": {
+        "origin": "airline-website",
+        "url": "https://iranairtour.ir/assets/media/airtour/airtour-logo.svg",
+        "pageUrl": "https://iranairtour.ir/",
+        "retrievedOn": "2026-10-28",
+        "bytes": 27194,
+        "sha256": "0dc45cc398de69663fe6cb91e01f032b93693975fe01eb40affd2eb64604d30f",
+        "license": "Official website asset; no reuse license published with file",
+        "reportedLicense": null,
+        "reportedNonFree": false,
+        "licenseUrl": null,
+        "attribution": "Iran Airtour",
+        "credit": null,
+        "creditUrls": []
+      },
+      "transformation": {
+        "renderedInputSize": [
+          512,
+          512
+        ],
+        "renderedInputSha256": "ef83b209ef3bd8b35bbd9f01521c9979397139400dbc939ed4731fdb9c2300ba",
+        "trimmedAlphaBounds": [
+          0,
+          0,
+          511,
+          511
+        ],
+        "compactSymbolCrop": null,
+        "removedEdgeConnectedNearWhitePixels": 0,
+        "scaling": "Preserve aspect ratio; centered within 7/8 of a square; Lanczos; PNG RGBA 8-bit, optimize and zlib level 9; no recoloring or invented geometry."
+      },
+      "variants": [
+        {
+          "path": "airlines/iran-airtour-32.png",
+          "width": 32,
+          "height": 32,
+          "bytes": 2044,
+          "sha256": "72b6279d08e2e616bed08bc90086abef5ec04bc3110cac9054af759974cc66ca",
+          "transparentPixels": 452,
+          "visiblePixels": 572,
+          "maxAlpha": 255,
+          "opaquePixels": 18,
+          "contentBounds": [
+            2,
+            2,
+            30,
+            30
+          ]
+        },
+        {
+          "path": "airlines/iran-airtour-64.png",
+          "width": 64,
+          "height": 64,
+          "bytes": 6215,
+          "sha256": "87e7fc2802013f142382c1de2c1ed21d608bc9786aeb74f1be56dcca03f12fd2",
+          "transparentPixels": 2145,
+          "visiblePixels": 1951,
+          "maxAlpha": 255,
+          "opaquePixels": 298,
+          "contentBounds": [
+            4,
+            4,
+            60,
+            60
+          ]
+        },
+        {
+          "path": "airlines/iran-airtour-128.png",
+          "width": 128,
+          "height": 128,
+          "bytes": 18027,
+          "sha256": "192a42116aae3724d84c3826d83ca962a382c71c972b70b88f214db3a772625e",
+          "transparentPixels": 9630,
+          "visiblePixels": 6754,
+          "maxAlpha": 255,
+          "opaquePixels": 2126,
+          "contentBounds": [
+            8,
+            8,
+            120,
+            120
+          ]
+        }
+      ]
+    },
+    {
+      "id": "kish-air",
+      "nameFa": "کیش‌ایر",
+      "nameEn": "Kish Air",
+      "country": "IR",
+      "source": {
+        "origin": "airline-website",
+        "url": "https://kishairlines.ir/_Main/logos/fa-IR/logow.png",
+        "pageUrl": "https://kishairlines.ir/",
+        "retrievedOn": "2026-10-28",
+        "bytes": 10918,
+        "sha256": "6ca3cbeb635d3bdcc8cb7805f1e60b4a727969f5c697fae6a859ccefe47b84b5",
+        "license": "Official website asset; no reuse license published with file",
+        "reportedLicense": null,
+        "reportedNonFree": false,
+        "licenseUrl": null,
+        "attribution": "Kish Air",
+        "credit": null,
+        "creditUrls": []
+      },
+      "transformation": {
+        "renderedInputSize": [
+          219,
+          49
+        ],
+        "renderedInputSha256": "0f3680f952a6cc37850c292b212a8c2e3a6045131c94955ccb517bf52b51410a",
+        "trimmedAlphaBounds": [
+          8,
+          0,
+          219,
+          49
+        ],
+        "compactSymbolCrop": [
+          140,
+          0,
+          211,
+          49
+        ],
+        "removedEdgeConnectedNearWhitePixels": 0,
+        "scaling": "Preserve aspect ratio; centered within 7/8 of a square; Lanczos; PNG RGBA 8-bit, optimize and zlib level 9; no recoloring or invented geometry."
+      },
+      "variants": [
+        {
+          "path": "airlines/kish-air-32.png",
+          "width": 32,
+          "height": 32,
+          "bytes": 1518,
+          "sha256": "b8008a4f694ee07cd7d54a3560ae4e1d5a93968481c516478efa9d786489c14a",
+          "transparentPixels": 622,
+          "visiblePixels": 402,
+          "maxAlpha": 255,
+          "opaquePixels": 159,
+          "contentBounds": [
+            2,
+            6,
+            30,
+            25
+          ]
+        },
+        {
+          "path": "airlines/kish-air-64.png",
+          "width": 64,
+          "height": 64,
+          "bytes": 4379,
+          "sha256": "9a89d0338945694f0214cbfa9d004470477c655e88d8d58abbe11683b945766d",
+          "transparentPixels": 2600,
+          "visiblePixels": 1496,
+          "maxAlpha": 255,
+          "opaquePixels": 861,
+          "contentBounds": [
+            4,
+            12,
+            60,
+            51
+          ]
+        },
+        {
+          "path": "airlines/kish-air-128.png",
+          "width": 128,
+          "height": 128,
+          "bytes": 13072,
+          "sha256": "975b4bb7b8463f7c17d97589ce348472a355212d4d24f7cf174266bce9f7da25",
+          "transparentPixels": 10629,
+          "visiblePixels": 5755,
+          "maxAlpha": 255,
+          "opaquePixels": 3649,
+          "contentBounds": [
+            8,
+            25,
+            120,
+            102
+          ]
+        }
+      ]
+    },
+    {
+      "id": "qeshm-air",
+      "nameFa": "قشم‌ایر",
+      "nameEn": "Qeshm Air",
+      "country": "IR",
+      "source": {
+        "origin": "airline-website",
+        "url": "https://qeshm-air.com/web2/upload/content/8096420220430201019.png",
+        "pageUrl": "https://qeshm-air.com/web2/",
+        "retrievedOn": "2026-10-28",
+        "bytes": 5064,
+        "sha256": "7342e76d9846d0757d71eab2b8ad7b2048b271cdce90924be9a07557090a52df",
+        "license": "Official website asset; no reuse license published with file",
+        "reportedLicense": null,
+        "reportedNonFree": false,
+        "licenseUrl": null,
+        "attribution": "Qeshm Air",
+        "credit": null,
+        "creditUrls": []
+      },
+      "transformation": {
+        "renderedInputSize": [
+          202,
+          40
+        ],
+        "renderedInputSha256": "d98678ae9dca0cb789998b9ec03b1f8e876aeef4ffaa7bb5555287d875b61803",
+        "trimmedAlphaBounds": [
+          0,
+          0,
+          202,
+          40
+        ],
+        "compactSymbolCrop": [
+          0,
+          0,
+          73,
+          40
+        ],
+        "removedEdgeConnectedNearWhitePixels": 0,
+        "scaling": "Preserve aspect ratio; centered within 7/8 of a square; Lanczos; PNG RGBA 8-bit, optimize and zlib level 9; no recoloring or invented geometry."
+      },
+      "variants": [
+        {
+          "path": "airlines/qeshm-air-32.png",
+          "width": 32,
+          "height": 32,
+          "bytes": 556,
+          "sha256": "8d822f03997ad61e630fbaec37b1900b79c9804f44738e4daa0d7a4ab08cc6e3",
+          "transparentPixels": 765,
+          "visiblePixels": 259,
+          "maxAlpha": 255,
+          "opaquePixels": 62,
+          "contentBounds": [
+            2,
+            9,
+            30,
+            22
+          ]
+        },
+        {
+          "path": "airlines/qeshm-air-64.png",
+          "width": 64,
+          "height": 64,
+          "bytes": 1264,
+          "sha256": "d9ce9dd29d313a277696a774d29e491697923031dbc3aff42993edcb3768e628",
+          "transparentPixels": 3161,
+          "visiblePixels": 935,
+          "maxAlpha": 255,
+          "opaquePixels": 355,
+          "contentBounds": [
+            4,
+            18,
+            60,
+            45
+          ]
+        },
+        {
+          "path": "airlines/qeshm-air-128.png",
+          "width": 128,
+          "height": 128,
+          "bytes": 3416,
+          "sha256": "2248d4d2cf17ff7b0c9953e7ab4c3aac729d7276de477a0e68692abd2b217ef7",
+          "transparentPixels": 12892,
+          "visiblePixels": 3492,
+          "maxAlpha": 255,
+          "opaquePixels": 1639,
+          "contentBounds": [
+            8,
+            37,
+            120,
+            91
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ata-airlines",
+      "nameFa": "آتا",
+      "nameEn": "ATA Airlines",
+      "country": "IR",
+      "source": {
+        "origin": "airline-website",
+        "url": "https://ataair.ir/wp-content/uploads/2022/07/logo-100.png",
+        "pageUrl": "https://ataair.ir/",
+        "retrievedOn": "2026-10-28",
+        "bytes": 11136,
+        "sha256": "6acac1c7da4d0b3d325664eb9031bb162f067f47214a3189980de612c9884b65",
+        "license": "Official website asset; no reuse license published with file",
+        "reportedLicense": null,
+        "reportedNonFree": false,
+        "licenseUrl": null,
+        "attribution": "ATA Airlines",
+        "credit": null,
+        "creditUrls": []
+      },
+      "transformation": {
+        "renderedInputSize": [
+          100,
+          100
+        ],
+        "renderedInputSha256": "62042396457407687bfe5d71f9c7515f321ed1eb17b16841d7d4fc25d8a7c665",
+        "trimmedAlphaBounds": [
+          0,
+          0,
+          100,
+          100
+        ],
+        "compactSymbolCrop": null,
+        "removedEdgeConnectedNearWhitePixels": 0,
+        "scaling": "Preserve aspect ratio; centered within 7/8 of a square; Lanczos; PNG RGBA 8-bit, optimize and zlib level 9; no recoloring or invented geometry."
+      },
+      "variants": [
+        {
+          "path": "airlines/ata-airlines-32.png",
+          "width": 32,
+          "height": 32,
+          "bytes": 1998,
+          "sha256": "c8b4985ec5185f0596e6dae1e18119640579db7fe90b9771e9fee66949b218a5",
+          "transparentPixels": 477,
+          "visiblePixels": 547,
+          "maxAlpha": 255,
+          "opaquePixels": 76,
+          "contentBounds": [
+            2,
+            2,
+            30,
+            30
+          ]
+        },
+        {
+          "path": "airlines/ata-airlines-64.png",
+          "width": 64,
+          "height": 64,
+          "bytes": 5241,
+          "sha256": "c59cc8dc526293865033c2c9a69d8956a2f57569def8a460e39c7b70739a54de",
+          "transparentPixels": 2215,
+          "visiblePixels": 1881,
+          "maxAlpha": 255,
+          "opaquePixels": 595,
+          "contentBounds": [
+            4,
+            4,
+            60,
+            60
+          ]
+        },
+        {
+          "path": "airlines/ata-airlines-128.png",
+          "width": 128,
+          "height": 128,
+          "bytes": 14194,
+          "sha256": "3eed1ff6997385a7329f2a31ce83b06c40cd9460fdd5dfe43b82ce8063e13962",
+          "transparentPixels": 9898,
+          "visiblePixels": 6486,
+          "maxAlpha": 255,
+          "opaquePixels": 2805,
+          "contentBounds": [
+            8,
+            8,
+            120,
+            120
+          ]
+        }
+      ]
+    },
+    {
+      "id": "taban-air",
+      "nameFa": "تابان",
+      "nameEn": "Taban Air",
+      "country": "IR",
+      "source": {
+        "origin": "airline-website",
+        "url": "https://taban.aero/upload/content/3766420261005120142.svg",
+        "pageUrl": "https://taban.aero/",
+        "retrievedOn": "2026-10-28",
+        "bytes": 5573,
+        "sha256": "03a5d5d9819651ebe1ba836c5e5d6316bdf8bb982dd962e7691264d5eea55572",
+        "license": "Official website asset; no reuse license published with file",
+        "reportedLicense": null,
+        "reportedNonFree": false,
+        "licenseUrl": null,
+        "attribution": "Taban Air",
+        "credit": null,
+        "creditUrls": []
+      },
+      "transformation": {
+        "renderedInputSize": [
+          512,
+          105
+        ],
+        "renderedInputSha256": "3bbad86445e4b5dd57a6594d1ba4e267590bd236e24659f71b89e6835f063d90",
+        "trimmedAlphaBounds": [
+          0,
+          0,
+          512,
+          105
+        ],
+        "compactSymbolCrop": [
+          409,
+          0,
+          512,
+          105
+        ],
+        "removedEdgeConnectedNearWhitePixels": 0,
+        "scaling": "Preserve aspect ratio; centered within 7/8 of a square; Lanczos; PNG RGBA 8-bit, optimize and zlib level 9; no recoloring or invented geometry."
+      },
+      "variants": [
+        {
+          "path": "airlines/taban-air-32.png",
+          "width": 32,
+          "height": 32,
+          "bytes": 1784,
+          "sha256": "d3577fd6e9127dbae4878499f8e19e36dbfbf4fc3b1c2304fc565930b1402a98",
+          "transparentPixels": 400,
+          "visiblePixels": 624,
+          "maxAlpha": 255,
+          "opaquePixels": 407,
+          "contentBounds": [
+            2,
+            2,
+            29,
+            30
+          ]
+        },
+        {
+          "path": "airlines/taban-air-64.png",
+          "width": 64,
+          "height": 64,
+          "bytes": 4008,
+          "sha256": "f696c07f737aebbe414868d6dedbf30b5d7cae883ccefa25198e47d2e42125dc",
+          "transparentPixels": 1702,
+          "visiblePixels": 2394,
+          "maxAlpha": 255,
+          "opaquePixels": 1888,
+          "contentBounds": [
+            4,
+            4,
+            59,
+            60
+          ]
+        },
+        {
+          "path": "airlines/taban-air-128.png",
+          "width": 128,
+          "height": 128,
+          "bytes": 9136,
+          "sha256": "2144ad67f87d6724db0ae018bbec5dd442a52a8a036029e277dde7356bb5df64",
+          "transparentPixels": 7146,
+          "visiblePixels": 9238,
+          "maxAlpha": 255,
+          "opaquePixels": 8038,
+          "contentBounds": [
+            9,
+            8,
+            119,
+            120
+          ]
+        }
+      ]
+    },
+    {
+      "id": "zagros-airlines",
+      "nameFa": "زاگرس",
+      "nameEn": "Zagros Airlines",
+      "country": "IR",
+      "source": {
+        "origin": "wikimedia-commons",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/b/b5/Zagros-logo.png",
+        "pageUrl": "https://commons.wikimedia.org/wiki/File:Zagros-logo.png",
+        "retrievedOn": "2026-10-28",
+        "bytes": 27880,
+        "sha256": "bcafb557f0101303fea58935fbe8df031b2013741c76f258e34e695497bae0ae",
+        "license": "Source reports CC BY-SA 4.0; trademark rights retained",
+        "reportedLicense": "CC BY-SA 4.0",
+        "reportedNonFree": false,
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "attribution": "zagros airline",
+        "credit": "https://www.zagrosairlines.com/",
+        "creditUrls": [
+          "https://www.zagrosairlines.com/"
+        ]
+      },
+      "transformation": {
+        "renderedInputSize": [
+          512,
+          511
+        ],
+        "renderedInputSha256": "83e81134ee1069ca528a1e81db8057363c38f6032d184e001bc6ba2895fc1815",
+        "trimmedAlphaBounds": [
+          62,
+          0,
+          448,
+          490
+        ],
+        "compactSymbolCrop": null,
+        "removedEdgeConnectedNearWhitePixels": 0,
+        "scaling": "Preserve aspect ratio; centered within 7/8 of a square; Lanczos; PNG RGBA 8-bit, optimize and zlib level 9; no recoloring or invented geometry."
+      },
+      "variants": [
+        {
+          "path": "airlines/zagros-airlines-32.png",
+          "width": 32,
+          "height": 32,
+          "bytes": 1245,
+          "sha256": "33e026ab6437bf7d52d6926f54febc0e227a0122bab7536c8d5267169fc758a6",
+          "transparentPixels": 661,
+          "visiblePixels": 363,
+          "maxAlpha": 255,
+          "opaquePixels": 72,
+          "contentBounds": [
+            5,
+            2,
+            27,
+            30
+          ]
+        },
+        {
+          "path": "airlines/zagros-airlines-64.png",
+          "width": 64,
+          "height": 64,
+          "bytes": 2737,
+          "sha256": "31ba9658b86650694a7751e3ac5989ce8593bf0da194b08edaf0ba63193462b8",
+          "transparentPixels": 2830,
+          "visiblePixels": 1266,
+          "maxAlpha": 255,
+          "opaquePixels": 398,
+          "contentBounds": [
+            10,
+            4,
+            54,
+            60
+          ]
+        },
+        {
+          "path": "airlines/zagros-airlines-128.png",
+          "width": 128,
+          "height": 128,
+          "bytes": 5749,
+          "sha256": "19cd515efd6141300ac9cdb690556a9399a9e235e1e8165ed65d96c22328effe",
+          "transparentPixels": 11766,
+          "visiblePixels": 4618,
+          "maxAlpha": 255,
+          "opaquePixels": 1841,
+          "contentBounds": [
+            20,
+            8,
+            108,
+            120
+          ]
+        }
+      ]
+    },
+    {
+      "id": "fly-persia",
+      "nameFa": "فلای‌پرشیا",
+      "nameEn": "FlyPersia",
+      "country": "IR",
+      "source": {
+        "origin": "airline-website",
+        "url": "https://flypersiaairlines.ir/wp-content/uploads/2023/11/Fly-persia.png",
+        "pageUrl": "https://flypersiaairlines.ir/",
+        "retrievedOn": "2026-10-28",
+        "bytes": 4697,
+        "sha256": "0ceb1f5631ac10d50fc52d27e06f57cda4bdcbbcd3d0ba57d2370ba603e4dd33",
+        "license": "Official website asset; no reuse license published with file",
+        "reportedLicense": null,
+        "reportedNonFree": false,
+        "licenseUrl": null,
+        "attribution": "FlyPersia",
+        "credit": null,
+        "creditUrls": []
+      },
+      "transformation": {
+        "renderedInputSize": [
+          133,
+          66
+        ],
+        "renderedInputSha256": "034117cd938b6693cf4dad17bc91a6c96888c37569519f704825e42ea8482f32",
+        "trimmedAlphaBounds": [
+          0,
+          11,
+          133,
+          55
+        ],
+        "compactSymbolCrop": null,
+        "removedEdgeConnectedNearWhitePixels": 0,
+        "scaling": "Preserve aspect ratio; centered within 7/8 of a square; Lanczos; PNG RGBA 8-bit, optimize and zlib level 9; no recoloring or invented geometry."
+      },
+      "variants": [
+        {
+          "path": "airlines/fly-persia-32.png",
+          "width": 32,
+          "height": 32,
+          "bytes": 907,
+          "sha256": "abe21f3dd73b2cc2616b2c96d804466308d0b660588c0c34dd9ca409aa46ced7",
+          "transparentPixels": 836,
+          "visiblePixels": 188,
+          "maxAlpha": 173,
+          "opaquePixels": 0,
+          "contentBounds": [
+            2,
+            11,
+            30,
+            20
+          ]
+        },
+        {
+          "path": "airlines/fly-persia-64.png",
+          "width": 64,
+          "height": 64,
+          "bytes": 2704,
+          "sha256": "844b845c94cda21899b2f2b85c8743e8bd46cb57794d866b165e2c5e13b2adae",
+          "transparentPixels": 3441,
+          "visiblePixels": 655,
+          "maxAlpha": 255,
+          "opaquePixels": 1,
+          "contentBounds": [
+            4,
+            22,
+            60,
+            41
+          ]
+        },
+        {
+          "path": "airlines/fly-persia-128.png",
+          "width": 128,
+          "height": 128,
+          "bytes": 6989,
+          "sha256": "4f519063a7b5d7c4015b4b61c4576123b853ea6d845274a91391eafeafaec2cd",
+          "transparentPixels": 14462,
+          "visiblePixels": 1922,
+          "maxAlpha": 255,
+          "opaquePixels": 124,
+          "contentBounds": [
+            8,
+            45,
+            120,
+            82
+          ]
+        }
+      ]
+    },
+    {
+      "id": "sepehran-airlines",
+      "nameFa": "سپهران",
+      "nameEn": "Sepehran Airlines",
+      "country": "IR",
+      "source": {
+        "origin": "airline-website",
+        "url": "https://flysepehran.com/assets/images/logos/logo-full.svg",
+        "pageUrl": "https://flysepehran.com/fa",
+        "retrievedOn": "2026-10-28",
+        "bytes": 25986,
+        "sha256": "98c4a0294ae02eba7f78154acbb0aea17b172f0ebeed81451c2dff93b6e8af74",
+        "license": "Official website asset; no reuse license published with file",
+        "reportedLicense": null,
+        "reportedNonFree": false,
+        "licenseUrl": null,
+        "attribution": "Sepehran Airlines",
+        "credit": null,
+        "creditUrls": []
+      },
+      "transformation": {
+        "renderedInputSize": [
+          512,
+          240
+        ],
+        "renderedInputSha256": "143e782f983c08f5f786a953baad09787ad4bc0925d39988b12cc02df2eb1d66",
+        "trimmedAlphaBounds": [
+          35,
+          4,
+          489,
+          235
+        ],
+        "compactSymbolCrop": [
+          333,
+          0,
+          454,
+          231
+        ],
+        "removedEdgeConnectedNearWhitePixels": 0,
+        "scaling": "Preserve aspect ratio; centered within 7/8 of a square; Lanczos; PNG RGBA 8-bit, optimize and zlib level 9; no recoloring or invented geometry."
+      },
+      "variants": [
+        {
+          "path": "airlines/sepehran-airlines-32.png",
+          "width": 32,
+          "height": 32,
+          "bytes": 943,
+          "sha256": "cbf7451bf377f61bb1d40e684395ef09eec823c6923f7a34030ff1292f1a098d",
+          "transparentPixels": 604,
+          "visiblePixels": 420,
+          "maxAlpha": 255,
+          "opaquePixels": 339,
+          "contentBounds": [
+            8,
+            2,
+            23,
+            30
+          ]
+        },
+        {
+          "path": "airlines/sepehran-airlines-64.png",
+          "width": 64,
+          "height": 64,
+          "bytes": 2568,
+          "sha256": "8022e161eabcd9047ee1db8a56e818d78ae966d15d00b18d756be50c111b44c0",
+          "transparentPixels": 2472,
+          "visiblePixels": 1624,
+          "maxAlpha": 255,
+          "opaquePixels": 1460,
+          "contentBounds": [
+            17,
+            4,
+            46,
+            60
+          ]
+        },
+        {
+          "path": "airlines/sepehran-airlines-128.png",
+          "width": 128,
+          "height": 128,
+          "bytes": 8062,
+          "sha256": "61ebdd2443a86364cb163f6324918d4c750c9efa393d08ee2fba9c1fe1729aaa",
+          "transparentPixels": 9776,
+          "visiblePixels": 6608,
+          "maxAlpha": 255,
+          "opaquePixels": 6271,
+          "contentBounds": [
+            34,
+            8,
+            93,
+            120
+          ]
+        }
+      ]
+    },
+    {
+      "id": "karun-airlines",
+      "nameFa": "کارون",
+      "nameEn": "Karun Airlines",
+      "country": "IR",
+      "source": {
+        "origin": "wikipedia-file",
+        "url": "https://upload.wikimedia.org/wikipedia/en/5/50/New_logo_Karun_Airlines_%28Iran%29_2025.png",
+        "pageUrl": "https://en.wikipedia.org/wiki/File:New_logo_Karun_Airlines_(Iran)_2025.png",
+        "retrievedOn": "2026-10-28",
+        "bytes": 6140,
+        "sha256": "0c1e3b8b3f96d3fbfeb11270f39ecab9df36c3498f69bbb5765a332e1132243b",
+        "license": "Non-free logo reference; no reuse permission granted",
+        "reportedLicense": "Fair use",
+        "reportedNonFree": true,
+        "licenseUrl": null,
+        "attribution": "https://karunair.ir/en/",
+        "credit": "https://karunair.ir/en/",
+        "creditUrls": [
+          "https://karunair.ir/en/"
+        ]
+      },
+      "transformation": {
+        "renderedInputSize": [
+          371,
+          136
+        ],
+        "renderedInputSha256": "28fd9a3ff0e431f1cce3582cbeee49b50f450b8b004d30272791399878eb66d0",
+        "trimmedAlphaBounds": [
+          13,
+          16,
+          346,
+          115
+        ],
+        "compactSymbolCrop": [
+          0,
+          0,
+          102,
+          99
+        ],
+        "removedEdgeConnectedNearWhitePixels": 36131,
+        "scaling": "Preserve aspect ratio; centered within 7/8 of a square; Lanczos; PNG RGBA 8-bit, optimize and zlib level 9; no recoloring or invented geometry."
+      },
+      "variants": [
+        {
+          "path": "airlines/karun-airlines-32.png",
+          "width": 32,
+          "height": 32,
+          "bytes": 1797,
+          "sha256": "959a5a60cfe316872e26fd75d1301ad8ed24595a89d3ff36c20238fab3f2c543",
+          "transparentPixels": 332,
+          "visiblePixels": 692,
+          "maxAlpha": 255,
+          "opaquePixels": 503,
+          "contentBounds": [
+            2,
+            2,
+            30,
+            30
+          ]
+        },
+        {
+          "path": "airlines/karun-airlines-64.png",
+          "width": 64,
+          "height": 64,
+          "bytes": 4646,
+          "sha256": "a972484b955e5bb8904722e348ff17035f810f61570f9e55e073a073d43c2956",
+          "transparentPixels": 1424,
+          "visiblePixels": 2672,
+          "maxAlpha": 255,
+          "opaquePixels": 2243,
+          "contentBounds": [
+            4,
+            4,
+            60,
+            60
+          ]
+        },
+        {
+          "path": "airlines/karun-airlines-128.png",
+          "width": 128,
+          "height": 128,
+          "bytes": 13205,
+          "sha256": "b2b178249bb6f05f4b3b082808270f1d188b412dc8645e28b56182c35a97758f",
+          "transparentPixels": 6024,
+          "visiblePixels": 10360,
+          "maxAlpha": 255,
+          "opaquePixels": 9445,
+          "contentBounds": [
+            8,
+            8,
+            120,
+            120
+          ]
+        }
+      ]
+    },
+    {
+      "id": "chabahar-airlines",
+      "nameFa": "چابهار",
+      "nameEn": "Chabahar Airlines",
+      "country": "IR",
+      "source": {
+        "origin": "airline-website",
+        "url": "https://chabaharairlines.ir/wp-content/uploads/2024/11/logo.png",
+        "pageUrl": "https://chabaharairlines.ir/",
+        "retrievedOn": "2026-10-28",
+        "bytes": 15489,
+        "sha256": "650ec9f4d23b670b9da072fd9a0e0a957bccfb63cfaa84fc075ee5c74f8e8497",
+        "license": "Official website asset; no reuse license published with file",
+        "reportedLicense": null,
+        "reportedNonFree": false,
+        "licenseUrl": null,
+        "attribution": "Chabahar Airlines",
+        "credit": null,
+        "creditUrls": []
+      },
+      "transformation": {
+        "renderedInputSize": [
+          119,
+          60
+        ],
+        "renderedInputSha256": "18bae1eb3169bde32e505a9494cdce619b626dd4d125b313bb2489e398e31180",
+        "trimmedAlphaBounds": [
+          3,
+          3,
+          106,
+          57
+        ],
+        "compactSymbolCrop": null,
+        "removedEdgeConnectedNearWhitePixels": 119,
+        "scaling": "Preserve aspect ratio; centered within 7/8 of a square; Lanczos; PNG RGBA 8-bit, optimize and zlib level 9; no recoloring or invented geometry."
+      },
+      "variants": [
+        {
+          "path": "airlines/chabahar-airlines-32.png",
+          "width": 32,
+          "height": 32,
+          "bytes": 1327,
+          "sha256": "47852909c37f9aa4d6195e5dfb76311de0600bf2cbbde13a05b7cb911418bbae",
+          "transparentPixels": 730,
+          "visiblePixels": 294,
+          "maxAlpha": 255,
+          "opaquePixels": 19,
+          "contentBounds": [
+            2,
+            8,
+            30,
+            23
+          ]
+        },
+        {
+          "path": "airlines/chabahar-airlines-64.png",
+          "width": 64,
+          "height": 64,
+          "bytes": 3788,
+          "sha256": "3d28c91f47a9c6eeaadca4f06ff883d634c235cb94ee1e6d25402cd78c3ac136",
+          "transparentPixels": 3137,
+          "visiblePixels": 959,
+          "maxAlpha": 255,
+          "opaquePixels": 185,
+          "contentBounds": [
+            4,
+            17,
+            60,
+            46
+          ]
+        },
+        {
+          "path": "airlines/chabahar-airlines-128.png",
+          "width": 128,
+          "height": 128,
+          "bytes": 11996,
+          "sha256": "549726488a726ad465292140b429a2b3650ba865634c3ecc9593b3ab63c431fa",
+          "transparentPixels": 12985,
+          "visiblePixels": 3399,
+          "maxAlpha": 255,
+          "opaquePixels": 917,
+          "contentBounds": [
+            8,
+            34,
+            120,
+            93
+          ]
+        }
+      ]
+    },
+    {
+      "id": "pars-air",
+      "nameFa": "پارس‌ایر",
+      "nameEn": "Pars Air",
+      "country": "IR",
+      "source": {
+        "origin": "airline-website",
+        "url": "https://parsair.ir/images/parsLogo.png",
+        "pageUrl": "https://parsair.ir/",
+        "retrievedOn": "2026-10-28",
+        "bytes": 11470,
+        "sha256": "0b88a4601e63ebd5dd7cc317767386f97a0796bcb5afe6a0e40fd9fa4e3afd59",
+        "license": "Official website asset; no reuse license published with file",
+        "reportedLicense": null,
+        "reportedNonFree": false,
+        "licenseUrl": null,
+        "attribution": "Pars Air",
+        "credit": null,
+        "creditUrls": []
+      },
+      "transformation": {
+        "renderedInputSize": [
+          202,
+          224
+        ],
+        "renderedInputSha256": "333bdf0044bd05d748eb3536ed385f63ef91facdeb09244ecff52ea7cc4f130a",
+        "trimmedAlphaBounds": [
+          0,
+          7,
+          202,
+          224
+        ],
+        "compactSymbolCrop": null,
+        "removedEdgeConnectedNearWhitePixels": 36262,
+        "scaling": "Preserve aspect ratio; centered within 7/8 of a square; Lanczos; PNG RGBA 8-bit, optimize and zlib level 9; no recoloring or invented geometry."
+      },
+      "variants": [
+        {
+          "path": "airlines/pars-air-32.png",
+          "width": 32,
+          "height": 32,
+          "bytes": 1485,
+          "sha256": "0b4e65504d7b4c018bd43af955933928d7188a3511b9f8bcf557a96f4d4c404b",
+          "transparentPixels": 676,
+          "visiblePixels": 348,
+          "maxAlpha": 255,
+          "opaquePixels": 17,
+          "contentBounds": [
+            3,
+            2,
+            29,
+            30
+          ]
+        },
+        {
+          "path": "airlines/pars-air-64.png",
+          "width": 64,
+          "height": 64,
+          "bytes": 3721,
+          "sha256": "357f294aabadcdb85384c4c4026f54617b21da1da40d8de41ff8b480401198f4",
+          "transparentPixels": 3029,
+          "visiblePixels": 1067,
+          "maxAlpha": 255,
+          "opaquePixels": 104,
+          "contentBounds": [
+            6,
+            4,
+            58,
+            60
+          ]
+        },
+        {
+          "path": "airlines/pars-air-128.png",
+          "width": 128,
+          "height": 128,
+          "bytes": 9567,
+          "sha256": "253e76409a39f00f0bd660874623e65c92d6116d962b64c49223d8a5606baee2",
+          "transparentPixels": 12960,
+          "visiblePixels": 3424,
+          "maxAlpha": 255,
+          "opaquePixels": 751,
+          "contentBounds": [
+            12,
+            8,
+            116,
+            120
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ava-airlines",
+      "nameFa": "آوا",
+      "nameEn": "AVA Airlines",
+      "country": "IR",
+      "source": {
+        "origin": "airline-website",
+        "url": "https://avaair.ir/_next/static/media/ava-logo-main.783cfb22.png",
+        "pageUrl": "https://avaair.ir/",
+        "retrievedOn": "2026-10-28",
+        "bytes": 5973,
+        "sha256": "53413a71e83f628058dd3b33504c8319f9d797877400462cce6fe8399fe0d188",
+        "license": "Official website asset; no reuse license published with file",
+        "reportedLicense": null,
+        "reportedNonFree": false,
+        "licenseUrl": null,
+        "attribution": "AVA Airlines",
+        "credit": null,
+        "creditUrls": []
+      },
+      "transformation": {
+        "renderedInputSize": [
+          184,
+          96
+        ],
+        "renderedInputSha256": "49628dfbb5a9aa0af80b93b326d8a1847eff8d51135b62d9d0dc712cb01c024d",
+        "trimmedAlphaBounds": [
+          0,
+          0,
+          184,
+          96
+        ],
+        "compactSymbolCrop": null,
+        "removedEdgeConnectedNearWhitePixels": 0,
+        "scaling": "Preserve aspect ratio; centered within 7/8 of a square; Lanczos; PNG RGBA 8-bit, optimize and zlib level 9; no recoloring or invented geometry."
+      },
+      "variants": [
+        {
+          "path": "airlines/ava-airlines-32.png",
+          "width": 32,
+          "height": 32,
+          "bytes": 1366,
+          "sha256": "8b4c822046c2beaee96026c5d987e290d78568ab2f4ddb7f53ca8b62ec023239",
+          "transparentPixels": 698,
+          "visiblePixels": 326,
+          "maxAlpha": 255,
+          "opaquePixels": 16,
+          "contentBounds": [
+            2,
+            8,
+            30,
+            23
+          ]
+        },
+        {
+          "path": "airlines/ava-airlines-64.png",
+          "width": 64,
+          "height": 64,
+          "bytes": 4035,
+          "sha256": "da1ad8d885ce26b7741e4a1e4648e3b4d4241a0b23b0237cc03ad6b639baa9fd",
+          "transparentPixels": 3001,
+          "visiblePixels": 1095,
+          "maxAlpha": 255,
+          "opaquePixels": 98,
+          "contentBounds": [
+            4,
+            17,
+            60,
+            46
+          ]
+        },
+        {
+          "path": "airlines/ava-airlines-128.png",
+          "width": 128,
+          "height": 128,
+          "bytes": 11188,
+          "sha256": "64fd7f1f8a1254ad750181ee6a7b3361fa8390e731616509c686dfefaa68e63b",
+          "transparentPixels": 12745,
+          "visiblePixels": 3639,
+          "maxAlpha": 255,
+          "opaquePixels": 639,
+          "contentBounds": [
+            8,
+            35,
+            120,
+            93
+          ]
+        }
+      ]
+    },
+    {
+      "id": "yazd-airways",
+      "nameFa": "یزدایر",
+      "nameEn": "Yazd Airways",
+      "country": "IR",
+      "source": {
+        "origin": "airline-website",
+        "url": "https://yazdairways.com/wp-content/uploads/2023/12/192.png",
+        "pageUrl": "https://yazdairways.com/",
+        "retrievedOn": "2026-10-28",
+        "bytes": 19942,
+        "sha256": "03dfed2a9285465eebdc6573025a626c670a28e62f3e6682b7f86cbf7e0338bf",
+        "license": "Official website asset; no reuse license published with file",
+        "reportedLicense": null,
+        "reportedNonFree": false,
+        "licenseUrl": null,
+        "attribution": "Yazd Airways",
+        "credit": null,
+        "creditUrls": []
+      },
+      "transformation": {
+        "renderedInputSize": [
+          192,
+          192
+        ],
+        "renderedInputSha256": "75fd76d277913f17decfdb285bebe41401df34c2e9c261f286afa68a6d93dba2",
+        "trimmedAlphaBounds": [
+          0,
+          19,
+          192,
+          173
+        ],
+        "compactSymbolCrop": null,
+        "removedEdgeConnectedNearWhitePixels": 0,
+        "scaling": "Preserve aspect ratio; centered within 7/8 of a square; Lanczos; PNG RGBA 8-bit, optimize and zlib level 9; no recoloring or invented geometry."
+      },
+      "variants": [
+        {
+          "path": "airlines/yazd-airways-32.png",
+          "width": 32,
+          "height": 32,
+          "bytes": 1282,
+          "sha256": "b496d26fe8ca257914cbad9398af41c4bf1f8f22a3deda1fd54ab4dd79161c21",
+          "transparentPixels": 647,
+          "visiblePixels": 377,
+          "maxAlpha": 255,
+          "opaquePixels": 116,
+          "contentBounds": [
+            2,
+            5,
+            30,
+            27
+          ]
+        },
+        {
+          "path": "airlines/yazd-airways-64.png",
+          "width": 64,
+          "height": 64,
+          "bytes": 3012,
+          "sha256": "394fa25503ad8794bc149e13d5ad05265d78fc437d3ba6d85a4268b296ef21ed",
+          "transparentPixels": 2758,
+          "visiblePixels": 1338,
+          "maxAlpha": 255,
+          "opaquePixels": 701,
+          "contentBounds": [
+            4,
+            9,
+            60,
+            54
+          ]
+        },
+        {
+          "path": "airlines/yazd-airways-128.png",
+          "width": 128,
+          "height": 128,
+          "bytes": 7381,
+          "sha256": "edcdb4c1e63b14a807855620bb41c54cc0170eacd450610028e9027e8579479f",
+          "transparentPixels": 11530,
+          "visiblePixels": 4854,
+          "maxAlpha": 255,
+          "opaquePixels": 3302,
+          "contentBounds": [
+            8,
+            19,
+            120,
+            109
+          ]
+        }
+      ]
+    },
+    {
+      "id": "pouya-air",
+      "nameFa": "پویا",
+      "nameEn": "Pouya Air",
+      "country": "IR",
+      "source": {
+        "origin": "airline-website",
+        "url": "https://pouyaair.ir/wp-content/uploads/2026/10/logo-pouyair-horizontal.png",
+        "pageUrl": "https://pouyaair.ir/",
+        "retrievedOn": "2026-10-28",
+        "bytes": 69963,
+        "sha256": "d6665a5380b58f64a023d367ec1b19a0cb44865f10e7987cf0af09c8823e64f2",
+        "license": "Official website asset; no reuse license published with file",
+        "reportedLicense": null,
+        "reportedNonFree": false,
+        "licenseUrl": null,
+        "attribution": "Pouya Air",
+        "credit": null,
+        "creditUrls": []
+      },
+      "transformation": {
+        "renderedInputSize": [
+          494,
+          179
+        ],
+        "renderedInputSha256": "b6ab4d4ab290b5395a8765bbfcfc502b98a0793db8d6dddf046117a0f584eaa2",
+        "trimmedAlphaBounds": [
+          0,
+          9,
+          494,
+          166
+        ],
+        "compactSymbolCrop": [
+          326,
+          0,
+          494,
+          157
+        ],
+        "removedEdgeConnectedNearWhitePixels": 0,
+        "scaling": "Preserve aspect ratio; centered within 7/8 of a square; Lanczos; PNG RGBA 8-bit, optimize and zlib level 9; no recoloring or invented geometry."
+      },
+      "variants": [
+        {
+          "path": "airlines/pouya-air-32.png",
+          "width": 32,
+          "height": 32,
+          "bytes": 1812,
+          "sha256": "9fbf191c3eb4916878a6df33b025cf7f006271bbf17887ef7a291838c69d6b35",
+          "transparentPixels": 539,
+          "visiblePixels": 485,
+          "maxAlpha": 255,
+          "opaquePixels": 72,
+          "contentBounds": [
+            2,
+            3,
+            30,
+            29
+          ]
+        },
+        {
+          "path": "airlines/pouya-air-64.png",
+          "width": 64,
+          "height": 64,
+          "bytes": 4370,
+          "sha256": "0f3cb56d57410d289c812dfe8db58cd3ea693fa71b34e52ded22ecd3a08968d2",
+          "transparentPixels": 2636,
+          "visiblePixels": 1460,
+          "maxAlpha": 255,
+          "opaquePixels": 421,
+          "contentBounds": [
+            4,
+            6,
+            60,
+            58
+          ]
+        },
+        {
+          "path": "airlines/pouya-air-128.png",
+          "width": 128,
+          "height": 128,
+          "bytes": 11065,
+          "sha256": "82491f6ee812a174c89dec921f5bd8784164089c8c80b45803e3725343fabfa7",
+          "transparentPixels": 11588,
+          "visiblePixels": 4796,
+          "maxAlpha": 255,
+          "opaquePixels": 2120,
+          "contentBounds": [
+            8,
+            11,
+            120,
+            116
+          ]
+        }
+      ]
+    },
+    {
+      "id": "meraj-airlines",
+      "nameFa": "معراج",
+      "nameEn": "Meraj Airlines",
+      "country": "IR",
+      "source": {
+        "origin": "airline-website",
+        "url": "https://merajairlines.ir/images/fav.png",
+        "pageUrl": "https://merajairlines.ir/",
+        "retrievedOn": "2026-10-28",
+        "bytes": 4743,
+        "sha256": "d5189d3cc063a39792f38fb9f7fa95ceb416c985d2e18b1b503b29d0ad3bfe06",
+        "license": "Official website asset; no reuse license published with file",
+        "reportedLicense": null,
+        "reportedNonFree": false,
+        "licenseUrl": null,
+        "attribution": "Meraj Airlines",
+        "credit": null,
+        "creditUrls": []
+      },
+      "transformation": {
+        "renderedInputSize": [
+          123,
+          124
+        ],
+        "renderedInputSha256": "81c1bc2c563686b43a58cc6e65f4d5f160547059cd88691d1a0c5c4e0ead97ef",
+        "trimmedAlphaBounds": [
+          0,
+          0,
+          123,
+          124
+        ],
+        "compactSymbolCrop": null,
+        "removedEdgeConnectedNearWhitePixels": 0,
+        "scaling": "Preserve aspect ratio; centered within 7/8 of a square; Lanczos; PNG RGBA 8-bit, optimize and zlib level 9; no recoloring or invented geometry."
+      },
+      "variants": [
+        {
+          "path": "airlines/meraj-airlines-32.png",
+          "width": 32,
+          "height": 32,
+          "bytes": 1862,
+          "sha256": "4fa1cd0b44dfddba2505241d5fe913f0221f32571c72b1196d2a2f17bf3e22eb",
+          "transparentPixels": 561,
+          "visiblePixels": 463,
+          "maxAlpha": 255,
+          "opaquePixels": 42,
+          "contentBounds": [
+            2,
+            2,
+            30,
+            30
+          ]
+        },
+        {
+          "path": "airlines/meraj-airlines-64.png",
+          "width": 64,
+          "height": 64,
+          "bytes": 4808,
+          "sha256": "f02dbdf63fcd581fa6fcf2e75aba068b8b4f87e64f79dfb6311bc4b0ba10bae0",
+          "transparentPixels": 2606,
+          "visiblePixels": 1490,
+          "maxAlpha": 255,
+          "opaquePixels": 431,
+          "contentBounds": [
+            4,
+            4,
+            60,
+            60
+          ]
+        },
+        {
+          "path": "airlines/meraj-airlines-128.png",
+          "width": 128,
+          "height": 128,
+          "bytes": 11786,
+          "sha256": "51e8ded97f77dbed347d37da413adfbe396b6f71337a8ba17e24023b08bba73f",
+          "transparentPixels": 11587,
+          "visiblePixels": 4797,
+          "maxAlpha": 255,
+          "opaquePixels": 2001,
+          "contentBounds": [
+            8,
+            8,
+            119,
+            120
+          ]
+        }
+      ]
+    },
+    {
+      "id": "caspian-airlines",
+      "nameFa": "کاسپین",
+      "nameEn": "Caspian Airlines",
+      "country": "IR",
+      "source": {
+        "origin": "wikipedia-file",
+        "url": "https://upload.wikimedia.org/wikipedia/en/7/77/Caspian_Airlines_logo.svg",
+        "pageUrl": "https://en.wikipedia.org/wiki/File:Caspian_Airlines_logo.svg",
+        "retrievedOn": "2026-10-28",
+        "bytes": 40488,
+        "sha256": "1dd77420b9e1d742c0149063eb0c3532afd291c8b24b5e412dd467380d710190",
+        "license": "Non-free logo reference; no reuse permission granted",
+        "reportedLicense": "Fair use",
+        "reportedNonFree": true,
+        "licenseUrl": null,
+        "attribution": "http://logotypes.designer.am/srch/search.php?way=detailed&id=11204&r=t&a=c&pg=7",
+        "credit": "http://logotypes.designer.am/srch/search.php?way=detailed&id=11204&r=t&a=c&pg=7",
+        "creditUrls": [
+          "http://logotypes.designer.am/srch/search.php?way=detailed&id=11204&r=t&a=c&pg=7"
+        ]
+      },
+      "transformation": {
+        "renderedInputSize": [
+          512,
+          160
+        ],
+        "renderedInputSha256": "d227a6f29ab669dc3dc48a9c34c05e4f26c759d8b3cc1154c51d5fd2c56bdb68",
+        "trimmedAlphaBounds": [
+          0,
+          0,
+          512,
+          160
+        ],
+        "compactSymbolCrop": [
+          322,
+          0,
+          512,
+          160
+        ],
+        "removedEdgeConnectedNearWhitePixels": 0,
+        "scaling": "Preserve aspect ratio; centered within 7/8 of a square; Lanczos; PNG RGBA 8-bit, optimize and zlib level 9; no recoloring or invented geometry."
+      },
+      "variants": [
+        {
+          "path": "airlines/caspian-airlines-32.png",
+          "width": 32,
+          "height": 32,
+          "bytes": 2033,
+          "sha256": "693dc19d536b726bc6472e93da89299b20ca0df80a0a7bbf3af1e88117ddfd86",
+          "transparentPixels": 459,
+          "visiblePixels": 565,
+          "maxAlpha": 255,
+          "opaquePixels": 315,
+          "contentBounds": [
+            2,
+            4,
+            30,
+            28
+          ]
+        },
+        {
+          "path": "airlines/caspian-airlines-64.png",
+          "width": 64,
+          "height": 64,
+          "bytes": 5260,
+          "sha256": "673cf2dde19384cc38177baa7a973ea120760e0222f1b5e98ebfd1f13ecad3be",
+          "transparentPixels": 1952,
+          "visiblePixels": 2144,
+          "maxAlpha": 255,
+          "opaquePixels": 1485,
+          "contentBounds": [
+            4,
+            8,
+            60,
+            56
+          ]
+        },
+        {
+          "path": "airlines/caspian-airlines-128.png",
+          "width": 128,
+          "height": 128,
+          "bytes": 13160,
+          "sha256": "2cb23f66cf32861cc102c6123b857cdd81bd810132e7b164d68381c816299719",
+          "transparentPixels": 8304,
+          "visiblePixels": 8080,
+          "maxAlpha": 255,
+          "opaquePixels": 6543,
+          "contentBounds": [
+            8,
+            16,
+            120,
+            112
+          ]
+        }
+      ]
+    },
+    {
+      "id": "saha-airlines",
+      "nameFa": "ساها",
+      "nameEn": "Saha Airlines",
+      "country": "IR",
+      "source": {
+        "origin": "wikipedia-file",
+        "url": "https://upload.wikimedia.org/wikipedia/fa/8/8a/Saha_Airline_Logo.png",
+        "pageUrl": "https://fa.wikipedia.org/wiki/%D9%BE%D8%B1%D9%88%D9%86%D8%AF%D9%87:Saha_Airline_Logo.png",
+        "retrievedOn": "2026-10-28",
+        "bytes": 20323,
+        "sha256": "bf0a9004d2dd0c59cfa7a7401e2feed9bd7e53ae12acbeaad30ce6ff7cb6e857",
+        "license": "Non-free logo reference; no reuse permission granted",
+        "reportedLicense": "استفادهٔ منصفانه",
+        "reportedNonFree": true,
+        "licenseUrl": null,
+        "attribution": "Saha Airlines",
+        "credit": "[۱]",
+        "creditUrls": [
+          "http://fleet.aerospacetalk.ir/Airline/182-SAHA-AIR-LINES.html"
+        ]
+      },
+      "transformation": {
+        "renderedInputSize": [
+          245,
+          245
+        ],
+        "renderedInputSha256": "fd849720a2f10e2d40f75a8b25432a9ec96ab9d8e4db490c2de5113110b04c0c",
+        "trimmedAlphaBounds": [
+          6,
+          51,
+          239,
+          195
+        ],
+        "compactSymbolCrop": null,
+        "removedEdgeConnectedNearWhitePixels": 0,
+        "scaling": "Preserve aspect ratio; centered within 7/8 of a square; Lanczos; PNG RGBA 8-bit, optimize and zlib level 9; no recoloring or invented geometry."
+      },
+      "variants": [
+        {
+          "path": "airlines/saha-airlines-32.png",
+          "width": 32,
+          "height": 32,
+          "bytes": 1219,
+          "sha256": "e63001ab48736ae6ecb78c02c6223be9977cae41ecf8ea0edffe709eabf6d6ee",
+          "transparentPixels": 756,
+          "visiblePixels": 268,
+          "maxAlpha": 255,
+          "opaquePixels": 15,
+          "contentBounds": [
+            2,
+            7,
+            30,
+            24
+          ]
+        },
+        {
+          "path": "airlines/saha-airlines-64.png",
+          "width": 64,
+          "height": 64,
+          "bytes": 3401,
+          "sha256": "e72fbf9200b0ac6c586c7787ef9a5ccc1db85132bea1f4a35e91482bf49af9c8",
+          "transparentPixels": 3209,
+          "visiblePixels": 887,
+          "maxAlpha": 255,
+          "opaquePixels": 94,
+          "contentBounds": [
+            4,
+            14,
+            60,
+            49
+          ]
+        },
+        {
+          "path": "airlines/saha-airlines-128.png",
+          "width": 128,
+          "height": 128,
+          "bytes": 9326,
+          "sha256": "2c7bf98da8ab0fe8e916e28a75d6a422f05093305e9ff82d6ba75271f13b9150",
+          "transparentPixels": 13616,
+          "visiblePixels": 2768,
+          "maxAlpha": 255,
+          "opaquePixels": 622,
+          "contentBounds": [
+            8,
+            29,
+            120,
+            98
+          ]
+        }
+      ]
+    },
+    {
+      "id": "fly-kish",
+      "nameFa": "فلای‌کیش",
+      "nameEn": "Fly Kish Airlines",
+      "country": "IR",
+      "source": {
+        "origin": "airline-website",
+        "url": "https://flykishiran.com/icons/logo-192x192.png",
+        "pageUrl": "https://flykishiran.com/",
+        "retrievedOn": "2026-10-28",
+        "bytes": 22005,
+        "sha256": "dd434d9a355f7e7d662b3ec1546bc24885ea3b461f213edfc0d9d537fc97f08a",
+        "license": "Official website asset; no reuse license published with file",
+        "reportedLicense": null,
+        "reportedNonFree": false,
+        "licenseUrl": null,
+        "attribution": "Fly Kish Airlines",
+        "credit": null,
+        "creditUrls": []
+      },
+      "transformation": {
+        "renderedInputSize": [
+          192,
+          192
+        ],
+        "renderedInputSha256": "82f27429b9d15c06f3a15a2842ae35707f5f594aee9ab0279546607a3001e23e",
+        "trimmedAlphaBounds": [
+          7,
+          0,
+          185,
+          192
+        ],
+        "compactSymbolCrop": null,
+        "removedEdgeConnectedNearWhitePixels": 0,
+        "scaling": "Preserve aspect ratio; centered within 7/8 of a square; Lanczos; PNG RGBA 8-bit, optimize and zlib level 9; no recoloring or invented geometry."
+      },
+      "variants": [
+        {
+          "path": "airlines/fly-kish-32.png",
+          "width": 32,
+          "height": 32,
+          "bytes": 2565,
+          "sha256": "0acc1748f53b9d7ddb225ec0a6623c2287a3afa295d9d4d2e5de9f5d374be1ef",
+          "transparentPixels": 404,
+          "visiblePixels": 620,
+          "maxAlpha": 255,
+          "opaquePixels": 133,
+          "contentBounds": [
+            3,
+            2,
+            29,
+            30
+          ]
+        },
+        {
+          "path": "airlines/fly-kish-64.png",
+          "width": 64,
+          "height": 64,
+          "bytes": 7745,
+          "sha256": "33cad44f923fa9222250f144882b11084013a9fc5c1a77cd0cdc29ad81fe8223",
+          "transparentPixels": 1871,
+          "visiblePixels": 2225,
+          "maxAlpha": 255,
+          "opaquePixels": 666,
+          "contentBounds": [
+            6,
+            4,
+            58,
+            60
+          ]
+        },
+        {
+          "path": "airlines/fly-kish-128.png",
+          "width": 128,
+          "height": 128,
+          "bytes": 21830,
+          "sha256": "007a06295d72a7608104b9daeea77356f68c8132fe51259060a75a6e42e79f41",
+          "transparentPixels": 8123,
+          "visiblePixels": 8261,
+          "maxAlpha": 255,
+          "opaquePixels": 3949,
+          "contentBounds": [
+            12,
+            8,
+            116,
+            120
+          ]
+        }
+      ]
+    },
+    {
+      "id": "toos-airlines",
+      "nameFa": "طوس",
+      "nameEn": "Toos Airlines",
+      "country": "IR",
+      "source": {
+        "origin": "airline-website",
+        "url": "https://toosairline.com/wp-content/uploads/2020/10/favicon-300x300.png",
+        "pageUrl": "https://toosairline.com/",
+        "retrievedOn": "2026-10-28",
+        "bytes": 26351,
+        "sha256": "fec28036b835a68ce46fd78fa949c8ad19099743ca1e06a548f0ee8dfb519384",
+        "license": "Official website asset; no reuse license published with file",
+        "reportedLicense": null,
+        "reportedNonFree": false,
+        "licenseUrl": null,
+        "attribution": "Toos Airlines",
+        "credit": null,
+        "creditUrls": []
+      },
+      "transformation": {
+        "renderedInputSize": [
+          300,
+          300
+        ],
+        "renderedInputSha256": "23b6709efc6698ba3b281f90b0916d750032ca7faa8156e86f249df93c37e377",
+        "trimmedAlphaBounds": [
+          25,
+          8,
+          262,
+          292
+        ],
+        "compactSymbolCrop": null,
+        "removedEdgeConnectedNearWhitePixels": 0,
+        "scaling": "Preserve aspect ratio; centered within 7/8 of a square; Lanczos; PNG RGBA 8-bit, optimize and zlib level 9; no recoloring or invented geometry."
+      },
+      "variants": [
+        {
+          "path": "airlines/toos-airlines-32.png",
+          "width": 32,
+          "height": 32,
+          "bytes": 1835,
+          "sha256": "dc654f5e8a96fab494d14dd300eabcce71bdc88142a4260baf23a0833edfe6dd",
+          "transparentPixels": 509,
+          "visiblePixels": 515,
+          "maxAlpha": 255,
+          "opaquePixels": 246,
+          "contentBounds": [
+            4,
+            2,
+            27,
+            30
+          ]
+        },
+        {
+          "path": "airlines/toos-airlines-64.png",
+          "width": 64,
+          "height": 64,
+          "bytes": 4699,
+          "sha256": "7be86139b5fbafc205f1bcb7aa984134adf221e0433814999fe545a312fab621",
+          "transparentPixels": 2142,
+          "visiblePixels": 1954,
+          "maxAlpha": 255,
+          "opaquePixels": 1231,
+          "contentBounds": [
+            8,
+            4,
+            55,
+            60
+          ]
+        },
+        {
+          "path": "airlines/toos-airlines-128.png",
+          "width": 128,
+          "height": 128,
+          "bytes": 11312,
+          "sha256": "caac89fd913473e73cf2d65462d58bd336b2b94e73b6633d2899f1451e82f5c1",
+          "transparentPixels": 8973,
+          "visiblePixels": 7411,
+          "maxAlpha": 255,
+          "opaquePixels": 5711,
+          "contentBounds": [
+            17,
+            8,
+            110,
+            120
+          ]
+        }
+      ]
+    },
+    {
+      "id": "varesh-airlines",
+      "nameFa": "وارش",
+      "nameEn": "Varesh Airlines",
+      "country": "IR",
+      "source": {
+        "origin": "airline-website",
+        "url": "https://vareshair.ir/themes/varesh/home/icons/Menu/Logo.png",
+        "pageUrl": "https://vareshair.ir/",
+        "retrievedOn": "2026-10-28",
+        "bytes": 9268,
+        "sha256": "c264114fb52c2d11537a34ea48e6dff7681855109d6cec1d094c828c7b13519d",
+        "license": "Official website asset; no reuse license published with file",
+        "reportedLicense": null,
+        "reportedNonFree": false,
+        "licenseUrl": null,
+        "attribution": "Varesh Airlines",
+        "credit": null,
+        "creditUrls": []
+      },
+      "transformation": {
+        "renderedInputSize": [
+          110,
+          110
+        ],
+        "renderedInputSha256": "cad512b3121a3c702f0872de8b00cd036dddb79ec102a8eafca4c55159339210",
+        "trimmedAlphaBounds": [
+          0,
+          0,
+          110,
+          110
+        ],
+        "compactSymbolCrop": null,
+        "removedEdgeConnectedNearWhitePixels": 0,
+        "scaling": "Preserve aspect ratio; centered within 7/8 of a square; Lanczos; PNG RGBA 8-bit, optimize and zlib level 9; no recoloring or invented geometry."
+      },
+      "variants": [
+        {
+          "path": "airlines/varesh-airlines-32.png",
+          "width": 32,
+          "height": 32,
+          "bytes": 1993,
+          "sha256": "7c112622da6a80944b4ab777e8641bb6008ee10a9b557dd8f818bd7db5a160f9",
+          "transparentPixels": 332,
+          "visiblePixels": 692,
+          "maxAlpha": 255,
+          "opaquePixels": 490,
+          "contentBounds": [
+            2,
+            2,
+            30,
+            30
+          ]
+        },
+        {
+          "path": "airlines/varesh-airlines-64.png",
+          "width": 64,
+          "height": 64,
+          "bytes": 5343,
+          "sha256": "4b274d0f29f71f613aff3976dc4fd1337a0394ac5d798fc3945f35f3f1c8105f",
+          "transparentPixels": 1446,
+          "visiblePixels": 2650,
+          "maxAlpha": 255,
+          "opaquePixels": 2209,
+          "contentBounds": [
+            4,
+            4,
+            60,
+            60
+          ]
+        },
+        {
+          "path": "airlines/varesh-airlines-128.png",
+          "width": 128,
+          "height": 128,
+          "bytes": 14181,
+          "sha256": "97f4204e719993aac8f7b499bf6cd2686df903df241a6ceb2bddd2f55604f367",
+          "transparentPixels": 6121,
+          "visiblePixels": 10263,
+          "maxAlpha": 255,
+          "opaquePixels": 9374,
+          "contentBounds": [
+            8,
+            8,
+            120,
+            120
+          ]
+        }
+      ]
+    },
+    {
+      "id": "emirates",
+      "nameFa": "امارات",
+      "nameEn": "Emirates",
+      "country": "AE",
+      "source": {
+        "origin": "wikimedia-commons",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/1/1d/Emirates_Logo.svg",
+        "pageUrl": "https://commons.wikimedia.org/wiki/File:Emirates_Logo.svg",
+        "retrievedOn": "2026-10-28",
+        "bytes": 9142,
+        "sha256": "9ad8b2085c8c7f68d684437cca21c55a107d31bcbc993029405e9206fa8ed490",
+        "license": "Source reports Public domain; trademark rights retained",
+        "reportedLicense": "Public domain",
+        "reportedNonFree": false,
+        "licenseUrl": null,
+        "attribution": "The Emirates Group",
+        "credit": "https://www.emirates.com/",
+        "creditUrls": [
+          "https://www.emirates.com/"
+        ]
+      },
+      "transformation": {
+        "renderedInputSize": [
+          512,
+          353
+        ],
+        "renderedInputSha256": "58e89da040f2a44c7c504bfcdbb62afe3b20cc5aa157db9c14e17b4555f3eaf1",
+        "trimmedAlphaBounds": [
+          0,
+          0,
+          512,
+          353
+        ],
+        "compactSymbolCrop": null,
+        "removedEdgeConnectedNearWhitePixels": 0,
+        "scaling": "Preserve aspect ratio; centered within 7/8 of a square; Lanczos; PNG RGBA 8-bit, optimize and zlib level 9; no recoloring or invented geometry."
+      },
+      "variants": [
+        {
+          "path": "airlines/emirates-32.png",
+          "width": 32,
+          "height": 32,
+          "bytes": 1143,
+          "sha256": "ed8a28432b10f4b46e8163963391c688a9c7f892b7ae1e2a5dd1e9a908367eda",
+          "transparentPixels": 723,
+          "visiblePixels": 301,
+          "maxAlpha": 255,
+          "opaquePixels": 2,
+          "contentBounds": [
+            2,
+            6,
+            30,
+            25
+          ]
+        },
+        {
+          "path": "airlines/emirates-64.png",
+          "width": 64,
+          "height": 64,
+          "bytes": 3292,
+          "sha256": "9b7a6824f69bef5e83a238a5d6e39d4d5ea07307ae3c706f2d913930cf591c13",
+          "transparentPixels": 3162,
+          "visiblePixels": 934,
+          "maxAlpha": 255,
+          "opaquePixels": 121,
+          "contentBounds": [
+            4,
+            12,
+            60,
+            51
+          ]
+        },
+        {
+          "path": "airlines/emirates-128.png",
+          "width": 128,
+          "height": 128,
+          "bytes": 9010,
+          "sha256": "07fc4552c99602dca639436bbecb3b2e59f0eed5fdf128e26ce3c3378836a64a",
+          "transparentPixels": 13138,
+          "visiblePixels": 3246,
+          "maxAlpha": 255,
+          "opaquePixels": 654,
+          "contentBounds": [
+            8,
+            25,
+            120,
+            102
+          ]
+        }
+      ]
+    },
+    {
+      "id": "qatar-airways",
+      "nameFa": "قطر ایرویز",
+      "nameEn": "Qatar Airways",
+      "country": "QA",
+      "source": {
+        "origin": "wikimedia-commons",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/7/75/Qatar_Airways_logo.svg",
+        "pageUrl": "https://commons.wikimedia.org/wiki/File:Qatar_Airways_logo.svg",
+        "retrievedOn": "2026-10-28",
+        "bytes": 16930,
+        "sha256": "22ebea491ab3e26d5abd66092b077417223fef82e5abe979018d0eec5fd7ae7c",
+        "license": "Source reports Public domain; trademark rights retained",
+        "reportedLicense": "Public domain",
+        "reportedNonFree": false,
+        "licenseUrl": null,
+        "attribution": "Qatar Airways",
+        "credit": "Own work based on: Qatar Airways Logo.png",
+        "creditUrls": [
+          "//commons.wikimedia.org/wiki/File:Qatar_Airways_Logo.png"
+        ]
+      },
+      "transformation": {
+        "renderedInputSize": [
+          512,
+          179
+        ],
+        "renderedInputSha256": "16e04a581ea64a0e3eb28c9990b8780c9bf76cae53f8e024926b54128d39b5b6",
+        "trimmedAlphaBounds": [
+          2,
+          2,
+          510,
+          175
+        ],
+        "compactSymbolCrop": null,
+        "removedEdgeConnectedNearWhitePixels": 0,
+        "scaling": "Preserve aspect ratio; centered within 7/8 of a square; Lanczos; PNG RGBA 8-bit, optimize and zlib level 9; no recoloring or invented geometry."
+      },
+      "variants": [
+        {
+          "path": "airlines/qatar-airways-32.png",
+          "width": 32,
+          "height": 32,
+          "bytes": 983,
+          "sha256": "7a38a361dbef008b83f2a033c801a5aaed018ad36cc65dd56ef1fc8e25bbd19f",
+          "transparentPixels": 798,
+          "visiblePixels": 226,
+          "maxAlpha": 255,
+          "opaquePixels": 4,
+          "contentBounds": [
+            2,
+            11,
+            30,
+            21
+          ]
+        },
+        {
+          "path": "airlines/qatar-airways-64.png",
+          "width": 64,
+          "height": 64,
+          "bytes": 2810,
+          "sha256": "230c3f36790e131f9c4f79445521cb1e250ca90fc6c6c9e91976794ccd17a3dc",
+          "transparentPixels": 3315,
+          "visiblePixels": 781,
+          "maxAlpha": 255,
+          "opaquePixels": 60,
+          "contentBounds": [
+            4,
+            22,
+            60,
+            41
+          ]
+        },
+        {
+          "path": "airlines/qatar-airways-128.png",
+          "width": 128,
+          "height": 128,
+          "bytes": 7649,
+          "sha256": "c8649d4c3851ea79c25bdd37ee36664c12f5967c13a1f894941e086335967093",
+          "transparentPixels": 13933,
+          "visiblePixels": 2451,
+          "maxAlpha": 255,
+          "opaquePixels": 397,
+          "contentBounds": [
+            8,
+            45,
+            120,
+            83
+          ]
+        }
+      ]
+    },
+    {
+      "id": "turkish-airlines",
+      "nameFa": "ترکیش ایرلاینز",
+      "nameEn": "Turkish Airlines",
+      "country": "TR",
+      "source": {
+        "origin": "wikimedia-commons",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/0/00/Turkish_Airlines_logo_2019_compact.svg",
+        "pageUrl": "https://commons.wikimedia.org/wiki/File:Turkish_Airlines_logo_2019_compact.svg",
+        "retrievedOn": "2026-10-28",
+        "bytes": 7616,
+        "sha256": "703a4d8758a1557a3f0ce8d692c1ed1388bbe9f6c95d07ccfcce8e1e56528594",
+        "license": "Source reports Public domain; trademark rights retained",
+        "reportedLicense": "Public domain",
+        "reportedNonFree": false,
+        "licenseUrl": null,
+        "attribution": "Turkish Airlines",
+        "credit": "https://investor.turkishairlines.com/documents/ThyInvestorRelations/THY__FRAE__2018_ENG_v2.pdf",
+        "creditUrls": [
+          "https://investor.turkishairlines.com/documents/ThyInvestorRelations/THY__FRAE__2018_ENG_v2.pdf"
+        ]
+      },
+      "transformation": {
+        "renderedInputSize": [
+          512,
+          138
+        ],
+        "renderedInputSha256": "b882074719f8f85e2b824f62584a2c0c890436734b20401ada38beecb39a924b",
+        "trimmedAlphaBounds": [
+          3,
+          1,
+          509,
+          138
+        ],
+        "compactSymbolCrop": [
+          0,
+          0,
+          117,
+          137
+        ],
+        "removedEdgeConnectedNearWhitePixels": 0,
+        "scaling": "Preserve aspect ratio; centered within 7/8 of a square; Lanczos; PNG RGBA 8-bit, optimize and zlib level 9; no recoloring or invented geometry."
+      },
+      "variants": [
+        {
+          "path": "airlines/turkish-airlines-32.png",
+          "width": 32,
+          "height": 32,
+          "bytes": 1679,
+          "sha256": "ae12e33303b2ea97748ac4bdc00b6deea9898b51191aea6840fb408ac4ba4178",
+          "transparentPixels": 413,
+          "visiblePixels": 611,
+          "maxAlpha": 255,
+          "opaquePixels": 347,
+          "contentBounds": [
+            4,
+            2,
+            28,
+            30
+          ]
+        },
+        {
+          "path": "airlines/turkish-airlines-64.png",
+          "width": 64,
+          "height": 64,
+          "bytes": 4011,
+          "sha256": "e4d9eead5e3881e5352b3d821ac9bfbbdc44d72e379486274ce5a1e1f4893d6c",
+          "transparentPixels": 1735,
+          "visiblePixels": 2361,
+          "maxAlpha": 255,
+          "opaquePixels": 1641,
+          "contentBounds": [
+            8,
+            4,
+            56,
+            60
+          ]
+        },
+        {
+          "path": "airlines/turkish-airlines-128.png",
+          "width": 128,
+          "height": 128,
+          "bytes": 9018,
+          "sha256": "d438da36edf09384bf71b773a43772542174adee9dfd9e8c8679de765960a27b",
+          "transparentPixels": 7173,
+          "visiblePixels": 9211,
+          "maxAlpha": 255,
+          "opaquePixels": 7229,
+          "contentBounds": [
+            16,
+            8,
+            112,
+            120
+          ]
+        }
+      ]
+    },
+    {
+      "id": "etihad",
+      "nameFa": "اتحاد",
+      "nameEn": "Etihad Airways",
+      "country": "AE",
+      "source": {
+        "origin": "wikimedia-commons",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/0/0e/Etihad-airways-logo.svg",
+        "pageUrl": "https://commons.wikimedia.org/wiki/File:Etihad-airways-logo.svg",
+        "retrievedOn": "2026-10-28",
+        "bytes": 3759,
+        "sha256": "cd7037313ebe53e14178ebd2607c4bbd259c762ecb6a9cc2710b7d5b5e3c518a",
+        "license": "Source reports Public domain; trademark rights retained",
+        "reportedLicense": "Public domain",
+        "reportedNonFree": false,
+        "licenseUrl": null,
+        "attribution": "Moheen Reeyad",
+        "credit": "Own work using: etihad.com",
+        "creditUrls": [
+          "https://www.etihad.com/content/dam/eag/etihadairways/etihadcom/Global/logo/header/header-text-image-web.svg"
+        ]
+      },
+      "transformation": {
+        "renderedInputSize": [
+          512,
+          182
+        ],
+        "renderedInputSha256": "0071ca394f09f7625db6b16bfa2a45b495e278bc23d8a62c97164384d98cc9d5",
+        "trimmedAlphaBounds": [
+          8,
+          4,
+          505,
+          179
+        ],
+        "compactSymbolCrop": null,
+        "removedEdgeConnectedNearWhitePixels": 0,
+        "scaling": "Preserve aspect ratio; centered within 7/8 of a square; Lanczos; PNG RGBA 8-bit, optimize and zlib level 9; no recoloring or invented geometry."
+      },
+      "variants": [
+        {
+          "path": "airlines/etihad-32.png",
+          "width": 32,
+          "height": 32,
+          "bytes": 823,
+          "sha256": "66abb80ef1bc664ccb513650709cae5d293b0193473e6ac56ae889599e4f8de1",
+          "transparentPixels": 841,
+          "visiblePixels": 183,
+          "maxAlpha": 229,
+          "opaquePixels": 0,
+          "contentBounds": [
+            2,
+            11,
+            30,
+            21
+          ]
+        },
+        {
+          "path": "airlines/etihad-64.png",
+          "width": 64,
+          "height": 64,
+          "bytes": 2238,
+          "sha256": "0df2ba10dc582949c9ccf811716cd92e68dd84ff412ad16c84bc0fd61eb77777",
+          "transparentPixels": 3495,
+          "visiblePixels": 601,
+          "maxAlpha": 255,
+          "opaquePixels": 21,
+          "contentBounds": [
+            4,
+            22,
+            60,
+            42
+          ]
+        },
+        {
+          "path": "airlines/etihad-128.png",
+          "width": 128,
+          "height": 128,
+          "bytes": 5459,
+          "sha256": "61bde77a305e5f84640e9ac65d52c2747663d4e78c8baa6fa5831e1d4996fe40",
+          "transparentPixels": 14457,
+          "visiblePixels": 1927,
+          "maxAlpha": 255,
+          "opaquePixels": 365,
+          "contentBounds": [
+            8,
+            44,
+            120,
+            83
+          ]
+        }
+      ]
+    },
+    {
+      "id": "flydubai",
+      "nameFa": "فلای‌دبی",
+      "nameEn": "flydubai",
+      "country": "AE",
+      "source": {
+        "origin": "wikimedia-commons",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/7/79/Fly_Dubai_logo_2010_03.svg",
+        "pageUrl": "https://commons.wikimedia.org/wiki/File:Fly_Dubai_logo_2010_03.svg",
+        "retrievedOn": "2026-10-28",
+        "bytes": 3575,
+        "sha256": "ac165ee3e428266adab4e35f020415643eeb2a4ff1715c87f26de5ae9a430af4",
+        "license": "Source reports Public domain; trademark rights retained",
+        "reportedLicense": "Public domain",
+        "reportedNonFree": false,
+        "licenseUrl": null,
+        "attribution": "Fly Dubai",
+        "credit": "Own work using: http://www.flydubai.com",
+        "creditUrls": [
+          "http://www.flydubai.com"
+        ]
+      },
+      "transformation": {
+        "renderedInputSize": [
+          512,
+          104
+        ],
+        "renderedInputSha256": "21b6d7b1d15ddb75cbae47ce31179d69634989f100813df6dcb753b208a88505",
+        "trimmedAlphaBounds": [
+          2,
+          0,
+          511,
+          104
+        ],
+        "compactSymbolCrop": null,
+        "removedEdgeConnectedNearWhitePixels": 0,
+        "scaling": "Preserve aspect ratio; centered within 7/8 of a square; Lanczos; PNG RGBA 8-bit, optimize and zlib level 9; no recoloring or invented geometry."
+      },
+      "variants": [
+        {
+          "path": "airlines/flydubai-32.png",
+          "width": 32,
+          "height": 32,
+          "bytes": 580,
+          "sha256": "dcc77968a226ccf9707899488ff1c18068499eadc45167d370d5130e639226d7",
+          "transparentPixels": 891,
+          "visiblePixels": 133,
+          "maxAlpha": 228,
+          "opaquePixels": 0,
+          "contentBounds": [
+            2,
+            13,
+            30,
+            19
+          ]
+        },
+        {
+          "path": "airlines/flydubai-64.png",
+          "width": 64,
+          "height": 64,
+          "bytes": 1526,
+          "sha256": "78eb1e94d5d04987bf932609d37dcafc8b79939d4fde0b525f78803f1cc4bfef",
+          "transparentPixels": 3687,
+          "visiblePixels": 409,
+          "maxAlpha": 255,
+          "opaquePixels": 30,
+          "contentBounds": [
+            4,
+            26,
+            60,
+            37
+          ]
+        },
+        {
+          "path": "airlines/flydubai-128.png",
+          "width": 128,
+          "height": 128,
+          "bytes": 3749,
+          "sha256": "bf5c4891514a812369fd1dec74382c200dd900af8b866a690998c4ce4a6456f1",
+          "transparentPixels": 14926,
+          "visiblePixels": 1458,
+          "maxAlpha": 255,
+          "opaquePixels": 292,
+          "contentBounds": [
+            8,
+            52,
+            120,
+            75
+          ]
+        }
+      ]
+    },
+    {
+      "id": "pegasus",
+      "nameFa": "پگاسوس",
+      "nameEn": "Pegasus Airlines",
+      "country": "TR",
+      "source": {
+        "origin": "wikimedia-commons",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/e/ed/Pegasus_Airlines_logo.svg",
+        "pageUrl": "https://commons.wikimedia.org/wiki/File:Pegasus_Airlines_logo.svg",
+        "retrievedOn": "2026-10-28",
+        "bytes": 7848,
+        "sha256": "abb467862ac5490218b50a25f208673b6203429e257030d3444fed970296032d",
+        "license": "Source reports Public domain; trademark rights retained",
+        "reportedLicense": "Public domain",
+        "reportedNonFree": false,
+        "licenseUrl": null,
+        "attribution": "Pegasus Airlines",
+        "credit": "https://cdnp.flypgs.com/files/PGS-MAG/PGS_ARAL_K_2018__PAD.pdf",
+        "creditUrls": [
+          "https://cdnp.flypgs.com/files/PGS-MAG/PGS_ARAL_K_2018__PAD.pdf"
+        ]
+      },
+      "transformation": {
+        "renderedInputSize": [
+          512,
+          86
+        ],
+        "renderedInputSha256": "fc1904b87b3caab2457bcb642748a30ecccc0aebea289676b5bb5cfa040df1ca",
+        "trimmedAlphaBounds": [
+          0,
+          0,
+          512,
+          86
+        ],
+        "compactSymbolCrop": null,
+        "removedEdgeConnectedNearWhitePixels": 0,
+        "scaling": "Preserve aspect ratio; centered within 7/8 of a square; Lanczos; PNG RGBA 8-bit, optimize and zlib level 9; no recoloring or invented geometry."
+      },
+      "variants": [
+        {
+          "path": "airlines/pegasus-32.png",
+          "width": 32,
+          "height": 32,
+          "bytes": 604,
+          "sha256": "8465ee4cc6ec0de282e534ff7bfdb3a7ea39899d7e088738949066d25baafba3",
+          "transparentPixels": 896,
+          "visiblePixels": 128,
+          "maxAlpha": 255,
+          "opaquePixels": 7,
+          "contentBounds": [
+            2,
+            13,
+            30,
+            18
+          ]
+        },
+        {
+          "path": "airlines/pegasus-64.png",
+          "width": 64,
+          "height": 64,
+          "bytes": 1641,
+          "sha256": "61696fecaba2293f6fe77eeea82a96196c7bf679c6a6640f8a823ffbc771eba2",
+          "transparentPixels": 3681,
+          "visiblePixels": 415,
+          "maxAlpha": 255,
+          "opaquePixels": 56,
+          "contentBounds": [
+            4,
+            27,
+            60,
+            36
+          ]
+        },
+        {
+          "path": "airlines/pegasus-128.png",
+          "width": 128,
+          "height": 128,
+          "bytes": 5270,
+          "sha256": "a693588afc59ecd9e752e5ca0124463efbe63a6d6c35c6308b70062812f367e1",
+          "transparentPixels": 14705,
+          "visiblePixels": 1679,
+          "maxAlpha": 255,
+          "opaquePixels": 397,
+          "contentBounds": [
+            8,
+            54,
+            120,
+            73
+          ]
+        }
+      ]
+    },
+    {
+      "id": "lufthansa",
+      "nameFa": "لوفت‌هانزا",
+      "nameEn": "Lufthansa",
+      "country": "DE",
+      "source": {
+        "origin": "wikimedia-commons",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/b/b8/Lufthansa_Logo_2018.svg",
+        "pageUrl": "https://commons.wikimedia.org/wiki/File:Lufthansa_Logo_2018.svg",
+        "retrievedOn": "2026-10-28",
+        "bytes": 6294,
+        "sha256": "3fde724dce168651d9288d25814ac9cd54d1db6f1a7dc079f088197b924420fd",
+        "license": "Source reports Public domain; trademark rights retained",
+        "reportedLicense": "Public domain",
+        "reportedNonFree": false,
+        "licenseUrl": null,
+        "attribution": "Lufthansa Group",
+        "credit": "Lufthansa Styleguide y0.9 - Downloads",
+        "creditUrls": [
+          "https://corporatedesign.lufthansa.com/d/Sy9Wlqgm4YPF/downloads"
+        ]
+      },
+      "transformation": {
+        "renderedInputSize": [
+          512,
+          90
+        ],
+        "renderedInputSha256": "764c3c1c21579ea56faad8c246c3f44cc3b68b5cb4d61d2d419ffb1914cc22b7",
+        "trimmedAlphaBounds": [
+          2,
+          1,
+          510,
+          89
+        ],
+        "compactSymbolCrop": [
+          0,
+          0,
+          92,
+          88
+        ],
+        "removedEdgeConnectedNearWhitePixels": 0,
+        "scaling": "Preserve aspect ratio; centered within 7/8 of a square; Lanczos; PNG RGBA 8-bit, optimize and zlib level 9; no recoloring or invented geometry."
+      },
+      "variants": [
+        {
+          "path": "airlines/lufthansa-32.png",
+          "width": 32,
+          "height": 32,
+          "bytes": 1484,
+          "sha256": "078a97caa7f7d3f14e4e807f7e39bbda8e32f5efb3d0b8b8e442944493474581",
+          "transparentPixels": 596,
+          "visiblePixels": 428,
+          "maxAlpha": 255,
+          "opaquePixels": 11,
+          "contentBounds": [
+            2,
+            2,
+            30,
+            30
+          ]
+        },
+        {
+          "path": "airlines/lufthansa-64.png",
+          "width": 64,
+          "height": 64,
+          "bytes": 3910,
+          "sha256": "685a7726009ccffead730c485355b97834b13aca6401cf3a4417dc184c50bfd7",
+          "transparentPixels": 2891,
+          "visiblePixels": 1205,
+          "maxAlpha": 255,
+          "opaquePixels": 148,
+          "contentBounds": [
+            4,
+            4,
+            60,
+            60
+          ]
+        },
+        {
+          "path": "airlines/lufthansa-128.png",
+          "width": 128,
+          "height": 128,
+          "bytes": 11746,
+          "sha256": "7c59909e0660b9f614e30b2dc50db96efd4926a0ed70bbee19d29ba2d77efba8",
+          "transparentPixels": 12392,
+          "visiblePixels": 3992,
+          "maxAlpha": 255,
+          "opaquePixels": 732,
+          "contentBounds": [
+            8,
+            8,
+            120,
+            120
+          ]
+        }
+      ]
+    },
+    {
+      "id": "austrian",
+      "nameFa": "آسترین",
+      "nameEn": "Austrian Airlines",
+      "country": "AT",
+      "source": {
+        "origin": "wikipedia-file",
+        "url": "https://upload.wikimedia.org/wikipedia/en/8/81/Austrian_Airlines_logo.svg",
+        "pageUrl": "https://en.wikipedia.org/wiki/File:Austrian_Airlines_logo.svg",
+        "retrievedOn": "2026-10-28",
+        "bytes": 4304,
+        "sha256": "b8094aa7b10d0e1a015d48e21bb3b9ff72efcc5d0e50adf67e3796fa8a18d6ea",
+        "license": "Source reports PD; trademark rights retained",
+        "reportedLicense": "PD",
+        "reportedNonFree": false,
+        "licenseUrl": null,
+        "attribution": "Austrian Airlines",
+        "credit": "https://www.austrian.com/content/dam/austrian/global/documents/fly/travel-briefing-en-20200609.pdf",
+        "creditUrls": [
+          "https://www.austrian.com/content/dam/austrian/global/documents/fly/travel-briefing-en-20200609.pdf"
+        ]
+      },
+      "transformation": {
+        "renderedInputSize": [
+          512,
+          73
+        ],
+        "renderedInputSha256": "a2455ba49b51eb96cbea2203dbcc20873db847048fdc42e278748605bdd19812",
+        "trimmedAlphaBounds": [
+          0,
+          0,
+          512,
+          73
+        ],
+        "compactSymbolCrop": [
+          409,
+          0,
+          512,
+          73
+        ],
+        "removedEdgeConnectedNearWhitePixels": 0,
+        "scaling": "Preserve aspect ratio; centered within 7/8 of a square; Lanczos; PNG RGBA 8-bit, optimize and zlib level 9; no recoloring or invented geometry."
+      },
+      "variants": [
+        {
+          "path": "airlines/austrian-32.png",
+          "width": 32,
+          "height": 32,
+          "bytes": 865,
+          "sha256": "e20b426b6b705c6747ba40d5bd8fa41d4603b0aab2f8ac3a020f9189ab261a91",
+          "transparentPixels": 814,
+          "visiblePixels": 210,
+          "maxAlpha": 255,
+          "opaquePixels": 53,
+          "contentBounds": [
+            2,
+            8,
+            30,
+            24
+          ]
+        },
+        {
+          "path": "airlines/austrian-64.png",
+          "width": 64,
+          "height": 64,
+          "bytes": 1868,
+          "sha256": "aaf6ba9fb9b7f5597f1c525cbf6ffafef959ef0f34bf9da6d79702ce59dd6cd4",
+          "transparentPixels": 3390,
+          "visiblePixels": 706,
+          "maxAlpha": 255,
+          "opaquePixels": 291,
+          "contentBounds": [
+            4,
+            16,
+            60,
+            48
+          ]
+        },
+        {
+          "path": "airlines/austrian-128.png",
+          "width": 128,
+          "height": 128,
+          "bytes": 4292,
+          "sha256": "505526cd2a35e61388c4a17dcc440efcc7f79266ef941c3d2382ec1b2e90ffcc",
+          "transparentPixels": 13922,
+          "visiblePixels": 2462,
+          "maxAlpha": 255,
+          "opaquePixels": 1423,
+          "contentBounds": [
+            8,
+            32,
+            120,
+            95
+          ]
+        }
+      ]
+    },
+    {
+      "id": "air-france",
+      "nameFa": "ایرفرانس",
+      "nameEn": "Air France",
+      "country": "FR",
+      "source": {
+        "origin": "wikimedia-commons",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/4/44/Air_France_Logo.svg",
+        "pageUrl": "https://commons.wikimedia.org/wiki/File:Air_France_Logo.svg",
+        "retrievedOn": "2026-10-28",
+        "bytes": 1683,
+        "sha256": "5ed88125c4270bfb74edd456aaa19c60efeea86f0acaf0925bed1bc2140d87e0",
+        "license": "Source reports Public domain; trademark rights retained",
+        "reportedLicense": "Public domain",
+        "reportedNonFree": false,
+        "licenseUrl": null,
+        "attribution": "Air France",
+        "credit": "Own work using: http://www.airfrance.fr/common/image/pdf/en/FB/O10710_DEP_WP_FB_Ivory_UK.pdf",
+        "creditUrls": [
+          "http://www.airfrance.fr/common/image/pdf/en/FB/O10710_DEP_WP_FB_Ivory_UK.pdf"
+        ]
+      },
+      "transformation": {
+        "renderedInputSize": [
+          512,
+          49
+        ],
+        "renderedInputSha256": "fd6d5f7186cafc8ac8b5fb124fbb418e64087d23c535eaffab17f9d184018b9d",
+        "trimmedAlphaBounds": [
+          1,
+          1,
+          510,
+          47
+        ],
+        "compactSymbolCrop": [
+          445,
+          0,
+          509,
+          46
+        ],
+        "removedEdgeConnectedNearWhitePixels": 0,
+        "scaling": "Preserve aspect ratio; centered within 7/8 of a square; Lanczos; PNG RGBA 8-bit, optimize and zlib level 9; no recoloring or invented geometry."
+      },
+      "variants": [
+        {
+          "path": "airlines/air-france-32.png",
+          "width": 32,
+          "height": 32,
+          "bytes": 413,
+          "sha256": "c66d0bebddaf5fdbbe002e66dd389b56ff644e57b21114fbf18f245223d2d69d",
+          "transparentPixels": 708,
+          "visiblePixels": 316,
+          "maxAlpha": 255,
+          "opaquePixels": 134,
+          "contentBounds": [
+            2,
+            6,
+            30,
+            26
+          ]
+        },
+        {
+          "path": "airlines/air-france-64.png",
+          "width": 64,
+          "height": 64,
+          "bytes": 814,
+          "sha256": "f4dbd9073c35af19af60cf31318790fe2fa32ddd743332c36ca5252a4d90ea05",
+          "transparentPixels": 2997,
+          "visiblePixels": 1099,
+          "maxAlpha": 255,
+          "opaquePixels": 689,
+          "contentBounds": [
+            4,
+            12,
+            60,
+            51
+          ]
+        },
+        {
+          "path": "airlines/air-france-128.png",
+          "width": 128,
+          "height": 128,
+          "bytes": 2939,
+          "sha256": "12f47d2cdde369e0c54bafcff35eedbfcc505c808b8f7dbd711c9f539dfb6ba8",
+          "transparentPixels": 12059,
+          "visiblePixels": 4325,
+          "maxAlpha": 255,
+          "opaquePixels": 2797,
+          "contentBounds": [
+            8,
+            24,
+            120,
+            103
+          ]
+        }
+      ]
+    },
+    {
+      "id": "klm",
+      "nameFa": "کی‌ال‌ام",
+      "nameEn": "KLM",
+      "country": "NL",
+      "source": {
+        "origin": "wikimedia-commons",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/c/c7/KLM_logo.svg",
+        "pageUrl": "https://commons.wikimedia.org/wiki/File:KLM_logo.svg",
+        "retrievedOn": "2026-10-28",
+        "bytes": 2287,
+        "sha256": "b51dad39b4fb78410de0d5e72164d79da112956e5d3415ce5924d8da6ef01ee5",
+        "license": "Source reports Public domain; trademark rights retained",
+        "reportedLicense": "Public domain",
+        "reportedNonFree": false,
+        "licenseUrl": null,
+        "attribution": "Designed by F.H.K. Henrion, in 1961. Modified by Chris Ludlow at Henrion, Ludlow & Schmidt, in 1991.",
+        "credit": "KLM Royal Dutch Airlines",
+        "creditUrls": []
+      },
+      "transformation": {
+        "renderedInputSize": [
+          512,
+          298
+        ],
+        "renderedInputSha256": "abb9d20ec6432029037662457c9e7c89a1aa68e88bf953313e3e55805be10a37",
+        "trimmedAlphaBounds": [
+          0,
+          0,
+          512,
+          298
+        ],
+        "compactSymbolCrop": null,
+        "removedEdgeConnectedNearWhitePixels": 0,
+        "scaling": "Preserve aspect ratio; centered within 7/8 of a square; Lanczos; PNG RGBA 8-bit, optimize and zlib level 9; no recoloring or invented geometry."
+      },
+      "variants": [
+        {
+          "path": "airlines/klm-32.png",
+          "width": 32,
+          "height": 32,
+          "bytes": 1066,
+          "sha256": "ebc8c8074096edf29e6b894ea39da8ca091b142f52fe356d1b4bfe055cabacc5",
+          "transparentPixels": 716,
+          "visiblePixels": 308,
+          "maxAlpha": 255,
+          "opaquePixels": 63,
+          "contentBounds": [
+            2,
+            8,
+            30,
+            24
+          ]
+        },
+        {
+          "path": "airlines/klm-64.png",
+          "width": 64,
+          "height": 64,
+          "bytes": 2470,
+          "sha256": "2fb919fcd02831e8df85e9fa8f069f7441c41582470bc1906a38951756440d4b",
+          "transparentPixels": 3025,
+          "visiblePixels": 1071,
+          "maxAlpha": 255,
+          "opaquePixels": 324,
+          "contentBounds": [
+            4,
+            15,
+            60,
+            48
+          ]
+        },
+        {
+          "path": "airlines/klm-128.png",
+          "width": 128,
+          "height": 128,
+          "bytes": 5065,
+          "sha256": "dd1965fb9cdb90d66efb65d895acec6d598a309c77a1e6dad97f4642d494c9cf",
+          "transparentPixels": 12538,
+          "visiblePixels": 3846,
+          "maxAlpha": 255,
+          "opaquePixels": 1906,
+          "contentBounds": [
+            8,
+            31,
+            120,
+            96
+          ]
+        }
+      ]
+    },
+    {
+      "id": "british-airways",
+      "nameFa": "بریتیش ایرویز",
+      "nameEn": "British Airways",
+      "country": "GB",
+      "source": {
+        "origin": "wikipedia-file",
+        "url": "https://upload.wikimedia.org/wikipedia/en/4/42/British_Airways_Logo.svg",
+        "pageUrl": "https://en.wikipedia.org/wiki/File:British_Airways_Logo.svg",
+        "retrievedOn": "2026-10-28",
+        "bytes": 7834,
+        "sha256": "efc1e0b0924a22780424d5d6381f0d0f493ec49457cff08836c146c3ede6637a",
+        "license": "Source reports PD; trademark rights retained",
+        "reportedLicense": "PD",
+        "reportedNonFree": false,
+        "licenseUrl": null,
+        "attribution": "British Airways",
+        "credit": "www.britishairways.com",
+        "creditUrls": [
+          "https://www.britishairways.com/"
+        ]
+      },
+      "transformation": {
+        "renderedInputSize": [
+          512,
+          80
+        ],
+        "renderedInputSha256": "03a7d426257d638e0ed6e6ee58c6e59bd43389f6cf065f81f130c983fc1eec4b",
+        "trimmedAlphaBounds": [
+          1,
+          0,
+          512,
+          80
+        ],
+        "compactSymbolCrop": null,
+        "removedEdgeConnectedNearWhitePixels": 0,
+        "scaling": "Preserve aspect ratio; centered within 7/8 of a square; Lanczos; PNG RGBA 8-bit, optimize and zlib level 9; no recoloring or invented geometry."
+      },
+      "variants": [
+        {
+          "path": "airlines/british-airways-32.png",
+          "width": 32,
+          "height": 32,
+          "bytes": 415,
+          "sha256": "b99f888b4e20dcc549cd2766dfd0f11455cdacf67271136b046257535d0e4e03",
+          "transparentPixels": 943,
+          "visiblePixels": 81,
+          "maxAlpha": 226,
+          "opaquePixels": 0,
+          "contentBounds": [
+            2,
+            14,
+            30,
+            18
+          ]
+        },
+        {
+          "path": "airlines/british-airways-64.png",
+          "width": 64,
+          "height": 64,
+          "bytes": 1314,
+          "sha256": "ee53470f880577bebac6bbbead0af1285072f9fc0945c0b0456f5ee7fcaa2b3a",
+          "transparentPixels": 3766,
+          "visiblePixels": 330,
+          "maxAlpha": 255,
+          "opaquePixels": 18,
+          "contentBounds": [
+            4,
+            27,
+            60,
+            36
+          ]
+        },
+        {
+          "path": "airlines/british-airways-128.png",
+          "width": 128,
+          "height": 128,
+          "bytes": 3786,
+          "sha256": "82b6c8cc5080886a7eabb6e009f9250f0b1a48bbd390a71cd6b658cb070ca878",
+          "transparentPixels": 15342,
+          "visiblePixels": 1042,
+          "maxAlpha": 255,
+          "opaquePixels": 129,
+          "contentBounds": [
+            8,
+            55,
+            120,
+            73
+          ]
+        }
+      ]
+    },
+    {
+      "id": "swiss",
+      "nameFa": "سوئیس",
+      "nameEn": "Swiss International Air Lines",
+      "country": "CH",
+      "source": {
+        "origin": "wikimedia-commons",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/f/f8/Swiss_International_Air_Lines_Logo_2011.svg",
+        "pageUrl": "https://commons.wikimedia.org/wiki/File:Swiss_International_Air_Lines_Logo_2011.svg",
+        "retrievedOn": "2026-10-28",
+        "bytes": 4626,
+        "sha256": "eba2df4e442ad7484f6299cc900e1ade21a3d9c73e9d476f496ff730efdaf9d4",
+        "license": "Source reports Public domain; trademark rights retained",
+        "reportedLicense": "Public domain",
+        "reportedNonFree": false,
+        "licenseUrl": null,
+        "attribution": "Swiss International Air Lines",
+        "credit": "http://www.swiss.com",
+        "creditUrls": [
+          "http://www.swiss.com"
+        ]
+      },
+      "transformation": {
+        "renderedInputSize": [
+          512,
+          119
+        ],
+        "renderedInputSha256": "e1ba12ad1bc34fbe859ace01e86e05406384afbe2d218a69d5fe5ff583516e73",
+        "trimmedAlphaBounds": [
+          0,
+          0,
+          512,
+          119
+        ],
+        "compactSymbolCrop": [
+          0,
+          0,
+          121,
+          119
+        ],
+        "removedEdgeConnectedNearWhitePixels": 0,
+        "scaling": "Preserve aspect ratio; centered within 7/8 of a square; Lanczos; PNG RGBA 8-bit, optimize and zlib level 9; no recoloring or invented geometry."
+      },
+      "variants": [
+        {
+          "path": "airlines/swiss-32.png",
+          "width": 32,
+          "height": 32,
+          "bytes": 983,
+          "sha256": "d1df9c69df25a74934f61c930519eb8bdc8656c673cbe9be7ffeae2e5ecd2741",
+          "transparentPixels": 496,
+          "visiblePixels": 528,
+          "maxAlpha": 255,
+          "opaquePixels": 339,
+          "contentBounds": [
+            2,
+            2,
+            30,
+            30
+          ]
+        },
+        {
+          "path": "airlines/swiss-64.png",
+          "width": 64,
+          "height": 64,
+          "bytes": 1600,
+          "sha256": "be521cf20965289b54ee9ac7b663ed2c8f3cda8f600442b111db5cc3931e3d5c",
+          "transparentPixels": 2118,
+          "visiblePixels": 1978,
+          "maxAlpha": 255,
+          "opaquePixels": 1552,
+          "contentBounds": [
+            4,
+            4,
+            60,
+            59
+          ]
+        },
+        {
+          "path": "airlines/swiss-128.png",
+          "width": 128,
+          "height": 128,
+          "bytes": 3020,
+          "sha256": "e03b3325413caf042b61f200c5213de9ece4fbc47fe7359f5feecc8d5d622973",
+          "transparentPixels": 8689,
+          "visiblePixels": 7695,
+          "maxAlpha": 255,
+          "opaquePixels": 6600,
+          "contentBounds": [
+            8,
+            9,
+            120,
+            119
+          ]
+        }
+      ]
+    },
+    {
+      "id": "iberia",
+      "nameFa": "ایبریا",
+      "nameEn": "Iberia",
+      "country": "ES",
+      "source": {
+        "origin": "wikimedia-commons",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/2/23/Logotipo_de_Iberia.svg",
+        "pageUrl": "https://commons.wikimedia.org/wiki/File:Logotipo_de_Iberia.svg",
+        "retrievedOn": "2026-10-28",
+        "bytes": 11587,
+        "sha256": "90fcf4c0d236e2ae8d2b405d3c967b22d86cea72672f0bd099f5ba274daf1e9c",
+        "license": "Source reports Public domain; trademark rights retained",
+        "reportedLicense": "Public domain",
+        "reportedNonFree": false,
+        "licenseUrl": null,
+        "attribution": "Unknown authorUnknown author",
+        "credit": "Oneworld",
+        "creditUrls": []
+      },
+      "transformation": {
+        "renderedInputSize": [
+          512,
+          113
+        ],
+        "renderedInputSha256": "c84bb82f07c235133ff19e54fdedf754bf8b5885bc451f4f23e43d9ba03be1f2",
+        "trimmedAlphaBounds": [
+          0,
+          0,
+          512,
+          113
+        ],
+        "compactSymbolCrop": [
+          386,
+          0,
+          512,
+          113
+        ],
+        "removedEdgeConnectedNearWhitePixels": 0,
+        "scaling": "Preserve aspect ratio; centered within 7/8 of a square; Lanczos; PNG RGBA 8-bit, optimize and zlib level 9; no recoloring or invented geometry."
+      },
+      "variants": [
+        {
+          "path": "airlines/iberia-32.png",
+          "width": 32,
+          "height": 32,
+          "bytes": 1333,
+          "sha256": "dce0dcce57c34714c52716be6b969465c132a75fa3e4c17c0847e42e39eda5b6",
+          "transparentPixels": 610,
+          "visiblePixels": 414,
+          "maxAlpha": 255,
+          "opaquePixels": 173,
+          "contentBounds": [
+            2,
+            3,
+            30,
+            28
+          ]
+        },
+        {
+          "path": "airlines/iberia-64.png",
+          "width": 64,
+          "height": 64,
+          "bytes": 3075,
+          "sha256": "0aa540b42459b302a61e0da2a56968e08da313d6b2c9b943986af74b298ae4fb",
+          "transparentPixels": 2623,
+          "visiblePixels": 1473,
+          "maxAlpha": 255,
+          "opaquePixels": 889,
+          "contentBounds": [
+            4,
+            7,
+            60,
+            57
+          ]
+        },
+        {
+          "path": "airlines/iberia-128.png",
+          "width": 128,
+          "height": 128,
+          "bytes": 6935,
+          "sha256": "d2b008c78e68a7ba814586fbd6ce14e3044bae4191b8a6ab4e9b714d1d6a6dee",
+          "transparentPixels": 10995,
+          "visiblePixels": 5389,
+          "maxAlpha": 255,
+          "opaquePixels": 4072,
+          "contentBounds": [
+            8,
+            14,
+            120,
+            114
+          ]
+        }
+      ]
+    },
+    {
+      "id": "aegean",
+      "nameFa": "ایجین",
+      "nameEn": "Aegean Airlines",
+      "country": "GR",
+      "source": {
+        "origin": "wikimedia-commons",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/0/0f/Aegean_Airlines_Logo_2020.svg",
+        "pageUrl": "https://commons.wikimedia.org/wiki/File:Aegean_Airlines_Logo_2020.svg",
+        "retrievedOn": "2026-10-28",
+        "bytes": 3789,
+        "sha256": "a6d98c54f72733237cd968a2b3268e04729596c0567d65fb1ffb45109caabd02",
+        "license": "Source reports Public domain; trademark rights retained",
+        "reportedLicense": "Public domain",
+        "reportedNonFree": false,
+        "licenseUrl": null,
+        "attribution": "Aegean Airlines",
+        "credit": "https://en.aegeanair.com/",
+        "creditUrls": [
+          "https://en.aegeanair.com/"
+        ]
+      },
+      "transformation": {
+        "renderedInputSize": [
+          512,
+          105
+        ],
+        "renderedInputSha256": "6ff59d73cb5b8c92dab0d9b02f6fc21602f084d7e346b8ba8f508f99f620f5d5",
+        "trimmedAlphaBounds": [
+          3,
+          4,
+          509,
+          101
+        ],
+        "compactSymbolCrop": [
+          425,
+          0,
+          506,
+          97
+        ],
+        "removedEdgeConnectedNearWhitePixels": 0,
+        "scaling": "Preserve aspect ratio; centered within 7/8 of a square; Lanczos; PNG RGBA 8-bit, optimize and zlib level 9; no recoloring or invented geometry."
+      },
+      "variants": [
+        {
+          "path": "airlines/aegean-32.png",
+          "width": 32,
+          "height": 32,
+          "bytes": 1506,
+          "sha256": "a0e0166a2410c51664432f5f8813bd8d57ae4a420011d6565bd2ab5e8ee00718",
+          "transparentPixels": 703,
+          "visiblePixels": 321,
+          "maxAlpha": 255,
+          "opaquePixels": 56,
+          "contentBounds": [
+            6,
+            2,
+            25,
+            30
+          ]
+        },
+        {
+          "path": "airlines/aegean-64.png",
+          "width": 64,
+          "height": 64,
+          "bytes": 3638,
+          "sha256": "0a78196f2ac71210613be89373ba27eaa3b91e1363e2bbbe8194406b2a229dca",
+          "transparentPixels": 2984,
+          "visiblePixels": 1112,
+          "maxAlpha": 255,
+          "opaquePixels": 304,
+          "contentBounds": [
+            12,
+            4,
+            51,
+            60
+          ]
+        },
+        {
+          "path": "airlines/aegean-128.png",
+          "width": 128,
+          "height": 128,
+          "bytes": 8555,
+          "sha256": "610890b14f23345a9156b2f4e0b0e36a949a74f3a28167b3049e66b11e9eec7e",
+          "transparentPixels": 12602,
+          "visiblePixels": 3782,
+          "maxAlpha": 255,
+          "opaquePixels": 1770,
+          "contentBounds": [
+            25,
+            8,
+            102,
+            120
+          ]
+        }
+      ]
+    },
+    {
+      "id": "lot",
+      "nameFa": "لوت",
+      "nameEn": "LOT Polish Airlines",
+      "country": "PL",
+      "source": {
+        "origin": "wikipedia-file",
+        "url": "https://upload.wikimedia.org/wikipedia/en/3/3d/LOT_Polish_Airlines.svg",
+        "pageUrl": "https://en.wikipedia.org/wiki/File:LOT_Polish_Airlines.svg",
+        "retrievedOn": "2026-10-28",
+        "bytes": 4619,
+        "sha256": "2c101eaa2a69b95e874d22cb3f92e5fff140b92850526a4a91b88152b35bc19a",
+        "license": "Source reports PD; trademark rights retained",
+        "reportedLicense": "PD",
+        "reportedNonFree": false,
+        "licenseUrl": null,
+        "attribution": "LOT Polish Airlines",
+        "credit": "www.lot.com",
+        "creditUrls": [
+          "http://www.lot.com"
+        ]
+      },
+      "transformation": {
+        "renderedInputSize": [
+          512,
+          218
+        ],
+        "renderedInputSha256": "737fa81ffca41b227164c09f163d62437ab8634961661b66bbdf0e4e45f9e71d",
+        "trimmedAlphaBounds": [
+          0,
+          0,
+          512,
+          218
+        ],
+        "compactSymbolCrop": null,
+        "removedEdgeConnectedNearWhitePixels": 0,
+        "scaling": "Preserve aspect ratio; centered within 7/8 of a square; Lanczos; PNG RGBA 8-bit, optimize and zlib level 9; no recoloring or invented geometry."
+      },
+      "variants": [
+        {
+          "path": "airlines/lot-32.png",
+          "width": 32,
+          "height": 32,
+          "bytes": 978,
+          "sha256": "d94c42b46525038d2d9c3cf7dd7eefce0fef689ef2db1870f5e3823e5115609a",
+          "transparentPixels": 734,
+          "visiblePixels": 290,
+          "maxAlpha": 255,
+          "opaquePixels": 76,
+          "contentBounds": [
+            2,
+            10,
+            30,
+            22
+          ]
+        },
+        {
+          "path": "airlines/lot-64.png",
+          "width": 64,
+          "height": 64,
+          "bytes": 2469,
+          "sha256": "4887272571167de97e499b3c111c24a54d36132679062a3e9d4feac73ab2fc62",
+          "transparentPixels": 3037,
+          "visiblePixels": 1059,
+          "maxAlpha": 255,
+          "opaquePixels": 339,
+          "contentBounds": [
+            4,
+            20,
+            60,
+            44
+          ]
+        },
+        {
+          "path": "airlines/lot-128.png",
+          "width": 128,
+          "height": 128,
+          "bytes": 5633,
+          "sha256": "4a8235e1a4f9968c08eaf4335252012a211bcc1c9c101222167c28c02891f252",
+          "transparentPixels": 12608,
+          "visiblePixels": 3776,
+          "maxAlpha": 255,
+          "opaquePixels": 2056,
+          "contentBounds": [
+            8,
+            40,
+            120,
+            88
+          ]
+        }
+      ]
+    },
+    {
+      "id": "united-airlines",
+      "nameFa": "یونایتد",
+      "nameEn": "United Airlines",
+      "country": "US",
+      "source": {
+        "origin": "wikipedia-file",
+        "url": "https://upload.wikimedia.org/wikipedia/en/e/e0/United_Airlines_Logo.svg",
+        "pageUrl": "https://en.wikipedia.org/wiki/File:United_Airlines_Logo.svg",
+        "retrievedOn": "2026-10-28",
+        "bytes": 10489,
+        "sha256": "03fc32f4fcadb2f2d82c7802a849e53ac00a068b5d6c310946db139892f2c698",
+        "license": "Non-free logo reference; no reuse permission granted",
+        "reportedLicense": "Fair use",
+        "reportedNonFree": true,
+        "licenseUrl": null,
+        "attribution": "This image was extracted from a PDF downloaded from the United Continental Holdings website accessed December 1, 2009 at the following URL: http://www.unitedcontinentalholdings.com/download.php?file=united_factsheet.pdf&type=pdf",
+        "credit": "This image was extracted from a PDF downloaded from the United Continental Holdings website accessed December 1, 2009 at the following URL: http://www.unitedcontinentalholdings.com/download.php?file=united_factsheet.pdf&type=pdf",
+        "creditUrls": [
+          "//en.wikipedia.org/wiki/United_Airlines_Holdings",
+          "http://www.unitedcontinentalholdings.com/download.php?file=united_factsheet.pdf&type=pdf"
+        ]
+      },
+      "transformation": {
+        "renderedInputSize": [
+          512,
+          93
+        ],
+        "renderedInputSha256": "d809ef1029f9d56697bdc51349d745ab510b1d8a9f5642db3ad756a0faafea9c",
+        "trimmedAlphaBounds": [
+          0,
+          0,
+          512,
+          93
+        ],
+        "compactSymbolCrop": [
+          409,
+          0,
+          512,
+          93
+        ],
+        "removedEdgeConnectedNearWhitePixels": 0,
+        "scaling": "Preserve aspect ratio; centered within 7/8 of a square; Lanczos; PNG RGBA 8-bit, optimize and zlib level 9; no recoloring or invented geometry."
+      },
+      "variants": [
+        {
+          "path": "airlines/united-airlines-32.png",
+          "width": 32,
+          "height": 32,
+          "bytes": 2112,
+          "sha256": "c668ade1ac029779990be215ac1e8ce0acae2969f310a72f34090f05d07e9de1",
+          "transparentPixels": 346,
+          "visiblePixels": 678,
+          "maxAlpha": 255,
+          "opaquePixels": 150,
+          "contentBounds": [
+            2,
+            3,
+            30,
+            28
+          ]
+        },
+        {
+          "path": "airlines/united-airlines-64.png",
+          "width": 64,
+          "height": 64,
+          "bytes": 6813,
+          "sha256": "7f8533db8f96cc6fdc7f700939a3c249b8e6071c1ad51076fee8e3e783398e02",
+          "transparentPixels": 1425,
+          "visiblePixels": 2671,
+          "maxAlpha": 255,
+          "opaquePixels": 994,
+          "contentBounds": [
+            4,
+            6,
+            60,
+            57
+          ]
+        },
+        {
+          "path": "airlines/united-airlines-128.png",
+          "width": 128,
+          "height": 128,
+          "bytes": 19896,
+          "sha256": "6b9977ab7d143ae1881f27ab1f91e7ac0bbd529a8b9cc27be3b06b8eca19c160",
+          "transparentPixels": 6005,
+          "visiblePixels": 10379,
+          "maxAlpha": 255,
+          "opaquePixels": 5553,
+          "contentBounds": [
+            8,
+            13,
+            120,
+            114
+          ]
+        }
+      ]
+    },
+    {
+      "id": "american-airlines",
+      "nameFa": "امریکن ایرلاینز",
+      "nameEn": "American Airlines",
+      "country": "US",
+      "source": {
+        "origin": "wikipedia-file",
+        "url": "https://upload.wikimedia.org/wikipedia/en/2/23/American_Airlines_logo_2013.svg",
+        "pageUrl": "https://en.wikipedia.org/wiki/File:American_Airlines_logo_2013.svg",
+        "retrievedOn": "2026-10-28",
+        "bytes": 6282,
+        "sha256": "6df11f554b7094f9a2a0c2439ed5d29e79994c134988cfdcb1346d24e947231f",
+        "license": "Non-free logo reference; no reuse permission granted",
+        "reportedLicense": "Fair use",
+        "reportedNonFree": true,
+        "licenseUrl": null,
+        "attribution": "http://www.aa.com/",
+        "credit": "http://www.aa.com/",
+        "creditUrls": [
+          "http://www.aa.com/"
+        ]
+      },
+      "transformation": {
+        "renderedInputSize": [
+          512,
+          79
+        ],
+        "renderedInputSha256": "2fa8ee69b70d0ccf0d4428664e95ea82a1e3f59ca213cc3c0ffec60f380b2d4b",
+        "trimmedAlphaBounds": [
+          1,
+          0,
+          511,
+          79
+        ],
+        "compactSymbolCrop": [
+          436,
+          0,
+          510,
+          79
+        ],
+        "removedEdgeConnectedNearWhitePixels": 0,
+        "scaling": "Preserve aspect ratio; centered within 7/8 of a square; Lanczos; PNG RGBA 8-bit, optimize and zlib level 9; no recoloring or invented geometry."
+      },
+      "variants": [
+        {
+          "path": "airlines/american-airlines-32.png",
+          "width": 32,
+          "height": 32,
+          "bytes": 1311,
+          "sha256": "4eb99e17da445a89f9309040538b4ba754210435be5b544c4e60817706617b82",
+          "transparentPixels": 697,
+          "visiblePixels": 327,
+          "maxAlpha": 255,
+          "opaquePixels": 93,
+          "contentBounds": [
+            3,
+            2,
+            29,
+            30
+          ]
+        },
+        {
+          "path": "airlines/american-airlines-64.png",
+          "width": 64,
+          "height": 64,
+          "bytes": 2873,
+          "sha256": "b096e5c5ba26ad697919b5db66dcdab9fd02f20f7fbfc6d3a54e3dc3bbc14c2c",
+          "transparentPixels": 2996,
+          "visiblePixels": 1100,
+          "maxAlpha": 255,
+          "opaquePixels": 547,
+          "contentBounds": [
+            6,
+            4,
+            58,
+            60
+          ]
+        },
+        {
+          "path": "airlines/american-airlines-128.png",
+          "width": 128,
+          "height": 128,
+          "bytes": 7545,
+          "sha256": "cdc41c55cc44ac1fa83cbda672ce757cc50f8ec211a812b6000d439592ba2337",
+          "transparentPixels": 12165,
+          "visiblePixels": 4219,
+          "maxAlpha": 255,
+          "opaquePixels": 2474,
+          "contentBounds": [
+            11,
+            8,
+            116,
+            120
+          ]
+        }
+      ]
+    },
+    {
+      "id": "delta-air-lines",
+      "nameFa": "دلتا",
+      "nameEn": "Delta Air Lines",
+      "country": "US",
+      "source": {
+        "origin": "wikimedia-commons",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/d/d1/Delta_logo.svg",
+        "pageUrl": "https://commons.wikimedia.org/wiki/File:Delta_logo.svg",
+        "retrievedOn": "2026-10-28",
+        "bytes": 1976,
+        "sha256": "5bb7dfe8c865366a5cc2bc4e5f0e2c7f2db8b4e6caf146011127ca14f1216378",
+        "license": "Source reports Public domain; trademark rights retained",
+        "reportedLicense": "Public domain",
+        "reportedNonFree": false,
+        "licenseUrl": null,
+        "attribution": "Delta Air Lines",
+        "credit": "Delta.com (Transferred from en.wikipedia to Commons by Minna Sora no Shita.)",
+        "creditUrls": [
+          "//en.wikipedia.org",
+          "https://en.wikipedia.org",
+          "//commons.wikimedia.org/wiki/User:Minna_Sora_no_Shita"
+        ]
+      },
+      "transformation": {
+        "renderedInputSize": [
+          512,
+          79
+        ],
+        "renderedInputSha256": "c728edec1ff9bde33b2d683677d4d88e02cb00dacf69d31960fa747feb76ef87",
+        "trimmedAlphaBounds": [
+          0,
+          0,
+          512,
+          79
+        ],
+        "compactSymbolCrop": [
+          0,
+          0,
+          103,
+          79
+        ],
+        "removedEdgeConnectedNearWhitePixels": 0,
+        "scaling": "Preserve aspect ratio; centered within 7/8 of a square; Lanczos; PNG RGBA 8-bit, optimize and zlib level 9; no recoloring or invented geometry."
+      },
+      "variants": [
+        {
+          "path": "airlines/delta-air-lines-32.png",
+          "width": 32,
+          "height": 32,
+          "bytes": 1161,
+          "sha256": "f47bfc2a38e668fa440994bb7ae2469595d9dd32f674f4728bb61c2003d94b53",
+          "transparentPixels": 680,
+          "visiblePixels": 344,
+          "maxAlpha": 255,
+          "opaquePixels": 88,
+          "contentBounds": [
+            2,
+            5,
+            30,
+            26
+          ]
+        },
+        {
+          "path": "airlines/delta-air-lines-64.png",
+          "width": 64,
+          "height": 64,
+          "bytes": 2767,
+          "sha256": "bc9c2c8868677354122fd67ed7d89a51985429ea27ad23aa782b7b595c4aae52",
+          "transparentPixels": 2824,
+          "visiblePixels": 1272,
+          "maxAlpha": 255,
+          "opaquePixels": 527,
+          "contentBounds": [
+            4,
+            10,
+            60,
+            53
+          ]
+        },
+        {
+          "path": "airlines/delta-air-lines-128.png",
+          "width": 128,
+          "height": 128,
+          "bytes": 6322,
+          "sha256": "380cdbcd4174063d0b5059dfffd215f5d6619a80ca2b01349875466d447cdddb",
+          "transparentPixels": 11740,
+          "visiblePixels": 4644,
+          "maxAlpha": 255,
+          "opaquePixels": 2728,
+          "contentBounds": [
+            8,
+            21,
+            120,
+            107
+          ]
+        }
+      ]
+    },
+    {
+      "id": "air-canada",
+      "nameFa": "ایرکانادا",
+      "nameEn": "Air Canada",
+      "country": "CA",
+      "source": {
+        "origin": "wikimedia-commons",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/2/24/Air_Canada_2017.svg",
+        "pageUrl": "https://commons.wikimedia.org/wiki/File:Air_Canada_2017.svg",
+        "retrievedOn": "2026-10-28",
+        "bytes": 3154,
+        "sha256": "2cc0d1007c46cf46e8bd7a8c80e2033e55d84bf18d38af1884282a8477756270",
+        "license": "Source reports Public domain; trademark rights retained",
+        "reportedLicense": "Public domain",
+        "reportedNonFree": false,
+        "licenseUrl": null,
+        "attribution": "Air Canada",
+        "credit": "Extracted from http://www.aircanada.com/content/dam/aircanada/portal/documents/PDF/media/livery/illustrative_guide_en.pdf",
+        "creditUrls": [
+          "http://www.aircanada.com/content/dam/aircanada/portal/documents/PDF/media/livery/illustrative_guide_en.pdf"
+        ]
+      },
+      "transformation": {
+        "renderedInputSize": [
+          512,
+          67
+        ],
+        "renderedInputSha256": "3af62609bbdb7b8241585fe9c14a1fac8b983ed440e3124e97e1935de3448d58",
+        "trimmedAlphaBounds": [
+          0,
+          0,
+          512,
+          67
+        ],
+        "compactSymbolCrop": [
+          0,
+          0,
+          72,
+          67
+        ],
+        "removedEdgeConnectedNearWhitePixels": 0,
+        "scaling": "Preserve aspect ratio; centered within 7/8 of a square; Lanczos; PNG RGBA 8-bit, optimize and zlib level 9; no recoloring or invented geometry."
+      },
+      "variants": [
+        {
+          "path": "airlines/air-canada-32.png",
+          "width": 32,
+          "height": 32,
+          "bytes": 1917,
+          "sha256": "c259f8bfdc837e7fcad46b0106cc8c54a0f2f731eb246daff44f148a0529ad6f",
+          "transparentPixels": 459,
+          "visiblePixels": 565,
+          "maxAlpha": 255,
+          "opaquePixels": 132,
+          "contentBounds": [
+            2,
+            2,
+            30,
+            29
+          ]
+        },
+        {
+          "path": "airlines/air-canada-64.png",
+          "width": 64,
+          "height": 64,
+          "bytes": 5110,
+          "sha256": "3e8d164def5546ef52344a7ea5e0cd67d7350f9189e69b4f42bf221f02f3215e",
+          "transparentPixels": 2103,
+          "visiblePixels": 1993,
+          "maxAlpha": 255,
+          "opaquePixels": 758,
+          "contentBounds": [
+            4,
+            5,
+            60,
+            59
+          ]
+        },
+        {
+          "path": "airlines/air-canada-128.png",
+          "width": 128,
+          "height": 128,
+          "bytes": 15665,
+          "sha256": "4427a29d35fa91481cab085629639907a1173c9074081a7367e238ec9bc08af1",
+          "transparentPixels": 8714,
+          "visiblePixels": 7670,
+          "maxAlpha": 255,
+          "opaquePixels": 3082,
+          "contentBounds": [
+            8,
+            9,
+            120,
+            118
+          ]
+        }
+      ]
+    },
+    {
+      "id": "qantas",
+      "nameFa": "کانتاس",
+      "nameEn": "Qantas",
+      "country": "AU",
+      "source": {
+        "origin": "wikipedia-file",
+        "url": "https://upload.wikimedia.org/wikipedia/en/0/02/Qantas_Airways_logo_2016.svg",
+        "pageUrl": "https://en.wikipedia.org/wiki/File:Qantas_Airways_logo_2016.svg",
+        "retrievedOn": "2026-10-28",
+        "bytes": 12429,
+        "sha256": "a8db4773b303c18c6e796fee37e9c0687b798cf19c7daf05cf419433957fbb28",
+        "license": "Non-free logo reference; no reuse permission granted",
+        "reportedLicense": "Fair use",
+        "reportedNonFree": true,
+        "licenseUrl": null,
+        "attribution": "The logo is from the following website: Qantas Newsroom http://www.qantasnewsroom.com.au/wp-content/uploads/2016/10/History-Qantas-Tales-Face-Sheet.pdf",
+        "credit": "The logo is from the following website: Qantas Newsroom http://www.qantasnewsroom.com.au/wp-content/uploads/2016/10/History-Qantas-Tales-Face-Sheet.pdf",
+        "creditUrls": [
+          "http://www.qantasnewsroom.com.au/",
+          "http://www.qantasnewsroom.com.au/wp-content/uploads/2016/10/History-Qantas-Tales-Face-Sheet.pdf"
+        ]
+      },
+      "transformation": {
+        "renderedInputSize": [
+          512,
+          104
+        ],
+        "renderedInputSha256": "c694b737e24fde9f8dbcd3c87250b250662657389b38694d7e90d00e5dc0852f",
+        "trimmedAlphaBounds": [
+          2,
+          2,
+          510,
+          102
+        ],
+        "compactSymbolCrop": [
+          0,
+          0,
+          115,
+          100
+        ],
+        "removedEdgeConnectedNearWhitePixels": 0,
+        "scaling": "Preserve aspect ratio; centered within 7/8 of a square; Lanczos; PNG RGBA 8-bit, optimize and zlib level 9; no recoloring or invented geometry."
+      },
+      "variants": [
+        {
+          "path": "airlines/qantas-32.png",
+          "width": 32,
+          "height": 32,
+          "bytes": 1308,
+          "sha256": "702b79f73f6e169a1cade696ac328350ae0159bab1f9bc5311e60ea9b02df133",
+          "transparentPixels": 554,
+          "visiblePixels": 470,
+          "maxAlpha": 255,
+          "opaquePixels": 178,
+          "contentBounds": [
+            2,
+            4,
+            30,
+            28
+          ]
+        },
+        {
+          "path": "airlines/qantas-64.png",
+          "width": 64,
+          "height": 64,
+          "bytes": 3302,
+          "sha256": "fddc0ef82ac7a1a2710878ee11d10166c16d474ab4b310d814fbdd6e32036a26",
+          "transparentPixels": 2305,
+          "visiblePixels": 1791,
+          "maxAlpha": 255,
+          "opaquePixels": 769,
+          "contentBounds": [
+            4,
+            7,
+            60,
+            56
+          ]
+        },
+        {
+          "path": "airlines/qantas-128.png",
+          "width": 128,
+          "height": 128,
+          "bytes": 7639,
+          "sha256": "6cd64ef286735008bf3d3b170405db2359190e119e6369cf1cadf86045b7352c",
+          "transparentPixels": 9657,
+          "visiblePixels": 6727,
+          "maxAlpha": 255,
+          "opaquePixels": 3029,
+          "contentBounds": [
+            8,
+            15,
+            120,
+            112
+          ]
+        }
+      ]
+    },
+    {
+      "id": "singapore-airlines",
+      "nameFa": "سنگاپور ایرلاینز",
+      "nameEn": "Singapore Airlines",
+      "country": "SG",
+      "source": {
+        "origin": "wikipedia-file",
+        "url": "https://upload.wikimedia.org/wikipedia/en/6/6b/Singapore_Airlines_Logo_2.svg",
+        "pageUrl": "https://en.wikipedia.org/wiki/File:Singapore_Airlines_Logo_2.svg",
+        "retrievedOn": "2026-10-28",
+        "bytes": 5433,
+        "sha256": "41311f8995f1f129a1e7ca83045ea1e5e973e46ceef151b3645f01733c32fbd6",
+        "license": "Source reports PD; trademark rights retained",
+        "reportedLicense": "PD",
+        "reportedNonFree": false,
+        "licenseUrl": null,
+        "attribution": "Singapore Airlines",
+        "credit": "www.singaporeair.com",
+        "creditUrls": [
+          "http://www.singaporeair.com"
+        ]
+      },
+      "transformation": {
+        "renderedInputSize": [
+          512,
+          188
+        ],
+        "renderedInputSha256": "92a5135e60119a7a98f6d620f61fbcd0a2faf13354b180f7fbd544c7a8ae77dd",
+        "trimmedAlphaBounds": [
+          0,
+          0,
+          512,
+          188
+        ],
+        "compactSymbolCrop": [
+          368,
+          0,
+          512,
+          188
+        ],
+        "removedEdgeConnectedNearWhitePixels": 0,
+        "scaling": "Preserve aspect ratio; centered within 7/8 of a square; Lanczos; PNG RGBA 8-bit, optimize and zlib level 9; no recoloring or invented geometry."
+      },
+      "variants": [
+        {
+          "path": "airlines/singapore-airlines-32.png",
+          "width": 32,
+          "height": 32,
+          "bytes": 1499,
+          "sha256": "ac43da162477d5da436373ea54af914f3a4f1ce8ee3dd244b2a4118004aec09f",
+          "transparentPixels": 633,
+          "visiblePixels": 391,
+          "maxAlpha": 255,
+          "opaquePixels": 79,
+          "contentBounds": [
+            6,
+            2,
+            26,
+            30
+          ]
+        },
+        {
+          "path": "airlines/singapore-airlines-64.png",
+          "width": 64,
+          "height": 64,
+          "bytes": 4028,
+          "sha256": "e19d6aff0d720ed5a4912a6665061cce519bfd8e6642383f3e2d327efaef47c8",
+          "transparentPixels": 2711,
+          "visiblePixels": 1385,
+          "maxAlpha": 255,
+          "opaquePixels": 417,
+          "contentBounds": [
+            11,
+            4,
+            52,
+            60
+          ]
+        },
+        {
+          "path": "airlines/singapore-airlines-128.png",
+          "width": 128,
+          "height": 128,
+          "bytes": 9566,
+          "sha256": "ddf8919979fcbbdbe802bc6c5945d58a4ae975fcec5e1c7e5abc864f39e0d464",
+          "transparentPixels": 11439,
+          "visiblePixels": 4945,
+          "maxAlpha": 255,
+          "opaquePixels": 2452,
+          "contentBounds": [
+            23,
+            8,
+            104,
+            120
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cathay-pacific",
+      "nameFa": "کاتای پاسیفیک",
+      "nameEn": "Cathay Pacific",
+      "country": "HK",
+      "source": {
+        "origin": "airline-website",
+        "url": "https://www.cathaypacific.com/content/dam/header-footer-lrp/cathay80-en.originalimage.svg",
+        "pageUrl": "https://www.cathaypacific.com/",
+        "retrievedOn": "2026-10-28",
+        "bytes": 222184,
+        "sha256": "e2322f2274c0794b43fca37d1513ab0c211b2e350c8f4d049f9ca5837da57b81",
+        "license": "Official website asset; no reuse license published with file",
+        "reportedLicense": null,
+        "reportedNonFree": false,
+        "licenseUrl": null,
+        "attribution": "Cathay Pacific",
+        "credit": null,
+        "creditUrls": []
+      },
+      "transformation": {
+        "renderedInputSize": [
+          512,
+          89
+        ],
+        "renderedInputSha256": "c32bb4547637a898b64a5301deecc40f27729c1f4d101e4f1c15bbbdf170ec1f",
+        "trimmedAlphaBounds": [
+          0,
+          0,
+          512,
+          89
+        ],
+        "compactSymbolCrop": [
+          0,
+          0,
+          77,
+          89
+        ],
+        "removedEdgeConnectedNearWhitePixels": 0,
+        "scaling": "Preserve aspect ratio; centered within 7/8 of a square; Lanczos; PNG RGBA 8-bit, optimize and zlib level 9; no recoloring or invented geometry."
+      },
+      "variants": [
+        {
+          "path": "airlines/cathay-pacific-32.png",
+          "width": 32,
+          "height": 32,
+          "bytes": 1007,
+          "sha256": "0abdc9a89230c056e763817f7860c412c2aff59b62e8aa93329797b63188d1cc",
+          "transparentPixels": 757,
+          "visiblePixels": 267,
+          "maxAlpha": 255,
+          "opaquePixels": 47,
+          "contentBounds": [
+            4,
+            2,
+            27,
+            30
+          ]
+        },
+        {
+          "path": "airlines/cathay-pacific-64.png",
+          "width": 64,
+          "height": 64,
+          "bytes": 2248,
+          "sha256": "aa9ebd051a6739244ed189f24acee4de4538029d3a1404c27fd1d31a8af6b9c3",
+          "transparentPixels": 3232,
+          "visiblePixels": 864,
+          "maxAlpha": 255,
+          "opaquePixels": 290,
+          "contentBounds": [
+            8,
+            4,
+            55,
+            60
+          ]
+        },
+        {
+          "path": "airlines/cathay-pacific-128.png",
+          "width": 128,
+          "height": 128,
+          "bytes": 6079,
+          "sha256": "c228ecca7b1ad248ab8bf6c065a64ab56677f575c1b3deb7646eea8aa907461d",
+          "transparentPixels": 13330,
+          "visiblePixels": 3054,
+          "maxAlpha": 255,
+          "opaquePixels": 1313,
+          "contentBounds": [
+            17,
+            8,
+            110,
+            120
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ana",
+      "nameFa": "آل‌نیپون ایرویز",
+      "nameEn": "All Nippon Airways",
+      "country": "JP",
+      "source": {
+        "origin": "airline-website",
+        "url": "https://www.ana.co.jp/common-layout2/images/www2/logo_ana_tagline.svg",
+        "pageUrl": "https://www.ana.co.jp/",
+        "retrievedOn": "2026-10-28",
+        "bytes": 4244,
+        "sha256": "ab59132c882e0799a1160c27f8d0c10f80df4f97f34943a1ae165918dc409a60",
+        "license": "Official website asset; no reuse license published with file",
+        "reportedLicense": null,
+        "reportedNonFree": false,
+        "licenseUrl": null,
+        "attribution": "All Nippon Airways",
+        "credit": null,
+        "creditUrls": []
+      },
+      "transformation": {
+        "renderedInputSize": [
+          512,
+          47
+        ],
+        "renderedInputSha256": "5e2a99689924ce0e6fc89f7d802a328213eec22f05ff5b376acb129c52113a8a",
+        "trimmedAlphaBounds": [
+          2,
+          0,
+          510,
+          47
+        ],
+        "compactSymbolCrop": [
+          0,
+          0,
+          173,
+          47
+        ],
+        "removedEdgeConnectedNearWhitePixels": 0,
+        "scaling": "Preserve aspect ratio; centered within 7/8 of a square; Lanczos; PNG RGBA 8-bit, optimize and zlib level 9; no recoloring or invented geometry."
+      },
+      "variants": [
+        {
+          "path": "airlines/ana-32.png",
+          "width": 32,
+          "height": 32,
+          "bytes": 716,
+          "sha256": "a217fcc526f6da197e50b616bdb383a02333faf00cc961226ee1e9244ac4e430",
+          "transparentPixels": 835,
+          "visiblePixels": 189,
+          "maxAlpha": 255,
+          "opaquePixels": 24,
+          "contentBounds": [
+            2,
+            12,
+            30,
+            20
+          ]
+        },
+        {
+          "path": "airlines/ana-64.png",
+          "width": 64,
+          "height": 64,
+          "bytes": 1887,
+          "sha256": "db3a189ee99ffeb21c4c11d051c14f892b8ead8f1c182972931bcf62f158e7f4",
+          "transparentPixels": 3460,
+          "visiblePixels": 636,
+          "maxAlpha": 255,
+          "opaquePixels": 177,
+          "contentBounds": [
+            4,
+            24,
+            60,
+            39
+          ]
+        },
+        {
+          "path": "airlines/ana-128.png",
+          "width": 128,
+          "height": 128,
+          "bytes": 4766,
+          "sha256": "0f0ce1d94c8ba0a4ef8eb26cafe901504e72acd0e2b6a7b5f974ef8e9fb8ac77",
+          "transparentPixels": 14041,
+          "visiblePixels": 2343,
+          "maxAlpha": 255,
+          "opaquePixels": 859,
+          "contentBounds": [
+            8,
+            49,
+            120,
+            79
+          ]
+        }
+      ]
+    },
+    {
+      "id": "japan-airlines",
+      "nameFa": "ژاپن ایرلاینز",
+      "nameEn": "Japan Airlines",
+      "country": "JP",
+      "source": {
+        "origin": "wikipedia-file",
+        "url": "https://upload.wikimedia.org/wikipedia/en/d/dd/Japan_Airlines_Logo_%282011%29.svg",
+        "pageUrl": "https://en.wikipedia.org/wiki/File:Japan_Airlines_Logo_(2011).svg",
+        "retrievedOn": "2026-10-28",
+        "bytes": 3953,
+        "sha256": "09d2f5f56c6d1fa034b5729b2d020673230cdb41a5debeb2c376fee4c5129a2e",
+        "license": "Non-free logo reference; no reuse permission granted",
+        "reportedLicense": "Fair use",
+        "reportedNonFree": true,
+        "licenseUrl": null,
+        "attribution": "Extracted from the Japan FA profile in English from official website in Inkscape",
+        "credit": "Extracted from the Japan FA profile in English from official website in Inkscape",
+        "creditUrls": [
+          "https://web.archive.org/web/20211226000144/https://www.jfa.jp/about_jfa/img/profile_eng.pdf"
+        ]
+      },
+      "transformation": {
+        "renderedInputSize": [
+          512,
+          120
+        ],
+        "renderedInputSha256": "eb7bb0ec47d7b8efd67f40e74b2ea4d56b9feb1b456042a2e16c2c8768c4e205",
+        "trimmedAlphaBounds": [
+          1,
+          2,
+          511,
+          118
+        ],
+        "compactSymbolCrop": [
+          0,
+          0,
+          128,
+          116
+        ],
+        "removedEdgeConnectedNearWhitePixels": 0,
+        "scaling": "Preserve aspect ratio; centered within 7/8 of a square; Lanczos; PNG RGBA 8-bit, optimize and zlib level 9; no recoloring or invented geometry."
+      },
+      "variants": [
+        {
+          "path": "airlines/japan-airlines-32.png",
+          "width": 32,
+          "height": 32,
+          "bytes": 1888,
+          "sha256": "f11a77b4a739ea84f2bd00b9e3b92f406d192042ef759e13917de7bdaaff23fa",
+          "transparentPixels": 417,
+          "visiblePixels": 607,
+          "maxAlpha": 255,
+          "opaquePixels": 184,
+          "contentBounds": [
+            2,
+            2,
+            30,
+            30
+          ]
+        },
+        {
+          "path": "airlines/japan-airlines-64.png",
+          "width": 64,
+          "height": 64,
+          "bytes": 4891,
+          "sha256": "b355d99573e3342ee5a7c7662e90e5b5eb5cf8bd12717c853828aae2bbedea70",
+          "transparentPixels": 1946,
+          "visiblePixels": 2150,
+          "maxAlpha": 255,
+          "opaquePixels": 985,
+          "contentBounds": [
+            4,
+            4,
+            60,
+            60
+          ]
+        },
+        {
+          "path": "airlines/japan-airlines-128.png",
+          "width": 128,
+          "height": 128,
+          "bytes": 11635,
+          "sha256": "c650de4828865cecc9c1d67bbac4d88bb2818f4d7ad50b6115a41aa45882cd4b",
+          "transparentPixels": 8743,
+          "visiblePixels": 7641,
+          "maxAlpha": 255,
+          "opaquePixels": 4835,
+          "contentBounds": [
+            8,
+            8,
+            120,
+            120
+          ]
+        }
+      ]
+    },
+    {
+      "id": "korean-air",
+      "nameFa": "کُرین ایر",
+      "nameEn": "Korean Air",
+      "country": "KR",
+      "source": {
+        "origin": "wikimedia-commons",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/6/63/Korean_Air_2025.svg",
+        "pageUrl": "https://commons.wikimedia.org/wiki/File:Korean_Air_2025.svg",
+        "retrievedOn": "2026-10-28",
+        "bytes": 4251,
+        "sha256": "1f6d4689232d0d4c216ddbc4d45a76c672cee8b239fb284eb42e07b1424c618d",
+        "license": "Source reports Public domain; trademark rights retained",
+        "reportedLicense": "Public domain",
+        "reportedNonFree": false,
+        "licenseUrl": null,
+        "attribution": "Korean Air (designed by Lippincott)",
+        "credit": "Vectorized from Korean Air 2025.png(Original source: https://www.koreanair.com/)",
+        "creditUrls": [
+          "//commons.wikimedia.org/wiki/File:Korean_Air_2025.png",
+          "https://www.koreanair.com/"
+        ]
+      },
+      "transformation": {
+        "renderedInputSize": [
+          512,
+          78
+        ],
+        "renderedInputSha256": "5812e528f878c1b068a6aea8eddaa3833cc93ba9d4a7085889dfd98615691478",
+        "trimmedAlphaBounds": [
+          0,
+          0,
+          512,
+          78
+        ],
+        "compactSymbolCrop": [
+          0,
+          0,
+          88,
+          78
+        ],
+        "removedEdgeConnectedNearWhitePixels": 0,
+        "scaling": "Preserve aspect ratio; centered within 7/8 of a square; Lanczos; PNG RGBA 8-bit, optimize and zlib level 9; no recoloring or invented geometry."
+      },
+      "variants": [
+        {
+          "path": "airlines/korean-air-32.png",
+          "width": 32,
+          "height": 32,
+          "bytes": 1646,
+          "sha256": "6bee3b3f2a1051b1cea56bd4bd520581ed7c518724865c30a079365fb72aa713",
+          "transparentPixels": 558,
+          "visiblePixels": 466,
+          "maxAlpha": 255,
+          "opaquePixels": 86,
+          "contentBounds": [
+            2,
+            2,
+            29,
+            30
+          ]
+        },
+        {
+          "path": "airlines/korean-air-64.png",
+          "width": 64,
+          "height": 64,
+          "bytes": 3942,
+          "sha256": "59a05c844405a92a5d5a89f22aa50953039b4c813625638cc5061f1cd4d3b6e7",
+          "transparentPixels": 2598,
+          "visiblePixels": 1498,
+          "maxAlpha": 255,
+          "opaquePixels": 421,
+          "contentBounds": [
+            5,
+            4,
+            59,
+            60
+          ]
+        },
+        {
+          "path": "airlines/korean-air-128.png",
+          "width": 128,
+          "height": 128,
+          "bytes": 11323,
+          "sha256": "87406b3abe3c504ff13b23106533f5a80b9c31e5a191c4b1ed7fe0b2f45f9ff6",
+          "transparentPixels": 10951,
+          "visiblePixels": 5433,
+          "maxAlpha": 255,
+          "opaquePixels": 2002,
+          "contentBounds": [
+            10,
+            8,
+            118,
+            120
+          ]
+        }
+      ]
+    },
+    {
+      "id": "air-china",
+      "nameFa": "ایرچاینا",
+      "nameEn": "Air China",
+      "country": "CN",
+      "source": {
+        "origin": "wikipedia-file",
+        "url": "https://upload.wikimedia.org/wikipedia/en/a/a4/Air_China_logo.svg",
+        "pageUrl": "https://en.wikipedia.org/wiki/File:Air_China_logo.svg",
+        "retrievedOn": "2026-10-28",
+        "bytes": 89525,
+        "sha256": "2314efee2ce9d91502af2bb3bd9a7db0357755085decceca1e6f9463013f4daf",
+        "license": "Non-free logo reference; no reuse permission granted",
+        "reportedLicense": "Fair use",
+        "reportedNonFree": true,
+        "licenseUrl": null,
+        "attribution": "https://www.airchina.us/",
+        "credit": "https://www.airchina.us/",
+        "creditUrls": [
+          "https://www.airchina.us/"
+        ]
+      },
+      "transformation": {
+        "renderedInputSize": [
+          512,
+          159
+        ],
+        "renderedInputSha256": "5ed4d8ee5cf69d788d42eb3ea05c649484a1beb21394494acc1e99f2fc177c94",
+        "trimmedAlphaBounds": [
+          0,
+          0,
+          512,
+          159
+        ],
+        "compactSymbolCrop": [
+          0,
+          0,
+          139,
+          159
+        ],
+        "removedEdgeConnectedNearWhitePixels": 0,
+        "scaling": "Preserve aspect ratio; centered within 7/8 of a square; Lanczos; PNG RGBA 8-bit, optimize and zlib level 9; no recoloring or invented geometry."
+      },
+      "variants": [
+        {
+          "path": "airlines/air-china-32.png",
+          "width": 32,
+          "height": 32,
+          "bytes": 1383,
+          "sha256": "7d05ee2414681f99684b7a00cff6040f64c26bb10f0cbd61ca9ac463cf24dc12",
+          "transparentPixels": 527,
+          "visiblePixels": 497,
+          "maxAlpha": 255,
+          "opaquePixels": 133,
+          "contentBounds": [
+            3,
+            2,
+            28,
+            30
+          ]
+        },
+        {
+          "path": "airlines/air-china-64.png",
+          "width": 64,
+          "height": 64,
+          "bytes": 3589,
+          "sha256": "5cc0525167ae148a79dab909333ae9a35eed7452c70c54a4c9a93064688d5543",
+          "transparentPixels": 2374,
+          "visiblePixels": 1722,
+          "maxAlpha": 255,
+          "opaquePixels": 565,
+          "contentBounds": [
+            7,
+            4,
+            57,
+            60
+          ]
+        },
+        {
+          "path": "airlines/air-china-128.png",
+          "width": 128,
+          "height": 128,
+          "bytes": 8193,
+          "sha256": "d65e74ce567bd671fda6e8ee172c8adadbe43e892ecadd4d157e1ac044a1c8a8",
+          "transparentPixels": 10220,
+          "visiblePixels": 6164,
+          "maxAlpha": 255,
+          "opaquePixels": 3380,
+          "contentBounds": [
+            14,
+            8,
+            114,
+            120
+          ]
+        }
+      ]
+    },
+    {
+      "id": "saudia",
+      "nameFa": "سعودیا",
+      "nameEn": "Saudia",
+      "country": "SA",
+      "source": {
+        "origin": "wikipedia-file",
+        "url": "https://upload.wikimedia.org/wikipedia/en/4/48/Logo_of_Saudia.svg",
+        "pageUrl": "https://en.wikipedia.org/wiki/File:Logo_of_Saudia.svg",
+        "retrievedOn": "2026-10-28",
+        "bytes": 5877,
+        "sha256": "8e5d830e83b25425dbed144c4f7bcda93d08f79acd487514c8ab9c76ddd3a2ab",
+        "license": "Non-free logo reference; no reuse permission granted",
+        "reportedLicense": "PD",
+        "reportedNonFree": true,
+        "licenseUrl": null,
+        "attribution": "https://www.saudia.com/",
+        "credit": "https://www.saudia.com/",
+        "creditUrls": [
+          "https://www.saudia.com/"
+        ]
+      },
+      "transformation": {
+        "renderedInputSize": [
+          428,
+          512
+        ],
+        "renderedInputSha256": "5b81697611df7dc3c835c6800d6edd4b5a9282ed60f0b930a4264449b13756a6",
+        "trimmedAlphaBounds": [
+          57,
+          57,
+          371,
+          455
+        ],
+        "compactSymbolCrop": null,
+        "removedEdgeConnectedNearWhitePixels": 0,
+        "scaling": "Preserve aspect ratio; centered within 7/8 of a square; Lanczos; PNG RGBA 8-bit, optimize and zlib level 9; no recoloring or invented geometry."
+      },
+      "variants": [
+        {
+          "path": "airlines/saudia-32.png",
+          "width": 32,
+          "height": 32,
+          "bytes": 1557,
+          "sha256": "fda6785cf2b4622893c2d51786390d61ffd81ecb926ddec3606092f17d5bfba7",
+          "transparentPixels": 572,
+          "visiblePixels": 452,
+          "maxAlpha": 255,
+          "opaquePixels": 32,
+          "contentBounds": [
+            5,
+            2,
+            27,
+            30
+          ]
+        },
+        {
+          "path": "airlines/saudia-64.png",
+          "width": 64,
+          "height": 64,
+          "bytes": 4321,
+          "sha256": "77ed737d1c3f142f846c613b8dc8ef7c256f7591bd5482898f0421b0b3641013",
+          "transparentPixels": 2627,
+          "visiblePixels": 1469,
+          "maxAlpha": 255,
+          "opaquePixels": 259,
+          "contentBounds": [
+            10,
+            4,
+            54,
+            60
+          ]
+        },
+        {
+          "path": "airlines/saudia-128.png",
+          "width": 128,
+          "height": 128,
+          "bytes": 10341,
+          "sha256": "204c32ab53239f328318c57f6e47a6f0849dc9ada8e41f4ea4c6072de26a8717",
+          "transparentPixels": 11501,
+          "visiblePixels": 4883,
+          "maxAlpha": 255,
+          "opaquePixels": 1619,
+          "contentBounds": [
+            20,
+            8,
+            108,
+            120
+          ]
+        }
+      ]
+    },
+    {
+      "id": "oman-air",
+      "nameFa": "عمان‌ایر",
+      "nameEn": "Oman Air",
+      "country": "OM",
+      "source": {
+        "origin": "wikipedia-file",
+        "url": "https://upload.wikimedia.org/wikipedia/en/a/a0/Oman_Air_logo.svg",
+        "pageUrl": "https://en.wikipedia.org/wiki/File:Oman_Air_logo.svg",
+        "retrievedOn": "2026-10-28",
+        "bytes": 14157,
+        "sha256": "b0fbe15520ad1ea68060f3827cd380f5bad2db38f1212bfcfc1186d4818138f0",
+        "license": "Non-free logo reference; no reuse permission granted",
+        "reportedLicense": "Fair use",
+        "reportedNonFree": true,
+        "licenseUrl": null,
+        "attribution": "www.omanair.com",
+        "credit": "www.omanair.com",
+        "creditUrls": [
+          "http://www.omanair.com",
+          "https://www.omanair.com"
+        ]
+      },
+      "transformation": {
+        "renderedInputSize": [
+          512,
+          126
+        ],
+        "renderedInputSha256": "ee3975962e9b3435b39e185c68f0ae98c9f2fb85c147c21e5d7257e56498fba0",
+        "trimmedAlphaBounds": [
+          0,
+          0,
+          512,
+          126
+        ],
+        "compactSymbolCrop": [
+          358,
+          0,
+          512,
+          126
+        ],
+        "removedEdgeConnectedNearWhitePixels": 0,
+        "scaling": "Preserve aspect ratio; centered within 7/8 of a square; Lanczos; PNG RGBA 8-bit, optimize and zlib level 9; no recoloring or invented geometry."
+      },
+      "variants": [
+        {
+          "path": "airlines/oman-air-32.png",
+          "width": 32,
+          "height": 32,
+          "bytes": 1659,
+          "sha256": "0ef0497fdbe14543be0d186f71da63d3d14b08264e2fe30975c91a4929ad446a",
+          "transparentPixels": 561,
+          "visiblePixels": 463,
+          "maxAlpha": 255,
+          "opaquePixels": 128,
+          "contentBounds": [
+            2,
+            4,
+            30,
+            28
+          ]
+        },
+        {
+          "path": "airlines/oman-air-64.png",
+          "width": 64,
+          "height": 64,
+          "bytes": 4171,
+          "sha256": "802bf74b8b0e42b04e4ebdeca1ff666d23a2e63ed7219d8530b4126001229da5",
+          "transparentPixels": 2344,
+          "visiblePixels": 1752,
+          "maxAlpha": 255,
+          "opaquePixels": 837,
+          "contentBounds": [
+            4,
+            7,
+            60,
+            56
+          ]
+        },
+        {
+          "path": "airlines/oman-air-128.png",
+          "width": 128,
+          "height": 128,
+          "bytes": 9599,
+          "sha256": "f989588417fbe70a2f9362f17220913712ad71c442a031d145b0e114b019ee1c",
+          "transparentPixels": 9778,
+          "visiblePixels": 6606,
+          "maxAlpha": 255,
+          "opaquePixels": 4367,
+          "contentBounds": [
+            8,
+            15,
+            120,
+            113
+          ]
+        }
+      ]
+    },
+    {
+      "id": "gulf-air",
+      "nameFa": "گلف‌ایر",
+      "nameEn": "Gulf Air",
+      "country": "BH",
+      "source": {
+        "origin": "wikipedia-file",
+        "url": "https://upload.wikimedia.org/wikipedia/en/9/90/Gulf_Air_Logo_2018.svg",
+        "pageUrl": "https://en.wikipedia.org/wiki/File:Gulf_Air_Logo_2018.svg",
+        "retrievedOn": "2026-10-28",
+        "bytes": 54516,
+        "sha256": "96ac02d9f8e4151dc678e01aeccc9a361cae29587a0fee54f6af9e6c68019b8a",
+        "license": "Non-free logo reference; no reuse permission granted",
+        "reportedLicense": "Fair use",
+        "reportedNonFree": true,
+        "licenseUrl": null,
+        "attribution": "https://www.gulfair.com/",
+        "credit": "https://www.gulfair.com/",
+        "creditUrls": [
+          "https://www.gulfair.com/"
+        ]
+      },
+      "transformation": {
+        "renderedInputSize": [
+          512,
+          184
+        ],
+        "renderedInputSha256": "674ee2ffd6c8127d77accccb05ce5dea7d598805b960a29b14f894b6a0c85162",
+        "trimmedAlphaBounds": [
+          0,
+          0,
+          512,
+          184
+        ],
+        "compactSymbolCrop": null,
+        "removedEdgeConnectedNearWhitePixels": 0,
+        "scaling": "Preserve aspect ratio; centered within 7/8 of a square; Lanczos; PNG RGBA 8-bit, optimize and zlib level 9; no recoloring or invented geometry."
+      },
+      "variants": [
+        {
+          "path": "airlines/gulf-air-32.png",
+          "width": 32,
+          "height": 32,
+          "bytes": 902,
+          "sha256": "88d35d1f1c451cf4e9046cc1673c240ed966faafd3953547604274e1b6a50772",
+          "transparentPixels": 835,
+          "visiblePixels": 189,
+          "maxAlpha": 254,
+          "opaquePixels": 0,
+          "contentBounds": [
+            2,
+            11,
+            30,
+            21
+          ]
+        },
+        {
+          "path": "airlines/gulf-air-64.png",
+          "width": 64,
+          "height": 64,
+          "bytes": 2337,
+          "sha256": "9fcbc60f587fff35c86423f4416870b53e7f95828bb6532486c2052e1854cc01",
+          "transparentPixels": 3517,
+          "visiblePixels": 579,
+          "maxAlpha": 255,
+          "opaquePixels": 24,
+          "contentBounds": [
+            4,
+            22,
+            60,
+            42
+          ]
+        },
+        {
+          "path": "airlines/gulf-air-128.png",
+          "width": 128,
+          "height": 128,
+          "bytes": 6488,
+          "sha256": "3165881b92489f9a65cd3414b4795d762cd193b9df2933dfdd18b8fe3b478a27",
+          "transparentPixels": 14599,
+          "visiblePixels": 1785,
+          "maxAlpha": 255,
+          "opaquePixels": 184,
+          "contentBounds": [
+            8,
+            44,
+            120,
+            84
+          ]
+        }
+      ]
+    }
+  ]
+}

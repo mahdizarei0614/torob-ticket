@@ -1,9 +1,10 @@
 import type {DemoIdentity,Hotel,Mode,Place,ProviderCapabilities} from '@torob-ticket/contracts';
+import {resolveAirlineBrand} from './airline-brands';
 
 type ProviderLabelSource=Pick<ProviderCapabilities,'providerId'|'name'>;
 const providerNames=['راه‌آرا','سفرین','بلیت‌نو','هم‌مسیر','دورآوا','سفرآیین'] as const;
 const operatorNames:Record<Mode,readonly string[]>={
- flight:['هواپیمایی آبیان','هواپیمایی آفاق‌سیر','هواپیمایی فرازین'],
+ flight:[],
  train:['قطار آبان','ریل‌آرا','سپهرریل'],
  bus:['راه‌پیما','جاده‌سیر','آبان‌سفر'],
 };
@@ -19,6 +20,8 @@ export function displayProviderName(provider?:ProviderLabelSource):string{
 
 /** Only explicit carrier identities are named; unknown codes stay out of customer copy. */
 export function displayOperatorName(operatorId:string,mode:Mode):string{
+ const airline=resolveAirlineBrand(operatorId,mode);
+ if(airline)return airline.nameFa;
  if(operatorId==='demo-transfer-operator'&&mode==='bus')return 'ترانسفر فرودگاهی';
  const authored=/^demo-operator-(flight|train|bus)-([0-2])$/.exec(operatorId);
  return authored?.[1]===mode?operatorNames[mode][Number(authored[2])]??'شرکت حمل‌ونقل':'شرکت حمل‌ونقل';

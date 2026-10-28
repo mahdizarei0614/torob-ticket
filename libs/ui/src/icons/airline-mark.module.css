@@ -1,0 +1,14 @@
+.airlineMark {
+  display: inline-block;
+  flex-shrink: 0;
+  vertical-align: middle;
+  object-fit: contain;
+  background: var(--brand-mark-surface);
+  border-radius: var(--radius-sm);
+}
+
+@media (forced-colors: active) {
+  .airlineMark {
+    forced-color-adjust: none;
+  }
+}
