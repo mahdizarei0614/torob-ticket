@@ -49,8 +49,10 @@ test('@roundtrip-profile compact intro, paired price bounds and anchored profile
   await page.setViewportSize({ width: 390, height: 844 }); await trigger.click(); await expect(profile(page)).toBeVisible();
   const popover = await page.locator('[data-profile-popover]').boundingBox();
   expect(popover!.x).toBeGreaterThanOrEqual(0); expect(popover!.x + popover!.width).toBeLessThanOrEqual(390); expect(popover!.y + popover!.height).toBeLessThanOrEqual(844);
-  await capture(page, 'profile-mobile'); await page.keyboard.press('Escape');
-  await trigger.click(); await page.mouse.click(1, 1); await expect(profile(page)).toHaveCount(0);
+  await capture(page, 'profile-mobile'); await page.keyboard.press('Escape'); await expect(profile(page)).toHaveCount(0);
+  await trigger.click(); await expect(profile(page)).toBeVisible();
+  await page.getByRole('button', {name:'نمای روشن',exact:true}).click(); await expect(profile(page)).toHaveCount(0);
+  await expect(page.locator('html')).toHaveAttribute('data-appearance','light');
   save('layout-profile', { title: a, suggestions: b, bounds, mobilePopover: popover });
 });
 

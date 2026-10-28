@@ -10,7 +10,7 @@
 
 **Tech Stack:** Nx, pnpm, TypeScript, React, Vite, React Router, TanStack Query, React Aria, CSS Modules, CSS custom properties, Zod, NestJS, PostgreSQL, Prisma, Three.js, React Three Fiber, selected Drei utilities, Motion, @internationalized/date, Vitest, Testing Library, Playwright, Storybook, Docker Compose, Caddy.
 
-**Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.7, 2026-10-26 (world map context, zoom density and scene continuity).
+**Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.13, 2026-10-28 (compact profile, round-trip discovery and living dots).
 
 **Plan state:** Approved. M1–M6 and T29 packaging are complete with independent reviews and packaged acceptance evidence. **29/35 tasks complete; M7 PARTIAL, T30 ACTIVE.** Owner requested a fast checkpoint before substantial design/logic changes: finish durable harness checks now; full T30 matrix and T31–T33 audits/rehearsal remain unfinished. M8 retains its planned scope.
 
@@ -2315,3 +2315,15 @@ The subsequent request supersedes the previous all-labels-hidden and pre-ticket 
 | Route/date controls | Aligned city/class row; class segments; shorter wheel; calendar below; equal combined chart height | DONE | `c1f4a74`; 46px aligned controls; wheel132 + gap8 + calendar44 = chart184; desktop/mobile and keyboard/calendar native checks pass |
 | Content and selected heading | Skeletons, finite entry/exit/reorder, inert obsolete visuals, preserved details/focus; pinned service heading | DONE | `c1f4a74`, `5529c0d`; real Motion lifecycle/source regressions, selected route/sort/detail-preservation and visible heading above shared canvas pass |
 | Integration and review | Independent review, source/native/packaged checks, tracker/SDD/export synchronization | DONE | [Review](../../evidence/adjustments/soft-transitions/review.md); 447 integrated source tests, 9 Nx checks, 4 native cases including provider return pass; local stack ready; M7 remains partial |
+
+## Owner adjustment — compact profile, round trips and living dots, 2026-10-28
+
+[Decision0039](../../decisions/0039-compact-profile-and-roundtrip-discovery.md) maps all five requests. M7 remains partial, 29/35; T30 active.
+
+| Adjustment | Subtasks | Status | Evidence |
+|---|---|---|---|
+| Compact intro and price bounds | Remove subtitle; align title/suggestions; bind min/max labels to their amounts in RTL/mobile | DONE | `fbb56e9`; native aligned centers and paired price gaps; [checkpoint](../../evidence/adjustments/roundtrip-profile/checkpoint.md) |
+| Profile popover | Anchored nonmodal account; remove redundant/empty saved copy; preserve real records/leases; sticky accessible close | DONE | `fbb56e9`; 27 account tests and actual save/Escape/outside/mobile/20-item checks pass; removed/disabled-focus repair verified |
+| Round-trip discovery | First-toggle bounded +3-day return; explicit later date reselection; complete fares and selected map playback | DONE | `fbb56e9`; all six native mode/scope combinations return complete eligible round trips and animate selected itineraries |
+| Living dots | Bounded slow per-cell drift; common shader/CPU morph snapshots; fixed anchors and existing lifecycle | DONE | `fbb56e9`; 78 graphics tests; actual linked drift programs, completed morph/continued clock, covered freeze and reduced amplitude zero verified |
+| Integration and review | Independent review; packaged source/native evidence; tracker/SDD/export synchronization | DONE | [Review](../../evidence/adjustments/roundtrip-profile/review.md) approved; final 487 source tests / 82 files, 9 Nx checks and 9 unique native cases pass across scoped runs; local stack ready; M7 remains partial |

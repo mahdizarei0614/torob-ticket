@@ -1,6 +1,6 @@
 # TorobTicket — Product and Architecture Specification
 
-**Revision:** 1.12 · 2026-10-28
+**Revision:** 1.13 · 2026-10-28
 
 **Purpose:** Authoritative design companion to the master implementation plan.  
 **Status:** Product scope and architecture approved in conversation. Implementation defaults below are explicit engineering decisions made while preparing the plan; they are not additional claims of user approval.
@@ -122,6 +122,8 @@ Calendar and wheel use one date-price model. Calendar interaction is provisional
 
 The calendar uses a compact icon trigger and a narrow month dialog with priced days and usable touch targets. Gregorian manual entry is available in an optional disclosure. The date wheel retains keyboard/drag interaction without visible drag hints or the redundant date-comparison heading.
 
+**Owner round-trip adjustment, 2026-10-28:** on an explicit one-way→round-trip toggle, initialize a visible editable return three days after the chosen departure, clamped to the destination-local 90-day date horizon. This makes complete round-trip prices and ticket selection available immediately; it does not invent inventory. A later departure edit that invalidates the return still clears it, requires reselection and initially moves the wheel to return selection once. Explicit outbound/return exploration and provisional calendar editing remain available while that return is unset.
+
 For round trips, choose departure first. Return-day prices represent complete round-trip totals. Once both dates are set, changing either leg holds the opposite leg fixed. If the departure makes the return invalid, require the user to reselect; do not silently shift the return. Same-day returns may be valid when actual segment timing makes them possible; the throwaway prototype's stricter behavior is not a production rule.
 
 Date states are priced, checking, no matching offer, and outside coverage. If retrieval fails or no complete price can be established, show a distinct price-unavailable state with recovery; never describe a provider failure as proof that no tickets exist. Missing/unknown values create chart gaps, never zero prices. A date estimate retains its observation/coverage evidence internally. It remains reusable for the same session and query identity without a 60-second stale warning or retry prompt; invalid/future timestamps and actual retrieval failures remain distinct. Date retrieval failures get one quiet delayed recovery attempt per unchanged active hook identity, plus reconnect recovery; no manual retry control or refresh loop. Quote expiry and referral recheck are separate and unchanged. Filters, party, class, mode, provider scenario, mapping revision, and fixed opposite leg are part of its cache identity.
@@ -150,7 +152,7 @@ Flights use visible shallow arcs, rail uses two parallel straight rails between 
 
 The route animation is visual presentation, separate from comparison/referral authority. It must never change a quote, create a referral, or suggest a confirmed booking. Internal comparison/referral markers remain 0%, 35%, 70%, 100%, backed by the existing state/receipt rules. The consumer vehicle follows the visual route, while generic laboratory progress controls retain their prior semantics. Reduced motion shows the complete selected route and exact stop values immediately.
 
-Geography dots breathe slowly with varied phases. Mouse movement leaves a dim, geographically anchored trail with a soft onset and gradual decay after the cursor passes, rather than an immediate spotlight. A bounded history and non-additive glow prevent bright accumulation. An authored subset of major-city locations has slightly larger/brighter dots with the same subtle trail, with no population/ranking inference or additional city-selection logic. Ambient dot motion and the route strand share the existing application renderer/clock and run only while the desktop map is visible, uncovered, and motion is permitted. Reduced motion clears pointer trails and settles the geography.
+Geography dots breathe slowly with varied phases. **Owner living-map adjustment, 2026-10-28:** decorative dot centers also move with slow per-cell phases, bounded below 1.2 CSS pixels at every zoom, initially and after scope morphs. Shared shader/CPU drift math makes morph snapshots begin at displayed positions. Borders, named endpoints/stops and routes keep their canonical anchors; the existing clock pauses under coverage/visibility and reduced motion settles drift to zero. No additional renderer or scheduler loop is added. Mouse movement leaves a dim, geographically anchored trail with a soft onset and gradual decay after the cursor passes, rather than an immediate spotlight. A bounded history and non-additive glow prevent bright accumulation. An authored subset of major-city locations has slightly larger/brighter dots with the same subtle trail, with no population/ranking inference or additional city-selection logic. Ambient dot motion and the route strand share the existing application renderer/clock and run only while the desktop map is visible, uncovered, and motion is permitted. Reduced motion clears pointer trails and settles the geography.
 
 **Owner motion adjustment, 2026-10-27:** Switching Iran/world redistributes a bounded deterministic particle field along scattered paths, then settles into the destination's airy dot lattice. Interrupted changes continue from the visible state; reduced motion settles directly. Vehicles follow the local path tangent, with a locomotive and two independently following wagons for trains. A blur/opacity envelope softens vehicle entry, arrival and loop restart. Selected origin/destination visuals fade in and out, retaining outgoing visuals only for the exit; current semantic endpoint identities stay unique.
 
@@ -181,6 +183,8 @@ Hotel dates may be edited independently. A later trip change offers an update an
 ## 8. Sessions, optional login, and referrals
 
 Guest search, comparison, hotel discovery, and referral are fully supported. Optional “Continue with Torob” establishes a local identity inside the same isolated session. It unlocks saved searches and preferences. No password, real OAuth, OTP delivery, or real personal information is needed.
+
+**Owner profile adjustment, 2026-10-28:** account controls use a compact anchored nonmodal popover with keyboard/Escape/outside dismissal and focus return. Keep it within the viewport, with a sticky close/header and 44px mobile close target. The underlying map stays active. Remove the visible saved-search heading, general explanation and empty-state copy; actual saved records and actions remain available. Close/reopen, intent and session leases continue to fence mutations.
 
 Saved searches store search intent, not a promise of a historic fare. Opening one performs a fresh search. Theme preferences persist locally; session-linked saved searches remain for the lifetime of the demo session.
 
@@ -271,6 +275,8 @@ Same-origin gateway routes / to web, /admin to admin, /api to NestJS, and /provi
 ## 12. Rendering, design, and accessibility
 
 Use React Aria primitives, custom CSS Modules, and semantic CSS variables for all authored UI colors, SVG fills/strokes, chart colors, focus states, and shader uniforms. Avoid hardcoded component colors. Transport × appearance yields plane blue, train green, and bus red in dark/light versions. The canvas and surface families carry the transport hue: very dark blue for flights, dark green for trains, dark red for buses, with corresponding restrained light palettes. Admin uses the shared neutral/blue token family.
+
+**Owner intro/price-label adjustment, 2026-10-28:** remove the intro subtitle; align the main title and suggested-trips control at their vertical centers in one compact row. Keep each minimum/maximum label attached to its own numerical price with a small explicit gap and bidi isolation; narrow layouts may stack complete pairs.
 
 Local font defaults are Vazirmatn for Persian and Inter for English; verify and bundle font licenses. The visual reference is compact comparison UI with clear hierarchy, not a dashboard template. Density must not remove readable price conditions or focus targets.
 
