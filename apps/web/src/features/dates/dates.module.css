@@ -48,6 +48,18 @@
 .chartHeading>span:first-child{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .chartHeading>span:last-child{flex:0 0 auto;}
 
+.chartPoints { touch-action: pan-y; }
+.chartTooltipAnchor { position:absolute;z-index:3;width:136px;max-width:100%;pointer-events:none;direction:rtl;text-align:center;transition:left 160ms ease-out,top 160ms ease-out; }
+.chartTooltipAnchor[data-placement='above'] { transform:translateY(calc(-100% - 12px)); }
+.chartTooltipAnchor[data-placement='below'] { transform:translateY(12px); }
+.chartTooltip { display:grid;gap:2px;padding:6px 8px;background:var(--surface-raised);border:1px solid var(--border-strong);border-radius:var(--radius-sm);box-shadow:var(--elevation);color:var(--text);font-size:11px;line-height:1.6; }
+.chartTooltipDate { color:var(--text-muted);font-size:10px; }
+.chartTooltipPrice { display:flex;align-items:baseline;justify-content:center;flex-wrap:wrap;gap:4px;font-weight:700; }
+.chartTooltipPrice bdi { direction:ltr;unicode-bidi:isolate; }
+.chartTooltipPrice>span { font-size:9px;font-weight:400;color:var(--text-muted); }
+.chart[data-motion-policy='static'] .chartTooltipAnchor { transition:none; }
+@media (prefers-reduced-motion:reduce) { .chartTooltipAnchor { transition:none; } }
+
 .priceAmount[data-enter] { animation: datePriceAppear 240ms ease-out both; }
 @keyframes datePriceAppear { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 @media (prefers-reduced-motion: reduce) { .priceAmount[data-enter] { animation: none; } }

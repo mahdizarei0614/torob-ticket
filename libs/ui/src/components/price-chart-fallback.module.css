@@ -1,0 +1,4 @@
+.chart { overflow: visible; }
+.marker { transition: r 160ms cubic-bezier(.2,.7,.2,1); }
+.chart[data-motion-policy='static'] .marker { transition: none; }
+@media (prefers-reduced-motion: reduce) { .marker { transition: none; } }
