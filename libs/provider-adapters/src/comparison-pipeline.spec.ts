@@ -1,9 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { NormalizedOffer, TransportSearchQuery } from '@torob-ticket/contracts';
 import { groupOffers, quoteOffer, type ComparisonContext } from '@torob-ticket/domain';
-import { catalog, mockFarePolicies } from '@torob-ticket/fixtures';
+import { catalogForIdentity, farePoliciesForFixture } from '@torob-ticket/fixtures';
 import { mockRegistry } from './mock-registry';
 import type { ProviderContext, ProviderEvidence } from './provider-context';
+const catalog=catalogForIdentity('showcase-v1','catalog-v1');
+const mockFarePolicies=farePoliciesForFixture('showcase-v1');
 
 const query: TransportSearchQuery = {
   mode: 'flight', scope: 'domestic', tripType: 'one-way', originCityId: 'tehran', destinationCityId: 'mashhad', departureDate: '2026-10-25',

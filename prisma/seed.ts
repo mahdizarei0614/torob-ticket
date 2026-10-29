@@ -8,8 +8,9 @@ async function seed() {
 try {
   // DO NOTHING is intentional: never update immutable roots during reseeding.
   await db.fixtureVersion.createMany({ data: [{ id: 'foundation-v1', catalogRevision: 'foundation-catalog-v1', manifest: { stage: 'foundation', inventory: 'authored-in-T05' }, createdAt: new Date('2026-10-24T00:00:00.000Z') }], skipDuplicates: true });
-  await seedFixtures(db);
-  console.log('Immutable foundation-v1 retained; showcase-v1/catalog-v1 ready: 90 places, 308 hotels, 924 room templates.');
+  const versions=await seedFixtures(db);
+  console.log('Immutable foundation-v1 retained.');
+  for (const version of versions) console.log(`${version.fixtureVersion}/${version.catalogRevision} ready: ${version.places} places, ${version.hotels} hotels, ${version.roomTemplates} room templates.`);
 } finally { await db.$disconnect(); }
 }
 void seed().catch(error => { console.error(error); process.exitCode = 1; });

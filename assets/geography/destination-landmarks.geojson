@@ -6116,6 +6116,3064 @@
           55.76311
         ]
       }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "london-landmark",
+        "cityId": "london",
+        "name": "مرکز شهر لندن",
+        "kind": "landmark",
+        "source": "Bundled Natural Earth populated places"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -0.118668,
+          51.501941
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "london-extent",
+        "cityId": "london",
+        "kind": "illustrative-destination-extent",
+        "fictional": true,
+        "navigation": false
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -0.509909,
+              51.420748
+            ],
+            [
+              -0.054668,
+              51.420748
+            ],
+            [
+              -0.054668,
+              51.560941
+            ],
+            [
+              -0.509909,
+              51.560941
+            ],
+            [
+              -0.509909,
+              51.420748
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "london-hotel-01",
+        "cityId": "london",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -0.132668,
+          51.492941
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "london-hotel-02",
+        "cityId": "london",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -0.125668,
+          51.492941
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "london-hotel-03",
+        "cityId": "london",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -0.118668,
+          51.492941
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "london-hotel-04",
+        "cityId": "london",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -0.111668,
+          51.492941
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "london-hotel-05",
+        "cityId": "london",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -0.104668,
+          51.492941
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "london-hotel-06",
+        "cityId": "london",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -0.132668,
+          51.501941
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "london-hotel-07",
+        "cityId": "london",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -0.125668,
+          51.501941
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "london-hotel-08",
+        "cityId": "london",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -0.118668,
+          51.501941
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "london-hotel-09",
+        "cityId": "london",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -0.111668,
+          51.501941
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "london-hotel-10",
+        "cityId": "london",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -0.104668,
+          51.501941
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "london-hotel-11",
+        "cityId": "london",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -0.132668,
+          51.510941
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "london-hotel-12",
+        "cityId": "london",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -0.125668,
+          51.510941
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "london-hotel-13",
+        "cityId": "london",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -0.118668,
+          51.510941
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "london-hotel-14",
+        "cityId": "london",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -0.111668,
+          51.510941
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "paris-landmark",
+        "cityId": "paris",
+        "name": "مرکز شهر پاریس",
+        "kind": "landmark",
+        "source": "Bundled Natural Earth populated places"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2.352992,
+          48.858092
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "paris-extent",
+        "cityId": "paris",
+        "kind": "illustrative-destination-extent",
+        "fictional": true,
+        "navigation": false
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              2.288992,
+              48.799092
+            ],
+            [
+              2.604117,
+              48.799092
+            ],
+            [
+              2.604117,
+              49.05896
+            ],
+            [
+              2.288992,
+              49.05896
+            ],
+            [
+              2.288992,
+              48.799092
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "paris-hotel-01",
+        "cityId": "paris",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2.338992,
+          48.849092
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "paris-hotel-02",
+        "cityId": "paris",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2.345992,
+          48.849092
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "paris-hotel-03",
+        "cityId": "paris",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2.352992,
+          48.849092
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "paris-hotel-04",
+        "cityId": "paris",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2.359992,
+          48.849092
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "paris-hotel-05",
+        "cityId": "paris",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2.366992,
+          48.849092
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "paris-hotel-06",
+        "cityId": "paris",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2.338992,
+          48.858092
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "paris-hotel-07",
+        "cityId": "paris",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2.345992,
+          48.858092
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "paris-hotel-08",
+        "cityId": "paris",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2.352992,
+          48.858092
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "paris-hotel-09",
+        "cityId": "paris",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2.359992,
+          48.858092
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "paris-hotel-10",
+        "cityId": "paris",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2.366992,
+          48.858092
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "paris-hotel-11",
+        "cityId": "paris",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2.338992,
+          48.867092
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "paris-hotel-12",
+        "cityId": "paris",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2.345992,
+          48.867092
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "paris-hotel-13",
+        "cityId": "paris",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2.352992,
+          48.867092
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "paris-hotel-14",
+        "cityId": "paris",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2.359992,
+          48.867092
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "frankfurt-landmark",
+        "cityId": "frankfurt",
+        "name": "مرکز شهر فرانکفورت",
+        "kind": "landmark",
+        "source": "Authored approximate city-center anchor"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          8.6821,
+          50.1109
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "frankfurt-extent",
+        "cityId": "frankfurt",
+        "kind": "illustrative-destination-extent",
+        "fictional": true,
+        "navigation": false
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              8.50835,
+              49.976706
+            ],
+            [
+              8.7461,
+              49.976706
+            ],
+            [
+              8.7461,
+              50.1699
+            ],
+            [
+              8.50835,
+              50.1699
+            ],
+            [
+              8.50835,
+              49.976706
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "frankfurt-hotel-01",
+        "cityId": "frankfurt",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          8.6681,
+          50.1019
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "frankfurt-hotel-02",
+        "cityId": "frankfurt",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          8.6751,
+          50.1019
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "frankfurt-hotel-03",
+        "cityId": "frankfurt",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          8.6821,
+          50.1019
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "frankfurt-hotel-04",
+        "cityId": "frankfurt",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          8.6891,
+          50.1019
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "frankfurt-hotel-05",
+        "cityId": "frankfurt",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          8.6961,
+          50.1019
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "frankfurt-hotel-06",
+        "cityId": "frankfurt",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          8.6681,
+          50.1109
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "frankfurt-hotel-07",
+        "cityId": "frankfurt",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          8.6751,
+          50.1109
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "frankfurt-hotel-08",
+        "cityId": "frankfurt",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          8.6821,
+          50.1109
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "frankfurt-hotel-09",
+        "cityId": "frankfurt",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          8.6891,
+          50.1109
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "frankfurt-hotel-10",
+        "cityId": "frankfurt",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          8.6961,
+          50.1109
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "frankfurt-hotel-11",
+        "cityId": "frankfurt",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          8.6681,
+          50.1199
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "frankfurt-hotel-12",
+        "cityId": "frankfurt",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          8.6751,
+          50.1199
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "frankfurt-hotel-13",
+        "cityId": "frankfurt",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          8.6821,
+          50.1199
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "frankfurt-hotel-14",
+        "cityId": "frankfurt",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          8.6891,
+          50.1199
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "new-york-landmark",
+        "cityId": "new-york",
+        "name": "مرکز شهر نیویورک",
+        "kind": "landmark",
+        "source": "Bundled Natural Earth populated places"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -73.995718,
+          40.721562
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "new-york-extent",
+        "cityId": "new-york",
+        "kind": "illustrative-destination-extent",
+        "fictional": true,
+        "navigation": false
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -74.059718,
+              40.589447
+            ],
+            [
+              -73.729317,
+              40.589447
+            ],
+            [
+              -73.729317,
+              40.780562
+            ],
+            [
+              -74.059718,
+              40.780562
+            ],
+            [
+              -74.059718,
+              40.589447
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "new-york-hotel-01",
+        "cityId": "new-york",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -74.009718,
+          40.712562
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "new-york-hotel-02",
+        "cityId": "new-york",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -74.002718,
+          40.712562
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "new-york-hotel-03",
+        "cityId": "new-york",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -73.995718,
+          40.712562
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "new-york-hotel-04",
+        "cityId": "new-york",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -73.988718,
+          40.712562
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "new-york-hotel-05",
+        "cityId": "new-york",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -73.981718,
+          40.712562
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "new-york-hotel-06",
+        "cityId": "new-york",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -74.009718,
+          40.721562
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "new-york-hotel-07",
+        "cityId": "new-york",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -74.002718,
+          40.721562
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "new-york-hotel-08",
+        "cityId": "new-york",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -73.995718,
+          40.721562
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "new-york-hotel-09",
+        "cityId": "new-york",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -73.988718,
+          40.721562
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "new-york-hotel-10",
+        "cityId": "new-york",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -73.981718,
+          40.721562
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "new-york-hotel-11",
+        "cityId": "new-york",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -74.009718,
+          40.730562
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "new-york-hotel-12",
+        "cityId": "new-york",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -74.002718,
+          40.730562
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "new-york-hotel-13",
+        "cityId": "new-york",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -73.995718,
+          40.730562
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "new-york-hotel-14",
+        "cityId": "new-york",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -73.988718,
+          40.730562
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "los-angeles-landmark",
+        "cityId": "los-angeles",
+        "name": "مرکز شهر لس‌آنجلس",
+        "kind": "landmark",
+        "source": "Bundled Natural Earth populated places"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -118.231986,
+          34.049219
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "los-angeles-extent",
+        "cityId": "los-angeles",
+        "kind": "illustrative-destination-extent",
+        "fictional": true,
+        "navigation": false
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -118.457997,
+              33.892501
+            ],
+            [
+              -118.167986,
+              33.892501
+            ],
+            [
+              -118.167986,
+              34.108219
+            ],
+            [
+              -118.457997,
+              34.108219
+            ],
+            [
+              -118.457997,
+              33.892501
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "los-angeles-hotel-01",
+        "cityId": "los-angeles",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -118.245986,
+          34.040219
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "los-angeles-hotel-02",
+        "cityId": "los-angeles",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -118.238986,
+          34.040219
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "los-angeles-hotel-03",
+        "cityId": "los-angeles",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -118.231986,
+          34.040219
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "los-angeles-hotel-04",
+        "cityId": "los-angeles",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -118.224986,
+          34.040219
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "los-angeles-hotel-05",
+        "cityId": "los-angeles",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -118.217986,
+          34.040219
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "los-angeles-hotel-06",
+        "cityId": "los-angeles",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -118.245986,
+          34.049219
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "los-angeles-hotel-07",
+        "cityId": "los-angeles",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -118.238986,
+          34.049219
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "los-angeles-hotel-08",
+        "cityId": "los-angeles",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -118.231986,
+          34.049219
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "los-angeles-hotel-09",
+        "cityId": "los-angeles",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -118.224986,
+          34.049219
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "los-angeles-hotel-10",
+        "cityId": "los-angeles",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -118.217986,
+          34.049219
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "los-angeles-hotel-11",
+        "cityId": "los-angeles",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -118.245986,
+          34.058219
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "los-angeles-hotel-12",
+        "cityId": "los-angeles",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -118.238986,
+          34.058219
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "los-angeles-hotel-13",
+        "cityId": "los-angeles",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -118.231986,
+          34.058219
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "los-angeles-hotel-14",
+        "cityId": "los-angeles",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -118.224986,
+          34.058219
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "toronto-landmark",
+        "cityId": "toronto",
+        "name": "مرکز شهر تورنتو",
+        "kind": "landmark",
+        "source": "Bundled Natural Earth populated places"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.389459,
+          43.664645
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "toronto-extent",
+        "cityId": "toronto",
+        "kind": "illustrative-destination-extent",
+        "fictional": true,
+        "navigation": false
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -79.679421,
+              43.605645
+            ],
+            [
+              -79.325459,
+              43.605645
+            ],
+            [
+              -79.325459,
+              43.725935
+            ],
+            [
+              -79.679421,
+              43.725935
+            ],
+            [
+              -79.679421,
+              43.605645
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "toronto-hotel-01",
+        "cityId": "toronto",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.403459,
+          43.655645
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "toronto-hotel-02",
+        "cityId": "toronto",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.396459,
+          43.655645
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "toronto-hotel-03",
+        "cityId": "toronto",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.389459,
+          43.655645
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "toronto-hotel-04",
+        "cityId": "toronto",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.382459,
+          43.655645
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "toronto-hotel-05",
+        "cityId": "toronto",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.375459,
+          43.655645
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "toronto-hotel-06",
+        "cityId": "toronto",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.403459,
+          43.664645
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "toronto-hotel-07",
+        "cityId": "toronto",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.396459,
+          43.664645
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "toronto-hotel-08",
+        "cityId": "toronto",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.389459,
+          43.664645
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "toronto-hotel-09",
+        "cityId": "toronto",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.382459,
+          43.664645
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "toronto-hotel-10",
+        "cityId": "toronto",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.375459,
+          43.664645
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "toronto-hotel-11",
+        "cityId": "toronto",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.403459,
+          43.673645
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "toronto-hotel-12",
+        "cityId": "toronto",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.396459,
+          43.673645
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "toronto-hotel-13",
+        "cityId": "toronto",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.389459,
+          43.673645
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "toronto-hotel-14",
+        "cityId": "toronto",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.382459,
+          43.673645
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "singapore-landmark",
+        "cityId": "singapore",
+        "name": "مرکز شهر سنگاپور",
+        "kind": "landmark",
+        "source": "Bundled Natural Earth populated places"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.853875,
+          1.294979
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "singapore-extent",
+        "cityId": "singapore",
+        "kind": "illustrative-destination-extent",
+        "fictional": true,
+        "navigation": false
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              103.789875,
+              1.235979
+            ],
+            [
+              104.044003,
+              1.235979
+            ],
+            [
+              104.044003,
+              1.40019
+            ],
+            [
+              103.789875,
+              1.40019
+            ],
+            [
+              103.789875,
+              1.235979
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "singapore-hotel-01",
+        "cityId": "singapore",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.839875,
+          1.285979
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "singapore-hotel-02",
+        "cityId": "singapore",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.846875,
+          1.285979
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "singapore-hotel-03",
+        "cityId": "singapore",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.853875,
+          1.285979
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "singapore-hotel-04",
+        "cityId": "singapore",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.860875,
+          1.285979
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "singapore-hotel-05",
+        "cityId": "singapore",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.867875,
+          1.285979
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "singapore-hotel-06",
+        "cityId": "singapore",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.839875,
+          1.294979
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "singapore-hotel-07",
+        "cityId": "singapore",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.846875,
+          1.294979
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "singapore-hotel-08",
+        "cityId": "singapore",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.853875,
+          1.294979
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "singapore-hotel-09",
+        "cityId": "singapore",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.860875,
+          1.294979
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "singapore-hotel-10",
+        "cityId": "singapore",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.867875,
+          1.294979
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "singapore-hotel-11",
+        "cityId": "singapore",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.839875,
+          1.303979
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "singapore-hotel-12",
+        "cityId": "singapore",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.846875,
+          1.303979
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "singapore-hotel-13",
+        "cityId": "singapore",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.853875,
+          1.303979
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "singapore-hotel-14",
+        "cityId": "singapore",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.860875,
+          1.303979
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "bangkok-landmark",
+        "cityId": "bangkok",
+        "name": "مرکز شهر بانکوک",
+        "kind": "landmark",
+        "source": "Bundled Natural Earth populated places"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.514699,
+          13.751945
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "bangkok-extent",
+        "cityId": "bangkok",
+        "kind": "illustrative-destination-extent",
+        "fictional": true,
+        "navigation": false
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              100.450699,
+              13.6311
+            ],
+            [
+              100.797002,
+              13.6311
+            ],
+            [
+              100.797002,
+              13.810945
+            ],
+            [
+              100.450699,
+              13.810945
+            ],
+            [
+              100.450699,
+              13.6311
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "bangkok-hotel-01",
+        "cityId": "bangkok",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.500699,
+          13.742945
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "bangkok-hotel-02",
+        "cityId": "bangkok",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.507699,
+          13.742945
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "bangkok-hotel-03",
+        "cityId": "bangkok",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.514699,
+          13.742945
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "bangkok-hotel-04",
+        "cityId": "bangkok",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.521699,
+          13.742945
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "bangkok-hotel-05",
+        "cityId": "bangkok",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.528699,
+          13.742945
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "bangkok-hotel-06",
+        "cityId": "bangkok",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.500699,
+          13.751945
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "bangkok-hotel-07",
+        "cityId": "bangkok",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.507699,
+          13.751945
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "bangkok-hotel-08",
+        "cityId": "bangkok",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.514699,
+          13.751945
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "bangkok-hotel-09",
+        "cityId": "bangkok",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.521699,
+          13.751945
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "bangkok-hotel-10",
+        "cityId": "bangkok",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.528699,
+          13.751945
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "bangkok-hotel-11",
+        "cityId": "bangkok",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.500699,
+          13.760945
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "bangkok-hotel-12",
+        "cityId": "bangkok",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.507699,
+          13.760945
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "bangkok-hotel-13",
+        "cityId": "bangkok",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.514699,
+          13.760945
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "bangkok-hotel-14",
+        "cityId": "bangkok",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.521699,
+          13.760945
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tokyo-landmark",
+        "cityId": "tokyo",
+        "name": "مرکز شهر توکیو",
+        "kind": "landmark",
+        "source": "Bundled Natural Earth populated places"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          139.749462,
+          35.686963
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tokyo-extent",
+        "cityId": "tokyo",
+        "kind": "illustrative-destination-extent",
+        "fictional": true,
+        "navigation": false
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              139.685462,
+              35.499678
+            ],
+            [
+              139.836958,
+              35.499678
+            ],
+            [
+              139.836958,
+              35.745963
+            ],
+            [
+              139.685462,
+              35.745963
+            ],
+            [
+              139.685462,
+              35.499678
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tokyo-hotel-01",
+        "cityId": "tokyo",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          139.735462,
+          35.677963
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tokyo-hotel-02",
+        "cityId": "tokyo",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          139.742462,
+          35.677963
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tokyo-hotel-03",
+        "cityId": "tokyo",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          139.749462,
+          35.677963
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tokyo-hotel-04",
+        "cityId": "tokyo",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          139.756462,
+          35.677963
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tokyo-hotel-05",
+        "cityId": "tokyo",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          139.763462,
+          35.677963
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tokyo-hotel-06",
+        "cityId": "tokyo",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          139.735462,
+          35.686963
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tokyo-hotel-07",
+        "cityId": "tokyo",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          139.742462,
+          35.686963
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tokyo-hotel-08",
+        "cityId": "tokyo",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          139.749462,
+          35.686963
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tokyo-hotel-09",
+        "cityId": "tokyo",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          139.756462,
+          35.686963
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tokyo-hotel-10",
+        "cityId": "tokyo",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          139.763462,
+          35.686963
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tokyo-hotel-11",
+        "cityId": "tokyo",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          139.735462,
+          35.695963
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tokyo-hotel-12",
+        "cityId": "tokyo",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          139.742462,
+          35.695963
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tokyo-hotel-13",
+        "cityId": "tokyo",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          139.749462,
+          35.695963
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tokyo-hotel-14",
+        "cityId": "tokyo",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          139.756462,
+          35.695963
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "sydney-landmark",
+        "cityId": "sydney",
+        "name": "مرکز شهر سیدنی",
+        "kind": "landmark",
+        "source": "Bundled Natural Earth populated places"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          151.212548,
+          -33.871373
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "sydney-extent",
+        "cityId": "sydney",
+        "kind": "illustrative-destination-extent",
+        "fictional": true,
+        "navigation": false
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              151.127002,
+              -33.996098
+            ],
+            [
+              151.276548,
+              -33.996098
+            ],
+            [
+              151.276548,
+              -33.812373
+            ],
+            [
+              151.127002,
+              -33.812373
+            ],
+            [
+              151.127002,
+              -33.996098
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "sydney-hotel-01",
+        "cityId": "sydney",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          151.198548,
+          -33.880373
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "sydney-hotel-02",
+        "cityId": "sydney",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          151.205548,
+          -33.880373
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "sydney-hotel-03",
+        "cityId": "sydney",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          151.212548,
+          -33.880373
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "sydney-hotel-04",
+        "cityId": "sydney",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          151.219548,
+          -33.880373
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "sydney-hotel-05",
+        "cityId": "sydney",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          151.226548,
+          -33.880373
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "sydney-hotel-06",
+        "cityId": "sydney",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          151.198548,
+          -33.871373
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "sydney-hotel-07",
+        "cityId": "sydney",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          151.205548,
+          -33.871373
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "sydney-hotel-08",
+        "cityId": "sydney",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          151.212548,
+          -33.871373
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "sydney-hotel-09",
+        "cityId": "sydney",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          151.219548,
+          -33.871373
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "sydney-hotel-10",
+        "cityId": "sydney",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          151.226548,
+          -33.871373
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "sydney-hotel-11",
+        "cityId": "sydney",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          151.198548,
+          -33.862373
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "sydney-hotel-12",
+        "cityId": "sydney",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          151.205548,
+          -33.862373
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "sydney-hotel-13",
+        "cityId": "sydney",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          151.212548,
+          -33.862373
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "sydney-hotel-14",
+        "cityId": "sydney",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          151.219548,
+          -33.862373
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "auckland-landmark",
+        "cityId": "auckland",
+        "name": "مرکز شهر اوکلند",
+        "kind": "landmark",
+        "source": "Bundled Natural Earth populated places"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.763027,
+          -36.848055
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "auckland-extent",
+        "cityId": "auckland",
+        "kind": "illustrative-destination-extent",
+        "fictional": true,
+        "navigation": false
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              174.699027,
+              -37.06199
+            ],
+            [
+              174.836331,
+              -37.06199
+            ],
+            [
+              174.836331,
+              -36.789055
+            ],
+            [
+              174.699027,
+              -36.789055
+            ],
+            [
+              174.699027,
+              -37.06199
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "auckland-hotel-01",
+        "cityId": "auckland",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.749027,
+          -36.857055
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "auckland-hotel-02",
+        "cityId": "auckland",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.756027,
+          -36.857055
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "auckland-hotel-03",
+        "cityId": "auckland",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.763027,
+          -36.857055
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "auckland-hotel-04",
+        "cityId": "auckland",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.770027,
+          -36.857055
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "auckland-hotel-05",
+        "cityId": "auckland",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.777027,
+          -36.857055
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "auckland-hotel-06",
+        "cityId": "auckland",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.749027,
+          -36.848055
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "auckland-hotel-07",
+        "cityId": "auckland",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.756027,
+          -36.848055
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "auckland-hotel-08",
+        "cityId": "auckland",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.763027,
+          -36.848055
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "auckland-hotel-09",
+        "cityId": "auckland",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.770027,
+          -36.848055
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "auckland-hotel-10",
+        "cityId": "auckland",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.777027,
+          -36.848055
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "auckland-hotel-11",
+        "cityId": "auckland",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.749027,
+          -36.839055
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "auckland-hotel-12",
+        "cityId": "auckland",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.756027,
+          -36.839055
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "auckland-hotel-13",
+        "cityId": "auckland",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.763027,
+          -36.839055
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "auckland-hotel-14",
+        "cityId": "auckland",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.770027,
+          -36.839055
+        ]
+      }
     }
   ]
 }

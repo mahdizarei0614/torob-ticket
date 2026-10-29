@@ -115,15 +115,14 @@ export function sampleJourneyPresentation(plan: JourneyPresentation, elapsedMs: 
     return { id: stop.id, waitMinutes: stop.waitMinutes, count: stop.waitMinutes === null ? null : Math.round(stop.waitMinutes * amount) };
   });
   if (reducedMotion || !plan.stages.length) return { reveal: 1, travel: 1, stopGlow: 0, activeStop: null, revealedStops, complete: true, vehicleOpacity: plan.roundTrip ? 0 : 1, vehicleBlur: 0, ...(plan.roundTrip ? { direction: 'return' as const } : {}) };
-  // A round trip makes one complete pass and leaves its actual route and facts visible.
-  if (plan.roundTrip && complete) return { reveal: 1, travel: 1, stopGlow: 0, activeStop: null, revealedStops, complete: true, vehicleOpacity: 0, vehicleBlur: 1, direction: 'return' };
-  if (plan.roundTrip && elapsed >= plan.roundTrip.turnStartMs && elapsed < plan.roundTrip.turnEndMs) return {
-    reveal: plan.roundTrip.splitProgress, travel: plan.roundTrip.splitProgress, stopGlow: 0, activeStop: null, revealedStops, complete: false,
+  // After the first draw, repeat only decorative motion. Revealed facts never reset.
+  const time = complete ? ((elapsed - plan.durationMs) / 1.8) % plan.durationMs : elapsed;
+  if (plan.roundTrip && time >= plan.roundTrip.turnStartMs && time < plan.roundTrip.turnEndMs) return {
+    reveal: complete ? 1 : plan.roundTrip.splitProgress, travel: plan.roundTrip.splitProgress, stopGlow: 0, activeStop: null, revealedStops, complete,
     vehicleOpacity: 1, vehicleBlur: 0, direction: 'outbound',
-    turnProgress: ease(clamp((elapsed - plan.roundTrip.turnStartMs) / (plan.roundTrip.turnEndMs - plan.roundTrip.turnStartMs))),
+    turnProgress: ease(clamp((time - plan.roundTrip.turnStartMs) / (plan.roundTrip.turnEndMs - plan.roundTrip.turnStartMs))),
   };
   // Once drawn, only the strand repeats; the route and revealed facts stay present.
-  const time = complete ? ((elapsed - plan.durationMs) / 1.8) % plan.durationMs : elapsed;
   const stage = plan.stages.find(item => time < item.endMs) ?? plan.stages.at(-1)!;
   const travelling = time < stage.arriveMs;
   const amount = travelling ? ease(clamp((time - stage.startMs) / Math.max(1, stage.arriveMs - stage.startMs))) : 1;
@@ -135,5 +134,5 @@ export function sampleJourneyPresentation(plan: JourneyPresentation, elapsedMs: 
   const departure = 1 - ease(clamp((time - arrival + 160) / 500));
   const vehicleOpacity = entrance * departure;
   return { reveal: complete ? 1 : travel, travel, stopGlow, activeStop, revealedStops, complete, vehicleOpacity, vehicleBlur: 1 - vehicleOpacity,
-    ...(plan.roundTrip ? { direction: elapsed >= plan.roundTrip.turnEndMs ? 'return' as const : 'outbound' as const } : {}) };
+    ...(plan.roundTrip ? { direction: time >= plan.roundTrip.turnEndMs ? 'return' as const : 'outbound' as const } : {}) };
 }

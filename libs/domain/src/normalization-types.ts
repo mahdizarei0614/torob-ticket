@@ -14,6 +14,8 @@ export interface DecodedProviderRecord {
   classCode: string;
   baggageKg: number | null;
   refundable: boolean | null;
+  /** Only explicitly supplied material terms; missing source evidence stays absent. */
+  materialTerms?: string[];
   available: boolean;
   seats: number;
   party: Party;

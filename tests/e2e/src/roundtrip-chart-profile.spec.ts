@@ -141,7 +141,8 @@ for (const trip of [
   { mode: 'flight', classCode: 'economy', destinationCityId: 'mashhad' },
   { mode: 'train', classCode: 'seat', destinationCityId: 'mashhad' },
   { mode: 'bus', classCode: 'standard', destinationCityId: 'isfahan' },
-]) test(`@roundtrip-chart-profile ${trip.mode} turns and returns to its actual origin before fading`, async ({ page }) => {
+]) test(`@roundtrip-chart-profile ${trip.mode} returns, fades and loops while retaining its route facts`, async ({ page }) => {
+  test.setTimeout(90000);
   await open(page, { ...query, ...trip, tripType: 'round-trip', returnDate: '2026-11-04' });
   const errors: string[] = []; page.on('pageerror', error => errors.push(error.message));
   await page.evaluate(() => {
@@ -150,7 +151,7 @@ for (const trip of [
     const tick = () => {
       const node = document.querySelector<HTMLElement>('[data-route-presentation][data-route-round-trip="true"]');
       if (node) rows.push({ phase: node.dataset['journeyPhase'], direction: node.dataset['routeAnimationDirection'], turn: node.dataset['routeTurnProgress'], travel: node.dataset['routeTravel'], opacity: node.dataset['vehicleOpacity'], blur: node.dataset['vehicleBlur'], point: node.dataset['vehiclePoint'] });
-      if (performance.now() - started < 45000 && node?.dataset['routeComplete'] !== 'true') requestAnimationFrame(tick);
+      if (performance.now() - started < 80000 && !(window as unknown as { stopRoundTripCapture?: boolean }).stopRoundTripCapture) requestAnimationFrame(tick);
     }; tick();
   });
   await search(page);
@@ -167,10 +168,22 @@ for (const trip of [
     await expect(motion).toHaveAttribute('data-motion-active', 'true');
   }
   await expect(motion).toHaveAttribute('data-route-animation-direction', 'return', { timeout: 10000 });
-  await expect(motion).toHaveAttribute('data-route-complete', 'true', { timeout: 20000 });
-  await expect(motion).toHaveAttribute('data-vehicle-opacity', '0.000');
+  await expect(motion).toHaveAttribute('data-vehicle-opacity', '0.000', { timeout: 20000 });
   await expect(motion).toHaveAttribute('data-vehicle-blur', '1.000');
+  await expect(motion).toHaveAttribute('data-route-complete', 'true', { timeout: 20000 });
   await expect(motion).toHaveAttribute('data-route-reveal', '1.000');
+  // Opacity rounds to zero slightly before exact arrival. Inspect the last
+  // first-pass return hold, before completion starts its invisible restart.
+  const firstPass = await page.evaluate(() => {
+    const rows=(window as unknown as { roundTripFrames: Record<string,string|undefined>[] }).roundTripFrames;
+    const completed=rows.findIndex(row=>row.phase==='complete');return completed<0?rows:rows.slice(0,completed);
+  });
+  const heldArrival=firstPass.filter(frame=>frame.direction==='return'&&frame.travel==='1.000'&&frame.opacity==='0.000').at(-1);
+  expect(heldArrival?.point).toBeTruthy();
+  const final=heldArrival!.point!.split(',').map(Number);
+  await expect(page.locator('[data-map-heading] h2')).toContainText('↔');
+  if (trip.mode === 'flight') await expect(page.locator('[data-map-heading] h2 bdi').first()).toHaveText(/\([A-Z]{3}( \/ [A-Z]{3})?\)/);
+  else await expect(page.locator('[data-map-heading] h2 bdi')).toHaveCount(0);
   const id = await results(page).getAttribute('data-search-id');
   const evidence = await (await page.request.get('/api/v1/searches/' + id)).json() as SearchRecovery;
   const itineraryId = await page.locator('aside[aria-label="نقشه سفر"]').getAttribute('data-map-itinerary');
@@ -186,13 +199,21 @@ for (const trip of [
   const origin = catalog.places.find(place => place.id === itinerary.outbound.segments[0]!.originPlaceId)!;
   const arrival = catalog.places.find(place => place.id === itinerary.return!.segments.at(-1)!.destinationPlaceId)!;
   expect(arrival.cityId).toBe(origin.cityId);
-  const final = (await motion.getAttribute('data-vehicle-point'))!.split(',').map(Number);
   expect(final[0]).toBeCloseTo(wrap(arrival.point.longitude - center), 4); expect(final[1]).toBeCloseTo(arrival.point.latitude, 4);
+  await expect(motion).toHaveAttribute('data-route-animation-direction', 'outbound', { timeout: 10000 });
+  await expect.poll(async()=>Number(await motion.getAttribute('data-vehicle-opacity'))).toBeGreaterThan(.9);
+  const loopStart=Number(await motion.getAttribute('data-route-travel'));
+  expect(loopStart).toBeGreaterThan(0);expect(loopStart).toBeLessThan(.5);
+  await expect(motion).toHaveAttribute('data-route-complete','true');
+  await expect(motion).toHaveAttribute('data-route-reveal','1.000');
+  await expect.poll(async()=>Number(await motion.getAttribute('data-route-turn-progress')), {timeout:25000}).toBeGreaterThan(.1);
+  await expect(motion).toHaveAttribute('data-route-animation-direction','return',{timeout:10000});
+  await expect(motion).toHaveAttribute('data-route-reveal','1.000');
+  await page.evaluate(() => { (window as unknown as { stopRoundTripCapture?: boolean }).stopRoundTripCapture=true; });
   const frames = await page.evaluate(() => (window as unknown as { roundTripFrames: Record<string, string | undefined>[] }).roundTripFrames);
   expect(frames.some(frame => frame.direction === 'outbound' && frame.phase === 'travel')).toBe(true);
   expect(frames.filter(frame => frame.phase === 'turn').some(frame => Number(frame.turn) > .1 && Number(frame.turn) < .9)).toBe(true);
   expect(frames.some(frame => frame.direction === 'return' && Number(frame.opacity) > 0 && Number(frame.opacity) < 1)).toBe(true);
-  await page.waitForTimeout(450); await expect(motion).toHaveAttribute('data-vehicle-opacity', '0.000');
   expect(errors).toEqual([]);
-  record(trip.mode + '-roundtrip', { itinerary, origin: origin.point, expectedReturnArrival: arrival.point, finalProjectedPoint: final, projectionCenter: center, errors, frames });
+  record(trip.mode + '-roundtrip', { itinerary, origin: origin.point, expectedReturnArrival: arrival.point, finalProjectedPoint: final, projectionCenter: center, loopStart, repeatedTurnAndReturn:true, errors, frames });
 });

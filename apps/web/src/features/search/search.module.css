@@ -6,7 +6,7 @@
 .headerActions { display: flex; align-items: center; gap: 8px; }
 .intro { padding: 22px 0 18px; }.eyebrow { color: var(--accent); font-size: 12px; letter-spacing: .01em; }.intro h1 { font-size: clamp(21px, 2.1vw, 29px); line-height: 1.65; margin: 5px 0; }.intro p { color: var(--text-muted); font-size: 13px; margin: 5px 0; }
 .composer { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); corner-shape: var(--corner-shape); padding: 18px; display: grid; gap: 16px; }
-.segments { display: flex; flex-wrap: wrap; gap: 14px; --space-4: .3rem; --space-2: .35rem; font-size: 13px; }.fieldGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 16px; }
+.segments { display: flex; flex-wrap: wrap; gap: 14px; font-size: 13px; }.fieldGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 16px; }
 .field { display: flex; flex-direction: column; gap: 6px; font-size: 13px; min-width: 0; }.field strong { font-size: 16px; font-weight: 550; }.field input,.field select { width: 100%; min-width: 0; min-height: 44px; padding: 8px 10px; background: var(--surface); color: var(--text); border: 1px solid var(--border-strong); border-radius: var(--radius-sm); corner-shape: var(--corner-shape); font: inherit; }
 .field input:focus-visible,.field select:focus-visible { outline: var(--focus-width) solid var(--focus); outline-offset: 2px; }.field input[aria-invalid='true'] { border-color: var(--danger); }
 .muted { color: var(--text-muted); font-size: 11px; }
@@ -26,7 +26,7 @@
  .intro p{grid-column:1;grid-row:2;margin:0;}
  .intro .suggestions{grid-column:2;grid-row:2;}
  .composer{padding:12px;gap:10px;}
- .segments{gap:8px;justify-content:space-between;--space-1:2px;--space-2:.2rem;}
+ .segments{gap:8px;justify-content:space-between;}
  .tripFields{grid-template-columns:minmax(0,1fr) minmax(0,1fr) max-content;gap:10px;align-items:start;}
  .submitRow{justify-content:space-between;gap:10px;}
  .submitRow>button:first-child{width:100%;min-width:0;}
@@ -51,8 +51,7 @@
 
 /* Field labels share the UI primitive rhythm; class choices retain their own usable width. */
 .tripFields{--space-2:6px;align-items:start;}
-.classField{min-width:0;--space-1:0px;--space-4:8px;}
-.classField [role='radiogroup']>div{min-height:46px;gap:2px;padding:0;}
+.classField{min-width:0;}
 .classField [role='radio']{white-space:nowrap;min-height:44px;}
 @media(max-width:759px),(min-width:1120px) and (max-width:1279px){
  .tripFields{grid-template-columns:repeat(2,minmax(0,1fr));}

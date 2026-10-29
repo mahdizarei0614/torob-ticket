@@ -1,7 +1,7 @@
 import { DatePriceQuerySchema, DatePriceSnapshotSchema, NormalizedOfferSchema, type DatePriceQuery, type DatePriceSnapshot } from '@torob-ticket/contracts';
 import { DatePriceRepository, SearchRepository, RepositoryError, type DatePricePayload, type DatePriceProjectionInput } from '@torob-ticket/data-access';
 import { datePriceIdentity, dateQueryState, projectDatePrices, type ComparisonContext, type SourceFareEvidence } from '@torob-ticket/domain';
-import { mockFarePolicies } from '@torob-ticket/fixtures';
+import { farePoliciesForFixture, fixtureSourceRevision } from '@torob-ticket/fixtures';
 import { mockRegistry, type ProviderAdapter, type ProviderContext, type ProviderDateBatch } from '@torob-ticket/provider-adapters';
 import type { SessionContext } from '../sessions/session-context';
 import { SessionService } from '../sessions/session.service';
@@ -39,7 +39,8 @@ export class DatePriceService {
     const release = this.sessions.registerController(session, controller, done);
     let id: string | undefined; let timer: ReturnType<typeof setTimeout> | undefined;
     try {
-      const admitted = await this.repository.admit(session.scope, input, now, { sourceRevisions: Object.fromEntries(Object.keys(mockFarePolicies).map(id => [id, 'source-v1'])), policyRevisions: Object.fromEntries(Object.entries(mockFarePolicies).map(([id, policy]) => [id, policy.revision])) });
+      const policies=farePoliciesForFixture(session.info.fixtureVersion);
+      const admitted = await this.repository.admit(session.scope, input, now, { sourceRevisions: Object.fromEntries(Object.keys(policies).map(id => [id, fixtureSourceRevision(session.info.fixtureVersion)])), policyRevisions: Object.fromEntries(Object.entries(policies).map(([id, policy]) => [id, policy.revision])) });
       id = admitted.id;
       if (!admitted.created) { release(); finish(); return this.view(admitted.payload, input); }
       this.active.set(id, { controller, done });
@@ -103,7 +104,7 @@ export class DatePriceService {
       if (payload.source) sourceByOfferId[offer.offerId] = { rawRecordId: offer.provenance[0]!.rawRecordId, source: payload.source };
       observationsByOfferId[offer.offerId] = row.createdAt.toISOString(); return offer;
     });
-    const projection = projectDatePrices({ request, ...this.zones(context, request), offers, comparison: { realClock: this.sessions.realClock, places: context.catalog.places, sourceByOfferId, policiesByProviderId: mockFarePolicies }, observationsByOfferId, persistedQuotes: state.quotes, coverageByDate: state.payload.coverageByDate, interrupted: terminal === 'interrupted' });
+    const projection = projectDatePrices({ request, ...this.zones(context, request), offers, comparison: { realClock: this.sessions.realClock, places: context.catalog.places, sourceByOfferId, policiesByProviderId: farePoliciesForFixture(context.fixtureVersion) }, observationsByOfferId, persistedQuotes: state.quotes, coverageByDate: state.payload.coverageByDate, interrupted: terminal === 'interrupted' });
     const snapshot = DatePriceSnapshotSchema.parse({ ...state.payload.snapshot, status: terminal ?? 'checking', cells: projection.cells, observedAt: this.sessions.realClock.now().toISOString() });
     return { snapshot, quotes: projection.quotes, audit: { providerEvidence: state.payload.providerEvidence, coverageByDate: state.payload.coverageByDate, quoteReferences: projection.quotes.map(item => ({ offerId: item.offerId, quoteId: item.quote.quoteId, version: item.quote.version })) } };
   }

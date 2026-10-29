@@ -1,3 +1,4 @@
+import { researchedCities } from './international';
 import type { City } from '@torob-ticket/contracts';
 // Coordinates and identifiers: assets/provenance.json; labels authored in Persian.
 export const cities: City[] = [
@@ -220,5 +221,6 @@ export const cities: City[] = [
       "longitude": 37.613577
     },
     "timeZone": "Europe/Moscow"
-  }
+  },
+  ...researchedCities,
 ];

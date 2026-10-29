@@ -12,7 +12,7 @@ export interface ReferralEnvironment {
     revisions: {
         sourceRevisions: Record<string, string>;
         policyRevisions: Record<string, string>;
-    };
+    } | ((snapshot: ProviderContextSnapshot) => { sourceRevisions: Record<string, string>; policyRevisions: Record<string, string> });
     comparison(snapshot: ProviderContextSnapshot): Pick<ComparisonContext, 'places' | 'policiesByProviderId'>;
 }
 export interface RecheckOperation {
@@ -43,7 +43,8 @@ export class ReferralRepository {
     constructor(private readonly db: PrismaClient, private readonly environment?: ReferralEnvironment) { }
     private fingerprint(frozen: ProviderContextSnapshot) {
         const i = frozen.info;
-        return digest({ fixtureVersion: i.fixtureVersion, catalogRevision: i.catalogRevision, seed: i.seed, anchorInstant: i.anchorInstant, scenario: i.scenario, scenarioRevision: i.scenarioRevision, mappingRevision: i.mappingRevision, mappings: frozen.mappings, overrides: Object.fromEntries(frozen.overrides.map(row => [row.providerId, row.payload])), revisions: this.environment?.revisions });
+        const revisions=typeof this.environment?.revisions==='function'?this.environment.revisions(frozen):this.environment?.revisions;
+        return digest({ fixtureVersion: i.fixtureVersion, catalogRevision: i.catalogRevision, seed: i.seed, anchorInstant: i.anchorInstant, scenario: i.scenario, scenarioRevision: i.scenarioRevision, mappingRevision: i.mappingRevision, mappings: frozen.mappings, overrides: Object.fromEntries(frozen.overrides.map(row => [row.providerId, row.payload])), revisions });
     }
     private async current(tx: Prisma.TransactionClient, scope: DataScope) {
         const session = await tx.demoSession.findUniqueOrThrow({ where: { id: scope.sessionId } });

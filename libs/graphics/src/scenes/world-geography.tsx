@@ -50,13 +50,15 @@ export function WorldGeography({countries,boundaries=NO_BOUNDARIES,context,frame
   const baseSpacing=domestic?DOMESTIC_DOT_BASE_SPACING:INTERNATIONAL_DOT_BASE_SPACING;
   const geometry=useMemo(()=>{
     const borders=new BufferGeometry();borders.setAttribute('position',new Float32BufferAttribute(domestic?worldBoundaryPositions(boundaries,context):worldBorderPositions(countries,context),3));
+    // Retain each scope's contrast while the old boundary fades under the new scope.
+    borders.userData['boundaryStrength']=domestic?.52:.32;
     const land=new BufferGeometry();land.setAttribute('position',new Float32BufferAttribute(worldLandPositions(countries,context),3));
     return {borders,land};
   },[countries,boundaries,domestic,context.centralLongitude]);
   // Both scopes use the same programs. Keep their material owners alive across
   // geometry changes, including the normal and bloom render-target variants.
   const materials=useMemo(()=>{
-    const shared={...uniforms,...edgeFade,...liveUniforms,mapOpacity:{value:1},scopeMorphProgress:{value:1},baseSpacing:{value:4},latticeSpacings:{value:new Vector4(4,1,.25,.0625)},gridOrigin:{value:new Vector2(-179,-59)},levelWeights:{value:new Vector4(1,0,0,0)},trailSamples:{value:trail.uniforms}};
+    const shared={...uniforms,...edgeFade,...liveUniforms,mapOpacity:{value:1},boundaryStrength:{value:.32},scopeMorphProgress:{value:1},baseSpacing:{value:4},latticeSpacings:{value:new Vector4(4,1,.25,.0625)},gridOrigin:{value:new Vector2(-179,-59)},levelWeights:{value:new Vector4(1,0,0,0)},trailSamples:{value:trail.uniforms}};
     const options={transparent:true,depthTest:false,depthWrite:false,toneMapped:false,side:DoubleSide,vertexShader:worldVertex,fragmentShader:edgeFadeFragment+'\n'+livingDotDrift+'\n'+particleFlowShader+'\n'+morphTiming+'\n'+worldFragment};
     return {borderMaterial:new ShaderMaterial({...options,uniforms:{...shared,mapOpacity:{value:1},layer:{value:0}}}),landMaterial:new ShaderMaterial({...options,uniforms:{...shared,layer:{value:1}}})};
   },[uniforms,trail,edgeFade,liveUniforms]);
@@ -152,7 +154,7 @@ export function WorldGeography({countries,boundaries=NO_BOUNDARIES,context,frame
     const mounted=new Set(renderedBoundaries.map(layer=>layer.value));
     for(const value of retiredBoundaries)if(!mounted.has(value)){value.dispose();retiredBoundaries.delete(value);}
   });
-  return <group dispose={null}><mesh geometry={resources.land} material={resources.landMaterial} frustumCulled={false}/>{renderedBoundaries.map((layer,index)=><lineSegments key={layer.value.uuid} name="map-boundary-layer" geometry={layer.value} material={resources.borderMaterial} position={[layer.longitude-context.centralLongitude,0,0]} userData={{boundaryOpacity:layer.opacity,boundaryIndex:index}} onBeforeRender={()=>{resources.borderMaterial.uniforms['mapOpacity']!.value=layer.opacity;resources.borderMaterial.uniformsNeedUpdate=true;}} frustumCulled={false}/>)}<points name="scope-dot-morph" geometry={morphResources.geometry} material={morphResources.material} frustumCulled={false}/></group>;
+  return <group dispose={null}><mesh geometry={resources.land} material={resources.landMaterial} frustumCulled={false}/>{renderedBoundaries.map((layer,index)=><lineSegments key={layer.value.uuid} name="map-boundary-layer" geometry={layer.value} material={resources.borderMaterial} position={[layer.longitude-context.centralLongitude,0,0]} userData={{boundaryOpacity:layer.opacity,boundaryIndex:index}} onBeforeRender={()=>{resources.borderMaterial.uniforms['mapOpacity']!.value=layer.opacity;resources.borderMaterial.uniforms['boundaryStrength']!.value=layer.value.userData['boundaryStrength'];resources.borderMaterial.uniformsNeedUpdate=true;}} frustumCulled={false}/>)}<points name="scope-dot-morph" geometry={morphResources.geometry} material={morphResources.material} frustumCulled={false}/></group>;
 }
 
 export function StaticWorldGeography({countries,boundaries=NO_BOUNDARIES,context,frame,domestic=false}:Omit<Props,'reducedMotion'>){
@@ -162,5 +164,5 @@ export function StaticWorldGeography({countries,boundaries=NO_BOUNDARIES,context
   const lines=[];for(let i=0;i<positions.length;i+=6)lines.push(`M${positions[i]},${-positions[i+1]!}L${positions[i+3]},${-positions[i+4]!}`);
   const polygons=[];for(let i=0;i<land.length;i+=9)polygons.push(`M${land[i]},${-land[i+1]!}L${land[i+3]},${-land[i+4]!}L${land[i+6]},${-land[i+7]!}Z`);
   const base=domestic?DOMESTIC_DOT_BASE_SPACING:INTERNATIONAL_DOT_BASE_SPACING;const ratio=domestic?2:4;const weights=worldDotWeights(frame.width/600,base,ratio);const spacings=[base,base/ratio,base/ratio**2,base/ratio**3];
-  return <g data-world-geography={!domestic||undefined} data-map-geography aria-hidden="true"><defs><clipPath id={`land-${id}`}><path d={polygons.join(' ')}/></clipPath>{spacings.map((spacing,index)=><pattern key={index} id={`dots-${id}-${index}`} patternUnits="userSpaceOnUse" width={spacing} height={spacing} x={(domestic?44:-179)-context.centralLongitude-spacing/2} y={(domestic?-25:59)-spacing/2}><circle cx={spacing/2} cy={spacing/2} r={frame.width/450} fill="var(--scene-dot)" opacity=".65"/></pattern>)}</defs><g clipPath={`url(#land-${id})`}>{weights.map((weight,index)=>weight>0?<rect key={index} x={-180} y={-90} width={360} height={180} fill={`url(#dots-${id}-${index})`} opacity={weight}/>:null)}</g>{<path d={lines.join(' ')} fill="none" stroke="var(--scene-dot)" strokeWidth=".7" vectorEffect="non-scaling-stroke" opacity=".32"/>}</g>;
+  return <g data-world-geography={!domestic||undefined} data-map-geography aria-hidden="true"><defs><clipPath id={`land-${id}`}><path d={polygons.join(' ')}/></clipPath>{spacings.map((spacing,index)=><pattern key={index} id={`dots-${id}-${index}`} patternUnits="userSpaceOnUse" width={spacing} height={spacing} x={(domestic?44:-179)-context.centralLongitude-spacing/2} y={(domestic?-25:59)-spacing/2}><circle cx={spacing/2} cy={spacing/2} r={frame.width/450} fill="var(--scene-dot)" opacity=".65"/></pattern>)}</defs><g clipPath={`url(#land-${id})`}>{weights.map((weight,index)=>weight>0?<rect key={index} x={-180} y={-90} width={360} height={180} fill={`url(#dots-${id}-${index})`} opacity={weight}/>:null)}</g>{<path d={lines.join(' ')} fill="none" stroke="var(--scene-dot)" strokeWidth=".7" vectorEffect="non-scaling-stroke" opacity={domestic?.52:.32}/>}</g>;
 }

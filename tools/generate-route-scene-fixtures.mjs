@@ -10,11 +10,11 @@ try {
   const { journey, appendAirportTransfer } = await server.ssrLoadModule('/libs/fixtures/src/schedules.ts');
   const { sampleGeography } = await server.ssrLoadModule('/libs/graphics/src/geo/geography.ts');
   const { authorWindingPath, buildRouteGeometry } = await server.ssrLoadModule('/libs/graphics/src/geo/route-geometry.ts');
-  const inputs = ['assets/geography/world.geojson', 'assets/geography/iran.geojson', 'assets/geography/destination-landmarks.geojson', 'assets/provenance.json', 'libs/fixtures/src/catalog/places.ts', 'libs/fixtures/src/catalog/connections.ts', 'libs/fixtures/src/schedules.ts', 'libs/fixtures/src/generator.ts', 'libs/fixtures/src/calendar.ts', 'libs/contracts/src/offer.ts', 'libs/contracts/src/common.ts', 'libs/graphics/src/geo/projection.ts', 'libs/graphics/src/geo/geography.ts', 'libs/graphics/src/geo/route-geometry.ts', 'tools/generate-route-scene-fixtures.mjs'];
+  const inputs = ['assets/geography/world.geojson', 'assets/geography/iran.geojson', 'assets/geography/destination-landmarks.geojson', 'assets/provenance.json', 'libs/fixtures/src/identity.ts', 'libs/fixtures/src/catalog/providers.ts', 'libs/fixtures/src/catalog/places.ts', 'libs/fixtures/src/catalog/cities.ts', 'libs/fixtures/src/catalog/international.ts', 'libs/fixtures/src/catalog/flight-profiles.ts', 'libs/fixtures/src/catalog/pricing.ts', 'libs/fixtures/src/catalog/connections.ts', 'libs/fixtures/src/schedules.ts', 'libs/fixtures/src/generator.ts', 'libs/fixtures/src/calendar.ts', 'libs/contracts/src/offer.ts', 'libs/contracts/src/common.ts', 'libs/graphics/src/geo/projection.ts', 'libs/graphics/src/geo/geography.ts', 'libs/graphics/src/geo/route-geometry.ts', 'tools/generate-route-scene-fixtures.mjs'];
   const hashes = Object.fromEntries(await Promise.all(inputs.map(async path => [path, createHash('sha256').update(await readFile(path)).digest('hex')])));
   const geo = async name => JSON.parse(await readFile(`assets/geography/${name}.geojson`, 'utf8'));
   const world = await geo('world'); const iran = await geo('iran'); const destination = await geo('destination-landmarks');
-  const revision = 'route-scenes-v1';
+  const revision = 'route-scenes-v2';
   const dots = {
     world: sampleGeography(world.features.map(feature => feature.geometry), { west: -179, east: 180, south: -59, north: 85 }, 2),
     iran: sampleGeography(iran.features.map(feature => feature.geometry), { west: 44, east: 64, south: 25, north: 40 }, .22),

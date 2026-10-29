@@ -15,7 +15,7 @@ function makeRoute(ids: string[], waits: (number | undefined)[] = []) {
 }
 
 describe('selected-journey visual choreography', () => {
-  it('plays supplied outbound/return geometry and separate stop occurrences, then fades at the original start without looping', () => {
+  it('plays supplied outbound/return geometry and separate stop occurrences, then fades at the original start before repeating', () => {
     const out = makeRoute(['a', 'b', 'c'], [45]), back = makeRoute(['c', 'b', 'a'], [18]);
     const plan = buildRoundTripPresentation(out.segments, out.leg, back.segments, back.leg, places);
     const turn = plan.roundTrip!;
@@ -29,9 +29,30 @@ describe('selected-journey visual choreography', () => {
     expect(returning.direction).toBe('return'); expect(returning.travel).toBeGreaterThan(.5); expect(returning.turnProgress).toBeUndefined();
     const returnStop = plan.stops[1]!;
     expect(sampleJourneyPresentation(plan, returnStop.arriveMs).revealedStops.map(stop=>stop.count)).toEqual([45, 0]);
-    expect(sampleJourneyPresentation(plan, plan.durationMs + 20000)).toMatchObject({ reveal: 1, travel: 1, vehicleOpacity: 0, vehicleBlur: 1, direction: 'return', complete: true });
+    expect(sampleJourneyPresentation(plan, plan.durationMs - 1)).toMatchObject({ travel: 1, vehicleOpacity: 0, vehicleBlur: 1, direction: 'return', complete: false });
+    expect(sampleJourneyPresentation(plan, plan.durationMs + 800 * 1.8)).toMatchObject({ reveal: 1, vehicleOpacity: 1, direction: 'outbound', complete: true });
     expect(sampleJourneyPresentation(plan, 0, { reducedMotion: true })).toMatchObject({ reveal: 1, travel: 1, vehicleOpacity: 0, direction: 'return', complete: true });
     expect(buildRoundTripPresentation(out.segments, out.leg, [], back.leg, places)).not.toHaveProperty('roundTrip');
+  });
+
+  it.each(['flight', 'train', 'bus'] as const)('loops the full %s round trip and turn while keeping canonical facts final', mode => {
+    const make = (ids: string[], wait: number) => {
+      const route = makeRoute(ids, [wait]);
+      return { segments: route.segments.map(segment => ({ ...segment, mode })), leg: { ...route.leg, segments: route.leg.segments.map(segment => ({ ...segment, mode })) } };
+    };
+    const out = make(['a', 'b', 'c'], 45), back = make(['c', 'b', 'a'], 18);
+    const plan = buildRoundTripPresentation(out.segments, out.leg, back.segments, back.leg, places);
+    const turn = plan.roundTrip!;
+    const loopAt = (time: number, cycle = 0) => sampleJourneyPresentation(plan, plan.durationMs + (time + cycle * plan.durationMs) * 1.8);
+    expect(loopAt(0)).toMatchObject({ reveal: 1, travel: 0, vehicleOpacity: 0, direction: 'outbound', complete: true });
+    const departure = loopAt(800);
+    expect(departure.travel).toBeGreaterThan(0); expect(departure.travel).toBeLessThan(turn.splitProgress);
+    expect(loopAt((turn.turnStartMs + turn.turnEndMs) / 2)).toMatchObject({ reveal: 1, turnProgress: .5, direction: 'outbound', complete: true });
+    const returning = loopAt(turn.turnEndMs + 700, 2);
+    expect(returning.travel).toBeGreaterThan(turn.splitProgress); expect(returning.vehicleOpacity).toBe(1); expect(returning.direction).toBe('return');
+    expect(returning.revealedStops.map(stop => stop.count)).toEqual([45, 18]);
+    expect(loopAt(plan.durationMs - 1)).toMatchObject({ reveal: 1, vehicleOpacity: 0, vehicleBlur: 1 });
+    expect(sampleJourneyPresentation(plan, plan.durationMs * 100, { reducedMotion: true }).vehicleOpacity).toBe(0);
   });
 
   it('draws by arc length, pauses at a stop, counts its declared wait, and only then travels onward', () => {

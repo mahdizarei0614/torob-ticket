@@ -1,5 +1,6 @@
 import type {DemoIdentity,Hotel,Mode,Place,ProviderCapabilities} from '@torob-ticket/contracts';
 import {resolveAirlineBrand} from './airline-brands';
+import {resolveGroundOperatorBrand} from './ground-operator-brands';
 
 type ProviderLabelSource=Pick<ProviderCapabilities,'providerId'|'name'>;
 const providerNames=['راه‌آرا','سفرین','بلیت‌نو','هم‌مسیر','دورآوا','سفرآیین'] as const;
@@ -22,6 +23,8 @@ export function displayProviderName(provider?:ProviderLabelSource):string{
 export function displayOperatorName(operatorId:string,mode:Mode):string{
  const airline=resolveAirlineBrand(operatorId,mode);
  if(airline)return airline.nameFa;
+ const groundOperator=resolveGroundOperatorBrand(operatorId,mode);
+ if(groundOperator)return groundOperator.nameFa;
  if(operatorId==='demo-transfer-operator'&&mode==='bus')return 'ترانسفر فرودگاهی';
  const authored=/^demo-operator-(flight|train|bus)-([0-2])$/.exec(operatorId);
  return authored?.[1]===mode?operatorNames[mode][Number(authored[2])]??'شرکت حمل‌ونقل':'شرکت حمل‌ونقل';

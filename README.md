@@ -59,18 +59,30 @@ Verification regressions exercise real Nx cache hits in disposable workspaces: d
 
 ## Deterministic showcase catalog
 
-T05 supplies 22 cities, 104 directed mode/scope connections, six fictional providers,
-308 fictional hotels and 924 relative room-rate templates. New sessions use
-`showcase-v1` / `catalog-v1`; `GET /api/v1/catalog` requires the session cookie.
-Legacy foundation sessions retain an explicitly empty catalog until reset.
-`generateProviderRecords(FixtureQuery)` and `fixtureCase(id)` are server-only
-fixture interfaces; transport search and provider adapters remain future work.
+The current catalog supplies 33 cities,112 places,122 directed mode/scope
+connections,six mock providers,462 fictional hotels and1,386 relative room-rate
+templates. New sessions use `showcase-v2` / `catalog-v2`;
+`GET /api/v1/catalog` requires the session cookie. London,Paris,Frankfurt,
+NewYork,LosAngeles,Toronto,Singapore,Bangkok,Tokyo,Sydney andAuckland have
+complete one/two/three-stop flight alternatives and reverse/round-trip coverage.
+Public provider research calibrates bounded authored prices and conditions;
+the runtime does not query those sites. Airline and bus/train brand PNGs load locally.
+
+Existing sessions retain their original immutable catalog and quote evidence.
+Use a fresh/private browser session to explore the expanded inventory; an
+explicit operations reset also starts the latest version but clears that
+session's mutable evidence. Reseeding inserts both rich catalog versions without
+rewriting either root. Foundation sessions retain their empty foundation catalog.
+`generateProviderRecords(FixtureQuery)` and `fixtureCase(id)` remain server-only
+fixture interfaces; search,date-price,normalization and referral use that same
+versioned evidence pipeline.
 
 Local geographic assets and their primary-source licenses are recorded in
 [assets/provenance.json](assets/provenance.json). Schedules, providers, hotels,
 station/terminal points and destination display extents are fictional or
 illustrative. For coverage, source extracts and checks see
-[the T05 evidence](docs/evidence/T05/README.md).
+[the current research and implementation evidence](docs/evidence/adjustments/realistic-travel-catalog/fixture-research.md)
+and [the original T05 evidence](docs/evidence/T05/README.md).
 
 ### Optional city location map
 

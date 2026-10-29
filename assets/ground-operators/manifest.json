@@ -1,0 +1,1985 @@
+{
+  "revision": "ground-operator-marks-v1",
+  "retrievedOn": "2026-10-29",
+  "purpose": "Locally bundled operating-brand identity assets only. Marketplace/provider identity remains separate; logos establish no live availability, operating certification, partnership, API integration or reuse permission.",
+  "operators": [
+    {
+      "id": "iran-peyma",
+      "operatorId": "bus:iran-peyma",
+      "mode": "bus",
+      "nameFa": "ایران پیما",
+      "nameEn": "Iran Peyma",
+      "source": {
+        "origin": "marketplace-hosted-brand-image",
+        "url": "https://directus.mrbilit.com/logos/logos/bus?providerCode=1",
+        "pageUrl": "https://mrbilit.com/buses/tehran-esfahan?departureDate=1405-08-07",
+        "retrievedOn": "2026-10-29",
+        "format": "svg",
+        "declaredWidth": "100",
+        "declaredHeight": "100",
+        "viewBox": "0 0 100 100",
+        "bytes": 627,
+        "sha256": "1256f5b8ff62c61d8ce98860d170caf2c3071056b1f898ec604c25110bee3549",
+        "identityEvidence": "Visible card operator text and adjacent img alt/source URL observed in CUA DOM, 2026-10-29",
+        "rights": "Marketplace-hosted airline/operator trademark image; no open reuse license or operator permission published with file",
+        "license": "No open reuse license published with file; airline/operator trademarks and other rights retained. No permission grant by TorobTicket."
+      },
+      "transformation": {
+        "renderedInputSha256": "d7bf18821e2e225a175d42414aa1a974e12e4de9580a33fe4f65e7a6c77002b3",
+        "renderedInputSize": [
+          512,
+          512
+        ],
+        "alphaTrimBounds": [
+          56,
+          132,
+          456,
+          385
+        ],
+        "method": "Authentic marketplace-hosted SVG rasterized via Sharp0.35.5/librsvg2.63.2 at density200 inside512px; trim alpha margins; preserve colors/geometry and aspect ratio; fit inside7/8 square; Pillow12.3.0 Lanczos; PNG RGBA8 optimize zlib9. No redraw, image generation, recoloring or invented mark."
+      },
+      "variants": [
+        {
+          "path": "ground-operators/iran-peyma-32.png",
+          "width": 32,
+          "height": 32,
+          "bytes": 805,
+          "sha256": "5c7a5adf86ed9990f4fba98708f5988dc22b3d6b8e8a010fdf518e08dfa71877",
+          "transparentPixels": 705,
+          "visiblePixels": 319,
+          "maxAlpha": 255,
+          "contentBounds": [
+            2,
+            7,
+            30,
+            25
+          ]
+        },
+        {
+          "path": "ground-operators/iran-peyma-64.png",
+          "width": 64,
+          "height": 64,
+          "bytes": 1575,
+          "sha256": "6893d40737ee5829aab9af434235d385899fcde3e408061bcfb6217aeae0c5d7",
+          "transparentPixels": 3122,
+          "visiblePixels": 974,
+          "maxAlpha": 255,
+          "contentBounds": [
+            4,
+            14,
+            60,
+            49
+          ]
+        },
+        {
+          "path": "ground-operators/iran-peyma-128.png",
+          "width": 128,
+          "height": 128,
+          "bytes": 2912,
+          "sha256": "0eaed3fb96621088f75c26d457d4edda8bdb78efbf6e055493d359f239935142",
+          "transparentPixels": 12948,
+          "visiblePixels": 3436,
+          "maxAlpha": 255,
+          "contentBounds": [
+            8,
+            28,
+            120,
+            99
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hamsafar",
+      "operatorId": "bus:hamsafar",
+      "mode": "bus",
+      "nameFa": "همسفر",
+      "nameEn": "Hamsafar",
+      "source": {
+        "origin": "marketplace-hosted-brand-image",
+        "url": "https://directus.mrbilit.com/logos/logos/bus?providerCode=2",
+        "pageUrl": "https://mrbilit.com/buses/tehran-esfahan?departureDate=1405-08-07",
+        "retrievedOn": "2026-10-29",
+        "format": "svg",
+        "declaredWidth": "100",
+        "declaredHeight": "100",
+        "viewBox": "0 0 100 100",
+        "bytes": 35069,
+        "sha256": "ef7bb42a14a4cc86547e1e7e80b7e207f90b6b46d4e4f77bff91b09ef96b8cbe",
+        "identityEvidence": "Visible card operator text and adjacent img alt/source URL observed in CUA DOM, 2026-10-29",
+        "rights": "Marketplace-hosted airline/operator trademark image; no open reuse license or operator permission published with file",
+        "license": "No open reuse license published with file; airline/operator trademarks and other rights retained. No permission grant by TorobTicket."
+      },
+      "transformation": {
+        "renderedInputSha256": "07baec17951c076f77f7485b84b0b773e3cb2620a1a66a20cbb6ee3f11888e71",
+        "renderedInputSize": [
+          512,
+          512
+        ],
+        "alphaTrimBounds": [
+          64,
+          102,
+          448,
+          410
+        ],
+        "method": "Authentic marketplace-hosted SVG rasterized via Sharp0.35.5/librsvg2.63.2 at density200 inside512px; trim alpha margins; preserve colors/geometry and aspect ratio; fit inside7/8 square; Pillow12.3.0 Lanczos; PNG RGBA8 optimize zlib9. No redraw, image generation, recoloring or invented mark."
+      },
+      "variants": [
+        {
+          "path": "ground-operators/hamsafar-32.png",
+          "width": 32,
+          "height": 32,
+          "bytes": 946,
+          "sha256": "3fd465116ec46653d914c8fead67d1e72862b454884a70b6c422347572e06a93",
+          "transparentPixels": 564,
+          "visiblePixels": 460,
+          "maxAlpha": 255,
+          "contentBounds": [
+            2,
+            5,
+            30,
+            27
+          ]
+        },
+        {
+          "path": "ground-operators/hamsafar-64.png",
+          "width": 64,
+          "height": 64,
+          "bytes": 2658,
+          "sha256": "2a9b66d5aa63feee901e855780f7109e818b9e152a278d464cfff6084732fee0",
+          "transparentPixels": 2523,
+          "visiblePixels": 1573,
+          "maxAlpha": 255,
+          "contentBounds": [
+            4,
+            9,
+            60,
+            54
+          ]
+        },
+        {
+          "path": "ground-operators/hamsafar-128.png",
+          "width": 128,
+          "height": 128,
+          "bytes": 6742,
+          "sha256": "6352f6be50627d301b6134554694007b186b316d3ae8d0bb8b1afe8b4d348e24",
+          "transparentPixels": 11063,
+          "visiblePixels": 5321,
+          "maxAlpha": 255,
+          "contentBounds": [
+            8,
+            19,
+            120,
+            109
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tarabar-bita",
+      "operatorId": "bus:tarabar-bita",
+      "mode": "bus",
+      "nameFa": "ترابر بی تا",
+      "nameEn": "Tarabar Bita",
+      "source": {
+        "origin": "marketplace-hosted-brand-image",
+        "url": "https://directus.mrbilit.com/logos/logos/bus?providerCode=3",
+        "pageUrl": "https://mrbilit.com/buses/tehran-esfahan?departureDate=1405-08-07",
+        "retrievedOn": "2026-10-29",
+        "format": "svg",
+        "declaredWidth": "100",
+        "declaredHeight": "100",
+        "viewBox": "0 0 100 100",
+        "bytes": 768,
+        "sha256": "0c7887f53afc4eec6fd36380b3bd947a999be19f4633d3d9bdc8582375910778",
+        "identityEvidence": "Visible card operator text and adjacent img alt/source URL observed in CUA DOM, 2026-10-29",
+        "rights": "Marketplace-hosted airline/operator trademark image; no open reuse license or operator permission published with file",
+        "license": "No open reuse license published with file; airline/operator trademarks and other rights retained. No permission grant by TorobTicket."
+      },
+      "transformation": {
+        "renderedInputSha256": "c1e757293f85101760908cfb491ca8662348b4068a557a63f1709b2144728370",
+        "renderedInputSize": [
+          512,
+          512
+        ],
+        "alphaTrimBounds": [
+          17,
+          184,
+          495,
+          328
+        ],
+        "method": "Authentic marketplace-hosted SVG rasterized via Sharp0.35.5/librsvg2.63.2 at density200 inside512px; trim alpha margins; preserve colors/geometry and aspect ratio; fit inside7/8 square; Pillow12.3.0 Lanczos; PNG RGBA8 optimize zlib9. No redraw, image generation, recoloring or invented mark."
+      },
+      "variants": [
+        {
+          "path": "ground-operators/tarabar-bita-32.png",
+          "width": 32,
+          "height": 32,
+          "bytes": 630,
+          "sha256": "336713547f7e3e3856b4676a3d53574d3d1054471985f13ca241fa3b6d154431",
+          "transparentPixels": 869,
+          "visiblePixels": 155,
+          "maxAlpha": 255,
+          "contentBounds": [
+            2,
+            12,
+            30,
+            20
+          ]
+        },
+        {
+          "path": "ground-operators/tarabar-bita-64.png",
+          "width": 64,
+          "height": 64,
+          "bytes": 1612,
+          "sha256": "451acd8043f4dcc00fe23d5bce6c38fb31058e530933b50f8daadf3006f27308",
+          "transparentPixels": 3520,
+          "visiblePixels": 576,
+          "maxAlpha": 255,
+          "contentBounds": [
+            4,
+            23,
+            60,
+            40
+          ]
+        },
+        {
+          "path": "ground-operators/tarabar-bita-128.png",
+          "width": 128,
+          "height": 128,
+          "bytes": 3878,
+          "sha256": "e14828b1d1665c683cd2b64358c00fa707c587b3b922d5842f830873a7dce887",
+          "transparentPixels": 14367,
+          "visiblePixels": 2017,
+          "maxAlpha": 255,
+          "contentBounds": [
+            8,
+            47,
+            120,
+            81
+          ]
+        }
+      ]
+    },
+    {
+      "id": "seir-o-safar",
+      "operatorId": "bus:seir-o-safar",
+      "mode": "bus",
+      "nameFa": "سیروسفر",
+      "nameEn": "Seir o Safar",
+      "source": {
+        "origin": "marketplace-hosted-brand-image",
+        "url": "https://directus.mrbilit.com/logos/logos/bus?providerCode=4",
+        "pageUrl": "https://mrbilit.com/trains/tehran-mashhad?departureDate=1405-08-08",
+        "retrievedOn": "2026-10-29",
+        "format": "svg",
+        "declaredWidth": "100",
+        "declaredHeight": "100",
+        "viewBox": "0 0 100 100",
+        "bytes": 7713,
+        "sha256": "bbe5263f15ffdd1f338f489fa0db88bac43db2e278dc6ba76e31091cd30f8721",
+        "identityEvidence": "Visible card operator text and adjacent img alt/source URL observed in CUA DOM, 2026-10-29",
+        "rights": "Marketplace-hosted airline/operator trademark image; no open reuse license or operator permission published with file",
+        "license": "No open reuse license published with file; airline/operator trademarks and other rights retained. No permission grant by TorobTicket."
+      },
+      "transformation": {
+        "renderedInputSha256": "181e9d9483905b924037c2ce2f672790e36d304855daacc7a337e0719295e167",
+        "renderedInputSize": [
+          512,
+          512
+        ],
+        "alphaTrimBounds": [
+          51,
+          129,
+          461,
+          383
+        ],
+        "method": "Authentic marketplace-hosted SVG rasterized via Sharp0.35.5/librsvg2.63.2 at density200 inside512px; trim alpha margins; preserve colors/geometry and aspect ratio; fit inside7/8 square; Pillow12.3.0 Lanczos; PNG RGBA8 optimize zlib9. No redraw, image generation, recoloring or invented mark."
+      },
+      "variants": [
+        {
+          "path": "ground-operators/seir-o-safar-32.png",
+          "width": 32,
+          "height": 32,
+          "bytes": 922,
+          "sha256": "244351f367297a1aac880c7cccdfb937fc3e26837a2582a229b7eca488c7cdb1",
+          "transparentPixels": 717,
+          "visiblePixels": 307,
+          "maxAlpha": 255,
+          "contentBounds": [
+            2,
+            7,
+            30,
+            24
+          ]
+        },
+        {
+          "path": "ground-operators/seir-o-safar-64.png",
+          "width": 64,
+          "height": 64,
+          "bytes": 2456,
+          "sha256": "72c11137f0f5381d48524c64f3aae869382f675d697ab7375542e5e12d49685f",
+          "transparentPixels": 2919,
+          "visiblePixels": 1177,
+          "maxAlpha": 255,
+          "contentBounds": [
+            4,
+            14,
+            60,
+            49
+          ]
+        },
+        {
+          "path": "ground-operators/seir-o-safar-128.png",
+          "width": 128,
+          "height": 128,
+          "bytes": 6314,
+          "sha256": "851861740632051e5406533d93a852ae8bc45a200e79befe3b723683681df3a7",
+          "transparentPixels": 12768,
+          "visiblePixels": 3616,
+          "maxAlpha": 255,
+          "contentBounds": [
+            8,
+            29,
+            120,
+            98
+          ]
+        }
+      ]
+    },
+    {
+      "id": "arya-safar",
+      "operatorId": "bus:arya-safar",
+      "mode": "bus",
+      "nameFa": "آریا سفر",
+      "nameEn": "Arya Safar",
+      "source": {
+        "origin": "marketplace-hosted-brand-image",
+        "url": "https://directus.mrbilit.com/logos/logos/bus?providerCode=5",
+        "pageUrl": "https://mrbilit.com/trains/tehran-mashhad?departureDate=1405-08-08",
+        "retrievedOn": "2026-10-29",
+        "format": "svg",
+        "declaredWidth": "100",
+        "declaredHeight": "100",
+        "viewBox": "0 0 100 100",
+        "bytes": 802,
+        "sha256": "a2b9d4c01a28876c0b4eeff8d3644e25027251c9d44087a5d627d0381d8e88a8",
+        "identityEvidence": "Visible card operator text and adjacent img alt/source URL observed in CUA DOM, 2026-10-29",
+        "rights": "Marketplace-hosted airline/operator trademark image; no open reuse license or operator permission published with file",
+        "license": "No open reuse license published with file; airline/operator trademarks and other rights retained. No permission grant by TorobTicket."
+      },
+      "transformation": {
+        "renderedInputSha256": "3c03bc4a9eb53388f8c58e80cc87f5533ae4cd86a0a0d877dd57c154175f131b",
+        "renderedInputSize": [
+          512,
+          512
+        ],
+        "alphaTrimBounds": [
+          56,
+          112,
+          456,
+          400
+        ],
+        "method": "Authentic marketplace-hosted SVG rasterized via Sharp0.35.5/librsvg2.63.2 at density200 inside512px; trim alpha margins; preserve colors/geometry and aspect ratio; fit inside7/8 square; Pillow12.3.0 Lanczos; PNG RGBA8 optimize zlib9. No redraw, image generation, recoloring or invented mark."
+      },
+      "variants": [
+        {
+          "path": "ground-operators/arya-safar-32.png",
+          "width": 32,
+          "height": 32,
+          "bytes": 741,
+          "sha256": "eeea35a20d57ce21b168ad43411a14a9b15ad165fa6762ae4b7186fe39b2284e",
+          "transparentPixels": 627,
+          "visiblePixels": 397,
+          "maxAlpha": 255,
+          "contentBounds": [
+            2,
+            6,
+            30,
+            26
+          ]
+        },
+        {
+          "path": "ground-operators/arya-safar-64.png",
+          "width": 64,
+          "height": 64,
+          "bytes": 1441,
+          "sha256": "901b8c4206929b5950570b353a226c815ca46f05f8971fd13ccb36015e30c9da",
+          "transparentPixels": 2715,
+          "visiblePixels": 1381,
+          "maxAlpha": 255,
+          "contentBounds": [
+            4,
+            12,
+            60,
+            52
+          ]
+        },
+        {
+          "path": "ground-operators/arya-safar-128.png",
+          "width": 128,
+          "height": 128,
+          "bytes": 2613,
+          "sha256": "a4346148d76fa5ac1d0717a65901f294e7e7091d14d380c4dfd047d32e12d761",
+          "transparentPixels": 11467,
+          "visiblePixels": 4917,
+          "maxAlpha": 255,
+          "contentBounds": [
+            8,
+            23,
+            120,
+            104
+          ]
+        }
+      ]
+    },
+    {
+      "id": "levan-noor",
+      "operatorId": "bus:levan-noor",
+      "mode": "bus",
+      "nameFa": "لوان نور",
+      "nameEn": "Levan Noor",
+      "source": {
+        "origin": "marketplace-hosted-brand-image",
+        "url": "https://directus.mrbilit.com/logos/logos/bus?providerCode=7",
+        "pageUrl": "https://mrbilit.com/buses/tehran-esfahan?departureDate=1405-08-07",
+        "retrievedOn": "2026-10-29",
+        "format": "svg",
+        "declaredWidth": "100",
+        "declaredHeight": "100",
+        "viewBox": "0 0 100 100",
+        "bytes": 17591,
+        "sha256": "5c41434f7666b393d543695a0bd98f98f1a5ea64cc0a5007bc9d2f26cdf8f98a",
+        "identityEvidence": "Visible card operator text and adjacent img alt/source URL observed in CUA DOM, 2026-10-29",
+        "rights": "Marketplace-hosted airline/operator trademark image; no open reuse license or operator permission published with file",
+        "license": "No open reuse license published with file; airline/operator trademarks and other rights retained. No permission grant by TorobTicket."
+      },
+      "transformation": {
+        "renderedInputSha256": "3fdbbc7a15c366da8df44ac97c797eb5e57ca0052fb6e24cef5f660f977942ac",
+        "renderedInputSize": [
+          512,
+          512
+        ],
+        "alphaTrimBounds": [
+          0,
+          194,
+          512,
+          323
+        ],
+        "method": "Authentic marketplace-hosted SVG rasterized via Sharp0.35.5/librsvg2.63.2 at density200 inside512px; trim alpha margins; preserve colors/geometry and aspect ratio; fit inside7/8 square; Pillow12.3.0 Lanczos; PNG RGBA8 optimize zlib9. No redraw, image generation, recoloring or invented mark."
+      },
+      "variants": [
+        {
+          "path": "ground-operators/levan-noor-32.png",
+          "width": 32,
+          "height": 32,
+          "bytes": 527,
+          "sha256": "152de43c5d791a27d69c9a980e1c699335546b03ff42ec8601fbcc2b8ab466e8",
+          "transparentPixels": 887,
+          "visiblePixels": 137,
+          "maxAlpha": 160,
+          "contentBounds": [
+            2,
+            12,
+            30,
+            19
+          ]
+        },
+        {
+          "path": "ground-operators/levan-noor-64.png",
+          "width": 64,
+          "height": 64,
+          "bytes": 1480,
+          "sha256": "1bbbbb43d4c61377cdf22ca3bffaa435e1d780c48e3dd952dde27b39799a3b57",
+          "transparentPixels": 3560,
+          "visiblePixels": 536,
+          "maxAlpha": 255,
+          "contentBounds": [
+            4,
+            25,
+            60,
+            39
+          ]
+        },
+        {
+          "path": "ground-operators/levan-noor-128.png",
+          "width": 128,
+          "height": 128,
+          "bytes": 4129,
+          "sha256": "f59ab7af96cc8d779871905b445b39db62056203f9d44ae9c2657861b50eab17",
+          "transparentPixels": 14775,
+          "visiblePixels": 1609,
+          "maxAlpha": 255,
+          "contentBounds": [
+            8,
+            50,
+            120,
+            78
+          ]
+        }
+      ]
+    },
+    {
+      "id": "giti-peyma",
+      "operatorId": "bus:giti-peyma",
+      "mode": "bus",
+      "nameFa": "گیتی پیما",
+      "nameEn": "Giti Peyma",
+      "source": {
+        "origin": "marketplace-hosted-brand-image",
+        "url": "https://directus.mrbilit.com/logos/logos/bus?providerCode=8",
+        "pageUrl": "https://mrbilit.com/buses/tehran-esfahan?departureDate=1405-08-07",
+        "retrievedOn": "2026-10-29",
+        "format": "svg",
+        "declaredWidth": "100",
+        "declaredHeight": "100",
+        "viewBox": "0 0 100 100",
+        "bytes": 16909,
+        "sha256": "f9ff6fe2efed7d97efe3fb3fe6a87ffd1b7eb439127f12c9f0cc410af2beb8dc",
+        "identityEvidence": "Visible card operator text and adjacent img alt/source URL observed in CUA DOM, 2026-10-29",
+        "rights": "Marketplace-hosted airline/operator trademark image; no open reuse license or operator permission published with file",
+        "license": "No open reuse license published with file; airline/operator trademarks and other rights retained. No permission grant by TorobTicket."
+      },
+      "transformation": {
+        "renderedInputSha256": "ffb756aa3e18ed5fcf742c475984b906d937bd414d8c7a7fcf57b7d7bf71e2bd",
+        "renderedInputSize": [
+          512,
+          512
+        ],
+        "alphaTrimBounds": [
+          76,
+          76,
+          436,
+          436
+        ],
+        "method": "Authentic marketplace-hosted SVG rasterized via Sharp0.35.5/librsvg2.63.2 at density200 inside512px; trim alpha margins; preserve colors/geometry and aspect ratio; fit inside7/8 square; Pillow12.3.0 Lanczos; PNG RGBA8 optimize zlib9. No redraw, image generation, recoloring or invented mark."
+      },
+      "variants": [
+        {
+          "path": "ground-operators/giti-peyma-32.png",
+          "width": 32,
+          "height": 32,
+          "bytes": 2221,
+          "sha256": "aff9cd686d4b069406a8e225dde88b90b9a6cfcc106ab09d930b0c5d76de6320",
+          "transparentPixels": 336,
+          "visiblePixels": 688,
+          "maxAlpha": 255,
+          "contentBounds": [
+            2,
+            2,
+            30,
+            30
+          ]
+        },
+        {
+          "path": "ground-operators/giti-peyma-64.png",
+          "width": 64,
+          "height": 64,
+          "bytes": 6259,
+          "sha256": "28b67522752d8d768998774c01540b50411da16b054922f14137167ce0f9976e",
+          "transparentPixels": 1457,
+          "visiblePixels": 2639,
+          "maxAlpha": 255,
+          "contentBounds": [
+            4,
+            4,
+            60,
+            60
+          ]
+        },
+        {
+          "path": "ground-operators/giti-peyma-128.png",
+          "width": 128,
+          "height": 128,
+          "bytes": 16053,
+          "sha256": "910c648585122cc49cf455107fbbfb038a970e3bce47eeb5a4bb2e47f1fdd47f",
+          "transparentPixels": 6177,
+          "visiblePixels": 10207,
+          "maxAlpha": 255,
+          "contentBounds": [
+            8,
+            8,
+            120,
+            120
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mihan-noor",
+      "operatorId": "bus:mihan-noor",
+      "mode": "bus",
+      "nameFa": "میهن نور",
+      "nameEn": "Mihan Noor",
+      "source": {
+        "origin": "marketplace-hosted-brand-image",
+        "url": "https://directus.mrbilit.com/logos/logos/bus?providerCode=12",
+        "pageUrl": "https://mrbilit.com/buses/tehran-esfahan?departureDate=1405-08-07",
+        "retrievedOn": "2026-10-29",
+        "format": "svg",
+        "declaredWidth": "100",
+        "declaredHeight": "100",
+        "viewBox": "0 0 100 100",
+        "bytes": 78449,
+        "sha256": "7634b21d4e22711a48bf9fad3d9c6a0eb81c9725b919495c326e2f6f36db043b",
+        "identityEvidence": "Visible card operator text and adjacent img alt/source URL observed in CUA DOM, 2026-10-29",
+        "rights": "Marketplace-hosted airline/operator trademark image; no open reuse license or operator permission published with file",
+        "license": "No open reuse license published with file; airline/operator trademarks and other rights retained. No permission grant by TorobTicket."
+      },
+      "transformation": {
+        "renderedInputSha256": "2e6a56db7591a3b0fcc186a90e3099d5f520c0e5795934a8bfe45a7bb7619b68",
+        "renderedInputSize": [
+          512,
+          512
+        ],
+        "alphaTrimBounds": [
+          15,
+          164,
+          497,
+          351
+        ],
+        "method": "Authentic marketplace-hosted SVG rasterized via Sharp0.35.5/librsvg2.63.2 at density200 inside512px; trim alpha margins; preserve colors/geometry and aspect ratio; fit inside7/8 square; Pillow12.3.0 Lanczos; PNG RGBA8 optimize zlib9. No redraw, image generation, recoloring or invented mark."
+      },
+      "variants": [
+        {
+          "path": "ground-operators/mihan-noor-32.png",
+          "width": 32,
+          "height": 32,
+          "bytes": 467,
+          "sha256": "f78c807067c86c3d00c95d2d98c86d4a6143d99817ba0e6042102ad7b88ac44d",
+          "transparentPixels": 805,
+          "visiblePixels": 219,
+          "maxAlpha": 241,
+          "contentBounds": [
+            2,
+            10,
+            30,
+            21
+          ]
+        },
+        {
+          "path": "ground-operators/mihan-noor-64.png",
+          "width": 64,
+          "height": 64,
+          "bytes": 1222,
+          "sha256": "9f1b6f985e58d543064e70b81d80fc52adeead605f7f2212b693bf8eeeae5474",
+          "transparentPixels": 3375,
+          "visiblePixels": 721,
+          "maxAlpha": 255,
+          "contentBounds": [
+            4,
+            21,
+            60,
+            43
+          ]
+        },
+        {
+          "path": "ground-operators/mihan-noor-128.png",
+          "width": 128,
+          "height": 128,
+          "bytes": 3917,
+          "sha256": "c2d402b9189e14385949f96845c530b747ab61430efee255e473d872849b99e6",
+          "transparentPixels": 13984,
+          "visiblePixels": 2400,
+          "maxAlpha": 255,
+          "contentBounds": [
+            8,
+            42,
+            120,
+            85
+          ]
+        }
+      ]
+    },
+    {
+      "id": "eiman-safar",
+      "operatorId": "bus:eiman-safar",
+      "mode": "bus",
+      "nameFa": "ایمن سفر",
+      "nameEn": "Eiman Safar",
+      "source": {
+        "origin": "marketplace-hosted-brand-image",
+        "url": "https://directus.mrbilit.com/logos/logos/bus?providerCode=15",
+        "pageUrl": "https://mrbilit.com/buses/tehran-esfahan?departureDate=1405-08-07",
+        "retrievedOn": "2026-10-29",
+        "format": "svg",
+        "declaredWidth": "100",
+        "declaredHeight": "100",
+        "viewBox": "0 0 100 100",
+        "bytes": 19618,
+        "sha256": "e44c22b27dfdbcadcf11beb749fad5f50ecdc4eb5f827358e4eddf7db7d30dfd",
+        "identityEvidence": "Visible card operator text and adjacent img alt/source URL observed in CUA DOM, 2026-10-29",
+        "rights": "Marketplace-hosted airline/operator trademark image; no open reuse license or operator permission published with file",
+        "license": "No open reuse license published with file; airline/operator trademarks and other rights retained. No permission grant by TorobTicket."
+      },
+      "transformation": {
+        "renderedInputSha256": "6c51f059e366cad6ebfa3e799f6b5cab92abc216742454aa2f874f317f5f296c",
+        "renderedInputSize": [
+          512,
+          512
+        ],
+        "alphaTrimBounds": [
+          76,
+          87,
+          436,
+          425
+        ],
+        "method": "Authentic marketplace-hosted SVG rasterized via Sharp0.35.5/librsvg2.63.2 at density200 inside512px; trim alpha margins; preserve colors/geometry and aspect ratio; fit inside7/8 square; Pillow12.3.0 Lanczos; PNG RGBA8 optimize zlib9. No redraw, image generation, recoloring or invented mark."
+      },
+      "variants": [
+        {
+          "path": "ground-operators/eiman-safar-32.png",
+          "width": 32,
+          "height": 32,
+          "bytes": 1957,
+          "sha256": "d43603cf74b24ac69662817c5a025ef2dc324656c80696ea027afaf079718be2",
+          "transparentPixels": 464,
+          "visiblePixels": 560,
+          "maxAlpha": 255,
+          "contentBounds": [
+            2,
+            3,
+            30,
+            29
+          ]
+        },
+        {
+          "path": "ground-operators/eiman-safar-64.png",
+          "width": 64,
+          "height": 64,
+          "bytes": 5418,
+          "sha256": "8b54625768eff3509c6332edf3f60164f9866fc56a604dcb078966012a7a9521",
+          "transparentPixels": 2070,
+          "visiblePixels": 2026,
+          "maxAlpha": 255,
+          "contentBounds": [
+            4,
+            5,
+            60,
+            58
+          ]
+        },
+        {
+          "path": "ground-operators/eiman-safar-128.png",
+          "width": 128,
+          "height": 128,
+          "bytes": 13553,
+          "sha256": "62fd8b1ad8076dcac6363d794b3fc7e4309180ee4a466d6706d0c61da66ceee0",
+          "transparentPixels": 9418,
+          "visiblePixels": 6966,
+          "maxAlpha": 255,
+          "contentBounds": [
+            8,
+            11,
+            120,
+            116
+          ]
+        }
+      ]
+    },
+    {
+      "id": "peyk-motamed",
+      "operatorId": "bus:peyk-motamed",
+      "mode": "bus",
+      "nameFa": "پیک معتمد",
+      "nameEn": "Peyk Motamed",
+      "source": {
+        "origin": "marketplace-hosted-brand-image",
+        "url": "https://directus.mrbilit.com/logos/logos/bus?providerCode=28",
+        "pageUrl": "https://mrbilit.com/trains/tehran-mashhad?departureDate=1405-08-08",
+        "retrievedOn": "2026-10-29",
+        "format": "svg",
+        "declaredWidth": "100",
+        "declaredHeight": "100",
+        "viewBox": "0 0 100 100",
+        "bytes": 18695,
+        "sha256": "cbb4d08df728d282af75fc046f0acdadc62cce4476d8884f563f753603f7435b",
+        "identityEvidence": "Visible card operator text and adjacent img alt/source URL observed in CUA DOM, 2026-10-29",
+        "rights": "Marketplace-hosted airline/operator trademark image; no open reuse license or operator permission published with file",
+        "license": "No open reuse license published with file; airline/operator trademarks and other rights retained. No permission grant by TorobTicket."
+      },
+      "transformation": {
+        "renderedInputSha256": "3e6d72205130df51a0271a880a80bf87aff9f59db7da8b2b1dfb5a6675d5fbd3",
+        "renderedInputSize": [
+          512,
+          512
+        ],
+        "alphaTrimBounds": [
+          0,
+          225,
+          512,
+          292
+        ],
+        "method": "Authentic marketplace-hosted SVG rasterized via Sharp0.35.5/librsvg2.63.2 at density200 inside512px; trim alpha margins; preserve colors/geometry and aspect ratio; fit inside7/8 square; Pillow12.3.0 Lanczos; PNG RGBA8 optimize zlib9. No redraw, image generation, recoloring or invented mark."
+      },
+      "variants": [
+        {
+          "path": "ground-operators/peyk-motamed-32.png",
+          "width": 32,
+          "height": 32,
+          "bytes": 487,
+          "sha256": "0947dfde9cea33798c9dfcdeef468d0aa530880ebac04de09348e018e1994b8d",
+          "transparentPixels": 920,
+          "visiblePixels": 104,
+          "maxAlpha": 255,
+          "contentBounds": [
+            2,
+            14,
+            30,
+            18
+          ]
+        },
+        {
+          "path": "ground-operators/peyk-motamed-64.png",
+          "width": 64,
+          "height": 64,
+          "bytes": 1085,
+          "sha256": "d8b7a0e092f61c5303ac4578ecb3923ffaf41c3494f879fae0fe701e92e562d5",
+          "transparentPixels": 3800,
+          "visiblePixels": 296,
+          "maxAlpha": 255,
+          "contentBounds": [
+            4,
+            28,
+            60,
+            35
+          ]
+        },
+        {
+          "path": "ground-operators/peyk-motamed-128.png",
+          "width": 128,
+          "height": 128,
+          "bytes": 2688,
+          "sha256": "cdbc563d39ea8387939c4b7d9e1fb804cab4e9c4ec713ee227cf793156ffea94",
+          "transparentPixels": 15189,
+          "visiblePixels": 1195,
+          "maxAlpha": 255,
+          "contentBounds": [
+            8,
+            56,
+            120,
+            71
+          ]
+        }
+      ]
+    },
+    {
+      "id": "arta-sabalan",
+      "operatorId": "bus:arta-sabalan",
+      "mode": "bus",
+      "nameFa": "آرتا سبلان",
+      "nameEn": "Arta Sabalan",
+      "source": {
+        "origin": "marketplace-hosted-brand-image",
+        "url": "https://directus.mrbilit.com/logos/logos/bus?providerCode=55",
+        "pageUrl": "https://mrbilit.com/trains/tehran-mashhad?departureDate=1405-08-08",
+        "retrievedOn": "2026-10-29",
+        "format": "svg",
+        "declaredWidth": "100",
+        "declaredHeight": "100",
+        "viewBox": "0 0 100 100",
+        "bytes": 774,
+        "sha256": "800be9b5b66cf06a0ce96cb2ac0c296edb85edea28ba6d1fef4115ca29b2600f",
+        "identityEvidence": "Visible card operator text and adjacent img alt/source URL observed in CUA DOM, 2026-10-29",
+        "rights": "Marketplace-hosted airline/operator trademark image; no open reuse license or operator permission published with file",
+        "license": "No open reuse license published with file; airline/operator trademarks and other rights retained. No permission grant by TorobTicket."
+      },
+      "transformation": {
+        "renderedInputSha256": "5a2f2915c2e83d8ae0a68d2eeea5b4834a4f682eb60560213ce28b30cdb3de80",
+        "renderedInputSize": [
+          512,
+          512
+        ],
+        "alphaTrimBounds": [
+          102,
+          76,
+          415,
+          436
+        ],
+        "method": "Authentic marketplace-hosted SVG rasterized via Sharp0.35.5/librsvg2.63.2 at density200 inside512px; trim alpha margins; preserve colors/geometry and aspect ratio; fit inside7/8 square; Pillow12.3.0 Lanczos; PNG RGBA8 optimize zlib9. No redraw, image generation, recoloring or invented mark."
+      },
+      "variants": [
+        {
+          "path": "ground-operators/arta-sabalan-32.png",
+          "width": 32,
+          "height": 32,
+          "bytes": 1894,
+          "sha256": "96912d0e2685efe01dfa42d164caf6f9dac84c247e9273430625193bb5da7466",
+          "transparentPixels": 555,
+          "visiblePixels": 469,
+          "maxAlpha": 255,
+          "contentBounds": [
+            4,
+            2,
+            28,
+            30
+          ]
+        },
+        {
+          "path": "ground-operators/arta-sabalan-64.png",
+          "width": 64,
+          "height": 64,
+          "bytes": 3804,
+          "sha256": "25c29a35c08daffacdf8ba8ed5ff1d47305d9769c95e8c2ee5c21105352a6831",
+          "transparentPixels": 2467,
+          "visiblePixels": 1629,
+          "maxAlpha": 255,
+          "contentBounds": [
+            7,
+            4,
+            56,
+            60
+          ]
+        },
+        {
+          "path": "ground-operators/arta-sabalan-128.png",
+          "width": 128,
+          "height": 128,
+          "bytes": 7901,
+          "sha256": "2004c45efbc4c28600aa1fd8326c9486faa2a095b2017386287158a6f9d4d5c3",
+          "transparentPixels": 10620,
+          "visiblePixels": 5764,
+          "maxAlpha": 255,
+          "contentBounds": [
+            15,
+            8,
+            112,
+            120
+          ]
+        }
+      ]
+    },
+    {
+      "id": "fadak",
+      "operatorId": "rail:fadak",
+      "mode": "train",
+      "nameFa": "فدک",
+      "nameEn": "Fadak",
+      "source": {
+        "origin": "marketplace-hosted-brand-image",
+        "url": "https://directus.mrbilit.com/logos/logos/train?providerCode=25&unitCode=5369",
+        "pageUrl": "https://mrbilit.com/trains/tehran-mashhad?departureDate=1405-08-08",
+        "retrievedOn": "2026-10-29",
+        "format": "svg",
+        "declaredWidth": "100",
+        "declaredHeight": "100",
+        "viewBox": "0 0 100 100",
+        "bytes": 3812,
+        "sha256": "89b7a63d242ec1e2b8335793629e1c581df7fe0e9590398a1d5d967edeab919e",
+        "identityEvidence": "Visible card operator text and adjacent img alt/source URL observed in CUA DOM, 2026-10-29",
+        "rights": "Marketplace-hosted airline/operator trademark image; no open reuse license or operator permission published with file",
+        "license": "No open reuse license published with file; airline/operator trademarks and other rights retained. No permission grant by TorobTicket."
+      },
+      "transformation": {
+        "renderedInputSha256": "f95866d3fd9b05d6e32a494c86b6441e608eea8ffab1852c828684bd9af5a437",
+        "renderedInputSize": [
+          512,
+          512
+        ],
+        "alphaTrimBounds": [
+          76,
+          51,
+          436,
+          462
+        ],
+        "method": "Authentic marketplace-hosted SVG rasterized via Sharp0.35.5/librsvg2.63.2 at density200 inside512px; trim alpha margins; preserve colors/geometry and aspect ratio; fit inside7/8 square; Pillow12.3.0 Lanczos; PNG RGBA8 optimize zlib9. No redraw, image generation, recoloring or invented mark."
+      },
+      "variants": [
+        {
+          "path": "ground-operators/fadak-32.png",
+          "width": 32,
+          "height": 32,
+          "bytes": 2146,
+          "sha256": "2af4a53dfed78afee3d6bf60f07048ebd0422b66e7ee73800f701a856226f0a0",
+          "transparentPixels": 461,
+          "visiblePixels": 563,
+          "maxAlpha": 255,
+          "contentBounds": [
+            3,
+            2,
+            28,
+            30
+          ]
+        },
+        {
+          "path": "ground-operators/fadak-64.png",
+          "width": 64,
+          "height": 64,
+          "bytes": 5957,
+          "sha256": "9e83da2235d2da01907c8886e73e389c32bbf9925a46fc5266e66ddce8e57bb8",
+          "transparentPixels": 2084,
+          "visiblePixels": 2012,
+          "maxAlpha": 255,
+          "contentBounds": [
+            7,
+            4,
+            56,
+            60
+          ]
+        },
+        {
+          "path": "ground-operators/fadak-128.png",
+          "width": 128,
+          "height": 128,
+          "bytes": 13659,
+          "sha256": "bc9586c57b8559aacda249fe8957bf3cb6d6cb7521bdfb433daf9b664951fecb",
+          "transparentPixels": 9167,
+          "visiblePixels": 7217,
+          "maxAlpha": 255,
+          "contentBounds": [
+            15,
+            8,
+            113,
+            120
+          ]
+        }
+      ]
+    },
+    {
+      "id": "raja",
+      "operatorId": "rail:raja",
+      "mode": "train",
+      "nameFa": "رجا",
+      "nameEn": "Raja",
+      "source": {
+        "origin": "marketplace-hosted-brand-image",
+        "url": "https://directus.mrbilit.com/logos/logos/train?providerCode=1&unitCode=5105",
+        "pageUrl": "https://mrbilit.com/trains/tehran-mashhad?departureDate=1405-08-08",
+        "retrievedOn": "2026-10-29",
+        "format": "svg",
+        "declaredWidth": "100",
+        "declaredHeight": "100",
+        "viewBox": "0 0 100 100",
+        "bytes": 2087,
+        "sha256": "7d85660306e4f8c06c2383506352237d2433d7040467699a3ffbc830443d58bd",
+        "identityEvidence": "Visible card operator text and adjacent img alt/source URL observed in CUA DOM, 2026-10-29",
+        "rights": "Marketplace-hosted airline/operator trademark image; no open reuse license or operator permission published with file",
+        "license": "No open reuse license published with file; airline/operator trademarks and other rights retained. No permission grant by TorobTicket."
+      },
+      "transformation": {
+        "renderedInputSha256": "44b8aa388a22c8c065c8e43d9515ea0136858a6ae2532aaf382e5430db433c11",
+        "renderedInputSize": [
+          512,
+          512
+        ],
+        "alphaTrimBounds": [
+          10,
+          187,
+          502,
+          332
+        ],
+        "method": "Authentic marketplace-hosted SVG rasterized via Sharp0.35.5/librsvg2.63.2 at density200 inside512px; trim alpha margins; preserve colors/geometry and aspect ratio; fit inside7/8 square; Pillow12.3.0 Lanczos; PNG RGBA8 optimize zlib9. No redraw, image generation, recoloring or invented mark."
+      },
+      "variants": [
+        {
+          "path": "ground-operators/raja-32.png",
+          "width": 32,
+          "height": 32,
+          "bytes": 703,
+          "sha256": "a93f6b57912eb6b2d2bb42bb5e2c969af18dc65a6b2894b5b92b73ae7173cdd5",
+          "transparentPixels": 832,
+          "visiblePixels": 192,
+          "maxAlpha": 255,
+          "contentBounds": [
+            2,
+            12,
+            30,
+            20
+          ]
+        },
+        {
+          "path": "ground-operators/raja-64.png",
+          "width": 64,
+          "height": 64,
+          "bytes": 1866,
+          "sha256": "606440e67836ee642f66761e7a97c061139a7d453bdf5ca0afca6a2ce9965289",
+          "transparentPixels": 3337,
+          "visiblePixels": 759,
+          "maxAlpha": 255,
+          "contentBounds": [
+            4,
+            23,
+            60,
+            40
+          ]
+        },
+        {
+          "path": "ground-operators/raja-128.png",
+          "width": 128,
+          "height": 128,
+          "bytes": 4196,
+          "sha256": "8e7cbc95f9203de242b4196d3971f78fe8adac79c2f1c140693aae0c1dabafd3",
+          "transparentPixels": 13676,
+          "visiblePixels": 2708,
+          "maxAlpha": 255,
+          "contentBounds": [
+            8,
+            47,
+            120,
+            80
+          ]
+        }
+      ]
+    },
+    {
+      "id": "joopar",
+      "operatorId": "rail:joopar",
+      "mode": "train",
+      "nameFa": "جوپار",
+      "nameEn": "Joopar",
+      "source": {
+        "origin": "marketplace-hosted-brand-image",
+        "url": "https://directus.mrbilit.com/logos/logos/train?providerCode=22&unitCode=4818",
+        "pageUrl": "https://mrbilit.com/trains/tehran-mashhad?departureDate=1405-08-08",
+        "retrievedOn": "2026-10-29",
+        "format": "svg",
+        "declaredWidth": "1440",
+        "declaredHeight": "1435",
+        "viewBox": "0 0 1440 1435",
+        "bytes": 37672,
+        "sha256": "11386c44e8038a522ae97f52f4b5732c16ac18d11bdd3b223a751d598d267459",
+        "identityEvidence": "Visible card operator text and adjacent img alt/source URL observed in CUA DOM, 2026-10-29",
+        "rights": "Marketplace-hosted airline/operator trademark image; no open reuse license or operator permission published with file",
+        "license": "No open reuse license published with file; airline/operator trademarks and other rights retained. No permission grant by TorobTicket."
+      },
+      "transformation": {
+        "renderedInputSha256": "4b251cf0858991abd54dad079a5f36c01434735555786f3c00bf973c11978233",
+        "renderedInputSize": [
+          512,
+          510
+        ],
+        "alphaTrimBounds": [
+          57,
+          116,
+          457,
+          371
+        ],
+        "method": "Authentic marketplace-hosted SVG rasterized via Sharp0.35.5/librsvg2.63.2 at density200 inside512px; trim alpha margins; preserve colors/geometry and aspect ratio; fit inside7/8 square; Pillow12.3.0 Lanczos; PNG RGBA8 optimize zlib9. No redraw, image generation, recoloring or invented mark."
+      },
+      "variants": [
+        {
+          "path": "ground-operators/joopar-32.png",
+          "width": 32,
+          "height": 32,
+          "bytes": 1281,
+          "sha256": "e8244de95a80cc4218070d6c359cf31cdecb08b30909ef5a81fdca164de946d7",
+          "transparentPixels": 670,
+          "visiblePixels": 354,
+          "maxAlpha": 255,
+          "contentBounds": [
+            2,
+            7,
+            30,
+            25
+          ]
+        },
+        {
+          "path": "ground-operators/joopar-64.png",
+          "width": 64,
+          "height": 64,
+          "bytes": 3715,
+          "sha256": "72a3cb28e388254a40b0deed60584e0ecb8bdcf8e42284db68a699e4b4cfd12f",
+          "transparentPixels": 2860,
+          "visiblePixels": 1236,
+          "maxAlpha": 255,
+          "contentBounds": [
+            4,
+            14,
+            60,
+            50
+          ]
+        },
+        {
+          "path": "ground-operators/joopar-128.png",
+          "width": 128,
+          "height": 128,
+          "bytes": 9714,
+          "sha256": "9048dcec55ef22a482bfb0519d47a6c53eef8ac23f546121cae93f105829dea3",
+          "transparentPixels": 12282,
+          "visiblePixels": 4102,
+          "maxAlpha": 255,
+          "contentBounds": [
+            8,
+            28,
+            120,
+            99
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mahtab-seir-jam",
+      "operatorId": "rail:mahtab-seir-jam",
+      "mode": "train",
+      "nameFa": "مهتاب سیر جم",
+      "nameEn": "Mahtab Seir Jam",
+      "source": {
+        "origin": "marketplace-hosted-brand-image",
+        "url": "https://directus.mrbilit.com/logos/logos/train?providerCode=14&unitCode=5441",
+        "pageUrl": "https://mrbilit.com/trains/tehran-mashhad?departureDate=1405-08-08",
+        "retrievedOn": "2026-10-29",
+        "format": "svg",
+        "declaredWidth": "100",
+        "declaredHeight": "100",
+        "viewBox": "0 0 100 100",
+        "bytes": 2804,
+        "sha256": "80c915a37a852a6f54e3cedb3464a799d3220e359afb0ca468a87ba9410102d1",
+        "identityEvidence": "Visible card operator text and adjacent img alt/source URL observed in CUA DOM, 2026-10-29",
+        "rights": "Marketplace-hosted airline/operator trademark image; no open reuse license or operator permission published with file",
+        "license": "No open reuse license published with file; airline/operator trademarks and other rights retained. No permission grant by TorobTicket."
+      },
+      "transformation": {
+        "renderedInputSha256": "362d90ea5443db3afaa39d7e2297b295f8dd8f8bbf2215dcbca708deb5ea3fb8",
+        "renderedInputSize": [
+          512,
+          512
+        ],
+        "alphaTrimBounds": [
+          10,
+          133,
+          502,
+          375
+        ],
+        "method": "Authentic marketplace-hosted SVG rasterized via Sharp0.35.5/librsvg2.63.2 at density200 inside512px; trim alpha margins; preserve colors/geometry and aspect ratio; fit inside7/8 square; Pillow12.3.0 Lanczos; PNG RGBA8 optimize zlib9. No redraw, image generation, recoloring or invented mark."
+      },
+      "variants": [
+        {
+          "path": "ground-operators/mahtab-seir-jam-32.png",
+          "width": 32,
+          "height": 32,
+          "bytes": 957,
+          "sha256": "ee0e3e81f33815d7c808bcb1f08da3e193ad1bb82d36f80ee52c357e72f6baa0",
+          "transparentPixels": 772,
+          "visiblePixels": 252,
+          "maxAlpha": 255,
+          "contentBounds": [
+            2,
+            9,
+            30,
+            23
+          ]
+        },
+        {
+          "path": "ground-operators/mahtab-seir-jam-64.png",
+          "width": 64,
+          "height": 64,
+          "bytes": 2309,
+          "sha256": "954c2c86711f9dc27f3e55adb5d03b73c101a8c9d8f9c9e4d3bafbf04acb743b",
+          "transparentPixels": 3235,
+          "visiblePixels": 861,
+          "maxAlpha": 255,
+          "contentBounds": [
+            4,
+            18,
+            60,
+            46
+          ]
+        },
+        {
+          "path": "ground-operators/mahtab-seir-jam-128.png",
+          "width": 128,
+          "height": 128,
+          "bytes": 5329,
+          "sha256": "85e1641c7c559daec1dc8459e685d7e1cd19a8d13165fc65f0760f4686ee804e",
+          "transparentPixels": 13630,
+          "visiblePixels": 2754,
+          "maxAlpha": 255,
+          "contentBounds": [
+            8,
+            36,
+            120,
+            91
+          ]
+        }
+      ]
+    },
+    {
+      "id": "bonrail",
+      "operatorId": "rail:bonrail",
+      "mode": "train",
+      "nameFa": "بن ریل",
+      "nameEn": "Bonrail",
+      "source": {
+        "origin": "marketplace-hosted-brand-image",
+        "url": "https://directus.mrbilit.com/logos/logos/train?providerCode=2&unitCode=1310",
+        "pageUrl": "https://mrbilit.com/trains/tehran-mashhad?departureDate=1405-08-08",
+        "retrievedOn": "2026-10-29",
+        "format": "svg",
+        "declaredWidth": null,
+        "declaredHeight": null,
+        "viewBox": "0 0 100 100",
+        "bytes": 3469,
+        "sha256": "721deb5656a3220e630e471fc70a9ac0705a1b5dc0047692fc802f82a322da04",
+        "identityEvidence": "Visible card operator text and adjacent img alt/source URL observed in CUA DOM, 2026-10-29",
+        "rights": "Marketplace-hosted airline/operator trademark image; no open reuse license or operator permission published with file",
+        "license": "No open reuse license published with file; airline/operator trademarks and other rights retained. No permission grant by TorobTicket."
+      },
+      "transformation": {
+        "renderedInputSha256": "bc1aa479164aa6b89ccfd9469bcc3e905281057d7b1362413ebc0adda051c97e",
+        "renderedInputSize": [
+          512,
+          512
+        ],
+        "alphaTrimBounds": [
+          72,
+          4,
+          440,
+          507
+        ],
+        "method": "Authentic marketplace-hosted SVG rasterized via Sharp0.35.5/librsvg2.63.2 at density200 inside512px; trim alpha margins; preserve colors/geometry and aspect ratio; fit inside7/8 square; Pillow12.3.0 Lanczos; PNG RGBA8 optimize zlib9. No redraw, image generation, recoloring or invented mark."
+      },
+      "variants": [
+        {
+          "path": "ground-operators/bonrail-32.png",
+          "width": 32,
+          "height": 32,
+          "bytes": 1458,
+          "sha256": "8f2bec10b43041e544067919ef6b636bedc7701b0d2522c211282e22cbca6c15",
+          "transparentPixels": 684,
+          "visiblePixels": 340,
+          "maxAlpha": 255,
+          "contentBounds": [
+            6,
+            2,
+            26,
+            30
+          ]
+        },
+        {
+          "path": "ground-operators/bonrail-64.png",
+          "width": 64,
+          "height": 64,
+          "bytes": 4209,
+          "sha256": "8b0b7ed3e30be4b8b0f67fc25671cbb8c5c382b1920eefb1c96883461fbd2734",
+          "transparentPixels": 2941,
+          "visiblePixels": 1155,
+          "maxAlpha": 255,
+          "contentBounds": [
+            11,
+            4,
+            52,
+            60
+          ]
+        },
+        {
+          "path": "ground-operators/bonrail-128.png",
+          "width": 128,
+          "height": 128,
+          "bytes": 10614,
+          "sha256": "5a6b8ff1a8207dae821650937d62b85b33fbcd20b9cff6b3d64f299fac399c03",
+          "transparentPixels": 12557,
+          "visiblePixels": 3827,
+          "maxAlpha": 255,
+          "contentBounds": [
+            23,
+            8,
+            105,
+            120
+          ]
+        }
+      ]
+    },
+    {
+      "id": "pars-larim",
+      "operatorId": "rail:pars-larim",
+      "mode": "train",
+      "nameFa": "پارس لاریم",
+      "nameEn": "Pars Larim",
+      "source": {
+        "origin": "marketplace-hosted-brand-image",
+        "url": "https://directus.mrbilit.com/logos/logos/train?providerCode=8&unitCode=4683",
+        "pageUrl": "https://mrbilit.com/trains/tehran-mashhad?departureDate=1405-08-08",
+        "retrievedOn": "2026-10-29",
+        "format": "svg",
+        "declaredWidth": "100",
+        "declaredHeight": "100",
+        "viewBox": "0 0 100 100",
+        "bytes": 1193,
+        "sha256": "0aa1f362d56c3ac7aa4a20fa4ba08d9d40c319525bfad620d132fbda7ebdfccd",
+        "identityEvidence": "Visible card operator text and adjacent img alt/source URL observed in CUA DOM, 2026-10-29",
+        "rights": "Marketplace-hosted airline/operator trademark image; no open reuse license or operator permission published with file",
+        "license": "No open reuse license published with file; airline/operator trademarks and other rights retained. No permission grant by TorobTicket."
+      },
+      "transformation": {
+        "renderedInputSha256": "92d64c48f3acc1d2cdb0cb0b54882d73c3a96d67497537d9c25bd1c0202da0c1",
+        "renderedInputSize": [
+          512,
+          512
+        ],
+        "alphaTrimBounds": [
+          154,
+          25,
+          356,
+          487
+        ],
+        "method": "Authentic marketplace-hosted SVG rasterized via Sharp0.35.5/librsvg2.63.2 at density200 inside512px; trim alpha margins; preserve colors/geometry and aspect ratio; fit inside7/8 square; Pillow12.3.0 Lanczos; PNG RGBA8 optimize zlib9. No redraw, image generation, recoloring or invented mark."
+      },
+      "variants": [
+        {
+          "path": "ground-operators/pars-larim-32.png",
+          "width": 32,
+          "height": 32,
+          "bytes": 942,
+          "sha256": "555bdef4795687fd5f6a9a3881d09cd24106d7d8e72ba4bb36b01d9bc9a77df8",
+          "transparentPixels": 767,
+          "visiblePixels": 257,
+          "maxAlpha": 255,
+          "contentBounds": [
+            10,
+            2,
+            22,
+            30
+          ]
+        },
+        {
+          "path": "ground-operators/pars-larim-64.png",
+          "width": 64,
+          "height": 64,
+          "bytes": 2345,
+          "sha256": "25ac4fe9305417b9e7a46aeb20f915f0188ff63f0912b3d315162907f1cca2da",
+          "transparentPixels": 3232,
+          "visiblePixels": 864,
+          "maxAlpha": 255,
+          "contentBounds": [
+            20,
+            4,
+            44,
+            60
+          ]
+        },
+        {
+          "path": "ground-operators/pars-larim-128.png",
+          "width": 128,
+          "height": 128,
+          "bytes": 5938,
+          "sha256": "d4953016deb47315565a101b116129f6fe17dd1798ab8eee169b9ee3706e9b1d",
+          "transparentPixels": 13308,
+          "visiblePixels": 3076,
+          "maxAlpha": 255,
+          "contentBounds": [
+            39,
+            8,
+            88,
+            120
+          ]
+        }
+      ]
+    },
+    {
+      "id": "rail-seir-kowsar",
+      "operatorId": "rail:rail-seir-kowsar",
+      "mode": "train",
+      "nameFa": "ریل سیر کوثر",
+      "nameEn": "Rail Seir Kowsar",
+      "source": {
+        "origin": "marketplace-hosted-brand-image",
+        "url": "https://directus.mrbilit.com/logos/logos/train?providerCode=10&unitCode=5010",
+        "pageUrl": "https://mrbilit.com/trains/tehran-mashhad?departureDate=1405-08-08",
+        "retrievedOn": "2026-10-29",
+        "format": "svg",
+        "declaredWidth": null,
+        "declaredHeight": null,
+        "viewBox": "0 0 283.46 283.46",
+        "bytes": 1679,
+        "sha256": "76b921632de95b19d42779d9f1d8074878252f7e4aaac162d9b6a9eadfa9e811",
+        "identityEvidence": "Visible card operator text and adjacent img alt/source URL observed in CUA DOM, 2026-10-29",
+        "rights": "Marketplace-hosted airline/operator trademark image; no open reuse license or operator permission published with file",
+        "license": "No open reuse license published with file; airline/operator trademarks and other rights retained. No permission grant by TorobTicket."
+      },
+      "transformation": {
+        "renderedInputSha256": "314e20034495a621fc7533e0c114bf7df71a918a9742ff4061886346622bf808",
+        "renderedInputSize": [
+          512,
+          512
+        ],
+        "alphaTrimBounds": [
+          0,
+          0,
+          512,
+          512
+        ],
+        "method": "Authentic marketplace-hosted SVG rasterized via Sharp0.35.5/librsvg2.63.2 at density200 inside512px; trim alpha margins; preserve colors/geometry and aspect ratio; fit inside7/8 square; Pillow12.3.0 Lanczos; PNG RGBA8 optimize zlib9. No redraw, image generation, recoloring or invented mark."
+      },
+      "variants": [
+        {
+          "path": "ground-operators/rail-seir-kowsar-32.png",
+          "width": 32,
+          "height": 32,
+          "bytes": 2367,
+          "sha256": "b28d36d7473574f48ecc5bb6f9f5bcb513d924059d40b7f2affa9b3c57c6cb47",
+          "transparentPixels": 386,
+          "visiblePixels": 638,
+          "maxAlpha": 255,
+          "contentBounds": [
+            2,
+            2,
+            30,
+            30
+          ]
+        },
+        {
+          "path": "ground-operators/rail-seir-kowsar-64.png",
+          "width": 64,
+          "height": 64,
+          "bytes": 5997,
+          "sha256": "ba2a329ee91899e633bdf5cae282f5f8c13f56c6b20d5ba51fc9dd796d1d2ff3",
+          "transparentPixels": 1720,
+          "visiblePixels": 2376,
+          "maxAlpha": 255,
+          "contentBounds": [
+            4,
+            4,
+            60,
+            60
+          ]
+        },
+        {
+          "path": "ground-operators/rail-seir-kowsar-128.png",
+          "width": 128,
+          "height": 128,
+          "bytes": 13342,
+          "sha256": "229653d215fd4ed78132f67ef42e0f724509cf45540e5f35c3f8e4d953e22815",
+          "transparentPixels": 7501,
+          "visiblePixels": 8883,
+          "maxAlpha": 255,
+          "contentBounds": [
+            8,
+            8,
+            120,
+            120
+          ]
+        }
+      ]
+    },
+    {
+      "id": "rail-tarabar-saba",
+      "operatorId": "rail:rail-tarabar-saba",
+      "mode": "train",
+      "nameFa": "ریل ترابر سبا",
+      "nameEn": "Rail Tarabar Saba",
+      "source": {
+        "origin": "marketplace-hosted-brand-image",
+        "url": "https://directus.mrbilit.com/logos/logos/train?providerCode=15&unitCode=5347",
+        "pageUrl": "https://mrbilit.com/trains/tehran-mashhad?departureDate=1405-08-08",
+        "retrievedOn": "2026-10-29",
+        "format": "svg",
+        "declaredWidth": "100",
+        "declaredHeight": "100",
+        "viewBox": "0 0 100 100",
+        "bytes": 3854,
+        "sha256": "2ecbbb1f021dcd3adf0c9099d3c57cd7ea520e2644a1202a4b10c3c7f52cbe81",
+        "identityEvidence": "Visible card operator text and adjacent img alt/source URL observed in CUA DOM, 2026-10-29",
+        "rights": "Marketplace-hosted airline/operator trademark image; no open reuse license or operator permission published with file",
+        "license": "No open reuse license published with file; airline/operator trademarks and other rights retained. No permission grant by TorobTicket."
+      },
+      "transformation": {
+        "renderedInputSha256": "514b5d945bf1135bc62364e13829dde56f568bc9303a88d17eba308ab9db4f93",
+        "renderedInputSize": [
+          512,
+          512
+        ],
+        "alphaTrimBounds": [
+          30,
+          152,
+          482,
+          361
+        ],
+        "method": "Authentic marketplace-hosted SVG rasterized via Sharp0.35.5/librsvg2.63.2 at density200 inside512px; trim alpha margins; preserve colors/geometry and aspect ratio; fit inside7/8 square; Pillow12.3.0 Lanczos; PNG RGBA8 optimize zlib9. No redraw, image generation, recoloring or invented mark."
+      },
+      "variants": [
+        {
+          "path": "ground-operators/rail-tarabar-saba-32.png",
+          "width": 32,
+          "height": 32,
+          "bytes": 1038,
+          "sha256": "e5ba11241d99b4488e26185dc2fa7929a2699905b74f4d49bffeb9f5e58c0528",
+          "transparentPixels": 672,
+          "visiblePixels": 352,
+          "maxAlpha": 255,
+          "contentBounds": [
+            2,
+            9,
+            30,
+            22
+          ]
+        },
+        {
+          "path": "ground-operators/rail-tarabar-saba-64.png",
+          "width": 64,
+          "height": 64,
+          "bytes": 2578,
+          "sha256": "04c314da14f0b868d10ecdc399828cf4bdcd3d43e0a01d5b3330ec6c28b62c2a",
+          "transparentPixels": 2710,
+          "visiblePixels": 1386,
+          "maxAlpha": 255,
+          "contentBounds": [
+            4,
+            19,
+            60,
+            45
+          ]
+        },
+        {
+          "path": "ground-operators/rail-tarabar-saba-128.png",
+          "width": 128,
+          "height": 128,
+          "bytes": 6063,
+          "sha256": "a378938ce24111497f1013ef8569fb8c5f3e365c5b09c95a2725aafa8e1f73df",
+          "transparentPixels": 10940,
+          "visiblePixels": 5444,
+          "maxAlpha": 255,
+          "contentBounds": [
+            8,
+            38,
+            120,
+            90
+          ]
+        }
+      ]
+    },
+    {
+      "id": "noor-alreza",
+      "operatorId": "rail:noor-alreza",
+      "mode": "train",
+      "nameFa": "نورالرضا",
+      "nameEn": "Noor al Reza",
+      "source": {
+        "origin": "marketplace-hosted-brand-image",
+        "url": "https://directus.mrbilit.com/logos/logos/train?providerCode=17&unitCode=5258",
+        "pageUrl": "https://mrbilit.com/trains/tehran-mashhad?departureDate=1405-08-08",
+        "retrievedOn": "2026-10-29",
+        "format": "svg",
+        "declaredWidth": "50",
+        "declaredHeight": "50",
+        "viewBox": "0 0 50 50",
+        "bytes": 3625,
+        "sha256": "a94dabb30f80ece497fb1b54cd26b47dc2ad5e388edf47b53b4dcb0bffb83b96",
+        "identityEvidence": "Visible card operator text and adjacent img alt/source URL observed in CUA DOM, 2026-10-29",
+        "rights": "Marketplace-hosted airline/operator trademark image; no open reuse license or operator permission published with file",
+        "license": "No open reuse license published with file; airline/operator trademarks and other rights retained. No permission grant by TorobTicket."
+      },
+      "transformation": {
+        "renderedInputSha256": "73fd5c88ddd6393cd1008c612305beb0adedebdb56815d27c3a521bf69333b80",
+        "renderedInputSize": [
+          512,
+          512
+        ],
+        "alphaTrimBounds": [
+          14,
+          87,
+          498,
+          422
+        ],
+        "method": "Authentic marketplace-hosted SVG rasterized via Sharp0.35.5/librsvg2.63.2 at density200 inside512px; trim alpha margins; preserve colors/geometry and aspect ratio; fit inside7/8 square; Pillow12.3.0 Lanczos; PNG RGBA8 optimize zlib9. No redraw, image generation, recoloring or invented mark."
+      },
+      "variants": [
+        {
+          "path": "ground-operators/noor-alreza-32.png",
+          "width": 32,
+          "height": 32,
+          "bytes": 1745,
+          "sha256": "ede4169137a659b07961d0ec6b55f3976e652534e9a24997050b7391b2a2bb72",
+          "transparentPixels": 623,
+          "visiblePixels": 401,
+          "maxAlpha": 255,
+          "contentBounds": [
+            2,
+            6,
+            30,
+            25
+          ]
+        },
+        {
+          "path": "ground-operators/noor-alreza-64.png",
+          "width": 64,
+          "height": 64,
+          "bytes": 4824,
+          "sha256": "482b9335242da6c94be3cee2b63263727d838931dfc997c498032d310a1234c2",
+          "transparentPixels": 2878,
+          "visiblePixels": 1218,
+          "maxAlpha": 255,
+          "contentBounds": [
+            4,
+            12,
+            60,
+            51
+          ]
+        },
+        {
+          "path": "ground-operators/noor-alreza-128.png",
+          "width": 128,
+          "height": 128,
+          "bytes": 12865,
+          "sha256": "bcb9e28120deb8427d8f4e8b93c3e67b64263ae7c7c093f8afa145855ae29dc3",
+          "transparentPixels": 12206,
+          "visiblePixels": 4178,
+          "maxAlpha": 255,
+          "contentBounds": [
+            8,
+            25,
+            120,
+            103
+          ]
+        }
+      ]
+    },
+    {
+      "id": "royal-safar",
+      "operatorId": "bus:royal-safar",
+      "mode": "bus",
+      "nameFa": "رویال سفر",
+      "nameEn": "Royal Safar",
+      "source": {
+        "origin": "marketplace-hosted-brand-image",
+        "url": "https://directus.mrbilit.com/logos/logos/bus?providerCode=9",
+        "pageUrl": "https://mrbilit.com/buses/tehran-esfahan?departureDate=1405-08-08",
+        "retrievedOn": "2026-10-29",
+        "format": "svg",
+        "declaredWidth": "100",
+        "declaredHeight": "100",
+        "viewBox": "0 0 99.999999 100",
+        "bytes": 9986,
+        "sha256": "862c7e433e9e6366ac2504a9ba2e972579eb843c3ce274ac23299cb247196b2b",
+        "identityEvidence": "Visible card operator name and adjacent logo img alt/source URL observed in CUA DOM, 2026-10-29",
+        "rights": "Marketplace-hosted operator trademark image; no open reuse license or operator permission published with file",
+        "license": "No open reuse license published with file; airline/operator trademarks and other rights retained. No permission grant by TorobTicket."
+      },
+      "transformation": {
+        "renderedInputSha256": "7c1bee7c05cde002f76c0d47905310f5d56502c2923de0d53eb9719081a1a53a",
+        "renderedInputSize": [
+          512,
+          512
+        ],
+        "alphaTrimBounds": [
+          0,
+          31,
+          512,
+          481
+        ],
+        "method": "Authentic marketplace-hosted SVG rasterized via Sharp0.35.5/librsvg2.63.2 at density200 inside512px; trim alpha margins; preserve colors/geometry and aspect ratio; fit inside7/8 square; Pillow12.3.0 Lanczos; PNG RGBA8 optimize zlib9. No redraw, image generation, recoloring or invented mark."
+      },
+      "variants": [
+        {
+          "path": "ground-operators/royal-safar-32.png",
+          "width": 32,
+          "height": 32,
+          "bytes": 2048,
+          "sha256": "27f1ee063a76eec7f6ec4292efea2b73d6525e9a0eadb56278eb506d184bd126",
+          "transparentPixels": 548,
+          "visiblePixels": 476,
+          "maxAlpha": 255,
+          "contentBounds": [
+            2,
+            3,
+            30,
+            28
+          ]
+        },
+        {
+          "path": "ground-operators/royal-safar-64.png",
+          "width": 64,
+          "height": 64,
+          "bytes": 5322,
+          "sha256": "fa5e84da57ce12d67ccf337534bc775c9491fe406202dd1a9c7452e1c2500c9a",
+          "transparentPixels": 2626,
+          "visiblePixels": 1470,
+          "maxAlpha": 255,
+          "contentBounds": [
+            4,
+            7,
+            60,
+            56
+          ]
+        },
+        {
+          "path": "ground-operators/royal-safar-128.png",
+          "width": 128,
+          "height": 128,
+          "bytes": 12717,
+          "sha256": "9b8347c177c17c8ae50162c9122151abea02ba839c6cf5a3a60a9609ab1953ea",
+          "transparentPixels": 11668,
+          "visiblePixels": 4716,
+          "maxAlpha": 255,
+          "contentBounds": [
+            8,
+            15,
+            120,
+            113
+          ]
+        }
+      ]
+    },
+    {
+      "id": "peyk-saba",
+      "operatorId": "bus:peyk-saba",
+      "mode": "bus",
+      "nameFa": "پیک صبا",
+      "nameEn": "Peyk Saba",
+      "source": {
+        "origin": "marketplace-hosted-brand-image",
+        "url": "https://directus.mrbilit.com/logos/logos/bus?providerCode=13",
+        "pageUrl": "https://mrbilit.com/buses/tehran-esfahan?departureDate=1405-08-08",
+        "retrievedOn": "2026-10-29",
+        "format": "svg",
+        "declaredWidth": "100",
+        "declaredHeight": "100",
+        "viewBox": "0 0 100 100",
+        "bytes": 1631,
+        "sha256": "ff026116109fe060b9366d42c665846798c9ffc6a6cb979d96bf512459b689a0",
+        "identityEvidence": "Visible card operator name and adjacent logo img alt/source URL observed in CUA DOM, 2026-10-29",
+        "rights": "Marketplace-hosted operator trademark image; no open reuse license or operator permission published with file",
+        "license": "No open reuse license published with file; airline/operator trademarks and other rights retained. No permission grant by TorobTicket."
+      },
+      "transformation": {
+        "renderedInputSha256": "c032e96ee09899edaa7ec010aeac928e7ab16e9c0087661fe67b6f3f4e5bd0af",
+        "renderedInputSize": [
+          512,
+          512
+        ],
+        "alphaTrimBounds": [
+          71,
+          104,
+          441,
+          408
+        ],
+        "method": "Authentic marketplace-hosted SVG rasterized via Sharp0.35.5/librsvg2.63.2 at density200 inside512px; trim alpha margins; preserve colors/geometry and aspect ratio; fit inside7/8 square; Pillow12.3.0 Lanczos; PNG RGBA8 optimize zlib9. No redraw, image generation, recoloring or invented mark."
+      },
+      "variants": [
+        {
+          "path": "ground-operators/peyk-saba-32.png",
+          "width": 32,
+          "height": 32,
+          "bytes": 1264,
+          "sha256": "7a48499b4037422bd8c2ec6febe08769920cb7cfd788882ddc9fa0955a788ccc",
+          "transparentPixels": 508,
+          "visiblePixels": 516,
+          "maxAlpha": 255,
+          "contentBounds": [
+            2,
+            4,
+            30,
+            27
+          ]
+        },
+        {
+          "path": "ground-operators/peyk-saba-64.png",
+          "width": 64,
+          "height": 64,
+          "bytes": 2961,
+          "sha256": "f51b3c8a77dc8e0e51b0d333b6d868df0c04b8290305145fa687b2bf5ad59557",
+          "transparentPixels": 2241,
+          "visiblePixels": 1855,
+          "maxAlpha": 255,
+          "contentBounds": [
+            4,
+            9,
+            60,
+            55
+          ]
+        },
+        {
+          "path": "ground-operators/peyk-saba-128.png",
+          "width": 128,
+          "height": 128,
+          "bytes": 6797,
+          "sha256": "69daf85d4f898b1200ca4c88472b46010e9421694925cc29128f5a1cb640be55",
+          "transparentPixels": 9708,
+          "visiblePixels": 6676,
+          "maxAlpha": 255,
+          "contentBounds": [
+            8,
+            18,
+            120,
+            110
+          ]
+        }
+      ]
+    },
+    {
+      "id": "adl",
+      "operatorId": "bus:adl",
+      "mode": "bus",
+      "nameFa": "عدل",
+      "nameEn": "Adl",
+      "source": {
+        "origin": "marketplace-hosted-brand-image",
+        "url": "https://directus.mrbilit.com/logos/logos/bus?providerCode=10",
+        "pageUrl": "https://mrbilit.com/buses/tehran-esfahan?departureDate=1405-08-08",
+        "retrievedOn": "2026-10-29",
+        "format": "svg",
+        "declaredWidth": "100",
+        "declaredHeight": "100",
+        "viewBox": "0 0 100 100",
+        "bytes": 2797,
+        "sha256": "00f998b95969df1f262e12210a0c5bf1ffbed6d2ee2380c57652de5d7e1deef9",
+        "identityEvidence": "Visible card operator name and adjacent logo img alt/source URL observed in CUA DOM, 2026-10-29",
+        "rights": "Marketplace-hosted operator trademark image; no open reuse license or operator permission published with file",
+        "license": "No open reuse license published with file; airline/operator trademarks and other rights retained. No permission grant by TorobTicket."
+      },
+      "transformation": {
+        "renderedInputSha256": "fd24ed4ab7e0a49d08a46c7dc30fb0a28d806f7a2daa6a039eb1f16569a5f055",
+        "renderedInputSize": [
+          512,
+          512
+        ],
+        "alphaTrimBounds": [
+          25,
+          177,
+          487,
+          340
+        ],
+        "method": "Authentic marketplace-hosted SVG rasterized via Sharp0.35.5/librsvg2.63.2 at density200 inside512px; trim alpha margins; preserve colors/geometry and aspect ratio; fit inside7/8 square; Pillow12.3.0 Lanczos; PNG RGBA8 optimize zlib9. No redraw, image generation, recoloring or invented mark."
+      },
+      "variants": [
+        {
+          "path": "ground-operators/adl-32.png",
+          "width": 32,
+          "height": 32,
+          "bytes": 985,
+          "sha256": "dbda0adfb639f413c8e4f3047bcb73712048f8ed7e07ad20d4e2a343791863d1",
+          "transparentPixels": 785,
+          "visiblePixels": 239,
+          "maxAlpha": 255,
+          "contentBounds": [
+            2,
+            11,
+            30,
+            21
+          ]
+        },
+        {
+          "path": "ground-operators/adl-64.png",
+          "width": 64,
+          "height": 64,
+          "bytes": 2789,
+          "sha256": "756f121d2b63b0c53e72b03e20fc1ece35ba4faddc8543a766a0b6d1c9b5c507",
+          "transparentPixels": 3276,
+          "visiblePixels": 820,
+          "maxAlpha": 255,
+          "contentBounds": [
+            4,
+            22,
+            60,
+            42
+          ]
+        },
+        {
+          "path": "ground-operators/adl-128.png",
+          "width": 128,
+          "height": 128,
+          "bytes": 6997,
+          "sha256": "c8b0587a258dd37142ac528878e7b1a174765036d937dc3e73e4e4fffec359b8",
+          "transparentPixels": 13492,
+          "visiblePixels": 2892,
+          "maxAlpha": 255,
+          "contentBounds": [
+            8,
+            44,
+            120,
+            84
+          ]
+        }
+      ]
+    }
+  ]
+}

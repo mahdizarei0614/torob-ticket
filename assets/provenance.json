@@ -1,5 +1,5 @@
 {
-  "revision": "geography-v1",
+  "revision": "geography-v2",
   "retrievedOn": "2026-10-24",
   "sources": [
     {
@@ -52,19 +52,29 @@
       "licenseUrl": "https://www.naturalearthdata.com/about/terms-of-use/",
       "sha256": "1a1f30ccaaf4cc9c4bde34266f0b8cbb955d3a4cf254b756912255f2ec7c75b6",
       "retrievedOn": "2026-10-29"
+    },
+    {
+      "name": "OurAirports expanded international catalog",
+      "url": "https://davidmegginson.github.io/ourairports-data/airports.csv",
+      "license": "Public Domain",
+      "licenseUrl": "https://ourairports.com/data/",
+      "sha256": "f508467c19122ea549200daa215ea477eae2dc5375f339fd4e8226736c5981ea",
+      "retrievedOn": "2026-10-29",
+      "observations": "docs/evidence/adjustments/realistic-travel-catalog/airport-source-observation.json"
     }
   ],
   "transformations": [
     "Natural Earth 110m country polygons: retain full topology, reduce coordinate precision to four decimals; subset IR for Iran. Preserve antimeridian-separated polygons.",
-    "Natural Earth city points: select 22 populated places, translate labels, assign curated IANA zones.",
-    "OurAirports: select 24 IATA/ICAO identifiers and coordinates; no operational schedule claim.",
+    "Natural Earth city points: select city reference points, translate labels, assign curated IANA zones.",
+    "OurAirports: select IATA/ICAO identifiers and coordinates; no operational schedule claim.",
     "Rail and bus places are fictional points near city centers, with stable local IDs, no invented real station codes.",
     "Destination extent rectangles enclose all sourced arrival references and accommodation markers; they are illustrative display bounds, not municipal boundaries. Landmarks are sourced city reference centers; accommodation markers and all hotels are fictional.",
-    "All transport paths, operators, services, timetables, prices, and room inventory are authored fiction. No navigation, live data, or actual hotel policy implied.",
+    "All transport service identifiers, timetables, prices, policies and room inventory are authored mock data. Operator names/logos are sourced presentation identities, not operating-service evidence. No navigation, live availability or actual hotel policy is implied.",
     "Select cities for cartographic context only; retain source coordinates; translate names to Persian; author display tiers, not population ranks.",
     "Merge already-bundled T05 catalog city reference points. No new selectable destinations or inventory.",
     "Preserve every Iran Admin-1 line, including short junctions; no hand-authored borders.",
-    "Round longitude/latitude to four decimals; drop label/administrative metadata. No province names or inventory/selection facts."
+    "Round longitude/latitude to four decimals; drop label/administrative metadata. No province names or inventory/selection facts.",
+    "Append 11 international city reference centers and 11 sourced airport anchors; retain the prior 352 destination features unchanged and append 176 authored extent/hotel/landmark features. Frankfurt center is a curated approximate anchor. Versioned authored flight profiles use source-guided bands and explicit unknown connection protections, not live fares."
   ],
   "attribution": "Made with Natural Earth. Airport data from OurAirports. Time zone identifiers from IANA tzdb.",
   "localAssets": [
@@ -91,9 +101,9 @@
         "libs/ui/src/motion/motion-policy.ts",
         "libs/ui/src/motion/motion-surface.tsx"
       ],
-      "authorship": "Authored locally for TorobTicket with AI assistance; illustration paths, abstract provider marks and neutral/non-flight carrier glyphs are original repository artwork. Authentic airline PNGs have separate third-party provenance.",
-      "sourceMaterial": "The original illustration/vector paths do not copy a third-party logo. ProviderMark additionally displays authentic locally bundled airline images; their sources, rights metadata and transformations are recorded in airlines/manifest.json.",
-      "scope": "Decorative abstract travel scenery and marks for authored provider/non-flight operator identities, plus neutral unknown fallbacks. Airline names and logos are coordinated presentation aliases only. Not geographic evidence, a property depiction, amenity evidence, live delay estimate, availability or booking confirmation.",
+      "authorship": "Authored locally for TorobTicket with AI assistance; illustration paths, abstract marketplace marks and neutral carrier fallbacks are original repository artwork. Authentic airline and ground-operator PNGs have separate third-party provenance.",
+      "sourceMaterial": "Original illustration/vector paths do not copy a third-party logo. ProviderMark additionally displays authentic locally bundled airline and ground-operator images; sources, rights and transformations are recorded in airlines/manifest.json and ground-operators/manifest.json.",
+      "scope": "Decorative abstract travel scenery, authored marketplace identities and neutral unknown carrier fallbacks, plus explicit sourced operating-brand presentation identities. Not geographic, amenity, live-delay or availability evidence, or booking confirmation.",
       "theming": "All authored fills, strokes and text colors resolve semantic CSS tokens or inherited currentColor.",
       "motion": "Finite opacity/2D translations only; reduced motion, hidden documents and covered views settle to a static final frame. No SVG animation, background loop or per-provider entry animation."
     }
@@ -110,6 +120,18 @@
       "pngCount": 156,
       "scope": "Authentic local airline identity assets only; no inventory, current operating status, route coverage, integration, partnership or blanket reuse-permission claim. Technical travel fixtures remain mocked.",
       "rights": "Per-file metadata distinguishes airline-hosted originals, repository public-domain/CC claims and explicitly non-free logo references. Trademark rights are separate. See the manifest and notice."
+    },
+    {
+      "id": "ground-operator-marks-v1",
+      "retrievedOn": "2026-10-29",
+      "manifest": "ground-operators/manifest.json",
+      "notice": "ground-operators/README.md",
+      "operatorCount": 23,
+      "railCount": 9,
+      "busCount": 14,
+      "pngCount": 69,
+      "scope": "Authentic local ground operating-brand identity assets only; exact mode-scoped presentation IDs. No live operating status, service coverage, provider integration or partnership claim.",
+      "rights": "Authentic marketplace-hosted originals; no open reuse license or permission grant is claimed. Trademark and other rights retained; per-file provenance and processing hashes are in the manifest."
     }
   ]
 }

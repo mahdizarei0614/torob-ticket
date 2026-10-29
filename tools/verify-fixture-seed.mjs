@@ -15,7 +15,12 @@ async function snapshot(){
 }
 try{
   const before=await snapshot();
-  assert.equal(before.Place.count,90);assert.equal(before.Hotel.count,308);assert.equal(before.RoomRate.count,924);
+  for (const [version, places, hotels, rates] of [['showcase-v1',90,308,924],['showcase-v2',112,462,1386]]) {
+    for (const [table,count] of [['Place',places],['Hotel',hotels],['RoomRate',rates]]) {
+      const {rows}=await db.query(`SELECT count(*)::integer AS count FROM "${table}" WHERE "fixtureVersion"=$1`,[version]);
+      assert.equal(rows[0].count,count,`${version} ${table} inventory incomplete`);
+    }
+  }
   for(let run=1;run<=2;run++){
     execFileSync(process.execPath,['tools/seed.mjs'],{env:{...process.env,DATABASE_URL:connectionString},stdio:'inherit'});
     assert.deepEqual(await snapshot(),before);console.log(`PASS real seed ${run}: counts, payloads, identities and createdAt unchanged`);

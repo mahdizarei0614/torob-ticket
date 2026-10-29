@@ -82,7 +82,7 @@ describe('scoped provider evidence on PostgreSQL',()=>{
   });
   it('persists malformed rejection and rolls back raw/decision/offer atomically on failure',async()=>{
     const c=contexts[1]!;const search=await run(c);const ctx=await service.createContext(c,search.id,new AbortController().signal,new Date(now.getTime()+5000));ctx.overrides={'demo-provider-01':{latencyMs:0}};
-    const malformed=await new MockProvider('demo-provider-01',()=>[{rawRecordId:'bad-source',providerId:'demo-provider-01',sourceNamespace:'demo-provider-01/v1',fixtureVersion:'showcase-v1',observedAt:'2026-10-24T00:00:00Z',payload:{broken:true}}]).search(query,ctx);
+    const malformed=await new MockProvider('demo-provider-01',()=>[{rawRecordId:'bad-source',providerId:'demo-provider-01',sourceNamespace:'demo-provider-01/v1',fixtureVersion:ctx.fixtureVersion,observedAt:'2026-10-24T00:00:00Z',payload:{broken:true}}]).search(query,ctx);
     expect(malformed.records[0]?.trace.outcome).toBe('rejected');expect(await db.normalizationDecision.count({where:{sessionId:c.sessionId,rawRecord:{providerRun:{searchId:search.id}}}})).toBe(1);
     const next=await run(c);const nextCtx=await service.createContext(c,next.id,new AbortController().signal,new Date(now.getTime()+5000));nextCtx.overrides={'demo-provider-01':{latencyMs:0}};
     await db.$executeRawUnsafe(`ALTER TABLE "NormalizationDecision" ADD CONSTRAINT t06_reject_decision CHECK (payload->>'outcome' <> 'accepted') NOT VALID`);
@@ -110,7 +110,7 @@ describe('scoped provider evidence on PostgreSQL',()=>{
   });
   it('resets a session with accepted/rejected traces and a mapping revision chain',async()=>{
     const a=contexts[0]!;const search=await run(a);const ctx=await service.createContext(a,search.id,new AbortController().signal,new Date(now.getTime()+5000));
-    await new MockProvider('demo-provider-01',()=>[{rawRecordId:'reset-rejected',providerId:'demo-provider-01',sourceNamespace:'demo-provider-01/v1',fixtureVersion:'showcase-v1',observedAt:now.toISOString(),payload:{bad:true}}]).search(query,{...ctx,overrides:{'demo-provider-01':{latencyMs:0}}});
+    await new MockProvider('demo-provider-01',()=>[{rawRecordId:'reset-rejected',providerId:'demo-provider-01',sourceNamespace:'demo-provider-01/v1',fixtureVersion:ctx.fixtureVersion,observedAt:now.toISOString(),payload:{bad:true}}]).search(query,{...ctx,overrides:{'demo-provider-01':{latencyMs:0}}});
     expect(await db.normalizationDecision.count({where:{sessionId:a.sessionId}})).toBeGreaterThan(0);
     const replacement=await sessions.reset(a.scope,randomUUID(),{seed:5},new Date(now.getTime()+3600000));
     contexts[0]={sessionId:replacement.id,scope:{sessionId:replacement.id},info:sessionInfo(replacement),demoClock:new FrozenDemoClock(replacement.anchorInstant.toISOString())};

@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { generateProviderRecords, catalog, type FixtureQuery } from '@torob-ticket/fixtures';
+import { generateProviderRecords, catalogForIdentity, type FixtureQuery } from '@torob-ticket/fixtures';
 import { decodeRawRecord } from './raw-codecs';
 const base: FixtureQuery = {fixtureVersion:'showcase-v1',seed:5,anchorInstant:'2026-10-24T00:00:00.000Z',scenario:'normal',scenarioRevision:'scenario-v1',mappingRevision:'mapping-v1',query:{mode:'flight',scope:'domestic',tripType:'one-way',originCityId:'tehran',destinationCityId:'mashhad',departureDate:'2026-10-25',party:{adults:1,children:0,infants:0},classCode:'economy',filters:{},sort:'cheapest'}};
+const catalog=catalogForIdentity('showcase-v1','catalog-v1');
 export function providerInput(n:number):FixtureQuery { return {...base,query:{...base.query,...(n>4?{mode:'train',classCode:'seat'}:{})}}; }
 export function providerRaw(n:number) { return generateProviderRecords(providerInput(n)).find(r=>r.providerId===`demo-provider-0${n}`)!; }
 export { base, catalog };

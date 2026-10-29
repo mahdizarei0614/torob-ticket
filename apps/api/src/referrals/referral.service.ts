@@ -1,6 +1,6 @@
 import { ConfirmReferralInputSchema, ReferralSelectionSchema, type ConfirmReferralInput, type ReferralSelection, type RecheckResult } from '@torob-ticket/contracts';
 import { ReferralRepository, RepositoryError, SearchRepository } from '@torob-ticket/data-access';
-import { catalogForIdentity, mockFarePolicies } from '@torob-ticket/fixtures';
+import { catalogForIdentity, farePoliciesForFixture, fixtureSourceRevision } from '@torob-ticket/fixtures';
 import { ProviderService } from '../providers/provider.service';
 import type { SessionContext } from '../sessions/session-context';
 import { SessionService } from '../sessions/session.service';
@@ -19,8 +19,11 @@ export class ReferralService {
     registerRecheckHandler(kind:ReferralSelection['kind'],handler:RecheckHandler){this.registry.register(kind,handler);}
     get repository() {
         return new ReferralRepository(this.sessions.database, {
-            revisions: { sourceRevisions: Object.fromEntries(Object.keys(mockFarePolicies).map(id => [id, 'source-v1'])), policyRevisions: Object.fromEntries(Object.entries(mockFarePolicies).map(([id, policy]) => [id, policy.revision])) },
-            comparison: frozen => ({ places: catalogForIdentity(frozen.info.fixtureVersion, frozen.info.catalogRevision).places, policiesByProviderId: mockFarePolicies }),
+            revisions: frozen => {
+                const policies=farePoliciesForFixture(frozen.info.fixtureVersion);
+                return { sourceRevisions: Object.fromEntries(Object.keys(policies).map(id => [id, fixtureSourceRevision(frozen.info.fixtureVersion)])), policyRevisions: Object.fromEntries(Object.entries(policies).map(([id, policy]) => [id, policy.revision])) };
+            },
+            comparison: frozen => ({ places: catalogForIdentity(frozen.info.fixtureVersion, frozen.info.catalogRevision).places, policiesByProviderId: farePoliciesForFixture(frozen.info.fixtureVersion) }),
         });
     }
     private async recover() {

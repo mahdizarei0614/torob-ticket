@@ -49,7 +49,7 @@ export function normalizeRecord(r:DecodedProviderRecord,c:NormalizationContext):
     decision('amount','whole-party-gross-to-rials',{value:r.amount,unit:r.unit},total);
     decision('mandatoryCharge',fee?'included-charge-not-added':'unknown-mandatory-charge',r.mandatoryCharge,fee);
     const unknown={status:'unknown' as const,reason:'not-supplied'};
-    const conditions:FareConditions['outbound']={classCode:r.classCode,checkedBaggageKg:r.baggageKg===null?unknown:{status:'known',value:r.baggageKg},cabinBaggageKg:unknown,refundable:r.refundable===null?unknown:{status:'known',value:r.refundable},cancellation:unknown,seatOrBerth:unknown,materialTerms:[]};
+    const conditions:FareConditions['outbound']={classCode:r.classCode,checkedBaggageKg:r.baggageKg===null?unknown:{status:'known',value:r.baggageKg},cabinBaggageKg:unknown,refundable:r.refundable===null?unknown:{status:'known',value:r.refundable},cancellation:unknown,seatOrBerth:unknown,materialTerms:[...(r.materialTerms??[])]};
     decision('conditions','preserve-known-and-unknown',{classCode:r.classCode,baggageKg:r.baggageKg,refundable:r.refundable},conditions);
     decision('inventory','preserve-source-stock',{available:r.available,seats:r.seats,party:r.party});
     const issues=r.mandatoryCharge===null?[{code:'INCOMPLETE_PRICE',fieldPath:['mandatoryCharge'],severity:'warning' as const,rawRecordId:r.raw.rawRecordId}]:[];

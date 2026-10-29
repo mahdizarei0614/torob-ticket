@@ -14,6 +14,12 @@
 	handle /fonts/* {
 		file_server
 	}
+	handle /airlines/* {
+		file_server
+	}
+	handle /ground-operators/* {
+		file_server
+	}
 	handle /geography/* {
 		file_server
 	}

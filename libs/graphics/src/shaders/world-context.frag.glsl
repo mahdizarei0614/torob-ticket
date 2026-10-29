@@ -11,6 +11,7 @@ uniform vec4 latticeSpacings;
 uniform vec2 gridOrigin;
 uniform vec4 trailSamples[16];
 uniform float mapOpacity;
+uniform float boundaryStrength;
 uniform float scopeMorphProgress;
 varying vec2 vPosition;
 float trailAt(vec2 position) {
@@ -50,7 +51,7 @@ vec4 lattice(float spacing, float proximity) {
 }
 void main() {
   if (layer < 0.5) {
-    gl_FragColor = vec4(dot.rgb, dot.a * 0.32);
+    gl_FragColor = vec4(dot.rgb, dot.a * boundaryStrength);
   } else {
     if (scopeMorphProgress < 0.54) { gl_FragColor = vec4(0.0); return; }
     float trace = trailAt(vPosition);

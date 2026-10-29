@@ -59,7 +59,11 @@ export function DateWheel({ dates, value, cells, range, onPreview, onCommit, onI
       onPointerUp={() => { const drag = gesture.current; if (!drag) return; gesture.current = undefined; suppressClick.current = drag.moved; if (drag.moved) settle(current.current); else { authorization.current = undefined; callbacks.current.onInteractionChange?.(false); } }}
       onPointerCancel={cancel}>
       <div className={styles.wheelCenter} aria-hidden="true" />
-      <div className={styles.wheelRows} style={{ transform: `translateY(${(1 - index) * rowHeight}px)` }}>{dates.map((date, i) => { const cell = cells.find(cell => cell.date === date); return <div id={`${id}-${i}`} role="option" aria-selected={date === preview} aria-disabled={disabledCell(cells.find(cell => cell.date === date), leg) || undefined} key={date} className={styles.wheelRow} onClick={() => { if (suppressClick.current) { suppressClick.current = false; return; } if (enabled(date)) settle(date); }}><span>{dateLabel(date)}</span><DateAmount key={cell?.status === 'priced' ? cell.minimum.amountRial : cell?.status ?? 'checking'} band={priceBand(cell?.status === 'priced' ? cell.minimum.amountRial : undefined, range)}>{cell ? cellLabel(cell, leg) : missingLabel ?? cellLabel(undefined)}</DateAmount></div>; })}</div>
+      <div className={styles.wheelRows} style={{ transform: `translateY(${(1 - index) * rowHeight}px)` }}>{dates.map((date, i) => {
+        const cell = cells.find(cell => cell.date === date);
+        const label = dateLabel(date), availability = cell ? cellLabel(cell, leg) : missingLabel ?? cellLabel(undefined);
+        return <div id={`${id}-${i}`} role="option" aria-label={`${label}، ${availability}`} aria-selected={date === preview} aria-disabled={disabledCell(cell, leg) || undefined} title={`${label} — ${availability}`} key={date} className={styles.wheelRow} onClick={() => { if (suppressClick.current) { suppressClick.current = false; return; } if (enabled(date)) settle(date); }}><bdi className={styles.wheelDate} dir="ltr">{label}</bdi><span className={styles.wheelSeparator} aria-hidden="true">—</span><DateAmount key={cell?.status === 'priced' ? cell.minimum.amountRial : cell?.status ?? 'checking'} band={priceBand(cell?.status === 'priced' ? cell.minimum.amountRial : undefined, range)}>{availability}</DateAmount></div>;
+      })}</div>
     </div>
     <button type="button" className={styles.arrow} aria-label="روز بعد" disabled={!enabled(dates[index + 1])} onClick={() => step(1)}>⌄</button>
   </div>;

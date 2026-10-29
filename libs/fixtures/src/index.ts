@@ -1,4 +1,5 @@
 export * from './identity';
+export * from './fixture-bundles';
 export * from './catalog';
 export * from './catalog/cities';
 export * from './catalog/places';

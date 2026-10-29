@@ -45,8 +45,8 @@ const HeadingFrame=forwardRef<HTMLDivElement,{heading:ReturnType<typeof routeHea
  },[controls,present,policy.enabled,safeToRemove]);
  useEffect(()=>{if(!present&&!policy.enabled)safeToRemove?.();},[present,policy.enabled,safeToRemove]);
  return <motion.div ref={ref} className={styles.headingFrame} aria-hidden={!present||undefined} data-map-heading-key={heading.key} initial={false} animate={controls} transition={{duration:policy.enabled?.3:0,ease:'easeOut'}}>
-  <h2>{heading.labels.map((name,index)=><span key={index} className={styles.headingCity}>{index>0&&<i aria-hidden="true">←</i>}{name}</span>)}</h2>
-  {heading.service&&<p className={styles.service}><span>{heading.service}</span>{heading.codes&&<bdi dir="ltr">{heading.codes}</bdi>}</p>}
+  <h2>{heading.nodes.map((node,index)=><span key={index} className={styles.headingCity}>{index>0&&<i aria-hidden="true">{heading.bidirectional?'↔':'←'}</i>}{node.label}{node.code&&<bdi className={styles.headingCode} dir="ltr">({node.code})</bdi>}</span>)}</h2>
+  {heading.service&&<p className={styles.service}><span>{heading.service}</span>{heading.showCodeRoute&&heading.codes&&<bdi dir="ltr">{heading.codes}</bdi>}</p>}
  </motion.div>;
 });
 export function MapHeading({map,catalog,covered=false}:{map:TripMapController;catalog:CatalogSnapshot;covered?:boolean}) {

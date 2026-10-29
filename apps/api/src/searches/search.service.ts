@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { SearchRequestSchema, SearchSnapshotSchema, NormalizedOfferSchema, type SearchRequest, type SearchSnapshot, type SearchStatus, type ProviderStatus, type QuoteSnapshot } from '@torob-ticket/contracts';
 import { SearchRepository, RepositoryError, type ProjectionInput } from '@torob-ticket/data-access';
 import { groupOffers, quoteOffer, rankGroups, explainGroup, chooseSuggestion, comparisonCoverage, type ComparisonContext, type ComparisonSnapshot, type SourceFareEvidence } from '@torob-ticket/domain';
-import { mockFarePolicies } from '@torob-ticket/fixtures';
+import { farePoliciesForFixture } from '@torob-ticket/fixtures';
 import { mockRegistry, type ProviderAdapter, type ProviderContext } from '@torob-ticket/provider-adapters';
 import { ProviderService } from '../providers/provider.service';
 import type { SessionContext } from '../sessions/session-context';
@@ -51,7 +51,7 @@ export class SearchService {
       const expected = context.catalog.providerCapabilities.filter(row => row.modes.includes(input.query.mode) && row.scopes.includes(input.query.scope) && (!input.query.filters.providerIds || input.query.filters.providerIds.includes(row.providerId))).map(row => row.providerId);
       const adapters = expected.map(providerId => this.registry.find(adapter => adapter.providerId === providerId));
       if (adapters.some(adapter => !adapter)) throw new Error('Provider registry is incomplete');
-      const frozen = { operationId: context.operationId, fixtureVersion: context.fixtureVersion, catalogRevision: context.catalog.catalogRevision, seed: context.seed, scenario: context.scenario, scenarioRevision: context.scenarioRevision, mappingRevision: context.mappingRevision, anchorInstant: context.demoClock.now().toISOString(), aliases: context.aliases, overrides: context.overrides, deadline: deadline.toISOString(), expectedProviderIds: expected, policies: mockFarePolicies };
+      const frozen = { operationId: context.operationId, fixtureVersion: context.fixtureVersion, catalogRevision: context.catalog.catalogRevision, seed: context.seed, scenario: context.scenario, scenarioRevision: context.scenarioRevision, mappingRevision: context.mappingRevision, anchorInstant: context.demoClock.now().toISOString(), aliases: context.aliases, overrides: context.overrides, deadline: deadline.toISOString(), expectedProviderIds: expected, policies: farePoliciesForFixture(context.fixtureVersion) };
       await this.repository.freezeContext(session.scope, id, frozen, now);
       const statuses: ProviderStatus[] = expected.map(providerId => ({ providerId, status: 'pending', offerCount: 0 }));
       await this.repository.project(session.scope, id, now, state => this.project(session, context, { ...state, previous: { ...state.previous, providerStatuses: statuses } }));
@@ -104,7 +104,8 @@ export class SearchService {
       observations.set(offer.offerId, row.createdAt);
       return offer;
     });
-    const comparison: ComparisonContext = { realClock: this.sessions.realClock, places: context.catalog.places, policiesByProviderId: mockFarePolicies, sourceByOfferId };
+    const policies=farePoliciesForFixture(context.fixtureVersion);
+    const comparison: ComparisonContext = { realClock: this.sessions.realClock, places: context.catalog.places, policiesByProviderId: policies, sourceByOfferId };
     const persisted = new Map(state.quotes.map(quote => [`${quote.quoteId}:${quote.version}`, quote]));
     const quotes: { offerId: string; quote: QuoteSnapshot }[] = [];
     const evaluations = offers.map(offer => {
@@ -127,7 +128,7 @@ export class SearchService {
     if (terminal === 'cancelled') status = 'cancelled';
     else if (terminal) status = coverage.failedProviderIds.length ? groups.length ? 'partial' : 'failed' : groups.length ? 'complete' : 'empty';
     const sourceRevisionsByProviderId = Object.fromEntries(expectedProviderIds.map(id => [id, offers.find(offer => offer.providerId === id)?.provenance[0]?.sourceRevision ?? 'unobserved']));
-    const current: ComparisonSnapshot = { query, groups, coverageEvidence, identity: { sessionId: session.sessionId, fixtureVersion: context.fixtureVersion, fixtureSeed: String(context.seed), mappingRevision: context.mappingRevision, scenarioRevision: context.scenarioRevision, policyRevision: 'mock-fares-v1', sourceRevisionsByProviderId } };
+    const current: ComparisonSnapshot = { query, groups, coverageEvidence, identity: { sessionId: session.sessionId, fixtureVersion: context.fixtureVersion, fixtureSeed: String(context.seed), mappingRevision: context.mappingRevision, scenarioRevision: context.scenarioRevision, policyRevision: Object.values(policies)[0]!.revision, sourceRevisionsByProviderId } };
     const baselineGroup = rankGroups(groups).find(group => group.representativeQuoteId);
     const baselineQuote = baselineGroup?.eligibleQuotes.find(quote => quote.quoteId === baselineGroup.representativeQuoteId);
     const explanations = baselineGroup && baselineQuote ? groups.flatMap(group => explainGroup(group, { ...current, baseline: { groupId: baselineGroup.groupId, quoteId: baselineQuote.quoteId, quoteVersion: baselineQuote.version } })) : [];

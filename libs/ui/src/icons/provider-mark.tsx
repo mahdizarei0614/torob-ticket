@@ -2,6 +2,7 @@ import {useId,useState} from 'react';
 import type {Mode} from '@torob-ticket/contracts';
 import {TransportGlyph} from './transport-icons';
 import {resolveAirlineBrand} from '../presentation/airline-brands';
+import {resolveGroundOperatorBrand} from '../presentation/ground-operator-brands';
 import s from './icons.module.css';
 import airlineStyles from './airline-mark.module.css';
 export interface ProviderMarkProps {providerId?:string;operatorId?:string;mode?:Mode;label?:string;size?:24|32|40;className?:string}
@@ -16,12 +17,15 @@ const marks=[
 /** Presentation only: a known authored ID chooses a local mark; it never establishes provider/source authority. */
 export function ProviderMark({providerId,operatorId,mode,label,size=32,className}:ProviderMarkProps) {
  const id=useId(),named=Boolean(label?.trim());
- const [failedAirline,setFailedAirline]=useState<string|null>(null);
+ const [failedMark,setFailedMark]=useState<string|null>(null);
  const airline=!providerId&&operatorId&&mode?resolveAirlineBrand(operatorId,mode):undefined;
- if(airline&&failedAirline!==airline.id)return <img className={[airlineStyles.airlineMark,className].filter(Boolean).join(' ')} src={airline.assets[64]} srcSet={`${airline.assets[64]} 1x, ${airline.assets[128]} 2x`} width={size} height={size} alt={named?label:''} aria-hidden={named?undefined:true} data-provider-mark={`airline-${airline.id}`} data-airline-brand={airline.id} decoding="async" draggable={false} onError={()=>setFailedAirline(airline.id)}/>;
+ const groundOperator=!providerId&&operatorId&&mode?resolveGroundOperatorBrand(operatorId,mode):undefined;
+ const imageBrand=airline??groundOperator,markKind=airline?'airline':'ground-operator';
+ const imageKey=imageBrand?`${markKind}:${imageBrand.id}`:undefined;
+ if(imageBrand&&failedMark!==imageKey)return <img className={[airlineStyles.airlineMark,className].filter(Boolean).join(' ')} src={imageBrand.assets[64]} srcSet={`${imageBrand.assets[64]} 1x, ${imageBrand.assets[128]} 2x`} width={size} height={size} alt={named?label:''} aria-hidden={named?undefined:true} data-provider-mark={`${markKind}-${imageBrand.id}`} data-airline-brand={airline?.id} data-ground-operator-brand={groundOperator?.id} decoding="async" draggable={false} onError={()=>setFailedMark(imageKey!)}/>;
  const provider=!operatorId&&providerId?/^demo-provider-0([1-6])$/.exec(providerId):null;
  const operator=!providerId&&operatorId&&mode?/^demo-operator-(flight|train|bus)-([0-2])$/.exec(operatorId):null;
- const knownOperator=!airline&&(Boolean(operator&&operator[1]===mode)||!providerId&&operatorId==='demo-transfer-operator'&&mode==='bus');
+ const knownOperator=!imageBrand&&(Boolean(operator&&operator[1]===mode)||!providerId&&operatorId==='demo-transfer-operator'&&mode==='bus');
  const mark=provider?`provider-${provider[1]}`:knownOperator?`operator-${mode}-${operator?.[2]??'transfer'}`:'unknown';
  return <svg className={[s.mark,className].filter(Boolean).join(' ')} width={size} height={size} viewBox="0 0 32 32" focusable="false" aria-hidden={named?undefined:true} role={named?'img':undefined} aria-labelledby={named?id:undefined} data-provider-mark={mark}>{named&&<title id={id}>{label}</title>}<rect x="1" y="1" width="30" height="30" rx="9" fill="var(--accent-soft)"/><g fill="none" stroke="var(--accent)" strokeWidth="1.65" strokeLinecap="round" strokeLinejoin="round">{provider?marks[Number(provider[1])-1]:knownOperator?<g transform="translate(6 6) scale(.8333)"><TransportGlyph mode={mode!}/></g>:<><circle cx="16" cy="16" r="8" strokeDasharray="2 3"/><path d="M12 16h8"/></>}</g></svg>;
 }

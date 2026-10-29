@@ -1,3 +1,4 @@
+import { researchedPlaces } from './international';
 import type { Place } from '@torob-ticket/contracts';
 // Airports are sourced; rail/bus locations are explicitly illustrative fictional stops.
 export const places: Place[] = [
@@ -1014,5 +1015,6 @@ export const places: Place[] = [
       "longitude": 37.386677
     },
     "timeZone": "Europe/Moscow"
-  }
+  },
+  ...researchedPlaces,
 ];

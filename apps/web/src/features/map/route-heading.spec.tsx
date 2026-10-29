@@ -24,6 +24,7 @@ it('uses the chosen service stops, operator, origin-local departure and transpor
  expect(next.service).toContain('ماهان');
  expect(next.service).not.toBe(initial.service);
  expect(next.codes).toBe('IKA → TBZ → MHD');
+ expect(next.nodes.map(node => [node.label, node.code])).toEqual([['آغاز', 'IKA'], ['دیگر', 'TBZ'], ['پایان', 'MHD']]);
  expect(next.key).not.toBe(initial.key);
  const unknown = routeHeading({ itinerary: { ...connected, outbound: { ...connected.outbound, stops: [{ ...connected.outbound.stops[0]!, placeId: 'unmapped' }] } }, direction: 'outbound', query }, routeCatalog);
  expect(unknown.labels).toEqual(['آغاز', 'نام محل اعلام نشده', 'پایان']);
@@ -48,9 +49,33 @@ it('uses the selected return leg and falls back to form city names before a tick
  expect(routeHeading({ itinerary, direction: 'return', query }, routeCatalog).labels).toEqual(['پایان', 'آغاز']);
  expect(routeHeading({ direction: 'return', query }, routeCatalog)).toMatchObject({ labels: ['پایان', 'آغاز'], service: undefined, codes: undefined });
  const wholeTrip = routeHeading({ itinerary, direction: 'outbound', query }, routeCatalog);
- expect(wholeTrip.labels).toEqual(['آغاز', 'پایان', 'آغاز']);
+ expect(wholeTrip.labels).toEqual(['آغاز', 'پایان']);
+ expect(wholeTrip.bidirectional).toBe(true);
  expect(wholeTrip.codes).toBe('IKA → MHD → IKA');
  expect(wholeTrip.service).toContain('رفت'); expect(wholeTrip.service).toContain('برگشت');
+});
+
+it('shows a double arrow and adjacent bidi-safe airport codes, retaining asymmetric return facilities', () => {
+ const withSecondAirport: CatalogSnapshot = { ...routeCatalog, places: [...routeCatalog.places, { ...routeCatalog.places[0]!, id: 'THR', code: 'THR' }] };
+ const itinerary = { ...first, return: { segments: [{ ...first.outbound.segments[0]!, originPlaceId: 'MHD', destinationPlaceId: 'THR' }], stops: [] } };
+ const heading = routeHeading({ itinerary, direction: 'outbound', query }, withSecondAirport);
+ expect(heading.nodes.map(node => node.code)).toEqual(['IKA / THR', 'MHD']);
+ expect(heading.codes).toBe('IKA → MHD → THR');
+ render(<MapHeading map={{ presentationView: { itinerary, direction: 'outbound', query } } as unknown as TripMapController} catalog={withSecondAirport} covered/>);
+ const title = screen.getByRole('heading');
+ expect(title).toHaveTextContent('آغاز(IKA / THR)↔پایان(MHD)');
+ expect(title.querySelectorAll('bdi[dir="ltr"]')).toHaveLength(2);
+ expect(routeHeading({ direction: 'outbound', query: { ...query, tripType: 'round-trip' } }, withSecondAirport)).toMatchObject({ bidirectional: true, labels: ['آغاز', 'پایان'] });
+ expect(routeHeading({ itinerary, direction: 'return', query }, withSecondAirport).bidirectional).toBe(false);
+});
+
+it('does not present internal rail or bus fixture IDs as genuine public codes', () => {
+ const ground: CatalogSnapshot = { ...routeCatalog, places: routeCatalog.places.map(place => ({ ...place, kind: 'station', code: `internal-${place.id}` })) };
+ const heading = routeHeading({ itinerary: connected, direction: 'outbound', query }, ground);
+ expect(heading.nodes.every(node => node.code === undefined)).toBe(true);
+ expect(heading.codes).toBeUndefined();
+ const draft = routeHeading({ direction: 'outbound', query }, routeCatalog);
+ expect(draft.nodes.every(node => node.code === undefined)).toBe(true);
 });
 
 it('fades and finitely removes the previous heading under actual normal motion', async () => {
