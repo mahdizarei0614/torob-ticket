@@ -84,6 +84,15 @@
 
 /* Presence keeps departing content inert; layout movement is limited to explicit updates. */
 .list { position:relative; }
+/* Browser-native windowing retains every card's DOM/focus/details and remembers
+   measured heights. Unsupported browsers fall back to the ordinary complete list.
+   Long lists avoid per-row Motion projection, which would force skipped layouts. */
+.deferredRow { content-visibility:auto; contain-intrinsic-block-size:auto 164px; }
+.roundTripRow { contain-intrinsic-block-size:auto 204px; }
+@media(max-width:600px) {
+ .deferredRow { contain-intrinsic-block-size:auto 182px; }
+ .roundTripRow { contain-intrinsic-block-size:auto 242px; }
+}
 .presenceClip { overflow:hidden; min-width:0; }
 .card > .presenceClip:not(.cardSelect):not(.srOnly) { pointer-events:auto; }
 .skeletons { display:grid; gap:8px; }

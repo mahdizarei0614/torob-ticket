@@ -1,10 +1,18 @@
 import { describe, expect, it } from 'vitest';
-import { dateWindow, commitDate, matchesDateSnapshot, snapshotReusable, datePriceIdentityForSession, cellLabel, disabledCell } from './date-state';
+import { dateWindow, commitDate, matchesDateSnapshot, snapshotReusable, datePriceIdentityForSession, cellLabel, disabledCell, dateLabel } from './date-state';
 import { query, session } from '../search/search-test-data';
 import type { DatePriceCell, DatePriceQuery, DatePriceSnapshot } from '@torob-ticket/contracts';
 const request: DatePriceQuery = { query, leg: 'outbound', dates: ['2026-10-25','2026-10-26'], clientGeneration: 'g' };
 const snapshot: DatePriceSnapshot = { datePriceId: 'id', clientGeneration: 'g', query: request, status: 'complete', cells: request.dates.map(date => ({ date, status: 'outside-coverage' })), observedAt: '2026-10-25T00:00:00Z' };
 describe('date intent and semantic response ownership', () => {
+  it('keeps repeated Persian leap-boundary date labels and exact one-rial price digits', () => {
+    for (let repetition = 0; repetition < 10; repetition++) {
+      expect(dateLabel('2025-03-20')).toBe('۱۴۰۳/۱۲/۳۰');
+      expect(dateLabel('2025-03-21')).toBe('۱۴۰۴/۱/۱');
+      expect(dateLabel('invalid')).toBe('تاریخ انتخاب نشده');
+      expect(cellLabel({ date: '2026-11-02', status: 'priced', minimum: { amountRial: 25000001, currency: 'IRR' }, quoteIds: ['q'], offerIds: ['o'], observedAt: '2026-10-29T06:00:00Z', coverage: { complete: true, expectedProviderIds: ['p'], successfulProviderIds: ['p'], failedProviderIds: [], pendingProviderIds: [] } })).toBe('۲٬۵۰۰٬۰۰۰٫۱ تومان');
+    }
+  });
   it('keeps same-day returns structurally valid and clears an invalidated return without committing invalid URL intent', () => {
     const round = { ...query, tripType: 'round-trip' as const, returnDate: query.departureDate };
     expect(commitDate(round, 'return', query.departureDate)).toEqual(round);

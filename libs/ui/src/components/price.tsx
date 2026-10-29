@@ -3,6 +3,7 @@ import { type Money } from '@torob-ticket/contracts';
 import { languageProps, type Language } from './language';
 import styles from '../styles/primitives.module.css';
 import type { PriceBand } from './price-band';
+const scopeNumber = { 'fa-IR': new Intl.NumberFormat('fa-IR'), 'en-US': new Intl.NumberFormat('en-US') };
 export type PriceScope =
   { kind: 'party'; travelers: number } | { kind: 'stay'; rooms: number; nights: number };
 export function Price({
@@ -17,7 +18,7 @@ export function Price({
   band?: PriceBand;
 }) {
   const locale = language === 'fa' ? 'fa-IR' : 'en-US';
-  const number = (value: number) => new Intl.NumberFormat(locale).format(value);
+  const number = (value: number) => scopeNumber[locale].format(value);
   const amount = formatTomanParts(total, locale)
     .map((part) => part.value)
     .join('');

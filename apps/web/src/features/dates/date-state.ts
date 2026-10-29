@@ -4,6 +4,8 @@ import type { DatePriceCell, DatePriceQuery, DatePriceSnapshot, SessionInfo } fr
 import type { SearchDraft } from '../search/search-url';
 export type DateLeg = DatePriceQuery['leg'];
 export const settleMs = 250;
+const dateNumber = new Intl.NumberFormat('fa-IR', { useGrouping: false });
+const priceNumber = new Intl.NumberFormat('fa-IR', { maximumFractionDigits: 1 });
 export function commitDate(query: SearchDraft, leg: DateLeg, date: string): SearchDraft {
   if (leg === 'return') return { ...query, returnDate: date };
   const next = { ...query, departureDate: date };
@@ -40,13 +42,13 @@ export function snapshotReusable(snapshot: DatePriceSnapshot, now = Date.now()):
 }
 export function dateLabel(date: string): string {
   let value; try { value = toCalendar(parseDate(date), new PersianCalendar()); } catch { return 'تاریخ انتخاب نشده'; }
-  const number = (n: number) => new Intl.NumberFormat('fa-IR', { useGrouping: false }).format(n);
+  const number = (n: number) => dateNumber.format(n);
   return `${number(value.year)}/${number(value.month)}/${number(value.day)}`;
 }
 export function cellLabel(cell?: DatePriceCell, leg: DateLeg = 'return'): string {
   if (!cell) return 'هنوز بررسی نشده';
   switch (cell.status) {
-    case 'priced': return `${new Intl.NumberFormat('fa-IR', { maximumFractionDigits: 1 }).format(cell.minimum.amountRial / 10)} تومان`;
+    case 'priced': return `${priceNumber.format(cell.minimum.amountRial / 10)} تومان`;
     case 'checking': return 'در حال بررسی';
     case 'no-match': return 'پیشنهاد مطابق نیست';
     case 'outside-coverage': return 'خارج از پوشش';

@@ -1,4 +1,4 @@
-import { useId, useState, useRef, type ReactNode } from 'react';
+import { memo, useId, useState, useRef, type ReactNode } from 'react';
 import type { CatalogSnapshot, ComparisonGroup, Itinerary, JourneyLeg, QuoteSnapshot, SearchSnapshot } from '@torob-ticket/contracts';
 import {Button, Price, Tooltip,ProviderMark,displayProviderName,displayPlaceName,type PriceBand} from '@torob-ticket/ui';
 import { ProviderOffers } from './provider-offers';
@@ -29,7 +29,24 @@ export function RouteTimeline({leg,catalog,label,transportMode=leg.segments[0]?.
  })}</ol></section>;
 }
 export interface JourneyCardProps { cardId?:string; priceBand?:PriceBand; renderProviderAction?:(quote:QuoteSnapshot)=>ReactNode; selectionDisabled?:boolean; draftChanged?:boolean; continuation?:ReactNode; group: ComparisonGroup; snapshot: SearchSnapshot; catalog: CatalogSnapshot; state: ResultsState; now: number; onFreeze: () => void; onSelect: (selection: QuoteSelection) => void; onPreviewItinerary?: (itinerary?: Itinerary,source?:'hover'|'focus',leavingId?:string) => void; onPinItinerary?: (itinerary: Itinerary) => void }
-export function JourneyCard({ group, snapshot, catalog, state, now, onFreeze, onSelect, onPreviewItinerary, onPinItinerary,continuation,selectionDisabled=false,draftChanged=false,cardId,priceBand,renderProviderAction }: JourneyCardProps) {
+function cardSelection(props: JourneyCardProps) {
+ const selected = props.state.selected;
+ return selected?.groupId === props.group.groupId && props.group.eligibleQuotes.some(quote => quote.quoteId === selected.quoteId && quote.version === selected.version) ? selected : undefined;
+}
+/** Retain DOM/details/focus while unrelated rows or the decorative map change. */
+function sameCard(previous: JourneyCardProps, next: JourneyCardProps) {
+ if (previous.group !== next.group || previous.snapshot !== next.snapshot || previous.catalog !== next.catalog || previous.cardId !== next.cardId || previous.priceBand !== next.priceBand || previous.selectionDisabled !== next.selectionDisabled || previous.draftChanged !== next.draftChanged || previous.continuation !== next.continuation || previous.onFreeze !== next.onFreeze || previous.onSelect !== next.onSelect || previous.onPreviewItinerary !== next.onPreviewItinerary || previous.onPinItinerary !== next.onPinItinerary || previous.state.adopted !== next.state.adopted || previous.state.latest !== next.state.latest) return false;
+ const before = cardSelection(previous), after = cardSelection(next);
+ if (before?.quoteId !== after?.quoteId || before?.version !== after?.version) return false;
+ // Only selected cards render provider actions; their flow state must stay live.
+ if (after && previous.renderProviderAction !== next.renderProviderAction) return false;
+ if (previous.now !== next.now && next.group.eligibleQuotes.some(quote => {
+  const selection = selectionFor(next.group.groupId, quote);
+  return quoteStatus(previous.state, selection, previous.now) !== quoteStatus(next.state, selection, next.now);
+ })) return false;
+ return true;
+}
+export const JourneyCard = memo(function JourneyCard({ group, snapshot, catalog, state, now, onFreeze, onSelect, onPreviewItinerary, onPinItinerary,continuation,selectionDisabled=false,draftChanged=false,cardId,priceBand,renderProviderAction }: JourneyCardProps) {
  const hovered=useRef(false);
  const [expanded,setExpanded] = useState(false); const detailsId = useId(); const summaryId = useId();
  const ownSelection = state.selected?.groupId === group.groupId && group.eligibleQuotes.some(quote => quote.quoteId === state.selected?.quoteId && quote.version === state.selected.version) ? state.selected : undefined;
@@ -69,4 +86,4 @@ export function JourneyCard({ group, snapshot, catalog, state, now, onFreeze, on
   {expanded && <ResultPresence key="details" collapse className={styles.presenceClip}><div id={detailsId} className={styles.details}><div className={styles.timelines}><RouteTimeline leg={group.itinerary.outbound} catalog={catalog} label="رفت"/>{group.itinerary.return && <RouteTimeline leg={group.itinerary.return} catalog={catalog} label="برگشت"/>}</div><ProviderOffers group={group} catalog={catalog} state={state} now={now} draftChanged={draftChanged}/></div></ResultPresence>}
   </ResultsPresence>
  </article>;
-}
+}, sameCard);

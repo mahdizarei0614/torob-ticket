@@ -25,15 +25,27 @@ export function normalizeMoney(value: string | number, unit: SourceMoneyUnit): M
   return { amountRial: Number(amount), currency: 'IRR' };
 }
 
+type TomanFormatters = { integer: Intl.NumberFormat; fraction?: Intl.NumberFormat; decimal?: string };
+const tomanFormatters = new Map<string, TomanFormatters>();
+function formattersFor(locale: string): TomanFormatters {
+  let value = tomanFormatters.get(locale);
+  if (value) tomanFormatters.delete(locale);
+  else value = { integer: new Intl.NumberFormat(locale, { maximumFractionDigits: 0 }) };
+  tomanFormatters.set(locale, value);
+  if (tomanFormatters.size > 32) tomanFormatters.delete(tomanFormatters.keys().next().value!);
+  return value;
+}
+
 /** Numeric toman parts, with an exact tenth when needed. UI supplies the unit label. */
 export function formatTomanParts(money: Money, locale = 'fa-IR'): Intl.NumberFormatPart[] {
   const { amountRial } = MoneySchema.parse(money);
   const rial = BigInt(amountRial);
-  const formatter = new Intl.NumberFormat(locale, { maximumFractionDigits: 0 });
-  const parts = formatter.formatToParts(rial / 10n);
+  const formatters = formattersFor(locale);
+  const parts = formatters.integer.formatToParts(rial / 10n);
   const tenth = Number(rial % 10n);
   if (!tenth) return parts;
-  const decimal = new Intl.NumberFormat(locale, { minimumFractionDigits: 1 }).formatToParts(0.1)
-    .find(part => part.type === 'decimal')!;
-  return [...parts, decimal, { type: 'fraction', value: new Intl.NumberFormat(locale, { useGrouping: false }).format(tenth) }];
+  formatters.decimal ??= new Intl.NumberFormat(locale, { minimumFractionDigits: 1 }).formatToParts(0.1)
+    .find(part => part.type === 'decimal')!.value;
+  formatters.fraction ??= new Intl.NumberFormat(locale, { useGrouping: false });
+  return [...parts, { type: 'decimal', value: formatters.decimal }, { type: 'fraction', value: formatters.fraction.format(tenth) }];
 }

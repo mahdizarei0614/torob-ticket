@@ -35,7 +35,7 @@ export function resultsReducer(state: ResultsState, action: ResultsAction): Resu
    if (recovery.snapshot.searchId !== state.searchId || recovery.snapshot.clientGeneration !== state.generation || recovery.sequence <= (state.latest?.sequence ?? -1)) return state;
    return { ...state, latest: recovery, ...(!state.frozen || !state.adopted?.snapshot.groups.length ? { adopted: recovery } : {}) };
   }
-  case 'freeze': return { ...state, frozen: true };
+  case 'freeze': return state.frozen ? state : { ...state, frozen: true };
   case 'adopt': return state.latest ? { ...state, adopted: state.latest } : state;
   case 'select': return quoteStatus(state, action.selection, action.now) === 'current' ? { ...state, selected: action.selection, selectionSource:'manual', frozen: true } : state;
   case 'select-default': {

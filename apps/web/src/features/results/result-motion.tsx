@@ -4,17 +4,19 @@ import { LoadingSkeleton, useMotionPolicy } from '@torob-ticket/ui';
 import styles from './results.module.css';
 
 /** Retained exits are decorative immediately; their old quote controls cannot receive input. */
-export const ResultPresence = forwardRef<HTMLDivElement, { children: ReactNode; className?: string; role?: string; label?: string; collapse?: boolean; layout?: boolean; layoutDependency?: string }>(function ResultPresence({ children, className, role, label, collapse = false, layout = false, layoutDependency }, ref) {
+export const ResultPresence = forwardRef<HTMLDivElement, { children: ReactNode; className?: string; role?: string; label?: string; collapse?: boolean; layout?: boolean; layoutDependency?: string; staticMotion?: boolean; refreshKey?: string }>(function ResultPresence({ children, className, role, label, collapse = false, layout = false, layoutDependency, staticMotion = false, refreshKey }, ref) {
  const present = useIsPresent();
  const [, safeToRemove] = usePresence();
  const policy = useMotionPolicy();
+ const animated = policy.enabled && !staticMotion;
  const controls = useAnimationControls(), entered = useRef(false);
+ const previousRefresh = useRef(refreshKey);
  useLayoutEffect(() => {
   controls.stop();
   let cancelled = false;
   if (!present) {
-   const exitFrame = { opacity: 0, y: policy.enabled && !collapse ? -5 : 0, ...(collapse ? { height: 0 } : {}) };
-   if (!policy.enabled) controls.set(exitFrame);
+   const exitFrame = { opacity: 0, y: animated && !collapse ? -5 : 0, ...(collapse ? { height: 0 } : {}) };
+   if (!animated) controls.set(exitFrame);
    else {
     const complete = () => { if (!cancelled) safeToRemove?.(); };
     void controls.start({ ...exitFrame, transition: { duration: .28, ease: [.22, .68, .24, 1] } }).then(complete, complete);
@@ -22,21 +24,22 @@ export const ResultPresence = forwardRef<HTMLDivElement, { children: ReactNode; 
    return () => { cancelled = true; controls.stop(); };
   }
   const fresh = !entered.current; entered.current = true;
+  const refreshed = previousRefresh.current !== refreshKey; previousRefresh.current = refreshKey;
   const finalFrame = { opacity: 1, y: 0, ...(collapse ? { height: 'auto' } : {}) };
-  if (!policy.enabled || !fresh) controls.set(finalFrame);
+  if (!animated || !fresh && !refreshed) controls.set(finalFrame);
   else {
-   controls.set({ opacity: 0, y: collapse ? 0 : 12, ...(collapse ? { height: 0 } : {}) });
+   controls.set({ opacity: fresh ? 0 : .72, y: collapse || !fresh ? 0 : 12, ...(collapse ? { height: fresh ? 0 : 'auto' } : {}) });
    void controls.start({ ...finalFrame, transition: { duration: .28, ease: [.22, .68, .24, 1] } });
   }
   return () => controls.stop();
- }, [controls, policy.enabled, present, collapse, safeToRemove]);
+ }, [controls, animated, present, collapse, safeToRemove, refreshKey]);
  // Presence registrations finish in passive effects; acknowledge static retirement afterward.
- useEffect(() => { if (!present && !policy.enabled) safeToRemove?.(); }, [present, policy.enabled, safeToRemove]);
- return <motion.div ref={ref} className={className} role={role} aria-label={label} inert={!present || undefined} aria-hidden={!present || undefined} data-result-presence={present ? 'current' : 'exiting'} data-result-motion={policy.enabled ? 'finite' : 'static'}
-  layout={policy.enabled && layout ? 'position' : false}
+ useEffect(() => { if (!present && !animated) safeToRemove?.(); }, [present, animated, safeToRemove]);
+ return <motion.div ref={ref} className={className} role={role} aria-label={label} inert={!present || undefined} aria-hidden={!present || undefined} data-result-presence={present ? 'current' : 'exiting'} data-result-motion={animated ? 'finite' : 'static'}
+  layout={animated && layout ? 'position' : false}
   layoutDependency={layoutDependency}
   initial={false} animate={controls}
-  transition={{ duration: policy.enabled ? .28 : 0, ease: [.22, .68, .24, 1], layout: { duration: policy.enabled ? .36 : 0, ease: [.22, .68, .24, 1] } }}
+  transition={{ duration: animated ? .28 : 0, ease: [.22, .68, .24, 1], layout: { duration: animated ? .36 : 0, ease: [.22, .68, .24, 1] } }}
   style={!present ? { pointerEvents: 'none' } : undefined}>{children}</motion.div>;
 });
 

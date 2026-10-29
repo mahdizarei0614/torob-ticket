@@ -40,4 +40,21 @@ describe('canonical whole-party money', () => {
   it('rejects invalid canonical money when formatting', () => {
     expect(() => formatTomanParts({ amountRial: -1, currency: 'IRR' })).toThrow();
   });
+  it.each(['fa-IR', 'en-US', 'ar-EG', 'hi-IN', 'fr-FR'])('preserves native locale parts and exact tenths across repeated %s formatting', locale => {
+    for (const amountRial of [0, 1, 9, 10, 25000000, 25000001, Number.MAX_SAFE_INTEGER]) {
+      const rial = BigInt(amountRial);
+      const expected = new Intl.NumberFormat(locale, { maximumFractionDigits: 0 }).formatToParts(rial / 10n);
+      if (rial % 10n) expected.push(new Intl.NumberFormat(locale, { minimumFractionDigits: 1 }).formatToParts(.1).find(part => part.type === 'decimal')!, { type: 'fraction', value: new Intl.NumberFormat(locale, { useGrouping: false }).format(Number(rial % 10n)) });
+      for (let repetition = 0; repetition < 3; repetition++) expect(formatTomanParts({ amountRial, currency: 'IRR' }, locale)).toEqual(expected);
+    }
+  });
+  it('returned parts cannot mutate later formatting, and invalid locales keep their native error', () => {
+    const value = { amountRial: 25000001, currency: 'IRR' as const };
+    const initial = formatTomanParts(value);
+    const expected = structuredClone(initial);
+    initial.forEach(part => { part.value = 'changed'; });
+    expect(formatTomanParts(value)).toEqual(expected);
+    expect(() => formatTomanParts(value, 'not_a_locale')).toThrow(RangeError);
+    expect(formatTomanParts(value)).toEqual(expected);
+  });
 });
