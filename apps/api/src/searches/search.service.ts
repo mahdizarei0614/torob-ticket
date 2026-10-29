@@ -74,7 +74,7 @@ export class SearchService {
         const started = this.sessions.realClock.now().getTime();
         await this.update(session, id, context, { providerId: adapter.providerId, status: 'running', offerCount: 0 });
         let batch;
-        try { batch = await adapter.search((await this.repository.read(session.scope, id)).snapshot.query, context); }
+        try { batch = await adapter.search((await this.repository.readSnapshot(session.scope, id)).snapshot.query, context); }
         catch { batch = { providerId: adapter.providerId, status: 'failed' as const, records: [], errorCode: 'PROVIDER_ERROR' }; }
         const status: ProviderStatus['status'] = context.signal.aborted ? context.signal.reason === 'deadline' ? 'timeout' : 'cancelled' : batch.status === 'success' ? 'complete' : batch.status === 'unsupported' ? 'failed' : batch.status;
         await this.update(session, id, context, { providerId: adapter.providerId, status, offerCount: batch.records.filter(record => record.offer).length, elapsedMs: Math.max(0, this.sessions.realClock.now().getTime() - started), ...(batch.errorCode ? { reason: batch.errorCode, retryable: true } : {}) });
@@ -141,8 +141,8 @@ export class SearchService {
     return this.repository.read(session.scope, id, after);
   }
   async getSearch(session: SessionContext, id: string) {
-    const { snapshot, sequence } = await this.readSearch(session, id);
-    return { snapshot, sequence };
+    await this.recoverInterrupted(session);
+    return this.repository.readSnapshot(session.scope,id);
   }
   async cancelSearch(session: SessionContext, id: string) {
     await this.recoverInterrupted(session);

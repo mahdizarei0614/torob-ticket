@@ -223,4 +223,6 @@ export const cities: City[] = [
     "timeZone": "Europe/Moscow"
   },
   ...researchedCities,
+  // Authored approximate ground map anchor; no airport or invented transport code.
+  {id:'tatvan',name:'تاتوان',countryCode:'TR',point:{latitude:38.497,longitude:42.282},timeZone:'Europe/Istanbul'},
 ];

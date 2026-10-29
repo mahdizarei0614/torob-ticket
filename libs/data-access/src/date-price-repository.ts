@@ -1,3 +1,4 @@
+import {insertMissingTransportQuotes} from './transport-quote-batch';
 import {assertSearchAdmission} from './admission';
 import { randomUUID } from 'node:crypto';
 import { DatePriceQuerySchema, DatePriceSnapshotSchema, SearchSnapshotSchema, type DatePriceQuery, type DatePriceSnapshot, type Coverage, type QuoteSnapshot } from '@torob-ticket/contracts';
@@ -56,6 +57,29 @@ export class DatePriceRepository {
       return row.payload as unknown as DatePricePayload;
     });
   }
+  /** Persist collector progress without re-reading/repricing the complete ledger.
+   * Valid date cells stay checking until the one terminal pricing projection. */
+  recordCoverage(scope:DataScope,id:string,now:Date,update:(payload:DatePricePayload)=>void,providerId?:string) {
+    return scopedTransaction(this.db,scope,async tx=>{
+      const row=await tx.datePriceRun.findUnique({where:{sessionId_id:{sessionId:scope.sessionId,id}}});
+      const parent=await tx.searchRun.findUnique({where:{sessionId_id:{sessionId:scope.sessionId,id}}});
+      if(!row||!parent)throw new RepositoryError('NOT_FOUND');
+      const payload=row.payload as unknown as DatePricePayload;
+      if(payload.evidenceSearchId!==id)throw new RepositoryError('INVALID_QUERY');
+      if(payload.snapshot.status!=='checking')return payload;
+      if(parent.status!=='collecting')return this.interrupt(tx,scope,id,payload,now);
+      update(payload);
+      if(providerId){
+        const evidence=payload.providerEvidence?.[providerId];if(!evidence)throw new RepositoryError('INVALID_QUERY');
+        await tx.providerRun.upsert({where:{sessionId_searchId_providerId:{sessionId:scope.sessionId,searchId:id,providerId}},create:{sessionId:scope.sessionId,searchId:id,providerId,id:randomUUID(),status:evidence.status,payload:json(evidence)},update:{status:evidence.status,payload:json(evidence)}});
+      }
+      payload.sequence++;
+      payload.snapshot=DatePriceSnapshotSchema.parse({...payload.snapshot,status:'checking',pollCursor:String(payload.sequence),observedAt:now.toISOString()});
+      await tx.auditEvent.create({data:{sessionId:scope.sessionId,id:randomUUID(),kind:'date-price-coverage',payload:json({datePriceId:id,...(providerId?{providerId}:{}),coverageByDate:payload.coverageByDate,providerEvidence:payload.providerEvidence??{}}),createdAt:now}});
+      await tx.datePriceRun.update({where:{sessionId_id:{sessionId:scope.sessionId,id}},data:{payload:json(payload)}});
+      return payload;
+    });
+  }
   project(scope: DataScope, id: string, now: Date, update: (payload: DatePricePayload) => void, build: (input: DatePriceProjectionInput) => DatePriceProjectionResult) {
     return scopedTransaction(this.db, scope, async tx => {
       const row = await tx.datePriceRun.findUnique({ where: { sessionId_id: { sessionId: scope.sessionId, id } } });
@@ -67,11 +91,11 @@ export class DatePriceRepository {
       if (parent.status !== 'collecting') return this.interrupt(tx, scope, id, payload, now);
       update(payload);
       const offers = await tx.offerSnapshot.findMany({ where: { sessionId: scope.sessionId, searchId: id } });
-      const quotes = await tx.quote.findMany({ where: { sessionId: scope.sessionId, offer: { searchId: id } } });
+      const quotes=offers.length?await tx.quote.findMany({where:{sessionId:scope.sessionId,offerId:{in:offers.map(row=>row.id)}}}):[];
       const result = build({ payload, offers, quotes: quotes.map(row => row.payload as unknown as QuoteSnapshot) });
       payload.sequence++;
       payload.snapshot = DatePriceSnapshotSchema.parse({ ...result.snapshot, pollCursor: String(payload.sequence) });
-      for (const item of result.quotes) await tx.quote.upsert({ where: { sessionId_id_version: { sessionId: scope.sessionId, id: item.quote.quoteId, version: item.quote.version } }, create: { sessionId: scope.sessionId, id: item.quote.quoteId, version: item.quote.version, offerId: item.offerId, payload: json(item.quote), observedAt: new Date(item.quote.observedAt), expiresAt: new Date(item.quote.expiresAt) }, update: {} });
+      await insertMissingTransportQuotes(tx,scope,quotes,result.quotes);
       for (const [providerId, evidence] of Object.entries(payload.providerEvidence ?? {})) await tx.providerRun.upsert({ where: { sessionId_searchId_providerId: { sessionId: scope.sessionId, searchId: id, providerId } }, create: { sessionId: scope.sessionId, searchId: id, providerId, id: randomUUID(), status: evidence.status, payload: json(evidence) }, update: { status: evidence.status, payload: json(evidence) } });
       await tx.auditEvent.create({ data: { sessionId: scope.sessionId, id: randomUUID(), kind: 'date-price-projection', payload: json({ datePriceId: id, snapshot: payload.snapshot, ...result.audit }), createdAt: now } });
       if (payload.snapshot.status !== 'checking') {

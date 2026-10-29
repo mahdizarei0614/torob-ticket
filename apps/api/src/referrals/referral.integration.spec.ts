@@ -31,7 +31,12 @@ describe('fresh, scoped, atomic referrals', () => {
         const started = await search.startSearch(c, { query, clientGeneration: randomUUID() });
         let snapshot = (await search.getSearch(c, started.snapshot.searchId)).snapshot;
         await expect.poll(async () => { snapshot = (await search.getSearch(c, started.snapshot.searchId)).snapshot; return snapshot.status; }, { timeout: 5000, interval: 10 }).toBe('complete');
-        const quote = snapshot.groups.flatMap(g => g.eligibleQuotes).find(q => q.providerId === 'demo-provider-04')!;
+        // Controlled price-change/sold-out behavior belongs to supplied service slot0.
+        // Select that service explicitly; richer price ranking can put another slot first.
+        const quote = snapshot.groups.flatMap(group=>group.eligibleQuotes).find(candidate=>candidate.providerId==='demo-provider-04'&&candidate.provenance.some(item=>{
+            const reference=(item.sourceValue as {payload?:{reference?:unknown}})?.payload?.reference;
+            return typeof reference==='string'&&reference.endsWith(':0');
+        }))!;
         expect(quote).toBeDefined();
         const itinerary = snapshot.groups.find(group => group.eligibleQuotes.some(candidate => candidate.quoteId === quote.quoteId))!.itinerary;
         return { c, quote, itinerary, searchId: snapshot.searchId };

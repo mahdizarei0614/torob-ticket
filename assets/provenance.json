@@ -1,5 +1,5 @@
 {
-  "revision": "geography-v2",
+  "revision": "geography-v3",
   "retrievedOn": "2026-10-24",
   "sources": [
     {
@@ -74,7 +74,9 @@
     "Merge already-bundled T05 catalog city reference points. No new selectable destinations or inventory.",
     "Preserve every Iran Admin-1 line, including short junctions; no hand-authored borders.",
     "Round longitude/latitude to four decimals; drop label/administrative metadata. No province names or inventory/selection facts.",
-    "Append 11 international city reference centers and 11 sourced airport anchors; retain the prior 352 destination features unchanged and append 176 authored extent/hotel/landmark features. Frankfurt center is a curated approximate anchor. Versioned authored flight profiles use source-guided bands and explicit unknown connection protections, not live fares."
+    "Append 11 international city reference centers and 11 sourced airport anchors; retain the prior 352 destination features unchanged and append 176 authored extent/hotel/landmark features. Frankfurt center is a curated approximate anchor. Versioned authored flight profiles use source-guided bands and explicit unknown connection protections, not live fares.",
+    "Append16 authored Tatvan extent/landmark/accommodation features for the ground-only transit city; preserve all prior528 destination features exactly. Station and city center are approximate authored geographic anchors, not navigation or real hotel facts. No airport or public ground code is invented.",
+    "Freeze prior36 ordered authored bus path geometries from implementation4f80ac0 in geography/legacy-route-paths-v2.json; retain them in current path output so old immutable searches keep their original supplied endpoints and winding path coverage. Add new current-network paths without rewriting those old path records."
   ],
   "attribution": "Made with Natural Earth. Airport data from OurAirports. Time zone identifiers from IANA tzdb.",
   "localAssets": [
@@ -82,7 +84,8 @@
     "geography/iran.geojson",
     "geography/destination-landmarks.geojson",
     "geography/world-context-cities.json",
-    "geography/iran-provinces.json"
+    "geography/iran-provinces.json",
+    "geography/legacy-route-paths-v2.json"
   ],
   "authoredAssets": [
     {

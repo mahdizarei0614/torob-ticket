@@ -1,4 +1,5 @@
 import { comparisonId } from './comparison/itinerary-key';
+import { isSupportedSegmentMode } from './comparison/round-trip';
 import { NormalizedOfferSchema, type FareConditions, type NormalizationTrace } from '@torob-ticket/contracts';
 import { resolveAlias } from './aliases';
 import { normalizeMoney } from './money';
@@ -26,7 +27,7 @@ export function normalizeRecord(r:DecodedProviderRecord,c:NormalizationContext):
     const destination=index===0?c.query.destinationCityId:c.query.originCityId;
     for(const [segmentIndex,segment] of leg.segments.entries()) {
       const previous=leg.segments[segmentIndex-1];
-      if(segment.mode!==c.query.mode && !(c.query.mode==='flight'&&segment.mode==='bus'&&segmentIndex>0&&leg.stops.some(stop=>stop.kind==='ground-transfer'&&stop.vehicleChange&&stop.placeId===segment.originPlaceId))) return reject('UNSUPPORTED_SEGMENT_MODE','outbound.segments');
+      if(!isSupportedSegmentMode(leg,c.query.mode,segmentIndex,c.catalog.places)) return reject('UNSUPPORTED_SEGMENT_MODE','outbound.segments');
       if(previous&&(previous.destinationPlaceId!==segment.originPlaceId||Date.parse(previous.arrivalAt)>Date.parse(segment.departureAt))) return reject('DISCONTINUOUS_JOURNEY','outbound.segments');
       const from=c.catalog.places.find(p=>p.id===segment.originPlaceId);
       const to=c.catalog.places.find(p=>p.id===segment.destinationPlaceId);

@@ -9174,6 +9174,284 @@
           -36.839055
         ]
       }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tatvan-extent",
+        "cityId": "tatvan",
+        "kind": "illustrative-destination-extent",
+        "fictional": true,
+        "navigation": false
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              42.22,
+              38.43
+            ],
+            [
+              42.36,
+              38.43
+            ],
+            [
+              42.36,
+              38.56
+            ],
+            [
+              42.22,
+              38.56
+            ],
+            [
+              42.22,
+              38.43
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tatvan-landmark",
+        "cityId": "tatvan",
+        "name": "مرکز شهر تاتوان",
+        "kind": "landmark",
+        "source": "Authored approximate ground destination anchor; not surveyed"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          42.282,
+          38.497
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tatvan-hotel-01",
+        "cityId": "tatvan",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          42.268,
+          38.488
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tatvan-hotel-02",
+        "cityId": "tatvan",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          42.275,
+          38.488
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tatvan-hotel-03",
+        "cityId": "tatvan",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          42.282,
+          38.488
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tatvan-hotel-04",
+        "cityId": "tatvan",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          42.289,
+          38.488
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tatvan-hotel-05",
+        "cityId": "tatvan",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          42.296,
+          38.488
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tatvan-hotel-06",
+        "cityId": "tatvan",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          42.268,
+          38.497
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tatvan-hotel-07",
+        "cityId": "tatvan",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          42.275,
+          38.497
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tatvan-hotel-08",
+        "cityId": "tatvan",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          42.282,
+          38.497
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tatvan-hotel-09",
+        "cityId": "tatvan",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          42.289,
+          38.497
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tatvan-hotel-10",
+        "cityId": "tatvan",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          42.296,
+          38.497
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tatvan-hotel-11",
+        "cityId": "tatvan",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          42.268,
+          38.506
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tatvan-hotel-12",
+        "cityId": "tatvan",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          42.275,
+          38.506
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tatvan-hotel-13",
+        "cityId": "tatvan",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          42.282,
+          38.506
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tatvan-hotel-14",
+        "cityId": "tatvan",
+        "kind": "accommodation",
+        "fictional": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          42.289,
+          38.506
+        ]
+      }
     }
   ]
 }

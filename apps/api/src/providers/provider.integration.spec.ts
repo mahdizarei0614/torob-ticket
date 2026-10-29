@@ -30,9 +30,9 @@ describe('scoped provider evidence on PostgreSQL',()=>{
       const search=await run(c);const ctx=await service.createContext(c,search.id,new AbortController().signal,new Date(now.getTime()+5000));
       ctx.overrides={'demo-provider-01':{latencyMs:0}};
       const batch=await new MockProvider('demo-provider-01').search(query,ctx);batches.push(batch);
-      expect(batch.status).toBe('success');expect(batch.records).toHaveLength(3);
-      expect(await db.rawRecord.count({where:{sessionId:c.sessionId,providerRun:{searchId:search.id}}})).toBe(3);
-      expect(await db.offerSnapshot.count({where:{sessionId:c.sessionId,searchId:search.id}})).toBe(3);
+      expect(batch.status).toBe('success');expect(batch.records).toHaveLength(12);
+      expect(await db.rawRecord.count({where:{sessionId:c.sessionId,providerRun:{searchId:search.id}}})).toBe(12);
+      expect(await db.offerSnapshot.count({where:{sessionId:c.sessionId,searchId:search.id}})).toBe(12);
       const first=batch.records[0]!;
       const saved=await db.rawRecord.findUniqueOrThrow({where:{sessionId_id:{sessionId:c.sessionId,id:first.raw.rawRecordId}}});
       expect(saved.payload).toMatchObject({sourceRawRecordId:first.sourceRawRecordId,raw:first.raw});
@@ -51,10 +51,10 @@ describe('scoped provider evidence on PostgreSQL',()=>{
       const batch=await new MockProvider('demo-provider-01').dateInventory({query:transport,leg:'outbound',dates:['2026-10-26','2026-10-25','2026-10-26','2026-10-27','2026-10-25'],clientGeneration:'duplicate-dates'},ctx);
       expect(batch.status).toBe('success');
       expect(batch.dates.map(d=>d.date)).toEqual(['2026-10-26','2026-10-25','2026-10-27']);
-      const records=batch.dates.flatMap(d=>d.batch.records);expect(records).toHaveLength(9);
-      expect(await db.rawRecord.count({where:{sessionId:c.sessionId,providerRun:{searchId:search.id}}})).toBe(9);
-      expect(await db.normalizationDecision.count({where:{sessionId:c.sessionId,rawRecord:{providerRun:{searchId:search.id}}}})).toBe(9);
-      expect(await db.offerSnapshot.count({where:{sessionId:c.sessionId,searchId:search.id}})).toBe(9);
+      const records=batch.dates.flatMap(d=>d.batch.records);expect(records).toHaveLength(36);
+      expect(await db.rawRecord.count({where:{sessionId:c.sessionId,providerRun:{searchId:search.id}}})).toBe(36);
+      expect(await db.normalizationDecision.count({where:{sessionId:c.sessionId,rawRecord:{providerRun:{searchId:search.id}}}})).toBe(36);
+      expect(await db.offerSnapshot.count({where:{sessionId:c.sessionId,searchId:search.id}})).toBe(36);
       for(const record of records) {
         expect(allRawIds.has(record.raw.rawRecordId)).toBe(false);allRawIds.add(record.raw.rawRecordId);
         const decision=await db.normalizationDecision.findUniqueOrThrow({where:{sessionId_id:{sessionId:c.sessionId,id:record.trace.traceId}}});
@@ -65,7 +65,7 @@ describe('scoped provider evidence on PostgreSQL',()=>{
         expect(record.offer!.itinerary.return!.segments[0]!.departureAt.startsWith('2026-10-29')).toBe(true);
       }
     }
-    expect(allRawIds.size).toBe(18);
+    expect(allRawIds.size).toBe(72);
   });
   it('rejects cross-session run lookup and freezes mapping snapshots at the run revision',async()=>{
     const a=contexts[0]!;const b=contexts[1]!;const search=await run(a);

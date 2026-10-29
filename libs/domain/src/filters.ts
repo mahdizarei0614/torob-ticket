@@ -1,9 +1,9 @@
 import { MoneySchema, type NormalizedOffer, type TransportSearchQuery } from '@torob-ticket/contracts';
-import { hasSupportedSegmentModes, journeyConnectionCount } from './comparison/round-trip';
+import { hasSupportedSegmentModes, journeyConnectionCount, type JourneyPlace } from './comparison/round-trip';
 import { localDateAt, matchesDepartureWindow } from './time';
 
 /** Consumes normalized eligibility; provider policy/age validation precedes this. */
-export function matchesEligibility(offer: NormalizedOffer, query: TransportSearchQuery): boolean {
+export function matchesEligibility(offer: NormalizedOffer, query: TransportSearchQuery, places:readonly Pick<JourneyPlace,'id'|'kind'>[]=[]): boolean {
   if (offer.eligibility.status !== 'eligible' || offer.completeness.status !== 'complete' || !MoneySchema.safeParse(offer.total).success) return false;
   if (offer.availability.status !== 'known' || !offer.availability.value) return false;
   if (offer.itinerary.mode !== query.mode) return false;
@@ -23,7 +23,7 @@ export function matchesEligibility(offer: NormalizedOffer, query: TransportSearc
   if (filters.budgetMaxRial !== undefined && offer.total!.amountRial > filters.budgetMaxRial) return false;
   if (filters.providerIds?.length && !filters.providerIds.includes(offer.providerId)) return false;
   const segments = legs.flatMap(leg => leg.segments);
-  if (legs.some(leg => !hasSupportedSegmentModes(leg, query.mode))) return false;
+  if (legs.some(leg => !hasSupportedSegmentModes(leg, query.mode, places))) return false;
   if (filters.operatorIds?.length && segments.filter(segment => segment.mode === query.mode).some(segment => !filters.operatorIds!.includes(segment.operatorId))) return false;
   if (filters.departureWindow && !matchesDepartureWindow(outboundDeparture.departureAt, outboundDeparture.departureTimeZone, filters.departureWindow)) return false;
   const stopsOrTransfers = journeyConnectionCount(offer.itinerary);

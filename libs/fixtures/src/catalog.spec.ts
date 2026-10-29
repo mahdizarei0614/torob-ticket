@@ -5,10 +5,10 @@ import { CatalogSnapshotSchema, type CatalogSnapshot } from '@torob-ticket/contr
 // Empty foundation is a valid baseline, but cannot satisfy the authored T05 inventory.
 const api = fixtures as unknown as { catalog?: CatalogSnapshot; generateProviderRecords?: (input: unknown) => unknown[] };
 describe('selectable catalog inventory', () => {
-  it('offers the 12 domestic and 21 international cities with validated endpoints', () => {
+  it('offers the 12 domestic and 22 international cities with validated endpoints', () => {
     const cities = api.catalog?.cities ?? [];
     expect(cities.filter(city => city.countryCode === 'IR')).toHaveLength(12);
-    expect(cities.filter(city => city.countryCode !== 'IR')).toHaveLength(21);
+    expect(cities.filter(city => city.countryCode !== 'IR')).toHaveLength(22);
     expect(CatalogSnapshotSchema.safeParse(api.catalog).success).toBe(true);
   });
   it('has a seeded generator instead of empty foundation inventory', () => {
@@ -18,7 +18,7 @@ describe('selectable catalog inventory', () => {
 
 const rich = fixtures as unknown as { hotels?: {hotelId:string;destinationCityId:string}[]; roomRateTemplates?: {hotelId:string}[]; materializeRoomRates?:(anchor:string,city:string)=>{nightlyPrices:{date:string;total:{amountRial:number}}[]}[] };
 it('backs every selectable city with 12–20 hotels and multiple room options',()=>{
-  expect(api.catalog?.cities.length ?? 0).toBe(33);
+  expect(api.catalog?.cities.length ?? 0).toBe(34);
   for(const city of api.catalog!.cities) {
     const hotels=(rich.hotels??[]).filter(h=>h.destinationCityId===city.id);
     expect(hotels.length).toBeGreaterThanOrEqual(12);expect(hotels.length).toBeLessThanOrEqual(20);

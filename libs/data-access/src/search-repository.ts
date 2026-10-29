@@ -1,5 +1,6 @@
+import {insertMissingTransportQuotes} from './transport-quote-batch';
 import {assertSearchAdmission} from './admission';
-import { SearchSnapshotSchema, SearchEventSchema, type SearchSnapshot, type SearchEvent, type ProviderStatus, type QuoteSnapshot, NormalizationTraceSchema, NormalizedOfferSchema, RawProviderRecordSchema, type RawProviderRecord, type NormalizationTrace, type NormalizedOffer } from '@torob-ticket/contracts';
+import { IdSchema, PartySchema, NonnegativeIntegerSchema, SearchSnapshotSchema, SearchEventSchema, type SearchSnapshot, type SearchEvent, type ProviderStatus, type QuoteSnapshot, NormalizationTraceSchema, NormalizedOfferSchema, RawProviderRecordSchema, type RawProviderRecord, type NormalizationTrace, type NormalizedOffer } from '@torob-ticket/contracts';
 import type { SourceFareEvidence } from '@torob-ticket/domain';
 import { randomUUID } from 'node:crypto';
 import type { Prisma, PrismaClient } from './generated/client';
@@ -47,6 +48,55 @@ export class SearchRepository {
       if(offer) await tx.offerSnapshot.create({data:{sessionId:scope.sessionId,id:offer.offerId,searchId:run.id,payload:json({offer,source:input.source}),createdAt:new Date(trace.observedAt)}});
     });
   }
+  /** One provider/date append; never silently drops duplicates or commits only a prefix.
+   * The caller's guard carries cancellation/deadline through session-lock acquisition. */
+  async appendNormalizationEvidenceBatch(scope:DataScope,inputs:readonly AppendNormalizationEvidence[],assertActive:()=>void=()=>{}) {
+    assertActive();
+    if(!inputs.length||inputs.length>32)throw new RepositoryError('INVALID_QUERY');
+    let bytes=0;const batch:AppendNormalizationEvidence[]=[];
+    for(const input of inputs){
+      const encoded=JSON.stringify(input);bytes+=Buffer.byteLength(encoded,'utf8');
+      if(bytes>4*1024*1024)throw new RepositoryError('INVALID_QUERY');
+      batch.push(JSON.parse(encoded) as AppendNormalizationEvidence);
+    }
+    return scopedTransaction(this.db,scope,async tx=>{
+      assertActive();
+      const searchId=IdSchema.parse(batch[0]!.searchId);
+      const run=await tx.searchRun.findUnique({where:{sessionId_id:{sessionId:scope.sessionId,id:searchId}}});
+      if(!run||run.status!=='collecting')throw new RepositoryError('NOT_FOUND');
+      const rawIds=new Set<string>(),traceIds=new Set<string>(),offerIds=new Set<string>();
+      let sourceRevision:string|undefined;
+      const rows=batch.map(input=>{
+        if(input.searchId!==searchId)throw new RepositoryError('INVALID_QUERY');
+        const raw=RawProviderRecordSchema.parse(input.raw),trace=NormalizationTraceSchema.parse(input.trace);
+        const sourceRawRecordId=IdSchema.parse(input.sourceRawRecordId);
+        const offer=input.offer?NormalizedOfferSchema.parse(input.offer):undefined,source=input.source;
+        if(run.mappingRevision!==trace.mappingRevision||run.fixtureVersion!==raw.fixtureVersion)throw new RepositoryError('MAPPING_COLLISION');
+        if(raw.providerId!==batch[0]!.raw.providerId||rawIds.has(raw.rawRecordId)||traceIds.has(trace.traceId)||offer&&offerIds.has(offer.offerId))throw new RepositoryError('INVALID_QUERY');
+        rawIds.add(raw.rawRecordId);traceIds.add(trace.traceId);if(offer)offerIds.add(offer.offerId);
+        if(trace.rawRecordId!==raw.rawRecordId||Boolean(offer)!==(trace.outcome==='accepted')||(!offer&&trace.offerId!==undefined)||
+          trace.issues.some(issue=>issue.rawRecordId!==undefined&&issue.rawRecordId!==raw.rawRecordId)||
+          offer&&(trace.offerId!==offer.offerId||offer.providerId!==raw.providerId||!source||!offer.provenance.every(p=>p.rawRecordId===raw.rawRecordId&&p.sourceNamespace===raw.sourceNamespace&&p.mappingRevision===run.mappingRevision&&p.fixtureVersion===run.fixtureVersion&&p.sourceRevision===source.sourceRevision)||offer.issues.some(issue=>issue.rawRecordId!==undefined&&issue.rawRecordId!==raw.rawRecordId)))throw new RepositoryError('INVALID_QUERY');
+        if(source){
+          PartySchema.parse(source.party);IdSchema.parse(source.sourceRawRecordId);IdSchema.parse(source.sourceRevision);NonnegativeIntegerSchema.parse(source.seats);
+          if(sourceRevision!==undefined&&sourceRevision!==source.sourceRevision)throw new RepositoryError('MAPPING_COLLISION');
+          sourceRevision=source.sourceRevision;
+          if(!offer||source.sourceRawRecordId!==sourceRawRecordId||source.pricingBasis!=='whole-party-gross')throw new RepositoryError('INVALID_QUERY');
+        }
+        return{raw,trace,offer,source,sourceRawRecordId};
+      });
+      assertActive();
+      const provider=await tx.providerRun.upsert({where:{sessionId_searchId_providerId:{sessionId:scope.sessionId,searchId,providerId:rows[0]!.raw.providerId}},create:{sessionId:scope.sessionId,searchId,id:randomUUID(),providerId:rows[0]!.raw.providerId,status:'collecting',payload:{}},update:{}});
+      if(!['pending','running','collecting'].includes(provider.status))throw new RepositoryError('NOT_FOUND');
+      await tx.rawRecord.createMany({data:rows.map(({raw,sourceRawRecordId})=>({sessionId:scope.sessionId,id:raw.rawRecordId,providerRunId:provider.id,sourceNamespace:raw.sourceNamespace,fixtureVersion:raw.fixtureVersion,observedAt:new Date(raw.observedAt),payload:json({sourceRawRecordId,raw})}))});
+      assertActive();
+      await tx.normalizationDecision.createMany({data:rows.map(({raw,trace})=>({sessionId:scope.sessionId,id:trace.traceId,rawRecordId:raw.rawRecordId,mappingRevision:trace.mappingRevision,payload:json(trace),createdAt:new Date(trace.observedAt)}))});
+      assertActive();
+      const offers=rows.flatMap(({offer,source,trace})=>offer?[{sessionId:scope.sessionId,id:offer.offerId,searchId,payload:json({offer,source}),createdAt:new Date(trace.observedAt)}]:[]);
+      if(offers.length)await tx.offerSnapshot.createMany({data:offers});
+      assertActive();
+    });
+  }
   create(scope: DataScope, input: CreateSearchRun, now: Date, options: { enforceLimit?: boolean; id?: string; supersedesSearchId?: string } = {}) {
     return scopedTransaction(this.db, scope, async tx => {
       if (options.supersedesSearchId) await this.assertComparisonRun(tx, scope, options.supersedesSearchId);
@@ -66,13 +116,18 @@ export class SearchRepository {
     });
   }
   /** All readers use the same lock as projection writers: cursor and snapshot cannot tear. */
-  read(scope: DataScope, id: string, after = 0) {
+  read(scope:DataScope,id:string,after=0){return this.readState(scope,id,after);}
+  async readSnapshot(scope:DataScope,id:string){
+    const {snapshot,sequence}=await this.readState(scope,id);
+    return{snapshot,sequence};
+  }
+  private readState(scope:DataScope,id:string,after?:number){
     return scopedTransaction(this.db, scope, async tx => {
       await this.assertComparisonRun(tx, scope, id);
       const run = await tx.searchRun.findUnique({ where: { sessionId_id: { sessionId: scope.sessionId, id } } });
       if (!run) throw new RepositoryError('NOT_FOUND');
       const last = await tx.searchEventRecord.aggregate({ where: { sessionId: scope.sessionId, searchId: id }, _max: { sequence: true } });
-      const events = await tx.searchEventRecord.findMany({ where: { sessionId: scope.sessionId, searchId: id, sequence: { gt: after } }, orderBy: { sequence: 'asc' }, take: 50 });
+      const events=after===undefined?[]:await tx.searchEventRecord.findMany({ where: { sessionId: scope.sessionId, searchId: id, sequence: { gt: after } }, orderBy: { sequence: 'asc' }, take: 50 });
       return { snapshot: SearchSnapshotSchema.parse(run.snapshot), sequence: last._max.sequence ?? 0, events: events.map(row => SearchEventSchema.parse(row.payload)) };
     });
   }
@@ -91,13 +146,13 @@ export class SearchRepository {
       if (run.status !== 'collecting') return SearchSnapshotSchema.parse(run.snapshot);
       if (provider) await tx.providerRun.upsert({ where: { sessionId_searchId_providerId: { sessionId: scope.sessionId, searchId: id, providerId: provider.providerId } }, create: { sessionId: scope.sessionId, searchId: id, id: randomUUID(), providerId: provider.providerId, status: provider.status, payload: json(provider) }, update: { status: provider.status, payload: json(provider) } });
       const offers = await tx.offerSnapshot.findMany({ where: { sessionId: scope.sessionId, searchId: id } });
-      const quotes = await tx.quote.findMany({ where: { sessionId: scope.sessionId, offer: { searchId: id } } });
+      const quotes=offers.length?await tx.quote.findMany({where:{sessionId:scope.sessionId,offerId:{in:offers.map(row=>row.id)}}}):[];
       const previous = SearchSnapshotSchema.parse(run.snapshot);
       if (provider) previous.providerStatuses = previous.providerStatuses.map(row => row.providerId === provider.providerId ? provider : row);
       const result = build({ previous, offers, quotes: quotes.map(row => row.payload as unknown as QuoteSnapshot) });
       const snapshot = SearchSnapshotSchema.parse(result.snapshot);
       for (const row of snapshot.providerStatuses) await tx.providerRun.upsert({ where: { sessionId_searchId_providerId: { sessionId: scope.sessionId, searchId: id, providerId: row.providerId } }, create: { sessionId: scope.sessionId, searchId: id, id: randomUUID(), providerId: row.providerId, status: row.status, payload: json(row) }, update: { status: row.status, payload: json(row) } });
-      for (const item of result.quotes) await tx.quote.upsert({ where: { sessionId_id_version: { sessionId: scope.sessionId, id: item.quote.quoteId, version: item.quote.version } }, create: { sessionId: scope.sessionId, id: item.quote.quoteId, version: item.quote.version, offerId: item.offerId, payload: json(item.quote), observedAt: new Date(item.quote.observedAt), expiresAt: new Date(item.quote.expiresAt) }, update: {} });
+      await insertMissingTransportQuotes(tx,scope,quotes,result.quotes);
       await tx.auditEvent.create({ data: { sessionId: scope.sessionId, id: randomUUID(), kind: 'search-projection', payload: json({ searchId: id, ...result.audit }), createdAt: now } });
       if (provider) {
         // The projection derives actual committed offer counts, including records

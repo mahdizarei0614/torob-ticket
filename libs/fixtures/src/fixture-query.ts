@@ -4,5 +4,5 @@ export interface FixtureQuery {
   query:TransportSearchQuery;
   /** Recheck is a deterministic data phase; runtime scheduling belongs to T06. */
   phase?:'search'|'recheck';
-  caseId?:'airport-change'|'incomplete-round-trip'|'ambiguous-unit'|'technical-stop'|'duplicate'|'discontinuous-price';
+  caseId?:'airport-change'|'incomplete-round-trip'|'ambiguous-unit'|'technical-stop'|'duplicate'|'discontinuous-price'|'no-timetable'|'unknown-fees'|'limited-stock';
 }

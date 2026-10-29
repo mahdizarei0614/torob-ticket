@@ -90,7 +90,9 @@ it('presents only chosen endpoints before selection and settles canonical stop f
     { id: 'tehran', name: 'تهران', point: places.find(place => place.id === 'thr')!.point, role: 'origin' as const },
     { id: 'mashhad', name: 'مشهد', point: places.find(place => place.id === 'mhd')!.point, role: 'destination' as const },
   ];
-  const props: RouteSceneProps = { ...base, showNotes: false, showTimeline: false, showControls: false, labelsVisible: false, presentation: { key: 'endpoints', endpoints, active: false, reducedMotion: true, cityNames: { tabriz: 'تبریز' } } };
+  const canonicalStop=itinerary.outbound.stops[0]!;
+  const stopCityId=places.find(place=>place.id===canonicalStop.placeId)!.cityId;
+  const props: RouteSceneProps = { ...base, showNotes: false, showTimeline: false, showControls: false, labelsVisible: false, presentation: { key: 'endpoints', endpoints, active: false, reducedMotion: true, cityNames: { [stopCityId]: 'شهر میانی' } } };
   const view = render(element(props)); await act(async () => undefined);
   expect(view.container.querySelectorAll('[data-journey-endpoint]')).toHaveLength(2);
   expect(view.container.querySelector('[data-journey-stop]')).toBeNull();
@@ -99,8 +101,8 @@ it('presents only chosen endpoints before selection and settles canonical stop f
   view.rerender(element({ ...props, itinerary, fitKey: 'selected', presentation: { ...props.presentation!, key: 'selected' } }));
   await act(async () => undefined);
   const stop = view.container.querySelector('[data-journey-stop]');
-  expect(stop).toHaveAttribute('data-route-stop', 'tbz'); expect(stop).toHaveAttribute('data-wait-minutes', '45');
-  expect(stop).toHaveTextContent('تبریز'); expect(stop).toHaveTextContent('۴۵ دقیقه توقف');
+  expect(stop).toHaveAttribute('data-route-stop', canonicalStop.placeId); expect(stop).toHaveAttribute('data-wait-minutes', String(canonicalStop.waitMinutes));
+  expect(stop).toHaveTextContent('شهر میانی'); expect(stop).toHaveTextContent(new Intl.NumberFormat('fa-IR').format(canonicalStop.waitMinutes)+' دقیقه توقف');
   expect(view.container.querySelector('[data-route-presentation]')).toHaveAttribute('data-route-reveal', '1.000');
   view.rerender(element({ ...props, presentation: { ...props.presentation!, key: 'changed-city' } }));
   expect(view.container.querySelector('[data-journey-stop]')).toBeNull();

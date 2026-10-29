@@ -1,13 +1,31 @@
 import type { Itinerary, JourneyLeg, Mode, NormalizedOffer, Place, TransportSearchQuery } from '@torob-ticket/contracts';
 import { elapsedMinutes, localDateAt } from '../time';
 
-/** Ancillary ground travel must be supplied with an explicit transfer marker. */
-export function hasSupportedSegmentModes(leg: JourneyLeg, mode: Mode): boolean {
-  return leg.segments.some(segment => segment.mode === mode) && leg.segments.every((segment, index) => {
-    if (segment.mode === mode) return true;
-    return mode === 'flight' && segment.mode === 'bus' && index > 0 &&
-      leg.stops.some(stop => stop.kind === 'ground-transfer' && stop.vehicleChange && stop.placeId === segment.originPlaceId);
-  });
+/** Preserve the existing airport-transfer rule; rail connectors are narrower: one
+ * explicitly declared road segment between supplied rail services, at both junctions.
+ * No route, carrier, seller or fare is inferred or joined here. */
+export type JourneyPlace=Pick<Place,'id'|'cityId'|'timeZone'>&Partial<Pick<Place,'kind'>>;
+export function isSupportedSegmentMode(leg:JourneyLeg,mode:Mode,index:number,places:readonly Pick<JourneyPlace,'id'|'kind'>[]=[]):boolean {
+  const segment=leg.segments[index];
+  if(!segment)return false;
+  if(segment.mode===mode)return true;
+  if(segment.mode!=='bus'||index===0)return false;
+  if(mode==='flight')return leg.stops.some(stop=>stop.kind==='ground-transfer'&&stop.vehicleChange&&stop.placeId===segment.originPlaceId);
+  if(mode!=='train'||leg.segments.filter(item=>item.mode==='bus').length!==1)return false;
+  if(![segment.originPlaceId,segment.destinationPlaceId].every(id=>places.some(place=>place.id===id&&place.kind==='station')))return false;
+  const previous=leg.segments[index-1],next=leg.segments[index+1];
+  if(previous?.mode!=='train'||next?.mode!=='train')return false;
+  const declaredBoundary=(before:typeof segment,after:typeof segment)=>{
+    if(before.destinationPlaceId!==after.originPlaceId||Date.parse(before.arrivalAt)>Date.parse(after.departureAt))return false;
+    return leg.stops.some(stop=>stop.kind==='ground-transfer'&&stop.vehicleChange&&stop.placeId===after.originPlaceId&&
+      stop.waitMinutes===(Date.parse(after.departureAt)-Date.parse(before.arrivalAt))/60000&&
+      (!stop.arrivalAt||Date.parse(stop.arrivalAt)===Date.parse(before.arrivalAt))&&
+      (!stop.departureAt||Date.parse(stop.departureAt)===Date.parse(after.departureAt)));
+  };
+  return declaredBoundary(previous,segment)&&declaredBoundary(segment,next);
+}
+export function hasSupportedSegmentModes(leg:JourneyLeg,mode:Mode,places:readonly Pick<JourneyPlace,'id'|'kind'>[]=[]):boolean {
+  return leg.segments.some(segment=>segment.mode===mode)&&leg.segments.every((_,index)=>isSupportedSegmentMode(leg,mode,index,places));
 }
 
 export function journeyConnectionCount(itinerary: Itinerary): number {
@@ -81,7 +99,7 @@ function validateStopSequence(leg: JourneyLeg, junctions: StopBoundary[], knownP
 export function validateCompleteJourney(
   offer: NormalizedOffer,
   query: TransportSearchQuery,
-  places: readonly Pick<Place, 'id' | 'cityId' | 'timeZone'>[],
+  places: readonly JourneyPlace[],
 ): string[] {
   const itinerary = offer.itinerary;
   const roundTrip = query.tripType === 'round-trip';
@@ -94,7 +112,7 @@ export function validateCompleteJourney(
     const first = leg.segments[0];
     const last = leg.segments.at(-1);
     if (!first || !last) return ['INCOMPLETE_ITINERARY'];
-    if (!hasSupportedSegmentModes(leg, query.mode)) return ['UNSUPPORTED_SEGMENT_MODE'];
+    if (!hasSupportedSegmentModes(leg, query.mode, places)) return ['UNSUPPORTED_SEGMENT_MODE'];
     const originCityId = direction === 0 ? query.originCityId : query.destinationCityId;
     const destinationCityId = direction === 0 ? query.destinationCityId : query.originCityId;
     const matchingCities = placeById.get(first.originPlaceId)?.cityId === originCityId && placeById.get(last.destinationPlaceId)?.cityId === destinationCityId;

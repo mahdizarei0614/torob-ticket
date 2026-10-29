@@ -2,8 +2,10 @@ import {createHash} from 'node:crypto';
 import {expect,it} from 'vitest';
 import {JourneyLegSchema,type JourneyLeg,type RawProviderRecord} from '@torob-ticket/contracts';
 import {localDateAt} from '@torob-ticket/domain';
-import {catalog,catalogForIdentity,fixtureIdentity,fixtureBundles,fixtureSourceRevision,farePoliciesForFixture,generateProviderRecords,materializeRoomRates,type FixtureQuery} from './index';
-import {flightProfiles} from './catalog/flight-profiles';
+import {catalogForIdentity,fixtureBundles,fixtureSourceRevision,farePoliciesForFixture,generateProviderRecords,materializeRoomRates,type FixtureQuery} from './index';
+import {flightProfiles} from './legacy-v2/catalog/flight-profiles';
+import {fixtureIdentity} from './legacy-v2/identity';
+const catalog=catalogForIdentity('showcase-v2','catalog-v2');
 import legacySnapshots from './legacy-v1/replay-snapshots.json';
 
 const query=(destinationCityId:string,reverse=false):FixtureQuery=>({...fixtureIdentity,seed:49,anchorInstant:'2026-10-29T00:00:00.000Z',scenario:'normal',scenarioRevision:'scenario-v1',mappingRevision:'mapping-v1',query:{mode:'flight',scope:'international',originCityId:reverse?destinationCityId:'tehran',destinationCityId:reverse?'tehran':destinationCityId,tripType:'round-trip',departureDate:'2026-11-01',returnDate:'2026-11-05',party:{adults:1,children:0,infants:0},classCode:'economy',filters:{},sort:'cheapest'}});
@@ -16,7 +18,7 @@ it('replays the exact frozen v1 raw evidence across all hero modes, dialects, pa
  expect(catalogForIdentity('showcase-v1','catalog-v1').classChoices.some(item=>item.code==='sleeper-6')).toBe(false);
  expect(catalogForIdentity('showcase-v2','catalog-v2').cities).toHaveLength(33);
  expect(()=>catalogForIdentity('showcase-v2','catalog-v1')).toThrow(/version/i);
- expect(fixtureBundles.map(bundle=>bundle.identity.fixtureVersion)).toEqual(['showcase-v1','showcase-v2']);
+ expect(fixtureBundles.map(bundle=>bundle.identity.fixtureVersion)).toEqual(['showcase-v1','showcase-v2','showcase-v3']);
 });
 
 it('keeps legacy hotel templates, provenance, prices and local dates separate from v2',()=>{

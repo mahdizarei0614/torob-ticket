@@ -1,9 +1,24 @@
 import { z } from 'zod';
 import { CoverageSchema, DataIssueSchema, GeoPointSchema, IdSchema, ISOInstantSchema, KnownBooleanSchema, KnownQuantitySchema, ModeSchema, MoneySchema, NonnegativeIntegerSchema, PartySchema, PositiveIntegerSchema, ProvenanceSchema } from './common';
 
-export const TimeZoneSchema = IdSchema.refine(value => {
-  try { new Intl.DateTimeFormat('en', { timeZone: value }); return !/^[+-]/.test(value); } catch { return false; }
-}, 'invalid-time-zone');
+// Repeated schema parsing sees the same small set of IANA strings. Cache only
+// native validity, retaining exact input/IdSchema semantics and bounded memory.
+const timeZoneValidity=new Map<string,boolean>();
+const maximumTimeZoneKeys=128;
+function validTimeZone(value:string):boolean {
+  const cached=timeZoneValidity.get(value);
+  if(cached!==undefined){timeZoneValidity.delete(value);timeZoneValidity.set(value,cached);return cached;}
+  let valid:boolean;
+  try{new Intl.DateTimeFormat('en',{timeZone:value});valid=!/^[+-]/.test(value);}catch{valid=false;}
+  // IdSchema rejects overlong strings; do not retain arbitrary oversized inputs
+  // even when Zod also runs this refinement to collect its original error issues.
+  if(value.length<=200){
+    if(timeZoneValidity.size>=maximumTimeZoneKeys)timeZoneValidity.delete(timeZoneValidity.keys().next().value!);
+    timeZoneValidity.set(value,valid);
+  }
+  return valid;
+}
+export const TimeZoneSchema=IdSchema.refine(validTimeZone,'invalid-time-zone');
 export const PlaceSchema = z.strictObject({ id: IdSchema, cityId: IdSchema, name: IdSchema, kind: z.enum(['airport', 'station', 'terminal', 'landmark']), code: IdSchema.optional(), point: GeoPointSchema, timeZone: TimeZoneSchema });
 export type Place = z.infer<typeof PlaceSchema>;
 export const SegmentSchema = z.strictObject({

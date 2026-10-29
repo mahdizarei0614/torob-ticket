@@ -7,14 +7,15 @@ const server = await createServer({ configFile: 'apps/web/vite.config.mts', root
 try {
   const { places } = await server.ssrLoadModule('/libs/fixtures/src/catalog/places.ts');
   const { connections, heroSearches } = await server.ssrLoadModule('/libs/fixtures/src/catalog/connections.ts');
-  const { journey, appendAirportTransfer } = await server.ssrLoadModule('/libs/fixtures/src/schedules.ts');
+  const { journey, appendAirportTransfer, servicesPerRoute } = await server.ssrLoadModule('/libs/fixtures/src/schedules.ts');
   const { sampleGeography } = await server.ssrLoadModule('/libs/graphics/src/geo/geography.ts');
   const { authorWindingPath, buildRouteGeometry } = await server.ssrLoadModule('/libs/graphics/src/geo/route-geometry.ts');
   const inputs = ['assets/geography/world.geojson', 'assets/geography/iran.geojson', 'assets/geography/destination-landmarks.geojson', 'assets/provenance.json', 'libs/fixtures/src/identity.ts', 'libs/fixtures/src/catalog/providers.ts', 'libs/fixtures/src/catalog/places.ts', 'libs/fixtures/src/catalog/cities.ts', 'libs/fixtures/src/catalog/international.ts', 'libs/fixtures/src/catalog/flight-profiles.ts', 'libs/fixtures/src/catalog/pricing.ts', 'libs/fixtures/src/catalog/connections.ts', 'libs/fixtures/src/schedules.ts', 'libs/fixtures/src/generator.ts', 'libs/fixtures/src/calendar.ts', 'libs/contracts/src/offer.ts', 'libs/contracts/src/common.ts', 'libs/graphics/src/geo/projection.ts', 'libs/graphics/src/geo/geography.ts', 'libs/graphics/src/geo/route-geometry.ts', 'tools/generate-route-scene-fixtures.mjs'];
+  inputs.push('assets/geography/legacy-route-paths-v2.json');
   const hashes = Object.fromEntries(await Promise.all(inputs.map(async path => [path, createHash('sha256').update(await readFile(path)).digest('hex')])));
   const geo = async name => JSON.parse(await readFile(`assets/geography/${name}.geojson`, 'utf8'));
   const world = await geo('world'); const iran = await geo('iran'); const destination = await geo('destination-landmarks');
-  const revision = 'route-scenes-v2';
+  const revision = 'route-scenes-v3';
   const dots = {
     world: sampleGeography(world.features.map(feature => feature.geometry), { west: -179, east: 180, south: -59, north: 85 }, 2),
     iran: sampleGeography(iran.features.map(feature => feature.geometry), { west: 44, east: 64, south: 25, north: 40 }, .22),
@@ -29,16 +30,19 @@ try {
   const leg = journey(connection, '2026-10-25', 0); appendAirportTransfer(leg, 'thr', 'ika');
   scenarios.push({ id: 'airport-transfer', name: 'پرواز + انتقال زمینی THR → IKA', scope: 'domestic', itinerary: { itineraryId: 'lab-transfer', mode: 'flight', originPlaceId: leg.segments[0].originPlaceId, destinationPlaceId: 'ika', outbound: leg } });
   // Cover the full supported network, not just the seven visible lab examples.
-  const networkLegs = connections.flatMap(connection => [0, 1, 2].map(variant => journey(connection, '2026-10-25', variant)));
+  const networkLegs = connections.flatMap(connection => Array.from({length:servicesPerRoute},(_,variant)=>journey(connection, '2026-10-25', variant)));
   const airportChange = journey(connections.find(connection => connection.mode === 'flight' && connection.destinationCityId === 'istanbul'), '2026-10-25', 0);
   appendAirportTransfer(airportChange, 'ist', 'saw'); networkLegs.push(airportChange);
   const allLegs = [...networkLegs, ...scenarios.flatMap(scenario => [scenario.itinerary.outbound, scenario.itinerary.return].filter(Boolean))];
-  const pairs = new Map();
+  // Current schedules may use different connections. Preserve authored paths
+  // referenced by old immutable searches while adding the expanded network.
+  const legacyPaths=JSON.parse(await readFile('assets/geography/legacy-route-paths-v2.json','utf8')).paths;
+  const pairs = new Map(legacyPaths.map(path=>[`${path.originPlaceId}:${path.destinationPlaceId}`,path]));
   for (const leg of allLegs) for (const segment of leg.segments.filter(segment => segment.mode === 'bus')) {
     const a = places.find(place => place.id === segment.originPlaceId); const b = places.find(place => place.id === segment.destinationPlaceId);
-    pairs.set(`${a.id}:${b.id}`, { originPlaceId: a.id, destinationPlaceId: b.id, points: authorWindingPath(a.point, b.point), provenance: { source: 'T14 authored fictional winding waypoints; canonical transport endpoint anchors', revision, illustrative: true, navigation: false } });
+    if(!pairs.has(`${a.id}:${b.id}`))pairs.set(`${a.id}:${b.id}`, { originPlaceId: a.id, destinationPlaceId: b.id, points: authorWindingPath(a.point, b.point), provenance: { source: 'T14 authored fictional winding waypoints; canonical transport endpoint anchors', revision, illustrative: true, navigation: false } });
   }
-  const coverage = { supportedConnections: connections.length, canonicalJourneysChecked: allLegs.length, busSegmentPairs: pairs.size, includes: ['both ordered directions', 'all three schedule variants', 'viaTabriz legs', 'canonical airport-change IST to SAW', 'lab THR to IKA'] };
+  const coverage = { supportedConnections: connections.length, canonicalJourneysChecked: allLegs.length, busSegmentPairs: pairs.size, includes: ['both ordered directions', 'all twelve service slots', 'supplied rail connections and required station road connector', 'canonical airport-change IST to SAW', 'lab THR to IKA'] };
   for (const [index, outbound] of allLegs.entries()) {
     const itinerary = { itineraryId: `coverage-${index}`, mode: outbound.segments[0].mode, originPlaceId: outbound.segments[0].originPlaceId, destinationPlaceId: outbound.segments.at(-1).destinationPlaceId, outbound };
     const geometry = buildRouteGeometry(itinerary, places, [...pairs.values()]);

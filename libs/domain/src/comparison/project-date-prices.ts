@@ -1,9 +1,8 @@
 import type { DatePriceQuery, DatePriceCell, NormalizedOffer, Coverage, QuoteSnapshot } from '@torob-ticket/contracts';
 import { parseDate } from '@internationalized/date';
-import { TransportSearchQuerySchema } from '@torob-ticket/contracts';
+import { QuoteSnapshotSchema, TransportSearchQuerySchema } from '@torob-ticket/contracts';
 import { localDateAt } from '../time';
 import { quoteOffer, type ComparisonContext } from './quote-offer';
-import { groupOffers } from './group-offers';
 export interface DateProjectionInput {
   request: DatePriceQuery;
   anchorInstant: string;
@@ -31,7 +30,7 @@ export function dateQueryState(input: Pick<DateProjectionInput, 'request' | 'anc
 export function projectDatePrices(input: DateProjectionInput): { cells: DatePriceCell[]; quotes: { offerId: string; quote: QuoteSnapshot }[] } {
   const quotes: { offerId: string; quote: QuoteSnapshot }[] = [];
   const persisted = new Map(input.persistedQuotes.map(quote => [quote.quoteId, quote]));
-  // Index only by the inspected departure date; grouping still validates the full
+  // Index only by the inspected departure date; the shared quote authority still validates the full
   // journey, opposite leg, fare and party. Avoid O(dates * all inventory) quoting.
   const offersByDate = new Map<string, NormalizedOffer[]>();
   for (const offer of input.offers) {
@@ -49,16 +48,26 @@ export function projectDatePrices(input: DateProjectionInput): { cells: DatePric
     const coverage = input.coverageByDate[date] ?? { expectedProviderIds: [], successfulProviderIds: [], failedProviderIds: [], pendingProviderIds: [], complete: true };
     const query = TransportSearchQuerySchema.parse({ ...input.request.query, ...(input.request.leg === 'outbound' ? { departureDate: date } : { returnDate: date }) });
     const dateOffers = offersByDate.get(date) ?? [];
-    const groups = groupOffers(dateOffers, query, input.comparison);
-    const eligibleIds = new Set(groups.flatMap(group => group.eligibleQuotes.map(quote => quote.quoteId)));
+    // Preserve the original grouping-time eligibility clock once per date. Each
+    // source entry is evaluated independently; IDs are not a material-data cache.
+    const eligibilityInstant=input.comparison.realClock.now().getTime();
+    const comparison={...input.comparison,realClock:{now:()=>new Date(eligibilityInstant)}};
+    let hasIncompletePrice=false;
     const candidates: { offerId: string; quote: QuoteSnapshot }[] = [];
     for (const offer of dateOffers) {
-      const observedAt = input.observationsByOfferId[offer.offerId];
-      if (!observedAt) continue; // Never mint a lifetime without the original committed observation.
-      const evaluation = quoteOffer(offer, query, { ...input.comparison, realClock: { now: () => new Date(observedAt) } });
-      if (evaluation.status !== 'eligible' || !eligibleIds.has(evaluation.quote.quoteId)) continue;
-      const quote = persisted.get(evaluation.quote.quoteId) ?? evaluation.quote;
-      candidates.push({ offerId: offer.offerId, quote });
+      const evaluation=quoteOffer(offer,query,comparison);
+      if(evaluation.status==='incomplete')hasIncompletePrice=true;
+      const observedAt=input.observationsByOfferId[offer.offerId];
+      if(evaluation.status!=='eligible'||!observedAt)continue;
+      // The authority-issued identity/material is clock-independent. Reuse it
+      // with the original committed lifetime instead of validating/hashing twice.
+      const observed=new Date(observedAt);
+      const lifetime=Date.parse(evaluation.quote.expiresAt)-Date.parse(evaluation.quote.observedAt);
+      const expires=new Date(observed.getTime()+lifetime);
+      if(!Number.isFinite(observed.getTime())||!Number.isFinite(expires.getTime()))continue;
+      const original=QuoteSnapshotSchema.parse({...evaluation.quote,observedAt:observed.toISOString(),expiresAt:expires.toISOString()});
+      const quote=persisted.get(original.quoteId)??original;
+      candidates.push({offerId:offer.offerId,quote});
     }
     quotes.push(...candidates);
     candidates.sort((a, b) => a.quote.total.amountRial - b.quote.total.amountRial || a.quote.quoteId.localeCompare(b.quote.quoteId));
@@ -70,7 +79,7 @@ export function projectDatePrices(input: DateProjectionInput): { cells: DatePric
     if (!coverage.complete) return { date, status: 'checking' };
     const adequate = coverage.expectedProviderIds.length > 0 && coverage.failedProviderIds.length === 0 && coverage.pendingProviderIds.length === 0 && coverage.expectedProviderIds.every(id => coverage.successfulProviderIds.includes(id));
     if (!adequate) return { date, status: 'unavailable', reason: 'retrieval-failed', retryable: true, coverage };
-    if (groups.some(group => group.incompletePriceOffers.length)) return { date, status: 'unavailable', reason: 'incomplete-price', retryable: false, coverage };
+    if (hasIncompletePrice) return { date, status: 'unavailable', reason: 'incomplete-price', retryable: false, coverage };
     return { date, status: 'no-match', coverage };
   });
   return { cells, quotes };

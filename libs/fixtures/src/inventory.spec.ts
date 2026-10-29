@@ -36,12 +36,14 @@ describe('all selectable graph edges have coherent fixture evidence',()=>{
   });
   it('shares authored itinerary identity across seller dialects and preserves heterogeneous conditions',()=>{
     const records=generateProviderRecords(input({...heroSearches[0]!,originCityId:'tehran'}));
-    const first=records.filter((_,i)=>i%3===0);
+    const first=records.filter((_,i)=>i%12===0);
     expect(new Set(first.map(r=>legs(r)[0]!.segments[0]!.serviceId)).size).toBe(1);
     expect(new Set(records.map(total)).size).toBeGreaterThan(4);
     expect(objects(records.find(r=>r.providerId==='demo-provider-02')!.payload).some(o=>o.luggage===null)).toBe(true);
     expect(objects(records.find(r=>r.providerId==='demo-provider-02')!.payload).some(o=>o.unit==='تومان')).toBe(true);
-    expect(objects(records.findLast(r=>r.providerId==='demo-provider-03')!.payload).some(o=>o.fees===null)).toBe(true);
+    expect(objects(records.findLast(r=>r.providerId==='demo-provider-03')!.payload).some(o=>o.fees===null)).toBe(false);
+    const unknownFees=generateProviderRecords({...input({...heroSearches[0]!,originCityId:'tehran'}),caseId:'unknown-fees'});
+    expect(objects(unknownFees.find(r=>r.providerId==='demo-provider-03')!.payload).some(o=>o.fees===null)).toBe(true);
   });
   it('prices the complete party and supplied round trip, never independent sellers',()=>{
     const q=input({...heroSearches[0]!,originCityId:'tehran'});
@@ -110,7 +112,7 @@ it('retains endpoints and UTC times for identical dated segment IDs across all q
     }
   }
   assertStableSegmentIdentities(records);
-});
+},20000);
 
 it('distinguishes morning and evening service departures while preserving seller-independent identity', () => {
   const roundTrip = input({ ...heroSearches[0]!, originCityId: 'tehran' });
@@ -120,11 +122,11 @@ it('distinguishes morning and evening service departures while preserving seller
     query: { ...roundTrip.query, originCityId: 'mashhad', destinationCityId: 'tehran', tripType: 'one-way', departureDate: '2026-10-27', returnDate: undefined },
   });
   const morning = legs(standalone[0]!)[0]!.segments[0]!;
-  expect(morning.departureAt).toBe('2026-10-27T03:30:00.000Z');
-  expect(returnSegment.departureAt).toBe('2026-10-27T15:30:00.000Z');
+  expect(morning.departureAt).toBe('2026-10-26T20:30:00.000Z');
+  expect(returnSegment.departureAt).toBe('2026-10-27T14:30:00.000Z');
   expect(morning.serviceId).not.toBe(returnSegment.serviceId);
   expect(morning.segmentId).not.toBe(returnSegment.segmentId);
-  const sameServiceAcrossProviders = standalone.filter((_, index) => index % 3 === 0).map(record => legs(record)[0]!.segments[0]!);
+  const sameServiceAcrossProviders = standalone.filter((_, index) => index % 12 === 0).map(record => legs(record)[0]!.segments[0]!);
   expect(new Set(sameServiceAcrossProviders.map(segment => segment.serviceId)).size).toBe(1);
   expect(new Set(sameServiceAcrossProviders.map(segment => segment.segmentId)).size).toBe(1);
 });

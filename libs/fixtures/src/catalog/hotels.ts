@@ -4,6 +4,7 @@ import { addDays } from '../calendar';
 import { fixtureIdentity } from '../identity';
 import { cities } from './cities';
 import { materializeRoomRates as legacyRoomRates } from '../legacy-v1/catalog/hotels';
+import { materializeRoomRates as previousRoomRates } from '../legacy-v2/catalog/hotels';
 const names=['سپیدار','آفتاب','نارون','نیلوفر','آرام','سرو','باران','بامداد','مهتاب','ترنج','افرا','نسترن','دریا','چنار'];
 // Fixed authored rial bands for added destinations, not a currency conversion or live hotel price.
 const mockPricePercent:Record<string,number>={london:400,paris:350,frankfurt:320,'new-york':400,'los-angeles':400,toronto:350,singapore:300,bangkok:180,tokyo:300,sydney:400,auckland:380};
@@ -17,6 +18,7 @@ export const roomRateTemplates:RoomRateTemplate[]=hotels.flatMap((hotel,h)=>['ی
 /** T20 consumes this without tying immutable base rows to the server's current date. */
 export function materializeRoomRates(anchorInstant:string,destinationCityId:string,fixtureVersion:string=fixtureIdentity.fixtureVersion):RoomRate[] {
   if(fixtureVersion==='showcase-v1')return legacyRoomRates(anchorInstant,destinationCityId);
+  if(fixtureVersion==='showcase-v2')return previousRoomRates(anchorInstant,destinationCityId);
   if(fixtureVersion!==fixtureIdentity.fixtureVersion)throw new RangeError('Unsupported hotel fixture version');
   const city=cities.find(c=>c.id===destinationCityId);if(!city) throw new RangeError('Unknown hotel destination');
   const day0=localDateAt(anchorInstant,city.timeZone);

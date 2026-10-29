@@ -18,7 +18,23 @@ export function mappingFixture() {
 describe('mapping material preview using actual decoder/normalizer',()=>{
  it('rejects excessive preview evidence explicitly instead of returning a partial correction',()=>{const {data,patch}=mappingFixture();data.rawRecords=Array.from({length:501},()=>data.rawRecords[0]!);const result=evaluateMapping(data,patch,'p',now);expect(result.valid).toBe(false);expect(result.issues[0]?.code).toBe('MAPPING_PREVIEW_TOO_LARGE');expect(result.impacts).toEqual([]);expect(MappingListQuerySchema.safeParse({limit:101}).success).toBe(false);expect(MappingListQuerySchema.safeParse({revisionLimit:51}).success).toBe(false);});
 
- it('authors one unresolved city label only in the conflicting profile while keeping normal source records unchanged',()=>{const input={fixtureVersion:catalog.fixtureVersion,seed:5,anchorInstant:'2026-10-24T00:00:00Z',scenarioRevision:'scenario-v1',mappingRevision:'mapping-v1',query};const normal=generateProviderRecords({...input,scenario:'normal'});const conflict=generateProviderRecords({...input,scenario:'conflicting-data'});const p4=conflict.filter(r=>r.providerId==='demo-provider-04');expect(p4.map(r=>decodeRawRecord(r).originAlias)).toEqual(['تهران مرکزی','تهران','تهران']);expect(normal.filter(r=>r.providerId==='demo-provider-04').every(r=>decodeRawRecord(r).originAlias==='تهران')).toBe(true);expect(normalizeRecord(decodeRawRecord(p4[0]!),{query,catalog,mappingRevision:'mapping-v1',aliases:[],realClock:{now:()=>now}}).trace.issues[0]?.code).toBe('UNRESOLVED_IDENTITY');expect(conflict.filter(r=>r.providerId!=='demo-provider-04'&&r.providerId!=='demo-provider-02').map(r=>r.payload)).toEqual(normal.filter(r=>r.providerId!=='demo-provider-04'&&r.providerId!=='demo-provider-02').map(r=>r.payload));});
+ it('isolates the unresolved city label from the other controlled conflicting-data conditions',()=>{
+  const input={fixtureVersion:catalog.fixtureVersion,seed:5,anchorInstant:'2026-10-24T00:00:00Z',scenarioRevision:'scenario-v1',mappingRevision:'mapping-v1',query};
+  const normal=generateProviderRecords({...input,scenario:'normal'});
+  const conflict=generateProviderRecords({...input,scenario:'conflicting-data'});
+  const p4=conflict.filter(r=>r.providerId==='demo-provider-04');
+  expect(p4).toHaveLength(12);
+  expect(p4.map(r=>decodeRawRecord(r).originAlias)).toEqual(['تهران مرکزی',...Array.from({length:11},()=> 'تهران')]);
+  expect(normal.filter(r=>r.providerId==='demo-provider-04').every(r=>decodeRawRecord(r).originAlias==='تهران')).toBe(true);
+  expect(normalizeRecord(decodeRawRecord(p4[0]!),{query,catalog,mappingRevision:'mapping-v1',aliases:[],realClock:{now:()=>now}}).trace.issues[0]?.code).toBe('UNRESOLVED_IDENTITY');
+  // P02 and P03 deliberately carry unknown fees in the conflicting profile.
+  // Their identity mapping remains exact; those fare conditions are not alias corrections.
+  const p3=conflict.filter(r=>r.providerId==='demo-provider-03').map(decodeRawRecord);
+  const normalP3=normal.filter(r=>r.providerId==='demo-provider-03').map(decodeRawRecord);
+  expect(p3.map(r=>r.originAlias)).toEqual(normalP3.map(r=>r.originAlias));
+  expect(p3.map(r=>r.mandatoryCharge)).toEqual(normalP3.map((r,index)=>index===2?null:r.mandatoryCharge));
+  expect(conflict.filter(r=>!['demo-provider-02','demo-provider-03','demo-provider-04'].includes(r.providerId)).map(r=>r.payload)).toEqual(normal.filter(r=>!['demo-provider-02','demo-provider-03','demo-provider-04'].includes(r.providerId)).map(r=>r.payload));
+ });
 
  it('turns a rejected city alias into an accepted candidate without mutating historic evidence',()=>{const {data,patch,raw,trace}=mappingFixture();const before=JSON.stringify(data);const result=evaluateMapping(data,patch,'preview-a',now);expect(trace.outcome).toBe('rejected');expect(result.valid).toBe(true);expect(result.affectedRawRecordIds).toEqual([raw.rawRecordId]);expect(result.impacts[0]?.before.outcome).toBe('rejected');expect(result.impacts[0]?.after.outcome).toBe('accepted');expect(result.impacts[0]?.after.normalizedOffer?.itinerary.mode).toBe('flight');expect(result.groupingChanges[0]?.afterGroupIds).toHaveLength(1);expect(JSON.stringify(data)).toBe(before);});
  it('rejects canonical-name collision, cross-entity target, unsupported entity and foreign namespace',()=>{const {data,patch}=mappingFixture();for(const change of [{sourceValue:'تهران',targetId:'mashhad'},{targetId:'thr'},{entityType:'place' as const,targetId:'thr'},{sourceNamespace:'other-provider/v1'}]) expect(evaluateMapping(data,{...patch,...change},'p',now).valid).toBe(false);expect(evaluateMapping(data,{...patch,sourceValue:'تهران',targetId:'mashhad'},'p',now).collisions[0]?.targetIds).toEqual(['mashhad','tehran']);});

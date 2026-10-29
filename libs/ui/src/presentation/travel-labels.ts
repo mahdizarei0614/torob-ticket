@@ -25,6 +25,10 @@ export function displayOperatorName(operatorId:string,mode:Mode):string{
  if(airline)return airline.nameFa;
  const groundOperator=resolveGroundOperatorBrand(operatorId,mode);
  if(groundOperator)return groundOperator.nameFa;
+ if(operatorId==='rail:tcdd'&&mode==='train')return 'راه‌آهن ترکیه';
+ if(operatorId==='ground-transfer:van-tatvan'&&mode==='bus')return 'اتصال زمینی ایستگاه‌ها';
+ if(operatorId==='bus:metro-turizm'&&mode==='bus')return 'مترو توریسم';
+ if(operatorId==='bus:kamil-koc'&&mode==='bus')return 'کامل کوچ';
  if(operatorId==='demo-transfer-operator'&&mode==='bus')return 'ترانسفر فرودگاهی';
  const authored=/^demo-operator-(flight|train|bus)-([0-2])$/.exec(operatorId);
  return authored?.[1]===mode?operatorNames[mode][Number(authored[2])]??'شرکت حمل‌ونقل':'شرکت حمل‌ونقل';

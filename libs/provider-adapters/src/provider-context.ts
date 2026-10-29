@@ -2,6 +2,11 @@ import type { CatalogSnapshot, DemoScenario, ProviderOverridePatch, RawProviderR
 import type { AliasMapping, DemoClock, NormalizationResult, RealClock } from '@torob-ticket/domain';
 import type { FixtureQuery, ScenarioSettings } from '@torob-ticket/fixtures';
 export interface ProviderEvidence extends NormalizationResult { raw:RawProviderRecord; sourceRawRecordId:string }
+export interface ProviderTraceBatchSink {
+  (this:ProviderContext,evidence:readonly ProviderEvidence[],assertActive:()=>void):Promise<void>;
+  /** Receiver-aware availability keeps copied contexts with custom row hooks on fallback. */
+  isAvailable?:(context:ProviderContext)=>boolean;
+}
 export interface ProviderContext {
   operationId:string;
   fixtureVersion:string;
@@ -19,4 +24,6 @@ export interface ProviderContext {
   settings?:ScenarioSettings;
   caseId?:FixtureQuery['caseId'];
   traceSink:(evidence:ProviderEvidence)=>Promise<void>;
+  /** Optional atomic provider/date append. The guard also fences a queued storage write. */
+  traceBatchSink?:ProviderTraceBatchSink;
 }

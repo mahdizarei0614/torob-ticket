@@ -1017,4 +1017,7 @@ export const places: Place[] = [
     "timeZone": "Europe/Moscow"
   },
   ...researchedPlaces,
+  // Technical approximate anchors, not surveyed station entrances.
+  {id:'tatvan-station',cityId:'tatvan',name:'ایستگاه تاتوان',kind:'station',point:{latitude:38.501,longitude:42.283},timeZone:'Europe/Istanbul'},
+  {id:'tatvan-landmark',cityId:'tatvan',name:'مرکز شهر تاتوان',kind:'landmark',point:{latitude:38.497,longitude:42.282},timeZone:'Europe/Istanbul'},
 ];

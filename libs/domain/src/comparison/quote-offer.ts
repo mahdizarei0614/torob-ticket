@@ -1,13 +1,13 @@
 import {
   IdSchema, NormalizedOfferSchema, PartySchema, QuoteSnapshotSchema, TransportSearchQuerySchema,
-  type NormalizedOffer, type Party, type Place, type ProviderCapabilities, type QuoteSnapshot, type TransportSearchQuery,
+  type NormalizedOffer, type Party, type ProviderCapabilities, type QuoteSnapshot, type TransportSearchQuery,
 } from '@torob-ticket/contracts';
 import type { RealClock } from '../clocks';
 import type { SourceFareEvidence } from '../normalization-types';
 import { validateParty, type PartyPolicy } from '../party';
 import { matchesEligibility } from '../filters';
 import { canonicalValue, comparisonId, itineraryKey } from './itinerary-key';
-import { validateCompleteJourney } from './round-trip';
+import { validateCompleteJourney, type JourneyPlace } from './round-trip';
 
 export interface ProviderFarePolicy extends PartyPolicy, Pick<ProviderCapabilities, 'modes' | 'scopes' | 'classCodes'> {
   revision: string;
@@ -17,7 +17,7 @@ export interface ProviderFarePolicy extends PartyPolicy, Pick<ProviderCapabiliti
 export interface BoundSourceFareEvidence { rawRecordId: string; source: SourceFareEvidence }
 export interface ComparisonContext {
   realClock: RealClock;
-  places: readonly Pick<Place, 'id' | 'cityId' | 'timeZone'>[];
+  places: readonly JourneyPlace[];
   sourceByOfferId: Record<string, BoundSourceFareEvidence | undefined>;
   policiesByProviderId: Record<string, ProviderFarePolicy | undefined>;
 }
@@ -95,7 +95,7 @@ export function quoteOffer(offer: NormalizedOffer, query: TransportSearchQuery, 
     ...offer, eligibility: { status: 'eligible' }, completeness: { status: 'complete' },
     total: offer.total ?? { amountRial: 0, currency: 'IRR' },
   };
-  if (!matchesEligibility(candidate, query)) return reject('FILTER_MISMATCH');
+  if (!matchesEligibility(candidate, query, context.places)) return reject('FILTER_MISMATCH');
   if (incomplete) return {
     status: 'incomplete', offer: NormalizedOfferSchema.parse(offer), reasons: ['INCOMPLETE_PRICE'], policyRevision: policy.revision,
   };

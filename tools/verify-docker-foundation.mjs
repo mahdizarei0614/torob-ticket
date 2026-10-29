@@ -75,7 +75,7 @@ assert.equal(create.status, 201);
 const cookie = create.headers.get('set-cookie')?.split(';')[0]; assert.ok(cookie); // Never print credentials.
 const initial = await create.json();
 const catalog = await (await get('/api/v1/catalog', cookie)).json();
-assert.equal(catalog.fixtureVersion, 'showcase-v2'); assert.equal(catalog.cities.length, 33); assert.ok(catalog.supportedConnections.length > 104);
+assert.equal(catalog.fixtureVersion, 'showcase-v3'); assert.equal(catalog.cities.length, 34); assert.ok(catalog.supportedConnections.length > 122);
 const missingOwned = await request('/api/v1/searches/not-owned/events', { headers: { cookie } }); assert.equal(missingOwned.status, 404); assert.match(missingOwned.headers.get('content-type'), /application\/json/);
 console.log('PASS rich catalog and scoped unknown stream404');
 const started = await post('/api/v1/searches', { clientGeneration: 't29-packaged', query: { mode: 'flight', scope: 'domestic', tripType: 'one-way', originCityId: 'tehran', destinationCityId: 'mashhad', departureDate: '2026-10-25', party: { adults: 1, children: 0, infants: 0 }, classCode: 'economy', filters: {}, sort: 'cheapest' } }, cookie);
@@ -103,7 +103,7 @@ console.log('PASS completed SSE replay');
 const rows = () => query('SELECT id, "createdAt" FROM "DemoSession" ORDER BY id;');
 const persistedRows = rows();
 const counts = () => query('SELECT count(*) FROM "FixtureVersion"; SELECT count(*) FROM "Place"; SELECT count(*) FROM "Hotel"; SELECT count(*) FROM "RoomRate"; SELECT count(*) FROM "_prisma_migrations" WHERE finished_at IS NOT NULL AND rolled_back_at IS NULL;');
-assert.equal(counts(), '3\n202\n770\n2310\n3');
+assert.equal(counts(), '4\n316\n1246\n3738\n3');
 assertOwned();
 // Recreate all owned containers without deleting the named volume, then use the actual root runner again.
 docker(['compose', 'down'], false);
@@ -112,7 +112,7 @@ assertOwned();
 const resume = await post('/api/v1/demo/session', {}, cookie); assert.equal(resume.status, 201); assert.equal(resume.headers.get('set-cookie'), null, 'Valid resume must not echo an obsolete credential');
 const resumed = await resume.json();
 const { expiresAt: oldExpiry, ...oldState } = initial, { expiresAt: newExpiry, ...newState } = resumed;
-assert.deepEqual(newState, oldState); assert.ok(Date.parse(newExpiry) >= Date.parse(oldExpiry)); assert.equal(rows(), persistedRows); assert.equal(counts(), '3\n202\n770\n2310\n3');
+assert.deepEqual(newState, oldState); assert.ok(Date.parse(newExpiry) >= Date.parse(oldExpiry)); assert.equal(rows(), persistedRows); assert.equal(counts(), '4\n316\n1246\n3738\n3');
 assert.deepEqual(await (await get(`/api/v1/searches/${id}`, cookie)).json(), completed);
 console.log('PASS same session row, complete immutable search and three migrations survive repeated initialization/container recreation');
 const reset = await post('/api/v1/admin/reset', {}, cookie); assert.equal(reset.status, 201); // Scope-only cleanup; fixture volume remains for independent acceptance.

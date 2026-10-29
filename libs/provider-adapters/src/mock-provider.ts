@@ -10,7 +10,7 @@ class OperationFailure extends Error {
   constructor(readonly status:ProviderBatchStatus,readonly code:string) { super(code); }
 }
 export class MockProvider implements ProviderAdapter {
-  constructor(readonly providerId:string,private readonly source:(input:FixtureQuery)=>RawProviderRecord[]=generateProviderRecords) {}
+  constructor(readonly providerId:string,private readonly source:(input:FixtureQuery)=>RawProviderRecord[]=(input)=>generateProviderRecords(input,providerId)) {}
   private supports(query:TransportSearchQuery,c:ProviderContext) {
     return c.catalog.providerCapabilities.some(p=>p.providerId===this.providerId&&p.modes.includes(query.mode)&&p.scopes.includes(query.scope));
   }
@@ -48,6 +48,8 @@ export class MockProvider implements ProviderAdapter {
     if(!this.supports(query,c)) return {providerId:this.providerId,status:'unsupported',records:[]};
     const input:FixtureQuery={fixtureVersion:c.fixtureVersion,seed:c.seed,anchorInstant:c.demoClock.now().toISOString(),scenario:c.scenario,scenarioRevision:c.scenarioRevision,mappingRevision:c.mappingRevision,query,phase,...c.caseId?{caseId:c.caseId}:{}};
     const records:ProviderEvidence[]=[];const seen=new Map<string,string>();
+    const selectedSink=c.traceBatchSink;
+    const batchSink=selectedSink?.isAvailable?.(c)===false?undefined:selectedSink;
     for(const original of this.source(input).filter(r=>r.providerId===this.providerId)) {
       check();
       const raw={...original,rawRecordId:`raw-${digest([c.operationId,phase,original.rawRecordId,records.length])}`};
@@ -64,8 +66,16 @@ export class MockProvider implements ProviderAdapter {
       else seen.set(fingerprint,raw.rawRecordId);
       // An already-entered atomic sink may finish on cancellation; no later records
       // start after the boundary, and no partial batch is returned as success.
-      try { await c.traceSink(evidence); } catch { throw new OperationFailure('failed','TRACE_SINK_FAILED'); }
-      check();records.push(evidence);
+      if(!batchSink){
+        try { await c.traceSink(evidence); } catch { check();throw new OperationFailure('failed','TRACE_SINK_FAILED'); }
+        check();
+      }
+      records.push(evidence);
+    }
+    if(batchSink&&records.length){
+      check();
+      try { await batchSink.call(c,records,check); } catch { check();throw new OperationFailure('failed','TRACE_SINK_FAILED'); }
+      check();
     }
     return {providerId:this.providerId,status:'success',records};
   }
@@ -81,12 +91,32 @@ export class MockProvider implements ProviderAdapter {
       const parsed=DatePriceQuerySchema.parse(query);
       return await this.run(c,async check=>{
         const dates:ProviderDateBatch['dates']=[];
+        const originalSink=c.traceBatchSink;
+        const coalesce=originalSink&&originalSink.isAvailable?.(c)!==false;
+        let pending:ProviderEvidence[]=[],pendingBytes=0;
+        const flush=async()=>{
+          check();if(!pending.length)return;
+          const chunk=pending;pending=[];pendingBytes=0;
+          try{await originalSink!.call(c,chunk,check);}catch{check();throw new OperationFailure('failed','TRACE_SINK_FAILED');}
+          check();
+        };
+        const buffered:ProviderContext=coalesce?{...c,traceBatchSink:async(records,assertActive)=>{
+          assertActive();
+          // ProviderService adds a searchId (IdSchema max200). Reserve2KiB/row
+          // for its worst-case escaped JSON envelope under the repository4MiB cap.
+          const bytes=records.reduce((sum,row)=>sum+Buffer.byteLength(JSON.stringify(row),'utf8')+2048,0);
+          if(pending.length&&(pending.length+records.length>32||pendingBytes+bytes>4*1024*1024))await flush();
+          check();
+          if(records.length>32||bytes>4*1024*1024)throw new OperationFailure('failed','TRACE_SINK_FAILED');
+          pending.push(...records);pendingBytes+=bytes;
+        }}:c;
         for(const date of new Set(parsed.dates)) {
           check();const transport={...parsed.query,...parsed.leg==='outbound'?{departureDate:date}:{returnDate:date}};
-          try { dates.push({date,batch:await this.collect(TransportSearchQuerySchema.parse(transport),c,'search',check)}); }
+          try { dates.push({date,batch:await this.collect(TransportSearchQuerySchema.parse(transport),buffered,'search',check)}); }
           catch(error) { if(error instanceof OperationFailure) throw error;dates.push({date,batch:{providerId:this.providerId,records:[],...this.failure(error)}}); }
         }
-        return {providerId:this.providerId,status:'success',dates};
+        if(coalesce)await flush();
+        check();return {providerId:this.providerId,status:'success',dates};
       });
     } catch(error) { return {providerId:this.providerId,dates:[],...this.failure(error)}; }
   }

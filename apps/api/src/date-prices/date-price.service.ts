@@ -1,4 +1,4 @@
-import { DatePriceQuerySchema, DatePriceSnapshotSchema, NormalizedOfferSchema, type DatePriceQuery, type DatePriceSnapshot } from '@torob-ticket/contracts';
+import { DatePriceQuerySchema, DatePriceSnapshotSchema, NormalizedOfferSchema, type DatePriceQuery, type DatePriceSnapshot, type DatePriceCell } from '@torob-ticket/contracts';
 import { DatePriceRepository, SearchRepository, RepositoryError, type DatePricePayload, type DatePriceProjectionInput } from '@torob-ticket/data-access';
 import { datePriceIdentity, dateQueryState, projectDatePrices, type ComparisonContext, type SourceFareEvidence } from '@torob-ticket/domain';
 import { farePoliciesForFixture, fixtureSourceRevision } from '@torob-ticket/fixtures';
@@ -47,9 +47,15 @@ export class DatePriceService {
       const deadline = new Date(now.getTime() + 5000);
       const context = await this.providers.createContext(session, id, controller.signal, deadline, admitted.payload.frozen);
       const expected = context.catalog.providerCapabilities.filter(row => row.modes.includes(input.query.mode) && row.scopes.includes(input.query.scope) && (!input.query.filters.providerIds || input.query.filters.providerIds.includes(row.providerId))).map(row => row.providerId);
-      await this.repository.project(session.scope, id, now, payload => {
+      await this.repository.recordCoverage(session.scope, id, now, payload => {
         payload.coverageByDate = Object.fromEntries(payload.snapshot.query.dates.map(date => [date, { expectedProviderIds: expected, successfulProviderIds: [], failedProviderIds: [], pendingProviderIds: expected, complete: false }]));
-      }, state => this.project(context, state));
+        payload.snapshot.cells=payload.snapshot.query.dates.map((date):DatePriceCell=>{
+          const state=dateQueryState({request:payload.snapshot.query,...this.zones(context,payload.snapshot.query)},date);
+          if(state==='invalid-date-pair')return{date,status:state,reason:'return-before-departure'};
+          if(state==='outside-coverage')return{date,status:state};
+          return{date,status:'checking'};
+        });
+      });
       timer = setTimeout(() => controller.abort('deadline'), Math.max(0, deadline.getTime() - this.sessions.realClock.now().getTime()));
       const runId = id;
       void this.execute(session, runId, context, expected).catch(async () => {
@@ -76,7 +82,7 @@ export class DatePriceService {
       let batch: ProviderDateBatch;
       try { batch = adapter ? await adapter.dateInventory({ ...request, dates }, context) : { providerId, status: 'failed', dates: [], errorCode: 'MISSING_PROVIDER' }; }
       catch { batch = { providerId, status: 'failed', dates: [], errorCode: 'PROVIDER_ERROR' }; }
-      await this.repository.project(session.scope, id, this.sessions.realClock.now(), payload => {
+      await this.repository.recordCoverage(session.scope, id, this.sessions.realClock.now(), payload => {
         payload.providerEvidence ??= {};
         payload.providerEvidence[providerId] = { status: batch.status, ...(batch.errorCode ? { errorCode: batch.errorCode } : {}), dates: batch.dates.map(item => ({ date: item.date, status: item.batch.status, ...(item.batch.errorCode ? { errorCode: item.batch.errorCode } : {}) })) };
         for (const date of payload.snapshot.query.dates) {
@@ -86,7 +92,7 @@ export class DatePriceService {
           const successful = !context.signal.aborted && batch.providerId === providerId && batch.status === 'success' && matching.length === 1 && matching[0]!.batch.status === 'success';
           (successful ? coverage.successfulProviderIds : coverage.failedProviderIds).push(providerId);
         }
-      }, state => this.project(context, state)).catch(error => { this.active.get(id)?.controller.abort('storage'); throw error; });
+      },providerId).catch(error => { this.active.get(id)?.controller.abort('storage'); throw error; });
     });
     await this.repository.project(session.scope, id, this.sessions.realClock.now(), payload => {
       for (const coverage of Object.values(payload.coverageByDate)) {

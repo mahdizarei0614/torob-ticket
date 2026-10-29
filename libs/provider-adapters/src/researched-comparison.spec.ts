@@ -1,8 +1,9 @@
 import {expect,it} from 'vitest';
-import {catalog,fixtureIdentity,generateProviderRecords,mockFarePolicies,type FixtureQuery} from '@torob-ticket/fixtures';
+import {catalogForIdentity,farePoliciesForFixture,generateProviderRecords,type FixtureQuery} from '@torob-ticket/fixtures';
 import {groupOffers,normalizeRecord,type ComparisonContext,type NormalizationResult} from '@torob-ticket/domain';
 import {decodeRawRecord} from './raw-codecs';
-const request:FixtureQuery={...fixtureIdentity,seed:49,anchorInstant:'2026-10-29T00:00:00Z',scenario:'normal',scenarioRevision:'scenario-v1',mappingRevision:'mapping-v1',query:{mode:'flight',scope:'international',originCityId:'tehran',destinationCityId:'los-angeles',tripType:'round-trip',departureDate:'2026-11-01',returnDate:'2026-11-05',party:{adults:1,children:0,infants:0},classCode:'economy',filters:{},sort:'cheapest'}};
+const catalog=catalogForIdentity('showcase-v2','catalog-v2'),mockFarePolicies=farePoliciesForFixture('showcase-v2');
+const request:FixtureQuery={fixtureVersion:'showcase-v2',seed:49,anchorInstant:'2026-10-29T00:00:00Z',scenario:'normal',scenarioRevision:'scenario-v1',mappingRevision:'mapping-v1',query:{mode:'flight',scope:'international',originCityId:'tehran',destinationCityId:'los-angeles',tripType:'round-trip',departureDate:'2026-11-01',returnDate:'2026-11-05',party:{adults:1,children:0,infants:0},classCode:'economy',filters:{},sort:'cheapest'}};
 const realClock={now:()=>new Date('2026-10-29T12:00:00Z')};
 function collect(input:FixtureQuery){
  const rows=generateProviderRecords(input).map(raw=>normalizeRecord(decodeRawRecord(raw),{query:input.query,catalog,mappingRevision:input.mappingRevision,aliases:[],realClock}));

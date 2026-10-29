@@ -15,7 +15,7 @@ async function snapshot(){
 }
 try{
   const before=await snapshot();
-  for (const [version, places, hotels, rates] of [['showcase-v1',90,308,924],['showcase-v2',112,462,1386]]) {
+  for (const [version, places, hotels, rates] of [['showcase-v1',90,308,924],['showcase-v2',112,462,1386],['showcase-v3',114,476,1428]]) {
     for (const [table,count] of [['Place',places],['Hotel',hotels],['RoomRate',rates]]) {
       const {rows}=await db.query(`SELECT count(*)::integer AS count FROM "${table}" WHERE "fixtureVersion"=$1`,[version]);
       assert.equal(rows[0].count,count,`${version} ${table} inventory incomplete`);

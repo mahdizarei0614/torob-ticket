@@ -31,8 +31,8 @@ async function search(page: Page) {
   expect(recovery.ok()).toBe(true);
   const value = await recovery.json() as SearchRecovery;
   for (const quote of value.snapshot.groups.flatMap(group => group.eligibleQuotes)) {
-    expect(quote.fixtureVersion).toBe('showcase-v2'); expect(quote.sourceRevision).toBe('source-v2-travel-research-2026-10-29');
-    expect(quote.provenance.every(source => source.fixtureVersion === 'showcase-v2' && source.sourceRevision === quote.sourceRevision)).toBe(true);
+    expect(quote.fixtureVersion).toBe('showcase-v3'); expect(quote.sourceRevision).toBe('source-v3-rich-inventory-2026-10-29');
+    expect(quote.provenance.every(source => source.fixtureVersion === 'showcase-v3' && source.sourceRevision === quote.sourceRevision)).toBe(true);
     expect(quote.breakdown.reduce((sum, item) => sum + item.amount.amountRial, 0)).toBe(quote.total.amountRial);
     expect(quote.party).toEqual({ adults: 1, children: 0, infants: 0 });
   }
@@ -143,7 +143,7 @@ test.beforeEach(async ({ page, context }, info) => {
   const session = await context.request.post('/api/v1/demo/session', { data: { seed: 49, anchorInstant: '2026-10-29T00:00:00Z', scenario: 'normal' } });
   expect(session.status()).toBe(201);
   const identity = await session.json();
-  expect(identity.fixtureVersion).toBe('showcase-v2'); expect(identity.catalogRevision).toBe('catalog-v2');
+  expect(identity.fixtureVersion).toBe('showcase-v3'); expect(identity.catalogRevision).toBe('catalog-v3');
   record('session-' + nameFor(info.title), identity);
 });
 test.afterEach(async ({ page, context }, info) => {
@@ -169,13 +169,15 @@ test('@realistic-catalog actual two and three stop LAX cards retain airport head
   await expect(page.locator('[data-graphics-status]')).toHaveAttribute('data-graphics-status', 'ready');
   const trials = [];
   for (const variant of [
-    { index: 1, chain: ['ika', 'ist', 'fra', 'lax'], codes: ['IKA', 'IST', 'FRA', 'LAX'], operator: 'ترکیش ایرلاینز', brand: 'turkish-airlines' },
-    { index: 2, chain: ['ika', 'dxb', 'sin', 'hnd', 'lax'], codes: ['IKA', 'DXB', 'SIN', 'HND', 'LAX'], operator: 'امارات', brand: 'emirates' },
+    { index: 1, stops: 2, chain: ['ika', 'ist', 'fra', 'lax'], codes: ['IKA', 'IST', 'FRA', 'LAX'], operator: 'ترکیش ایرلاینز', brand: 'turkish-airlines' },
+    // V3's dated service slot11 retains the actual HND→LAX local-date reversal;
+    // slot2 now departs earlier and arrives on the same local calendar date.
+    { index: 11, stops: 3, chain: ['ika', 'dxb', 'sin', 'hnd', 'lax'], codes: ['IKA', 'DXB', 'SIN', 'HND', 'LAX'], operator: 'امارات', brand: 'emirates' },
   ]) {
-    const group = recovery.snapshot.groups.find(group => group.itinerary.outbound.segments.length === variant.chain.length - 1 && group.eligibleQuotes.length)!;
+    const group = recovery.snapshot.groups.find(group => group.itinerary.outbound.segments.length === variant.chain.length - 1 && group.itinerary.outbound.segments[0]!.serviceId.includes(`-los-angeles-${variant.index}-`) && group.eligibleQuotes.length)!;
     expect(group).toBeTruthy();
     const leg = group.itinerary.outbound;
-    expect(leg.segments[0]!.serviceId).toContain(`-los-angeles-${variant.index}-0-`);
+    expect(leg.segments[0]!.serviceId).toContain(`-los-angeles-${variant.index}-`);
     expect([leg.segments[0]!.originPlaceId, ...leg.segments.map(segment => segment.destinationPlaceId)]).toEqual(variant.chain);
     const { card, quote } = await choose(page, group);
     const mark = await loadedMark(card, 'airline', variant.brand, variant.operator);
@@ -184,12 +186,12 @@ test('@realistic-catalog actual two and three stop LAX cards retain airport head
     for (const [index, city] of cities.entries()) await expect(heading(page).locator('h2 > span').nth(index)).toContainText(city);
     const route = await routeFacts(page, catalog, group.itinerary);
     await expect(card).toHaveAttribute('data-amount-rial', String(quote.total.amountRial));
-    expect(quote.fixtureVersion).toBe('showcase-v2'); expect(quote.completeness.status).toBe('complete');
+    expect(quote.fixtureVersion).toBe('showcase-v3'); expect(quote.completeness.status).toBe('complete');
     await card.getByRole('button', { name: 'جزئیات سفر', exact: true }).click();
     const details = card.getByRole('region', { name: 'جزئیات مسیر رفت', exact: true });
     await expect(details.locator('[data-segment-id]')).toHaveCount(leg.segments.length);
     expect(await details.locator('[data-stop-place]').evaluateAll(nodes => nodes.map(node => node.getAttribute('data-stop-place')))).toEqual(leg.stops.map(stop => stop.placeId));
-    if (variant.index === 2) {
+    if (variant.stops === 3) {
       const dateLine = leg.segments.find(segment => segment.originPlaceId === 'hnd' && segment.destinationPlaceId === 'lax')!;
       const date = (instant: string, timeZone: string) => new Intl.DateTimeFormat('en-CA', { timeZone, year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(instant));
       expect(Date.parse(dateLine.arrivalAt)).toBeGreaterThan(Date.parse(dateLine.departureAt));
@@ -203,7 +205,7 @@ test('@realistic-catalog actual two and three stop LAX cards retain airport head
       }
     }
     const layout = await noOverflow(page, ['[data-map-heading]', '[data-map-heading-key]:not([aria-hidden="true"]) h2', 'article[data-selected="true"]']);
-    await map(page).screenshot({ path: resolve(out, `lax-${variant.index + 1}-stops-map.png`) });
+    await map(page).screenshot({ path: resolve(out, `lax-${variant.stops}-stops-map.png`) });
     const trial = { variant: variant.index, groupId: group.groupId, itinerary: group.itinerary, quote, mark, route, layout };
     record('lax-variant-' + variant.index, trial); trials.push(trial);
   }

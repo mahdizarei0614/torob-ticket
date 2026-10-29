@@ -30,6 +30,7 @@ afterAll(async()=>{
 it.each([
  {index:0,version:'showcase-v1',source:'source-v1',policy:'mock-fares-v1'},
  {index:1,version:'showcase-v2',source:'source-v2-travel-research-2026-10-29',policy:'mock-fares-v2'},
+ {index:2,version:'showcase-v3',source:'source-v3-rich-inventory-2026-10-29',policy:'mock-fares-v3'},
 ])('keeps $version search/date/recheck lineage coherent and confirmations valid after service recreation',async({index,version,source,policy})=>{
  const row=await new SessionRepository(sessions.database,fixtureBundles[index]!.identity).create(randomUUID(),{seed:49,anchorInstant:'2026-10-29T00:00:00Z'},sessions.realClock.now());
  const owner:SessionContext={sessionId:row.id,scope:{sessionId:row.id},info:sessionInfo(row),demoClock:new FrozenDemoClock(row.anchorInstant.toISOString())};owners.push(owner);
@@ -42,7 +43,7 @@ it.each([
  const audit=await sessions.database.auditEvent.findFirstOrThrow({where:{sessionId:row.id,kind:'search-context'}});
  const context=(audit.payload as unknown as {context:{policies:Record<string,{revision:string;classCodes:string[]}>}}).context;
  expect(Object.values(context.policies).every(item=>item.revision===policy)).toBe(true);
- expect(context.policies['demo-provider-02']!.classCodes.includes('sleeper-6')).toBe(index===1);
+ expect(context.policies['demo-provider-02']!.classCodes.includes('sleeper-6')).toBe(index>=1);
  const request={query,leg:'outbound' as const,dates:[query.departureDate],clientGeneration:randomUUID()};
  const initial=await dates.startDatePrices(owner,request);
  await expect.poll(async()=>(await dates.getDatePrices(owner,initial.datePriceId,request)).status,{timeout:5000,interval:10}).toBe('complete');
