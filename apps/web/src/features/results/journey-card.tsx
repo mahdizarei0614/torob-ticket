@@ -34,7 +34,7 @@ function cardSelection(props: JourneyCardProps) {
  return selected?.groupId === props.group.groupId && props.group.eligibleQuotes.some(quote => quote.quoteId === selected.quoteId && quote.version === selected.version) ? selected : undefined;
 }
 /** Retain DOM/details/focus while unrelated rows or the decorative map change. */
-function sameCard(previous: JourneyCardProps, next: JourneyCardProps) {
+export function sameJourneyCardProps(previous: JourneyCardProps, next: JourneyCardProps) {
  if (previous.group !== next.group || previous.snapshot !== next.snapshot || previous.catalog !== next.catalog || previous.cardId !== next.cardId || previous.priceBand !== next.priceBand || previous.selectionDisabled !== next.selectionDisabled || previous.draftChanged !== next.draftChanged || previous.continuation !== next.continuation || previous.onFreeze !== next.onFreeze || previous.onSelect !== next.onSelect || previous.onPreviewItinerary !== next.onPreviewItinerary || previous.onPinItinerary !== next.onPinItinerary || previous.state.adopted !== next.state.adopted || previous.state.latest !== next.state.latest) return false;
  const before = cardSelection(previous), after = cardSelection(next);
  if (before?.quoteId !== after?.quoteId || before?.version !== after?.version) return false;
@@ -86,4 +86,4 @@ export const JourneyCard = memo(function JourneyCard({ group, snapshot, catalog,
   {expanded && <ResultPresence key="details" collapse className={styles.presenceClip}><div id={detailsId} className={styles.details}><div className={styles.timelines}><RouteTimeline leg={group.itinerary.outbound} catalog={catalog} label="رفت"/>{group.itinerary.return && <RouteTimeline leg={group.itinerary.return} catalog={catalog} label="برگشت"/>}</div><ProviderOffers group={group} catalog={catalog} state={state} now={now} draftChanged={draftChanged}/></div></ResultPresence>}
   </ResultsPresence>
  </article>;
-}, sameCard);
+}, sameJourneyCardProps);

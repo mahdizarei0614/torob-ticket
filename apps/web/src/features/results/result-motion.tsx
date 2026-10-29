@@ -1,12 +1,15 @@
-import { forwardRef, useEffect, useLayoutEffect, useRef, type ReactNode } from 'react';
-import { AnimatePresence, motion, useAnimationControls, useIsPresent, usePresence } from 'motion/react';
+import { forwardRef, memo, useEffect, useLayoutEffect, useRef, type ReactNode } from 'react';
+import { AnimatePresence, motion, useAnimationControls, usePresence } from 'motion/react';
 import { LoadingSkeleton, useMotionPolicy } from '@torob-ticket/ui';
 import styles from './results.module.css';
 
-/** Retained exits are decorative immediately; their old quote controls cannot receive input. */
-export const ResultPresence = forwardRef<HTMLDivElement, { children: ReactNode; className?: string; role?: string; label?: string; collapse?: boolean; layout?: boolean; layoutDependency?: string; staticMotion?: boolean; refreshKey?: string }>(function ResultPresence({ children, className, role, label, collapse = false, layout = false, layoutDependency, staticMotion = false, refreshKey }, ref) {
- const present = useIsPresent();
- const [, safeToRemove] = usePresence();
+interface ResultPresenceProps { children: ReactNode; className?: string; role?: string; label?: string; collapse?: boolean; layout?: boolean; layoutDependency?: string; staticMotion?: boolean; refreshKey?: string }
+interface ResultAnimationProps extends ResultPresenceProps { present: boolean; safeToRemove?: (() => void) | null }
+
+/** Context broadcasts reach the tiny bridge; unchanged rows keep their policy,
+ * controls, effects and DOM below this memo boundary. Real exits/policy changes
+ * still update the animation body immediately. */
+const ResultAnimation = memo(forwardRef<HTMLDivElement, ResultAnimationProps>(function ResultAnimation({ children, className, role, label, collapse = false, layout = false, layoutDependency, staticMotion = false, refreshKey, present, safeToRemove }, ref) {
  const policy = useMotionPolicy();
  const animated = policy.enabled && !staticMotion;
  const controls = useAnimationControls(), entered = useRef(false), entryComplete = useRef(false);
@@ -48,10 +51,16 @@ export const ResultPresence = forwardRef<HTMLDivElement, { children: ReactNode; 
   initial={false} animate={controls}
   transition={{ duration: animated ? .28 : 0, ease: [.22, .68, .24, 1], layout: { duration: animated ? .36 : 0, ease: [.22, .68, .24, 1] } }}
   style={!present ? { pointerEvents: 'none' } : undefined}>{children}</motion.div>;
+}));
+
+/** Retained exits are decorative immediately; their old quote controls cannot receive input. */
+export const ResultPresence = forwardRef<HTMLDivElement, ResultPresenceProps>(function ResultPresence(props, ref) {
+ const [present, safeToRemove] = usePresence();
+ return <ResultAnimation {...props} present={present} safeToRemove={safeToRemove} ref={ref}/>;
 });
 
-export function ResultsPresence({ children, pop = false }: { children: ReactNode; pop?: boolean }) {
- return <AnimatePresence initial={false} mode={pop ? 'popLayout' : 'sync'}>{children}</AnimatePresence>;
+export function ResultsPresence({ children, pop = false, presenceAffectsLayout = true }: { children: ReactNode; pop?: boolean; presenceAffectsLayout?: boolean }) {
+ return <AnimatePresence initial={false} mode={pop ? 'popLayout' : 'sync'} presenceAffectsLayout={presenceAffectsLayout}>{children}</AnimatePresence>;
 }
 
 /** Three compact rows reserve useful result space while providers are collecting. */

@@ -29,6 +29,25 @@ it('keeps selected presentation leases across hover but revokes them on a new pi
  expect(next.isPresentationCurrent()).toBe(false);expect(hook.result.current.map.presentationView.itinerary).toBeUndefined();expect(hook.result.current.map.readCamera()?.zoom).not.toBe(8);
  hook.unmount();
 });
+it('ignores pointer previews hidden by a pin without changing either store, while focus inspection remains available',async()=>{
+ const hook=setup();await act(()=>hook.result.current.controller.submit(query));
+ act(()=>hook.result.current.map.pin(group('a').itinerary));
+ const mapState=hook.result.current.map.state,searchState=hook.result.current.controller.state;
+ act(()=>{for(let index=0;index<40;index++){hook.result.current.map.preview(group('b').itinerary,'hover');hook.result.current.map.preview(undefined,'hover','b');}});
+ expect(hook.result.current.map.state).toBe(mapState);expect(hook.result.current.controller.state).toBe(searchState);
+ expect(hook.result.current.map.presentationView.itinerary?.itineraryId).toBe('a');
+ act(()=>hook.result.current.map.preview(group('b').itinerary,'focus'));
+ expect(hook.result.current.map.view.itinerary?.itineraryId).toBe('b');expect(hook.result.current.map.presentationView.itinerary?.itineraryId).toBe('a');
+ hook.unmount();
+});
+it('restores pointer inspection after an explicit clear and still permits a new explicit pin',async()=>{
+ const hook=setup();await act(()=>hook.result.current.controller.submit(query));
+ act(()=>hook.result.current.map.pin(group('a').itinerary));act(()=>hook.result.current.map.clear());
+ act(()=>hook.result.current.map.preview(group('b').itinerary,'hover'));
+ expect(hook.result.current.map.view.itinerary?.itineraryId).toBe('b');
+ act(()=>hook.result.current.map.pin(group('b').itinerary));
+ expect(hook.result.current.map.presentationView.itinerary?.itineraryId).toBe('b');hook.unmount();
+});
 it('synchronously rejects retained direction callbacks after native restore and camera delivery after a newer pin',async()=>{
  const hook=setup();await act(()=>hook.result.current.controller.submit(query));
  act(()=>hook.result.current.map.pin(group('a').itinerary));

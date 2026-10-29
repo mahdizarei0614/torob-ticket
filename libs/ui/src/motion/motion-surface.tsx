@@ -1,16 +1,19 @@
-import {createContext,useContext,useLayoutEffect,useRef,type ReactNode} from 'react';
+import {createContext,useContext,useLayoutEffect,useMemo,useRef,type ReactNode} from 'react';
 import {motion,useAnimationControls,type HTMLMotionProps} from 'motion/react';
 import {motionSpecifications,resolveMotionPolicy,useMotionEnvironment,type MotionPurpose} from './motion-policy';
 interface Coverage {covered:boolean;disabled:boolean}
 const CoverageContext=createContext<Coverage>({covered:false,disabled:false});
 export function MotionPolicyProvider({children,covered=false,disabled=false}:{children:ReactNode;covered?:boolean;disabled?:boolean}) {
  const parent=useContext(CoverageContext);
- return <CoverageContext.Provider value={{covered:parent.covered||covered,disabled:parent.disabled||disabled}}>{children}</CoverageContext.Provider>;
+ const effectiveCovered=parent.covered||covered,effectiveDisabled=parent.disabled||disabled;
+ const value=useMemo(()=>({covered:effectiveCovered,disabled:effectiveDisabled}),[effectiveCovered,effectiveDisabled]);
+ return <CoverageContext.Provider value={value}>{children}</CoverageContext.Provider>;
 }
 /** A native foreground dialog owns its motion while the underlying page is covered. */
 export function ForegroundMotionPolicy({children,suspended=false}:{children:ReactNode;suspended?:boolean}) {
  const inherited=useContext(CoverageContext);
- return <CoverageContext.Provider value={{covered:suspended,disabled:inherited.disabled}}>{children}</CoverageContext.Provider>;
+ const value=useMemo(()=>({covered:suspended,disabled:inherited.disabled}),[suspended,inherited.disabled]);
+ return <CoverageContext.Provider value={value}>{children}</CoverageContext.Provider>;
 }
 export function useMotionPolicy({covered=false,disabled=false}:{covered?:boolean;disabled?:boolean}={}) {
  const inherited=useContext(CoverageContext),environment=useMotionEnvironment();
