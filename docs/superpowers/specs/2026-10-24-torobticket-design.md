@@ -1,6 +1,6 @@
 # TorobTicket — Product and Architecture Specification
 
-**Revision:** 1.24 · 2026-10-29
+**Revision:** 1.25 · 2026-10-30
 
 **Purpose:** Authoritative design companion to the master implementation plan.  
 **Status:** Product scope and architecture approved in conversation. Implementation defaults below are explicit engineering decisions made while preparing the plan; they are not additional claims of user approval.
@@ -360,6 +360,10 @@ Qualification uses actual steady submission cadence, CPU submission and asynchro
 
 **Owner content-motion adjustment, 2026-10-28:** reserve skeleton space during initial/provider/hotel/referral loading. Animate replacements, selected seller rows and details with finite fade/up/collapse transitions. Stable exact-price keys support list insertion, removal and position changes; obsolete exits become inert and hidden immediately. Preserve expanded state, keyboard focus, scroll anchors, comparison/referral authority and session fencing through coverage/reduced/hidden changes. Foreground dialog content owns motion while its page is covered, retaining suspension/disabled/global motion policy. No new persistent renderer loop is added.
 
+**Owner large-list refinement,2026-10-30 (decision0054):** when more than24 exact-price cards are visible, use browser-native `content-visibility:auto` with remembered intrinsic block sizes. Retain every card in the DOM, its exact key, expanded details, focus and scroll anchors. Unsupported browsers retain the ordinary full list. Long lists use one finite replacement/reorder fade instead of individual row layout projections; small lists retain individual entry/reorder motion, and disclosures retain finite height transitions. Memoize stable projections, whole rows, motion-policy values and bounded locale formatters, while rechecking live quote/owner authority on every action. Interrupted initial disclosure effects resume their visible progress under development StrictMode.
+
+Scrolling cards under a stationary pointer must not publish hover previews hidden by an explicit map pin. Keep unpinned hover, keyboard focus inspection, explicit selection, clearing and repinning available. The pinned route remains the presentation authority. This small pointer-inspection refinement avoids rerendering the entire search/map page during ordinary scrolling; it does not alter quote selection or referral eligibility. Record actual skipped contents and native interaction/cadence evidence separately from CSS support or source tests.
+
 Target WCAG 2.2 AA behaviors through explicit audits: keyboard completion, visible focus, meaningful names, dialog focus/return, sufficient contrast, non-color-only status, and reduced motion. Mobile targets are at least 44 × 44 CSS px; compact desktop controls may have smaller visible surfaces while preserving practical hit areas. A test tool alone does not establish compliance.
 
 **Performance defaults to measure:** 60 fps target during desktop interaction, low-tier target ≥30 fps; interaction latency <200 ms; normal scenario first useful result ≤1.5 s and complete results ≤3 s on the recorded reference setup. The provider concurrency and delay schedule must be authored to meet these normal-case targets. Initial route JavaScript target ≤350 KiB gzip; deferred graphics target ≤500 KiB gzip. Record hardware/browser/dataset; do not claim universal performance or reduce approved features silently to meet a number.
@@ -367,6 +371,10 @@ Target WCAG 2.2 AA behaviors through explicit audits: keyboard completion, visib
 ## 13. Packaging, verification, and handoff
 
 Root pnpm docker:up runs build, startup, initialization, readiness checks, and prints the web/admin URLs. Default URLs are http://localhost:4300/ and http://localhost:4300/admin/; TOROBTICKET_PORT overrides the host port. Compilation happens inside Docker. A direct Docker Compose command is also documented for reviewers without local Node/pnpm. Services: gateway/static frontends, API, PostgreSQL, plus a one-shot migration/seed initializer. Readiness waits for a healthy database and successful initialization. Restart does not erase data.
+
+**Owner development refinement,2026-10-30 (decision0053):** `pnpm docker:dev` adds an explicit Compose development override. Consumer/admin Vite and the TypeScript API watcher run inside Docker behind the same loopback Caddy origin, with independent root/admin WebSocket paths and custom-port support. Read-only source mounts update both applications and imported shared libraries automatically. API compilation resolves workspace aliases and serializes server replacement only after a successful emit; errors retain the last working process. Atomic replacement saves are watched. Dependencies, emitted output, caches and the shared generated Prisma client remain in Linux container storage; the runner prepares only a missing empty ignored host mountpoint.
+
+Development and packaged modes retain the same selected project's database, cookies and completed evidence. Frontend Fast Refresh retains the comparison and admin context identity. Rerun development startup after dependency/lockfile, Prisma schema/migration or runtime-tool changes; committed migrations and idempotent seeds apply without authoring migrations or resetting data. Native notifications are the default, with an explicit polling fallback. Returning to `docker:up` removes only the selected project's labelled development frontend containers after packaged readiness. Normal shutdown preserves data; explicit reset remains separately documented and destructive only for the selected project.
 
 Pin a compatible Node LTS, package manager, Nx/plugin set, runtime dependencies, and container versions during foundation work. Keep the lockfile committed; record the compatibility matrix. Do not invent unverified version combinations in this specification.
 

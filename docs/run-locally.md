@@ -45,9 +45,74 @@ pnpm docker:up      # rerun initialization safely; retain reviewer sessions
 pnpm docker:reset   # explicitly remove project containers AND database volume
 ```
 
-Node-free shutdown/reset equivalents are `docker compose down` and
+Node-free packaged shutdown/reset equivalents are `docker compose down` and
 `docker compose down --volumes`. Startup never removes volumes. Reset is
 irreversible for that project's local reviewer data. No prune command is used.
+
+## Docker development with hot reload
+
+With Docker running, use:
+
+```sh
+pnpm docker:dev
+```
+
+This uses `compose.yaml` plus `compose.dev.yaml`. It starts Vite for the consumer
+and admin and a TypeScript source watcher for Nest, all inside Docker. The command
+returns after readiness; the container watchers continue running. The consumer,
+admin and API share <http://localhost:4300/> with the same database volume and
+session cookies as packaged mode. Alternate `TOROBTICKET_PORT` and
+`COMPOSE_PROJECT_NAME` overrides work in both modes.
+
+Save files under `apps/` or `libs/` to refresh the relevant frontend or recompile
+and restart the API. Both frontend WebSockets pass through Caddy on the published
+port, with separate root/admin paths. Shared library directories are watched for
+replacement saves and newly added modules. The API watches its actual TypeScript
+dependency graph, emits and resolves aliases inside the container, and restarts
+after a successful compilation. A type error leaves the last working process
+running and prints the diagnostic to its logs. API restarts retain completed
+server evidence; in-flight searches follow the existing interrupted-search recovery.
+
+Source binds are read-only. Linux `node_modules`, per-container `.dev` caches and
+the named `dev_prisma` generated-client volume never use host build artifacts.
+The runner creates only the empty ignored `libs/data-access/src/generated`
+mountpoint when absent; it does not remove or rewrite existing host contents.
+
+Without local Node/pnpm, prepare that empty mountpoint before direct Compose:
+
+```sh
+mkdir -p libs/data-access/src/generated
+docker compose -f compose.yaml -f compose.dev.yaml up --build --wait --wait-timeout 120
+```
+
+For Node-free development shutdown, use `docker compose -f compose.yaml -f
+compose.dev.yaml down` so its two extra frontend services are also stopped.
+
+The first development build installs the pinned dependencies. Ordinary source
+saves do not build images or recreate containers. After changing dependencies,
+lockfiles, Prisma schema/migrations or runtime tools, rerun `pnpm docker:dev`.
+Author migrations explicitly; startup applies committed migrations and the
+idempotent seed. It never creates a migration or resets the database.
+
+For Docker hosts that do not deliver file notifications reliably:
+
+```sh
+TOROBTICKET_DEV_POLLING=true pnpm docker:dev
+```
+
+Polling increases file-check activity; normal notification-based watching is the
+default. Inspect both frontend and compiler logs with:
+
+```sh
+docker compose -f compose.yaml -f compose.dev.yaml logs --follow web admin api
+```
+
+Switch back with `pnpm docker:up`; its healthy packaged gateway replaces the dev
+gateway before the runner removes only its labelled web/admin dev containers.
+`pnpm docker:down` stops either mode and preserves volumes. The explicit
+`pnpm docker:reset` also removes only the labelled generated-client cache along
+with its already-documented project database reset. These lifecycle commands
+honor the selected project; there is no global container or volume prune.
 
 ## Packaging and architecture
 
@@ -78,9 +143,11 @@ unhashed local fonts require revalidation. Missing font/script assets return
 
 ## Current product and packaging verification
 
-The seeded catalog preserves `foundation-v1` and immutable `showcase-v1` /
-`catalog-v1` inventory:22 cities,104 directed mode/scope connections,308 hotels,
-90 places and924 relative room templates. Search, date-price exploration,
+The seed preserves `foundation-v1` and all three immutable showcase versions.
+New sessions use `showcase-v3` / `catalog-v3`:34 cities,348 directed mode/scope
+connections,476 hotels,114 places and1,428 relative room templates, with12 distinct
+services and four sellers for ordinary supported searches. Existing sessions keep
+their original catalog. Search, date-price exploration,
 provider comparison, hotel discovery, referral handoff and session-isolated
 admin evidence are implemented. Normal, delayed, failed, changed-price, sold-out,
 conflicting-source and empty profiles are available through admin controls;

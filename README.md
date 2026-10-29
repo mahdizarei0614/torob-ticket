@@ -23,6 +23,24 @@ docker compose up --build --wait --wait-timeout 120
 
 See [Run locally](docs/run-locally.md) for ports, logs and data-preserving shutdown.
 
+## Develop with Docker
+
+```sh
+pnpm docker:dev
+```
+
+Use the same consumer/admin URLs above. Saved app and shared-library source edits
+refresh through Vite; successful API TypeScript compilations restart the API
+automatically. Type errors keep its last working process available until corrected.
+Dependencies, generated Prisma content and build caches stay inside Linux containers.
+The runner prepares an empty ignored mountpoint when needed and leaves existing
+host-generated files untouched.
+
+`pnpm docker:up` switches back to the packaged build. `pnpm docker:down` stops
+either mode and preserves the database. Dependency, Prisma-schema or runtime-tool
+changes require another `pnpm docker:dev`; see [development details](docs/run-locally.md#docker-development-with-hot-reload)
+for the Node-free command, file-watch fallback and migration workflow.
+
 ## Local development
 
 Use Node **24.17.0** (`nvm use`) and pnpm **11.9.0**. The package manager is pinned in `package.json`; an existing Corepack installation can activate that exact version. No global configuration change is required.

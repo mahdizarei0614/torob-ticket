@@ -10,7 +10,7 @@
 
 **Tech Stack:** Nx, pnpm, TypeScript, React, Vite, React Router, TanStack Query, React Aria, CSS Modules, CSS custom properties, Zod, NestJS, PostgreSQL, Prisma, Three.js, React Three Fiber, selected Drei utilities, Motion, @internationalized/date, Vitest, Testing Library, Playwright, Storybook, Docker Compose, Caddy.
 
-**Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.23, 2026-10-29 (researched versioned travel inventory, authentic ground marks, compact controls and repeating round-trip map).
+**Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.25, 2026-10-30 (Docker hot reload and responsive large ticket lists).
 
 **Plan state:** Approved. M1–M6 and T29 packaging are complete with independent reviews and packaged acceptance evidence. **29/35 tasks complete; M7 PARTIAL, T30 ACTIVE.** Owner requested a fast checkpoint before substantial design/logic changes: finish durable harness checks now; full T30 matrix and T31–T33 audits/rehearsal remain unfinished. M8 retains its planned scope.
 
@@ -2479,3 +2479,25 @@ M7 remains partial29/35 and T30 active.
 | Adjustment | Subtasks | Status | Evidence |
 |---|---|---|---|
 | Docker-hosted serving | Start Docker; run normal `docker:up`; verify packaged consumer/admin assets, API and deep routes; prioritize Docker in README | DONE | [Checkpoint](../../evidence/adjustments/docker-serving/checkpoint.md);13 HTTP checks, exact image/served HTML hashes, healthy services, original database retained; independent static review; no runtime source change |
+
+## Owner adjustment — Docker hot reload, 2026-10-29
+
+[Task brief](../../evidence/adjustments/docker-hot-reload/task-brief.md).
+[Decision0053](../../decisions/0053-docker-development-hot-reload.md), source `365cef1`, specification1.25. M7 remains partial29/35 and T30 active.
+
+| Adjustment | Subtasks | Status | Evidence |
+|---|---|---|---|
+| Development runtime | Dev Compose/gateway; read-only source mounts; Linux caches/dependencies/generated client; explicit `docker:dev` command | DONE | [Checkpoint](../../evidence/adjustments/docker-hot-reload/checkpoint.md); same4300 origin and custom4350, fresh mountpoint, all services ready |
+| Source updates | Web/admin/shared-library Fast Refresh; real TypeScript API emit/alias/restart; atomic saves; last-good error recovery | DONE | Actual5 source edits restored byte-for-byte; all6 container/image IDs stable, zero page errors, retained quote/map/admin context; final16 tool and49 controller/admin checks pass |
+| Assembly | Independent review; safe project-owned lifecycle; data preservation; docs/export/commit | DONE | Independent approval; original DB/container/volume and exact48-quote snapshot retained; disposable reverse-mode rehearsal/cleanup passed; default4300 left DEV; no reset/push/deploy |
+
+## Owner adjustment — smooth large ticket lists, 2026-10-29
+
+[Task brief](../../evidence/adjustments/results-scroll-performance/task-brief.md).
+[Decision0054](../../decisions/0054-ticket-list-rendering-performance.md), sources `9ade6c6`, `42a4065`, `2897063`, specification1.25. M7 remains partial29/35 and T30 active.
+
+| Adjustment | Subtasks | Status | Evidence |
+|---|---|---|---|
+| Rendering workload | Native offscreen rendering above24cards; finite list fade; memoized rows/formatters/context; suppress pointer previews hidden by pin | DONE | [Checkpoint](../../evidence/adjustments/results-scroll-performance/checkpoint.md);36–37 of48 contents skipped, every card retained; bounded render-only eligibility with live action authority |
+| Behavior | Retain focus/details, exact-price/referral authority, sort/frozen order/scroll anchors; fix StrictMode disclosure replay | DONE |106 result source cases, focused map/motion checks and final3 headed native cases pass; six disclosure sequences have30–31 intermediate frames and0px geometry/scroll spread; independent approval |
+| Performance and assembly | Actual desktop/mobile before/after and DEV checks; source/package parity; docs/export/commit | DONE | Final normal-pointer DEV p95 **9.3/9.2ms**, zero long tasks/errors on recorded48-card workload; scoped lint/types pass,12 package source hashes exact; all earlier failures retained. Callback cadence, not physical FPS/universal device claim |
