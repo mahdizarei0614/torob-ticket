@@ -10,7 +10,7 @@
 
 **Tech Stack:** Nx, pnpm, TypeScript, React, Vite, React Router, TanStack Query, React Aria, CSS Modules, CSS custom properties, Zod, NestJS, PostgreSQL, Prisma, Three.js, React Three Fiber, selected Drei utilities, Motion, @internationalized/date, Vitest, Testing Library, Playwright, Storybook, Docker Compose, Caddy.
 
-**Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.19, 2026-10-29 (staggered particle arrivals, brighter dots and measured adaptive map bloom).
+**Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.23, 2026-10-29 (researched versioned travel inventory, authentic ground marks, compact controls and repeating round-trip map).
 
 **Plan state:** Approved. M1–M6 and T29 packaging are complete with independent reviews and packaged acceptance evidence. **29/35 tasks complete; M7 PARTIAL, T30 ACTIVE.** Owner requested a fast checkpoint before substantial design/logic changes: finish durable harness checks now; full T30 matrix and T31–T33 audits/rehearsal remain unfinished. M8 retains its planned scope.
 
@@ -2435,3 +2435,15 @@ The subsequent request supersedes the previous all-labels-hidden and pre-ticket 
 | Particle integration | Shared land/morph/major flow, actualcamera, captured-sourceC0, event-only snapshot and neighborhood cap | DONE | Native4/4GPU/CPU tests; realapp0ordinaryreads/1scopeinterruptread, sharedtextures, identicalDPR1/1.75state; old radialshader removed |
 | Policy and performance | Exactphysical/logicalstate; lazy/sleep/visibility/reduced/context/resource guards, StrictMode/Activity owners | DONE | 11finalengine tests; actualappcalendarpause/reveal/contextrestore, zeroidlework; device16.7–16.8ms submissionp95, optionalDPR2bloomfallback recorded |
 | Assembly | Integrated/static, normalDocker, native/device/visual recording, spec/SDD/exports | DONE | [Checkpoint](../../evidence/adjustments/particle-momentum/checkpoint.md):608integrated/98files,11Nxstatic,11finalfocused; verified3packagedbloom+realappflow+recordingPASS; originalqualificationfailures retained |
+
+## Owner adjustment — travel research, richer catalog and compact controls, 2026-10-29
+
+[Decision0049](../../decisions/0049-travel-research-catalog-and-compact-controls.md), specification1.23. Source`4f80ac0`; M7 remains partial29/35; T30 active.
+
+| Adjustment | Subtasks | Status | Evidence |
+|---|---|---|---|
+| Compact controls | Horizontal date/price rows; shared segmented padding; larger carrier identity | DONE | Native320/390/1366, liveindicator/RTLkeyboard/font/fit checks; final320pxdatewrap repair preserves alltext/fonts |
+| Provider research and assets | Primary market fields/prices/types; authentic transparent PNG ground operators; provenance | DONE | 8queries/32cardobservations;23groundidentities/69PNGs, independentdecode/hash/rights approval; existingairlinesunchanged |
+| Versioned realistic inventory | Distant cities; coherent2/3-stop fares; immutablev1 replay andv2 insert-only seed | DONE | 33cities/112places/122connections;144exactlegacy/264v2independentrecords;131PGtests,restart,versionlineage/referrals/doubleseedPASS |
+| Map presentation | Actual city/place codes; double-arrow roundtrip heading; repeating vehicle; clearer provinces | DONE | 3/3nativeallmodecanonicalreturn/fade/secondcycle; actual.52/.32GPUboundarystrength;4/4newcatalogcaseswith2/3stopLAX/camera/date-line/4+4RT/hotels/groundPNG |
+| Assembly | Independent reviews; native/package checks; master/spec/SDD/export checkpoint | DONE | [Checkpoint](../../evidence/adjustments/realistic-travel-catalog/checkpoint.md):1227source/145files,131PG/19files,affectedstatic/boundaries/geometrychecks; normalDockerhealthy,14assetparity,originalDBretained; no push |
