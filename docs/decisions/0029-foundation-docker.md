@@ -1,5 +1,19 @@
 # 0029 — Early foundation Docker packaging
 
+## Owner clarification — Docker serves the app, 2026-10-29
+
+The existing gateway serves both built frontends directly from its image at `/`
+and `/admin/`; a host `pnpm start` or Vite server is unnecessary. Keep this
+packaged path as the primary README startup. This confirms the existing runtime
+boundary and adds no service, bind mount or development-server dependency.
+
+The Docker daemon was stopped at this check. Starting Docker Desktop and running
+`pnpm docker:up` built all applications, completed initialization and brought the
+database, API and gateway to healthy status. Thirteen HTTP checks passed, and
+served HTML hashes matched `/srv/web/index.html` and `/srv/admin/index.html`
+inside Caddy. The original database container and volume were retained. See
+[the runtime checkpoint](../evidence/adjustments/docker-serving/checkpoint.md).
+
 Date: 2026-10-24. Status: accepted implementation ruling within T29 early scope.
 
 The four-service local stack uses immutable official multi-platform image indexes,

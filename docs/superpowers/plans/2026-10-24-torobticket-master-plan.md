@@ -2470,3 +2470,12 @@ The subsequent request supersedes the previous all-labels-hidden and pre-ticket 
 | Immutable compatibility | Frozenv1/v2 raw/catalog/normalization/policy/hotels; all-version insert-only seed and packaged lineage | DONE | Exact old catalog+536replay checks; two actual immutable reseeds; read-only packaged comparison of all3versions; original normal DB container/volume retained |
 | Runtime scale | Bounded atomic evidence/date chunks; original quote observations; one calendar projection; exact scoped quote reads; replay unchanged | DONE | Actual29final PG cases:672/2112/2112records, all4successful,12groups/48selectedquotes and exact calendar minimum;167unique API PG cases across scoped runs plus3independent probes |
 | Assembly | Independent reviews; source/static/tools; normal Docker; all-mode native journeys; tracker/SDD/export sync | DONE | [Checkpoint](../../evidence/adjustments/rich-inventory-coverage/checkpoint.md);1327unique source tests across scoped runs,24Nxchecks/toolsPASS; Dockerhealthy;10catalog native cases +6UI/route cases PASS; all3immutable packaged roots exact; temporary resources cleaned |
+
+## Owner clarification — Docker serves the complete app, 2026-10-29
+
+Existing architecture confirmed; [decision0029](../../decisions/0029-foundation-docker.md).
+M7 remains partial29/35 and T30 active.
+
+| Adjustment | Subtasks | Status | Evidence |
+|---|---|---|---|
+| Docker-hosted serving | Start Docker; run normal `docker:up`; verify packaged consumer/admin assets, API and deep routes; prioritize Docker in README | DONE | [Checkpoint](../../evidence/adjustments/docker-serving/checkpoint.md);13 HTTP checks, exact image/served HTML hashes, healthy services, original database retained; independent static review; no runtime source change |

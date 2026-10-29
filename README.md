@@ -2,6 +2,27 @@
 
 A Persian travel comparison and referral product in an Nx monorepo: React/Vite consumer and admin apps, a Nest API and eight bounded libraries. It includes compact flight/train/bus comparison, complete provider-owned round trips, linked date-price exploration, WebGL route animation, hotel discovery, local account flows, fresh quote checks and immutable provider handoffs. The English admin supports scoped provider controls, mapping corrections and factual evidence inspection. Providers, inventory, account authentication and provider landing pages are mocked for this local demonstration; there are no payments, real bookings, external OAuth or runtime provider integrations. See the [master tracker](docs/superpowers/plans/2026-10-24-torobticket-master-plan.md) for completed work and remaining M7 audits.
 
+## Run with Docker
+
+With Docker Engine/Desktop running, start the complete app from the repository root:
+
+```sh
+pnpm docker:up
+```
+
+Consumer: <http://localhost:4300/> · Admin: <http://localhost:4300/admin/>.
+
+Docker builds and serves both frontends through its Caddy gateway, runs the API
+and PostgreSQL, and applies migrations and seeds. No separate `pnpm start`, Vite
+server, local compilation or local database is needed. The runner uses Node
+24.17.0 and pnpm 11.9.0. Without local Node/pnpm, use:
+
+```sh
+docker compose up --build --wait --wait-timeout 120
+```
+
+See [Run locally](docs/run-locally.md) for ports, logs and data-preserving shutdown.
+
 ## Local development
 
 Use Node **24.17.0** (`nvm use`) and pnpm **11.9.0**. The package manager is pinned in `package.json`; an existing Corepack installation can activate that exact version. No global configuration change is required.
