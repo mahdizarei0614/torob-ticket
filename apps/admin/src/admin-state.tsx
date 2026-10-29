@@ -1,9 +1,7 @@
-import {createContext,useContext,useRef,useState,type ReactNode} from 'react';
+import {useContext,useRef,useState,type ReactNode} from 'react';
 import {useQuery,useQueryClient} from '@tanstack/react-query';
 import {adminClient,apiClient,ClientError} from '@torob-ticket/client';
-import type {AdminControlConfig,CatalogSnapshot} from '@torob-ticket/contracts';
-interface State{epoch:number;config?:AdminControlConfig;catalog?:CatalogSnapshot;busy:boolean;problem?:unknown;resume:()=>Promise<void>;feedback:string;error:string;run:<T>(action:()=>Promise<T>,done?:(value:T)=>void)=>Promise<void>;refresh:()=>void;reset:()=>Promise<void>}
-const Context=createContext<State|undefined>(undefined);
+import {AdminContext as Context} from './admin-context';
 export const errorText=(e:unknown)=>e instanceof ClientError?e.api?.code==='MAPPING_COLLISION'?'Configuration changed. Refresh before applying your change.':e.api?.code==='SESSION_EXPIRED'?'Your session has ended. Reload to start a new session.':e.message:e instanceof Error?e.message:'Unable to complete the request.';
 export function AdminState({children}:{children:ReactNode}){
  const qc=useQueryClient();const[epoch,setEpoch]=useState(0),[busy,setBusy]=useState(false),[feedback,setFeedback]=useState(''),[error,setError]=useState('');const lock=useRef(false),bootstrapped=useRef(false);const[problem,setProblem]=useState<unknown>();

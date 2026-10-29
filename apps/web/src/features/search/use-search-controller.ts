@@ -39,6 +39,10 @@ export function useSearchController(catalog: CatalogSnapshot, session: SessionIn
   const restoredEntry=useRef(restore?{key:location.key,search:location.search}:undefined);
   const ownNavigation = useRef<string | undefined>(restore?location.search:undefined);
   const popTarget = useRef<string | undefined>(undefined);
+  // Fast Refresh replays effects without a navigation. Only a location that
+  // completed ownership handling may suppress that replay; pending router views
+  // and synchronous native Pop handling still need their normal reconciliation.
+  const handledLocation = useRef<{key:string;search:string} | undefined>(undefined);
   const live = useRef(true);
   const [dateInteractions] = useState(createDateInteractions);
   const starts = searchStartPool(client);
@@ -75,15 +79,25 @@ export function useSearchController(catalog: CatalogSnapshot, session: SessionIn
     window.addEventListener('popstate', onPop); return () => window.removeEventListener('popstate', onPop);
   }, []);
   useEffect(() => {
+    const currentLocation={key:location.key,search:location.search};
+    const handled=handledLocation.current;
+    if(handled?.key===location.key&&handled.search===location.search&&ownNavigation.current===undefined&&popTarget.current===undefined)return;
     const restored=restoredEntry.current;
-    if(restored){if(restored.key===location.key&&restored.search===location.search&&popTarget.current===undefined){ownNavigation.current=undefined;return;}restoredEntry.current=undefined;}
+    if(restored){
+      if(restored.key===location.key&&restored.search===location.search&&popTarget.current===undefined){
+        if(ownNavigation.current!==undefined&&ownNavigation.current!==location.search)return;
+        ownNavigation.current=undefined;handledLocation.current=currentLocation;return;
+      }
+      restoredEntry.current=undefined;
+    }
     if (ownNavigation.current !== undefined) {
       if (ownNavigation.current !== location.search) return; // A late old router render cannot undo a newer explicit intent.
-      ownNavigation.current = undefined; popTarget.current = undefined; return;
+      ownNavigation.current = undefined; popTarget.current = undefined; handledLocation.current=currentLocation; return;
     }
     if (popTarget.current !== undefined && popTarget.current !== location.search) return;
     const parsed = popTarget.current !== undefined ? parseConsumerSearchUrl(location.search, catalog, session) : restoreRef.current(location.search);
     popTarget.current = undefined;
+    handledLocation.current=currentLocation;
     if (parsed.query) {
       const canonical = serializeSearchUrl(parsed.query);
       if (canonical !== location.search) { ownNavigation.current = canonical; void navigate({ pathname: '/', search: canonical }, { replace: true }); }

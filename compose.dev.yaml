@@ -1,0 +1,110 @@
+# Source edits flow through read-only mounts. Dependencies and build output stay
+# inside Linux containers; this override never changes the database volume.
+x-dev-source: &dev-source
+  - ./apps:/app/apps:ro
+  - ./libs:/app/libs:ro
+  - ./assets:/app/assets:ro
+  - ./tools:/app/tools:ro
+  - ./prisma:/app/prisma:ro
+  - ./tsconfig.base.json:/app/tsconfig.base.json:ro
+  - ./prisma.config.ts:/app/prisma.config.ts:ro
+
+services:
+  initializer:
+    build:
+      target: development
+    entrypoint: [sh, infra/init-dev.sh]
+    volumes:
+      - ./apps:/app/apps:ro
+      - ./libs:/app/libs:ro
+      - ./assets:/app/assets:ro
+      - ./tools:/app/tools:ro
+      - ./prisma:/app/prisma:ro
+      - ./tsconfig.base.json:/app/tsconfig.base.json:ro
+      - ./prisma.config.ts:/app/prisma.config.ts:ro
+      - dev_prisma:/app/libs/data-access/src/generated
+
+  api:
+    build:
+      target: development
+    command: [node, tools/dev-api.mjs]
+    environment:
+      NODE_ENV: development
+      TOROBTICKET_DEV_POLLING: ${TOROBTICKET_DEV_POLLING:-false}
+    volumes:
+      - ./apps:/app/apps:ro
+      - ./libs:/app/libs:ro
+      - ./assets:/app/assets:ro
+      - ./tools:/app/tools:ro
+      - ./prisma:/app/prisma:ro
+      - ./tsconfig.base.json:/app/tsconfig.base.json:ro
+      - ./prisma.config.ts:/app/prisma.config.ts:ro
+      - dev_prisma:/app/libs/data-access/src/generated
+    entrypoint: [sh, infra/dev-api-entrypoint.sh]
+    healthcheck:
+      start_period: 30s
+
+  web:
+    labels:
+      org.torobticket.runtime: development
+    build:
+      context: .
+      dockerfile: infra/Dockerfile
+      target: development
+      args:
+        NPM_REGISTRY: ${TOROBTICKET_NPM_REGISTRY:-https://registry.npmjs.org}
+        PRISMA_ENGINES_MIRROR: ${TOROBTICKET_PRISMA_ENGINES_MIRROR:-https://binaries.prisma.sh}
+    command: [pnpm, exec, vite, --config, apps/web/vite.config.mts]
+    environment:
+      NODE_ENV: development
+      TOROBTICKET_DEV_HOST: 0.0.0.0
+      TOROBTICKET_DEV_PORT: ${TOROBTICKET_PORT:-4300}
+      TOROBTICKET_DEV_POLLING: ${TOROBTICKET_DEV_POLLING:-false}
+      TOROBTICKET_WEB_API_PROXY: http://api:4302
+      TOROBTICKET_WEB_ADMIN_PROXY: http://admin:4301
+    volumes: *dev-source
+    healthcheck:
+      test: [CMD, node, -e, "fetch('http://127.0.0.1:4300/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+
+  admin:
+    labels:
+      org.torobticket.runtime: development
+    build:
+      context: .
+      dockerfile: infra/Dockerfile
+      target: development
+      args:
+        NPM_REGISTRY: ${TOROBTICKET_NPM_REGISTRY:-https://registry.npmjs.org}
+        PRISMA_ENGINES_MIRROR: ${TOROBTICKET_PRISMA_ENGINES_MIRROR:-https://binaries.prisma.sh}
+    command: [pnpm, exec, vite, --config, apps/admin/vite.config.mts]
+    environment:
+      NODE_ENV: development
+      TOROBTICKET_DEV_HOST: 0.0.0.0
+      TOROBTICKET_DEV_PORT: ${TOROBTICKET_PORT:-4300}
+      TOROBTICKET_DEV_POLLING: ${TOROBTICKET_DEV_POLLING:-false}
+      TOROBTICKET_ADMIN_API_PROXY: http://api:4302
+    volumes: *dev-source
+    healthcheck:
+      test: [CMD, node, -e, "fetch('http://127.0.0.1:4301/admin/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+
+  gateway:
+    build:
+      target: development-gateway
+    depends_on:
+      web:
+        condition: service_healthy
+      admin:
+        condition: service_healthy
+    volumes:
+      - ./infra/Caddyfile.dev:/etc/caddy/Caddyfile:ro
+
+volumes:
+  dev_prisma:
+    labels:
+      org.torobticket.role: generated-client

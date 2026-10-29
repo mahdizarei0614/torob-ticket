@@ -17,16 +17,18 @@
     "verify:boundaries": "node tools/verify-boundaries.mjs",
     "affected": "nx affected -t lint,typecheck,test,build",
     "generate:library": "node tools/generators/library/generate.mjs",
-    "test:tools": "node --test tools/test-docker-runner.mjs tools/test-test-database.mjs && node tools/test-generator.mjs && node tools/test-cache-inputs.mjs && node tools/test-ui-asset-inputs.mjs && node tools/test-fixture-asset-inputs.mjs && node tools/test-graphics-asset-inputs.mjs && node tools/generate-route-scene-fixtures.mjs --check",
+    "test:tools": "node --test tools/test-docker-runner.mjs tools/test-dev-api.mjs tools/test-test-database.mjs && node tools/test-generator.mjs && node tools/test-cache-inputs.mjs && node tools/test-ui-asset-inputs.mjs && node tools/test-fixture-asset-inputs.mjs && node tools/test-graphics-asset-inputs.mjs && node tools/generate-route-scene-fixtures.mjs --check",
     "test:cache": "node tools/test-cache-inputs.mjs",
     "db:generate": "nx run data-access:generate",
     "db:migrate": "prisma migrate deploy",
     "db:seed": "nx run data-access:generate && prisma db seed",
     "docker:up": "node tools/docker-up.mjs",
-    "docker:down": "docker compose down",
+    "docker:down": "node tools/docker-down.mjs",
     "docker:reset": "node tools/docker-reset.mjs",
-    "test:docker-runner": "node --test tools/test-docker-runner.mjs",
-    "db:setup-test": "node tools/setup-test-database.mjs"
+    "test:docker-runner": "node --test tools/test-docker-runner.mjs tools/test-dev-api.mjs",
+    "db:setup-test": "node tools/setup-test-database.mjs",
+    "docker:dev": "node tools/docker-up.mjs --dev",
+    "docker:dev:down": "docker compose -f compose.yaml -f compose.dev.yaml down"
   },
   "dependencies": {
     "@nestjs/common": "11.2.8",

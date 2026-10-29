@@ -1,6 +1,6 @@
 import { act, fireEvent, render, renderHook, screen, waitFor, within } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { BrowserRouter, MemoryRouter, useNavigate } from 'react-router';
+import { BrowserRouter, MemoryRouter, Router, useNavigate, type Navigator } from 'react-router';
 import { StrictMode, useEffect, useRef, type ReactNode } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import type { ApiClient } from '@torob-ticket/client';
@@ -370,4 +370,50 @@ it('root StrictMode replay keeps a GET-hydrated comparison owner while different
  try{expect(current.state.searchId).toBe(restored.snapshot.searchId);expect(current.state.generation).toBe('restored-generation');expect(current.accepted).toBe(true);expect(current.resultIsCurrent('restored-generation',restored.snapshot.searchId)).toBe(true);expect(start).not.toHaveBeenCalled();
  act(()=>{window.history.replaceState({key:'different-entry',idx:0},'','/'+serializeSearchUrl({...query,sort:'fastest'}));window.dispatchEvent(new PopStateEvent('popstate'));});await waitFor(()=>expect(current.state.draft.sort).toBe('fastest'));expect(current.state.searchId).toBeUndefined();expect(current.resultIsCurrent('restored-generation',restored.snapshot.searchId)).toBe(false);expect(start).not.toHaveBeenCalled();}
  finally{view.unmount();window.history.replaceState({},'','/');}
+});
+
+describe('unchanged location effect replay',()=>{
+ function controlled(client:ApiClient,restore?:Parameters<typeof useSearchController>[3]){
+  const cache=new QueryClient();let current!:ReturnType<typeof useSearchController>;
+  let location={pathname:'/',search:serializeSearchUrl(query),hash:'',state:null,key:'kept-entry'};
+  let navigator:Navigator={createHref:()=> '/',go:vi.fn(),push:vi.fn(),replace:vi.fn()};
+  function Controller(){current=useSearchController(catalog,session,client,restore);return null;}
+  const screen=()=> <StrictMode><QueryClientProvider client={cache}><Router location={location} navigator={navigator}><Controller/></Router></QueryClientProvider></StrictMode>;
+  const view=render(screen());
+  return {get current(){return current;},unmount:view.unmount,replay(){navigator={...navigator};view.rerender(screen());},navigate(search:string,key:string){location={...location,search,key};view.rerender(screen());}};
+ }
+ it('retains accepted comparison and pin when only navigate callback identity changes, while same-URL real history and raw Pop still revoke them',async()=>{
+  const client={startSearch:vi.fn(async(input:SearchRequest)=>recovery(input)),cancelSearch:vi.fn(async()=>undefined)} as unknown as ApiClient;
+  const hook=controlled(client);
+  try{
+   await act(()=>hook.current.submit());
+   const generation=hook.current.state.generation!,token=hook.current.refinementToken;
+   act(()=>hook.current.pinResultItinerary('chosen',generation,'operation'));
+   hook.replay();
+   expect(hook.current.state).toMatchObject({generation,searchId:'operation',pinnedItineraryId:'chosen'});
+   expect(hook.current.accepted).toBe(true);expect(hook.current.resultSelectionIsCurrent(generation,'operation')).toBe(true);
+   expect(hook.current.dateInteractions.isCurrent(token)).toBe(true);expect(client.startSearch).toHaveBeenCalledTimes(1);
+   hook.navigate(serializeSearchUrl(query),'same-url-new-key');
+   expect(hook.current.state.generation).not.toBe(generation);expect(hook.current.state.searchId).toBeUndefined();expect(hook.current.accepted).toBe(false);
+   await act(()=>hook.current.submit());const acceptedGeneration=hook.current.state.generation!;
+   act(()=>{window.history.replaceState({},'','/'+serializeSearchUrl(query));window.dispatchEvent(new PopStateEvent('popstate'));});
+   const poppedGeneration=hook.current.state.generation!;expect(poppedGeneration).not.toBe(acceptedGeneration);expect(hook.current.state.searchId).toBeUndefined();
+   hook.replay();expect(hook.current.state.generation).toBe(poppedGeneration);expect(hook.current.accepted).toBe(false);
+  }finally{hook.unmount();window.history.replaceState({},'','/');}
+ });
+ it('does not acknowledge a stale router render while a restored comparison owns a newer pending URL',async()=>{
+  const value=recovery({query,clientGeneration:'restored-generation'});value.snapshot.status='complete';
+  const client={startSearch:vi.fn(async(input:SearchRequest)=>recovery(input)),cancelSearch:vi.fn(async()=>undefined)} as unknown as ApiClient;
+  const hook=controlled(client,{recovery:value,draft:query});
+  try{
+   const next={...query,departureDate:'2026-10-26'};
+   await act(()=>hook.current.submit(next));
+   const generation=hook.current.state.generation!;
+   hook.replay();expect(hook.current.state.generation).toBe(generation);
+   hook.navigate(serializeSearchUrl(next),'next-router-entry');
+   expect(hook.current.state).toMatchObject({generation,searchId:'operation'});
+   expect(hook.current.accepted).toBe(true);expect(hook.current.resultSelectionIsCurrent(generation,'operation')).toBe(true);
+   expect(client.startSearch).toHaveBeenCalledTimes(1);
+  }finally{hook.unmount();}
+ });
 });
