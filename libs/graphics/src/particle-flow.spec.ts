@@ -66,7 +66,7 @@ it('releases both prior and newly allocated fields if a resized compute fails',(
 
 it('keeps the never-interacted field allocation-free and sleeps after its bounded quiet tail',()=>{
  const h=harness(),flow=createMapParticleFlow(h.renderer);
- for(let i=0;i<120;i++)flow.step(16,options);expect(observed.targets).toHaveLength(0);expect(h.mock.render).not.toHaveBeenCalled();expect(flow.uniforms.particleFlowActive.value).toBe(0);
+ for(let i=0;i<120;i++)flow.step(16,options);expect(observed.targets).toHaveLength(0);expect(h.mock.render).not.toHaveBeenCalled();expect(flow.uniforms.particleFlowActive.value).toBe(0);expect(h.mock.setRenderTarget).not.toHaveBeenCalled();expect(h.mock.setViewport).not.toHaveBeenCalled();expect(h.mock.setScissor).not.toHaveBeenCalled();expect(h.mock.setClearColor).not.toHaveBeenCalled();
  flow.step(16,stroke);expect(flow.inspect().energized).toBe(true);
  for(let i=0;i<1130;i++)flow.step(16,{...options,pointer:undefined});
  const draws=h.mock.render.mock.calls.length;expect(flow.inspect().energized).toBe(false);expect(flow.uniforms.particleFlowActive.value).toBe(0);flow.step(16,options);expect(h.mock.render).toHaveBeenCalledTimes(draws);expect(h.mock.readRenderTargetPixels).not.toHaveBeenCalled();flow.dispose();

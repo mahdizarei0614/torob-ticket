@@ -78,8 +78,8 @@ export function createMapParticleFlow(renderer:WebGLRenderer){
    if(options.reducedMotion){try{if(energized||(lost&&fields))preserve(clear);else{lastPointer=undefined;uniforms.particleFlowActive.value=0;}lost=false;}catch(error){fail(error);}return;}
    if(!options.active){lastPointer=undefined;return;}
    if(!valid(options.frame,options.viewport))return;
-   try{preserve(()=>{
-    if(lost){clear();lost=false;}
+   try{
+    if(lost){preserve(clear);lost=false;}
     const dt=Math.max(0,Math.min(.0333333333,deltaMs/1000));if(dt<=0)return;
     const pointer=options.pointer?.active&&Number.isFinite(options.pointer.x)&&Number.isFinite(options.pointer.y)?options.pointer:undefined;
     const to=pointer??lastPointer??{x:options.frame.x,y:options.frame.y},from=lastPointer??to;
@@ -88,7 +88,8 @@ export function createMapParticleFlow(renderer:WebGLRenderer){
     lastPointer=pointer?{x:pointer.x,y:pointer.y}:undefined;
     if(factor>0){energized=true;quietSeconds=0;}else quietSeconds+=dt;
     // No fluid work before a real stroke, or once its verified subpixel tail ends.
-    if(!energized||quietSeconds>=18){if(energized)clear();uniforms.particleFlowActive.value=0;frame={...options.frame};viewport={...options.viewport};return;}
+    if(!energized||quietSeconds>=18){if(energized)preserve(clear);uniforms.particleFlowActive.value=0;frame={...options.frame};viewport={...options.viewport};return;}
+    preserve(()=>{
     initialize();
     const ratio=Math.min(1,PARTICLE_FLOW_MAX_EDGE/Math.max(options.viewport.width,options.viewport.height));
     const width=Math.max(16,Math.round(options.viewport.width*ratio)),height=Math.max(16,Math.round(options.viewport.height*ratio));
