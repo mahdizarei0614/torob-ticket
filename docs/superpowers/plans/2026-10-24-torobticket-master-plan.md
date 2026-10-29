@@ -10,7 +10,7 @@
 
 **Tech Stack:** Nx, pnpm, TypeScript, React, Vite, React Router, TanStack Query, React Aria, CSS Modules, CSS custom properties, Zod, NestJS, PostgreSQL, Prisma, Three.js, React Three Fiber, selected Drei utilities, Motion, @internationalized/date, Vitest, Testing Library, Playwright, Storybook, Docker Compose, Caddy.
 
-**Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.25, 2026-10-30 (Docker hot reload and responsive large ticket lists).
+**Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.26, 2026-10-30 (Docker hot reload, responsive large ticket lists and arrow-only trip-type heading changes).
 
 **Plan state:** Approved. M1–M6 and T29 packaging are complete with independent reviews and packaged acceptance evidence. **29/35 tasks complete; M7 PARTIAL, T30 ACTIVE.** Owner requested a fast checkpoint before substantial design/logic changes: finish durable harness checks now; full T30 matrix and T31–T33 audits/rehearsal remain unfinished. M8 retains its planned scope.
 
@@ -2501,3 +2501,12 @@ M7 remains partial29/35 and T30 active.
 | Rendering workload | Native offscreen rendering above24cards; finite list fade; memoized rows/formatters/context; suppress pointer previews hidden by pin | DONE | [Checkpoint](../../evidence/adjustments/results-scroll-performance/checkpoint.md);36–37 of48 contents skipped, every card retained; bounded render-only eligibility with live action authority |
 | Behavior | Retain focus/details, exact-price/referral authority, sort/frozen order/scroll anchors; fix StrictMode disclosure replay | DONE |106 result source cases, focused map/motion checks and final3 headed native cases pass; six disclosure sequences have30–31 intermediate frames and0px geometry/scroll spread; independent approval |
 | Performance and assembly | Actual desktop/mobile before/after and DEV checks; source/package parity; docs/export/commit | DONE | Final normal-pointer DEV p95 **9.3/9.2ms**, zero long tasks/errors on recorded48-card workload; scoped lint/types pass,12 package source hashes exact; all earlier failures retained. Callback cadence, not physical FPS/universal device claim |
+
+## Owner correction — arrow-only trip-type changes, 2026-10-30
+
+[Task brief](../../evidence/adjustments/map-heading-arrows/task-brief.md), [decision0055](../../decisions/0055-map-heading-arrow-only-trip-changes.md), source `205bbe3`, specification1.26. M7 remains partial29/35 and T30 active.
+
+| Adjustment | Subtasks | Status | Evidence |
+|---|---|---|---|
+| Heading identity | Keep unchanged city labels mounted on one-way/round-trip changes; isolate finite arrow animation and stable width | DONE | [Checkpoint](../../evidence/adjustments/map-heading-arrows/checkpoint.md); stable label/text/code owners,220ms arrow reveal, fresh epoch for genuine selected-service changes; stale facts clear truthfully |
+| Regression and assembly | Focused source review; actual form and selected-fare toggles; docs/export/commit | DONE | Author12/12 and independent33/33 source cases; final headed native six phases PASS11.5s, normal form0px movement/opacity1/16–17 arrow frames, connected service revocation and reduced motion; lint/types pass, existing Docker DEV/data retained |
