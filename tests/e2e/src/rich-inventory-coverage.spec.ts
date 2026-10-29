@@ -114,10 +114,21 @@ async function calendarPrice(page: Page, recovery: SearchRecovery) {
   if (cell.status === 'priced') expect(cell.minimum.amountRial).toBe(minimum);
   await page.getByRole('button', { name: 'تقویم جلالی و انتخاب تاریخ', exact: true }).click();
   const dialog = page.getByRole('dialog', { name: 'انتخاب تاریخ سفر', exact: true });
+  await expect(dialog).toBeVisible();
+  // Opening the calendar requests its wider month batch. Wait for that actual
+  // dataset to finish before comparing its DOM amount with the complete RT quote.
+  const expanded = await datePrices(page), calendarCell = expanded.cells.find(cell => cell.date === date)!;
+  expect(calendarCell.status).toBe('priced');
+  if (calendarCell.status === 'priced') expect(calendarCell.minimum.amountRial).toBe(minimum);
+  for (const priced of [cell, calendarCell]) if (priced.status === 'priced') {
+    expect(priced.coverage.complete).toBe(true); expect(priced.coverage.expectedProviderIds).toHaveLength(4);
+    expect([...priced.coverage.successfulProviderIds].sort()).toEqual([...priced.coverage.expectedProviderIds].sort());
+    expect(priced.coverage.failedProviderIds).toEqual([]); expect(priced.coverage.pendingProviderIds).toEqual([]);
+  }
   await expect(dialog.locator(`[data-date="${date}"] [data-price-band]`)).toContainText(fa(minimum / 10000));
   await dialog.screenshot({ path: resolve(out, slug(test.info().title) + '-calendar.png') });
   await dialog.getByRole('button', { name: 'انصراف', exact: true }).click();
-  return { date, minimumRial: minimum, datePriceId: prices.datePriceId, cell };
+  return { date, minimumRial: minimum, datePriceId: prices.datePriceId, cell, calendarDatePriceId: expanded.datePriceId, calendarCell };
 }
 async function handoff(page: Page, quote: QuoteSnapshot, group: ComparisonGroup) {
   const seller = page.locator(`button[role="link"][data-referral-source="transport"][data-seller-link-quote-id="${quote.quoteId}"]`);

@@ -2447,3 +2447,26 @@ The subsequent request supersedes the previous all-labels-hidden and pre-ticket 
 | Versioned realistic inventory | Distant cities; coherent2/3-stop fares; immutablev1 replay andv2 insert-only seed | DONE | 33cities/112places/122connections;144exactlegacy/264v2independentrecords;131PGtests,restart,versionlineage/referrals/doubleseedPASS |
 | Map presentation | Actual city/place codes; double-arrow roundtrip heading; repeating vehicle; clearer provinces | DONE | 3/3nativeallmodecanonicalreturn/fade/secondcycle; actual.52/.32GPUboundarystrength;4/4newcatalogcaseswith2/3stopLAX/camera/date-line/4+4RT/hotels/groundPNG |
 | Assembly | Independent reviews; native/package checks; master/spec/SDD/export checkpoint | DONE | [Checkpoint](../../evidence/adjustments/realistic-travel-catalog/checkpoint.md):1227source/145files,131PG/19files,affectedstatic/boundaries/geometrychecks; normalDockerhealthy,14assetparity,originalDBretained; no push |
+
+## Owner adjustment — form, profile and route-light polish, 2026-10-29
+
+[Decision0051](../../decisions/0051-form-profile-and-route-polish.md), specification1.24, source`7e73dd0`. Concurrent0050 branding is preserved. M7 remains partial29/35; T30 active.
+
+| Adjustment | Subtasks | Status | Evidence |
+|---|---|---|---|
+| Quiet form feedback | Remove routine expiry card/passive hints; actual field errors/shake/focus on attempt; icon+calendar label; preserve true guards | DONE | Focused form/controller checks and independent packaged pointer/Enter/repeat/correction/reduced/covered/expiry proof pass |
+| Account and selected card | Remove toolbar tagline; circular avatar; full-width danger logout; stable logical selected edge | DONE | Packaged320/390/1366, focus/logout, RTL/LTR4pxborder and unchanged content inset pass |
+| Route-light lifecycle | Fade/re-enter with vehicle; keep base and stop facts; all modes/RT/reduced/static policy | DONE | Four source-preview GPU cases and two packaged flight GPU cases;29fadelevels, zero strand/head mismatch, source train/bus parity, static base retained |
+| Assembly | Independent reviews; package/source/static; spec/SDD/export sync | DONE | [Checkpoint](../../evidence/adjustments/form-profile-route-polish/checkpoint.md), packaged6/6, source/static gates shared with0052; no push |
+
+## Owner adjustment — rich near-realistic ticket coverage, 2026-10-29
+
+[Decision0052](../../decisions/0052-rich-inventory-coverage.md), specification1.24, source`1cbdbe2`. Includes completed0051 refinements. M7 remains partial29/35; T30 active.
+
+| Adjustment | Subtasks | Status | Evidence |
+|---|---|---|---|
+| Coverage audit | Actual distinct journeys/sellers, all modes/classes/date/OWRT; isolate normal blackout/root cause | DONE | Independent2680baseline route/class+2160hero90day cases; sparse positive queries had3services and periodic normal gaps;400common v1/v2 comparisons prevent false attribution |
+| Rich inventory | Immutablev3,12services/four sellers;156non-Tehran directions; ordinary-date coverage; distance/class fares and explicit rail transfers | DONE | 34cities/114places/348directions/476hotels/1428rates;6304initial matrix+624rail/32road/24hero closure; [coverage summary](../../evidence/adjustments/rich-inventory-coverage/coverage-summary.md) |
+| Immutable compatibility | Frozenv1/v2 raw/catalog/normalization/policy/hotels; all-version insert-only seed and packaged lineage | DONE | Exact old catalog+536replay checks; two actual immutable reseeds; read-only packaged comparison of all3versions; original normal DB container/volume retained |
+| Runtime scale | Bounded atomic evidence/date chunks; original quote observations; one calendar projection; exact scoped quote reads; replay unchanged | DONE | Actual29final PG cases:672/2112/2112records, all4successful,12groups/48selectedquotes and exact calendar minimum;167unique API PG cases across scoped runs plus3independent probes |
+| Assembly | Independent reviews; source/static/tools; normal Docker; all-mode native journeys; tracker/SDD/export sync | DONE | [Checkpoint](../../evidence/adjustments/rich-inventory-coverage/checkpoint.md);1327unique source tests across scoped runs,24Nxchecks/toolsPASS; Dockerhealthy;10catalog native cases +6UI/route cases PASS; all3immutable packaged roots exact; temporary resources cleaned |

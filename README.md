@@ -1,6 +1,6 @@
 # TorobTicket
 
-A demo-only Persian travel comparison product. This foundation contains two React/Vite applications, a Nest API, and eight bounded libraries. The current foundation includes PostgreSQL persistence, isolated reviewer sessions, contract/domain primitives, an RTL design system and gallery, early one-command Docker packaging, and the T05 versioned fictional catalog. The backend also includes T06 normalization, T07 eligible complete quotes, T08 ranking/explanations, T09 durable searches/SSE/recovery and T10 source-backed date prices with isolated caching. T11 adds versioned rechecks, acceptance intents, idempotent referral confirmation and immutable local handoff data. T13 adds a lazy shared WebGL2 runtime with semantic fallbacks; its deliberate [graphics lab](http://localhost:4300/graphics-lab) demonstrates rendering/lifecycle behavior. Consumer search/date/map interfaces, explicit acceptance presentation and the provider-page UI remain later tasks.
+A Persian travel comparison and referral product in an Nx monorepo: React/Vite consumer and admin apps, a Nest API and eight bounded libraries. It includes compact flight/train/bus comparison, complete provider-owned round trips, linked date-price exploration, WebGL route animation, hotel discovery, local account flows, fresh quote checks and immutable provider handoffs. The English admin supports scoped provider controls, mapping corrections and factual evidence inspection. Providers, inventory, account authentication and provider landing pages are mocked for this local demonstration; there are no payments, real bookings, external OAuth or runtime provider integrations. See the [master tracker](docs/superpowers/plans/2026-10-24-torobticket-master-plan.md) for completed work and remaining M7 audits.
 
 ## Local development
 
@@ -59,20 +59,25 @@ Verification regressions exercise real Nx cache hits in disposable workspaces: d
 
 ## Deterministic showcase catalog
 
-The current catalog supplies 33 cities,112 places,122 directed mode/scope
-connections,six mock providers,462 fictional hotels and1,386 relative room-rate
-templates. New sessions use `showcase-v2` / `catalog-v2`;
+The current catalog supplies 34 cities, 114 places, 348 directed mode/scope
+connections, six mock providers, 476 fictional hotels and 1,428 relative room-rate
+templates. Ordinary supported dates/classes have 12 distinct services and four
+sellers. New sessions use `showcase-v3` / `catalog-v3`;
 `GET /api/v1/catalog` requires the session cookie. London,Paris,Frankfurt,
 NewYork,LosAngeles,Toronto,Singapore,Bangkok,Tokyo,Sydney andAuckland have
 complete one/two/three-stop flight alternatives and reverse/round-trip coverage.
+Domestic routes include 156 directions between non-Tehran cities. International
+rail beyond Van explicitly includes the Van–Tatvan road connector between trains
+in the same supplied fare, with unknown protection/baggage conditions. Baku is
+air-only in the new catalog. Same-day returns must depart after outbound arrival.
 Public provider research calibrates bounded authored prices and conditions;
 the runtime does not query those sites. Airline and bus/train brand PNGs load locally.
 
 Existing sessions retain their original immutable catalog and quote evidence.
 Use a fresh/private browser session to explore the expanded inventory; an
 explicit operations reset also starts the latest version but clears that
-session's mutable evidence. Reseeding inserts both rich catalog versions without
-rewriting either root. Foundation sessions retain their empty foundation catalog.
+session's mutable evidence. Reseeding inserts all three rich catalog versions without
+rewriting any prior root, raw source, fare policy or hotel template. Foundation sessions retain their empty foundation catalog.
 `generateProviderRecords(FixtureQuery)` and `fixtureCase(id)` remain server-only
 fixture interfaces; search,date-price,normalization and referral use that same
 versioned evidence pipeline.
@@ -81,7 +86,8 @@ Local geographic assets and their primary-source licenses are recorded in
 [assets/provenance.json](assets/provenance.json). Schedules, providers, hotels,
 station/terminal points and destination display extents are fictional or
 illustrative. For coverage, source extracts and checks see
-[the current research and implementation evidence](docs/evidence/adjustments/realistic-travel-catalog/fixture-research.md)
+[the current research and implementation evidence](docs/evidence/adjustments/realistic-travel-catalog/fixture-research.md),
+[the rich-coverage checkpoint](docs/evidence/adjustments/rich-inventory-coverage/checkpoint.md),
 and [the original T05 evidence](docs/evidence/T05/README.md).
 
 ### Optional city location map
