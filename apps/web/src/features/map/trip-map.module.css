@@ -12,8 +12,11 @@
 .headingSwap { position:relative; min-height:68px; }
 .headingFrame { width:100%; }
 .header .headingCity { padding:0; color:var(--text); font-weight:inherit; }
-.headingCity i { display:inline-block; padding-inline:9px; color:var(--text-muted); font-style:normal; font-weight:400; }
+.header [data-map-city-label] { padding:0; color:inherit; font-weight:inherit; }
+.header .headingArrow { display:inline-block; position:relative; inline-size:1.6em; block-size:1em; padding:0; vertical-align:middle; color:var(--text-muted); font-weight:400; }
+.headingArrow i { position:absolute; inset:0; display:inline-flex; justify-content:center; align-items:center; padding:0; font-style:normal; font-weight:400; line-height:1; }
 .headingCode { display:inline-block; margin-inline-start:5px; color:var(--text-muted); font-family:var(--font-en); font-size:.7em; font-weight:500; vertical-align:baseline; }
+.headingCode[hidden] { display:none; }
 .header .service { display:flex; flex-wrap:wrap; align-items:center; gap:4px 12px; margin-top:3px; font-size:11px; }
 .service bdi { font-family:var(--font-en); font-size:10px; letter-spacing:.035em; }
 /* Keep selected route text above the shared fixed WebGL canvas. */

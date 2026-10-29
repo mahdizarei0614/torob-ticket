@@ -1,5 +1,6 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import { afterEach, expect, it, vi } from 'vitest';
+import { StrictMode } from 'react';
 import type { CatalogSnapshot, Itinerary } from '@torob-ticket/contracts';
 import { group } from '../results/results-test-data';
 import { catalog, query } from '../search/search-test-data';
@@ -15,6 +16,84 @@ const routeCatalog: CatalogSnapshot = { ...catalog, places: [
 ] };
 const first = group('first').itinerary;
 const connected: Itinerary = { ...first, itineraryId: 'connected', outbound: { segments: [{ ...first.outbound.segments[0]!, destinationPlaceId: 'TBZ', operatorId: 'demo-operator-flight-1', departureAt: '2026-10-25T08:00:00Z' }, { ...first.outbound.segments[0]!, segmentId: 'second', originPlaceId: 'TBZ' }], stops: [{ placeId: 'TBZ', waitMinutes: 45, vehicleChange: true, kind: 'connection' }] } };
+
+it('keeps draft route identity independent of trip type while recognizing genuine service facts', () => {
+ const outbound = routeHeading({ direction: 'outbound', query }, routeCatalog);
+ const roundTripQuery = { ...query, tripType: 'round-trip' as const, returnDate: '2026-10-28' };
+ const roundTrip = routeHeading({ direction: 'outbound', query: roundTripQuery }, routeCatalog);
+ expect(roundTrip.key).toBe(outbound.key); expect(roundTrip.intentKey).toBe(outbound.intentKey);
+ expect(roundTrip.bidirectional).toBe(true); expect(outbound.bidirectional).toBe(false);
+ const changedService = { ...first, outbound: { ...first.outbound, segments: first.outbound.segments.map(segment => ({ ...segment, operatorId: 'demo-operator-flight-1' })) } };
+ expect(routeHeading({ itinerary: changedService, direction: 'outbound', query }, routeCatalog).key).not.toBe(routeHeading({ itinerary: first, direction: 'outbound', query }, routeCatalog).key);
+ expect(routeHeading({ direction: 'return', query: roundTripQuery }, routeCatalog).intentKey).not.toBe(roundTrip.intentKey);
+});
+
+it('animates only the stable arrow under StrictMode through repeated draft toggles, settling while covered', async () => {
+ vi.stubGlobal('matchMedia', () => ({ matches: false, addEventListener: vi.fn(), removeEventListener: vi.fn() }));
+ const map = { presentationView: { direction: 'outbound', query } } as unknown as TripMapController;
+ const view = render(<StrictMode><MapHeading map={map} catalog={routeCatalog}/></StrictMode>);
+ const heading = screen.getByRole('heading'), frame = heading.closest<HTMLElement>('[data-map-heading-key]')!;
+ const labels = Array.from(heading.querySelectorAll('[data-map-city-label]'));
+ const textNodes = labels.map(label => label.firstChild), codes = Array.from(heading.querySelectorAll('bdi'));
+ const arrow = heading.querySelector<HTMLElement>('[data-map-heading-arrow]')!;
+ await waitFor(() => expect(frame.style.opacity).toBe('1'));
+ for (const tripType of ['round-trip', 'one-way', 'round-trip'] as const) {
+  view.rerender(<StrictMode><MapHeading map={{ ...map, presentationView: { ...map.presentationView, query: { ...query, tripType } } }} catalog={routeCatalog}/></StrictMode>);
+  expect(screen.getByRole('heading')).toBe(heading); expect(frame.style.opacity).toBe('1');
+  expect(Array.from(heading.querySelectorAll('[data-map-city-label]'))).toEqual(labels);
+  expect(labels.map(label => label.firstChild)).toEqual(textNodes); expect(Array.from(heading.querySelectorAll('bdi'))).toEqual(codes);
+  expect(heading.querySelector('[data-map-heading-arrow]')).toBe(arrow); expect(arrow.textContent).toBe(tripType === 'round-trip' ? '↔' : '←');
+  await waitFor(() => { const opacity = Number(arrow.style.opacity); expect(opacity).toBeGreaterThan(0); expect(opacity).toBeLessThan(1); }, { interval: 10 });
+  await waitFor(() => expect(arrow.style.opacity).toBe('1'));
+ }
+ // An interrupted arrow transition settles when covered and never replays on resume.
+ const single = { ...map, presentationView: { ...map.presentationView, query } };
+ view.rerender(<StrictMode><MapHeading map={single} catalog={routeCatalog}/></StrictMode>);
+ await waitFor(() => { const opacity = Number(arrow.style.opacity); expect(opacity).toBeGreaterThan(0); expect(opacity).toBeLessThan(1); }, { interval: 10 });
+ view.rerender(<StrictMode><MapHeading map={single} catalog={routeCatalog} covered/></StrictMode>);
+ expect(arrow).toHaveAttribute('data-arrow-motion', 'static'); await waitFor(() => expect(arrow.style.opacity).toBe('1'));
+ view.rerender(<StrictMode><MapHeading map={single} catalog={routeCatalog}/></StrictMode>);
+ expect(arrow.style.opacity).toBe('1'); expect(screen.getByRole('heading')).toBe(heading);
+});
+
+it('retains selected endpoint labels and code slots when a trip toggle clears stale service and stop metadata', () => {
+ const map = { presentationView: { itinerary: connected, direction: 'outbound', query } } as unknown as TripMapController;
+ const view = render(<MapHeading map={map} catalog={routeCatalog} covered/>);
+ const heading = screen.getByRole('heading'), start = heading.querySelector('[data-map-city-label="a"]')!, end = heading.querySelector('[data-map-city-label="b"]')!;
+ const text = [start.firstChild, end.firstChild], codes = [heading.querySelector('[data-map-city-code="a"]')!, heading.querySelector('[data-map-city-code="b"]')!];
+ expect(codes.map(code => code.textContent)).toEqual(['(IKA)', '(MHD)']);
+ expect(screen.getByText(/ماهان/)).toBeInTheDocument();
+ for (const tripType of ['round-trip', 'one-way', 'round-trip'] as const) {
+  view.rerender(<MapHeading map={{ ...map, presentationView: { ...map.presentationView, itinerary: undefined, query: { ...query, tripType } } }} catalog={routeCatalog} covered/>);
+  expect(screen.getByRole('heading')).toBe(heading);
+  expect(heading.querySelector('[data-map-city-label="a"]')).toBe(start); expect(heading.querySelector('[data-map-city-label="b"]')).toBe(end);
+  expect([start.firstChild, end.firstChild]).toEqual(text);
+  expect([heading.querySelector('[data-map-city-code="a"]'), heading.querySelector('[data-map-city-code="b"]')]).toEqual(codes);
+  for (const code of codes) { expect(code).not.toBeVisible(); expect(code.textContent).toBe(''); }
+  expect(heading.querySelector('[data-map-city-label="c"]')).not.toBeInTheDocument();
+  expect(screen.queryByText(/ماهان/)).not.toBeInTheDocument();
+ }
+ // The identical original itinerary must enter as selected evidence again,
+ // rather than colliding with its old retained frame key after the draft cycle.
+ view.rerender(<MapHeading map={map} catalog={routeCatalog} covered/>);
+ expect(screen.getByRole('heading')).not.toBe(heading);
+ expect(screen.getByText(/ماهان/)).toBeInTheDocument();
+ const next = { ...first, itineraryId: 'new-ticket' };
+ view.rerender(<MapHeading map={{ ...map, presentationView: { ...map.presentationView, itinerary: next, query: { ...query, tripType: 'round-trip' } } }} catalog={routeCatalog} covered/>);
+ expect(screen.getByRole('heading')).not.toBe(heading);
+ expect(screen.getByText(/ایران‌ایر/)).toBeInTheDocument();
+});
+
+it('settles arrow changes immediately under reduced motion without retiring the city heading', async () => {
+ vi.stubGlobal('matchMedia', () => ({ matches: true, addEventListener: vi.fn(), removeEventListener: vi.fn() }));
+ const map = { presentationView: { direction: 'outbound', query } } as unknown as TripMapController;
+ const view = render(<MapHeading map={map} catalog={routeCatalog}/>);
+ const heading = screen.getByRole('heading'), arrow = heading.querySelector<HTMLElement>('[data-map-heading-arrow]')!;
+ view.rerender(<MapHeading map={{ ...map, presentationView: { ...map.presentationView, query: { ...query, tripType: 'round-trip' } } }} catalog={routeCatalog}/>);
+ expect(screen.getByRole('heading')).toBe(heading); expect(arrow).toHaveAttribute('data-arrow-motion', 'static');
+ expect(arrow.textContent).toBe('↔'); expect(arrow.style.opacity).not.toBe('0');
+ await waitFor(() => expect(arrow.style.opacity).toBe('1'));
+});
 
 it('uses the chosen service stops, operator, origin-local departure and transport codes', () => {
  const initial = routeHeading({ itinerary: first, direction: 'outbound', query }, routeCatalog);

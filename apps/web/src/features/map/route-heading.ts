@@ -2,7 +2,7 @@ import type { CatalogSnapshot, Itinerary, TransportSearchQuery } from '@torob-ti
 import { displayOperatorName, displayPlaceName } from '@torob-ticket/ui';
 
 interface HeadingPlace { label: string; code?: string; cityId?: string; placeId?: string }
-type HeadingQuery = Pick<TransportSearchQuery, 'originCityId' | 'destinationCityId'> & Partial<Pick<TransportSearchQuery, 'tripType'>>;
+type HeadingQuery = Pick<TransportSearchQuery, 'originCityId' | 'destinationCityId'> & Partial<Pick<TransportSearchQuery, 'tripType' | 'mode' | 'scope' | 'departureDate' | 'classCode' | 'party'>>;
 
 /** Facilities come from the selected service; ambiguous form cities keep city-only labels. */
 export function routeHeading({ itinerary, direction, query }: { itinerary?: Itinerary; direction: 'outbound' | 'return'; query: HeadingQuery }, catalog: CatalogSnapshot) {
@@ -10,10 +10,13 @@ export function routeHeading({ itinerary, direction, query }: { itinerary?: Itin
  const leg = itinerary && (direction === 'return' ? itinerary.return : itinerary.outbound);
  const roundTrip = direction === 'outbound' ? itinerary?.return : undefined;
  const bidirectional = direction === 'outbound' && Boolean(roundTrip || (!itinerary && query.tripType === 'round-trip'));
+ // Return-date initialization belongs to a trip-type toggle. Every other
+ // meaningful travel condition remains part of the heading's visual owner.
+ const identity = { tripType: query.tripType ?? 'one-way', intentKey: JSON.stringify([direction, query.mode, query.scope, query.originCityId, query.destinationCityId, query.departureDate, query.classCode, query.party && [query.party.adults, query.party.children, query.party.infants, query.party.childAges, query.party.infantAgesMonths]]) };
  if (!leg) {
   const ids = direction === 'return' ? [query.destinationCityId, query.originCityId] : [query.originCityId, query.destinationCityId];
   const nodes: HeadingPlace[] = ids.map(id => ({ label: city(id), cityId: id }));
-  return { key: ['cities', direction, query.tripType, ...ids].join(':'), nodes, labels: nodes.map(node => node.label), bidirectional, service: undefined, codes: undefined, showCodeRoute: false };
+  return { ...identity, key: JSON.stringify(['cities', direction, ...ids]), nodes, labels: nodes.map(node => node.label), bidirectional, service: undefined, codes: undefined, showCodeRoute: false };
  }
  const first = leg.segments[0]!;
  const last = leg.segments.at(-1)!;
@@ -38,5 +41,5 @@ export function routeHeading({ itinerary, direction, query }: { itinerary?: Itin
  const returnFirst = roundTrip?.segments[0];
  const localDeparture = (segment: typeof first) => new Intl.DateTimeFormat('fa-IR', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: segment.departureTimeZone }).format(new Date(segment.departureAt));
  const service = returnFirst ? `${displayOperatorName(first.operatorId, first.mode)} · رفت ${localDeparture(first)} · برگشت ${returnFirst.operatorId === first.operatorId ? '' : `${displayOperatorName(returnFirst.operatorId, returnFirst.mode)} `}${localDeparture(returnFirst)}` : `${displayOperatorName(first.operatorId, first.mode)} · ${departure}`;
- return { key: `${itinerary.itineraryId}:${direction}${returnFirst ? ':round-trip' : ''}`, nodes, labels: nodes.map(item => item.label), bidirectional, service, codes: codes.length > 1 ? codes.join(' → ') : undefined, showCodeRoute: Boolean(roundTrip) };
+ return { ...identity, key: JSON.stringify([itinerary.itineraryId, direction, nodes.map(item => [item.cityId, item.placeId, item.label, item.code]), service, codes, Boolean(roundTrip)]), nodes, labels: nodes.map(item => item.label), bidirectional, service, codes: codes.length > 1 ? codes.join(' → ') : undefined, showCodeRoute: Boolean(roundTrip) };
 }

@@ -34,7 +34,23 @@ export function useDesktopMap() {
 }
 const labelFor=(map:TripMapController)=>map.view.progress===1?'ارجاع به فروشنده ثبت شده':map.view.selectedValid?'پیشنهاد برای مقایسه انتخاب شده':map.view.historical?'مسیر بررسی قبلی؛ بدون پیشنهاد قابل ادامه':map.view.inspection?'در حال بررسی این مسیر':map.view.progress===.35?'در حال مقایسه پیشنهادها':'مسیر کلی شهرها؛ پیش از انتخاب پیشنهاد';
 function Direction({map}:{map:TripMapController}) {return <RouteDirectionControl value={map.view.direction} hasReturn={Boolean(map.view.itinerary?.return||!map.view.itinerary&&map.view.query.tripType==='round-trip'&&map.view.query.returnDate)} onChange={map.direction}/>;}
-const HeadingFrame=forwardRef<HTMLDivElement,{heading:ReturnType<typeof routeHeading>;disabled:boolean}>(function HeadingFrame({heading,disabled},ref) {
+function HeadingArrow({bidirectional,disabled}:{bidirectional:boolean;disabled:boolean}) {
+ const policy=useMotionPolicy({disabled});const controls=useAnimationControls();
+ const previous=useRef(bidirectional),complete=useRef(true);
+ useLayoutEffect(()=>{
+  controls.stop();let cancelled=false;
+  const changed=previous.current!==bidirectional;previous.current=bidirectional;
+  if(!policy.enabled){complete.current=true;controls.set({opacity:1,y:0});}
+  else if(changed||!complete.current){
+   complete.current=false;if(changed)controls.set({opacity:0,y:4});
+   const settled=()=>{if(!cancelled)complete.current=true;};
+   void controls.start({opacity:1,y:0,transition:{duration:.22,ease:'easeOut'}}).then(settled,settled);
+  }else controls.set({opacity:1,y:0});
+  return()=>{cancelled=true;controls.stop();};
+ },[bidirectional,policy.enabled,controls]);
+ return <span className={styles.headingArrow} aria-hidden="true"><motion.i data-map-heading-arrow={bidirectional?'round-trip':'one-way'} data-arrow-motion={policy.enabled?'finite':'static'} initial={false} animate={controls}>{bidirectional?'↔':'←'}</motion.i></span>;
+}
+const HeadingFrame=forwardRef<HTMLDivElement,{heading:ReturnType<typeof routeHeading>;frameKey:string;disabled:boolean}>(function HeadingFrame({heading,frameKey,disabled},ref) {
  const present=useIsPresent();const policy=useMotionPolicy({disabled});
  const [,safeToRemove]=usePresence();
  const controls=useAnimationControls(),entered=useRef(false);
@@ -44,14 +60,27 @@ const HeadingFrame=forwardRef<HTMLDivElement,{heading:ReturnType<typeof routeHea
   const fresh=!entered.current;entered.current=true;if(!policy.enabled||!fresh)controls.set({opacity:1,y:0});else{controls.set({opacity:0,y:9});void controls.start({opacity:1,y:0,transition:{duration:.3,ease:'easeOut'}});}return()=>controls.stop();
  },[controls,present,policy.enabled,safeToRemove]);
  useEffect(()=>{if(!present&&!policy.enabled)safeToRemove?.();},[present,policy.enabled,safeToRemove]);
- return <motion.div ref={ref} className={styles.headingFrame} aria-hidden={!present||undefined} data-map-heading-key={heading.key} initial={false} animate={controls} transition={{duration:policy.enabled?.3:0,ease:'easeOut'}}>
-  <h2>{heading.nodes.map((node,index)=><span key={index} className={styles.headingCity}>{index>0&&<i aria-hidden="true">{heading.bidirectional?'↔':'←'}</i>}{node.label}{node.code&&<bdi className={styles.headingCode} dir="ltr">({node.code})</bdi>}</span>)}</h2>
+ const occurrences=new Map<string,number>();
+ return <motion.div ref={ref} className={styles.headingFrame} aria-hidden={!present||undefined} data-map-heading-key={frameKey} initial={false} animate={controls} transition={{duration:policy.enabled?.3:0,ease:'easeOut'}}>
+  <h2>{heading.nodes.map((node,index)=>{const identity=node.cityId??node.placeId??node.label;const occurrence=occurrences.get(identity)??0;occurrences.set(identity,occurrence+1);return <span key={identity+':'+occurrence} className={styles.headingCity}>{index>0&&<HeadingArrow bidirectional={heading.bidirectional} disabled={disabled}/>}<span data-map-city-label={identity}>{node.label}</span><bdi className={styles.headingCode} data-map-city-code={identity} dir="ltr" hidden={!node.code}>{node.code?`(${node.code})`:''}</bdi></span>;})}</h2>
   {heading.service&&<p className={styles.service}><span>{heading.service}</span>{heading.showCodeRoute&&heading.codes&&<bdi dir="ltr">{heading.codes}</bdi>}</p>}
  </motion.div>;
 });
 export function MapHeading({map,catalog,covered=false}:{map:TripMapController;catalog:CatalogSnapshot;covered?:boolean}) {
  const heading=routeHeading(map.presentationView,catalog);const policy=useMotionPolicy({covered});
- return <div className={styles.headingSwap} data-map-heading><AnimatePresence initial={false} mode="popLayout"><HeadingFrame key={heading.key} heading={heading} disabled={!policy.enabled}/></AnimatePresence></div>;
+ const [previous,setPrevious]=useState(()=>({key:heading.key,frameKey:heading.key,epoch:0,intentKey:heading.intentKey,tripType:heading.tripType}));
+ let frameKey=previous.frameKey;
+ if(previous.key!==heading.key||previous.intentKey!==heading.intentKey||previous.tripType!==heading.tripType){
+  // A form toggle revokes the old selected itinerary. Keep only the same city
+  // DOM owner; incoming draft facts still clear airport/service metadata.
+  const arrowOnly=!map.presentationView.itinerary&&previous.tripType!==heading.tripType&&previous.intentKey===heading.intentKey;
+  const changed=!arrowOnly&&previous.key!==heading.key;const epoch=previous.epoch+(changed?1:0);
+  // Re-adopting the same itinerary after a draft cycle is a new fact entry,
+  // even when that itinerary originally supplied the retained city owner.
+  frameKey=changed?JSON.stringify([heading.key,epoch]):previous.frameKey;
+  setPrevious({key:heading.key,frameKey,epoch,intentKey:heading.intentKey,tripType:heading.tripType});
+ }
+ return <div className={styles.headingSwap} data-map-heading><AnimatePresence initial={false} mode="popLayout"><HeadingFrame key={frameKey} frameKey={frameKey} heading={heading} disabled={!policy.enabled}/></AnimatePresence></div>;
 }
 function RouteSummary({map,catalog}:{map:TripMapController;catalog:CatalogSnapshot}) {
  const view=map.view;const city=(id:string)=>catalog.cities.find(city=>city.id===id)?.name??'انتخاب نشده';const modes={flight:'پرواز',train:'قطار',bus:'اتوبوس'};
