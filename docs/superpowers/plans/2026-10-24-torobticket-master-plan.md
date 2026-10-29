@@ -2423,3 +2423,15 @@ The subsequent request supersedes the previous all-labels-hidden and pre-ticket 
 | Iran provinces |75sourced features/39KB; sequential300ms exit/1s enter; bounded validation, retained resource/policy handling | DONE | Exact pinned-source/hash reproduction;3338province vertices/native sequential draw alpha/max2owners; retirement hazard fixed;29focused tests |
 | Restrained glow | Bound seeded pulse0.58–.80; geography tint avoids pale highlight; preserve selected semantic emphasis | DONE | Major-city sprite cause closed;12native raster cases maxRGB158/255/highlight perturbation0bytes, semantic positive-control136bytes;25focused tests |
 | Assembly | Integrated/static, normal Docker, native/device/visual proof, spec/SDD/exports | DONE | [Checkpoint](../../evidence/adjustments/faster-morph-provinces/checkpoint.md):599tests/96files,11Nxchecks,3packagednative; stable16.7–16.8ms submissionp95, adaptiveDPR2bloomfallback truthfully retained |
+
+
+## Owner adjustment — GPGPU fluid particle scatter, 2026-10-29
+
+[Decision0048](../../decisions/0048-particle-scatter-and-momentum.md), specification1.22. Feature5bbfab2, idle8595bc5; M7 remains partial29/35; T30 active.
+
+| Adjustment | Subtasks | Status | Evidence |
+|---|---|---|---|
+| GPU fluid motion | Genuine low-resolution ping-pong advection/curl/pressure and integratedD/V; stroke eddies/momentum/return | DONE | [Review](../../evidence/adjustments/particle-momentum/review-independent.md): GPUdisplacementRMS4.44→11.69→.00391px afterrelease,5936carry/5571turncells, actualpressure/curl;12tinycompute draws/≤1MiB |
+| Particle integration | Shared land/morph/major flow, actualcamera, captured-sourceC0, event-only snapshot and neighborhood cap | DONE | Native4/4GPU/CPU tests; realapp0ordinaryreads/1scopeinterruptread, sharedtextures, identicalDPR1/1.75state; old radialshader removed |
+| Policy and performance | Exactphysical/logicalstate; lazy/sleep/visibility/reduced/context/resource guards, StrictMode/Activity owners | DONE | 11finalengine tests; actualappcalendarpause/reveal/contextrestore, zeroidlework; device16.7–16.8ms submissionp95, optionalDPR2bloomfallback recorded |
+| Assembly | Integrated/static, normalDocker, native/device/visual recording, spec/SDD/exports | DONE | [Checkpoint](../../evidence/adjustments/particle-momentum/checkpoint.md):608integrated/98files,11Nxstatic,11finalfocused; verified3packagedbloom+realappflow+recordingPASS; originalqualificationfailures retained |
