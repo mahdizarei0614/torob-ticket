@@ -192,6 +192,7 @@ describe('authorized date intent admission', () => {
     await act(async () => first.finish()); expect(client.startSearch).not.toHaveBeenCalled();
     act(() => hook.result.current.commitDates({ ...query, tripType: 'round-trip', returnDate: undefined }));
     expect(hook.result.current.state.draft.returnDate).toBeUndefined(); expect(hook.result.current.accepted).toBe(false); expect(client.startSearch).not.toHaveBeenCalled();
+    expect(hook.result.current.validity.valid).toBe(false); expect(hook.result.current.feedback).toBe(''); expect(hook.result.current.waitingDate).toBe(false);
     const replacement = pool.reserve()!;
     act(() => hook.result.current.commitDates({ ...query, departureDate: '2026-10-27' }));
     act(() => hook.navigate('/'));

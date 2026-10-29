@@ -142,7 +142,9 @@ export function SceneDrawing({ dots, markers, segments, context, frame, progress
     resources.routeMaterial.uniforms['reveal']!.value = value.reveal;
     resources.routeMaterial.uniforms['travel']!.value = value.travel;
     resources.routeMaterial.uniforms['stopGlow']!.value = value.stopGlow;
-    resources.routeMaterial.uniforms['strandOpacity']!.value = presentation.roundTrip ? value.vehicleOpacity : 1;
+    // The head and its light are one transient effect. Keep the revealed base
+    // route, but fade both before wrapping travel back to the origin.
+    resources.routeMaterial.uniforms['strandOpacity']!.value = presentationReducedMotion ? 0 : value.vehicleOpacity;
     const pose = applyVehicle(value.travel, value.stopGlow, value.vehicleOpacity, value.vehicleBlur, value.turnProgress, value.direction);
     if (force || clock.current.elapsed - clock.current.reported >= 80) {
       presentationOutward.current?.({ ...value, vehiclePoint: pose?.point });

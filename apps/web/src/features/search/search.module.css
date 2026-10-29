@@ -62,3 +62,11 @@
 .intro { display:flex; align-items:center; justify-content:space-between; gap:12px; padding-block:10px; }
 .intro h1 { margin:0; min-width:0; line-height:1.4; }
 .intro .suggestions { flex-shrink:0; }
+
+/* Field feedback for explicit search attempts (0051); keep shared brand styles independent. */
+.fieldFeedback { min-width:0; }
+.fieldFeedback:empty { display:none; }
+.fieldFeedback[data-invalid] :is([role='group'],[data-segment-track],[data-calendar-trigger]) { border-color:var(--danger); }
+.fieldFeedback[data-invalid] input { border-color:var(--danger); }
+.fieldError { margin:5px 0 0; color:var(--danger); font-size:12px; line-height:1.8; }
+.submitRow > button[data-invalid] { background:var(--disabled-bg); border-color:var(--border); color:var(--disabled-text); cursor:pointer; }

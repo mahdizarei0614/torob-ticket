@@ -21,16 +21,24 @@ vi.mock('@torob-ticket/ui',async original=>{
 });
 const identity={identityId:'profile-user',displayName:'کاربر سفر',simulated:true as const};
 afterEach(()=>{vi.restoreAllMocks();localStorage.clear();capture.signIn=undefined;capture.signOut=undefined;window.history.replaceState({},'','/');});
-function setup(strict=false){
+function setup(strict=false,initialIdentity:Parameters<typeof AccountPanel>[0]['session']['identity']=session.identity){
  const client={authState:vi.fn(async()=>({identity})),signIn:vi.fn(async()=>({identity})),signOut:vi.fn(async()=>({identity:null})),listSavedSearches:vi.fn(async()=>({items:[]})),saveSearch:vi.fn(),deleteSavedSearch:vi.fn(),startSearch:vi.fn(),cancelSearch:vi.fn(async()=>undefined)} as unknown as ApiClient;
- const covered=vi.fn();let controller!:ReturnType<typeof useSearchController>;
- function Harness(){controller=useSearchController(catalog,session,client);return <><Button>بیرون از حساب</Button><AccountPanel controller={controller} catalog={catalog} session={session} client={client} onCovered={covered}/></>;}
+ const covered=vi.fn();let controller!:ReturnType<typeof useSearchController>;const initialSession={...session,identity:initialIdentity};
+ function Harness(){controller=useSearchController(catalog,initialSession,client);return <><Button>بیرون از حساب</Button><AccountPanel controller={controller} catalog={catalog} session={initialSession} client={client} onCovered={covered}/></>;}
  window.history.replaceState({},'','/');
  const tree=<QueryClientProvider client={new QueryClient()}><BrowserRouter><ThemeProvider><Harness/></ThemeProvider></BrowserRouter></QueryClientProvider>;
  const view=render(strict?<StrictMode>{tree}</StrictMode>:tree);
  return{...view,client,covered,get controller(){return controller;}};
 }
 async function open(signedIn=true){const user=userEvent.setup();await user.click(screen.getByRole('button',{name:'حساب کاربری'}));await screen.findByRole('button',{name:signedIn?'خروج از حساب':'ادامه با ترب'});return user;}
+function avatar(){return screen.getByRole('button',{name:'حساب کاربری'}).querySelector('[data-profile-avatar]')!;}
+it.each([{name:'  مَهسا  ',initial:'مَ'},{name:'Mina',initial:'M'},{name:'👩‍💻 آزاده',initial:'👩‍💻'}])('shows the supplied identity first grapheme for $name without an image or extra account action',({name,initial})=>{
+ const h=setup(false,{...identity,displayName:name});expect(avatar()).toHaveAttribute('data-profile-avatar','initial');expect(avatar()).toHaveTextContent(initial);expect(avatar().textContent).toBe(initial);expect(avatar()).toHaveAttribute('aria-hidden','true');
+ expect(avatar().querySelector('img,svg')).toBeNull();expect(screen.getByRole('button',{name:'حساب کاربری'})).toBeEnabled();expect(h.client.authState).not.toHaveBeenCalled();
+});
+it('uses the original local account glyph when guest or no usable identity initial is available',()=>{
+ const h=setup(false,{...identity,displayName:'   '});expect(avatar()).toHaveAttribute('data-profile-avatar','glyph');expect(avatar().querySelector('svg')).not.toBeNull();expect(avatar().querySelector('img')).toBeNull();expect(avatar().textContent).toBe('');expect(h.client.authState).not.toHaveBeenCalled();
+});
 it('shows only actual user details and inline-icon logout without saved-search or appearance presentation/requests',async()=>{
  const h=setup();await open();const profile=screen.getByRole('dialog',{name:'حساب کاربری'}),logout=screen.getByRole('button',{name:'خروج از حساب'});
  expect(screen.getByText(displayAccountName(identity),{exact:true})).toBeVisible();expect(screen.getByLabelText('اطلاعات کاربری')).toHaveTextContent('نام');
@@ -41,9 +49,11 @@ it('shows only actual user details and inline-icon logout without saved-search o
 });
 it('keeps guest sign-in reachable and preserves local theme preference through login/logout',async()=>{
  const h=setup();vi.mocked(h.client.authState).mockResolvedValue({identity:null});localStorage.setItem('torobticket.appearance','dark');
- const before=h.controller.state,user=await open(false);expect(screen.queryByText(/ذخیره/)).not.toBeInTheDocument();
+ const before=h.controller.state,user=await open(false);expect(screen.queryByText(/ذخیره/)).not.toBeInTheDocument();expect(avatar()).toHaveAttribute('data-profile-avatar','glyph');expect(avatar().querySelector('svg')).not.toBeNull();
  await user.click(screen.getByRole('button',{name:'ادامه با ترب'}));await screen.findByRole('button',{name:'خروج از حساب'});expect(h.client.signIn).toHaveBeenCalledOnce();expect(h.controller.state).toEqual(before);
+ expect(avatar()).toHaveAttribute('data-profile-avatar','initial');expect(avatar().textContent).toBe('ک');
  await user.click(screen.getByRole('button',{name:'خروج از حساب'}));await screen.findByRole('button',{name:'ادامه با ترب'});expect(h.client.signOut).toHaveBeenCalledOnce();expect(h.controller.state).toEqual(before);
+ expect(avatar()).toHaveAttribute('data-profile-avatar','glyph');expect(avatar().querySelector('svg')).not.toBeNull();
  expect(localStorage.getItem('torobticket.appearance')).toBe('dark');expect(h.client.listSavedSearches).not.toHaveBeenCalled();expect(h.client.saveSearch).not.toHaveBeenCalled();expect(h.client.deleteSavedSearch).not.toHaveBeenCalled();
 });
 it.each(['signIn','signOut'] as const)('rejects a retained %s after close/reopen while current controls still work',async action=>{
@@ -60,12 +70,12 @@ it('clears privileged identity on SESSION_EXPIRED and keeps guest recovery and l
  const h=setup(),user=await open();localStorage.setItem('torobticket.appearance','light');
  vi.mocked(h.client.signOut).mockRejectedValueOnce(new ClientError('api','expired',{code:'SESSION_EXPIRED',fieldPaths:[],retryable:false,requestId:'request'},401));
  await user.click(screen.getByRole('button',{name:'خروج از حساب'}));await screen.findByRole('alert');expect(screen.getByRole('button',{name:'ادامه با ترب'})).toBeVisible();expect(screen.queryByRole('button',{name:'خروج از حساب'})).toBeNull();expect(screen.queryByText(identity.displayName,{exact:true})).toBeNull();
- expect(localStorage.getItem('torobticket.appearance')).toBe('light');expect(h.client.listSavedSearches).not.toHaveBeenCalled();
+ expect(localStorage.getItem('torobticket.appearance')).toBe('light');expect(h.client.listSavedSearches).not.toHaveBeenCalled();expect(avatar()).toHaveAttribute('data-profile-avatar','glyph');
 });
 it('does not restore an obsolete identity read after a newer profile refresh',async()=>{
  const h=setup();let release!:(value:{identity:typeof identity|null})=>void;vi.mocked(h.client.authState).mockReturnValueOnce(new Promise(resolve=>{release=resolve;})).mockResolvedValue({identity:null});
  const user=await open(false);await user.keyboard('{Escape}');await waitFor(()=>expect(screen.queryByRole('dialog')).toBeNull());await open(false);
- await act(async()=>release({identity}));expect(screen.getByRole('button',{name:'ادامه با ترب'})).toBeVisible();expect(screen.queryByRole('button',{name:'خروج از حساب'})).not.toBeInTheDocument();
+ await act(async()=>release({identity}));expect(screen.getByRole('button',{name:'ادامه با ترب'})).toBeVisible();expect(screen.queryByRole('button',{name:'خروج از حساب'})).not.toBeInTheDocument();expect(avatar()).toHaveAttribute('data-profile-avatar','glyph');
 });
 it('keeps current sign-in/logout and Escape focus return working through StrictMode replay',async()=>{
  const h=setup(true);vi.mocked(h.client.authState).mockResolvedValue({identity:null});const user=await open(false),trigger=screen.getByRole('button',{name:'حساب کاربری'});

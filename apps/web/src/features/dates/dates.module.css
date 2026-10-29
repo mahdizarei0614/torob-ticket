@@ -1,5 +1,5 @@
 .explorer { border-top: 1px solid var(--border); padding-top: 8px; min-width: 0; }
-.calendarTrigger { display:grid;place-items:center;min-width:44px;min-height:44px;width:calc(100% - 36px);border:1px solid var(--border);border-radius: var(--radius-sm); corner-shape: var(--corner-shape);background:var(--surface);color:var(--accent);cursor:pointer; }
+.calendarTrigger { display:flex;align-items:center;justify-content:center;gap:6px;min-width:44px;min-height:44px;width:calc(100% - 36px);border:1px solid var(--border);border-radius: var(--radius-sm); corner-shape: var(--corner-shape);background:var(--surface);color:var(--accent);font:inherit;font-size:12px;cursor:pointer; }
 .calendarTrigger:hover { background:var(--accent-soft);border-color:var(--border-strong); }
 .calendarTrigger:focus-visible { outline:var(--focus-width) solid var(--focus);outline-offset:2px; }
 .calendarTrigger:disabled { color:var(--disabled-text);cursor:default; }

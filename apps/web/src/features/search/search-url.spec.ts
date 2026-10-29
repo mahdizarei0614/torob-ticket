@@ -1,7 +1,28 @@
 import { describe, expect, it } from 'vitest';
-import { consumerDraft, dateBounds, initialReturnDate, defaultClassCode, parseConsumerSearchUrl, parseSearchUrl, serializeSearchUrl, validateDraft } from './search-url';
+import { consumerDraft, dateBounds, draftFieldErrors, initialReturnDate, defaultClassCode, parseConsumerSearchUrl, parseSearchUrl, serializeSearchUrl, validateDraft } from './search-url';
 import { catalog, query, session } from './search-test-data';
 describe('canonical committed search intent', () => {
+  it('targets incomplete city/date/class fields without repairing or committing the draft', () => {
+    const draft = { ...query, originCityId: '', destinationCityId: '', departureDate: '', tripType: 'round-trip' as const, classCode: 'old' };
+    const before = structuredClone(draft), errors = draftFieldErrors(draft, catalog, session);
+    expect(Object.keys(errors)).toEqual(['originCityId','destinationCityId','classCode','departureDate','returnDate']);
+    expect(errors.returnDate).toContain('برگشت'); expect(draft).toEqual(before); expect(validateDraft(draft, catalog, session).query).toBeUndefined();
+    expect(draftFieldErrors(query, catalog, session)).toEqual({});
+  });
+  it('keeps cross-field date, local coverage and unsupported route errors attached to their useful controls', () => {
+    expect(draftFieldErrors({ ...query, destinationCityId: query.originCityId }, catalog, session)).toMatchObject({ destinationCityId: expect.stringContaining('متفاوت') });
+    expect(draftFieldErrors({ ...query, destinationCityId: 'c' }, catalog, session)).toHaveProperty('destinationCityId');
+    expect(draftFieldErrors({ ...query, departureDate: '2027-01-23', tripType: 'round-trip', returnDate: '2026-10-26' }, catalog, session)).toEqual({ departureDate: expect.stringContaining('۹۰'), returnDate: expect.stringContaining('پیش از رفت') });
+    const fixed = draftFieldErrors({ ...query, tripType: 'round-trip', returnDate: query.departureDate }, catalog, session);
+    expect(fixed).toEqual({});
+  });
+  it('retains actionable hidden-filter and non-field failures until their actual conditions are corrected', () => {
+    expect(draftFieldErrors({ ...query, filters: { providerIds: ['gone'] } }, catalog, session)).toHaveProperty('filters');
+    expect(draftFieldErrors({ ...query, filters: { budgetMaxRial: -1 } }, catalog, session)).toHaveProperty('filters');
+    expect(draftFieldErrors({ ...query, mode: 'train', destinationCityId: 'c', classCode: 'seat', filters: { checkedBaggageMinKg: 10 } }, catalog, session)).toEqual({ filters: expect.any(String) });
+    expect(draftFieldErrors({ ...query, party: { adults: 1, children: 1, infants: 0 } }, catalog, session)).toHaveProperty('form');
+    expect(draftFieldErrors({ ...query, party: { adults: 0, children: 0, infants: 0 } }, catalog, session)).toHaveProperty('form');
+  });
   it('normalizes new consumer links to one adult without rewriting the general evidence codec',()=>{
     const prior={...query,party:{adults:2,children:1,infants:1,childAges:[8],infantAgesMonths:[6]}};
     const url=serializeSearchUrl(prior);

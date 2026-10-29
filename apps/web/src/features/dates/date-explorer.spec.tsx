@@ -8,7 +8,8 @@ describe('calendar external intent invalidation',()=>{
   it('places the calendar action after the nearby wheel in the same compact column and keeps cancel provisional',()=>{
     const commit=vi.fn();render(<DateExplorer catalog={catalog} session={session} draft={query} onCommit={commit} onPreview={vi.fn()} onCovered={vi.fn()} onInteractionChange={vi.fn()}/>);
     const wheel=screen.getByRole('listbox',{name:'روزهای نزدیک'}),trigger=screen.getByRole('button',{name:'تقویم جلالی و انتخاب تاریخ'});
-    expect(wheel.parentElement?.parentElement).toBe(trigger.parentElement);
+    expect(wheel.parentElement?.parentElement).toBe(trigger.parentElement?.parentElement);
+    expect(trigger).toHaveTextContent('تقویم و تاریخ'); expect(trigger.querySelector('svg')).toBeInTheDocument();
     expect(wheel.compareDocumentPosition(trigger)&Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     fireEvent.click(trigger);fireEvent.click(screen.getByRole('button',{name:'انصراف'}));
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();expect(commit).not.toHaveBeenCalled();

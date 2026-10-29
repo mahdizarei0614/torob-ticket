@@ -1,4 +1,4 @@
-import { TransportSearchQuerySchema, type CatalogSnapshot, type SessionInfo, type TransportSearchQuery } from '@torob-ticket/contracts';
+import { LocalDateSchema, TransportSearchQuerySchema, type CatalogSnapshot, type SessionInfo, type TransportSearchQuery } from '@torob-ticket/contracts';
 import { localDateAt } from '@torob-ticket/domain';
 import { parseDate } from '@internationalized/date';
 export type SearchDraft = Omit<TransportSearchQuery, 'returnDate'> & { returnDate?: string };
@@ -52,6 +52,44 @@ export function validateDraft(draft: unknown, catalog: CatalogSnapshot, session:
     if (date < bounds.min || date > bounds.max) errors.push('تاریخ باید در بازه ۹۰ روز آینده و به وقت محلی شهر باشد.');
   }
   return { valid: errors.length === 0, errors, ...(errors.length ? {} : { query: q }) };
+}
+export type SearchField = 'originCityId' | 'destinationCityId' | 'departureDate' | 'returnDate' | 'classCode' | 'filters' | 'form';
+export type SearchFieldErrors = Partial<Record<SearchField, string>>;
+/** Presentation targets for the same authoritative validator; never repairs or commits intent. */
+export function draftFieldErrors(draft: SearchDraft, catalog: CatalogSnapshot, session: SessionInfo): SearchFieldErrors {
+  const checked = validateDraft(draft, catalog, session);
+  if (checked.valid) return {};
+  const errors: SearchFieldErrors = {};
+  const origin = catalog.cities.find(city => city.id === draft.originCityId);
+  const destination = catalog.cities.find(city => city.id === draft.destinationCityId);
+  if (!origin) errors.originCityId = 'شهر مبدا را از فهرست انتخاب کنید.';
+  else if (!catalog.supportedConnections.some(route => route.mode === draft.mode && route.scope === draft.scope && route.originCityId === origin.id)) errors.originCityId = 'مبدا را از مسیرهای همین وسیله و محدوده انتخاب کنید.';
+  if (!destination) errors.destinationCityId = 'شهر مقصد را از فهرست انتخاب کنید.';
+  else if (origin && !catalog.supportedConnections.some(route => route.mode === draft.mode && route.scope === draft.scope && route.originCityId === origin.id && route.destinationCityId === destination.id)) errors.destinationCityId = origin.id === destination.id ? 'مقصد باید با مبدا متفاوت باشد.' : 'مقصدی سازگار با مبدا و وسیله سفر انتخاب کنید.';
+  if (!catalog.classChoices.some(choice => choice.mode === draft.mode && choice.code === draft.classCode)) errors.classCode = 'کلاس سفر را از گزینه‌های همین وسیله انتخاب کنید.';
+  const departure = LocalDateSchema.safeParse(draft.departureDate);
+  const returning = draft.returnDate ? LocalDateSchema.safeParse(draft.returnDate) : undefined;
+  if (!departure.success) errors.departureDate = 'تاریخ رفت معتبر انتخاب کنید.';
+  else if (origin) { const bounds = dateBounds(session, origin.timeZone); if (departure.data < bounds.min || departure.data > bounds.max) errors.departureDate = 'تاریخ رفت را در بازه ۹۰ روز آینده انتخاب کنید.'; }
+  if (draft.tripType === 'round-trip') {
+    if (!returning?.success) errors.returnDate = 'تاریخ برگشت را انتخاب کنید.';
+    else if (departure.success && returning.data < departure.data) errors.returnDate = 'تاریخ برگشت نباید پیش از رفت باشد.';
+    else if (destination) { const bounds = dateBounds(session, destination.timeZone); if (returning.data < bounds.min || returning.data > bounds.max) errors.returnDate = 'تاریخ برگشت را در بازه ۹۰ روز آینده مقصد انتخاب کنید.'; }
+  }
+  const parsed = TransportSearchQuerySchema.safeParse(draft);
+  if (!parsed.success) for (const issue of parsed.error.issues) {
+    const field = String(issue.path[0] ?? 'form');
+    if (field === 'filters') errors.filters = 'فیلترهای جست‌وجو را اصلاح یا پاک کنید.';
+    else if (!['originCityId', 'destinationCityId', 'departureDate', 'returnDate', 'classCode'].includes(field)) errors.form = 'شرایط پیوند جست‌وجو معتبر نیست؛ فرم سفر را اصلاح کنید.';
+  }
+  if (parsed.success) {
+    const providers = catalog.providerCapabilities.filter(provider => provider.modes.includes(parsed.data.mode) && provider.scopes.includes(parsed.data.scope));
+    if (parsed.data.filters.providerIds?.some(id => !providers.some(provider => provider.providerId === id)) || parsed.data.mode !== 'flight' && parsed.data.filters.checkedBaggageMinKg !== undefined) errors.filters = 'فیلترهای جست‌وجو را اصلاح یا پاک کنید.';
+    const ages = requiredAges(parsed.data, catalog);
+    if (ages.children && parsed.data.party.children && !parsed.data.party.childAges || ages.infants && parsed.data.party.infants && !parsed.data.party.infantAgesMonths) errors.form = 'سن مسافران در شرایط پیوند کامل نیست.';
+  }
+  if (!Object.keys(errors).length) errors.form = checked.errors[0] ?? 'شرایط سفر را اصلاح کنید.';
+  return errors;
 }
 function ordered(query: TransportSearchQuery): TransportSearchQuery {
   const q = TransportSearchQuerySchema.parse(query);

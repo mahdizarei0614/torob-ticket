@@ -7,8 +7,9 @@
 .coverage { display: flex; gap: 4px 14px; flex-wrap: wrap; align-items: center; padding: 12px 2px; font-size: 11px; color: var(--text-muted); }.coverage > small { flex-basis: 100%; font-size: 10px; }.invalid { color: var(--danger); }.muted { color: var(--text-muted); }.notice { color: var(--warning); background: var(--warning-bg); padding: 10px 12px; border-radius: var(--radius-sm); corner-shape: var(--corner-shape); line-height: 1.9; font-size: 12px; }
 .updates { position: sticky; top: 8px; z-index: 2; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px; border: 1px solid var(--accent); border-radius: var(--radius-md); corner-shape: var(--corner-shape); background: var(--surface-raised); box-shadow: var(--elevation); margin-block: 8px 14px; }.updates div { display: grid; gap: 4px; }.updates span,.updates small { color: var(--text-muted); font-size: 11px; }
 .list { display: grid; gap: 8px; overflow-anchor: none; }
-.card { overflow-anchor: none; position: relative; isolation: isolate; border: 1px solid var(--border); border-radius: var(--radius-md); corner-shape: var(--corner-shape); background: var(--surface); overflow: clip; scroll-margin-block-start: 80px; }
-.card[data-selected] { border-color: var(--accent); box-shadow: inset -3px 0 var(--accent); }
+.card { overflow-anchor: none; position: relative; isolation: isolate; border: 1px solid var(--border); padding-inline-start: 3px; border-radius: var(--radius-md); corner-shape: var(--corner-shape); background: var(--surface); overflow: clip; scroll-margin-block-start: 80px; }
+/* Reserve the same leading inset in both states; the native border stays outside child backgrounds. */
+.card[data-selected] { border-color: var(--accent); border-inline-start-width: 4px; padding-inline-start: 0; }
 .card:has(.cardSelect:not(:disabled):hover) { border-color: var(--accent); }
 /* A native button covers the summary; separate controls stay above its surface. */
 .cardSelect { position: absolute; z-index: 1; inset: 0; width: 100%; height: 100%; border: 0; border-radius: inherit; corner-shape: inherit; padding: 0; background: none; cursor: pointer; }

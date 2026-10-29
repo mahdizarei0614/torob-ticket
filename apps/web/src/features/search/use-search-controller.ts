@@ -170,7 +170,7 @@ export function useSearchController(catalog: CatalogSnapshot, session: SessionIn
     if (!checked.valid) {
       dateInteractions.invalidate(); cancelQueuedDate(); generation.current = next; intendedGeneration.current = next; setAccepted(false); setPending(false);
       dispatch({ type: 'date-draft', draft, generation: next });
-      setFeedback(draft.tripType === 'round-trip' && !draft.returnDate ? 'تاریخ برگشت را دوباره انتخاب کنید؛ سپس تاریخ‌ها را اعمال کنید.' : checked.errors.join(' '));
+      setFeedback('');
       return;
     }
     commitIntent(checked.query!, next, 'date');
