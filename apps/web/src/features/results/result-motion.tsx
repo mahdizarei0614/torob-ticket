@@ -9,7 +9,7 @@ export const ResultPresence = forwardRef<HTMLDivElement, { children: ReactNode; 
  const [, safeToRemove] = usePresence();
  const policy = useMotionPolicy();
  const animated = policy.enabled && !staticMotion;
- const controls = useAnimationControls(), entered = useRef(false);
+ const controls = useAnimationControls(), entered = useRef(false), entryComplete = useRef(false);
  const previousRefresh = useRef(refreshKey);
  useLayoutEffect(() => {
   controls.stop();
@@ -26,12 +26,19 @@ export const ResultPresence = forwardRef<HTMLDivElement, { children: ReactNode; 
   const fresh = !entered.current; entered.current = true;
   const refreshed = previousRefresh.current !== refreshKey; previousRefresh.current = refreshKey;
   const finalFrame = { opacity: 1, y: 0, ...(collapse ? { height: 'auto' } : {}) };
-  if (!animated || !fresh && !refreshed) controls.set(finalFrame);
-  else {
-   controls.set({ opacity: fresh ? 0 : .72, y: collapse || !fresh ? 0 : 12, ...(collapse ? { height: fresh ? 0 : 'auto' } : {}) });
-   void controls.start({ ...finalFrame, transition: { duration: .28, ease: [.22, .68, .24, 1] } });
+  if (!animated || !fresh && !refreshed && entryComplete.current) {
+   entryComplete.current = true;
+   controls.set(finalFrame);
   }
-  return () => controls.stop();
+  else {
+   // A StrictMode effect replay interrupts the first attempt. Resume that
+   // unfinished entry from its current frame instead of snapping height:auto.
+   entryComplete.current = false;
+   if (fresh || refreshed) controls.set({ opacity: fresh ? 0 : .72, y: collapse || !fresh ? 0 : 12, ...(collapse ? { height: fresh ? 0 : 'auto' } : {}) });
+   const complete = () => { if (!cancelled) entryComplete.current = true; };
+   void controls.start({ ...finalFrame, transition: { duration: .28, ease: [.22, .68, .24, 1] } }).then(complete, complete);
+  }
+  return () => { cancelled = true; controls.stop(); };
  }, [controls, animated, present, collapse, safeToRemove, refreshKey]);
  // Presence registrations finish in passive effects; acknowledge static retirement afterward.
  useEffect(() => { if (!present && !animated) safeToRemove?.(); }, [present, animated, safeToRemove]);

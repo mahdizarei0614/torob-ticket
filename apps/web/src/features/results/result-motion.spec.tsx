@@ -1,4 +1,5 @@
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { StrictMode } from 'react';
 import { afterEach, expect, it, vi } from 'vitest';
 import { ResultsList } from './results-page';
 import { useResults } from './use-results';
@@ -11,6 +12,17 @@ vi.mock('@torob-ticket/ui', async importOriginal => ({ ...await importOriginal<t
 vi.mock('./use-results', () => ({ useResults: vi.fn() }));
 afterEach(() => { vi.restoreAllMocks(); policy.enabled = false; });
 const props = { allowDefaultSelection: false, generation: 'generation', searchId: 'search', query, catalog, isCurrent: () => true, refinementDisabled: false, draftChanged: false, onRefine: vi.fn(), onEdit: vi.fn() };
+
+it('resumes an unfinished finite entry through StrictMode effect replay instead of snapping to the final frame', async () => {
+ policy.enabled = true;
+ vi.spyOn(window, 'scrollTo').mockImplementation(() => undefined);
+ const view = render(<StrictMode><ResultsPresence><ResultPresence collapse><div>Disclosure evidence</div></ResultPresence></ResultsPresence></StrictMode>);
+ const entering = view.container.querySelector<HTMLElement>('[data-result-presence]')!;
+ expect(entering.style.opacity).not.toBe('1');
+ await waitFor(() => { const opacity = Number(entering.style.opacity); expect(opacity).toBeGreaterThan(0); expect(opacity).toBeLessThan(1); });
+ await waitFor(() => expect(entering.style.opacity).toBe('1'), { timeout: 1500 });
+ view.unmount();
+});
 
 it('reserves loading rows without invented fares, then replaces them with the received cards', async () => {
  vi.spyOn(Date, 'now').mockReturnValue(Date.parse(observedAt) + 1000);

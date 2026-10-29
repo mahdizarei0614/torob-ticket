@@ -78,3 +78,68 @@ for (const width of [1366, 390]) test(`@results-scroll ${width}px defers native 
  await page.screenshot({ path: resolve(evidence, `retained-${width}.png`) });
  writeFileSync(resolve(evidence, `retained-${width}.json`), JSON.stringify({ browser: browser.version(), width, rendering, fullCardCount: 48, chosenId, chosenQuote, chosenAmount, retainedDetailsId: detailsId, searchPosts, sortingDidNotSearch: true, pageErrors: errors, cleanup: 'Fresh isolated context only; no reset or deletion. Playwright closes its context; evidence uses normal server expiry.' }, null, 2) + '\n');
 });
+
+test('@results-scroll pointer-synchronized first middle last disclosure height and scroll stability', async ({ context, page, browser }) => {
+ test.setTimeout(90000);
+ mkdirSync(evidence, { recursive: true });
+ expect(await context.cookies()).toEqual([]);
+ const created = await context.request.post('/api/v1/demo/session', { data: { seed: 4529, anchorInstant: '2026-10-29T06:00:00Z' } });
+ expect(created.status()).toBe(201);
+ await page.setViewportSize({ width: 1366, height: 768 });
+ await page.emulateMedia({ reducedMotion: 'no-preference' });
+ await page.goto('/?q=' + encodeURIComponent(JSON.stringify(query)));
+ await page.getByRole('button', { name: 'جست‌وجوی سفر', exact: true }).click();
+ const region = page.getByRole('region', { name: 'نتایج مقایسه سفر', exact: true });
+ await expect(region).toHaveAttribute('data-status', 'complete', { timeout: 30000 });
+ const cards = region.locator('article[data-price-card-id]');
+ await expect(cards).toHaveCount(48);
+ await expect(region.locator('article[data-selected="true"]')).toHaveCount(1);
+ await page.bringToFront();
+ await page.evaluate(async () => { await document.fonts.ready; });
+ const environment = await page.evaluate(() => ({ reduced: matchMedia('(prefers-reduced-motion: reduce)').matches, visibility: document.visibilityState }));
+ expect(environment).toEqual({ reduced: false, visibility: 'visible' });
+ type Frame = { time: number; top: number; cardTop: number; height: number; scroll: number; policy: string | null; expanded: string | null };
+ const runs: { index: number; open: boolean; frames: Frame[]; intermediate: number; spread: { top: number; cardTop: number; scroll: number } }[] = [];
+ try {
+  for (const index of [0, 24, 47]) {
+   const card = cards.nth(index), button = card.getByRole('button', { name: 'جزئیات سفر', exact: true });
+   await button.scrollIntoViewIfNeeded(); await button.focus();
+   for (const open of [true, false]) {
+    await button.evaluate(node => {
+     const button = node as HTMLButtonElement, card = button.closest<HTMLElement>('article[data-price-card-id]')!;
+     const state = { started: false, done: false, frames: [] as { time: number; top: number; cardTop: number; height: number; scroll: number; policy: string | null; expanded: string | null }[] };
+     Object.assign(window, { pointerDisclosureTrace: state });
+     // Begin in the native pointerdown dispatch, before pointerup/onPress; a
+     // driver actionability wait cannot consume the finite animation window.
+     button.addEventListener('pointerdown', () => {
+      state.started = true;
+      const start = performance.now();
+      const sample = () => {
+       const details = document.getElementById(button.getAttribute('aria-controls')!), wrapper = details?.parentElement;
+       state.frames.push({ time: performance.now() - start, top: button.getBoundingClientRect().top, cardTop: card.getBoundingClientRect().top, height: wrapper?.getBoundingClientRect().height ?? 0, scroll: scrollY, policy: wrapper?.getAttribute('data-result-motion') ?? null, expanded: button.getAttribute('aria-expanded') });
+       if (performance.now() - start < 900) requestAnimationFrame(sample); else state.done = true;
+      };
+      sample();
+     }, { once: true, capture: true });
+    });
+    await button.click();
+    await expect(button).toHaveAttribute('aria-expanded', String(open));
+    await expect.poll(() => page.evaluate(() => (window as unknown as { pointerDisclosureTrace: { done: boolean } }).pointerDisclosureTrace.done)).toBe(true);
+    const frames = await page.evaluate(() => (window as unknown as { pointerDisclosureTrace: { frames: Frame[] } }).pointerDisclosureTrace.frames);
+    const spread = { top: Math.max(...frames.map(frame => frame.top)) - Math.min(...frames.map(frame => frame.top)), cardTop: Math.max(...frames.map(frame => frame.cardTop)) - Math.min(...frames.map(frame => frame.cardTop)), scroll: Math.max(...frames.map(frame => frame.scroll)) - Math.min(...frames.map(frame => frame.scroll)) };
+    const maxHeight = Math.max(...frames.map(frame => frame.height));
+    const intermediate = frames.filter(frame => frame.height > 1 && frame.height < maxHeight - 1).length;
+    runs.push({ index, open, frames, intermediate, spread });
+    // Persist partial receipts before assertions, including any genuine failure.
+    writeFileSync(resolve(evidence, 'pointer-disclosures.json'), JSON.stringify({ browser: browser.version(), environment, runs, method: '900ms rAF trace starts at actual pointerdown, before React Aria onPress; no scripted click or timer stand-in; fresh isolated session, no reset/deletion.' }, null, 2) + '\n');
+    expect(spread.top).toBeLessThan(2); expect(spread.cardTop).toBeLessThan(2); expect(spread.scroll).toBeLessThan(2);
+    expect(maxHeight).toBeGreaterThan(30); expect(intermediate).toBeGreaterThan(0);
+    expect(frames.some(frame => frame.policy === 'finite')).toBe(true);
+    expect(frames.at(-1)!.height).toBe(open ? maxHeight : 0);
+    await expect(button).toBeFocused();
+   }
+  }
+ } finally {
+  await page.screenshot({ path: resolve(evidence, 'pointer-disclosures.png') });
+ }
+});
