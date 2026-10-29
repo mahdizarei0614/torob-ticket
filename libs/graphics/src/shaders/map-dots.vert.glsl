@@ -27,7 +27,8 @@ void main() {
   vLife = 1.0;
   if (atmosphere > 0.5 && geography > 0.5) {
     vec3 particle = livingDotParticle(position.xy + vec2(centralLongitude,0.0), time, dotDriftAmplitude);
-    displayedPosition.xy += particle.xy * unitsPerPixel;
+    vec2 flow=particleFlowOffset(position.xy+vec2(centralLongitude,0.0),unitsPerPixel,dotDriftAmplitude,30.0,particle.xy);
+    displayedPosition.xy += (particle.xy+flow) * unitsPerPixel;
     vLife = particle.z;
   }
   gl_Position = projectionMatrix * modelViewMatrix * vec4(displayedPosition, 1.0);

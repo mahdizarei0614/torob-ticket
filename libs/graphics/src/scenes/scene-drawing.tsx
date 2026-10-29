@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef, useLayoutEffect, useId, useMemo, type RefObject, type ReactNode } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
-import { BufferGeometry, DoubleSide, DynamicDrawUsage, Float32BufferAttribute, ShaderMaterial, type Mesh, type OrthographicCamera } from 'three';
+import { BufferGeometry, DoubleSide, DynamicDrawUsage, Float32BufferAttribute, ShaderMaterial, Vector2, Vector4, type Mesh, type OrthographicCamera } from 'three';
 import type { GeoPoint, Mode } from '@torob-ticket/contracts';
 import { useThemeUniforms } from '../theme-uniforms';
 import { projectPoint, type ProjectedPoint, type ProjectionContext, type RouteBounds } from '../geo/projection';
@@ -23,6 +23,7 @@ import ribbonVertex from '../shaders/route-ribbon.vert.glsl?raw';
 import ribbonFragment from '../shaders/route-ribbon.frag.glsl?raw';
 import glassVertex from '../shaders/vehicle-glass.vert.glsl?raw';
 import glassFragment from '../shaders/vehicle-glass.frag.glsl?raw';
+import particleFlowShader from '../shaders/particle-flow-sampling.glsl?raw';
 import livingDotDrift from '../shaders/living-dot-drift.glsl?raw';
 import { LIVING_DOT_AMPLITUDE_PX } from './living-dot-drift';
 interface DrawingProps {
@@ -77,7 +78,7 @@ export function SceneDrawing({ dots, markers, segments, context, frame, progress
     const width = camera.isOrthographicCamera ? (camera.right - camera.left) / camera.zoom : frame.width;
     const unit = width / Math.max(1, current.size.width);
     resources.dotsMaterial.uniforms['unitsPerPixel']!.value = unit;
-    resources.dotsMaterial.uniforms['dotDriftAmplitude']!.value = moving ? LIVING_DOT_AMPLITUDE_PX : 0;
+    resources.dotsMaterial.uniforms['dotDriftAmplitude']!.value = !presentationReducedMotion ? LIVING_DOT_AMPLITUDE_PX : 0;
     const length = Math.max(.000001, Number(resources.line.userData['routeLength']) || 0);
     resources.routeMaterial.uniforms['routeWidth']!.value = unit * 9.2;
     resources.routeMaterial.uniforms['headLength']!.value = Math.min(.035, Math.max(.002, unit * 7 / length));
@@ -176,7 +177,7 @@ export function SceneDrawing({ dots, markers, segments, context, frame, progress
     clock.current.last = now;
     if (moving && resources) {
       clock.current.elapsed += delta * 1000;
-      ambientSeconds.current += visibleSeconds;
+      ambientSeconds.current = pointer?.current.flowSeconds ?? ambientSeconds.current + delta;
       resources.dotsMaterial.uniforms['time']!.value = ambientSeconds.current;
       const position = resources.dots.getAttribute('position');
       const hover = resources.dots.getAttribute('hoverGlow');
@@ -210,11 +211,12 @@ export function SceneDrawing({ dots, markers, segments, context, frame, progress
     geometry.setAttribute('emphasis', new Float32BufferAttribute([...dots.map(() => 0), ...majorCities.map(() => .8), ...markers.map(marker => marker.enabled === false ? 0 : marker.kind === 'custom' || marker.role === 'origin' || marker.role === 'destination' ? 2 : 1)], 1));
     geometry.setAttribute('hoverGlow', new Float32BufferAttribute(new Float32Array(points.length), 1).setUsage(DynamicDrawUsage));
     geometry.setAttribute('phase', new Float32BufferAttribute(points.map(point => Math.sin(point[0] * 12.9898 + point[1] * 78.233) * 6.283185), 1));
+    const flowUniforms=pointer?.current.flow?.uniforms??{particleFlowState:{value:null},particleFlowFrame:{value:new Vector4(0,0,1,1)},particleFlowViewport:{value:new Vector2(1,1)},particleFlowActive:{value:0}};
     const base = { transparent: true, depthTest: false, depthWrite: false, toneMapped: false };
     const next: Resources = {
       dots: geometry, line: atmospheric ? createRouteRibbonGeometry(segments) : createRouteLineGeometry(segments),
       sprites: { flight: createVehicleGeometry('flight'), train: createVehicleGeometry('train'), bus: createVehicleGeometry('bus') }, glass: createGlassVehicleGeometry(), atmospheric,
-      dotsMaterial: new ShaderMaterial({ ...base, uniforms: { ...uniforms, ...edgeFade, geographyOpacity: { value:hideGeography?0:1 }, pointSize: { value: atmospheric ? 8.5 * get().gl.getPixelRatio() : 3.5 }, atmosphere: { value: atmospheric ? 1 : 0 }, time: { value: ambientSeconds.current }, motionReduced: { value: presentationReducedMotion ? 1 : 0 }, dotDriftAmplitude:{value:moving?LIVING_DOT_AMPLITUDE_PX:0}, unitsPerPixel:{value:frame.width/Math.max(1,get().size.width)}, centralLongitude:{value:context.centralLongitude} }, vertexShader: livingDotDrift+'\n'+mapVertex, fragmentShader: edgeFadeFragment+'\n'+mapFragment }),
+      dotsMaterial: new ShaderMaterial({ ...base, uniforms: { ...uniforms, ...edgeFade, ...flowUniforms, geographyOpacity: { value:hideGeography?0:1 }, pointSize: { value: atmospheric ? 8.5 * get().gl.getPixelRatio() : 3.5 }, atmosphere: { value: atmospheric ? 1 : 0 }, time: { value: ambientSeconds.current }, motionReduced: { value: presentationReducedMotion ? 1 : 0 }, dotDriftAmplitude:{value:!presentationReducedMotion?LIVING_DOT_AMPLITUDE_PX:0}, unitsPerPixel:{value:frame.width/Math.max(1,get().size.width)}, centralLongitude:{value:context.centralLongitude} }, vertexShader: livingDotDrift+'\n'+particleFlowShader+'\n'+mapVertex, fragmentShader: edgeFadeFragment+'\n'+mapFragment }),
       routeMaterial: new ShaderMaterial({ ...base, side: DoubleSide, uniforms: { ...uniforms, reveal: { value: atmospheric ? 0 : reveal }, emphasis: { value: 0 }, routeWidth: { value: 0 }, travel: { value: 0 }, stopGlow: { value: 0 }, strandOpacity: { value: 1 }, headLength: { value: .015 }, tailLength: { value: .15 } }, vertexShader: atmospheric ? ribbonVertex : routeVertex, fragmentShader: atmospheric ? ribbonFragment : ambientFragment }),
       spriteMaterial: new ShaderMaterial({ ...base, side: DoubleSide, uniforms: { ...uniforms, reveal: { value: 1 }, vehicleMode: { value: modeCode(mode ?? 'flight') }, stopGlow: { value: 0 }, vehicleOpacity: { value: 1 }, vehicleBlur: { value: 0 } }, vertexShader: atmospheric ? glassVertex : routeVertex, fragmentShader: atmospheric ? glassFragment : routeFragment }),
       wagonMaterials: [0, 1].map(() => new ShaderMaterial({ ...base, side: DoubleSide, uniforms: { ...uniforms, vehicleMode: { value: 3 }, stopGlow: { value: 0 }, vehicleOpacity: { value: 0 }, vehicleBlur: { value: 0 } }, vertexShader: glassVertex, fragmentShader: glassFragment })),
@@ -235,7 +237,7 @@ export function SceneDrawing({ dots, markers, segments, context, frame, progress
     if (!resources.atmospheric) resources.routeMaterial.uniforms['reveal']!.value = Math.max(0, Math.min(1, reveal));
     resources.dotsMaterial.uniforms['geographyOpacity']!.value = hideGeography ? 0 : 1;
     resources.dotsMaterial.uniforms['motionReduced']!.value = presentationReducedMotion ? 1 : 0;
-    resources.dotsMaterial.uniforms['dotDriftAmplitude']!.value = moving ? LIVING_DOT_AMPLITUDE_PX : 0;
+    resources.dotsMaterial.uniforms['dotDriftAmplitude']!.value = !presentationReducedMotion ? LIVING_DOT_AMPLITUDE_PX : 0;
     invalidate();
   }, [resources, frame.width, frame.height, reveal, get, invalidate, presentationReducedMotion, dpr, hideGeography,moving]);
   if (!resources) return null;

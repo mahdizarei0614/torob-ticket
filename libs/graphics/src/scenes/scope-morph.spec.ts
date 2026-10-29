@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { worldLandPositions } from '../geo/world-context';
-import { createScopeMorph, sampleMorphParticle, snapshotLandDots, scopeMorphLandOpacity, scopeMorphTiming, scopeMorphSeed, scopeMorphParticleProgress, sampleVisibleMorphParticle, sampleLiveMorphDot, type MorphMotion, SCOPE_MORPH_DURATION_MS, SCOPE_MORPH_PARTICLE_LIMIT } from './scope-morph';
+import { createScopeMorph, captureMorphSources, sampleMorphParticle, snapshotLandDots, scopeMorphLandOpacity, scopeMorphTiming, scopeMorphSeed, scopeMorphParticleProgress, sampleVisibleMorphParticle, sampleLiveMorphDot, type MorphMotion, SCOPE_MORPH_DURATION_MS, SCOPE_MORPH_PARTICLE_LIMIT } from './scope-morph';
 
 const source = [{ x: -.7, y: -.1, opacity: 1 }, { x: .2, y: .5, opacity: .8 }];
+const flow={data:Float32Array.from([8,3,1,0,8,3,1,0,8,3,1,0,8,3,1,0]),dims:{width:2,height:2},frame:{x:55,y:32,width:100,height:100},viewport:{width:600,height:400}};
 const target = [{ x: .6, y: -.6, opacity: 1 }, { x: -.4, y: .1, opacity: 1 }, { x: .1, y: .6, opacity: .6 }];
 describe('deterministic scope dot morph', () => {
   it('moves actual particles with varied scatter, starts exactly at source and gathers exactly at target', () => {
@@ -64,13 +65,13 @@ describe('deterministic scope dot morph', () => {
     const visible=morph.snapshot();const next=morph.start(visible,source);
     next.forEach((p,i)=>expect(sampleVisibleMorphParticle(p,0)).toEqual(visible[i]));
   });
-  it('starts every source together and keeps floating and joins moving target position and velocity, including pointer displacement',()=>{
+  it('starts every source together and keeps floating and joins moving target position and velocity, including captured GPU flow displacement',()=>{
     const live={anchorX:55,anchorY:32,amplitudePx:9,spacingPx:12,spacingWorld:1.2,baseX:.3,baseY:.1,opacity:1};
     const from={x:-.7,y:-.1,opacity:1,live:{...live,anchorX:50,baseX:-.7,baseY:-.1}};
     const to={x:.3,y:.1,opacity:1,live};
     const particle={from,to,seed:.9};
     const timing=scopeMorphTiming(particle.seed),arrival=timing.delay+timing.duration;
-    const at=(p:number):MorphMotion=>({seconds:8+p*SCOPE_MORPH_DURATION_MS/1000,width:600,height:400,unit:.1,centralLongitude:0,pointer:[54,32,4.8,1]});
+    const at=(p:number):MorphMotion=>({seconds:8+p*SCOPE_MORPH_DURATION_MS/1000,width:600,height:400,unit:.1,centralLongitude:0,flow});
     const first=sampleMorphParticle(particle,0,at(0)),moving=sampleMorphParticle(particle,.01,at(.01));
     expect(timing.delay).toBe(0);expect(scopeMorphParticleProgress(.01,particle.seed)).toBeGreaterThan(0);
     expect(Math.hypot(moving.x-first.x,moving.y-first.y)).toBeGreaterThan(.00001);
@@ -96,19 +97,30 @@ describe('deterministic scope dot morph', () => {
       expect(scopeMorphLandOpacity(.99,seed)).toBe(1);
     }
     const context={centralLongitude:0},positions=worldLandPositions([{geometry:{type:'Polygon',coordinates:[[[40,20],[70,20],[70,45],[40,45],[40,20]]]}}],context);
-    const frame={x:55,y:32,width:30,height:20},base={positions,context,domestic:true,frame,width:600,motion:{seconds:10,amplitudePx:9,pointer:[55,32,2.4,1]}};
+    const frame={x:55,y:32,width:30,height:20},base={positions,context,domestic:true,frame,width:600,motion:{seconds:10,amplitudePx:9,flow}};
     const point=snapshotLandDots(base).find(p=>p.opacity>.5)!;
     expect(point).toBeDefined();
     for(const width of [30,60,90]){
       const actualFrame={...frame,width,height:width*2/3},unit=width/600;
-      const motion={seconds:11,width:600,height:400,unit,centralLongitude:0,frame:actualFrame,pointer:[55,32,48*unit,1]};
+      const motion={seconds:11,width:600,height:400,unit,centralLongitude:0,frame:actualFrame,flow};
       const evaluated=sampleLiveMorphDot(point,motion);
       const live=point.live!;
-      const landed=snapshotLandDots({...base,frame:actualFrame,motion:{seconds:11,amplitudePx:9,pointer:motion.pointer}}).find(p=>p.live?.anchorX===live.anchorX&&p.live.anchorY===live.anchorY);
+      const landed=snapshotLandDots({...base,frame:actualFrame,motion:{seconds:11,amplitudePx:9,flow:motion.flow}}).find(p=>p.live?.anchorX===live.anchorX&&p.live.anchorY===live.anchorY);
       // Density levels can crossfade during fitting; compare the same geographic
       // particle when its lattice remains present, without freezing its position.
       if(landed){expect(evaluated.x).toBeCloseTo(landed.x,10);expect(evaluated.y).toBeCloseTo(landed.y,10);}
     }
+  });
+  it('preserves captured settled flow positions when the new scope changes geographic scale',()=>{
+    const context={centralLongitude:0},positions=worldLandPositions([{geometry:{type:'Polygon',coordinates:[[[40,20],[70,20],[70,45],[40,45],[40,20]]]}}],context);
+    const points=snapshotLandDots({positions,context,domestic:true,frame:{x:55,y:32,width:30,height:20},width:600,motion:{seconds:12,amplitudePx:9,flow}}).filter(point=>point.opacity>.5);
+    const captured=captureMorphSources(points,12),morph=createScopeMorph();
+    const particles=morph.start(captured,target),changedMotion={seconds:12,width:600,height:400,unit:1,centralLongitude:80,frame:{x:-80,y:15,width:600,height:400},flow:{...flow,data:new Float32Array(16)}};
+    for(let i=0;i<particles.length;i++){
+      const point=sampleMorphParticle(particles[i]!,0,changedMotion);
+      expect(point.x).toBeCloseTo(points[i]!.x,12);expect(point.y).toBeCloseTo(points[i]!.y,12);expect(point.opacity).toBe(points[i]!.opacity);
+    }
+    expect(captured[0]!.live?.residualSeconds).toBe(12);
   });
   it('samples only visible land, respects holes and projection seams, and bounds dense snapshots', () => {
     const context = { centralLongitude: 25 };

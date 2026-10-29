@@ -6,10 +6,12 @@ import { OrthographicCamera } from 'three';
 import type { GeoPoint } from '@torob-ticket/contracts';
 import { GraphicsView } from '../graphics-view';
 import { projectPoint, unprojectPoint, type ProjectionContext, type RouteBounds } from '../geo/projection';
+import type { ParticleFlowLifetime } from './particle-flow-lifetime';
+import type { createMapParticleFlow } from '../particle-flow';
 import styles from './scenes.module.css';
 import { createCameraTransition, type SceneFrameStore } from './camera-transition';
 export interface SceneMarker { id: string; name: string; point: GeoPoint; kind?: 'landmark' | 'accommodation' | 'custom' | 'place' | 'city'; cityId?:string; enabled?:boolean; role?:'origin'|'destination'|'network'; selectable?:boolean; showLabel?:boolean }
-export interface ScenePointer { x: number; y: number; active: boolean }
+export interface ScenePointer { x: number; y: number; active: boolean; flow?: ReturnType<typeof createMapParticleFlow>; flowSeconds?: number; flowLifetime?: ParticleFlowLifetime; flowSurfaceOwner?: object }
 export interface CameraIntent extends RouteBounds { zoom: number }
 export function useCameraIntent(bounds: RouteBounds, fitKey: string, originKey: string, initialCamera?:CameraIntent) {
   const [camera, setCamera] = useState<CameraIntent>(() => initialCamera ? {...initialCamera} : ({ ...bounds, zoom: 1 }));
@@ -64,6 +66,16 @@ export function SceneSurface({ label, camera, setZoom, context, markers, onMarke
   const viewport = useRef<HTMLDivElement>(null); const [dimensions, setDimensions] = useState({ width: 560, height: 400 });
   const pointers = useRef(new Map<number, { x: number; y: number }>()); const pinch = useRef<{ distance: number; zoom: number } | null>(null);
   const gesture = useRef(false);
+  const flowOwner=useRef({});
+  useLayoutEffect(()=>{
+    const current=pointer?.current;if(!current)return;
+    const owner=flowOwner.current;current.flowSurfaceOwner=owner;current.flowLifetime?.retain(owner);
+    return()=>{
+      if(current.flowSurfaceOwner===owner)delete current.flowSurfaceOwner;
+      current.flowLifetime?.release(owner);
+      if(!current.flowSurfaceOwner){delete current.flow;delete current.flowLifetime;}
+    };
+  },[pointer]);
   const zoomControls = useRef({ zoom: camera.zoom, setZoom, isCurrent, pointer });
   zoomControls.current = { zoom: camera.zoom, setZoom, isCurrent, pointer };
   useEffect(() => {

@@ -1,15 +1,15 @@
 import type { ProjectionContext, RouteBounds } from '../geo/projection';
 import { DOMESTIC_DOT_BASE_SPACING, INTERNATIONAL_DOT_BASE_SPACING, worldDotWeights } from '../geo/world-context';
-import { samplePointerRepulsion } from './pointer-field';
+import { sampleParticleFlowOffset, type ParticleFlowSnapshot } from './particle-flow-sampling';
 import { sampleLivingDotOffset, sampleLivingDotOpacity, livingDotAmplitudeForSpacing } from './living-dot-drift';
 
 export const SCOPE_MORPH_PARTICLE_LIMIT = 1800;
 export const SCOPE_MORPH_DURATION_MS = 2000;
 export interface LiveMorphDot { anchorX: number; anchorY: number; amplitudePx: number; spacingPx: number; spacingWorld: number; baseX: number; baseY: number; opacity: number; residualSeconds?: number }
 export interface MorphDot { x: number; y: number; opacity: number; arrivalSeed?: number; live?: LiveMorphDot }
-export interface MorphMotion { seconds: number; width: number; height: number; unit: number; centralLongitude: number; frame?: RouteBounds; pointer?: ArrayLike<number> }
+export interface MorphMotion { seconds: number; width: number; height: number; unit: number; centralLongitude: number; frame?: RouteBounds; flow?: ParticleFlowSnapshot }
 export interface MorphParticle { from: MorphDot; to: MorphDot; seed: number }
-export interface MorphLand { positions: ArrayLike<number>; context: ProjectionContext; domestic: boolean; frame: RouteBounds; width: number; morphProgress?: number; motion?: { seconds: number; amplitudePx: number; pointer?: ArrayLike<number> } }
+export interface MorphLand { positions: ArrayLike<number>; context: ProjectionContext; domestic: boolean; frame: RouteBounds; width: number; morphProgress?: number; motion?: { seconds: number; amplitudePx: number; flow?: ParticleFlowSnapshot } }
 const clamp = (value: number) => Math.max(0, Math.min(1, value));
 const smooth = (value: number) => { const t = clamp(value); return t * t * (3 - 2 * t); };
 const random = (index: number) => { const value = Math.sin(index * 127.1 + 311.7) * 43758.5453; return value - Math.floor(value); };
@@ -86,7 +86,7 @@ export function snapshotLandDots({ positions, context, domestic, frame, width, m
         if (old) { old.opacity = Math.min(1, old.opacity + opacity); if(old.live)old.live.opacity = Math.min(1,old.live.opacity+weight*scopeMorphLandOpacity(morphProgress,arrivalSeed)); }
         else {
           const drift = motion ? sampleLivingDotOffset(x + context.centralLongitude, y, motion.seconds,amplitude) : [0, 0];
-          const repel = motion?.pointer ? samplePointerRepulsion(x+context.centralLongitude,y,unit,context.centralLongitude,amplitude,spacing/unit,motion.pointer,drift) : [0,0];
+          const repel = sampleParticleFlowOffset(x+context.centralLongitude,y,unit,amplitude,spacing/unit,drift,motion?.flow);
           const baseX=(x-frame.x)/frame.width*2, baseY=(y-frame.y)/frame.height*2;
           points.set(key, { x: baseX+(drift[0]!+repel[0]!)*unit/frame.width*2, y: baseY+(drift[1]!+repel[1]!)*unit/frame.height*2, opacity, arrivalSeed,
             ...(motion&&motion.amplitudePx>0?{live:{anchorX:x+context.centralLongitude,anchorY:y,amplitudePx:amplitude,spacingPx:spacing/unit,spacingWorld:spacing,baseX,baseY,opacity:weight*scopeMorphLandOpacity(morphProgress,arrivalSeed)}}:{}) });
@@ -114,9 +114,7 @@ export function sampleLiveMorphDot(point: MorphDot, motion?: MorphMotion, target
   const frame=motion.frame;
   const baseX=target&&frame?(live.anchorX-motion.centralLongitude-frame.x)/frame.width*2:live.baseX;
   const baseY=target&&frame?(live.anchorY-frame.y)/frame.height*2:live.baseY;
-  const pointerX=!target&&frame?baseX*frame.width/2+frame.x+motion.centralLongitude:live.anchorX;
-  const pointerY=!target&&frame?baseY*frame.height/2+frame.y:live.anchorY;
-  const repel=motion.pointer?samplePointerRepulsion(pointerX,pointerY,motion.unit,motion.centralLongitude,amplitude,spacingPx,motion.pointer,drift,[live.anchorX,live.anchorY]):[0,0];
+  const repel=sampleParticleFlowOffset(live.anchorX,live.anchorY,motion.unit,amplitude,spacingPx,drift,motion.flow);
   return {...point,x:baseX+(drift[0]!+repel[0]!)*2/motion.width,y:baseY+(drift[1]!+repel[1]!)*2/motion.height,opacity:live.opacity*sampleLivingDotOpacity(live.anchorX,live.anchorY,motion.seconds,amplitude)};
 }
 export function sampleMorphParticle(particle: MorphParticle, progress: number, motion?: MorphMotion): MorphDot {
@@ -132,6 +130,12 @@ export function sampleMorphParticle(particle: MorphParticle, progress: number, m
 export function sampleVisibleMorphParticle(particle: MorphParticle, progress: number, motion?: MorphMotion): MorphDot {
   const point = sampleMorphParticle(particle, progress,motion);
   return { ...point, opacity: point.opacity * (1 - scopeMorphLandOpacity(progress, particle.seed)) };
+}
+
+/** Freeze every visible source in screen space before a new projection/flow
+ * scale can reinterpret its offset; only its small wander residual stays live. */
+export function captureMorphSources(points:readonly MorphDot[],seconds:number):MorphDot[]{
+  return points.map(point=>point.live?{...point,live:{...point.live,baseX:point.x,baseY:point.y,opacity:point.opacity,residualSeconds:seconds}}:point);
 }
 
 /** Interruption snapshots the actual current particle positions, then gathers toward the latest scope. */

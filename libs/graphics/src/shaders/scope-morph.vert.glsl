@@ -26,8 +26,7 @@ vec3 liveEndpoint(vec2 basePosition, vec4 anchor, float opacity, bool target) {
   float amplitude=target?min(dotDriftAmplitude,max(0.0,(spacingPx*2.5-2.0)/0.70710678118)):anchor.z;
   vec3 particle = livingDotParticle(anchor.xy,time,amplitude);
   if(target)basePosition=(anchor.xy-vec2(centralLongitude,0.0)-liveFrame.xy)/liveFrame.zw*2.0;
-  vec2 pointerAnchor=target?anchor.xy:basePosition*liveFrame.zw*0.5+liveFrame.xy+vec2(centralLongitude,0.0);
-  vec2 repel = dotPointerOffset(pointerAnchor,unitsPerPixel,centralLongitude,amplitude,spacingPx,particle.xy,anchor.xy);
+  vec2 repel = particleFlowOffset(anchor.xy,unitsPerPixel,amplitude,spacingPx,particle.xy);
   return vec3(basePosition+(particle.xy+repel)*2.0/viewportCss,opacity*particle.z);
 }
 void main() {

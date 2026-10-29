@@ -1,11 +1,13 @@
+import { Activity, StrictMode } from 'react';
 import { act, render } from '@testing-library/react';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
-import { OrthographicCamera, type ShaderMaterial, type BufferGeometry } from 'three';
+import { OrthographicCamera, Vector2, Vector4, type ShaderMaterial, type BufferGeometry } from 'three';
 import type { WorldCountry } from '../geo/world-context';
 import { WorldGeography } from './world-geography';
+import type { ParticleFlowSnapshot } from './particle-flow-sampling';
 import { sampleVisibleMorphParticle, type MorphParticle, type LiveMorphDot } from './scope-morph';
 
-const observed = vi.hoisted(() => ({ materials: [] as ShaderMaterial[], geometries: [] as BufferGeometry[], invalidate: vi.fn(), get: vi.fn(), frames: [] as (()=>void)[], uniforms: { dot: { value: null }, highlight: { value: null } } }));
+const observed = vi.hoisted(() => ({ materials: [] as ShaderMaterial[], geometries: [] as BufferGeometry[], invalidate: vi.fn(), get: vi.fn(), frames: [] as (()=>void)[], flow: undefined as unknown as ReturnType<typeof import('../particle-flow').createMapParticleFlow>, flowData: undefined as ParticleFlowSnapshot|undefined, uniforms: { dot: { value: null }, highlight: { value: null } } }));
 vi.mock('three', async original => {
   const actual = await original<typeof import('three')>();
   return { ...actual,
@@ -14,13 +16,18 @@ vi.mock('three', async original => {
   };
 });
 vi.mock('@react-three/fiber', () => ({ useThree: (selector: (state: { invalidate: typeof observed.invalidate; get: typeof observed.get }) => unknown) => selector({ invalidate: observed.invalidate, get: observed.get }), useFrame: (callback:()=>void)=>{observed.frames.push(callback);} }));
+vi.mock('../particle-flow',()=>({createMapParticleFlow:()=>observed.flow}));
 vi.mock('../theme-uniforms', () => ({ useThemeUniforms: () => observed.uniforms }));
 const first: readonly WorldCountry[] = [{ geometry: { type: 'Polygon', coordinates: [[[44, 25], [63, 25], [63, 40], [44, 40], [44, 25]]] } }];
 const second: readonly WorldCountry[] = [{ geometry: { type: 'Polygon', coordinates: [[[-20, -20], [40, -20], [40, 50], [-20, 50], [-20, -20]]] } }];
-beforeEach(() => { observed.materials.length = 0; observed.geometries.length = 0; observed.frames.length=0; observed.get.mockReturnValue({ size: { width: 600, height: 400 } }); });
+beforeEach(() => { observed.materials.length = 0; observed.geometries.length = 0; observed.frames.length=0; observed.get.mockReturnValue({ size: { width: 600, height: 400 } });
+  observed.flowData={data:Float32Array.from([8,3,1,0,8,3,1,0,8,3,1,0,8,3,1,0]),dims:{width:2,height:2},frame:{x:55,y:32,width:100,height:100},viewport:{width:600,height:400}};
+  const uniforms={particleFlowState:{value:null},particleFlowFrame:{value:new Vector4(55,32,100,100)},particleFlowViewport:{value:new Vector2(600,400)},particleFlowActive:{value:1}};
+  let disposed=false,steps=0;
+  observed.flow={uniforms,step:vi.fn((_:number,options:{active:boolean;reducedMotion:boolean})=>{if(!disposed&&options.active)steps++;if(options.reducedMotion)uniforms.particleFlowActive.value=0;}),snapshot:vi.fn(()=>observed.flowData),dispose:vi.fn(()=>{disposed=true;}),inspect:vi.fn(()=>({disposed,steps}))} as unknown as typeof observed.flow; });
 afterEach(() => vi.restoreAllMocks());
 
-it('retains compiled material owners through scope/projection changes while releasing replaced geography and updating uniforms', () => {
+it('retains compiled material owners through scope/projection changes while releasing replaced geography and updating uniforms', async () => {
   // DOM does not render R3F nodes; this checks real Three resource lifetimes only.
   vi.spyOn(console, 'error').mockImplementation(() => undefined);
   const frame = { x: 54, y: 33, width: 22, height: 17 };
@@ -37,7 +44,7 @@ it('retains compiled material owners through scope/projection changes while rele
   view.rerender(<WorldGeography countries={first} context={{ centralLongitude: 54 }} frame={frame} domestic reducedMotion={false} />);
   expect(observed.materials).toEqual([morph, border, land]); disposed.forEach(dispose => expect(dispose).not.toHaveBeenCalled());
   expect(land!.uniforms['baseSpacing']!.value).toBe(.44); expect(land!.uniforms['gridOrigin']!.value.toArray()).toEqual([44, 25]); expect(land!.uniforms['centralLongitude']!.value).toBe(54);
-  view.unmount(); disposed.forEach(dispose => expect(dispose).toHaveBeenCalledOnce());
+  view.unmount(); disposed.forEach(dispose => expect(dispose).toHaveBeenCalledOnce());await act(async()=>{await Promise.resolve();});expect(observed.flow.dispose).toHaveBeenCalledOnce();
 });
 
 
@@ -55,15 +62,15 @@ it('interrupts from the actually displayed live frame before a changed projectio
   for(let i=0;i<45;i++)tick();
   const morphMaterial=observed.materials[0]!,geometry=observed.geometries[0]!;
   const uniforms=morphMaterial.uniforms;
-  const motion={seconds:uniforms['time']!.value as number,width:600,height:400,unit:uniforms['unitsPerPixel']!.value as number,centralLongitude:0,frame:{x:55,y:32,width:30,height:20},pointer:Float32Array.from(uniforms['pointerField']!.value as Float32Array)};
+  const motion={seconds:uniforms['time']!.value as number,width:600,height:400,unit:uniforms['unitsPerPixel']!.value as number,centralLongitude:0,frame:{x:55,y:32,width:30,height:20},flow:observed.flowData};
   const progress=uniforms['morphProgress']!.value as number;
-  expect(motion.pointer[3]).toBeGreaterThan(.9);expect(progress).toBeGreaterThan(.3);expect(progress).toBeLessThan(.5);
+  expect(observed.flow.snapshot).toHaveBeenCalledTimes(1);expect(progress).toBeGreaterThan(.3);expect(progress).toBeLessThan(.5);
   const particles:MorphParticle[]=[];
   const fromAttr=geometry.getAttribute('position'),toAttr=geometry.getAttribute('targetPosition'),opacity=geometry.getAttribute('endpointOpacity');
   const live=(name:string,index:number,baseX:number,baseY:number,alpha:number):LiveMorphDot|undefined=>{
-    const attr=geometry.getAttribute(name),amplitudePx=attr.getZ(index);if(amplitudePx<0)return;
-    const spacing=attr.getW(index);
-    return {anchorX:attr.getX(index),anchorY:attr.getY(index),amplitudePx,spacingPx:name==='sourceAnchor'?spacing:spacing/motion.unit,spacingWorld:name==='sourceAnchor'?spacing*motion.unit:spacing,baseX,baseY,opacity:alpha};
+    const attr=geometry.getAttribute(name),encoded=attr.getZ(index);if(encoded===-1)return;
+    const amplitudePx=encoded<-1.5?-encoded-2:encoded,spacing=attr.getW(index);
+    return {anchorX:attr.getX(index),anchorY:attr.getY(index),amplitudePx,spacingPx:name==='sourceAnchor'?spacing:spacing/motion.unit,spacingWorld:name==='sourceAnchor'?spacing*motion.unit:spacing,baseX,baseY,opacity:alpha,...(encoded<-1.5?{residualSeconds:spacing}:{})};
   };
   for(let i=0;i<geometry.drawRange.count;i++)particles.push({from:{x:fromAttr.getX(i),y:fromAttr.getY(i),opacity:opacity.getX(i),live:live('sourceAnchor',i,fromAttr.getX(i),fromAttr.getY(i),opacity.getX(i))},to:{x:toAttr.getX(i),y:toAttr.getY(i),opacity:opacity.getY(i),live:live('targetAnchor',i,toAttr.getX(i),toAttr.getY(i),opacity.getY(i))},seed:geometry.getAttribute('seed').getX(i)});
   const visible=particles.map(p=>sampleVisibleMorphParticle(p,progress,motion)).filter(p=>p.opacity>.001);
@@ -77,6 +84,7 @@ it('interrupts from the actually displayed live frame before a changed projectio
   expect(geometry.getAttribute('sourceAnchor').getZ(0)).toBeLessThan(-1.5);
   expect(geometry.getAttribute('sourceAnchor').getW(0)).toBeCloseTo(motion.seconds,5);
   expect(uniforms['centralLongitude']!.value).toBe(80);
+  expect(observed.flow.snapshot).toHaveBeenCalledTimes(2);
   view.unmount();
 });
 
@@ -90,14 +98,15 @@ it('freezes a covered live field in place and resumes its same bounded clock wit
   const view=render(<WorldGeography countries={first} context={context} frame={frame} domestic pointer={pointer} reducedMotion={false}/>);
   pointer.current.active=true;
   const tick=()=>{clock+=16;observed.frames.at(-1)!();};for(let i=0;i<100;i++)tick();
-  const land=observed.materials[2]!,seconds=land.uniforms['time']!.value,field=Float32Array.from(land.uniforms['pointerField']!.value);
+  const land=observed.materials[2]!,seconds=land.uniforms['time']!.value;
+  expect(observed.flow.snapshot).not.toHaveBeenCalled();
   view.rerender(<WorldGeography countries={first} context={context} frame={frame} domestic pointer={pointer} active={false} reducedMotion={false}/>);
   for(let i=0;i<20;i++)tick();
-  expect(land.uniforms['dotDriftAmplitude']!.value).toBe(9);expect(land.uniforms['time']!.value).toBe(seconds);expect(land.uniforms['pointerField']!.value).toEqual(field);
+  expect(land.uniforms['dotDriftAmplitude']!.value).toBe(9);expect(land.uniforms['time']!.value).toBe(seconds);expect(observed.flow.step).toHaveBeenLastCalledWith(16,expect.objectContaining({active:false,reducedMotion:false}));
   view.rerender(<WorldGeography countries={first} context={context} frame={frame} domestic pointer={pointer} active reducedMotion={false}/>);tick();
   expect(land.uniforms['time']!.value).toBeCloseTo(seconds+.016,8);
   view.rerender(<WorldGeography countries={first} context={context} frame={frame} domestic pointer={pointer} reducedMotion/>);
-  expect(land.uniforms['dotDriftAmplitude']!.value).toBe(0);expect([...land.uniforms['pointerField']!.value]).toEqual([0,0,0,0]);view.unmount();
+  expect(land.uniforms['dotDriftAmplitude']!.value).toBe(0);observed.frames.at(-1)!();expect(land.uniforms['particleFlowActive']!.value).toBe(0);expect(observed.flow.step).toHaveBeenLastCalledWith(0,expect.objectContaining({reducedMotion:true}));view.unmount();
 });
 
 
@@ -116,4 +125,31 @@ it('retires outgoing boundaries after their final committed removal and keeps bo
  act(()=>{for(let i=0;i<6;i++){clock+=50;observed.frames.at(-1)!();}expect(dispose).not.toHaveBeenCalled();});
  expect(dispose).toHaveBeenCalledOnce();
  view.unmount();expect(dispose).toHaveBeenCalledOnce();
+});
+
+
+it('retains one live flow and stable uniforms through StrictMode replay and Activity hide/reveal, then releases all owners',async()=>{
+  vi.spyOn(console,'error').mockImplementation(()=>undefined);
+  let clock=1000;vi.spyOn(performance,'now').mockImplementation(()=>clock);
+  const camera=new OrthographicCamera(-15,15,10,-10,.1,1000);camera.position.set(55,32,200);
+  observed.get.mockReturnValue({size:{width:600,height:400},camera,gl:{getPixelRatio:()=>1}});
+  const surfaceOwner={},pointer:{current:import('./scene-surface').ScenePointer}={current:{x:55,y:32,active:false,flowSurfaceOwner:surfaceOwner}};
+  const scene=(mode:'visible'|'hidden')=><StrictMode><Activity mode={mode}><WorldGeography countries={first} context={{centralLongitude:0}} frame={{x:55,y:32,width:30,height:20}} domestic pointer={pointer} reducedMotion={false}/></Activity></StrictMode>;
+  const view=render(scene('visible'));await act(async()=>{await Promise.resolve();});
+  const flow=pointer.current.flow!;
+  expect(flow).toBe(observed.flow);expect(flow.inspect().disposed).toBe(false);
+  const uniform=flow.uniforms.particleFlowState;
+  observed.materials.forEach(material=>expect(material.uniforms['particleFlowState']).toBe(uniform));
+  pointer.current.active=true;clock+=16;observed.frames.at(-1)!();
+  expect(flow.inspect().steps).toBeGreaterThan(0);const steps=flow.inspect().steps;
+  view.rerender(scene('hidden'));await act(async()=>{await Promise.resolve();});
+  expect(flow.inspect().disposed).toBe(false);expect(flow.inspect().steps).toBe(steps);
+  expect(pointer.current.flow).toBe(flow);
+  view.rerender(scene('visible'));await act(async()=>{await Promise.resolve();});
+  expect(pointer.current.flow).toBe(flow);expect(flow.uniforms.particleFlowState).toBe(uniform);
+  pointer.current.active=true;clock+=16;observed.frames.at(-1)!();expect(flow.inspect().steps).toBeGreaterThan(steps);
+  const lifetime=pointer.current.flowLifetime!;
+  view.unmount();await act(async()=>{await Promise.resolve();});expect(flow.inspect().disposed).toBe(false);
+  lifetime.release(surfaceOwner);await act(async()=>{await Promise.resolve();});
+  expect(observed.flow.dispose).toHaveBeenCalledOnce();expect(flow.inspect().disposed).toBe(true);
 });

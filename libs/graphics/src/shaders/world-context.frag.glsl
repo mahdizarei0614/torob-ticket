@@ -34,10 +34,10 @@ vec4 lattice(float spacing, float proximity) {
   for (int y = -2; y <= 2; y++) for (int x = -2; x <= 2; x++) {
     vec2 center = (cell + vec2(float(x), float(y))) * spacing + gridOrigin;
     vec2 separation = (absolutePosition - center) / unitsPerPixel;
-    if (any(greaterThan(abs(separation), vec2(amplitude * 0.70710678118 + min(12.0,max(0.0,spacing/unitsPerPixel*2.5-2.0-amplitude*0.70710678118))*clamp(pointerField.w,0.0,1.0) + 2.0)))) continue;
+    if (any(greaterThan(abs(separation), vec2(amplitude * 0.70710678118 + min(12.0,max(0.0,spacing/unitsPerPixel*2.5-2.0-amplitude*0.70710678118))*clamp(particleFlowActive,0.0,1.0) + 2.0)))) continue;
     vec3 particle = livingDotParticle(center, time, amplitude);
     if (particle.z < 0.0001) continue;
-    vec2 repel = dotPointerOffset(center,unitsPerPixel,centralLongitude,amplitude,spacing/unitsPerPixel,particle.xy,center);
+    vec2 repel = particleFlowOffset(center,unitsPerPixel,amplitude,spacing/unitsPerPixel,particle.xy);
     float radius = length(separation - particle.xy - repel);
         float core = 1.0 - smoothstep(0.75, 1.45 + proximity * 0.24, radius);
     float halo = exp(-radius * radius * 0.8) * (0.04 + proximity * 0.10);
