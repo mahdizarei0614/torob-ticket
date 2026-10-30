@@ -10,7 +10,7 @@
 
 **Tech Stack:** Nx, pnpm, TypeScript, React, Vite, React Router, TanStack Query, React Aria, CSS Modules, CSS custom properties, Zod, NestJS, PostgreSQL, Prisma, Three.js, React Three Fiber, selected Drei utilities, Motion, @internationalized/date, Vitest, Testing Library, Playwright, Storybook, Docker Compose, Caddy.
 
-**Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.31, 2026-10-30 (arrival-based one-night hotel discovery; prior vehicle/control motion retained).
+**Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.32, 2026-10-30 (viewport-safe filters and directional round-trip routes/fares; arrival-based hotels and prior refinements retained).
 
 **Plan state:** Approved. M1–M6 and T29 packaging are complete with independent reviews and packaged acceptance evidence. **29/35 tasks complete; M7 PARTIAL, T30 ACTIVE.** Owner requested a fast checkpoint before substantial design/logic changes: finish durable harness checks now; full T30 matrix and T31–T33 audits/rehearsal remain unfinished. M8 retains its planned scope.
 
@@ -2572,3 +2572,14 @@ Owner rejected the effect and requested rollback; [decision0060](../../decisions
 | Street map and selection | DONE | Actual named hotel pins/static arrival, two-way card selection, all four orders and inline repeatable point selection; keyed canvas/markers, collision leaders, native focus and retained-exit/lazy ownership; truthful map failure |
 | Square cards and responsive composition | DONE | Five desktop/two phone/one tiny-screen columns, readable names/prices, selected details/compact handoff;390→320 no overflow with deferred ticket rendering retained; finite current/exit fades |
 | Review and native assembly | DONE | [Checkpoint](../../evidence/adjustments/arrival-hotel-discovery/checkpoint.md), [independent approval](../../evidence/adjustments/arrival-hotel-discovery/independent-review.md);146/146 source cases across20files PASS5.27s; final headedChrome7/7PASS1.1m, all-mode overnight/roundtrip/sort/map/fallback/handoff/GET-return checks; types/lint PASS; exact source scope/local exports recorded |
+
+## Owner correction — viewport filters and round-trip pricing, 2026-10-30
+
+[Task brief](../../evidence/adjustments/roundtrip-pricing-and-filter/task-brief.md), [decision0062](../../decisions/0062-viewport-filters-and-directional-roundtrip-fares.md), source `2e3dcc6`. Specification1.32; M7partial29/35,T30active.
+
+| Work | Status | Evidence |
+|---|---|---|
+| Viewport-safe filters | DONE | Portalled flip/shift/available-height bounds; fixed close header and inner body scroll; normal-flow actions, native focus/per-open stale exits; targeted1366/390/320×480native PASS10.6s |
+| Independent return routes | DONE | Separate labeled outbound/return map chains and compact card routes/return carrier; existing actual return geometry retained; native two-stop outbound/three-stop return LAX animation verified |
+| Directional source and price authority | DONE | New recorded transport source under immutablev3, both dates/directions/service bands, exact date/search whole-total parity; old-source replay/cache/recheck/receipt continuity; author78source+2context+35PostgreSQL cases |
+| Review and assembly | DONE | [Checkpoint](../../evidence/adjustments/roundtrip-pricing-and-filter/checkpoint.md), [independent approval](../../evidence/adjustments/roundtrip-pricing-and-filter/independent-review.md);246sourcecases/30files PASS,35guardedPostgreSQLcases PASS; final headedChrome5/5PASS1.4m with exact prices, asymmetric return animation and bounded1366/390/320×480filters; exact28path source/exports recorded |
