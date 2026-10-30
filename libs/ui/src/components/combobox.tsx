@@ -12,6 +12,7 @@ import {
 } from 'react-aria-components';
 import { useId, useRef } from 'react';
 import { Code, languageProps, type Language } from './language';
+import { FieldErrorTooltip } from './field-error-tooltip';
 import styles from '../styles/primitives.module.css';
 export interface ComboBoxItem {
   id: string;
@@ -51,6 +52,7 @@ export function ComboBox({
 }: ComboBoxProps) {
   const errorId = useId();
   const input = useRef<HTMLInputElement>(null);
+  const errorAnchor = useRef<HTMLDivElement>(null);
   const filtered = items.filter(
     (item) =>
       item.label.toLocaleLowerCase(language).includes(inputValue.toLocaleLowerCase(language)) ||
@@ -59,6 +61,7 @@ export function ComboBox({
   return (
     <I18nProvider locale={language}>
       <AriaComboBox
+        ref={errorAnchor}
         className={styles.field}
         {...languageProps(language)}
         items={filtered}
@@ -74,6 +77,7 @@ export function ComboBox({
         isInvalid={!!error}
         disabledKeys={items.filter((item) => item.disabled).map((item) => item.id)}
         allowsEmptyCollection
+        menuTrigger="focus"
       >
         <Label className={styles.label}>{label}</Label>
         <Group className={styles.inputRow}>
@@ -95,11 +99,6 @@ export function ComboBox({
         {description && (
           <Text slot="description" className={styles.description}>
             {description}
-          </Text>
-        )}
-        {error && (
-          <Text slot="errorMessage" id={errorId} className={styles.error}>
-            {error}
           </Text>
         )}
         <Popover className={styles.popover} {...languageProps(language)}>
@@ -130,6 +129,9 @@ export function ComboBox({
           </ListBox>
         </Popover>
       </AriaComboBox>
+      {/* RAC's collection builder renders its child tree while collecting.
+          Keep portalled feedback outside that tree so it has one live owner. */}
+      <FieldErrorTooltip anchorRef={errorAnchor} language={language} disabled={isDisabled} messages={error ? [{ id: errorId, message: error }] : []}/>
     </I18nProvider>
   );
 }

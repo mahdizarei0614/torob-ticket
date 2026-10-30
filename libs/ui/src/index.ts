@@ -4,6 +4,7 @@ export * from './components/segmented-control';
 export * from './components/combobox';
 export * from './components/dialog';
 export * from './components/tooltip';
+export * from './components/field-error-tooltip';
 export * from './components/status';
 export * from './components/price';
 export * from './components/price-band';

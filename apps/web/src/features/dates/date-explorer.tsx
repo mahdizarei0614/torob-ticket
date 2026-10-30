@@ -1,11 +1,12 @@
 import { createDateInteractions, type DateInteractions } from './date-interaction';
 import { useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { priceRange } from '@torob-ticket/ui';
+import { SegmentedControl, priceRange } from '@torob-ticket/ui';
 import { LocalDateSchema } from '@torob-ticket/contracts';
 import type { CatalogSnapshot, DatePriceCell, DatePriceQuery, SessionInfo } from '@torob-ticket/contracts';
 import { dateBounds, validateDraft, type SearchDraft } from '../search/search-url';
 import { SearchFieldFeedback, useSearchFieldFeedback } from '../search/search-field-feedback';
-import { calendarWindow, commitDate, dateLabel, dateWindow, datePriceIdentityForSession, type DateLeg } from './date-state';
+import { calendarWindow, commitDate, dateWindow, datePriceIdentityForSession, type DateLeg } from './date-state';
+import { DateLegControl } from './date-leg-slot';
 import { DateWheel } from './date-wheel';
 import { DateCalendar } from './date-calendar';
 import { DateChart } from './date-chart';
@@ -71,9 +72,8 @@ export function DateExplorer({ draft, catalog, session, onCommit, onPreview, onC
     if (calendar && calendar.basis === basisRef.current) { if (focusFrame.current !== undefined) cancelAnimationFrame(focusFrame.current); const renewed = { ...calendar, token: interaction.capture() }; provisionalRef.current = renewed; setProvisional(renewed); onCovered(true); setMonth((next === 'outbound' ? calendar.draft.departureDate : calendar.draft.returnDate) ?? calendar.draft.departureDate); }
   }
   function applyCalendar() { if (!activeProvisional || !interaction.isCurrent(activeProvisional.token) || activeProvisional.basis !== basisRef.current || disabled || !mounted.current) return; onCommit(activeProvisional.draft); close(); }
-  return <section aria-label="کاوش تاریخ سفر" className={styles.explorer} data-selected-outbound={draft.departureDate} data-selected-return={draft.returnDate ?? ''} data-date-price-id={prices.snapshot?.datePriceId} data-date-price-status={prices.error ? 'unavailable' : prices.snapshot?.status ?? (request ? 'checking' : 'unselected')}>
-    {draft.tripType === 'round-trip' && <div className={styles.toolbar}><select aria-label="بخش سفر برای قیمت روزها" value={activeLeg} onChange={event => changeLeg(event.target.value as DateLeg)}><option value="outbound">تاریخ رفت</option><option value="return">تاریخ برگشت</option></select></div>}
-    {model.tripType === 'round-trip' && <p className={styles.caption}>{activeLeg === 'outbound' ? 'برگشت ثابت' : 'رفت ثابت'}: {model.returnDate || activeLeg === 'return' ? dateLabel(activeLeg === 'outbound' ? model.returnDate! : model.departureDate) : 'هنوز انتخاب نشده'}</p>}
+  return <section aria-label="کاوش تاریخ سفر" className={styles.explorer} data-date-leg={activeLeg} data-selected-outbound={draft.departureDate} data-selected-return={draft.returnDate ?? ''} data-date-price-id={prices.snapshot?.datePriceId} data-date-price-status={prices.error ? 'unavailable' : prices.snapshot?.status ?? (request ? 'checking' : 'unselected')}>
+    {draft.tripType === 'round-trip' && <DateLegControl><SegmentedControl hideLabel label="بخش سفر برای قیمت روزها" value={activeLeg} onChange={value => changeLeg(value as DateLeg)} isDisabled={disabled} options={[{id:'outbound',label:'تاریخ رفت'},{id:'return',label:'تاریخ برگشت'}]}/></DateLegControl>}
     <div className={styles.exploration}><div className={styles.wheelColumn}><DateWheel dates={dates} value={selected} cells={cells} range={range} onPreview={previewDate} onCommit={commit} onInteractionChange={onInteractionChange} leg={activeLeg} interaction={interaction} interactionKey={externalBasis + activeLeg} missingLabel={prices.error ? 'قیمت در دسترس نیست' : undefined} /><SearchFieldFeedback fields={['departureDate','returnDate']}><button ref={trigger} type="button" data-calendar-trigger className={styles.calendarTrigger} aria-label="تقویم جلالی و انتخاب تاریخ" aria-invalid={dateFeedback.errors.length > 0 || undefined} aria-describedby={dateFeedback.describedBy} title="تقویم جلالی و انتخاب تاریخ" onClick={open} disabled={disabled}><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><rect x="3.5" y="5" width="17" height="16" rx="3"/><path d="M7.5 3v4M16.5 3v4M3.5 10h17M8 14h2M14 14h2M8 17.5h2"/></svg><span>تقویم و تاریخ</span></button></SearchFieldFeedback></div><DateChart leg={activeLeg} cells={cells} range={range} selected={selectedDate} onSelect={date => { if (!disabled) commit(date); }} />
     </div>
     {!!prices.error && <p role="alert" className={styles.error}>قیمت روزها دریافت نشد؛ این به معنی نبودن پیشنهاد نیست.</p>}

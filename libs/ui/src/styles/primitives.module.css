@@ -271,6 +271,16 @@
   font-size: var(--text-xs);
   z-index: 110;
 }
+
+/* Validation descriptions stay in the field; their visible copy is a nonmodal
+   overlay above it, with no input/row height or pointer-hit-area changes. */
+.fieldTooltip { z-index:90; display:grid; gap:3px; max-inline-size:min(300px,calc(100vw - 24px)); padding:7px 10px; border:1px solid var(--danger); border-radius:var(--radius-sm); corner-shape:var(--corner-shape); background:var(--surface-raised); color:var(--danger); box-shadow:var(--elevation); font-size:12px; line-height:1.8; overflow-wrap:anywhere; pointer-events:auto; }
+.fieldTooltip[data-entering][data-tooltip-motion='finite'] { animation:fieldErrorEnter 160ms ease-out both; }
+.fieldTooltip[data-exiting] { pointer-events:none; }
+.fieldTooltip[data-exiting][data-tooltip-motion='finite'] { animation:fieldErrorExit 100ms ease-in both; }
+@keyframes fieldErrorEnter { from { opacity:0; transform:translateY(4px); } to { opacity:1; transform:translateY(0); } }
+@keyframes fieldErrorExit { to { opacity:0; transform:translateY(3px); } }
+@media(prefers-reduced-motion:reduce) { .fieldTooltip { animation:none!important; } }
 .status {
   display: inline-flex;
   align-items: center;

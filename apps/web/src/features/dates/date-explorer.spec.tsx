@@ -1,10 +1,23 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { DateExplorer } from './date-explorer';
+import { SearchComposer } from '../search/search-composer';
+import { validateDraft, type SearchDraft } from '../search/search-url';
 import { catalog,query,session } from '../search/search-test-data';
 vi.mock('./date-chart',()=>({DateChart:()=>null}));
 vi.mock('./use-date-prices',()=>({useDatePrices:()=>({waiting:false,retryable:false})}));
 describe('calendar external intent invalidation',()=>{
+  it('keeps the portalled leg on the invalidated return and fences provisional work without inventing a return date',()=>{
+    const commit=vi.fn(),props={catalog,session,onCommit:commit,onPreview:vi.fn(),onCovered:vi.fn(),onInteractionChange:vi.fn()};
+    const form=(draft:SearchDraft)=><SearchComposer draft={draft} catalog={catalog} session={session} edit={vi.fn()} onSubmit={vi.fn()} errors={validateDraft(draft,catalog,session).errors} pending={false} disabled={false} dateExplorer={<DateExplorer {...props} draft={draft}/>}/>;
+    const view=render(form({...query,tripType:'round-trip',returnDate:'2026-10-26'}));
+    const explorer=screen.getByRole('region',{name:'کاوش تاریخ سفر'}),calendar=screen.getByRole('button',{name:'تقویم جلالی و انتخاب تاریخ'});
+    fireEvent.click(calendar); expect(screen.getByRole('dialog')).toBeInTheDocument();
+    view.rerender(form({...query,departureDate:'2026-10-27',tripType:'round-trip',returnDate:undefined}));
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument(); expect(explorer).toHaveAttribute('data-date-leg','return');
+    expect(screen.getByRole('radio',{name:'تاریخ برگشت'})).toBeChecked(); expect(explorer).toHaveAttribute('data-selected-return','');
+    expect(screen.getByRole('button',{name:'تقویم جلالی و انتخاب تاریخ'})).toBe(calendar); expect(commit).not.toHaveBeenCalled();
+  });
   it('places the calendar action after the nearby wheel in the same compact column and keeps cancel provisional',()=>{
     const commit=vi.fn();render(<DateExplorer catalog={catalog} session={session} draft={query} onCommit={commit} onPreview={vi.fn()} onCovered={vi.fn()} onInteractionChange={vi.fn()}/>);
     const wheel=screen.getByRole('listbox',{name:'روزهای نزدیک'}),trigger=screen.getByRole('button',{name:'تقویم جلالی و انتخاب تاریخ'});
@@ -18,9 +31,9 @@ describe('calendar external intent invalidation',()=>{
     const commit=vi.fn();const props={catalog,session,onCommit:commit,onPreview:vi.fn(),onCovered:vi.fn(),onInteractionChange:vi.fn()};
     const view=render(<DateExplorer {...props} draft={{...query,tripType:'round-trip',returnDate:'2026-10-26'}}/>);
     view.rerender(<DateExplorer {...props} draft={{...query,departureDate:'2026-10-27',tripType:'round-trip',returnDate:undefined}}/>);
-    expect(screen.getByLabelText('بخش سفر برای قیمت روزها')).toHaveValue('return');
-    fireEvent.change(screen.getByLabelText('بخش سفر برای قیمت روزها'),{target:{value:'outbound'}});
-    expect(screen.getByLabelText('بخش سفر برای قیمت روزها')).toHaveValue('outbound');
+    expect(screen.getByRole('radio',{name:'تاریخ برگشت'})).toBeChecked();
+    fireEvent.click(screen.getByRole('radio',{name:'تاریخ رفت'}));
+    expect(screen.getByRole('radio',{name:'تاریخ رفت'})).toBeChecked();
     expect(commit).not.toHaveBeenCalled();
   });
   it('allows explicit outbound and return editing inside a provisional calendar when return is missing',()=>{

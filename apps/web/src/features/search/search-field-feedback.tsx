@@ -1,6 +1,6 @@
 import { createContext, useContext, useLayoutEffect, useRef, type ReactNode } from 'react';
 import { motion, useAnimationControls } from 'motion/react';
-import { useMotionPolicy } from '@torob-ticket/ui';
+import { FieldErrorTooltip, useMotionPolicy } from '@torob-ticket/ui';
 import type { SearchField, SearchFieldErrors } from './search-url';
 import styles from './search.module.css';
 
@@ -13,6 +13,7 @@ export function useSearchFieldFeedback(...fields: SearchField[]) {
 /** Only an explicit attempt starts a finite shake. Corrections and motion policy settle it. */
 export function SearchFieldFeedback({ fields, children, label, showError = true }: { fields: SearchField[]; children?: ReactNode; label?: string; showError?: boolean }) {
   const feedback = useSearchFieldFeedback(...fields), controls = useAnimationControls();
+  const anchor = useRef<HTMLDivElement>(null);
   const policy = useMotionPolicy({ disabled: feedback.blocked });
   const invalid = feedback.errors.length > 0, seen = useRef(feedback.attempt);
   useLayoutEffect(() => {
@@ -22,8 +23,8 @@ export function SearchFieldFeedback({ fields, children, label, showError = true 
     void controls.start({ x: [null, -5, 5, -3, 3, 0], transition: { duration: .32, ease: 'easeInOut' } });
     return () => controls.stop();
   }, [controls, feedback.attempt, invalid, policy.enabled]);
-  return <motion.div className={styles.fieldFeedback} data-search-field={fields.join(' ')} data-invalid={invalid || undefined} data-feedback-attempt={invalid ? feedback.attempt : undefined} data-feedback-motion={policy.enabled ? 'finite' : 'static'} role={label ? 'group' : undefined} aria-label={label} aria-invalid={invalid || undefined} aria-describedby={showError ? feedback.describedBy : undefined} initial={false} animate={controls}>
+  return <motion.div ref={anchor} className={styles.fieldFeedback} data-search-field={fields.join(' ')} data-invalid={invalid || undefined} data-feedback-attempt={invalid ? feedback.attempt : undefined} data-feedback-motion={policy.enabled ? 'finite' : 'static'} role={label ? 'group' : undefined} aria-label={label} aria-invalid={invalid || undefined} aria-describedby={showError ? feedback.describedBy : undefined} initial={false} animate={controls}>
     {children}
-    {showError && feedback.errors.map(error => <p className={styles.fieldError} id={error.id} key={error.field} role="alert">{error.message}</p>)}
+    {showError && <FieldErrorTooltip anchorRef={anchor} messages={feedback.errors} revealKey={feedback.attempt} disabled={feedback.blocked}/>}
   </motion.div>;
 }

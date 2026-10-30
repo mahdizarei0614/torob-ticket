@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useState } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -35,15 +35,42 @@ function Form({ initial = query, pending = false, disabled = false, covered = fa
   return <MotionPolicyProvider covered={covered}><SearchComposer draft={draft} catalog={catalog} session={session} edit={patch => setDraft(previous => ({ ...previous, ...patch }))} onSubmit={submit} errors={validateDraft(draft, catalog, session).errors} pending={pending} disabled={disabled} dateExplorer={explorer ? <DateExplorer draft={draft} catalog={catalog} session={session} onCommit={setDraft} onPreview={vi.fn()} onCovered={vi.fn()} onInteractionChange={vi.fn()} /> : undefined} /></MotionPolicyProvider>;
 }
 describe('deliberate inline search validation', () => {
+  it('portals the owned round-trip leg segments beside class without committing dates, retaining the same explorer/calendar control', async () => {
+    const user = userEvent.setup(), submit = vi.fn();
+    const view = render(<Form initial={{...query,tripType:'round-trip',returnDate:'2026-10-28'}} explorer submit={submit}/>);
+    const preferences = view.container.querySelector<HTMLElement>('[data-search-preferences]')!;
+    const legs = within(preferences).getByRole('radiogroup', { name:'بخش سفر برای قیمت روزها' });
+    expect(within(preferences).getByRole('radiogroup', { name:'کلاس سفر' })).toBeInTheDocument();
+    const explorer = screen.getByRole('region', { name:'کاوش تاریخ سفر' }), calendar = screen.getByRole('button', { name:'تقویم جلالی و انتخاب تاریخ' });
+    expect(explorer.contains(legs)).toBe(false); expect(explorer).toHaveAttribute('data-date-leg','outbound');
+    await user.click(within(legs).getByRole('radio', { name:'تاریخ برگشت' }));
+    expect(explorer).toHaveAttribute('data-date-leg','return'); expect(explorer).toHaveAttribute('data-selected-return','2026-10-28');
+    await user.keyboard('{ArrowRight}'); expect(explorer).toHaveAttribute('data-date-leg','outbound');
+    expect(explorer).toHaveAttribute('data-selected-outbound',query.departureDate); expect(screen.getByRole('button', { name:'تقویم جلالی و انتخاب تاریخ' })).toBe(calendar);
+    expect(screen.queryByText(/برگشت ثابت|رفت ثابت/)).not.toBeInTheDocument(); expect(submit).not.toHaveBeenCalled();
+    await user.click(calendar); expect(screen.getByText('قیمت‌ها به هزار تومان')).toBeInTheDocument();
+    expect(screen.queryByText(/برگشت ثابت|رفت ثابت/)).not.toBeInTheDocument(); await user.click(screen.getByRole('button',{name:'انصراف'}));
+    expect(explorer).toHaveAttribute('data-selected-return','2026-10-28'); expect(submit).not.toHaveBeenCalled();
+  });
+  it('anchors residual form errors to the submit control with a persistent accessible description', async () => {
+    const user = userEvent.setup(), submit = vi.fn();
+    render(<SearchComposer draft={query} catalog={catalog} session={session} edit={vi.fn()} onSubmit={submit} errors={['شرایط سفر را دوباره بررسی کنید.']} pending={false} disabled={false}/>);
+    const button = screen.getByRole('button', { name:'جست‌وجوی سفر' });
+    expect(screen.queryByRole('tooltip')).not.toBeInTheDocument(); await user.click(button);
+    expect(await screen.findByRole('tooltip')).toHaveTextContent('شرایط سفر را دوباره بررسی کنید.');
+    expect(button).toHaveFocus(); expect(button).toHaveAccessibleDescription('شرایط سفر را دوباره بررسی کنید.');
+    expect(button.closest('[data-search-field="form"]')).toBeInTheDocument(); await user.keyboard('{Escape}');
+    expect(button).toHaveAccessibleDescription('شرایط سفر را دوباره بررسی کنید.'); expect(submit).not.toHaveBeenCalled();
+  });
   it('keeps an incomplete button invokable, then marks only invalid fields, focuses the useful input and replays finite feedback without submission', async () => {
     const submit = vi.fn(), user = userEvent.setup();
     render(<Form initial={{ ...query, destinationCityId: '' }} submit={submit} />);
-    const button = screen.getByRole('button', { name: 'جست‌وجوی سفر' }), destination = screen.getByRole('combobox', { name: 'مقصد' });
+    const button = screen.getByRole('button', { name: 'جست‌وجوی سفر' }), destination = screen.getByRole('combobox', { name: 'مقصد' }), origin = screen.getByRole('combobox', { name: 'مبدا' });
     expect(button).toBeEnabled(); expect(button).toHaveAttribute('data-invalid', 'true'); expect(destination).not.toHaveAttribute('aria-invalid', 'true');
     expect(screen.queryByText('مبدا، مقصد و تاریخ سفر را کامل و معتبر انتخاب کنید.')).not.toBeInTheDocument();
     await user.click(button);
     expect(submit).not.toHaveBeenCalled(); expect(destination).toHaveFocus(); expect(destination).toHaveAttribute('aria-invalid', 'true');
-    expect(destination).toHaveAccessibleDescription('شهر مقصد را از فهرست انتخاب کنید.'); expect(screen.getByRole('combobox', { name: 'مبدا' })).not.toHaveAttribute('aria-invalid', 'true');
+    expect(destination).toHaveAccessibleDescription('شهر مقصد را از فهرست انتخاب کنید.'); expect(origin).not.toHaveAttribute('aria-invalid', 'true');
     const controls = animation.fields.get('destinationCityId')!; expect(controls.start).toHaveBeenCalledTimes(1);
     await user.click(button); expect(controls.start).toHaveBeenCalledTimes(2);
     await user.click(destination); await user.type(destination, 'پایان'); await user.click(screen.getByRole('option', { name: 'پایان' }));
@@ -65,12 +92,12 @@ describe('deliberate inline search validation', () => {
   });
   it('settles an active shake when covered/reduced and does not replay on resume, while reduced attempts keep errors usable', async () => {
     const user = userEvent.setup(), submit = vi.fn(), initial = { ...query, destinationCityId: '' };
-    const view = render(<Form initial={initial} submit={submit} />); await user.click(screen.getByRole('button', { name: 'جست‌وجوی سفر' }));
+    const view = render(<Form initial={initial} submit={submit} />); const button = screen.getByRole('button', { name: 'جست‌وجوی سفر' }), destination = screen.getByRole('combobox', { name: 'مقصد' }); await user.click(button);
     const controls = animation.fields.get('destinationCityId')!; expect(controls.start).toHaveBeenCalledOnce();
     view.rerender(<Form initial={initial} submit={submit} covered />); expect(controls.set).toHaveBeenLastCalledWith({ x: 0 });
     view.rerender(<Form initial={initial} submit={submit} />); expect(controls.start).toHaveBeenCalledOnce();
-    act(() => { reduced = true; media.forEach(callback => callback()); }); await user.click(screen.getByRole('button', { name: 'جست‌وجوی سفر' }));
-    expect(controls.start).toHaveBeenCalledOnce(); expect(screen.getByRole('combobox', { name: 'مقصد' })).toHaveAccessibleDescription('شهر مقصد را از فهرست انتخاب کنید.');
+    act(() => { reduced = true; media.forEach(callback => callback()); }); await user.click(button);
+    expect(controls.start).toHaveBeenCalledOnce(); expect(destination).toHaveAccessibleDescription('شهر مقصد را از فهرست انتخاب کنید.');
     expect(submit).not.toHaveBeenCalled();
   });
   it('attaches missing-return feedback to the labelled calendar control and clears it after a valid provisional apply', async () => {
