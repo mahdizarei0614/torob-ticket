@@ -1,6 +1,6 @@
 import {expect,it,vi} from 'vitest';
 import type {ProviderContextSnapshot,SearchRepository} from '@torob-ticket/data-access';
-import {fixtureIdentity,fixtureSourceRevision,DIRECTIONAL_TRANSPORT_SOURCE_REVISION} from '@torob-ticket/fixtures';
+import {activeTransportSourceRevision,fixtureIdentity,fixtureSourceRevision,DIRECTIONAL_TRANSPORT_SOURCE_REVISION} from '@torob-ticket/fixtures';
 import type {SessionContext} from '../sessions/session-context';
 import {ProviderService} from './provider.service';
 // This isolated context-selection check does not connect to or mutate a database.
@@ -16,12 +16,13 @@ it('new searches use the active source for the same existing session; old frozen
  const repository={providerContextSnapshot:read} as unknown as SearchRepository;
  const service=new ProviderService(()=>repository,{now:()=>new Date('2026-10-30T00:00:00Z')});
  const create=(snapshot?:ProviderContextSnapshot,sources?:Record<string,string>)=>service.createContext(owner,'search',new AbortController().signal,new Date('2026-10-30T00:00:05Z'),snapshot,sources);
- const active=await create();expect(Object.values(active.sourceRevisions!)).toEqual(Array(6).fill(DIRECTIONAL_TRANSPORT_SOURCE_REVISION));
+ const active=await create();expect(Object.values(active.sourceRevisions!)).toEqual(Array(6).fill(activeTransportSourceRevision(info.fixtureVersion)));
  const old=await create(frozen);expect(Object.values(old.sourceRevisions!)).toEqual(Array(6).fill(fixtureSourceRevision('showcase-v3')));
- const dateSources=Object.fromEntries(Object.keys(active.sourceRevisions!).map(id=>[id,DIRECTIONAL_TRANSPORT_SOURCE_REVISION]));
+ const dateSources=Object.fromEntries(Object.keys(active.sourceRevisions!).map(id=>[id,activeTransportSourceRevision(info.fixtureVersion)]));
  const dateContext=await create(frozen,dateSources);expect(dateContext.sourceRevisions).toEqual(active.sourceRevisions);
  const recheck=await create(frozen,{'demo-provider-01':fixtureSourceRevision('showcase-v3')});expect(recheck.sourceRevisions?.['demo-provider-01']).toBe(fixtureSourceRevision('showcase-v3'));
  const newRecheck=await create(frozen,{'demo-provider-01':DIRECTIONAL_TRANSPORT_SOURCE_REVISION});expect(newRecheck.sourceRevisions?.['demo-provider-01']).toBe(DIRECTIONAL_TRANSPORT_SOURCE_REVISION);
+ const currentRecheck=await create(frozen,{'demo-provider-01':activeTransportSourceRevision(info.fixtureVersion)});expect(currentRecheck.sourceRevisions?.['demo-provider-01']).toBe(activeTransportSourceRevision(info.fixtureVersion));
  expect(Object.isFrozen(active.sourceRevisions)).toBe(true);expect(owner.info).toEqual(info);expect(read).toHaveBeenCalledTimes(1);
 });
 it('never applies the current source to immutable older fixture roots',async()=>{

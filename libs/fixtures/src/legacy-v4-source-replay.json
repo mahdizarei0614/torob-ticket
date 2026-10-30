@@ -1,0 +1,4804 @@
+{
+  "capturedFrom": "2e3dcc6 source-v4 before schedule trade-offs",
+  "sourceRevision": "source-v4-directional-fares-2026-10-30",
+  "catalogSha256": "8d061591896d40c8184913af0e30d89f6ab8bdfcbef4f910e3a355337892e4e5",
+  "farePoliciesSha256": "dd4050cd0e8eba9a9162bd627958659428460b424c157eca35e8b06627edea20",
+  "rows": [
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 49,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "normal",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "search",
+        "query": {
+          "mode": "flight",
+          "scope": "domestic",
+          "destinationCityId": "mashhad",
+          "originCityId": "tehran",
+          "classCode": "economy",
+          "tripType": "one-way",
+          "departureDate": "2026-11-02",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "feb583af6a3c8ff5bdab369ae4460008d16b0069fba4023349b51e70ce933879"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 6161,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "normal",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "search",
+        "query": {
+          "mode": "flight",
+          "scope": "domestic",
+          "destinationCityId": "mashhad",
+          "originCityId": "tehran",
+          "classCode": "economy",
+          "tripType": "one-way",
+          "departureDate": "2026-11-02",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "ae5942a022b0fbf09c0df08dfb252f5e1a66c00e9493e3bde4916ae5c727bcf3"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 49,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "price-change",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "recheck",
+        "query": {
+          "mode": "flight",
+          "scope": "domestic",
+          "destinationCityId": "mashhad",
+          "originCityId": "tehran",
+          "classCode": "economy",
+          "tripType": "one-way",
+          "departureDate": "2026-11-02",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "edbd5d0975b553449d8c7de45e204d17d507d80d9d89526a76311bfbe35a5ad2"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 6161,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "price-change",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "recheck",
+        "query": {
+          "mode": "flight",
+          "scope": "domestic",
+          "destinationCityId": "mashhad",
+          "originCityId": "tehran",
+          "classCode": "economy",
+          "tripType": "one-way",
+          "departureDate": "2026-11-02",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "f2dfb2f844409b46eb93b42a3ba7f3395b966cfb30e15b0f92a8765f30ee3fbd"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 49,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "normal",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "search",
+        "query": {
+          "mode": "flight",
+          "scope": "domestic",
+          "destinationCityId": "mashhad",
+          "originCityId": "tehran",
+          "classCode": "economy",
+          "tripType": "round-trip",
+          "departureDate": "2026-11-02",
+          "returnDate": "2026-11-09",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "6f592821384f270166fd3e2ae7dc22ca133b57a23f502ea660f438a092e19301"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 6161,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "normal",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "search",
+        "query": {
+          "mode": "flight",
+          "scope": "domestic",
+          "destinationCityId": "mashhad",
+          "originCityId": "tehran",
+          "classCode": "economy",
+          "tripType": "round-trip",
+          "departureDate": "2026-11-02",
+          "returnDate": "2026-11-09",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "1958965db4b2cdef1bf8f45b7a7d85589e0cf1d5ea9fcf65fabb6c864347874f"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 49,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "price-change",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "recheck",
+        "query": {
+          "mode": "flight",
+          "scope": "domestic",
+          "destinationCityId": "mashhad",
+          "originCityId": "tehran",
+          "classCode": "economy",
+          "tripType": "round-trip",
+          "departureDate": "2026-11-02",
+          "returnDate": "2026-11-09",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "2b00b03ba9658493d8325ad0a39baf94545dd8fa9a268dedfbe17cd292874bef"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 6161,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "price-change",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "recheck",
+        "query": {
+          "mode": "flight",
+          "scope": "domestic",
+          "destinationCityId": "mashhad",
+          "originCityId": "tehran",
+          "classCode": "economy",
+          "tripType": "round-trip",
+          "departureDate": "2026-11-02",
+          "returnDate": "2026-11-09",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "fd9db20bd5d56aa8c0c558443ce488de0d54f875df30247a116013a88305c252"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 49,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "normal",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "search",
+        "query": {
+          "mode": "flight",
+          "scope": "domestic",
+          "destinationCityId": "mashhad",
+          "originCityId": "tehran",
+          "classCode": "business",
+          "tripType": "one-way",
+          "departureDate": "2026-11-02",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "7d7b7edd34f3851317528ea54d5229132d61e1429c7b5d1bccd0b023c7c16a0d"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 6161,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "normal",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "search",
+        "query": {
+          "mode": "flight",
+          "scope": "domestic",
+          "destinationCityId": "mashhad",
+          "originCityId": "tehran",
+          "classCode": "business",
+          "tripType": "one-way",
+          "departureDate": "2026-11-02",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "7315417334143be3d8dbffe9a983982a76c3e6a92454ef016042537dd5563dc2"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 49,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "price-change",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "recheck",
+        "query": {
+          "mode": "flight",
+          "scope": "domestic",
+          "destinationCityId": "mashhad",
+          "originCityId": "tehran",
+          "classCode": "business",
+          "tripType": "one-way",
+          "departureDate": "2026-11-02",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "1c6baf3c4d8fadad0626f8204afa54dd9eae1a927fa2213951f9e1da9557116f"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 6161,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "price-change",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "recheck",
+        "query": {
+          "mode": "flight",
+          "scope": "domestic",
+          "destinationCityId": "mashhad",
+          "originCityId": "tehran",
+          "classCode": "business",
+          "tripType": "one-way",
+          "departureDate": "2026-11-02",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "6e91b73161994e83da597b4c12bcac3f3a773c2f9ebb8ca77e4342e83e98c6dd"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 49,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "normal",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "search",
+        "query": {
+          "mode": "flight",
+          "scope": "domestic",
+          "destinationCityId": "mashhad",
+          "originCityId": "tehran",
+          "classCode": "business",
+          "tripType": "round-trip",
+          "departureDate": "2026-11-02",
+          "returnDate": "2026-11-09",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "9abdd4f1b7b6116e0a5a5edfd1069364621ed83502d4e0b71253a4fd9a147cbc"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 6161,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "normal",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "search",
+        "query": {
+          "mode": "flight",
+          "scope": "domestic",
+          "destinationCityId": "mashhad",
+          "originCityId": "tehran",
+          "classCode": "business",
+          "tripType": "round-trip",
+          "departureDate": "2026-11-02",
+          "returnDate": "2026-11-09",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "58613721308e7903b6bd071be6cd06e10e253b77ba0787422f011482e1d9ce36"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 49,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "price-change",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "recheck",
+        "query": {
+          "mode": "flight",
+          "scope": "domestic",
+          "destinationCityId": "mashhad",
+          "originCityId": "tehran",
+          "classCode": "business",
+          "tripType": "round-trip",
+          "departureDate": "2026-11-02",
+          "returnDate": "2026-11-09",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "a3cfe7a609d26d81196c40e2995ba5cd6fd0569e712f20e0f58f67ba1429d568"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 6161,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "price-change",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "recheck",
+        "query": {
+          "mode": "flight",
+          "scope": "domestic",
+          "destinationCityId": "mashhad",
+          "originCityId": "tehran",
+          "classCode": "business",
+          "tripType": "round-trip",
+          "departureDate": "2026-11-02",
+          "returnDate": "2026-11-09",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "0b0c97b10d3953ff8cc565e72a6bb15913da111773c10d7096533fe700abfab1"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 49,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "normal",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "search",
+        "query": {
+          "mode": "flight",
+          "scope": "international",
+          "destinationCityId": "istanbul",
+          "originCityId": "tehran",
+          "classCode": "economy",
+          "tripType": "one-way",
+          "departureDate": "2026-11-02",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "3dab293d4079cb0a4ba490296a9eb47bc4b4580880b4cb2ee0ab4e27f62f0b02"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 6161,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "normal",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "search",
+        "query": {
+          "mode": "flight",
+          "scope": "international",
+          "destinationCityId": "istanbul",
+          "originCityId": "tehran",
+          "classCode": "economy",
+          "tripType": "one-way",
+          "departureDate": "2026-11-02",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "18bf2239c35d64b4a3ef64c901b6bdf7150baf62bc9cd9807ea90ad418d69232"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 49,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "price-change",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "recheck",
+        "query": {
+          "mode": "flight",
+          "scope": "international",
+          "destinationCityId": "istanbul",
+          "originCityId": "tehran",
+          "classCode": "economy",
+          "tripType": "one-way",
+          "departureDate": "2026-11-02",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "5a177d2f83c0b7ffb98d54aa3d2536c3fde941ca24c1d2b551a7349a3a40a492"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 6161,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "price-change",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "recheck",
+        "query": {
+          "mode": "flight",
+          "scope": "international",
+          "destinationCityId": "istanbul",
+          "originCityId": "tehran",
+          "classCode": "economy",
+          "tripType": "one-way",
+          "departureDate": "2026-11-02",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "8d70ddd0f739afe69b200d07e26bf0f25d87dd277f6f60700bf14f84a77f41f0"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 49,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "normal",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "search",
+        "query": {
+          "mode": "flight",
+          "scope": "international",
+          "destinationCityId": "istanbul",
+          "originCityId": "tehran",
+          "classCode": "economy",
+          "tripType": "round-trip",
+          "departureDate": "2026-11-02",
+          "returnDate": "2026-11-09",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "194e51ce6dd29f78b9093985b70961123953c4bd0982cc85509c0a6fe7a9693f"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 6161,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "normal",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "search",
+        "query": {
+          "mode": "flight",
+          "scope": "international",
+          "destinationCityId": "istanbul",
+          "originCityId": "tehran",
+          "classCode": "economy",
+          "tripType": "round-trip",
+          "departureDate": "2026-11-02",
+          "returnDate": "2026-11-09",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "dfee1e5f8356429957a40d1921aa2238b4fc9c56b18a7fb0b26773038b911e38"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 49,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "price-change",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "recheck",
+        "query": {
+          "mode": "flight",
+          "scope": "international",
+          "destinationCityId": "istanbul",
+          "originCityId": "tehran",
+          "classCode": "economy",
+          "tripType": "round-trip",
+          "departureDate": "2026-11-02",
+          "returnDate": "2026-11-09",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "466baa6106b44ca99096367a9765d7a2b0acfdc5ac8ccbf24add0be6af35f0e9"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 6161,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "price-change",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "recheck",
+        "query": {
+          "mode": "flight",
+          "scope": "international",
+          "destinationCityId": "istanbul",
+          "originCityId": "tehran",
+          "classCode": "economy",
+          "tripType": "round-trip",
+          "departureDate": "2026-11-02",
+          "returnDate": "2026-11-09",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "a53d7bebc76d9fa93506a19cc2f0648890f14b5138a85f6015aa4461282e7b4b"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 49,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "normal",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "search",
+        "query": {
+          "mode": "flight",
+          "scope": "international",
+          "destinationCityId": "istanbul",
+          "originCityId": "tehran",
+          "classCode": "business",
+          "tripType": "one-way",
+          "departureDate": "2026-11-02",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "7bc5ae63035708aec7c98ffecac4aadd02bfa4ff9ce41d924e6e571a5e9c7b3e"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 6161,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "normal",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "search",
+        "query": {
+          "mode": "flight",
+          "scope": "international",
+          "destinationCityId": "istanbul",
+          "originCityId": "tehran",
+          "classCode": "business",
+          "tripType": "one-way",
+          "departureDate": "2026-11-02",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "d0a38b267842dc4938f6412d8b3bbeef97279d8eeac0761a0370c2015921b58d"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 49,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "price-change",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "recheck",
+        "query": {
+          "mode": "flight",
+          "scope": "international",
+          "destinationCityId": "istanbul",
+          "originCityId": "tehran",
+          "classCode": "business",
+          "tripType": "one-way",
+          "departureDate": "2026-11-02",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "4910c69c23df0ac80b9bcb062dc5071024fa43fbbac668e77f89b7188b17bc24"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 6161,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "price-change",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "recheck",
+        "query": {
+          "mode": "flight",
+          "scope": "international",
+          "destinationCityId": "istanbul",
+          "originCityId": "tehran",
+          "classCode": "business",
+          "tripType": "one-way",
+          "departureDate": "2026-11-02",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "7b22a92b188e0888b753686eb1acb8fc19c985a6235d7cdf0ccc567bd3a99056"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 49,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "normal",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "search",
+        "query": {
+          "mode": "flight",
+          "scope": "international",
+          "destinationCityId": "istanbul",
+          "originCityId": "tehran",
+          "classCode": "business",
+          "tripType": "round-trip",
+          "departureDate": "2026-11-02",
+          "returnDate": "2026-11-09",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "e141a21ecb0761e3f25e4c0caa60b1abf72385a39f35bc74b7b1d298f5c16ab6"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 6161,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "normal",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "search",
+        "query": {
+          "mode": "flight",
+          "scope": "international",
+          "destinationCityId": "istanbul",
+          "originCityId": "tehran",
+          "classCode": "business",
+          "tripType": "round-trip",
+          "departureDate": "2026-11-02",
+          "returnDate": "2026-11-09",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "12bbfe386d05585eb7a49cc94e0562fce21aaaeb0617715541eba21daa272146"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 49,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "price-change",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "recheck",
+        "query": {
+          "mode": "flight",
+          "scope": "international",
+          "destinationCityId": "istanbul",
+          "originCityId": "tehran",
+          "classCode": "business",
+          "tripType": "round-trip",
+          "departureDate": "2026-11-02",
+          "returnDate": "2026-11-09",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "e221c9a201581253ed11e373231d22a25c6688cb77accbc53a6aa5c39ce0c515"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 6161,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "price-change",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "recheck",
+        "query": {
+          "mode": "flight",
+          "scope": "international",
+          "destinationCityId": "istanbul",
+          "originCityId": "tehran",
+          "classCode": "business",
+          "tripType": "round-trip",
+          "departureDate": "2026-11-02",
+          "returnDate": "2026-11-09",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "da6ba8b30412d721db112c80bef1c9e899296fee1c5af2e059155aba8defab65"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 49,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "normal",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "search",
+        "query": {
+          "mode": "train",
+          "scope": "domestic",
+          "destinationCityId": "mashhad",
+          "originCityId": "tehran",
+          "classCode": "sleeper-4",
+          "tripType": "one-way",
+          "departureDate": "2026-11-02",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "b4ce06fbe424e2884990fac601ca5418a2f9c73a8d711315247193ffee50c003"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 6161,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "normal",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "search",
+        "query": {
+          "mode": "train",
+          "scope": "domestic",
+          "destinationCityId": "mashhad",
+          "originCityId": "tehran",
+          "classCode": "sleeper-4",
+          "tripType": "one-way",
+          "departureDate": "2026-11-02",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "592cf36238ff7ba178e3d735e8323798319fec22ca1fee2ec59e22318ceb015d"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 49,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "price-change",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "recheck",
+        "query": {
+          "mode": "train",
+          "scope": "domestic",
+          "destinationCityId": "mashhad",
+          "originCityId": "tehran",
+          "classCode": "sleeper-4",
+          "tripType": "one-way",
+          "departureDate": "2026-11-02",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "71c04e3d53b3f7c5b28357e7cdc872fccf1a97c8b0194043b8733c4af97eb5f8"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 6161,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "price-change",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "recheck",
+        "query": {
+          "mode": "train",
+          "scope": "domestic",
+          "destinationCityId": "mashhad",
+          "originCityId": "tehran",
+          "classCode": "sleeper-4",
+          "tripType": "one-way",
+          "departureDate": "2026-11-02",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "eddedb95a32e74598327505b2178bf376eb4855a8736e5d67e7d149eebc20c55"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 49,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "normal",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "search",
+        "query": {
+          "mode": "train",
+          "scope": "domestic",
+          "destinationCityId": "mashhad",
+          "originCityId": "tehran",
+          "classCode": "sleeper-4",
+          "tripType": "round-trip",
+          "departureDate": "2026-11-02",
+          "returnDate": "2026-11-09",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "f078fc6f172eb163a68d5bfb3775f8fe879ca896933c36e59ca36b6dde309c84"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 6161,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "normal",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "search",
+        "query": {
+          "mode": "train",
+          "scope": "domestic",
+          "destinationCityId": "mashhad",
+          "originCityId": "tehran",
+          "classCode": "sleeper-4",
+          "tripType": "round-trip",
+          "departureDate": "2026-11-02",
+          "returnDate": "2026-11-09",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "c411ca2e79aa8ff2e1f3b3e9ce254b51a86f30bc551edc332376e4543623d832"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 49,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "price-change",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "recheck",
+        "query": {
+          "mode": "train",
+          "scope": "domestic",
+          "destinationCityId": "mashhad",
+          "originCityId": "tehran",
+          "classCode": "sleeper-4",
+          "tripType": "round-trip",
+          "departureDate": "2026-11-02",
+          "returnDate": "2026-11-09",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "94204aed7ca3e09ddea61b175860e59d9d77dcd3c20df4423a05d768ff7835b2"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 6161,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "price-change",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "recheck",
+        "query": {
+          "mode": "train",
+          "scope": "domestic",
+          "destinationCityId": "mashhad",
+          "originCityId": "tehran",
+          "classCode": "sleeper-4",
+          "tripType": "round-trip",
+          "departureDate": "2026-11-02",
+          "returnDate": "2026-11-09",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "ff1087bb8b0bd94e529ceecdfbeaf912c64557eda3c83fd8f74bcd7896f7e28b"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 49,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "normal",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "search",
+        "query": {
+          "mode": "train",
+          "scope": "domestic",
+          "destinationCityId": "mashhad",
+          "originCityId": "tehran",
+          "classCode": "seat",
+          "tripType": "one-way",
+          "departureDate": "2026-11-02",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "dcb0cb9158fe1581108d6d16e9db29e4f69ee8e5fcbe090d82715badb8113149"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 6161,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "normal",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "search",
+        "query": {
+          "mode": "train",
+          "scope": "domestic",
+          "destinationCityId": "mashhad",
+          "originCityId": "tehran",
+          "classCode": "seat",
+          "tripType": "one-way",
+          "departureDate": "2026-11-02",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "dda7fa6ed67394ebdf2b806692262015209292d057e02a759361d3f401a2aacb"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 49,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "price-change",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "recheck",
+        "query": {
+          "mode": "train",
+          "scope": "domestic",
+          "destinationCityId": "mashhad",
+          "originCityId": "tehran",
+          "classCode": "seat",
+          "tripType": "one-way",
+          "departureDate": "2026-11-02",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "c5d946872f9cf4da80bff13891728cf943cf86c85c694a5a6e4f088fc8c96ddb"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 6161,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "price-change",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "recheck",
+        "query": {
+          "mode": "train",
+          "scope": "domestic",
+          "destinationCityId": "mashhad",
+          "originCityId": "tehran",
+          "classCode": "seat",
+          "tripType": "one-way",
+          "departureDate": "2026-11-02",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "ed2ccef1398174908525486875b54d36752119f4dad5ecdcb3d3eb115f09e142"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 49,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "normal",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "search",
+        "query": {
+          "mode": "train",
+          "scope": "domestic",
+          "destinationCityId": "mashhad",
+          "originCityId": "tehran",
+          "classCode": "seat",
+          "tripType": "round-trip",
+          "departureDate": "2026-11-02",
+          "returnDate": "2026-11-09",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "cc2255ce8bd6bdcfbfcd976fdedaba142b578e781a37e3bfe85e7adb430399e8"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 6161,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "normal",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "search",
+        "query": {
+          "mode": "train",
+          "scope": "domestic",
+          "destinationCityId": "mashhad",
+          "originCityId": "tehran",
+          "classCode": "seat",
+          "tripType": "round-trip",
+          "departureDate": "2026-11-02",
+          "returnDate": "2026-11-09",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "8d27cf226811949b79d5d2b551413a0d1be8e449234b0318a8b623fc5b2d8e0d"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 49,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "price-change",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "recheck",
+        "query": {
+          "mode": "train",
+          "scope": "domestic",
+          "destinationCityId": "mashhad",
+          "originCityId": "tehran",
+          "classCode": "seat",
+          "tripType": "round-trip",
+          "departureDate": "2026-11-02",
+          "returnDate": "2026-11-09",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "9ed4a7176baa74ec0eabce3b7d007cc7f639dbdcea777394f0007e3662646f06"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 6161,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "price-change",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "recheck",
+        "query": {
+          "mode": "train",
+          "scope": "domestic",
+          "destinationCityId": "mashhad",
+          "originCityId": "tehran",
+          "classCode": "seat",
+          "tripType": "round-trip",
+          "departureDate": "2026-11-02",
+          "returnDate": "2026-11-09",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "15dba58314908da8d99a8d71bc1f95d81a7931799e991ad4cf8caf14539d00c0"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 49,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "normal",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "search",
+        "query": {
+          "mode": "train",
+          "scope": "domestic",
+          "destinationCityId": "mashhad",
+          "originCityId": "tehran",
+          "classCode": "sleeper-6",
+          "tripType": "one-way",
+          "departureDate": "2026-11-02",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "39b632582065e9e18b92f57da28997229412b67efee6b162ac52ee10818ce120"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 6161,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "normal",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "search",
+        "query": {
+          "mode": "train",
+          "scope": "domestic",
+          "destinationCityId": "mashhad",
+          "originCityId": "tehran",
+          "classCode": "sleeper-6",
+          "tripType": "one-way",
+          "departureDate": "2026-11-02",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "a2dec5f3dd10e9e547a15882e459ea020823d9ee06a57048f4801985334f4f8e"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 49,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "price-change",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "recheck",
+        "query": {
+          "mode": "train",
+          "scope": "domestic",
+          "destinationCityId": "mashhad",
+          "originCityId": "tehran",
+          "classCode": "sleeper-6",
+          "tripType": "one-way",
+          "departureDate": "2026-11-02",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "604b5fcc05165a5e781c5fd484b0a31ea362379d04f2ca5fb221b80ab4b2d1e9"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 6161,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "price-change",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "recheck",
+        "query": {
+          "mode": "train",
+          "scope": "domestic",
+          "destinationCityId": "mashhad",
+          "originCityId": "tehran",
+          "classCode": "sleeper-6",
+          "tripType": "one-way",
+          "departureDate": "2026-11-02",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "07ce3adf3c6f51f01271f788d2f2f47511bf4f09cfa7ebb8e193c18c09bec4ca"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 49,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "normal",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "search",
+        "query": {
+          "mode": "train",
+          "scope": "domestic",
+          "destinationCityId": "mashhad",
+          "originCityId": "tehran",
+          "classCode": "sleeper-6",
+          "tripType": "round-trip",
+          "departureDate": "2026-11-02",
+          "returnDate": "2026-11-09",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "479b4426d1938179707877d9df59960dbad7fd6ee26562e047b9d2e011c53e36"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 6161,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "normal",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "search",
+        "query": {
+          "mode": "train",
+          "scope": "domestic",
+          "destinationCityId": "mashhad",
+          "originCityId": "tehran",
+          "classCode": "sleeper-6",
+          "tripType": "round-trip",
+          "departureDate": "2026-11-02",
+          "returnDate": "2026-11-09",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "354182104e500dd571d25afeb2622755c25f3dd756ba968ead8d886e093a61f5"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 49,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "price-change",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "recheck",
+        "query": {
+          "mode": "train",
+          "scope": "domestic",
+          "destinationCityId": "mashhad",
+          "originCityId": "tehran",
+          "classCode": "sleeper-6",
+          "tripType": "round-trip",
+          "departureDate": "2026-11-02",
+          "returnDate": "2026-11-09",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "a6617d1bb9947d9623e09c19161b8b1b323b11eee54187598d4f5e3811f085d6"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 6161,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "price-change",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "recheck",
+        "query": {
+          "mode": "train",
+          "scope": "domestic",
+          "destinationCityId": "mashhad",
+          "originCityId": "tehran",
+          "classCode": "sleeper-6",
+          "tripType": "round-trip",
+          "departureDate": "2026-11-02",
+          "returnDate": "2026-11-09",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "8509885d556c5f6de10f045939488b9c5a3d6fa345658e2a2e8927584213b538"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 49,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "normal",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "search",
+        "query": {
+          "mode": "train",
+          "scope": "international",
+          "destinationCityId": "van",
+          "originCityId": "tehran",
+          "classCode": "sleeper-4",
+          "tripType": "one-way",
+          "departureDate": "2026-11-02",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "c8fd45729f56c5935fd6389b2250db93ad6f09a587cd6ab4ac0075a61fbc3e5d"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 6161,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "normal",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "search",
+        "query": {
+          "mode": "train",
+          "scope": "international",
+          "destinationCityId": "van",
+          "originCityId": "tehran",
+          "classCode": "sleeper-4",
+          "tripType": "one-way",
+          "departureDate": "2026-11-02",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "2237e84a94dbbfa8f9a8a121fb55a539bd90d5ac0a58109d7d0260ce3dfe5801"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 49,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "price-change",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "recheck",
+        "query": {
+          "mode": "train",
+          "scope": "international",
+          "destinationCityId": "van",
+          "originCityId": "tehran",
+          "classCode": "sleeper-4",
+          "tripType": "one-way",
+          "departureDate": "2026-11-02",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "2542b6c2541b9a23b76cccefe88c88c9153c10903478aad790577cd7091b1901"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 6161,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "price-change",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "recheck",
+        "query": {
+          "mode": "train",
+          "scope": "international",
+          "destinationCityId": "van",
+          "originCityId": "tehran",
+          "classCode": "sleeper-4",
+          "tripType": "one-way",
+          "departureDate": "2026-11-02",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "def48ec411fe912e02ae9e1217c1a9c7f93773578a7b66d460e0f76adb8ae3c8"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 49,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "normal",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "search",
+        "query": {
+          "mode": "train",
+          "scope": "international",
+          "destinationCityId": "van",
+          "originCityId": "tehran",
+          "classCode": "sleeper-4",
+          "tripType": "round-trip",
+          "departureDate": "2026-11-02",
+          "returnDate": "2026-11-09",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "3f1e0842531ba34fa006ebf17b5f554c5a8bbaa9aa9c74e3143e2038a5185e2d"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 6161,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "normal",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "search",
+        "query": {
+          "mode": "train",
+          "scope": "international",
+          "destinationCityId": "van",
+          "originCityId": "tehran",
+          "classCode": "sleeper-4",
+          "tripType": "round-trip",
+          "departureDate": "2026-11-02",
+          "returnDate": "2026-11-09",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "e391ed08f59d3e506e4a92f5864b302d153767b6bd4b400b2ae80b6e8034747f"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 49,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "price-change",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "recheck",
+        "query": {
+          "mode": "train",
+          "scope": "international",
+          "destinationCityId": "van",
+          "originCityId": "tehran",
+          "classCode": "sleeper-4",
+          "tripType": "round-trip",
+          "departureDate": "2026-11-02",
+          "returnDate": "2026-11-09",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "3ef74e5b9be9312254f7ffa43d263dd4b911424b0c112a118bf2f369e61b7ec0"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 6161,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "price-change",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "recheck",
+        "query": {
+          "mode": "train",
+          "scope": "international",
+          "destinationCityId": "van",
+          "originCityId": "tehran",
+          "classCode": "sleeper-4",
+          "tripType": "round-trip",
+          "departureDate": "2026-11-02",
+          "returnDate": "2026-11-09",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "bc3a39d3f6b86c00f5ee65864c7b67758a9ef054d3da36355e27961d2287e66a"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 49,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "normal",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "search",
+        "query": {
+          "mode": "train",
+          "scope": "international",
+          "destinationCityId": "van",
+          "originCityId": "tehran",
+          "classCode": "seat",
+          "tripType": "one-way",
+          "departureDate": "2026-11-02",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "4c5c58c18e7d7b0275e660d7a323b4cba5539f30de4532cab5adbc2bddb2a6f9"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 6161,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "normal",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "search",
+        "query": {
+          "mode": "train",
+          "scope": "international",
+          "destinationCityId": "van",
+          "originCityId": "tehran",
+          "classCode": "seat",
+          "tripType": "one-way",
+          "departureDate": "2026-11-02",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "98b08932afd6dd7eb3d382e95db39b34f9ed742c20e9f915cd30c16cf9622c81"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 49,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "price-change",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "recheck",
+        "query": {
+          "mode": "train",
+          "scope": "international",
+          "destinationCityId": "van",
+          "originCityId": "tehran",
+          "classCode": "seat",
+          "tripType": "one-way",
+          "departureDate": "2026-11-02",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "402a929497ed85ea9d237e074876771c6722cef20658fdf2812ee6e2905c462e"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 6161,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "price-change",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "recheck",
+        "query": {
+          "mode": "train",
+          "scope": "international",
+          "destinationCityId": "van",
+          "originCityId": "tehran",
+          "classCode": "seat",
+          "tripType": "one-way",
+          "departureDate": "2026-11-02",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "6c6dce2fd3e7970d747cb2083523258607e8b1a86b8b9020f71df72d15b5b116"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 49,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "normal",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "search",
+        "query": {
+          "mode": "train",
+          "scope": "international",
+          "destinationCityId": "van",
+          "originCityId": "tehran",
+          "classCode": "seat",
+          "tripType": "round-trip",
+          "departureDate": "2026-11-02",
+          "returnDate": "2026-11-09",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "cd0c6cbbf457f2a915536cd3d43c458821810bfbe6861a3e33d4d3b7d565b065"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 6161,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "normal",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "search",
+        "query": {
+          "mode": "train",
+          "scope": "international",
+          "destinationCityId": "van",
+          "originCityId": "tehran",
+          "classCode": "seat",
+          "tripType": "round-trip",
+          "departureDate": "2026-11-02",
+          "returnDate": "2026-11-09",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "bbbf8d995ed6a5a90475e204f7249610c05ce6ca60330ffb0dd0c96b5ad14937"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 49,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "price-change",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "recheck",
+        "query": {
+          "mode": "train",
+          "scope": "international",
+          "destinationCityId": "van",
+          "originCityId": "tehran",
+          "classCode": "seat",
+          "tripType": "round-trip",
+          "departureDate": "2026-11-02",
+          "returnDate": "2026-11-09",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "b9b8efca97281c618cee637b1bac6af623c89dcdb908c91ff847141ac38fa7ea"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 6161,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "price-change",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "recheck",
+        "query": {
+          "mode": "train",
+          "scope": "international",
+          "destinationCityId": "van",
+          "originCityId": "tehran",
+          "classCode": "seat",
+          "tripType": "round-trip",
+          "departureDate": "2026-11-02",
+          "returnDate": "2026-11-09",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "5858d1ac88c4cdd9ab50437e3b3d4b43e5b6086a900256b4cb71687cab64b39e"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 49,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "normal",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "search",
+        "query": {
+          "mode": "train",
+          "scope": "international",
+          "destinationCityId": "van",
+          "originCityId": "tehran",
+          "classCode": "sleeper-6",
+          "tripType": "one-way",
+          "departureDate": "2026-11-02",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "70cfb8a6d114e110178629dfe10d4d8a36ace9e138f0b408b13bc65ccd13d60d"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 6161,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "normal",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "search",
+        "query": {
+          "mode": "train",
+          "scope": "international",
+          "destinationCityId": "van",
+          "originCityId": "tehran",
+          "classCode": "sleeper-6",
+          "tripType": "one-way",
+          "departureDate": "2026-11-02",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "f15dc3b2887a13801e11fd9d6e53d231ce927d507dc6b41102c7a02d01880f22"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 49,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "price-change",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "recheck",
+        "query": {
+          "mode": "train",
+          "scope": "international",
+          "destinationCityId": "van",
+          "originCityId": "tehran",
+          "classCode": "sleeper-6",
+          "tripType": "one-way",
+          "departureDate": "2026-11-02",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "59a3f2ac521e1f23d3b23473b03d4b29e04c3f3dab8965fee8bfc7054ca99906"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 6161,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "price-change",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "recheck",
+        "query": {
+          "mode": "train",
+          "scope": "international",
+          "destinationCityId": "van",
+          "originCityId": "tehran",
+          "classCode": "sleeper-6",
+          "tripType": "one-way",
+          "departureDate": "2026-11-02",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "2c3e748e018e56726b7b77f0777fdbacae12e05a721edc2686a76d4d551d14fb"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 49,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "normal",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "search",
+        "query": {
+          "mode": "train",
+          "scope": "international",
+          "destinationCityId": "van",
+          "originCityId": "tehran",
+          "classCode": "sleeper-6",
+          "tripType": "round-trip",
+          "departureDate": "2026-11-02",
+          "returnDate": "2026-11-09",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "88471d30d4d4e7289fcebb9a81164404e37f36b702d4a6738e41dd6e507cb49e"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 6161,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "normal",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "search",
+        "query": {
+          "mode": "train",
+          "scope": "international",
+          "destinationCityId": "van",
+          "originCityId": "tehran",
+          "classCode": "sleeper-6",
+          "tripType": "round-trip",
+          "departureDate": "2026-11-02",
+          "returnDate": "2026-11-09",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "3c41b540b34dcfa452b2d5b59fa76411e7d5f31b22a5ef43f2190c93c97e34f4"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 49,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "price-change",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "recheck",
+        "query": {
+          "mode": "train",
+          "scope": "international",
+          "destinationCityId": "van",
+          "originCityId": "tehran",
+          "classCode": "sleeper-6",
+          "tripType": "round-trip",
+          "departureDate": "2026-11-02",
+          "returnDate": "2026-11-09",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "ba5901dfb85c88c30fa4c9e3d3f629822ee8072f23bf89a6aed12d4816453351"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 6161,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "price-change",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "recheck",
+        "query": {
+          "mode": "train",
+          "scope": "international",
+          "destinationCityId": "van",
+          "originCityId": "tehran",
+          "classCode": "sleeper-6",
+          "tripType": "round-trip",
+          "departureDate": "2026-11-02",
+          "returnDate": "2026-11-09",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "d09257a17c08e1b2ec2b46c2e3f7c268266e447658635967834f02e0a70c21ea"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 49,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "normal",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "search",
+        "query": {
+          "mode": "bus",
+          "scope": "domestic",
+          "destinationCityId": "isfahan",
+          "originCityId": "tehran",
+          "classCode": "vip",
+          "tripType": "one-way",
+          "departureDate": "2026-11-02",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "933889335bb030dac0775a6c910613cf13f882ba73e1f59bae9cb211fa61e0ae"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 6161,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "normal",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "search",
+        "query": {
+          "mode": "bus",
+          "scope": "domestic",
+          "destinationCityId": "isfahan",
+          "originCityId": "tehran",
+          "classCode": "vip",
+          "tripType": "one-way",
+          "departureDate": "2026-11-02",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "04dfea3933da3730c2f7f5be5ceb638072ff2dc4f70c57796a32be92d3ee2256"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 49,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "price-change",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "recheck",
+        "query": {
+          "mode": "bus",
+          "scope": "domestic",
+          "destinationCityId": "isfahan",
+          "originCityId": "tehran",
+          "classCode": "vip",
+          "tripType": "one-way",
+          "departureDate": "2026-11-02",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "84d9aa908a0a97938991baa3710b5cd118c04af8dcb9b0661b011d1f2dfed063"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 6161,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "price-change",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "recheck",
+        "query": {
+          "mode": "bus",
+          "scope": "domestic",
+          "destinationCityId": "isfahan",
+          "originCityId": "tehran",
+          "classCode": "vip",
+          "tripType": "one-way",
+          "departureDate": "2026-11-02",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "601d7d8569580561a5453a0cd0a4de65072279501d034fa380d2b2f5df1eb497"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 49,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "normal",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "search",
+        "query": {
+          "mode": "bus",
+          "scope": "domestic",
+          "destinationCityId": "isfahan",
+          "originCityId": "tehran",
+          "classCode": "vip",
+          "tripType": "round-trip",
+          "departureDate": "2026-11-02",
+          "returnDate": "2026-11-09",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "94252cdce002ffe6081a9ead367278e36fdf1197f116f2e3df81ad6a6b35e66b"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 6161,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "normal",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "search",
+        "query": {
+          "mode": "bus",
+          "scope": "domestic",
+          "destinationCityId": "isfahan",
+          "originCityId": "tehran",
+          "classCode": "vip",
+          "tripType": "round-trip",
+          "departureDate": "2026-11-02",
+          "returnDate": "2026-11-09",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "949602840023e0e860733e4dc2b8d762fdcb7015e8578d8a4a32889fc6b7a257"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 49,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "price-change",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "recheck",
+        "query": {
+          "mode": "bus",
+          "scope": "domestic",
+          "destinationCityId": "isfahan",
+          "originCityId": "tehran",
+          "classCode": "vip",
+          "tripType": "round-trip",
+          "departureDate": "2026-11-02",
+          "returnDate": "2026-11-09",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "d69c044d342ca96c87f83ece613064495b5ce5ee7ff0ba409055e8829e5babd8"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 6161,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "price-change",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "recheck",
+        "query": {
+          "mode": "bus",
+          "scope": "domestic",
+          "destinationCityId": "isfahan",
+          "originCityId": "tehran",
+          "classCode": "vip",
+          "tripType": "round-trip",
+          "departureDate": "2026-11-02",
+          "returnDate": "2026-11-09",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "3c29b19af7348f026bec255dcd8e043184c49e04a03ce89b0dd364c387c71694"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 49,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "normal",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "search",
+        "query": {
+          "mode": "bus",
+          "scope": "domestic",
+          "destinationCityId": "isfahan",
+          "originCityId": "tehran",
+          "classCode": "standard",
+          "tripType": "one-way",
+          "departureDate": "2026-11-02",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "1bebb913c2c6b00856af1e315594cc4c5d986124dc7fa1fdd609a91bd6177096"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 6161,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "normal",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "search",
+        "query": {
+          "mode": "bus",
+          "scope": "domestic",
+          "destinationCityId": "isfahan",
+          "originCityId": "tehran",
+          "classCode": "standard",
+          "tripType": "one-way",
+          "departureDate": "2026-11-02",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "0bcf9cefe31738312f76c9b6c62d611d681fb324d8a4fdc1e36b18227e7cd170"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 49,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "price-change",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "recheck",
+        "query": {
+          "mode": "bus",
+          "scope": "domestic",
+          "destinationCityId": "isfahan",
+          "originCityId": "tehran",
+          "classCode": "standard",
+          "tripType": "one-way",
+          "departureDate": "2026-11-02",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "957811e6e4510647478942835d3d509615226aead50bb14ec8d443d2051b9f55"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 6161,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "price-change",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "recheck",
+        "query": {
+          "mode": "bus",
+          "scope": "domestic",
+          "destinationCityId": "isfahan",
+          "originCityId": "tehran",
+          "classCode": "standard",
+          "tripType": "one-way",
+          "departureDate": "2026-11-02",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "d56182f1531415ffec6604ef104899143335ce511db8ab73eacfa29e73899cfd"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 49,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "normal",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "search",
+        "query": {
+          "mode": "bus",
+          "scope": "domestic",
+          "destinationCityId": "isfahan",
+          "originCityId": "tehran",
+          "classCode": "standard",
+          "tripType": "round-trip",
+          "departureDate": "2026-11-02",
+          "returnDate": "2026-11-09",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "b00d8b75ea0f3aa0e9b436cf11d19fb40abd2df3308ccb8491a621f79cf91835"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 6161,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "normal",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "search",
+        "query": {
+          "mode": "bus",
+          "scope": "domestic",
+          "destinationCityId": "isfahan",
+          "originCityId": "tehran",
+          "classCode": "standard",
+          "tripType": "round-trip",
+          "departureDate": "2026-11-02",
+          "returnDate": "2026-11-09",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "076afc61c0118166c3f4a5277ffdf53ea4db7edd65342eeee48df9a1c73d5045"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 49,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "price-change",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "recheck",
+        "query": {
+          "mode": "bus",
+          "scope": "domestic",
+          "destinationCityId": "isfahan",
+          "originCityId": "tehran",
+          "classCode": "standard",
+          "tripType": "round-trip",
+          "departureDate": "2026-11-02",
+          "returnDate": "2026-11-09",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "c5a7cb6fce4a5ea258e2f3bab9e953d4b29c62cbf6b661cab5b28252557748e3"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 6161,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "price-change",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "recheck",
+        "query": {
+          "mode": "bus",
+          "scope": "domestic",
+          "destinationCityId": "isfahan",
+          "originCityId": "tehran",
+          "classCode": "standard",
+          "tripType": "round-trip",
+          "departureDate": "2026-11-02",
+          "returnDate": "2026-11-09",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "ae08d14da559438401cdf2f321e77cac19cd4ee6a506460730aa2817934efd83"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 49,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "normal",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "search",
+        "query": {
+          "mode": "bus",
+          "scope": "international",
+          "destinationCityId": "yerevan",
+          "originCityId": "tehran",
+          "classCode": "vip",
+          "tripType": "one-way",
+          "departureDate": "2026-11-02",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "475f052b7d97a7729bc195b2fcde5c31baf84e65cb0ac63c902682c37ca58fe3"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 6161,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "normal",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "search",
+        "query": {
+          "mode": "bus",
+          "scope": "international",
+          "destinationCityId": "yerevan",
+          "originCityId": "tehran",
+          "classCode": "vip",
+          "tripType": "one-way",
+          "departureDate": "2026-11-02",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "009b5748afe38692b1032a46b68e722453a358ba35da17db463e54c49ad2b78d"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 49,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "price-change",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "recheck",
+        "query": {
+          "mode": "bus",
+          "scope": "international",
+          "destinationCityId": "yerevan",
+          "originCityId": "tehran",
+          "classCode": "vip",
+          "tripType": "one-way",
+          "departureDate": "2026-11-02",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "adf71ca2a9493275c7c72a7328e848d2e82b10c278792a95cb6be26999c8ec7a"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 6161,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "price-change",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "recheck",
+        "query": {
+          "mode": "bus",
+          "scope": "international",
+          "destinationCityId": "yerevan",
+          "originCityId": "tehran",
+          "classCode": "vip",
+          "tripType": "one-way",
+          "departureDate": "2026-11-02",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "ba86a721418f0a426cd44b01602a42cc0c0ad149ef6f7691fd063431e288e280"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 49,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "normal",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "search",
+        "query": {
+          "mode": "bus",
+          "scope": "international",
+          "destinationCityId": "yerevan",
+          "originCityId": "tehran",
+          "classCode": "vip",
+          "tripType": "round-trip",
+          "departureDate": "2026-11-02",
+          "returnDate": "2026-11-09",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "3d6a338ac2098b4803ab5f288192e65f0c87334cf8dbb7e4305d95b7bdca60bf"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 6161,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "normal",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "search",
+        "query": {
+          "mode": "bus",
+          "scope": "international",
+          "destinationCityId": "yerevan",
+          "originCityId": "tehran",
+          "classCode": "vip",
+          "tripType": "round-trip",
+          "departureDate": "2026-11-02",
+          "returnDate": "2026-11-09",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "c7b2cb2bfddf3a48c426ec14906d409ea1497ea0fa56842ab4f6f17f9c6c1af9"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 49,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "price-change",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "recheck",
+        "query": {
+          "mode": "bus",
+          "scope": "international",
+          "destinationCityId": "yerevan",
+          "originCityId": "tehran",
+          "classCode": "vip",
+          "tripType": "round-trip",
+          "departureDate": "2026-11-02",
+          "returnDate": "2026-11-09",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "02ac35335349425dd13186298c9d6d5c6193c72733117004fe5448e3f08add10"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 6161,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "price-change",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "recheck",
+        "query": {
+          "mode": "bus",
+          "scope": "international",
+          "destinationCityId": "yerevan",
+          "originCityId": "tehran",
+          "classCode": "vip",
+          "tripType": "round-trip",
+          "departureDate": "2026-11-02",
+          "returnDate": "2026-11-09",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "4af86ace8455edc05f66f7ef3a153159ac10b19f99e056f702cd59f95288680a"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 49,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "normal",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "search",
+        "query": {
+          "mode": "bus",
+          "scope": "international",
+          "destinationCityId": "yerevan",
+          "originCityId": "tehran",
+          "classCode": "standard",
+          "tripType": "one-way",
+          "departureDate": "2026-11-02",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "3c763c2d7dd741d81f1b671153547ad8b9dc5d7f208135ab7ef470199ec184fa"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 6161,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "normal",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "search",
+        "query": {
+          "mode": "bus",
+          "scope": "international",
+          "destinationCityId": "yerevan",
+          "originCityId": "tehran",
+          "classCode": "standard",
+          "tripType": "one-way",
+          "departureDate": "2026-11-02",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "a18f72cbf7a3e71c1a4e90691c00980938faad4f6a392ccef18086fa00fe9290"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 49,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "price-change",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "recheck",
+        "query": {
+          "mode": "bus",
+          "scope": "international",
+          "destinationCityId": "yerevan",
+          "originCityId": "tehran",
+          "classCode": "standard",
+          "tripType": "one-way",
+          "departureDate": "2026-11-02",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "72e27f4923e65cb6c133813decd9ef2806bcc62072f689997f39b5f43a795914"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 6161,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "price-change",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "recheck",
+        "query": {
+          "mode": "bus",
+          "scope": "international",
+          "destinationCityId": "yerevan",
+          "originCityId": "tehran",
+          "classCode": "standard",
+          "tripType": "one-way",
+          "departureDate": "2026-11-02",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "833f28ac670d3d7c16542b1a69cafebec817d90e5c7fe4a7118e388d41a195bd"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 49,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "normal",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "search",
+        "query": {
+          "mode": "bus",
+          "scope": "international",
+          "destinationCityId": "yerevan",
+          "originCityId": "tehran",
+          "classCode": "standard",
+          "tripType": "round-trip",
+          "departureDate": "2026-11-02",
+          "returnDate": "2026-11-09",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "cca5241ac481db7e465941de0b76c72682a2a2c8a9bbb7e13aade7f7eca656e4"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 6161,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "normal",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "search",
+        "query": {
+          "mode": "bus",
+          "scope": "international",
+          "destinationCityId": "yerevan",
+          "originCityId": "tehran",
+          "classCode": "standard",
+          "tripType": "round-trip",
+          "departureDate": "2026-11-02",
+          "returnDate": "2026-11-09",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "7fe464e19566ee49365300dd81714ce16832839462691e7ee4296a6baaf76cfe"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 49,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "price-change",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "recheck",
+        "query": {
+          "mode": "bus",
+          "scope": "international",
+          "destinationCityId": "yerevan",
+          "originCityId": "tehran",
+          "classCode": "standard",
+          "tripType": "round-trip",
+          "departureDate": "2026-11-02",
+          "returnDate": "2026-11-09",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "8b2e790c100dacb239ba13b39c0593bdb9b0f505f2469e0188fea82cfb0daca6"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "catalogRevision": "catalog-v3",
+        "seed": 6161,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "price-change",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "recheck",
+        "query": {
+          "mode": "bus",
+          "scope": "international",
+          "destinationCityId": "yerevan",
+          "originCityId": "tehran",
+          "classCode": "standard",
+          "tripType": "round-trip",
+          "departureDate": "2026-11-02",
+          "returnDate": "2026-11-09",
+          "party": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "childAges": [
+              8
+            ],
+            "infantAgesMonths": [
+              6
+            ]
+          },
+          "filters": {},
+          "sort": "cheapest"
+        },
+        "sourceRevision": "source-v4-directional-fares-2026-10-30"
+      },
+      "sha256": "4a602fd4ee95092eb516cdd32ee3c4e07090c359c5d736ee65f5360396354bcc"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "sourceRevision": "source-v4-directional-fares-2026-10-30",
+        "seed": 6161,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "normal",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "search",
+        "query": {
+          "mode": "flight",
+          "scope": "international",
+          "originCityId": "tehran",
+          "destinationCityId": "london",
+          "departureDate": "2026-11-02",
+          "tripType": "one-way",
+          "classCode": "economy",
+          "party": {
+            "adults": 1,
+            "children": 0,
+            "infants": 0
+          },
+          "filters": {},
+          "sort": "cheapest"
+        }
+      },
+      "sha256": "ebdfe0cc0293f993a7bfff17bfbcc319871bbddf24581ffd578b606fea306863"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "sourceRevision": "source-v4-directional-fares-2026-10-30",
+        "seed": 6161,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "price-change",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "search",
+        "query": {
+          "mode": "flight",
+          "scope": "international",
+          "originCityId": "tehran",
+          "destinationCityId": "london",
+          "departureDate": "2026-11-02",
+          "tripType": "one-way",
+          "classCode": "economy",
+          "party": {
+            "adults": 1,
+            "children": 0,
+            "infants": 0
+          },
+          "filters": {},
+          "sort": "cheapest"
+        }
+      },
+      "sha256": "35543d1e19f0f79846cc0d710d36a65225365d5f4080aa755c8e9e25106dd02d"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "sourceRevision": "source-v4-directional-fares-2026-10-30",
+        "seed": 6161,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "normal",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "recheck",
+        "query": {
+          "mode": "flight",
+          "scope": "international",
+          "originCityId": "tehran",
+          "destinationCityId": "london",
+          "departureDate": "2026-11-02",
+          "tripType": "one-way",
+          "classCode": "economy",
+          "party": {
+            "adults": 1,
+            "children": 0,
+            "infants": 0
+          },
+          "filters": {},
+          "sort": "cheapest"
+        }
+      },
+      "sha256": "2dc127307c8b77f5ce6ffdd28b45ae6e57e78ea76712dbd5a67aa3a55a2f9e25"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "sourceRevision": "source-v4-directional-fares-2026-10-30",
+        "seed": 6161,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "price-change",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "recheck",
+        "query": {
+          "mode": "flight",
+          "scope": "international",
+          "originCityId": "tehran",
+          "destinationCityId": "london",
+          "departureDate": "2026-11-02",
+          "tripType": "one-way",
+          "classCode": "economy",
+          "party": {
+            "adults": 1,
+            "children": 0,
+            "infants": 0
+          },
+          "filters": {},
+          "sort": "cheapest"
+        }
+      },
+      "sha256": "0ed0c8444565a0fb4b9ca68e46da119898e45c46d1ebf672d54cb142fa96690b"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "sourceRevision": "source-v4-directional-fares-2026-10-30",
+        "seed": 6161,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "normal",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "search",
+        "query": {
+          "mode": "flight",
+          "scope": "international",
+          "originCityId": "tehran",
+          "destinationCityId": "london",
+          "departureDate": "2026-11-02",
+          "returnDate": "2026-11-09",
+          "tripType": "round-trip",
+          "classCode": "economy",
+          "party": {
+            "adults": 1,
+            "children": 0,
+            "infants": 0
+          },
+          "filters": {},
+          "sort": "cheapest"
+        }
+      },
+      "sha256": "a9f3c08f8e2b3bc1cbe34946179573ec734f2511b4239d26a55ba6eb5258d1bd"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "sourceRevision": "source-v4-directional-fares-2026-10-30",
+        "seed": 6161,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "price-change",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "search",
+        "query": {
+          "mode": "flight",
+          "scope": "international",
+          "originCityId": "tehran",
+          "destinationCityId": "london",
+          "departureDate": "2026-11-02",
+          "returnDate": "2026-11-09",
+          "tripType": "round-trip",
+          "classCode": "economy",
+          "party": {
+            "adults": 1,
+            "children": 0,
+            "infants": 0
+          },
+          "filters": {},
+          "sort": "cheapest"
+        }
+      },
+      "sha256": "61431d6ee6f9706ce27d09abce21314e2b73bc71bc2bd0f8d03ff26faa01d456"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "sourceRevision": "source-v4-directional-fares-2026-10-30",
+        "seed": 6161,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "normal",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "recheck",
+        "query": {
+          "mode": "flight",
+          "scope": "international",
+          "originCityId": "tehran",
+          "destinationCityId": "london",
+          "departureDate": "2026-11-02",
+          "returnDate": "2026-11-09",
+          "tripType": "round-trip",
+          "classCode": "economy",
+          "party": {
+            "adults": 1,
+            "children": 0,
+            "infants": 0
+          },
+          "filters": {},
+          "sort": "cheapest"
+        }
+      },
+      "sha256": "ec2ec7ba22d0716a5cffe2dfaecc42ce1dd7950258a1613c8056ba5227c824f0"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "sourceRevision": "source-v4-directional-fares-2026-10-30",
+        "seed": 6161,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "price-change",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "recheck",
+        "query": {
+          "mode": "flight",
+          "scope": "international",
+          "originCityId": "tehran",
+          "destinationCityId": "london",
+          "departureDate": "2026-11-02",
+          "returnDate": "2026-11-09",
+          "tripType": "round-trip",
+          "classCode": "economy",
+          "party": {
+            "adults": 1,
+            "children": 0,
+            "infants": 0
+          },
+          "filters": {},
+          "sort": "cheapest"
+        }
+      },
+      "sha256": "44e2fe16ac930a8bb737a2f9cda516df5d72c131e7d2fb355fce8fec5390bede"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "sourceRevision": "source-v4-directional-fares-2026-10-30",
+        "seed": 6161,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "normal",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "search",
+        "query": {
+          "mode": "flight",
+          "scope": "international",
+          "originCityId": "tehran",
+          "destinationCityId": "new-york",
+          "departureDate": "2026-11-02",
+          "tripType": "one-way",
+          "classCode": "economy",
+          "party": {
+            "adults": 1,
+            "children": 0,
+            "infants": 0
+          },
+          "filters": {},
+          "sort": "cheapest"
+        }
+      },
+      "sha256": "19ff19856dc73d529a99ab0bb88f9af2fef308b98d2b09951d76d5d46809c503"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "sourceRevision": "source-v4-directional-fares-2026-10-30",
+        "seed": 6161,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "price-change",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "search",
+        "query": {
+          "mode": "flight",
+          "scope": "international",
+          "originCityId": "tehran",
+          "destinationCityId": "new-york",
+          "departureDate": "2026-11-02",
+          "tripType": "one-way",
+          "classCode": "economy",
+          "party": {
+            "adults": 1,
+            "children": 0,
+            "infants": 0
+          },
+          "filters": {},
+          "sort": "cheapest"
+        }
+      },
+      "sha256": "fa7053b8374585d1bf27dc762fb911652ea03619cd845e908f9d3a2fed04fb3e"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "sourceRevision": "source-v4-directional-fares-2026-10-30",
+        "seed": 6161,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "normal",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "recheck",
+        "query": {
+          "mode": "flight",
+          "scope": "international",
+          "originCityId": "tehran",
+          "destinationCityId": "new-york",
+          "departureDate": "2026-11-02",
+          "tripType": "one-way",
+          "classCode": "economy",
+          "party": {
+            "adults": 1,
+            "children": 0,
+            "infants": 0
+          },
+          "filters": {},
+          "sort": "cheapest"
+        }
+      },
+      "sha256": "54fd0e51778a1a47727bfd2e7bf817fe96bd99bce61b4244f3b4baac1f5bdc75"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "sourceRevision": "source-v4-directional-fares-2026-10-30",
+        "seed": 6161,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "price-change",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "recheck",
+        "query": {
+          "mode": "flight",
+          "scope": "international",
+          "originCityId": "tehran",
+          "destinationCityId": "new-york",
+          "departureDate": "2026-11-02",
+          "tripType": "one-way",
+          "classCode": "economy",
+          "party": {
+            "adults": 1,
+            "children": 0,
+            "infants": 0
+          },
+          "filters": {},
+          "sort": "cheapest"
+        }
+      },
+      "sha256": "44ecd0793ecf836660b1c0385949286b903ba27742394e2bdc186deda56d869f"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "sourceRevision": "source-v4-directional-fares-2026-10-30",
+        "seed": 6161,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "normal",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "search",
+        "query": {
+          "mode": "flight",
+          "scope": "international",
+          "originCityId": "tehran",
+          "destinationCityId": "new-york",
+          "departureDate": "2026-11-02",
+          "returnDate": "2026-11-09",
+          "tripType": "round-trip",
+          "classCode": "economy",
+          "party": {
+            "adults": 1,
+            "children": 0,
+            "infants": 0
+          },
+          "filters": {},
+          "sort": "cheapest"
+        }
+      },
+      "sha256": "632000a39aa9c389e3395e0ef55f6559d50ab925b0690d412091be50379ec3ad"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "sourceRevision": "source-v4-directional-fares-2026-10-30",
+        "seed": 6161,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "price-change",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "search",
+        "query": {
+          "mode": "flight",
+          "scope": "international",
+          "originCityId": "tehran",
+          "destinationCityId": "new-york",
+          "departureDate": "2026-11-02",
+          "returnDate": "2026-11-09",
+          "tripType": "round-trip",
+          "classCode": "economy",
+          "party": {
+            "adults": 1,
+            "children": 0,
+            "infants": 0
+          },
+          "filters": {},
+          "sort": "cheapest"
+        }
+      },
+      "sha256": "8c0b042731ba9dc1b10f04edc0eaf345a19d76e0e4f99134c42e55d30748225b"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "sourceRevision": "source-v4-directional-fares-2026-10-30",
+        "seed": 6161,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "normal",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "recheck",
+        "query": {
+          "mode": "flight",
+          "scope": "international",
+          "originCityId": "tehran",
+          "destinationCityId": "new-york",
+          "departureDate": "2026-11-02",
+          "returnDate": "2026-11-09",
+          "tripType": "round-trip",
+          "classCode": "economy",
+          "party": {
+            "adults": 1,
+            "children": 0,
+            "infants": 0
+          },
+          "filters": {},
+          "sort": "cheapest"
+        }
+      },
+      "sha256": "a58363b9bae497c1ad6058ff480ffbb7e50fbb674873d661fb6129f9f6c325f5"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "sourceRevision": "source-v4-directional-fares-2026-10-30",
+        "seed": 6161,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "price-change",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "recheck",
+        "query": {
+          "mode": "flight",
+          "scope": "international",
+          "originCityId": "tehran",
+          "destinationCityId": "new-york",
+          "departureDate": "2026-11-02",
+          "returnDate": "2026-11-09",
+          "tripType": "round-trip",
+          "classCode": "economy",
+          "party": {
+            "adults": 1,
+            "children": 0,
+            "infants": 0
+          },
+          "filters": {},
+          "sort": "cheapest"
+        }
+      },
+      "sha256": "02b45c2f7829124730f7b905a547f04de0f88af78977d5370400ea58c2292e7d"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "sourceRevision": "source-v4-directional-fares-2026-10-30",
+        "seed": 6161,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "normal",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "search",
+        "query": {
+          "mode": "flight",
+          "scope": "international",
+          "originCityId": "tehran",
+          "destinationCityId": "los-angeles",
+          "departureDate": "2026-11-02",
+          "tripType": "one-way",
+          "classCode": "economy",
+          "party": {
+            "adults": 1,
+            "children": 0,
+            "infants": 0
+          },
+          "filters": {},
+          "sort": "cheapest"
+        }
+      },
+      "sha256": "3dc5d92c677990aea09fcabc30d798599805cbfa84056b77dcdaa04227b309f5"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "sourceRevision": "source-v4-directional-fares-2026-10-30",
+        "seed": 6161,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "price-change",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "search",
+        "query": {
+          "mode": "flight",
+          "scope": "international",
+          "originCityId": "tehran",
+          "destinationCityId": "los-angeles",
+          "departureDate": "2026-11-02",
+          "tripType": "one-way",
+          "classCode": "economy",
+          "party": {
+            "adults": 1,
+            "children": 0,
+            "infants": 0
+          },
+          "filters": {},
+          "sort": "cheapest"
+        }
+      },
+      "sha256": "b450b84b0a5611da29a56a97d3b678f817c3fb5a0a1921bc959ffb1e5d635dda"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "sourceRevision": "source-v4-directional-fares-2026-10-30",
+        "seed": 6161,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "normal",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "recheck",
+        "query": {
+          "mode": "flight",
+          "scope": "international",
+          "originCityId": "tehran",
+          "destinationCityId": "los-angeles",
+          "departureDate": "2026-11-02",
+          "tripType": "one-way",
+          "classCode": "economy",
+          "party": {
+            "adults": 1,
+            "children": 0,
+            "infants": 0
+          },
+          "filters": {},
+          "sort": "cheapest"
+        }
+      },
+      "sha256": "a9952b56c18f37307511fe32e5c1d9cc0dff605c2f73093368a066f568d83c12"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "sourceRevision": "source-v4-directional-fares-2026-10-30",
+        "seed": 6161,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "price-change",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "recheck",
+        "query": {
+          "mode": "flight",
+          "scope": "international",
+          "originCityId": "tehran",
+          "destinationCityId": "los-angeles",
+          "departureDate": "2026-11-02",
+          "tripType": "one-way",
+          "classCode": "economy",
+          "party": {
+            "adults": 1,
+            "children": 0,
+            "infants": 0
+          },
+          "filters": {},
+          "sort": "cheapest"
+        }
+      },
+      "sha256": "225356656e1775dc7c26393c399e53740bb44510afb65851cfdc1b5bd2d61ec7"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "sourceRevision": "source-v4-directional-fares-2026-10-30",
+        "seed": 6161,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "normal",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "search",
+        "query": {
+          "mode": "flight",
+          "scope": "international",
+          "originCityId": "tehran",
+          "destinationCityId": "los-angeles",
+          "departureDate": "2026-11-02",
+          "returnDate": "2026-11-09",
+          "tripType": "round-trip",
+          "classCode": "economy",
+          "party": {
+            "adults": 1,
+            "children": 0,
+            "infants": 0
+          },
+          "filters": {},
+          "sort": "cheapest"
+        }
+      },
+      "sha256": "b3ba1c098228143b0744ca563bb8967c425a4d9e161d745af01dc48646e03f86"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "sourceRevision": "source-v4-directional-fares-2026-10-30",
+        "seed": 6161,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "price-change",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "search",
+        "query": {
+          "mode": "flight",
+          "scope": "international",
+          "originCityId": "tehran",
+          "destinationCityId": "los-angeles",
+          "departureDate": "2026-11-02",
+          "returnDate": "2026-11-09",
+          "tripType": "round-trip",
+          "classCode": "economy",
+          "party": {
+            "adults": 1,
+            "children": 0,
+            "infants": 0
+          },
+          "filters": {},
+          "sort": "cheapest"
+        }
+      },
+      "sha256": "11a5669aaf388381e1497fcee4754d52ddb0d0db491ad2e834e0c7f50a92054a"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "sourceRevision": "source-v4-directional-fares-2026-10-30",
+        "seed": 6161,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "normal",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "recheck",
+        "query": {
+          "mode": "flight",
+          "scope": "international",
+          "originCityId": "tehran",
+          "destinationCityId": "los-angeles",
+          "departureDate": "2026-11-02",
+          "returnDate": "2026-11-09",
+          "tripType": "round-trip",
+          "classCode": "economy",
+          "party": {
+            "adults": 1,
+            "children": 0,
+            "infants": 0
+          },
+          "filters": {},
+          "sort": "cheapest"
+        }
+      },
+      "sha256": "bf2c9d6adfe201051d9691710d448e615675b5bfed2c81689916f6df49292737"
+    },
+    {
+      "input": {
+        "fixtureVersion": "showcase-v3",
+        "sourceRevision": "source-v4-directional-fares-2026-10-30",
+        "seed": 6161,
+        "anchorInstant": "2026-10-29T00:00:00Z",
+        "scenario": "price-change",
+        "scenarioRevision": "scenario-v1",
+        "mappingRevision": "mapping-v1",
+        "phase": "recheck",
+        "query": {
+          "mode": "flight",
+          "scope": "international",
+          "originCityId": "tehran",
+          "destinationCityId": "los-angeles",
+          "departureDate": "2026-11-02",
+          "returnDate": "2026-11-09",
+          "tripType": "round-trip",
+          "classCode": "economy",
+          "party": {
+            "adults": 1,
+            "children": 0,
+            "infants": 0
+          },
+          "filters": {},
+          "sort": "cheapest"
+        }
+      },
+      "sha256": "1b3d25d7fe9b65a0b6d9187c8b1ff7e952946fac66e524c59d8e5a7d3f013a93"
+    }
+  ]
+}

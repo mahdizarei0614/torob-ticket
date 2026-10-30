@@ -11,7 +11,7 @@ const round5=(minutes:number)=>Math.round(minutes/5)*5;
 export const servicesPerRoute=12;
 
 /** Immutable dated schedule identity, shared by sellers and query roles. */
-function identifySegment(fields:Omit<Segment,'segmentId'>):Segment {
+export function identifySegment(fields:Omit<Segment,'segmentId'>):Segment {
  const digest=createHash('sha256').update(JSON.stringify([fields.serviceId,fields.mode,fields.operatorId,fields.originPlaceId,fields.destinationPlaceId,fields.departureAt,fields.arrivalAt,fields.departureTimeZone,fields.arrivalTimeZone])).digest('hex');
  return{...fields,segmentId:`demo-segment-${digest}`};
 }

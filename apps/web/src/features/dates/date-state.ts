@@ -26,8 +26,8 @@ export function calendarWindow(date: string): string[] {
 /** Public revision evidence only: hidden override values stay on the server. */
 export function datePriceIdentityForSession(request: DatePriceQuery, session: SessionInfo): string {
   const { fixtureVersion, catalogRevision, seed, anchorInstant, scenario, mappingRevision, scenarioRevision } = session;
-  // New code must not reuse cached pre-directional-fare estimates in an existing browser session.
-  return datePriceKey(request, { fixtureVersion, catalogRevision, seed, anchorInstant, scenario, mappingRevision, scenarioRevision, pricingPolicy: 'directional-fares-2026-10-30' });
+  // Schedule revisions can change eligibility, so retire earlier in-memory date estimates.
+  return datePriceKey(request, { fixtureVersion, catalogRevision, seed, anchorInstant, scenario, mappingRevision, scenarioRevision, pricingPolicy: 'schedule-tradeoffs-2026-10-30' });
 }
 export function matchesDateSnapshot(snapshot: DatePriceSnapshot, request: DatePriceQuery, session: SessionInfo, id?: string): boolean {
   if (snapshot.status !== 'checking' && snapshot.cells.some(cell => cell.status === 'checking')) return false;

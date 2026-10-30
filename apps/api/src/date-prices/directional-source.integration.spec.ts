@@ -2,7 +2,7 @@ import {randomUUID} from 'node:crypto';
 import {afterAll,beforeAll,describe,expect,it} from 'vitest';
 import type {DatePriceQuery,TransportSearchQuery} from '@torob-ticket/contracts';
 import {SearchRepository,SessionRepository,sessionInfo,type ProviderContextSnapshot} from '@torob-ticket/data-access';
-import {fixtureIdentity,fixtureSourceRevision,DIRECTIONAL_TRANSPORT_SOURCE_REVISION} from '@torob-ticket/fixtures';
+import {activeTransportSourceRevision,fixtureIdentity,fixtureSourceRevision} from '@torob-ticket/fixtures';
 import {mockRegistry} from '@torob-ticket/provider-adapters';
 import {requireTestDatabaseUrl} from '../../test/test-database.cjs';
 import {FrozenDemoClock,SystemRealClock} from '../common/clocks';
@@ -55,13 +55,13 @@ describe('source revision upgrade retains the same session and historical Postgr
   expect(fresh.datePriceId).not.toBe(old.datePriceId);
   expect((await completeDates(dates,c,{...request,clientGeneration:'matching-new-owner-view'})).datePriceId).toBe(fresh.datePriceId);
   const stored=await sessions.database.datePriceRun.findUniqueOrThrow({where:{sessionId_id:{sessionId:c.sessionId,id:fresh.datePriceId}}});
-  expect(stored.payload).toMatchObject({identity:{sourceRevisions:{'demo-provider-01':DIRECTIONAL_TRANSPORT_SOURCE_REVISION}}});
+  expect(stored.payload).toMatchObject({identity:{sourceRevisions:{'demo-provider-01':activeTransportSourceRevision(fixtureIdentity.fixtureVersion)}}});
   const minima:number[]=[];
   for(const cell of fresh.cells){
    expect(cell.status).toBe('priced');if(cell.status!=='priced')throw Error('Expected complete source price');
    const result=await completeSearch(current,c,{...base,returnDate:cell.date,sort:'fastest'});
    const quotes=result.snapshot.groups.flatMap(group=>group.eligibleQuotes);
-   expect(quotes.length).toBeGreaterThan(0);expect(quotes.every(quote=>quote.sourceRevision===DIRECTIONAL_TRANSPORT_SOURCE_REVISION)).toBe(true);
+   expect(quotes.length).toBeGreaterThan(0);expect(quotes.every(quote=>quote.sourceRevision===activeTransportSourceRevision(fixtureIdentity.fixtureVersion))).toBe(true);
    expect(Math.min(...quotes.map(quote=>quote.total.amountRial))).toBe(cell.minimum.amountRial);minima.push(cell.minimum.amountRial);
   }
   expect(new Set(minima).size).toBeGreaterThan(1);
@@ -75,7 +75,7 @@ describe('source revision upgrade retains the same session and historical Postgr
   const oldSnapshot=JSON.stringify(historic.snapshot);
   const oldQuote=historic.snapshot.groups[0]!.eligibleQuotes[0]!;expect(oldQuote.sourceRevision).toBe(fixtureSourceRevision('showcase-v3'));
   const quoteBytes=JSON.stringify((await sessions.database.quote.findUniqueOrThrow({where:{sessionId_id_version:{sessionId:c.sessionId,id:oldQuote.quoteId,version:oldQuote.version}}})).payload);
-  const modern=await completeSearch(current,c);expect(modern.snapshot.groups.flatMap(group=>group.eligibleQuotes).every(quote=>quote.sourceRevision===DIRECTIONAL_TRANSPORT_SOURCE_REVISION)).toBe(true);
+  const modern=await completeSearch(current,c);expect(modern.snapshot.groups.flatMap(group=>group.eligibleQuotes).every(quote=>quote.sourceRevision===activeTransportSourceRevision(fixtureIdentity.fixtureVersion))).toBe(true);
   const prepared=await referrals.prepareReferral(c,{kind:'transport',quoteId:oldQuote.quoteId,quoteVersion:oldQuote.version});
   expect(prepared.status).toBe('ready');if(prepared.status!=='ready')throw Error('Expected unchanged historical source');
   expect(prepared.intent.quote.quote.sourceRevision).toBe(fixtureSourceRevision('showcase-v3'));

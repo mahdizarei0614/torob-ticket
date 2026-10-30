@@ -6,11 +6,13 @@ import type { DatePriceCell, DatePriceQuery, DatePriceSnapshot } from '@torob-ti
 const request: DatePriceQuery = { query, leg: 'outbound', dates: ['2026-10-25','2026-10-26'], clientGeneration: 'g' };
 const snapshot: DatePriceSnapshot = { datePriceId: 'id', clientGeneration: 'g', query: request, status: 'complete', cells: request.dates.map(date => ({ date, status: 'outside-coverage' })), observedAt: '2026-10-25T00:00:00Z' };
 describe('date intent and semantic response ownership', () => {
-  it('retires cached pre-directional prices while keeping inspected dates and ordering reusable', () => {
+  it('retires earlier fare and schedule estimates while keeping inspected dates and ordering reusable', () => {
     const {fixtureVersion,catalogRevision,seed,anchorInstant,scenario,mappingRevision,scenarioRevision}=session;
     const oldKey=datePriceKey(request,{fixtureVersion,catalogRevision,seed,anchorInstant,scenario,mappingRevision,scenarioRevision});
     const current=datePriceIdentityForSession(request,session);
     expect(current).not.toBe(oldKey);
+    const previousDirectionalKey=datePriceKey(request,{fixtureVersion,catalogRevision,seed,anchorInstant,scenario,mappingRevision,scenarioRevision,pricingPolicy:'directional-fares-2026-10-30'});
+    expect(current).not.toBe(previousDirectionalKey);
     const round={...request,leg:'return' as const,query:{...query,tripType:'round-trip' as const,returnDate:'2026-10-28'}};
     expect(datePriceIdentityForSession(round,session)).toBe(datePriceIdentityForSession({...round,query:{...round.query,returnDate:'2026-10-29',sort:'fastest'}},session));
     expect(datePriceIdentityForSession(round,session)).not.toBe(datePriceIdentityForSession({...round,query:{...round.query,departureDate:'2026-10-26'}},session));

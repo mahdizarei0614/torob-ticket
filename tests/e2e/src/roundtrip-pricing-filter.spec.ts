@@ -5,7 +5,7 @@ import type {CatalogSnapshot,DatePriceSnapshot,SearchRecovery,TransportSearchQue
 
 const evidence=process.env.ROUNDTRIP_FIX_EVIDENCE_DIR??'docs/evidence/adjustments/roundtrip-pricing-and-filter/native';
 const base:TransportSearchQuery={mode:'flight',scope:'domestic',tripType:'round-trip',originCityId:'tehran',destinationCityId:'mashhad',departureDate:'2026-11-02',returnDate:'2026-11-06',party:{adults:1,children:0,infants:0},classCode:'economy',filters:{},sort:'cheapest'};
-const sourceRevision='source-v4-directional-fares-2026-10-30';
+const sourceRevision='source-v5-schedule-tradeoffs-2026-10-30';
 const region=(page:Page)=>page.getByRole('region',{name:'نتایج مقایسه سفر',exact:true});
 const explorer=(page:Page)=>page.getByRole('region',{name:'کاوش تاریخ سفر',exact:true});
 const money=(rial:number)=>new Intl.NumberFormat('fa-IR',{maximumFractionDigits:1}).format(rial/10)+' تومان';

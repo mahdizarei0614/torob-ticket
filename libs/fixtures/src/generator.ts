@@ -5,7 +5,7 @@ import {dayOffset} from './calendar';
 import {cities} from './catalog/cities';
 import {connections} from './catalog/connections';
 import {classChoices,providers} from './catalog/providers';
-import {DIRECTIONAL_TRANSPORT_SOURCE_REVISION,fixtureIdentity,fixtureSourceRevision} from './identity';
+import {DIRECTIONAL_TRANSPORT_SOURCE_REVISION,SCHEDULE_TRADEOFF_SOURCE_REVISION,fixtureIdentity,fixtureSourceRevision} from './identity';
 import {appendAirportTransfer,journey,servicesPerRoute,withDeparturePlace} from './schedules';
 import {rawShape} from './raw-shapes';
 import type {FixtureQuery} from './fixture-query';
@@ -14,6 +14,7 @@ import {generateProviderRecords as previousRecords} from './legacy-v2/generator'
 import {adultFareRial} from './catalog/pricing';
 import {flightProfile} from './catalog/flight-profiles';
 import {directionalReturnVariant,directionalRoundTripGross} from './directional-fares';
+import {withScheduleTradeoffs} from './schedule-tradeoffs';
 export type {FixtureQuery} from './fixture-query';
 const digest=(value:unknown)=>createHash('sha256').update(JSON.stringify(value)).digest('hex');
 
@@ -24,7 +25,7 @@ export function generateProviderRecords(input:FixtureQuery,providerId?:string):R
   const {sourceRevision:_sourceRevision,...original}=input;void _sourceRevision;
   return generateProviderRecords(original,providerId);
  }
- if(input.sourceRevision&&!(input.fixtureVersion===fixtureIdentity.fixtureVersion&&input.sourceRevision===DIRECTIONAL_TRANSPORT_SOURCE_REVISION))throw new RangeError('Unsupported transport source revision');
+ if(input.sourceRevision&&!(input.fixtureVersion===fixtureIdentity.fixtureVersion&&[DIRECTIONAL_TRANSPORT_SOURCE_REVISION,SCHEDULE_TRADEOFF_SOURCE_REVISION].includes(input.sourceRevision)))throw new RangeError('Unsupported transport source revision');
  if(input.fixtureVersion==='showcase-v1'||input.fixtureVersion==='showcase-v2'){
   const source=input.fixtureVersion==='showcase-v1'?legacyRecords:previousRecords;
   const records=source(input as Parameters<typeof legacyRecords>[0]);
@@ -32,7 +33,8 @@ export function generateProviderRecords(input:FixtureQuery,providerId?:string):R
  }
  if(input.fixtureVersion!==fixtureIdentity.fixtureVersion)throw new RangeError('Unsupported fixture version');
  const sourceRevision=input.sourceRevision??fixtureSourceRevision(input.fixtureVersion);
- const directional=sourceRevision===DIRECTIONAL_TRANSPORT_SOURCE_REVISION;
+ const directional=[DIRECTIONAL_TRANSPORT_SOURCE_REVISION,SCHEDULE_TRADEOFF_SOURCE_REVISION].includes(sourceRevision);
+ const scheduleTradeoffs=sourceRevision===SCHEDULE_TRADEOFF_SOURCE_REVISION;
  if(!directional&&sourceRevision!==fixtureSourceRevision(input.fixtureVersion))throw new RangeError('Unsupported transport source revision');
  if(!Number.isSafeInteger(input.seed)||input.seed<0)throw new RangeError('Invalid fixture seed');
  if(!input.mappingRevision||!input.scenarioRevision)throw new RangeError('Missing revision');
@@ -52,9 +54,11 @@ export function generateProviderRecords(input:FixtureQuery,providerId?:string):R
  const selectedProviders=providers.filter(p=>p.modes.includes(query.mode)&&(!providerId||p.providerId===providerId));
  if(!selectedProviders.length)return[];
  const services=Array.from({length:servicesPerRoute},(_,variant)=>{
-  const outbound=journey(connection,query.departureDate,variant,false,query.classCode);
+  const suppliedOutbound=journey(connection,query.departureDate,variant,false,query.classCode);
+  const outbound=scheduleTradeoffs?withScheduleTradeoffs(suppliedOutbound,connection,variant):suppliedOutbound;
   const inboundVariant=directional?directionalReturnVariant(variant):variant;
-  const inbound=query.returnDate?journey(back,query.returnDate,inboundVariant,true,query.classCode):undefined;
+  const suppliedInbound=query.returnDate?journey(back,query.returnDate,inboundVariant,true,query.classCode):undefined;
+  const inbound=scheduleTradeoffs&&suppliedInbound?withScheduleTradeoffs(suppliedInbound,back,inboundVariant):suppliedInbound;
   if(input.caseId==='airport-change'&&outbound.segments.at(-1)?.destinationPlaceId==='ist'){
    appendAirportTransfer(outbound,'ist','saw');if(inbound?.segments[0])inbound.segments[0]=withDeparturePlace(inbound.segments[0],'saw');
   }
