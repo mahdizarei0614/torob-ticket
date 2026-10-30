@@ -28,6 +28,7 @@ import glassFragment from '../shaders/vehicle-glass.frag.glsl?raw';
 import particleFlowShader from '../shaders/particle-flow-sampling.glsl?raw';
 import livingDotDrift from '../shaders/living-dot-drift.glsl?raw';
 import { LIVING_DOT_AMPLITUDE_PX } from './living-dot-drift';
+import { setMapVehicleForeground } from '../map-foreground';
 interface DrawingProps {
   dots: readonly GeoPoint[]; markers: readonly SceneMarker[]; segments: readonly RouteSegmentGeometry[];
   context: ProjectionContext; frame: RouteBounds; progress?: 0 | .35 | .7 | 1; mode?: Mode; reveal?: number;
@@ -258,8 +259,8 @@ export function SceneDrawing({ dots, markers, segments, context, frame, progress
   return <group dispose={null}>
     <points geometry={resources.dots} material={resources.dotsMaterial} frustumCulled={false} />
     {resources.atmospheric ? <mesh geometry={resources.line} material={resources.routeMaterial} frustumCulled={false} /> : <lineSegments geometry={resources.line} material={resources.routeMaterial} frustumCulled={false} />}
-    {mode && segments.some(segment => segment.paths.length) && <mesh name="journey-vehicle-head" ref={mesh} geometry={resources.atmospheric ? resources.glass : resources.sprites[mode]} material={resources.spriteMaterial} frustumCulled={false} />}
-    {resources.atmospheric && resources.wagonMaterials.map((material,index) => <mesh key={index} name={`journey-vehicle-wagon-${index + 1}`} ref={value => { wagonMeshes.current[index] = value; }} geometry={resources.glass} material={material} frustumCulled={false} visible={false} />)}
+    {mode && segments.some(segment => segment.paths.length) && <mesh name="journey-vehicle-head" ref={value => { mesh.current = value;if (value) setMapVehicleForeground(value, resources.atmospheric); }} geometry={resources.atmospheric ? resources.glass : resources.sprites[mode]} material={resources.spriteMaterial} frustumCulled={false} />}
+    {resources.atmospheric && resources.wagonMaterials.map((material,index) => <mesh key={index} name={`journey-vehicle-wagon-${index + 1}`} ref={value => { wagonMeshes.current[index] = value;if (value) setMapVehicleForeground(value, true, index + 1); }} geometry={resources.glass} material={material} frustumCulled={false} visible={false} />)}
   </group>;
 }
 export function StaticMap({ dots, markers, segments, context, frame, progress = 0, mode, presentation, majorCities = NO_CITIES, background, hideGeography = false, featherGeography = false, viewport = {width:560,height:400} }: DrawingProps & {background?:ReactNode;viewport?:{width:number;height:number}}) {

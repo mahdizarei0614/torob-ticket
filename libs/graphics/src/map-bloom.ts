@@ -3,6 +3,7 @@ import { Camera, Color, CustomBlending, HalfFloatType, Mesh, OneFactor, OneMinus
 import { bloomTargetSize } from './bloom-policy';
 import { createMapEdgeFadeUniforms, updateMapEdgeFadeUniforms } from './scenes/map-edge-fade';
 import edgeFade from './shaders/map-edge-fade.glsl?raw';
+import { hasMapVehicleForeground, MAP_VEHICLE_FOREGROUND_LAYER, MAP_VEHICLE_FOREGROUND_MASK } from './map-foreground';
 
 export const MAP_BLOOM_SCENE_KEY = 'torobTicketMapBloom';
 /** Postprocess only a tagged Drei virtual scene. Neither canvas size nor sibling views change. */
@@ -55,33 +56,77 @@ export function installMapBloom(renderer: WebGLRenderer, allowed: () => boolean,
     updateMapEdgeFadeUniforms(feather, { width, height }, true);
   };
   const wrapped = function (scene: Object3D, camera: Camera) {
-    // The normal map draw is unchanged. Bloom adds emitted light, avoiding a second
-    // color conversion/base-alpha composite for the map and leaving charts untouched.
-    original.call(renderer, scene, camera);
-    if (nested || disposed || !scene.userData[MAP_BLOOM_SCENE_KEY] || !allowed() || strength <= 0) return;
+    if (nested || disposed) return original.call(renderer, scene, camera);
+    const foreground = hasMapVehicleForeground(scene);
+    const glowing = Boolean(scene.userData[MAP_BLOOM_SCENE_KEY] && allowed() && strength > 0);
+    if (!foreground && !glowing) return original.call(renderer, scene, camera);
     const target = renderer.getRenderTarget();
-    if (target) return;
+    const cubeFace = renderer.getActiveCubeFace(), mipmap = renderer.getActiveMipmapLevel();
     const viewport = renderer.getViewport(new Vector4()), scissor = renderer.getScissor(new Vector4());
     const scissorTest = renderer.getScissorTest(), autoClear = renderer.autoClear;
+    const autoClearColor = renderer.autoClearColor, autoClearDepth = renderer.autoClearDepth, autoClearStencil = renderer.autoClearStencil;
     const clearColor = renderer.getClearColor(new Color()).clone(), clearAlpha = renderer.getClearAlpha();
-    const shaderError = renderer.debug.onShaderError;
+    const shaderError = renderer.debug.onShaderError, checkShaderErrors = renderer.debug.checkShaderErrors;
+    const xr = renderer.xr.enabled, layerMask = camera.layers.mask;
+    const mapScene = (scene as Scene).isScene ? scene as Scene : undefined, background = mapScene?.background ?? null;
+    const physicalViewport = target ? renderer.getCurrentViewport(new Vector4()) : undefined;
+    const raw = target ? renderer.getContext() : undefined;
+    const physicalScissor = raw ? new Vector4().fromArray(raw.getParameter(raw.SCISSOR_BOX)) : undefined;
+    const physicalScissorTest = raw ? Boolean(raw.getParameter(raw.SCISSOR_TEST)) : false;
+    const restoreOutput = () => {
+      if (target) {
+        // A bound target can have a physical rectangle different from both its
+        // configured rectangle and the canvas's logical viewport. Preserve all.
+        const configuredViewport = target.viewport.clone(), configuredScissor = target.scissor.clone(), configuredTest = target.scissorTest;
+        try {
+          target.viewport.copy(physicalViewport!);target.scissor.copy(physicalScissor!);target.scissorTest = physicalScissorTest;
+          renderer.setRenderTarget(target, cubeFace, mipmap);
+        } finally { target.viewport.copy(configuredViewport);target.scissor.copy(configuredScissor);target.scissorTest = configuredTest; }
+      } else {
+        renderer.setRenderTarget(target, cubeFace, mipmap);renderer.setViewport(viewport);renderer.setScissor(scissor);renderer.setScissorTest(scissorTest);
+      }
+      renderer.debug.onShaderError = shaderError;renderer.debug.checkShaderErrors = checkShaderErrors;
+      renderer.setClearColor(clearColor, clearAlpha);renderer.xr.enabled = xr;
+      renderer.autoClearColor = autoClearColor;renderer.autoClearDepth = autoClearDepth;renderer.autoClearStencil = autoClearStencil;
+    };
+    let baseDrawn = false;
     nested = true;
     try {
-      renderer.debug.onShaderError = () => { throw new Error('Map bloom shader unavailable'); };
-      ensure(viewport.z, viewport.w);
-      renderer.setRenderTarget(source!); renderer.setScissorTest(false);
-      renderer.setClearColor(0, 0); renderer.autoClear = false; renderer.clear(true, true, true);
+      // Draw vehicles only once, after the base and any additive bloom. Their
+      // glass alpha must not be doubled or emitted into the bloom source.
+      if (foreground) camera.layers.mask = layerMask & ~MAP_VEHICLE_FOREGROUND_MASK;
       original.call(renderer, scene, camera);
-      bloom!.update(renderer, source!, 0);
-      renderer.setRenderTarget(target); renderer.setViewport(viewport); renderer.setScissor(scissor); renderer.setScissorTest(scissorTest);
-      renderer.autoClear = false;
-      original.call(renderer, copyScene, copyCamera); draws++;
-    } catch {
-      release(); failed('effect-unavailable');
+      baseDrawn = true;
+      if (glowing && !target) {
+        try {
+          renderer.debug.onShaderError = () => { throw new Error('Map bloom shader unavailable'); };
+          renderer.xr.enabled = false;
+          ensure(viewport.z, viewport.w);
+          renderer.setRenderTarget(source!);renderer.setScissorTest(false);
+          renderer.setClearColor(0, 0);renderer.autoClear = false;renderer.clear(true, true, true);
+          original.call(renderer, scene, camera);
+          bloom!.update(renderer, source!, 0);
+          restoreOutput();renderer.autoClear = false;renderer.xr.enabled = false;
+          renderer.debug.onShaderError = () => { throw new Error('Map bloom shader unavailable'); };
+          original.call(renderer, copyScene, copyCamera);draws++;
+        } catch {
+          release();failed('effect-unavailable');
+        }
+      }
     } finally {
-      renderer.debug.onShaderError = shaderError;
-      renderer.setRenderTarget(target); renderer.setViewport(viewport); renderer.setScissor(scissor); renderer.setScissorTest(scissorTest);
-      renderer.setClearColor(clearColor, clearAlpha); renderer.autoClear = autoClear; nested = false;
+      try {
+        restoreOutput();
+        if (baseDrawn && foreground && (layerMask & (1 | MAP_VEHICLE_FOREGROUND_MASK))) {
+          camera.layers.set(MAP_VEHICLE_FOREGROUND_LAYER);renderer.autoClear = false;
+          // Three can redraw a Scene.background even when autoClear is false.
+          if (mapScene) mapScene.background = null;
+          original.call(renderer, scene, camera);
+        }
+      } finally {
+        if (mapScene) mapScene.background = background;
+        camera.layers.mask = layerMask;
+        try { restoreOutput(); } finally { renderer.autoClear = autoClear;nested = false; }
+      }
     }
   };
   renderer.render = wrapped; refreshStyle();
