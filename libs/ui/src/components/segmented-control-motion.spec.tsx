@@ -15,8 +15,8 @@ beforeEach(() => {
 afterEach(() => { cleanup(); vi.restoreAllMocks(); vi.unstubAllGlobals(); });
 const flights = [{ id:'economy', label:'اقتصادی' }, { id:'business', label:'تجاری' }];
 const trains = [{ id:'sleeper', label:'کوپه چهار تخته' }, { id:'seat', label:'صندلی' }, { id:'six', label:'کوپه شش تخته' }];
-function Choice({ options, value = options[0]!.id, onChange = vi.fn(), covered = false, textEffect }: { options: SegmentedControlProps['options']; value?: string; onChange?: (value: string) => void; covered?: boolean; textEffect?: SegmentedControlProps['textEffect'] }) {
-  return <MotionPolicyProvider covered={covered}><SegmentedControl label="کلاس سفر" value={value} onChange={onChange} options={options} textEffect={textEffect}/></MotionPolicyProvider>;
+function Choice({ options, value = options[0]!.id, onChange = vi.fn(), covered = false }: { options: SegmentedControlProps['options']; value?: string; onChange?: (value: string) => void; covered?: boolean }) {
+  return <MotionPolicyProvider covered={covered}><SegmentedControl label="کلاس سفر" value={value} onChange={onChange} options={options}/></MotionPolicyProvider>;
 }
 function FocusElsewhere({ target }: { target: RefObject<HTMLButtonElement | null> }) {
   useLayoutEffect(() => { target.current?.focus(); }, [target]);
@@ -91,33 +91,6 @@ it('revives the same retiring option from its visible opacity without reusing an
   expect(Number(slot.style.opacity)).toBeCloseTo(before, 2);
   await waitFor(() => { expect(Number(slot.style.opacity)).toBeGreaterThan(before); expect(Number(slot.style.opacity)).toBeLessThan(1); }, { interval:10 });
   await waitFor(() => expect(slot.style.opacity).toBe('1'));
-});
-
-it('scrambles only entering opted-in option words, keeping immediate native names and unchanged options settled', async () => {
-  const view = render(<Choice options={flights} textEffect="scramble"/>);
-  view.rerender(<Choice options={trains} textEffect="scramble"/>);
-  const selected = screen.getByRole('radio', { name:'کوپه چهار تخته' }); expect(selected).toBeChecked();
-  const word = selected.closest('[data-segment-option]')!.querySelector<HTMLElement>('[data-motion-text-visual]')!;
-  expect(word.textContent).not.toBe('کوپه چهار تخته');
-  expect(selected.closest('[data-segment-option]')!.querySelector('[data-motion-text-reserve]')).toHaveTextContent('کوپه چهار تخته');
-  await waitFor(() => expect(word.textContent).toBe('کوپه چهار تخته'));
-  view.rerender(<Choice options={trains.map(option => ({ ...option }))} textEffect="scramble"/>);
-  expect(screen.getByRole('radio', { name:'کوپه چهار تخته' })).toBe(selected); expect(word.textContent).toBe('کوپه چهار تخته');
-});
-
-it('settles a retiring word, then decodes the latest same-ID label without reviving its old phrase or callback', async () => {
-  const onChange = vi.fn(), view = render(<Choice options={flights} textEffect="scramble" onChange={onChange}/>);
-  const radio = screen.getByRole('radio', { name:'اقتصادی' });
-  view.rerender(<Choice options={[{ id:'economy', label:'کوپه چهار تخته' }]} textEffect="scramble" onChange={onChange}/>);
-  const word = radio.closest('[data-segment-option]')!.querySelector<HTMLElement>('[data-motion-text-visual]')!;
-  expect(screen.getByRole('radio', { name:'کوپه چهار تخته' })).toBe(radio); expect(word.textContent).not.toBe('کوپه چهار تخته');
-  view.rerender(<Choice options={trains} textEffect="scramble" onChange={onChange}/>);
-  expect(word.textContent).toBe('کوپه چهار تخته'); expect(radio).toBeDisabled(); fireEvent.click(radio); expect(onChange).not.toHaveBeenCalled();
-  view.rerender(<Choice options={[{ id:'economy', label:'صندلی سالنی' }]} textEffect="scramble" onChange={onChange}/>);
-  expect(screen.getByRole('radio', { name:'صندلی سالنی' })).toBe(radio); expect(word.textContent).not.toBe('صندلی سالنی');
-  await waitFor(() => expect(word.textContent).toBe('صندلی سالنی'));
-  expect(radio.closest('[data-segment-option]')!.querySelector('[data-motion-text-reserve]')).toHaveTextContent('صندلی سالنی');
-  expect(onChange).not.toHaveBeenCalled();
 });
 
 it.each(['covered', 'reduced', 'hidden'] as const)('clears obsolete %s visuals immediately and does not replay entry on resume', kind => {

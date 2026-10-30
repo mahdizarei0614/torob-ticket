@@ -93,8 +93,6 @@
 .motionText { display:inline-block; position:relative; max-inline-size:100%; vertical-align:baseline; }
 .motionText > [data-motion-text-visual='current'] { display:block; }
 .motionTextOutgoing { position:absolute; inset-inline-start:0; inset-block-start:0; inline-size:max-content; max-inline-size:100%; pointer-events:none; }
-.motionTextReserve { display:block; visibility:hidden; }
-.motionText > .motionTextScramble { position:absolute; inset:0; overflow:hidden; pointer-events:none; }
 .radio {
   position: relative;
   z-index: 1;

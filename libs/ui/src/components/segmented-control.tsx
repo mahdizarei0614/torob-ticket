@@ -3,7 +3,7 @@ import { useCallback, useLayoutEffect, useRef, useState, type ReactNode } from '
 import { motion, useAnimationControls } from 'motion/react';
 import { MotionPolicyProvider, useMotionPolicy } from '../motion/motion-surface';
 import { languageProps, type Language } from './language';
-import { MotionText, type MotionTextEffect } from './motion-text';
+import { MotionText } from './motion-text';
 import styles from '../styles/primitives.module.css';
 export interface SegmentedControlProps {
   label: string;
@@ -13,16 +13,14 @@ export interface SegmentedControlProps {
   options: readonly { id: string; label: string; icon?: ReactNode; disabled?: boolean }[];
   isDisabled?: boolean;
   hideLabel?: boolean;
-  textEffect?: MotionTextEffect;
 }
 type Option = SegmentedControlProps['options'][number];
 interface RetiredOption { option: Option; gapAfter: boolean }
 
 /** Actual width changes let neighboring controls reflow without scaling words. */
-function SegmentSlot({ option, present, enter, gapAfter, enabled, epoch, onRetire, textEffect }: {
+function SegmentSlot({ option, present, enter, gapAfter, enabled, epoch, onRetire }: {
   option: Option; present: boolean; enter: boolean; gapAfter: boolean; enabled: boolean; epoch: number;
   onRetire: (id: string, epoch: number) => void;
-  textEffect: MotionTextEffect;
 }) {
   const body = useRef<HTMLDivElement>(null), controls = useAnimationControls();
   const measured = useRef(0), [measurement, setMeasurement] = useState(0);
@@ -64,7 +62,7 @@ function SegmentSlot({ option, present, enter, gapAfter, enabled, epoch, onRetir
     <div ref={body} className={styles.segmentSlotInner} data-gap-after={gapAfter || undefined}>
       <Radio className={styles.radio} value={option.id} data-segment-option={present ? option.id : undefined} aria-label={option.label} isDisabled={!present || option.disabled}>
         {option.icon && <span aria-hidden="true">{option.icon}</span>}
-        <MotionPolicyProvider disabled={!present || !!option.disabled}><MotionText value={option.label} effect={textEffect} appear={enter && textEffect === 'scramble'}/></MotionPolicyProvider>
+        <MotionText value={option.label}/>
       </Radio>
     </div>
   </motion.div>;
@@ -77,7 +75,6 @@ export function SegmentedControl({
   options,
   isDisabled,
   hideLabel = false,
-  textEffect = 'fade',
 }: SegmentedControlProps) {
   const track = useRef<HTMLDivElement>(null);
   const controls = useAnimationControls();
@@ -155,7 +152,7 @@ export function SegmentedControl({
         <Label className={hideLabel ? styles.srOnly : styles.label}><MotionText value={label}/></Label>
         <div ref={track} className={styles.segments} data-segment-track data-indicator-ready={ready||undefined} data-segment-value={value}>
           <motion.span className={styles.segmentIndicator} aria-hidden="true" data-segment-indicator initial={false} animate={controls}/>
-          {[...options.map((option,index) => ({ option, present:true, gapAfter:index < options.length - 1 })), ...history.retired.map(item => ({ ...item, present:false }))].map(({option,present,gapAfter}) => <SegmentSlot key={option.id} option={option} present={present} enter={present && history.epoch > 0 && !history.priorIds.includes(option.id)} gapAfter={gapAfter} enabled={policy.enabled} epoch={history.epoch} onRetire={retire} textEffect={textEffect}/>)}
+          {[...options.map((option,index) => ({ option, present:true, gapAfter:index < options.length - 1 })), ...history.retired.map(item => ({ ...item, present:false }))].map(({option,present,gapAfter}) => <SegmentSlot key={option.id} option={option} present={present} enter={present && history.epoch > 0 && !history.priorIds.includes(option.id)} gapAfter={gapAfter} enabled={policy.enabled} epoch={history.epoch} onRetire={retire}/>)}
         </div>
       </RadioGroup>
       </MotionPolicyProvider>
