@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { MappingPatchSchema, ProviderOverridePatchSchema } from '@torob-ticket/contracts';
 import { cleanAlias, type AliasMapping, type RealClock } from '@torob-ticket/domain';
-import { catalogForIdentity } from '@torob-ticket/fixtures';
+import { activeTransportSourceRevision,catalogForIdentity,fixtureSourceRevision } from '@torob-ticket/fixtures';
 import { RepositoryError, type ProviderContextSnapshot, SearchRepository } from '@torob-ticket/data-access';
 import type { ProviderContext, ProviderEvidence } from '@torob-ticket/provider-adapters';
 import type { SessionContext } from '../sessions/session-context';
@@ -9,7 +9,7 @@ import { FrozenDemoClock } from '../common/clocks';
 /** Internal composition only. T09 supplies a server-owned run and cancellation. */
 export class ProviderService {
   constructor(private readonly getRepository:()=>SearchRepository,private readonly realClock:RealClock) {}
-  async createContext(session:SessionContext,searchId:string,signal:AbortSignal,deadline:Date,frozen?:ProviderContextSnapshot):Promise<ProviderContext> {
+  async createContext(session:SessionContext,searchId:string,signal:AbortSignal,deadline:Date,frozen?:ProviderContextSnapshot,selectedSources?:Readonly<Record<string,string>>):Promise<ProviderContext> {
     if(session.scope.sessionId!==session.sessionId) throw new RepositoryError('NOT_FOUND');
     const snapshot=frozen??await this.getRepository().providerContextSnapshot(session.scope,searchId);
     const info=snapshot.info;
@@ -32,7 +32,12 @@ export class ProviderService {
       if(!canBatch(this)){for(const row of evidence){assertActive();await this.traceSink(row);assertActive();}return;}
       await getRepository().appendNormalizationEvidenceBatch(session.scope,evidence.map(row=>({...row,searchId})),assertActive);
     },{isAvailable:canBatch});
-    const context:ProviderContext={operationId:randomUUID(),fixtureVersion:info.fixtureVersion,seed:info.seed,scenario:info.scenario,scenarioRevision:info.scenarioRevision,mappingRevision:info.mappingRevision,demoClock:new FrozenDemoClock(info.anchorInstant),realClock:this.realClock,signal,deadline:new Date(deadline),catalog:catalogForIdentity(info.fixtureVersion,info.catalogRevision),aliases,overrides:Object.fromEntries(snapshot.overrides.map(row=>[row.providerId,ProviderOverridePatchSchema.parse(row.payload)])),traceSink,get traceBatchSink(){return canBatch(this)?traceBatchSink:undefined;}};
+    const catalog=catalogForIdentity(info.fixtureVersion,info.catalogRevision);
+    // A supplied old frozen context replays its original source unless its owner
+    // explicitly supplies the independently frozen source versions (dates/rechecks).
+    const fallbackSource=frozen?fixtureSourceRevision(info.fixtureVersion):activeTransportSourceRevision(info.fixtureVersion);
+    const sourceRevisions=Object.freeze(Object.fromEntries(catalog.providerCapabilities.map(row=>[row.providerId,selectedSources?.[row.providerId]??fallbackSource])));
+    const context:ProviderContext={operationId:randomUUID(),fixtureVersion:info.fixtureVersion,sourceRevisions,seed:info.seed,scenario:info.scenario,scenarioRevision:info.scenarioRevision,mappingRevision:info.mappingRevision,demoClock:new FrozenDemoClock(info.anchorInstant),realClock:this.realClock,signal,deadline:new Date(deadline),catalog,aliases,overrides:Object.fromEntries(snapshot.overrides.map(row=>[row.providerId,ProviderOverridePatchSchema.parse(row.payload)])),traceSink,get traceBatchSink(){return canBatch(this)?traceBatchSink:undefined;}};
     return context;
   }
 }

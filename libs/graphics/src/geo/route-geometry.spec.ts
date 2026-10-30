@@ -19,6 +19,8 @@ describe('geographic route safety', () => {
   });
 });
 
+import { buildRoundTripPresentation } from '../scenes/journey-presentation';
+import { buildRoundTripVehicleTrack, sampleVehiclePose } from '../scenes/vehicle-motion';
 import { buildRouteGeometry, pointAlongRoute, vehicleAlongRoute, type IllustrativePath } from './route-geometry';
 import { contextForPoints, unprojectPoint } from './projection';
 import { containsPoint, sampleGeography, type AreaGeometry } from './geography';
@@ -122,4 +124,28 @@ it('keeps vertical flight routes visibly arched in the map plane', () => {
   const path = buildRouteGeometry({ ...base, outbound: { ...base.outbound, segments: [source] } }, verticalPlaces, [])[0]!.paths[0]!;
   expect(Math.abs(path[24]![0] - path[0]![0])).toBeGreaterThan(.1);
   expect(path.at(-1)![0]).toBeCloseTo(path[0]![0]);
+});
+
+it('uses an asymmetric supplied return with its own hubs and arrival airport through geometry, stops and vehicle end', () => {
+ const original=ItinerarySchema.parse(fixtures.scenarios[0]!.itinerary);
+ const reference=original.outbound.segments[0]!;
+ const leg=(ids:string[],direction:'outbound'|'return')=>{
+  const day=direction==='outbound'?'2026-10-25':'2026-10-28';
+  const segments=ids.slice(1).map((id,index)=>({...reference,segmentId:`${direction}-${index}`,serviceId:`${direction}-service-${index}`,mode:'flight' as const,operatorId:direction==='return'?'airline:turkish-airlines':reference.operatorId,originPlaceId:ids[index]!,destinationPlaceId:id,departureAt:`${day}T${String(6+index*3).padStart(2,'0')}:00:00Z`,arrivalAt:`${day}T${String(8+index*3).padStart(2,'0')}:00:00Z`,departureTimeZone:places.find(place=>place.id===ids[index])!.timeZone,arrivalTimeZone:places.find(place=>place.id===id)!.timeZone}));
+  return{segments,stops:segments.slice(0,-1).map((segment,index)=>({placeId:segment.destinationPlaceId,kind:'connection' as const,vehicleChange:true,waitMinutes:60,arrivalAt:segment.arrivalAt,departureAt:segments[index+1]!.departureAt}))};
+ };
+ const itinerary=ItinerarySchema.parse({...original,originPlaceId:'ika',destinationPlaceId:'mhd',outbound:leg(['ika','tbz','mhd'],'outbound'),return:leg(['mhd','ist','dxb','thr'],'return')});
+ const out=buildRouteGeometry(itinerary,places,paths,'outbound'),back=buildRouteGeometry(itinerary,places,paths,'return');
+ expect(out.map(segment=>[segment.originPlaceId,segment.destinationPlaceId])).toEqual([['ika','tbz'],['tbz','mhd']]);
+ expect(back.map(segment=>[segment.originPlaceId,segment.destinationPlaceId])).toEqual([['mhd','ist'],['ist','dxb'],['dxb','thr']]);
+ expect(back).toHaveLength(3);expect(back.flatMap(segment=>[segment.originPlaceId,segment.destinationPlaceId])).not.toContain('tbz');
+ const plan=buildRoundTripPresentation(out,itinerary.outbound,back,itinerary.return!,places);
+ expect(plan.stops.map(stop=>[stop.id.split(':')[0],stop.placeId,stop.waitMinutes])).toEqual([['outbound','tbz',60],['return','ist',60],['return','dxb',60]]);
+ const combined=[...out,...back],track=buildRoundTripVehicleTrack(combined,out.length,.01)!;
+ const end=sampleVehiclePose(track.track,track.track.length)!;
+ const expected=projectPoint(places.find(place=>place.id==='thr')!.point);
+ expect(end.point[0]).toBeCloseTo(expected[0]);expect(end.point[1]).toBeCloseTo(expected[1]);
+ expect(end.point).not.toEqual(projectPoint(places.find(place=>place.id==='ika')!.point));
+ const bounds=fitRouteBounds(combined.flatMap(segment=>segment.paths));
+ for(const id of ['ika','tbz','mhd','ist','dxb','thr']){const point=projectPoint(places.find(place=>place.id===id)!.point);expect(Math.abs(point[0]-bounds.x)).toBeLessThanOrEqual(bounds.width/2);expect(Math.abs(point[1]-bounds.y)).toBeLessThanOrEqual(bounds.height/2);}
 });

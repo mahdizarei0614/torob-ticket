@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
 import { DatePriceQuerySchema, TransportSearchQuerySchema, type DatePriceQuery, type RawProviderRecord, type TransportSearchQuery } from '@torob-ticket/contracts';
 import { normalizeRecord } from '@torob-ticket/domain';
-import { generateProviderRecords, scenarios, type FixtureQuery } from '@torob-ticket/fixtures';
+import { fixtureSourceRevision,generateProviderRecords, scenarios, type FixtureQuery } from '@torob-ticket/fixtures';
 import type { ProviderAdapter, ProviderBatch, ProviderBatchStatus, ProviderDateBatch, ProviderQuoteSelection, ProviderRecheck } from './provider-adapter';
 import type { ProviderContext, ProviderEvidence } from './provider-context';
 import { decodeRawRecord, RawDecodeError } from './raw-codecs';
@@ -46,7 +46,8 @@ export class MockProvider implements ProviderAdapter {
   private async collect(query:TransportSearchQuery,c:ProviderContext,phase:'search'|'recheck',check:()=>void):Promise<ProviderBatch> {
     check();
     if(!this.supports(query,c)) return {providerId:this.providerId,status:'unsupported',records:[]};
-    const input:FixtureQuery={fixtureVersion:c.fixtureVersion,seed:c.seed,anchorInstant:c.demoClock.now().toISOString(),scenario:c.scenario,scenarioRevision:c.scenarioRevision,mappingRevision:c.mappingRevision,query,phase,...c.caseId?{caseId:c.caseId}:{}};
+    const selectedSource=c.sourceRevisions?.[this.providerId];
+    const input:FixtureQuery={fixtureVersion:c.fixtureVersion,seed:c.seed,anchorInstant:c.demoClock.now().toISOString(),scenario:c.scenario,scenarioRevision:c.scenarioRevision,mappingRevision:c.mappingRevision,query,phase,...selectedSource&&selectedSource!==fixtureSourceRevision(c.fixtureVersion)?{sourceRevision:selectedSource}:{},...c.caseId?{caseId:c.caseId}:{}};
     const records:ProviderEvidence[]=[];const seen=new Map<string,string>();
     const selectedSink=c.traceBatchSink;
     const batchSink=selectedSink?.isAvailable?.(c)===false?undefined:selectedSink;

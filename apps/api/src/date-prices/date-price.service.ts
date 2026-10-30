@@ -1,7 +1,7 @@
 import { DatePriceQuerySchema, DatePriceSnapshotSchema, NormalizedOfferSchema, type DatePriceQuery, type DatePriceSnapshot, type DatePriceCell } from '@torob-ticket/contracts';
 import { DatePriceRepository, SearchRepository, RepositoryError, type DatePricePayload, type DatePriceProjectionInput } from '@torob-ticket/data-access';
 import { datePriceIdentity, dateQueryState, projectDatePrices, type ComparisonContext, type SourceFareEvidence } from '@torob-ticket/domain';
-import { farePoliciesForFixture, fixtureSourceRevision } from '@torob-ticket/fixtures';
+import { activeTransportSourceRevision,farePoliciesForFixture } from '@torob-ticket/fixtures';
 import { mockRegistry, type ProviderAdapter, type ProviderContext, type ProviderDateBatch } from '@torob-ticket/provider-adapters';
 import type { SessionContext } from '../sessions/session-context';
 import { SessionService } from '../sessions/session.service';
@@ -12,7 +12,7 @@ export class DatePriceService {
   private readonly active = new Map<string, ActiveDateRun>();
   private readonly pendingInterruptions = new Map<string, SessionContext>();
   private readonly unregisterRecovery: () => void;
-  constructor(private readonly sessions: SessionService, private readonly providers: ProviderService, private readonly registry: readonly ProviderAdapter[] = mockRegistry) {
+  constructor(private readonly sessions: SessionService, private readonly providers: ProviderService, private readonly registry: readonly ProviderAdapter[] = mockRegistry,private readonly sourceRevisionForFixture:(fixtureVersion:string)=>string=activeTransportSourceRevision) {
     this.unregisterRecovery = sessions.registerRecovery(() => this.recover());
   }
   get repository() { return new DatePriceRepository(this.sessions.database); }
@@ -40,12 +40,13 @@ export class DatePriceService {
     let id: string | undefined; let timer: ReturnType<typeof setTimeout> | undefined;
     try {
       const policies=farePoliciesForFixture(session.info.fixtureVersion);
-      const admitted = await this.repository.admit(session.scope, input, now, { sourceRevisions: Object.fromEntries(Object.keys(policies).map(id => [id, fixtureSourceRevision(session.info.fixtureVersion)])), policyRevisions: Object.fromEntries(Object.entries(policies).map(([id, policy]) => [id, policy.revision])) });
+      const sourceRevisions=Object.fromEntries(Object.keys(policies).map(id => [id, this.sourceRevisionForFixture(session.info.fixtureVersion)]));
+      const admitted = await this.repository.admit(session.scope, input, now, { sourceRevisions, policyRevisions: Object.fromEntries(Object.entries(policies).map(([id, policy]) => [id, policy.revision])) });
       id = admitted.id;
       if (!admitted.created) { release(); finish(); return this.view(admitted.payload, input); }
       this.active.set(id, { controller, done });
       const deadline = new Date(now.getTime() + 5000);
-      const context = await this.providers.createContext(session, id, controller.signal, deadline, admitted.payload.frozen);
+      const context = await this.providers.createContext(session, id, controller.signal, deadline, admitted.payload.frozen,sourceRevisions);
       const expected = context.catalog.providerCapabilities.filter(row => row.modes.includes(input.query.mode) && row.scopes.includes(input.query.scope) && (!input.query.filters.providerIds || input.query.filters.providerIds.includes(row.providerId))).map(row => row.providerId);
       await this.repository.recordCoverage(session.scope, id, now, payload => {
         payload.coverageByDate = Object.fromEntries(payload.snapshot.query.dates.map(date => [date, { expectedProviderIds: expected, successfulProviderIds: [], failedProviderIds: [], pendingProviderIds: expected, complete: false }]));

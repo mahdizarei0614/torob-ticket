@@ -57,7 +57,9 @@ export class ReferralService {
             id = admitted.id;
             this.active.set(id, { controller, done });
             const deadline = new Date(this.sessions.realClock.now().getTime() + 5000);
-            const context = await this.providers.createContext(session, id, controller.signal, deadline, admitted.operation.frozen);
+            // Recheck the exact selected source, never today's default inventory revision.
+            const selectedSources={[admitted.operation.previous.providerId]:admitted.operation.previous.provenance[0]!.sourceRevision};
+            const context = await this.providers.createContext(session, id, controller.signal, deadline, admitted.operation.frozen,selectedSources);
             timer = setTimeout(() => controller.abort('deadline'), Math.max(0, deadline.getTime() - this.sessions.realClock.now().getTime()));
             const result = await this.registry.recheckTransport({ query: admitted.query, serviceKey: admitted.operation.previous.itinerary.itineraryId, previous: admitted.operation.previous }, context);
             if (controller.signal.aborted) {

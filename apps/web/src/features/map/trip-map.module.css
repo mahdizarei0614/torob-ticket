@@ -19,6 +19,8 @@
 .headingCode[hidden] { display:none; }
 .header .service { display:flex; flex-wrap:wrap; align-items:center; gap:4px 12px; margin-top:3px; font-size:11px; }
 .service bdi { font-family:var(--font-en); font-size:10px; letter-spacing:.035em; }
+.legRoute { display:inline-flex; align-items:center; gap:5px; max-width:100%; min-width:0; }
+.legRoute bdi { overflow-wrap:anywhere; }
 /* Keep selected route text above the shared fixed WebGL canvas. */
 .header { position:relative; z-index:2; }
 .map { z-index:2; }

@@ -63,7 +63,7 @@ const HeadingFrame=forwardRef<HTMLDivElement,{heading:ReturnType<typeof routeHea
  const occurrences=new Map<string,number>();
  return <motion.div ref={ref} className={styles.headingFrame} aria-hidden={!present||undefined} data-map-heading-key={frameKey} initial={false} animate={controls} transition={{duration:policy.enabled?.3:0,ease:'easeOut'}}>
   <h2>{heading.nodes.map((node,index)=>{const identity=node.cityId??node.placeId??node.label;const occurrence=occurrences.get(identity)??0;occurrences.set(identity,occurrence+1);return <span key={identity+':'+occurrence} className={styles.headingCity}>{index>0&&<HeadingArrow bidirectional={heading.bidirectional} disabled={disabled}/>}<span data-map-city-label={identity}>{node.label}</span><bdi className={styles.headingCode} data-map-city-code={identity} dir="ltr" hidden={!node.code}>{node.code?`(${node.code})`:''}</bdi></span>;})}</h2>
-  {heading.service&&<p className={styles.service}><span>{heading.service}</span>{heading.showCodeRoute&&heading.codes&&<bdi dir="ltr">{heading.codes}</bdi>}</p>}
+  {heading.service&&<p className={styles.service}><span>{heading.service}</span>{heading.showCodeRoute&&heading.routes.map(route=><span key={route.direction} className={styles.legRoute} data-map-leg-route={route.direction} role="group" aria-label={`مسیر ${route.label}`}><span>{route.label}</span><bdi dir={route.coded?'ltr':'rtl'}>{route.chain}</bdi></span>)}</p>}
  </motion.div>;
 });
 export function MapHeading({map,catalog,covered=false}:{map:TripMapController;catalog:CatalogSnapshot;covered?:boolean}) {

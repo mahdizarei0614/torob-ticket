@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, expect, it, vi } from 'vitest';
 import { StrictMode } from 'react';
 import type { CatalogSnapshot, Itinerary } from '@torob-ticket/contracts';
@@ -153,6 +153,7 @@ it('does not present internal rail or bus fixture IDs as genuine public codes', 
  const heading = routeHeading({ itinerary: connected, direction: 'outbound', query }, ground);
  expect(heading.nodes.every(node => node.code === undefined)).toBe(true);
  expect(heading.codes).toBeUndefined();
+ expect(heading.routes).toEqual([{direction:'outbound',label:'رفت',coded:false,chain:'آغاز ← دیگر ← پایان'}]);
  const draft = routeHeading({ direction: 'outbound', query }, routeCatalog);
  expect(draft.nodes.every(node => node.code === undefined)).toBe(true);
 });
@@ -168,4 +169,32 @@ it('fades and finitely removes the previous heading under actual normal motion',
  await waitFor(() => { const opacity = Number(previous.style.opacity); expect(opacity).toBeGreaterThan(0); expect(opacity).toBeLessThan(1); }, { interval: 10 });
  await waitFor(() => expect(previous).not.toBeInTheDocument(), { timeout: 1500 });
  expect(screen.getByRole('heading')).toHaveTextContent('دیگر');
+});
+
+
+it('keeps asymmetric outbound and return chains separate instead of implying an airport transfer', () => {
+ const variant: CatalogSnapshot = { ...routeCatalog, cities: [...routeCatalog.cities, { ...routeCatalog.cities[0]!, id:'d', name:'اتصال برگشت' }], places: [...routeCatalog.places,
+  { ...routeCatalog.places[0]!, id:'THR', code:'THR' },
+  { ...routeCatalog.places[1]!, id:'IST', code:'IST', cityId:'d', timeZone:'Europe/Istanbul' },
+ ] };
+ const source=connected.outbound.segments[0]!;
+ const itinerary: Itinerary = { ...connected, itineraryId:'asymmetric', return: { segments: [
+  { ...source, segmentId:'return-one', operatorId:'airline:turkish-airlines', originPlaceId:'MHD', destinationPlaceId:'IST', departureAt:'2026-10-28T05:00:00Z', arrivalAt:'2026-10-28T08:00:00Z', arrivalTimeZone:'Europe/Istanbul' },
+  { ...source, segmentId:'return-two', operatorId:'airline:turkish-airlines', originPlaceId:'IST', destinationPlaceId:'THR', departureAt:'2026-10-28T09:30:00Z', arrivalAt:'2026-10-28T12:00:00Z', departureTimeZone:'Europe/Istanbul' },
+ ], stops:[{placeId:'IST',kind:'connection',waitMinutes:90,vehicleChange:true}] } };
+ const heading=routeHeading({ itinerary, direction:'outbound', query },variant);
+ expect(heading.routes).toEqual([
+  {direction:'outbound',label:'رفت',coded:true,chain:'IKA → TBZ → MHD'},
+  {direction:'return',label:'برگشت',coded:true,chain:'MHD → IST → THR'},
+ ]);
+ expect(heading.nodes.map(node=>node.code)).toEqual(['IKA / THR','MHD']);
+ render(<MapHeading map={{presentationView:{itinerary,direction:'outbound',query}} as unknown as TripMapController} catalog={variant} covered/>);
+ const outbound=screen.getByRole('group',{name:'مسیر رفت'}),returning=screen.getByRole('group',{name:'مسیر برگشت'});
+ expect(outbound.querySelector('bdi')).toHaveTextContent('IKA → TBZ → MHD');
+ expect(returning.querySelector('bdi')).toHaveTextContent('MHD → IST → THR');
+ expect(within(outbound).queryByText(/IST/)).not.toBeInTheDocument();
+ expect(within(returning).queryByText(/TBZ/)).not.toBeInTheDocument();
+ expect(returning.querySelector('bdi')).toHaveAttribute('dir','ltr');
+ const onlyReturn=routeHeading({itinerary,direction:'return',query},variant);
+ expect(onlyReturn.routes).toEqual([{direction:'return',label:'برگشت',coded:true,chain:'MHD → IST → THR'}]);
 });

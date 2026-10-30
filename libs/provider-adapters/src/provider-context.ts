@@ -10,6 +10,8 @@ export interface ProviderTraceBatchSink {
 export interface ProviderContext {
   operationId:string;
   fixtureVersion:string;
+  /** Selected source versions are independent of the catalog/root version. */
+  sourceRevisions?:Readonly<Record<string,string>>;
   seed:number;
   scenario:DemoScenario;
   scenarioRevision:string;

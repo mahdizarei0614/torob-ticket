@@ -31,3 +31,27 @@ describe('journey and provider offer facts',()=>{
   expect(screen.getByRole('button',{name:'انتخاب پیشنهاد'})).toBeDisabled();await userEvent.setup().click(screen.getByRole('button',{name:'جزئیات سفر'}));const incomplete=screen.getByRole('region',{name:'پیشنهادهای با قیمت ناقص'});expect(incomplete).toHaveTextContent('قیمت نهایی نامشخص');expect(within(incomplete).queryByRole('button')).not.toBeInTheDocument();
  });
 });
+
+
+it('keeps different return stops, facilities, operator and local times independent in card and details',async()=>{
+ const data=group('asymmetric');const original=data.itinerary.outbound.segments[0]!;
+ data.itinerary.return={segments:[
+  {...original,segmentId:'back-one',serviceId:'back-service-one',operatorId:'airline:turkish-airlines',originPlaceId:'MHD',destinationPlaceId:'IST',departureAt:'2026-10-28T05:00:00Z',arrivalAt:'2026-10-28T08:00:00Z',arrivalTimeZone:'Europe/Istanbul'},
+  {...original,segmentId:'back-two',serviceId:'back-service-two',operatorId:'airline:turkish-airlines',originPlaceId:'IST',destinationPlaceId:'THR',departureAt:'2026-10-28T09:30:00Z',arrivalAt:'2026-10-28T12:00:00Z',departureTimeZone:'Europe/Istanbul'},
+ ],stops:[{placeId:'IST',kind:'connection',waitMinutes:90,vehicleChange:true,arrivalAt:'2026-10-28T08:00:00Z',departureAt:'2026-10-28T09:30:00Z'}]};
+ const extended={...catalog,places:[...catalog.places,{...catalog.places[0]!,id:'THR',code:'THR',name:'فرودگاه مهرآباد'},{...catalog.places[0]!,id:'IST',code:'IST',cityId:'istanbul',name:'فرودگاه استانبول',timeZone:'Europe/Istanbul'}]};
+ const received=recovery([data]);received.snapshot.query={...received.snapshot.query,tripType:'round-trip',returnDate:'2026-10-28'};
+ const state=resultsReducer(createResultsState('generation','search'),{type:'receive',recovery:received});
+ const view=render(<JourneyCard group={data} snapshot={state.adopted!.snapshot} catalog={extended} state={state} now={Date.parse(observedAt)} onFreeze={()=>undefined} onSelect={()=>undefined}/>);
+ expect(view.container.querySelector('[data-card-route-leg="outbound"]')).toHaveTextContent('IKA→MHD');
+ const returning=view.container.querySelector('[data-card-route-leg="return"]')!;
+ expect(returning).toHaveTextContent('MHD→IST→THR');expect(returning).not.toHaveTextContent('IKA');
+ expect(returning.parentElement).toHaveTextContent('ترکیش ایرلاینز');
+ await userEvent.setup().click(screen.getByRole('button',{name:'جزئیات سفر'}));
+ const outbound=screen.getByRole('region',{name:'جزئیات مسیر رفت'}),back=screen.getByRole('region',{name:'جزئیات مسیر برگشت'});
+ expect(Array.from(outbound.querySelectorAll('[data-segment-id]')).map(node=>node.getAttribute('data-segment-id'))).toEqual(['asymmetric-segment']);
+ expect(Array.from(back.querySelectorAll('[data-segment-id]')).map(node=>node.getAttribute('data-segment-id'))).toEqual(['back-one','back-two']);
+ expect(back.querySelectorAll('[data-stop-place="IST"]')).toHaveLength(1);expect(back).toHaveTextContent('۱ ساعت و ۳۰ دقیقه');
+ expect(back.querySelector('time[datetime="2026-10-28T09:30:00Z"]')).toHaveTextContent('۱۲:۳۰');
+ expect(back).toHaveTextContent('فرودگاه مهرآباد');expect(back).not.toHaveTextContent('فرودگاه امام خمینی');
+});

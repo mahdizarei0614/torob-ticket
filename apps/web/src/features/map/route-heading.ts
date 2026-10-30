@@ -1,4 +1,4 @@
-import type { CatalogSnapshot, Itinerary, TransportSearchQuery } from '@torob-ticket/contracts';
+import type { CatalogSnapshot, Itinerary, JourneyLeg, TransportSearchQuery } from '@torob-ticket/contracts';
 import { displayOperatorName, displayPlaceName } from '@torob-ticket/ui';
 
 interface HeadingPlace { label: string; code?: string; cityId?: string; placeId?: string }
@@ -16,7 +16,7 @@ export function routeHeading({ itinerary, direction, query }: { itinerary?: Itin
  if (!leg) {
   const ids = direction === 'return' ? [query.destinationCityId, query.originCityId] : [query.originCityId, query.destinationCityId];
   const nodes: HeadingPlace[] = ids.map(id => ({ label: city(id), cityId: id }));
-  return { ...identity, key: JSON.stringify(['cities', direction, ...ids]), nodes, labels: nodes.map(node => node.label), bidirectional, service: undefined, codes: undefined, showCodeRoute: false };
+  return { ...identity, key: JSON.stringify(['cities', direction, ...ids]), nodes, labels: nodes.map(node => node.label), bidirectional, service: undefined, codes: undefined, routes: [], showCodeRoute: false };
  }
  const first = leg.segments[0]!;
  const last = leg.segments.at(-1)!;
@@ -35,11 +35,20 @@ export function routeHeading({ itinerary, direction, query }: { itinerary?: Itin
   return { ...endpoint, code: codes.length ? codes.join(' / ') : undefined };
  };
  const nodes: HeadingPlace[] = roundTrip ? [mergeReturnCode(origin, roundTrip.segments.at(-1)?.destinationPlaceId), mergeReturnCode(destination, roundTrip.segments[0]?.originPlaceId)] : [origin, ...leg.stops.map(stop => node(stop.placeId, 'نام محل اعلام نشده')), destination].filter((item, index, items) => index === 0 || item.placeId !== items[index - 1]!.placeId);
+ // Separate supplied legs: a changed destination airport is not a source-owned
+ // connecting segment between the outbound arrival and the later return.
+ const route = (item: JourneyLeg, direction: 'outbound' | 'return') => {
+  const ids = [item.segments[0]!.originPlaceId, ...item.segments.map(segment => segment.destinationPlaceId)];
+  const entries = ids.map(id => catalog.places.find(place => place.id === id));
+  const coded = entries.every(place => place?.kind === 'airport' && place.code);
+  return { direction, label: direction === 'outbound' ? 'رفت' : 'برگشت', coded, chain: entries.map(place => place?.kind === 'airport' && place.code ? place.code : place ? catalog.cities.find(item => item.id === place.cityId)?.name ?? displayPlaceName(place) : 'نام محل اعلام نشده').join(coded ? ' → ' : ' ← ') };
+ };
+ const routes = [route(leg, direction), ...(roundTrip ? [route(roundTrip, 'return')] : [])];
  const codePlaces = [leg, ...(roundTrip ? [roundTrip] : [])].flatMap(item => item.segments.flatMap(segment => [segment.originPlaceId, segment.destinationPlaceId]));
  const codes = codePlaces.map(id => { const place = catalog.places.find(item => item.id === id); return place?.kind === 'airport' ? place.code : undefined; }).filter((code): code is string => Boolean(code)).filter((code, index, items) => index === 0 || code !== items[index - 1]);
  const departure = new Intl.DateTimeFormat('fa-IR', { timeStyle: 'short', timeZone: first.departureTimeZone }).format(new Date(first.departureAt));
  const returnFirst = roundTrip?.segments[0];
  const localDeparture = (segment: typeof first) => new Intl.DateTimeFormat('fa-IR', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: segment.departureTimeZone }).format(new Date(segment.departureAt));
  const service = returnFirst ? `${displayOperatorName(first.operatorId, first.mode)} · رفت ${localDeparture(first)} · برگشت ${returnFirst.operatorId === first.operatorId ? '' : `${displayOperatorName(returnFirst.operatorId, returnFirst.mode)} `}${localDeparture(returnFirst)}` : `${displayOperatorName(first.operatorId, first.mode)} · ${departure}`;
- return { ...identity, key: JSON.stringify([itinerary.itineraryId, direction, nodes.map(item => [item.cityId, item.placeId, item.label, item.code]), service, codes, Boolean(roundTrip)]), nodes, labels: nodes.map(item => item.label), bidirectional, service, codes: codes.length > 1 ? codes.join(' → ') : undefined, showCodeRoute: Boolean(roundTrip) };
+ return { ...identity, key: JSON.stringify([itinerary.itineraryId, direction, nodes.map(item => [item.cityId, item.placeId, item.label, item.code]), service, codes, routes, Boolean(roundTrip)]), nodes, labels: nodes.map(item => item.label), bidirectional, service, codes: codes.length > 1 ? codes.join(' → ') : undefined, routes, showCodeRoute: Boolean(roundTrip) };
 }
