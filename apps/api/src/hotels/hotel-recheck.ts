@@ -1,4 +1,4 @@
-import { HotelRepository, RepositoryError } from '@torob-ticket/data-access';
+import { HotelRepository, RepositoryError, type HotelInventoryResolver } from '@torob-ticket/data-access';
 import type { ReferralSelection, RecheckResult } from '@torob-ticket/contracts';
 import type { SessionContext } from '../sessions/session-context';
 import type { SessionService } from '../sessions/session.service';
@@ -15,11 +15,11 @@ export class HotelWorkOwner {
     private recovered = false;
     private destroyed = false;
     private readonly unregister: () => void;
-    constructor(private readonly sessions: SessionService) {
+    constructor(private readonly sessions: SessionService, private readonly inventory?: HotelInventoryResolver) {
         this.unregister = sessions.registerRecovery(() => this.recover());
     }
     get repository() {
-        return new HotelRepository(this.sessions.database);
+        return new HotelRepository(this.sessions.database,this.inventory);
     }
     private async recover() {
         if (!this.recovered) {

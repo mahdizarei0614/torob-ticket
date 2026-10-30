@@ -1,6 +1,8 @@
 import { z } from 'zod';
 import { GeoPointSchema, IdSchema, ISOInstantSchema, KnownBooleanSchema, LocalDateSchema, MoneySchema, NonnegativeIntegerSchema, PartySchema, PositiveIntegerSchema, ProvenanceSchema } from './common';
 import { EligibilitySchema, PriceBreakdownSchema, PriceCompletenessSchema } from './offer';
+/** Public geography revision; prices and availability remain provider-authored inventory. */
+export const HOTEL_DIRECTORY_SOURCE_REVISION = 'hotel-directory-osm-2026-10-30';
 export const HotelSearchQuerySchema = z.strictObject({
     destinationCityId: IdSchema, checkIn: LocalDateSchema, checkOut: LocalDateSchema, party: PartySchema,
     childAgesAtCheckIn: z.array(NonnegativeIntegerSchema).optional(), rooms: PositiveIntegerSchema.max(9),
@@ -37,7 +39,7 @@ export const RoomAllocationSchema = z.strictObject({
 });
 export type RoomAllocation = z.infer<typeof RoomAllocationSchema>;
 /** Published authored policy; an absent combined limit is never inferred. */
-export const HotelRoomPolicySchema = z.strictObject({ revision: IdSchema, eachRoomRequiresAdult: z.literal(true), childAgeRequired: z.boolean(), maxChildAge: NonnegativeIntegerSchema, checkInLocalTime: z.string().regex(/^(?:[01]\d|2[0-3]):[0-5]\d$/), earlyAccessPromised: z.literal(false), maxOccupants: PositiveIntegerSchema.optional() });
+export const HotelRoomPolicySchema = z.strictObject({ revision: IdSchema, eachRoomRequiresAdult: z.literal(true), childAgeRequired: z.boolean(), maxChildAge: NonnegativeIntegerSchema, checkInLocalTime: z.string().regex(/^(?:[01]\d|2[0-3]):[0-5]\d$/).optional(), earlyAccessPromised: z.literal(false), maxOccupants: PositiveIntegerSchema.optional() });
 export type HotelRoomPolicy = z.infer<typeof HotelRoomPolicySchema>;
 export const HotelRoomDetailSchema = z.strictObject({ roomNumber: PositiveIntegerSchema, roomRateId: IdSchema, roomType: IdSchema, maxAdults: PositiveIntegerSchema, maxChildren: NonnegativeIntegerSchema, maxInfants: NonnegativeIntegerSchema, infantCountsTowardOccupancy: KnownBooleanSchema, terms: HotelTermsSchema, policy: HotelRoomPolicySchema, provenance: z.array(ProvenanceSchema).min(1) });
 export const HotelComparisonResultSchema = z.strictObject({ hotelId: IdSchema, status: z.enum(['priced', 'ineligible', 'unknown', 'incomplete', 'unavailable', 'failed']), reasons: z.array(IdSchema), representativeQuoteId: IdSchema.nullable(), quoteIds: z.array(IdSchema), arrivalDistanceKm: z.number().nonnegative().nullable(), locationDistanceKm: z.number().nonnegative().nullable(), distanceKind: z.literal('straight-line'), knownSubtotal: MoneySchema.optional() });
@@ -73,7 +75,7 @@ export const HotelQuoteSnapshotSchema = z.strictObject({
 export type HotelQuoteSnapshot = z.infer<typeof HotelQuoteSnapshotSchema>;
 const stableHotelValue = (value: unknown): string => JSON.stringify(value, (_key, item) => item && typeof item === 'object' && !Array.isArray(item) ? Object.fromEntries(Object.entries(item).sort(([a], [b]) => a.localeCompare(b, 'en'))) : item);
 const sameHotelQuery = (a: HotelSearchQuery, b: HotelSearchQuery) => stableHotelValue(a) === stableHotelValue(b);
-export const HotelSearchSnapshotSchema = z.strictObject({ hotelSearchId: IdSchema, query: HotelSearchQuerySchema, status: z.enum(['complete', 'empty', 'failed']), hotels: z.array(HotelSchema), quotes: z.array(HotelQuoteSnapshotSchema), results: z.array(HotelComparisonResultSchema).optional(), observedAt: ISOInstantSchema }).superRefine((snapshot, ctx) => {
+export const HotelSearchSnapshotSchema = z.strictObject({ hotelSearchId: IdSchema, query: HotelSearchQuerySchema, status: z.enum(['complete', 'empty', 'failed']), hotels: z.array(HotelSchema), quotes: z.array(HotelQuoteSnapshotSchema), results: z.array(HotelComparisonResultSchema).optional(), observedAt: ISOInstantSchema, sourceRevision: IdSchema.optional() }).superRefine((snapshot, ctx) => {
     if (!snapshot.results)
         return;
     const error = (message: string) => ctx.addIssue({ code: 'custom', path: ['results'], message });

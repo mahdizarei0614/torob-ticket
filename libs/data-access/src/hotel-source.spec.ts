@@ -9,6 +9,12 @@ describe('private stored hotel template authority', () => {
         expect(source.policy.maxOccupants).toBeUndefined();
         expect(source.rate.provenance).toEqual(raw.provenance);
     });
+    it('keeps an unpublished check-in time absent instead of substituting a hotel policy', () => {
+        const {checkInLocalTime: _time,...policy}=raw.policy;void _time;
+        const source=materializeStoredHotelRate({...raw,policy},'2026-10-25T00:00:00Z','UTC');
+        expect(source.policy).not.toHaveProperty('checkInLocalTime');
+        expect(source.policy.earlyAccessPromised).toBe(false);
+    });
     it('fails closed on missing policy without importing a fallback', () => expect(() => materializeStoredHotelRate({ ...raw, policy: undefined }, '2026-10-25T00:00:00Z', 'UTC')).toThrow());
     it('rejects out-of-coverage offsets and malformed money or inventory', () => {
         for (const nightlyTemplate of [[{ offset: 120, amountRial: 1, availableRooms: 1 }], [{ offset: 0, amountRial: -1, availableRooms: 1 }], [{ offset: 0, amountRial: 1, availableRooms: 0.5 }]])

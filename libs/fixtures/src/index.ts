@@ -9,3 +9,4 @@ export * from './catalog/hotels';
 export * from './generator';
 export * from './scenarios';
 export * from './test-cases';
+export * from './real-hotel-inventory';

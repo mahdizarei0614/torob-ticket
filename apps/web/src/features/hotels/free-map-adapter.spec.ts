@@ -54,10 +54,10 @@ describe('arrival hotel map controlled markers and geometry',()=>{
 
  it('brings an offscreen selected hotel back smoothly, respects reduced motion and never focuses an unknown id',async()=>{
   const mock=mockSdk(),options=discovery();mock.map.fitBounds=vi.fn();mock.map.getBounds=()=>({contains:()=>false});mock.map.easeTo=vi.fn();mock.map.stop=vi.fn();
-  const controller=createFreeMap(document.createElement('div'),{...options,selectedHotelId:undefined},async()=>mock.sdk);owned.push(controller);await flush();
+  const element=document.createElement('div'),controller=createFreeMap(element,{...options,selectedHotelId:undefined},async()=>mock.sdk);owned.push(controller);await flush();expect(element).toHaveAttribute('data-free-map-motion','finite');
   controller.update({...options,selectedHotelId:'hotel-a'});expect(mock.map.easeTo).toHaveBeenLastCalledWith({center:[51.22,35.45],duration:420});
-  controller.update({...options,selectedHotelId:'hotel-b',motionEnabled:false});expect(mock.map.stop).toHaveBeenCalledTimes(1);expect(mock.map.easeTo).toHaveBeenLastCalledWith({center:[51.26,35.48],duration:0});
-  controller.update({...options,selectedHotelId:'not-in-this-city'});expect(mock.map.easeTo).toHaveBeenCalledTimes(2);expect(mock.map.fitBounds).toHaveBeenCalledTimes(1);
+  controller.update({...options,selectedHotelId:'hotel-b',motionEnabled:false});expect(mock.map.stop).toHaveBeenCalledTimes(1);expect(mock.map.easeTo).toHaveBeenLastCalledWith({center:[51.26,35.48],duration:0});expect(element).toHaveAttribute('data-free-map-motion','static');expect(markerNode(mock,'hotel-a').querySelector('[data-marker-pin]')).toHaveAttribute('data-marker-enter','false');
+  controller.update({...options,selectedHotelId:'not-in-this-city'});expect(mock.map.easeTo).toHaveBeenCalledTimes(2);expect(mock.map.fitBounds).toHaveBeenCalledTimes(1);expect(element).toHaveAttribute('data-free-map-motion','finite');expect(markerNode(mock,'hotel-a').querySelector('[data-marker-pin]')).toHaveAttribute('data-marker-enter','false');
  });
 
  it('only changes a custom reference during an explicit pick, with matching labels and drag authority',async()=>{
@@ -103,24 +103,109 @@ describe('arrival hotel map controlled markers and geometry',()=>{
   expect(mock.sdk.createMap).toHaveBeenCalledWith(expect.any(HTMLElement),expect.objectContaining({center:[51.4,35.6],zoom:14}));expect(mock.map.fitBounds).not.toHaveBeenCalled();
  });
 
- it('declutters coincident named hotel buttons with true-coordinate leaders and recomputes on native camera/viewport events without remounting',async()=>{
+ it('keeps hotel pins at source anchors and reveals only the latest hovered or focused name, including after selection and sorting',async()=>{
   const mock=mockSdk(),options=discovery(),element=document.createElement('div');let width=1035,height=230,pan=0;
   Object.defineProperties(element,{clientWidth:{get:()=>width},clientHeight:{get:()=>height}});
-  options.choices=[options.choices[0]!,...Array.from({length:14},(_,index)=>({id:`hotel-${String(index).padStart(2,'0')}`,name:`هتل آفتاب ${index}`,kind:'hotel' as const,point:{latitude:35.45,longitude:51.22}}))];options.selectedHotelId='hotel-00';
-  mock.map.project=([longitude])=>longitude===51.15?{x:700+pan,y:170}:{x:450+pan,y:80};
+  options.choices=[options.choices[0]!,...Array.from({length:14},(_,index)=>({id:`hotel-${String(index).padStart(2,'0')}`,name:`هتل آفتاب ${index}`,kind:'hotel' as const,point:{latitude:35.45+index*.002,longitude:51.22}}))];options.selectedHotelId='hotel-00';
+  mock.map.project=([longitude,latitude])=>longitude===51.15?{x:700+pan,y:170}:{x:90+(latitude-35.45)/.002*64+pan,y:80};
   const controller=createFreeMap(element,options,async()=>mock.sdk);owned.push(controller);await flush();
   const hotels=options.choices.filter(choice=>choice.kind==='hotel').map(choice=>markerNode(mock,choice.id)),arrival=markerNode(mock,'arrival:IKA');
-  expect(element).toHaveAttribute('data-hotel-map-labels','named');expect(new Set(hotels.map(node=>node.dataset['mapLabelOffset'])).size).toBe(14);expect(arrival.style.getPropertyValue('--map-offset-x')).toBe('');
-  const leader=element.querySelector('[data-map-leader-id="hotel-00"]')!;expect(leader.querySelector('line')).toHaveAttribute('x1','450');expect(leader.querySelector('circle')).toHaveAttribute('cy','80');
-  expect(mock.markers.slice(1).every(marker=>vi.mocked(marker.setLngLat).mock.calls.every(call=>call[0][0]===51.22&&call[0][1]===35.45))).toBe(true);
-  document.body.append(element);element.append(hotels[0]!);hotels[0]!.focus();
-  controller.update({...options,choices:[...options.choices].reverse(),selectedHotelId:'hotel-13'});
-  expect(hotels[0]).toHaveFocus();expect(mock.sdk.createMap).toHaveBeenCalledTimes(1);expect(mock.sdk.createMarker).toHaveBeenCalledTimes(15);expect(mock.markers.every(marker=>!vi.mocked(marker.remove).mock.calls.length)).toBe(true);
-  controller.update({...options,selectedHotelId:'hotel-13',pickingPoint:true});hotels[13]!.click();expect(options.onPoint).toHaveBeenLastCalledWith({latitude:35.45,longitude:51.22});
-  pan=30;mock.emit('move');expect(leader.querySelector('line')).toHaveAttribute('x1','480');
-  width=360;height=250;mock.map.project=()=>({x:180,y:100});mock.emit('resize');expect(element).toHaveAttribute('data-hotel-map-labels','compact');expect(hotels[13]).toHaveAttribute('data-map-label-collapsed','false');expect(hotels[0]).toHaveAttribute('data-map-label-collapsed','false');
-  const compact=hotels.find(node=>node.dataset['mapLabelCollapsed']==='true')!,offset=compact.dataset['mapLabelOffset'];element.append(compact);compact.dispatchEvent(new MouseEvent('mouseenter'));expect(compact).toHaveAttribute('data-map-label-collapsed','false');expect(compact.dataset['mapLabelOffset']).toBe(offset);compact.click();expect(options.onPoint).toHaveBeenLastCalledWith({latitude:35.45,longitude:51.22});
-  compact.dispatchEvent(new MouseEvent('mouseleave'));const beforeFocus=compact.dataset['mapLabelOffset'];compact.focus();expect(compact).toHaveFocus();expect(compact.dataset['mapLabelOffset']).toBe(beforeFocus);expect(compact).toHaveAttribute('data-map-label-collapsed','false');
-  const retiredMove=[...(mock.events.get('move')??[])][0]!;controller.dispose();expect(element.querySelector('[data-hotel-map-leaders]')).toBeNull();expect(mock.events.get('move')?.size).toBe(0);expect(mock.events.get('resize')?.size).toBe(0);retiredMove({});expect(element.childElementCount).toBe(0);element.remove();
+  expect(element).toHaveAttribute('data-hotel-map-labels','hover');expect(hotels.every(node=>node.dataset['mapLabelVisible']==='false'&&node.dataset['mapLabelOffset']==='0,0')).toBe(true);
+  expect(element.querySelector('[data-hotel-map-leaders]')).toBeNull();expect(hotels.every(node=>!node.hasAttribute('title')&&!node.style.getPropertyValue('--map-offset-x'))).toBe(true);
+  expect(arrival.querySelector('[data-marker-name]')).toHaveTextContent('فرودگاه امام خمینی');
+  const visible=()=>hotels.filter(node=>node.dataset['mapLabelVisible']==='true');
+  hotels[13]!.dispatchEvent(new MouseEvent('mouseenter'));expect(visible()).toEqual([hotels[13]]);
+  document.body.append(element);element.append(...hotels);hotels[0]!.focus();expect(visible()).toEqual([hotels[0]]);
+  hotels[13]!.dispatchEvent(new MouseEvent('mouseenter'));expect(visible()).toEqual([hotels[13]]);hotels[13]!.dispatchEvent(new MouseEvent('mouseleave'));expect(visible()).toEqual([hotels[0]]);
+  hotels[0]!.blur();expect(visible()).toEqual([]);
+  controller.update({...options,choices:[...options.choices].reverse(),selectedHotelId:'hotel-13'});expect(visible()).toEqual([]);
+  expect(mock.sdk.createMap).toHaveBeenCalledTimes(1);expect(mock.sdk.createMarker).toHaveBeenCalledTimes(15);expect(mock.markers.every(marker=>!vi.mocked(marker.remove).mock.calls.length)).toBe(true);
+  expect(mock.markers.slice(1).every((marker,index)=>vi.mocked(marker.setLngLat).mock.calls.every(call=>call[0][0]===51.22&&call[0][1]===35.45+index*.002))).toBe(true);
+  controller.update({...options,selectedHotelId:'hotel-13',pickingPoint:true});hotels[13]!.click();expect(options.onPoint).toHaveBeenLastCalledWith({latitude:35.45+13*.002,longitude:51.22});
+  width=360;height=250;pan=30;mock.map.project=([longitude,latitude])=>longitude===51.15?{x:250,y:170}:{x:10+(35.45+13*.002-latitude)*40000,y:12};mock.emit('resize');
+  expect(hotels[13]).toHaveAttribute('data-map-tooltip-placement','below');expect(hotels[13]).toHaveAttribute('data-map-label-offset','0,0');expect(visible()).toEqual([hotels[13]]);
+  const move=[...(mock.events.get('move')??[])][0]!;controller.dispose();expect(mock.events.get('move')?.size).toBe(0);expect(mock.events.get('resize')?.size).toBe(0);move({});expect(element.childElementCount).toBe(0);expect(visible()).toEqual([]);element.remove();
+ });
+ it('repositions only the inspected tooltip when the map moves near an edge and never shows an offscreen label inside the viewport',async()=>{
+  const mock=mockSdk(),options=discovery(),element=document.createElement('div');let x=180,y=100;
+  Object.defineProperties(element,{clientWidth:{value:360},clientHeight:{value:230}});mock.map.project=([longitude])=>longitude===51.26?{x,y}:{x:1000,y:1000};
+  const controller=createFreeMap(element,options,async()=>mock.sdk);owned.push(controller);await flush();
+  const hotel=markerNode(mock,'hotel-b'),name=hotel.querySelector<HTMLElement>('[data-marker-name]')!;
+  hotel.dispatchEvent(new MouseEvent('mouseenter'));expect(hotel).toHaveAttribute('data-map-label-visible','true');expect(hotel).toHaveAttribute('data-map-tooltip-offset','0,0');
+  x=4;y=8;mock.emit('move');expect(hotel).toHaveAttribute('data-map-tooltip-placement','below');expect(Number.parseFloat(name.style.getPropertyValue('--map-label-adjust-x'))).toBeGreaterThan(0);expect(hotel).toHaveAttribute('data-map-label-offset','0,0');
+  x=-5;mock.emit('move');expect(hotel).toHaveAttribute('data-map-label-visible','false');expect(hotel).toHaveAttribute('data-map-tooltip-placement','offscreen');
+  expect(mock.markers[2]!.setLngLat).toHaveBeenCalledExactlyOnceWith([51.26,35.48]);
+ });
+ it('rejects stale hover/focus events and removes every tooltip listener when the marker or controller retires',async()=>{
+  const mock=mockSdk(),options=discovery(),element=document.createElement('div');let current=true;options.isCurrent=()=>current;
+  const controller=createFreeMap(element,options,async()=>mock.sdk);owned.push(controller);await flush();const hotel=markerNode(mock,'hotel-b');
+  current=false;hotel.dispatchEvent(new MouseEvent('mouseenter'));hotel.dispatchEvent(new FocusEvent('focus'));expect(hotel).toHaveAttribute('data-map-label-visible','false');
+  current=true;hotel.dispatchEvent(new MouseEvent('mouseenter'));expect(hotel).toHaveAttribute('data-map-label-visible','true');
+  controller.update({...options,choices:options.choices.filter(choice=>choice.id!=='hotel-b')});expect(hotel).toHaveAttribute('data-map-label-visible','false');hotel.dispatchEvent(new MouseEvent('mouseenter'));hotel.dispatchEvent(new FocusEvent('focus'));hotel.click();expect(hotel).toHaveAttribute('data-map-label-visible','false');expect(options.onSelectHotel).not.toHaveBeenCalled();
+  controller.dispose();markerNode(mock,'hotel-a').dispatchEvent(new MouseEvent('mouseenter'));expect(markerNode(mock,'hotel-a')).toHaveAttribute('data-map-label-visible','false');
+ });
+ it('aggregates a crowded overview honestly, zooms count bounds, and reveals the same true-anchor markers as screen separation grows',async()=>{
+  const mock=mockSdk(),element=document.createElement('div'),options=discovery();let zoom=11;
+  Object.defineProperties(element,{clientWidth:{value:720},clientHeight:{value:300}});
+  options.selectedHotelId=undefined;options.choices=[options.choices[0]!,...Array.from({length:14},(_,index)=>({id:`hotel-${String(index).padStart(2,'0')}`,name:`هتل ${index}`,kind:'hotel' as const,point:{latitude:36.3+index*.001,longitude:59.6+index*.001}}))];
+  mock.map.getZoom=()=>zoom;mock.map.project=([lng,lat])=>({x:360+(lng-59.606)*900*2**(zoom-11),y:150-(lat-36.306)*900*2**(zoom-11)});mock.map.fitBounds=vi.fn();
+  const controller=createFreeMap(element,options,async()=>mock.sdk);owned.push(controller);await flush();
+  const hotels=options.choices.filter(choice=>choice.kind==='hotel').map(choice=>markerNode(mock,choice.id));
+  const count=vi.mocked(mock.sdk.createMarker).mock.calls.map(call=>call[0]).find(node=>node.hasAttribute('data-map-cluster'))!;
+  expect(count).toHaveAttribute('data-map-cluster-count','14');expect(JSON.parse(count.dataset['mapClusterMembers']!)).toEqual(hotels.map(node=>node.dataset['mapHotelId']));expect(count).toHaveAccessibleName('بزرگ‌نمایی برای نمایش ۱۴ هتل');
+  expect(hotels.every(node=>node.hidden&&node.inert&&node.tabIndex===-1&&(node as HTMLButtonElement).disabled)).toBe(true);
+  hotels[0]!.dispatchEvent(new MouseEvent('mouseenter'));hotels[0]!.dispatchEvent(new FocusEvent('focus'));hotels[0]!.click();expect(options.onSelectHotel).not.toHaveBeenCalled();expect(hotels[0]).toHaveAttribute('data-map-label-visible','false');
+  expect(markerNode(mock,'arrival:IKA').hidden).toBe(false);expect(markerNode(mock,'arrival:IKA').querySelector('[data-marker-name]')).toHaveTextContent('فرودگاه امام خمینی');
+  const markersBefore=mock.sdk.createMarker;controller.update({...options,choices:[...options.choices].reverse(),appearance:'dark'});mock.emit('style.load');expect(markersBefore).toHaveBeenCalledTimes(16);expect(mock.sdk.createMap).toHaveBeenCalledTimes(1);expect(count.hidden).toBe(false);
+  count.click();expect(mock.map.fitBounds).toHaveBeenLastCalledWith([[59.6,36.3],[59.6+13*.001,36.3+13*.001]],{padding:64,maxZoom:14,duration:560});expect(options.onPoint).not.toHaveBeenCalled();
+  zoom=18;mock.emit('move');expect(count.hidden).toBe(true);expect(hotels.every(node=>!node.hidden&&!node.inert&&node.tabIndex===0&&!(node as HTMLButtonElement).disabled)).toBe(true);expect(hotels.every(node=>node.dataset['mapLabelVisible']==='false'&&node.dataset['mapLabelOffset']==='0,0')).toBe(true);
+  hotels[7]!.dispatchEvent(new MouseEvent('mouseenter'));expect(hotels[7]).toHaveAttribute('data-map-label-visible','true');hotels[7]!.click();expect(options.onSelectHotel).toHaveBeenCalledExactlyOnceWith('hotel-07');
+  const calls=vi.mocked(mock.map.fitBounds).mock.calls.length;count.click();expect(mock.map.fitBounds).toHaveBeenCalledTimes(calls);
+  for(let index=0;index<14;index++)expect(mock.markers[index+1]!.setLngLat).toHaveBeenCalledExactlyOnceWith([59.6+index*.001,36.3+index*.001]);
+  expect(mock.sdk.createMarker).toHaveBeenCalledTimes(16);
+ });
+ it('zooms a controlled card selection until its actual pin clears neighbours, without revealing names or emitting reference edits',async()=>{
+  const mock=mockSdk(),element=document.createElement('div'),options=discovery();let zoom=11;
+  Object.defineProperties(element,{clientWidth:{value:720},clientHeight:{value:300}});options.selectedHotelId=undefined;
+  mock.map.getZoom=()=>zoom;mock.map.getBounds=()=>({contains:()=>true});mock.map.project=([lng,lat])=>({x:360+(lng-51.24)*300*2**(zoom-11),y:150-(lat-35.46)*300*2**(zoom-11)});
+  mock.map.easeTo=vi.fn(next=>{zoom=next.zoom??zoom;mock.emit('move');});
+  const controller=createFreeMap(element,options,async()=>mock.sdk);owned.push(controller);await flush();expect(markerNode(mock,'hotel-b').hidden).toBe(true);
+  controller.update({...options,selectedHotelId:'hotel-b'});
+  expect(mock.map.easeTo).toHaveBeenCalledExactlyOnceWith({center:[51.26,35.48],zoom:expect.any(Number),duration:420});expect(zoom).toBeGreaterThan(11);expect(markerNode(mock,'hotel-b').hidden).toBe(false);expect(markerNode(mock,'hotel-b')).toHaveAttribute('data-map-label-visible','false');expect(markerNode(mock,'hotel-b')).toHaveAttribute('aria-pressed','true');
+  expect(options.onSelectHotel).not.toHaveBeenCalled();expect(options.onPoint).not.toHaveBeenCalled();
+  const hotel=markerNode(mock,'hotel-b');hotel.dispatchEvent(new MouseEvent('mouseenter'));expect(hotel).toHaveAttribute('data-map-label-visible','true');
+  controller.update({...options,selectedHotelId:'hotel-b',choices:[...options.choices].reverse()});expect(mock.map.easeTo).toHaveBeenCalledTimes(1);expect(mock.sdk.createMap).toHaveBeenCalledTimes(1);expect(mock.sdk.createMarker).toHaveBeenCalledTimes(4);
+ });
+ it('fences retired count clicks and disposes cluster listeners with current ownership and reduced-motion camera authority',async()=>{
+  const mock=mockSdk(),element=document.createElement('div'),options=discovery();let current=true;options.isCurrent=()=>current;mock.map.project=()=>({x:100,y:100});mock.map.fitBounds=vi.fn();
+  const controller=createFreeMap(element,options,async()=>mock.sdk);owned.push(controller);await flush();
+  const count=vi.mocked(mock.sdk.createMarker).mock.calls.map(call=>call[0]).find(node=>node.hasAttribute('data-map-cluster'))!;
+  current=false;count.click();expect(mock.map.fitBounds).toHaveBeenCalledTimes(1);
+  current=true;controller.update({...options,motionEnabled:false});count.click();expect(mock.map.fitBounds).toHaveBeenLastCalledWith([[51.22,35.45],[51.26,35.48]],{padding:64,maxZoom:16,duration:0});
+  controller.update({...options,choices:options.choices.filter(choice=>choice.id!=='hotel-b')});const total=vi.mocked(mock.map.fitBounds).mock.calls.length;count.click();expect(mock.map.fitBounds).toHaveBeenCalledTimes(total);expect(count.hidden).toBe(true);
+  expect(markerNode(mock,'hotel-a').hidden).toBe(false);controller.dispose();count.dispatchEvent(new MouseEvent('click'));expect(mock.map.fitBounds).toHaveBeenCalledTimes(total);expect(mock.markers.every(marker=>vi.mocked(marker.remove).mock.calls.length===1)).toBe(true);
+ });
+ it('makes zoom progress for a viewport-spanning overlap chain and transfers focus to a fully visible real pin after scaling and recentering',async()=>{
+  const mock=mockSdk(),element=document.createElement('div'),options=discovery();let zoom=11,center=51.226;
+  Object.defineProperties(element,{clientWidth:{value:720},clientHeight:{value:300}});options.selectedHotelId=undefined;
+  options.choices=[options.choices[0]!,...Array.from({length:13},(_,index)=>({id:`hotel-${String(index).padStart(2,'0')}`,name:`هتل ${index}`,kind:'hotel' as const,point:{latitude:35.45,longitude:51.22+index*.001}}))];
+  mock.map.getZoom=()=>zoom;mock.map.project=([lng])=>({x:360+(lng-center)*49000*2**(zoom-11),y:150});mock.map.fitBounds=vi.fn();mock.map.easeTo=vi.fn(next=>{zoom=11.15;mock.emit('move');zoom=next.zoom??zoom;center=next.center[0];mock.emit('move');});
+  const controller=createFreeMap(element,options,async()=>mock.sdk);owned.push(controller);await flush();
+  const nodes=vi.mocked(mock.sdk.createMarker).mock.calls.map(call=>call[0]),count=nodes.find(node=>node.hasAttribute('data-map-cluster'))!,canvas=document.createElement('canvas');canvas.tabIndex=0;document.body.append(element);element.append(canvas,...nodes);
+  count.click();expect(mock.map.easeTo).toHaveBeenCalledExactlyOnceWith({center:expect.any(Array),zoom:12.25,duration:560});expect(mock.map.fitBounds).toHaveBeenCalledTimes(1);expect(count.hidden).toBe(true);
+  expect(canvas).toHaveFocus();mock.emit('moveend');
+  const first=markerNode(mock,'hotel-00'),visible=markerNode(mock,'hotel-04');expect(first.hidden).toBe(false);expect(first).not.toHaveFocus();expect(visible).toHaveFocus();expect(visible).toHaveAttribute('data-map-label-visible','true');expect(first).toHaveAttribute('data-map-label-visible','false');expect(options.onSelectHotel).not.toHaveBeenCalled();expect(options.onPoint).not.toHaveBeenCalled();
+  zoom=11;center=51.226;mock.emit('move');const replacement=vi.mocked(mock.sdk.createMarker).mock.calls.map(call=>call[0]).reverse().find(node=>node.hasAttribute('data-map-cluster'))!;element.append(replacement);replacement.click();expect(canvas).toHaveFocus();
+  const outside=document.createElement('button');document.body.append(outside);outside.focus();mock.emit('moveend');expect(outside).toHaveFocus();
+  controller.dispose();element.remove();outside.remove();
+ });
+ it('shows the explicitly selected genuine pin at the zoom ceiling even for constructed identical property coordinates',async()=>{
+  const mock=mockSdk(),element=document.createElement('div'),options=discovery();let zoom=13;
+  options.selectedHotelId=undefined;options.choices=options.choices.map(choice=>choice.kind==='hotel'?{...choice,point:{latitude:35.45,longitude:51.22}}:choice);
+  mock.map.getZoom=()=>zoom;mock.map.getBounds=()=>({contains:()=>true});mock.map.project=()=>({x:100,y:100});mock.map.easeTo=vi.fn(next=>{zoom=next.zoom??zoom;mock.emit('move');});
+  const controller=createFreeMap(element,options,async()=>mock.sdk);owned.push(controller);await flush();controller.update({...options,selectedHotelId:'hotel-a'});
+  expect(zoom).toBe(20);expect(markerNode(mock,'hotel-a').hidden).toBe(false);expect(markerNode(mock,'hotel-b').hidden).toBe(true);
+  controller.update({...options,selectedHotelId:'hotel-b'});expect(markerNode(mock,'hotel-b').hidden).toBe(false);expect(markerNode(mock,'hotel-a').hidden).toBe(true);expect(markerNode(mock,'hotel-b')).toHaveAttribute('data-map-label-offset','0,0');
+  expect(mock.markers[1]!.setLngLat).toHaveBeenCalledExactlyOnceWith([51.22,35.45]);expect(mock.markers[2]!.setLngLat).toHaveBeenCalledExactlyOnceWith([51.22,35.45]);expect(options.onSelectHotel).not.toHaveBeenCalled();expect(options.onPoint).not.toHaveBeenCalled();
  });
 });

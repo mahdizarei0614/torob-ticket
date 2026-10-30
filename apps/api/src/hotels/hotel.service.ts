@@ -1,6 +1,8 @@
 import { HotelSearchQuerySchema, type HotelSearchQuery } from '@torob-ticket/contracts';
 import { localDateAt } from '@torob-ticket/domain';
 import { parseDate } from '@internationalized/date';
+import {realHotelInventory} from '@torob-ticket/fixtures';
+import type {HotelInventoryResolver} from '@torob-ticket/data-access';
 import type { SessionContext } from '../sessions/session-context';
 import { SessionService, sessionError } from '../sessions/session.service';
 import { CatalogService } from '../catalog/catalog.service';
@@ -8,8 +10,8 @@ import { ReferralService } from '../referrals/referral.service';
 import { HotelRecheck, HotelWorkOwner } from './hotel-recheck';
 export class HotelService {
     private readonly owner: HotelWorkOwner;
-    constructor(private readonly sessions: SessionService, private readonly catalog: CatalogService, referrals: ReferralService) {
-        this.owner = new HotelWorkOwner(sessions);
+    constructor(private readonly sessions: SessionService, private readonly catalog: CatalogService, referrals: ReferralService,inventory:HotelInventoryResolver=realHotelInventory) {
+        this.owner = new HotelWorkOwner(sessions,inventory);
         referrals.registerRecheckHandler('hotel', new HotelRecheck(sessions, catalog, this.owner));
     }
     searchHotels(session: SessionContext, input: HotelSearchQuery) {

@@ -2,7 +2,7 @@ import {StrictMode} from 'react';
 import {act,renderHook,waitFor} from '@testing-library/react';
 import {describe,it,expect,vi} from 'vitest';
 import type {ApiClient} from '@torob-ticket/client';
-import type {HotelSearchQuery,HotelSearchSnapshot} from '@torob-ticket/contracts';
+import {HOTEL_DIRECTORY_SOURCE_REVISION,type HotelSearchQuery,type HotelSearchSnapshot,type ReferralReceipt} from '@torob-ticket/contracts';
 import {useHotelDiscovery,type HotelDiscovery,type HotelRestore} from './use-hotel-discovery';
 import {tripKey} from './hotel-state';
 import {session,query} from '../search/search-test-data';
@@ -24,4 +24,77 @@ describe('automatic hotel request and selection leases',()=>{
  it('keeps ignored setup/equivalent preference edits side-effect-free during a request and after selection',async()=>{const mock=setup(),onSelect=vi.fn();const {result}=renderHook(()=>useHotelDiscovery({trip:arrivingTrip(),catalog:arrivalCatalog,session,client:mock.client,onSelectHotelQuote:onSelect}));await open(result,mock);const loading=result.current.state,calls=onSelect.mock.calls.length;act(()=>{result.current.edit({checkOut:'2026-12-01',rooms:3,arrivalPlaceId:'foreign'});result.current.edit({sort:'cheapest',customPoint:undefined});});expect(result.current.state).toBe(loading);expect(mock.requests[0]!.signal?.aborted).toBe(false);expect(onSelect).toHaveBeenCalledTimes(calls);await settle(mock);act(()=>result.current.selectHotel('hotel-a'));const chosen=result.current.selected,lease=result.current.selectionLease()!,selectedCalls=onSelect.mock.calls.length;act(()=>{result.current.edit({checkIn:'2026-12-01',checkOut:'2026-12-02',rooms:2});result.current.edit({sort:'cheapest'});});expect(result.current.selected).toBe(chosen);expect(lease.isCurrent()).toBe(true);expect(onSelect).toHaveBeenCalledTimes(selectedCalls);expect(mock.requests).toHaveLength(1);});
  it('retains a valid higher-version return quote and never downgrades it on the same hotel',async()=>{const mock=setup(),trip=arrivingTrip();const base={destinationCityId:'b',checkIn:'2026-10-25',checkOut:'2026-10-26',party:query.party,rooms:1,sort:'cheapest',arrivalPlaceId:'MHD'} satisfies HotelSearchQuery;const snapshot=arrivalSnapshot(base,Date.now()-1000),fresh={...snapshot.quotes[0]!,version:2,observedAt:new Date().toISOString()};const restore:HotelRestore={snapshot,draft:{...base,childAges:[],arrivalConfirmed:true},selected:fresh,open:true,scrollTop:0,tripItinerary:trip.itinerary};const {result}=renderHook(()=>useHotelDiscovery({trip,catalog:arrivalCatalog,session,client:mock.client,restore}));await act(async()=>{});expect(mock.requests).toHaveLength(0);expect(result.current.selected?.version).toBe(2);act(()=>result.current.selectHotel('hotel-a'));expect(result.current.selected?.version).toBe(2);expect(result.current.selectionLease()?.quote.version).toBe(2);});
  it('replaces legacy multi-night/room return data with the new automatic query without mutating historical evidence',async()=>{const mock=setup(),trip=arrivingTrip();const legacy={destinationCityId:'b',checkIn:'2026-10-25',checkOut:'2026-10-29',party:query.party,rooms:1,sort:'cheapest',arrivalPlaceId:'MHD'} satisfies HotelSearchQuery;const snapshot=arrivalSnapshot(legacy),restore:HotelRestore={snapshot,draft:{...legacy,childAges:[],arrivalConfirmed:true},selected:snapshot.quotes[0],open:true,scrollTop:0,tripItinerary:trip.itinerary};const hook=renderHook(()=>useHotelDiscovery({trip,catalog:arrivalCatalog,session,client:mock.client,restore}));expect(hook.result.current.state.snapshot).toBeUndefined();expect(hook.result.current.selected).toBeUndefined();await waitFor(()=>expect(mock.requests).toHaveLength(1));expect(mock.requests[0]!.query.checkOut).toBe('2026-10-26');expect(snapshot.query.checkOut).toBe('2026-10-29');await settle(mock);expect(hook.result.current.state.snapshot?.query.checkOut).toBe('2026-10-26');});
+});
+
+describe('current real-directory discovery and trusted historical returns',()=>{
+ const currentCatalog={...arrivalCatalog,fixtureVersion:'showcase-v3',catalogRevision:'catalog-v3'};
+ const currentSession={...session,fixtureVersion:'showcase-v3',catalogRevision:'catalog-v3'};
+ function restored(sourceRevision?:string,receipt=false){
+  const trip=arrivingTrip(),input={destinationCityId:'b',checkIn:'2026-10-25',checkOut:'2026-10-26',party:query.party,rooms:1,sort:'cheapest',arrivalPlaceId:'MHD'} satisfies HotelSearchQuery;
+  const snapshot={...arrivalSnapshot(input,Date.now()-1000),...(sourceRevision?{sourceRevision}:{})};
+  const selected={...snapshot.quotes[0]!,version:2,observedAt:new Date().toISOString()};
+  const accepted:ReferralReceipt={referralId:'historical-stay',intentId:'accepted-stay',selection:{kind:'hotel',quoteId:selected.quoteId,quoteVersion:selected.version},payload:{kind:'hotel',quote:selected},confirmedAt:selected.observedAt,handoffPath:'/provider-demo/historical-stay'};
+  const restore:HotelRestore={snapshot,draft:{...input,childAges:[],arrivalConfirmed:true},selected,open:true,scrollTop:0,tripItinerary:trip.itinerary,...(receipt?{receipt:accepted}:{})};
+  return{trip,snapshot,selected,restore,accepted};
+ }
+ it.each([undefined,'hotel-v1','retired-directory'])('refreshes ordinary %s snapshots before allowing old selections or leases',async sourceRevision=>{
+  const f=restored(sourceRevision),mock=setup(),original=JSON.stringify(f.snapshot);
+  const {result}=renderHook(()=>useHotelDiscovery({trip:f.trip,catalog:currentCatalog,session:currentSession,client:mock.client,restore:f.restore}));
+  expect(result.current.state.snapshot).toBeUndefined();expect(result.current.selected).toBeUndefined();expect(result.current.selectionLease()).toBeUndefined();
+  act(()=>{result.current.selectHotel(f.selected.hotelId);result.current.selectQuote(f.snapshot.quotes[0]!);});
+  expect(result.current.selected).toBeUndefined();await waitFor(()=>expect(mock.requests).toHaveLength(1));
+  const snapshot={...arrivalSnapshot(mock.requests[0]!.query),sourceRevision:HOTEL_DIRECTORY_SOURCE_REVISION};
+  await act(async()=>mock.requests[0]!.resolve(snapshot));
+  expect(result.current.state.snapshot).toBe(snapshot);expect(result.current.selected).toBeUndefined();
+  act(()=>result.current.selectHotel(snapshot.hotels[0]!.hotelId));expect(result.current.selectionLease()?.quote.hotelId).toBe(snapshot.hotels[0]!.hotelId);
+  expect(JSON.stringify(f.snapshot)).toBe(original);expect(mock.requests).toHaveLength(1);
+ });
+ it('reuses a fresh current directory normally without requesting another search',async()=>{
+  const f=restored(HOTEL_DIRECTORY_SOURCE_REVISION),mock=setup();
+  const {result}=renderHook(()=>useHotelDiscovery({trip:f.trip,catalog:currentCatalog,session:currentSession,client:mock.client,restore:f.restore}));
+  await act(async()=>{});expect(mock.requests).toHaveLength(0);expect(result.current.state.snapshot).toBe(f.snapshot);expect(result.current.selected).toBe(f.selected);
+ });
+ it('rejects a retired ordering response without adopting its hotels, publishing a quote or retrying in a loop',async()=>{
+  const f=restored(HOTEL_DIRECTORY_SOURCE_REVISION),mock=setup(),onSelect=vi.fn();
+  const {result}=renderHook(()=>useHotelDiscovery({trip:f.trip,catalog:currentCatalog,session:currentSession,client:mock.client,restore:f.restore,onSelectHotelQuote:onSelect}));
+  act(()=>{void result.current.changeSort('stars');});expect(mock.requests).toHaveLength(1);
+  const retired={...arrivalSnapshot(mock.requests[0]!.query),sourceRevision:'retired-directory'};
+  await act(async()=>mock.requests[0]!.resolve(retired));expect(result.current.state.status).toBe('error');expect(result.current.state.snapshot).toBe(f.snapshot);expect(result.current.state.error).toBeTruthy();expect(result.current.selected).toBeUndefined();expect(result.current.selectionLease()).toBeUndefined();expect(onSelect.mock.calls.at(-1)?.[0]).toBeUndefined();
+  act(()=>{result.current.selectHotel(retired.hotels[0]!.hotelId);result.current.selectQuote(retired.quotes[0]!);});expect(result.current.selected).toBeUndefined();expect(mock.requests).toHaveLength(1);
+ });
+ it('retains exact receipt-backed old geography and its higher accepted quote without downgrade',async()=>{
+  const f=restored(undefined,true),mock=setup(),original=JSON.stringify(f.snapshot);
+  const {result}=renderHook(()=>useHotelDiscovery({trip:f.trip,catalog:currentCatalog,session:currentSession,client:mock.client,restore:f.restore}));
+  await act(async()=>{});expect(mock.requests).toHaveLength(0);expect(result.current.state.snapshot).toBe(f.snapshot);expect(result.current.selected?.version).toBe(2);
+  act(()=>result.current.selectHotel(f.selected.hotelId));expect(result.current.selected?.version).toBe(2);
+  const lease=result.current.selectionLease()!;expect(lease.quote).toBe(f.selected);expect(lease.isCurrent()).toBe(true);
+  act(()=>expect(lease.accept({...f.selected,version:3})).toBe(true));expect(result.current.selected?.version).toBe(3);
+  expect(JSON.stringify(f.snapshot)).toBe(original);expect(mock.requests).toHaveLength(0);
+ });
+ it.each(['selection','payload','path','future','expired','lineage'] as const)('rejects a %s receipt exemption and refreshes without mutating old evidence',async mismatch=>{
+  const f=restored(undefined,true),mock=setup();
+  const receipt=structuredClone(f.accepted);f.restore.receipt=receipt;
+  if(mismatch==='selection')receipt.selection.quoteId='another-quote';
+  if(mismatch==='path')receipt.handoffPath='/provider-demo/another-receipt';
+  if(mismatch==='future')receipt.confirmedAt=new Date(Date.now()+60000).toISOString();
+  if(receipt.payload.kind!=='hotel')throw Error('Expected hotel');
+  if(mismatch==='payload')receipt.payload.quote.total.amountRial+=100000;
+  if(mismatch==='expired'){receipt.payload.quote.expiresAt=new Date(Date.now()-1).toISOString();f.restore.selected=receipt.payload.quote;}
+  if(mismatch==='lineage'){receipt.payload.quote.hotelId='other-hotel';f.restore.selected=receipt.payload.quote;}
+  const original=JSON.stringify(f.snapshot);
+  const {result}=renderHook(()=>useHotelDiscovery({trip:f.trip,catalog:currentCatalog,session:currentSession,client:mock.client,restore:f.restore}));
+  expect(result.current.selected).toBeUndefined();expect(result.current.selectionLease()).toBeUndefined();expect(result.current.state.snapshot).toBeUndefined();
+  await waitFor(()=>expect(mock.requests).toHaveLength(1));expect(JSON.stringify(f.snapshot)).toBe(original);
+ });
+ it('keeps a valid historical receipt blocked by current session authority and refreshes on recovery',async()=>{
+  const f=restored(undefined,true),mock=setup();
+  const hook=renderHook(({blocked,authorityKey})=>useHotelDiscovery({trip:f.trip,catalog:currentCatalog,session:currentSession,client:mock.client,restore:f.restore,blocked,authorityKey}),{initialProps:{blocked:true,authorityKey:'before'}});
+  await act(async()=>{});expect(hook.result.current.selected).toBeUndefined();expect(hook.result.current.selectionLease()).toBeUndefined();expect(mock.requests).toHaveLength(0);
+  hook.rerender({blocked:false,authorityKey:'after'});await waitFor(()=>expect(mock.requests).toHaveLength(1));expect(hook.result.current.selected).toBeUndefined();
+ });
+ it('does not exempt a context-blocked historical receipt',async()=>{
+  const f=restored(undefined,true),mock=setup();f.restore.contextBlocked=true;
+  const {result}=renderHook(()=>useHotelDiscovery({trip:f.trip,catalog:currentCatalog,session:currentSession,client:mock.client,restore:f.restore}));
+  await act(async()=>{});expect(result.current.selected).toBeUndefined();expect(result.current.selectionLease()).toBeUndefined();expect(result.current.state.snapshot).toBeUndefined();
+ });
 });

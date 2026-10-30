@@ -9,7 +9,15 @@ import { assertSearchAdmission } from './admission';
 import { materializeStoredHotelRate } from './hotel-source';
 const json = (v: unknown) => JSON.parse(JSON.stringify(v)) as Prisma.InputJsonValue;
 const digest = (v: unknown) => createHash('sha256').update(canonicalValue(v)).digest('hex');
+export interface HotelInventoryDefinition {
+    sourceRevision: string;
+    hotels: Hotel[];
+    templates: {id: string; hotelId: string; payload: unknown}[];
+}
+/** API composition selects new inventory; persistence never imports fixture modules. */
+export type HotelInventoryResolver = (input: {fixtureVersion: string; destinationCityId: string}) => HotelInventoryDefinition | undefined;
 export interface HotelSource {
+    sourceRevision?: string;
     timeZone: string;
     frozen: ProviderContextSnapshot;
     hotels: Hotel[];
@@ -47,18 +55,35 @@ export interface HotelRun {
 }
 export function hotelFingerprint(source: HotelSource) {
     const i = source.frozen.info;
-    return digest({ fixtureVersion: i.fixtureVersion, catalogRevision: i.catalogRevision, seed: i.seed, anchorInstant: i.anchorInstant, scenario: i.scenario, scenarioRevision: i.scenarioRevision, mappingRevision: i.mappingRevision, mappings: source.frozen.mappings, overrides: source.frozen.overrides.slice().sort((a, b) => compareHotelKeys(a.providerId, b.providerId)), timeZone: source.timeZone, hotels: source.hotels, templates: source.templates, engineRevision: source.engineRevision, policyRevision: source.policyRevision });
+    return digest({ fixtureVersion: i.fixtureVersion, catalogRevision: i.catalogRevision, seed: i.seed, anchorInstant: i.anchorInstant, scenario: i.scenario, scenarioRevision: i.scenarioRevision, mappingRevision: i.mappingRevision, mappings: source.frozen.mappings, overrides: source.frozen.overrides.slice().sort((a, b) => compareHotelKeys(a.providerId, b.providerId)), timeZone: source.timeZone, hotels: source.hotels, templates: source.templates, ...(source.sourceRevision ? { sourceRevision: source.sourceRevision } : {}), engineRevision: source.engineRevision, policyRevision: source.policyRevision });
 }
 /** Hotel source and lineage authority. All writes/read-confirmation share the session lock. */
 export class HotelRepository {
-    constructor(private readonly db: PrismaClient) {
+    constructor(private readonly db: PrismaClient, private readonly inventory?: HotelInventoryResolver) {
     }
-    private async source(tx: Prisma.TransactionClient, scope: DataScope, destinationCityId: string, timeZone: string): Promise<HotelSource> {
+    private async source(tx: Prisma.TransactionClient, scope: DataScope, destinationCityId: string, timeZone: string, recorded?: HotelSource): Promise<HotelSource> {
         const session = await tx.demoSession.findUniqueOrThrow({ where: { id: scope.sessionId } });
         const frozen = await readProviderContext(tx, scope, session);
-        const hotelRows = await tx.hotel.findMany({ where: { fixtureVersion: session.fixtureVersion }, orderBy: { id: 'asc' } });
-        const hotels = hotelRows.map(row => HotelSchema.parse(row.payload)).filter(h => h.destinationCityId === destinationCityId);
-        const templates = await tx.roomRate.findMany({ where: { fixtureVersion: session.fixtureVersion, hotelId: { in: hotels.map(h => h.hotelId) } }, orderBy: { id: 'asc' } });
+        // Recorded modern source material is immutable. Refresh only its session/
+        // mapping/provider authority, so confirmation works even without the API resolver.
+        // Legacy sources still read their stored rows, retaining tamper/change detection.
+        const definition = recorded?.sourceRevision
+            ? { sourceRevision: recorded.sourceRevision, hotels: recorded.hotels, templates: recorded.templates }
+            : recorded ? undefined : this.inventory?.({ fixtureVersion: session.fixtureVersion, destinationCityId });
+        let hotels: Hotel[], templates: {id: string; hotelId: string; payload: unknown}[];
+        if (definition) {
+            hotels = definition.hotels.map(hotel => HotelSchema.parse(hotel));
+            if (!definition.sourceRevision || hotels.some(hotel => hotel.destinationCityId !== destinationCityId) || new Set(hotels.map(hotel => hotel.hotelId)).size !== hotels.length)
+                throw new RepositoryError('INVALID_QUERY');
+            const ids = new Set(hotels.map(hotel => hotel.hotelId));
+            templates = definition.templates.map(row => ({id: row.id, hotelId: row.hotelId, payload: row.payload}));
+            if (templates.some(row => !ids.has(row.hotelId)) || new Set(templates.map(row => row.id)).size !== templates.length)
+                throw new RepositoryError('INVALID_QUERY');
+        } else {
+            const hotelRows = await tx.hotel.findMany({ where: { fixtureVersion: session.fixtureVersion }, orderBy: { id: 'asc' } });
+            hotels = hotelRows.map(row => HotelSchema.parse(row.payload)).filter(h => h.destinationCityId === destinationCityId);
+            templates = await tx.roomRate.findMany({ where: { fixtureVersion: session.fixtureVersion, hotelId: { in: hotels.map(h => h.hotelId) } }, orderBy: { id: 'asc' } });
+        }
         const rates: RoomRate[] = [], policies: Record<string, HotelRoomPolicy> = {}, issues: Record<string, string[]> = {};
         for (const row of templates) {
             try {
@@ -72,7 +97,7 @@ export class HotelRepository {
                 issues[row.hotelId] = [...(issues[row.hotelId] ?? []), 'invalid-stored-room-source'];
             }
         }
-        return { timeZone, frozen, hotels, templates: templates.map(row => ({ id: row.id, hotelId: row.hotelId, payload: row.payload })), rates, policies, issues, engineRevision: HOTEL_ENGINE_REVISION, policyRevision: HOTEL_POLICY_REVISION };
+        return { timeZone, frozen, hotels, templates: templates.map(row => ({ id: row.id, hotelId: row.hotelId, payload: row.payload })), rates, policies, issues, engineRevision: recorded?.engineRevision ?? HOTEL_ENGINE_REVISION, policyRevision: recorded?.policyRevision ?? HOTEL_POLICY_REVISION, ...(definition ? {sourceRevision: definition.sourceRevision} : {}) };
     }
     async admitSearch(scope: DataScope, input: HotelSearchQuery, timeZone: string, now: Date) {
         return scopedTransaction(this.db, scope, async (tx) => {
@@ -152,15 +177,15 @@ export class HotelRepository {
             ranks.push({ hotel, quote: priced[0], arrivalDistanceKm, locationDistanceKm });
         }
         const ranked = rankHotels(ranks, run.query.sort), order = ranked.map(r => r.hotel.hotelId);
-        return HotelSearchSnapshotSchema.parse({ hotelSearchId: id, query: run.query, status: quotes.length ? 'complete' : results.length && results.every(r => r.status === 'failed') ? 'failed' : 'empty', hotels: ranked.map(r => r.hotel), quotes: order.flatMap(h => quotes.filter(q => q.hotelId === h)), results: order.map(h => results.find(r => r.hotelId === h)!), observedAt: now.toISOString() });
+        return HotelSearchSnapshotSchema.parse({ hotelSearchId: id, query: run.query, status: quotes.length ? 'complete' : results.length && results.every(r => r.status === 'failed') ? 'failed' : 'empty', hotels: ranked.map(r => r.hotel), quotes: order.flatMap(h => quotes.filter(q => q.hotelId === h)), results: order.map(h => results.find(r => r.hotelId === h)!), observedAt: now.toISOString(), ...(source.sourceRevision ? {sourceRevision: source.sourceRevision} : {}) });
     }
     private priceContext(source: HotelSource, key: string, now: Date, quoteId?: string, version = 1) {
-        return { quoteId: quoteId ?? 'hotel-quote-' + digest(key).slice(0, 40), version, observedAt: now.toISOString(), sourceRevision: 'hotel-v1', mappingRevision: source.frozen.info.mappingRevision, fixtureVersion: source.frozen.info.fixtureVersion };
+        return { quoteId: quoteId ?? 'hotel-quote-' + digest(key).slice(0, 40), version, observedAt: now.toISOString(), sourceRevision: source.sourceRevision ?? 'hotel-v1', mappingRevision: source.frozen.info.mappingRevision, fixtureVersion: source.frozen.info.fixtureVersion };
     }
     completeSearch(scope: DataScope, id: string, snapshot: HotelSearchSnapshot, timeZone: string) {
         return scopedTransaction(this.db, scope, async (tx) => {
             const run = await this.running(tx, scope, id);
-            const current = await this.source(tx, scope, run.query.destinationCityId, timeZone);
+            const current = await this.source(tx, scope, run.query.destinationCityId, timeZone, run.source);
             if (hotelFingerprint(current) !== run.fingerprint)
                 throw new RepositoryError('QUOTE_CHANGED');
             for (const quote of snapshot.quotes)
@@ -188,7 +213,7 @@ export class HotelRepository {
             const row = await tx.hotelSearchRun.findUnique({ where: { sessionId_id: { sessionId: scope.sessionId, id } } }), run = row?.payload as unknown as HotelRun;
             if (!row || run.phase !== 'running')
                 return;
-            const snapshot = run.kind === 'hotel-search' ? HotelSearchSnapshotSchema.parse({ hotelSearchId: id, query: run.query, status: 'failed', hotels: [], quotes: [], results: [], observedAt: run.startedAt }) : undefined;
+            const snapshot = run.kind === 'hotel-search' ? HotelSearchSnapshotSchema.parse({ hotelSearchId: id, query: run.query, status: 'failed', hotels: [], quotes: [], results: [], observedAt: run.startedAt, ...(run.source.sourceRevision ? {sourceRevision: run.source.sourceRevision} : {}) }) : undefined;
             await tx.hotelSearchRun.update({ where: { sessionId_id: { sessionId: scope.sessionId, id } }, data: { payload: json({ ...run, phase: 'failed', failure: reason, ...(snapshot ? { snapshot } : {}) }) } });
             await this.audit(tx, scope, 'hotel-work-failed', { hotelSearchId: id, reason }, now);
     }
@@ -263,7 +288,7 @@ export class HotelRepository {
     admitRecheck(scope: DataScope, selection: ReferralSelection, timeZone: string, clock: RealClock) {
         return scopedTransaction(this.db, scope, async (tx) => {
             const now = clock.now(), selected = await this.selected(tx, scope, selection, now);
-            const source = await this.source(tx, scope, selected.quote.query.destinationCityId, timeZone);
+            const source = await this.source(tx, scope, selected.quote.query.destinationCityId, timeZone, selected.parent.source);
             await assertSearchAdmission(tx, scope);
             const id = randomUUID(), run: HotelRun = { kind: 'hotel-referral-recheck', phase: 'running', query: selected.quote.query, source, fingerprint: hotelFingerprint(source), startedAt: now.toISOString(), originHotelSearchId: selected.originId, selection };
             await tx.hotelSearchRun.create({ data: { sessionId: scope.sessionId, id, queryKey: hotelIdentity(run.query, { fingerprint: run.fingerprint }), payload: json(run), createdAt: now } });
@@ -276,7 +301,7 @@ export class HotelRepository {
             const now = clock.now(), run = await this.running(tx, scope, id);
             if (run.kind !== 'hotel-referral-recheck' || !run.selection)
                 throw new RepositoryError('NOT_FOUND');
-            const source = await this.source(tx, scope, run.query.destinationCityId, timeZone);
+            const source = await this.source(tx, scope, run.query.destinationCityId, timeZone, run.source);
             if (hotelFingerprint(source) !== run.fingerprint)
                 throw new RepositoryError('QUOTE_CHANGED');
             const selected = await this.selected(tx, scope, run.selection, now), fresh = this.evaluate(source, selected.quote, selected.origin, 'fresh', now);
@@ -315,7 +340,7 @@ export class HotelRepository {
     async assertHotelIntent(tx: Prisma.TransactionClient, scope: DataScope, intent: ReferralIntent, fingerprint: string, now: Date) {
         if (intent.selection.kind !== 'hotel' || intent.quote.kind !== 'hotel')
             throw new RepositoryError('QUOTE_CHANGED');
-        const selected = await this.selected(tx, scope, intent.selection, now), source = await this.source(tx, scope, selected.quote.query.destinationCityId, selected.origin.source.timeZone);
+        const selected = await this.selected(tx, scope, intent.selection, now), source = await this.source(tx, scope, selected.quote.query.destinationCityId, selected.origin.source.timeZone, selected.parent.source);
         if (hotelFingerprint(source) !== fingerprint)
             throw new RepositoryError('QUOTE_CHANGED');
         const expected = this.evaluate(source, selected.quote, selected.origin, 'historical', new Date(selected.quote.observedAt));
