@@ -16,7 +16,13 @@ vi.mock('motion/react', async original => {
     if (props['data-search-field']) animation.fields.set(String(props['data-search-field']), animate as never);
     return createElement('div', { ...props, ref }, children as import('react').ReactNode);
   });
-  const Span = forwardRef<HTMLSpanElement, Record<string, unknown>>(function FeedbackSpan({ children, ...props }, ref) { delete props['animate']; delete props['initial']; return createElement('span', { ...props, ref }, children as import('react').ReactNode); });
+  const Span = forwardRef<HTMLSpanElement, Record<string, unknown>>(function FeedbackSpan({ children, ...props }, ref) {
+    delete props['animate']; delete props['initial'];
+    // Scramble changes one whole text node through a MotionValue. Keep its real
+    // child subscription while the field-shake adapter stays independently mocked.
+    if (actual.isMotionValue(children)) return createElement(actual.motion.span, { ...props, ref, children });
+    return createElement('span', { ...props, ref }, children as import('react').ReactNode);
+  });
   return { ...actual, useAnimationControls: () => { const current = useRef({ start: vi.fn(async () => undefined), stop: vi.fn(), set: vi.fn() }); return current.current; }, motion: new Proxy(actual.motion, { get: (target, key, receiver) => key === 'div' ? Div : key === 'span' ? Span : Reflect.get(target, key, receiver) }) };
 });
 vi.mock('../dates/date-chart', () => ({ DateChart: () => null }));
