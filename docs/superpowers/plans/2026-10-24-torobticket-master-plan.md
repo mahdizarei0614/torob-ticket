@@ -10,7 +10,7 @@
 
 **Tech Stack:** Nx, pnpm, TypeScript, React, Vite, React Router, TanStack Query, React Aria, CSS Modules, CSS custom properties, Zod, NestJS, PostgreSQL, Prisma, Three.js, React Three Fiber, selected Drei utilities, Motion, @internationalized/date, Vitest, Testing Library, Playwright, Storybook, Docker Compose, Caddy.
 
-**Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.33, 2026-10-30 (independent fastest/fewest-connection schedule trade-offs; prior route, price, filter and hotel refinements retained).
+**Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.34, 2026-10-30 (real hotel geography, hover/focus names and honest clustered map overview; prior route, price, ranking and filter refinements retained).
 
 **Plan state:** Approved. M1–M6 and T29 packaging are complete with independent reviews and packaged acceptance evidence. **29/35 tasks complete; M7 PARTIAL, T30 ACTIVE.** Owner requested a fast checkpoint before substantial design/logic changes: finish durable harness checks now; full T30 matrix and T31–T33 audits/rehearsal remain unfinished. M8 retains its planned scope.
 
@@ -2594,3 +2594,14 @@ Owner rejected the effect and requested rollback; [decision0060](../../decisions
 | Meaningful source trade-offs | DONE | New recorded v5 supplies selected long-haul long versus short hub waits with unchanged routes/carriers/flying minutes;136v4+112base raw hashes and old-source rechecks preserved; honest ground equality remains |
 | Verify selection and parity | DONE | [Independent approval](../../evidence/adjustments/ranking-tradeoffs/independent-review.md);163sourcecases/17files PASS,2guardedPostgreSQLcases PASS6.57s, finalChrome4/4PASS43.8s; different London leaders/full48cardorders, same prices/selection/map/focus/query and0POSTs; directtrain equality and return-price parity |
 | Local assembly | DONE | [Checkpoint](../../evidence/adjustments/ranking-tradeoffs/checkpoint.md); exact14source/test paths, types/lint, local commits, SDD and byte-exact master/spec exports recorded; unrelated work preserved |
+
+## Owner correction — real hotel geography and hover names, 2026-10-30
+
+[Task brief](../../evidence/adjustments/real-hotel-directory/task-brief.md), [decision0064](../../decisions/0064-real-hotel-geography-and-hover-pins.md). Specification1.34; M7partial29/35,T30active. Source `c6d6c30`; [checkpoint](../../evidence/adjustments/real-hotel-directory/checkpoint.md) and [independent approval](../../evidence/adjustments/real-hotel-directory/independent-review.md).
+
+| Work | Status | Evidence |
+|---|---|---|
+| Real directory | DONE |301 sourced properties across all34 selectable destinations; genuine names/primary OSM identities and geometry, known-unknown stars/address, selected official corroboration, ODbL licence and reproducible acquisition; no fictional coverage padding |
+| Map interaction | DONE | Hover/focus-only names and true44px anchors; honest count clusters/zoom, selected-card reveal, stable renderer/keyed markers, viewport-visible focus handoff, reduced motion; independent34map cases PASS and final desktop native hover/focus/two-way/four-sort case PASS |
+| Source/history compatibility | DONE | New recorded source/separate authored prices, explicit unknown check-in, ordinary old-source retirement/incompatible-response fence, validated historical receipt retention; independent146source+178web cases PASS, guarded PostgreSQL5/5PASS10.02s including actual301/all34 service pricing and legacy/current history |
+| Native review and assembly | DONE | Independent APPROVED; full headedChrome8/8PASS1.2m plus stronger19.1s native-view reference-hover proof (actual:hover/opacity1 before+after); all-mode/distant/mobile/fallback/handoff GET-return verified. Exact29source paths committed, unrelated work preserved; source/docs/SDD and byte-exact exports recorded |

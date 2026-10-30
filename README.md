@@ -1,6 +1,6 @@
 # TorobTicket
 
-A Persian travel comparison and referral product in an Nx monorepo: React/Vite consumer and admin apps, a Nest API and eight bounded libraries. It includes compact flight/train/bus comparison, complete provider-owned round trips, linked date-price exploration, WebGL route animation, hotel discovery, local account flows, fresh quote checks and immutable provider handoffs. The English admin supports scoped provider controls, mapping corrections and factual evidence inspection. Providers, inventory, account authentication and provider landing pages are mocked for this local demonstration; there are no payments, real bookings, external OAuth or runtime provider integrations. See the [master tracker](docs/superpowers/plans/2026-10-24-torobticket-master-plan.md) for completed work and remaining M7 audits.
+A Persian travel comparison and referral product in an Nx monorepo: React/Vite consumer and admin apps, a Nest API and eight bounded libraries. It includes compact flight/train/bus comparison, complete provider-owned round trips, linked date-price exploration, WebGL route animation, hotel discovery, local account flows, fresh quote checks and immutable provider handoffs. The English admin supports scoped provider controls, mapping corrections and factual evidence inspection. Provider offers, room availability, account authentication and provider landing pages are mocked for this local demonstration; there are no payments, real bookings, external OAuth or runtime provider integrations. See the [master tracker](docs/superpowers/plans/2026-10-24-torobticket-master-plan.md) for completed work and remaining M7 audits.
 
 ## Run with Docker
 
@@ -98,9 +98,13 @@ Verification regressions exercise real Nx cache hits in disposable workspaces: d
 
 ## Deterministic showcase catalog
 
-The current catalog supplies 34 cities, 114 places, 348 directed mode/scope
-connections, six mock providers, 476 fictional hotels and 1,428 relative room-rate
-templates. Ordinary supported dates/classes have 12 distinct services and four
+The immutable seeded catalog supplies 34 cities, 114 places, 348 directed mode/scope
+connections, six mock providers, 476 original authored hotel rows and 1,428 relative
+room-rate templates. New hotel operations use a separate recorded directory of
+301 real mapped properties across all 34 cities, with 903 authored room-rate templates;
+old hotel rows/quotes/receipts remain unchanged. See the [hotel source directory](libs/fixtures/src/catalog/real-hotel-directory.README.md)
+for primary identities, locations, operator corroboration and ODbL licence.
+Ordinary supported transport dates/classes have 12 distinct services and four
 sellers. New sessions use `showcase-v3` / `catalog-v3`;
 `GET /api/v1/catalog` requires the session cookie. London,Paris,Frankfurt,
 NewYork,LosAngeles,Toronto,Singapore,Bangkok,Tokyo,Sydney andAuckland have
@@ -122,15 +126,17 @@ fixture interfaces; search,date-price,normalization and referral use that same
 versioned evidence pipeline.
 
 Local geographic assets and their primary-source licenses are recorded in
-[assets/provenance.json](assets/provenance.json). Schedules, providers, hotels,
-station/terminal points and destination display extents are fictional or
-illustrative. For coverage, source extracts and checks see
+[assets/provenance.json](assets/provenance.json). Schedules, provider offers, legacy
+hotel inventory, station/terminal points and destination display extents remain
+authored or illustrative. Current hotel property identity/geography is sourced
+separately; room prices/availability are authored and do not establish live rates.
+For coverage, source extracts and checks see
 [the current research and implementation evidence](docs/evidence/adjustments/realistic-travel-catalog/fixture-research.md),
 [the rich-coverage checkpoint](docs/evidence/adjustments/rich-inventory-coverage/checkpoint.md),
 and [the original T05 evidence](docs/evidence/T05/README.md).
 
 ### Optional city location map
 
-Hotel location selection uses the official [OpenStreetMap vector service](https://vector.openstreetmap.org/) with the pinned open-source MapLibre GL JS6.16.0 renderer. No account, API key, billing or environment variable is required. The existing `pnpm docker:up` command works unchanged. Opening the optional picker downloads its SDK/CSS/worker and public map style/tiles; initial ticket comparison does not request them. Offline, failed tiles or unavailable WebGL show a clear message while the local landmark list and coordinates remain usable. Hotel inventory and prices remain fictional. Distances are straight-line, with no routing service.
+Hotel location selection uses the official [OpenStreetMap vector service](https://vector.openstreetmap.org/) with the pinned open-source MapLibre GL JS6.16.0 renderer. No account, API key, billing or environment variable is required. The existing `pnpm docker:up` command works unchanged. Opening the optional picker downloads its SDK/CSS/worker and public map style/tiles; initial ticket comparison does not request them. Offline, failed tiles or unavailable WebGL show a clear message while the local landmark list and coordinates remain usable. New hotel names/points come from the directory of 301 sourced properties; room prices and availability remain authored. Hotel names appear on hover/focus, overlapping real points use count aggregates with zoom, and cards select the same true-coordinate pin. Distances are straight-line, with no routing service.
 
 Map attribution to OpenStreetMap contributors remains visible. Official VersaTiles Colorful/Shadow styles provide light/dark appearances with local place names. MapLibre is BSD-3-Clause ([bundled license](assets/licenses/maplibre-gl-6.16.0.txt)); OSM data and CC0 styles retain their [license notice](assets/licenses/osm-vector-notice.md). The app uses browser-default caching and Referer, with no tile proxy, offline download, prefetch or cache-bypass headers. The community service has [usage requirements](https://operations.osmfoundation.org/policies/vector/) and no SLA. App-owned theme colors remain semantic; vendor map styles are third-party assets.
