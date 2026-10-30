@@ -10,7 +10,7 @@
 
 **Tech Stack:** Nx, pnpm, TypeScript, React, Vite, React Router, TanStack Query, React Aria, CSS Modules, CSS custom properties, Zod, NestJS, PostgreSQL, Prisma, Three.js, React Three Fiber, selected Drei utilities, Motion, @internationalized/date, Vitest, Testing Library, Playwright, Storybook, Docker Compose, Caddy.
 
-**Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.29, 2026-10-30 (eased vehicle-dependent controls, bounded text motion and prior refinements).
+**Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.30, 2026-10-30 (selective word scramble, eased vehicle-dependent controls and prior refinements).
 
 **Plan state:** Approved. M1–M6 and T29 packaging are complete with independent reviews and packaged acceptance evidence. **29/35 tasks complete; M7 PARTIAL, T30 ACTIVE.** Owner requested a fast checkpoint before substantial design/logic changes: finish durable harness checks now; full T30 matrix and T31–T33 audits/rehearsal remain unfinished. M8 retains its planned scope.
 
@@ -2541,3 +2541,12 @@ Owner exact-copy correction,2026-10-30: the outbound/return control label is **�
 | Dynamic controls | Eased mode-dependent option width/reflow/words; native authority/focus, selected indicator and four-field row | DONE | [Checkpoint](../../evidence/adjustments/vehicle-filter-text-motion/checkpoint.md); actual1366/390px Chrome traces show11/14 intermediate-width and11/12 opacity frames;44px targets, same-row tops, no page overflow and0px indicator mismatch |
 | Text rollout | Bounded current/outgoing whole-phrase transitions on meaningful control/result/filter/empty/hotel surfaces | DONE | Native47 seller-word frames; Persian shaping/current semantics and input DOM preserved;48 cards with0 per-card MotionText; finite panel entry/exit with stale-generation guards |
 | Verification | Independent source/authority/policy review, actual desktop/mobile/rapid/input/panel checks, documentation/exports | DONE | Independent86/86 source cases PASS after test-only appearance timing repair; UI/web/e2e types and scoped lint pass;3 unique native cases have passing receipts, original failures retained; concurrent request-control/branding excluded |
+
+## Owner refinement — selective word scramble, 2026-10-30
+
+[Task brief](../../evidence/adjustments/word-scramble-motion/task-brief.md), [decision0059](../../decisions/0059-selective-word-scramble.md), source `1223274`, specification1.30. M7 remains partial29/35; T30 active.
+
+| Adjustment | Status | Evidence |
+|---|---|---|
+| Selective text effect | DONE | [Checkpoint](../../evidence/adjustments/word-scramble-motion/checkpoint.md); class options/comparison heading decode with immediate real semantics and fixed final-phrase geometry; existing finite Motion policy, no dependency |
+| Verification and assembly | DONE | Independent63/63 PASS; actual1366/390Chrome2/2PASS,6/4 class and7 heading intermediate frames,0px reserved-width spread,48cards/0 per-card scramble; types/lint pass, initial test-double failure retained; source/review/exports recorded |
