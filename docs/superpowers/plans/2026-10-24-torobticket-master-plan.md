@@ -10,7 +10,7 @@
 
 **Tech Stack:** Nx, pnpm, TypeScript, React, Vite, React Router, TanStack Query, React Aria, CSS Modules, CSS custom properties, Zod, NestJS, PostgreSQL, Prisma, Three.js, React Three Fiber, selected Drei utilities, Motion, @internationalized/date, Vitest, Testing Library, Playwright, Storybook, Docker Compose, Caddy.
 
-**Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.34, 2026-10-30 (real hotel geography, hover/focus names and honest clustered map overview; prior route, price, ranking and filter refinements retained).
+**Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.35, 2026-10-31 (soft directional line halos, both-leg round-trip tint and shared-section lanes; prior hotel, price, ranking and filter refinements retained).
 
 **Plan state:** Approved. M1–M6 and T29 packaging are complete with independent reviews and packaged acceptance evidence. **29/35 tasks complete; M7 PARTIAL, T30 ACTIVE.** Owner requested a fast checkpoint before substantial design/logic changes: finish durable harness checks now; full T30 matrix and T31–T33 audits/rehearsal remain unfinished. M8 retains its planned scope.
 
@@ -2605,3 +2605,15 @@ Owner rejected the effect and requested rollback; [decision0060](../../decisions
 | Map interaction | DONE | Hover/focus-only names and true44px anchors; honest count clusters/zoom, selected-card reveal, stable renderer/keyed markers, viewport-visible focus handoff, reduced motion; independent34map cases PASS and final desktop native hover/focus/two-way/four-sort case PASS |
 | Source/history compatibility | DONE | New recorded source/separate authored prices, explicit unknown check-in, ordinary old-source retirement/incompatible-response fence, validated historical receipt retention; independent146source+178web cases PASS, guarded PostgreSQL5/5PASS10.02s including actual301/all34 service pricing and legacy/current history |
 | Native review and assembly | DONE | Independent APPROVED; full headedChrome8/8PASS1.2m plus stronger19.1s native-view reference-hover proof (actual:hover/opacity1 before+after); all-mode/distant/mobile/fallback/handoff GET-return verified. Exact29source paths committed, unrelated work preserved; source/docs/SDD and byte-exact exports recorded |
+
+## Owner correction — directional route halos and shared lanes, 2026-10-31
+
+[Task brief](../../evidence/adjustments/route-direction-halo/task-brief.md), [decision0065](../../decisions/0065-directional-route-halos-and-overlap-lanes.md). Specification1.35; M7partial29/35,T30active. Source `6395454` and foreground `16154d2`; [checkpoint](../../evidence/adjustments/route-direction-halo/checkpoint.md), [halo approval](../../evidence/adjustments/route-direction-halo/independent-review.md) and [foreground approval](../../evidence/adjustments/route-direction-halo/vehicle-foreground-review.md).
+
+| Work | Status | Evidence |
+|---|---|---|
+| Smooth line direction | DONE | Existing-ribbon soft tapered waves/chevrons follow canonical arc length; restrained semantic colors, screen-aware1–6spacing and original vehicle/comet behavior retained |
+| Both-leg round trips | DONE | Both revealed directions glow; theme-related return tint,3.8pxper-side matched-fragment lanes with exact endpoint taper, union/resampling/stop-segmentation/seam handling; actual asymLAXsplit.4442146 verified |
+| Motion and fallback | DONE | Existing permitted clock; coverage/resume and reduced fixed-phase cues, both-leg SVG arrows/tint/lanes. Foreground extends existing compositor with one bounded final scene draw; no new renderer/clock/dependency. Hidden-clock policy source-reviewed, native hidden-state limit recorded |
+| Vehicle foreground | DONE | Head and both wagons excluded from bloom input, drawn once after map/light; explicit ordinary ordering and state/failure cleanup. Real4/4ChromePASS40.9s roles0/2/3,3,1, no depth,0offscreen vehicles; live bloom gate chose insufficient-headroom, compositor tests cover successful bloom order |
+| Review and assembly | DONE | Independent81/8source casesPASS1.63s, graphics/E2Etypes+lint. Earlier halo native6/6PASS1.4m and current foreground4/4PASS40.9s are separate evidence runs. Exact9+5source paths committed (13unique), source/docs/SDD/local exports recorded; unrelated changes retained |

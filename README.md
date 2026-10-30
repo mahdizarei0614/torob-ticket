@@ -96,6 +96,18 @@ See the approved specification in `docs/superpowers/specs`, task verification in
 
 Verification regressions exercise real Nx cache hits in disposable workspaces: dependency export changes invalidate consumer typechecks, and root test-setup changes invalidate UI tests. `pnpm test` and CI `test:tools` include those checks. The boundary verifier checks production Vitest rejection, unit-test allowance, and retained server-import restrictions. Library scaffolding checks all Nx project names, including applications, before writing a new library.
 
+## Route direction
+
+Flight, train and road lines carry a soft directional light with a leading tip and
+fading tail. Round trips illuminate both supplied directions; the return uses a
+related theme tint. Fully shared sections separate into small tapered display lanes
+that meet at their actual endpoints. Reduced motion and SVG fallback keep settled
+directional cues. Vehicle heads and both train wagons render in the foreground,
+above route strokes and emitted light. Canonical route facts and camera fitting
+retain source geometry.
+See [decision0065](docs/decisions/0065-directional-route-halos-and-overlap-lanes.md)
+for the display rules and verification.
+
 ## Deterministic showcase catalog
 
 The immutable seeded catalog supplies 34 cities, 114 places, 348 directed mode/scope
