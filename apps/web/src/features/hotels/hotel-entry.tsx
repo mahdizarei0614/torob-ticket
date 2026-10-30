@@ -1,7 +1,7 @@
 import {useLayoutEffect,useRef,useState} from 'react';
 import {createPortal} from 'react-dom';
 import type {CatalogSnapshot,HotelQuoteSnapshot,Itinerary,ReferralReceipt,SessionInfo,TransportSearchQuery} from '@torob-ticket/contracts';
-import {Button,displayHotelName,MotionSurface} from '@torob-ticket/ui';
+import {Button,displayHotelName,MotionSurface,MotionText} from '@torob-ticket/ui';
 import {validateDraft} from '../search/search-url';
 import type {SearchController,TripMapController} from '../map/use-trip-map';
 import {HotelDialog} from './hotel-dialog';
@@ -74,7 +74,7 @@ function HotelEntryContent({controller,map,catalog,session,query,routeReady,desk
  }
  const entry=routeReady?<MotionSurface ref={entryRef} purpose={desktop?'dock':'content'} motionKey={key} className={`${styles.entry} ${desktop?styles.dockedEntry:''}`} data-hotel-entry data-hotel-placement={desktop?'map':'inline'}>
   <div className={styles.entryIcon} aria-hidden="true"><svg width="30" height="30" viewBox="0 0 32 32"><path d="M5 28V8h14v20M19 16h8v12M2 28h28M10 13h4m-4 5h4m-4 5h4m9-3h1" fill="none" stroke="currentColor" strokeWidth="1.7"/></svg></div>
-  <div><strong>اقامت در {city?.name??'مقصد'}</strong><span>اقامتگاه مناسب سفرت را پیدا کن</span></div>
+  <div><strong><MotionText value={`اقامت در ${city?.name??'مقصد'}`}/></strong><span>اقامتگاه مناسب سفرت را پیدا کن</span></div>
   <Button variant="secondary" aria-label={`مقایسه اقامتگاه‌های ${city?.name??'مقصد'}`} isDisabled={controller.resetting||blocked||controller.pending||controller.startLimitReached} isLoading={opening} onPress={()=>{void openHotel();}}>{desktop?'دیدن اقامتگاه‌ها':`مقایسه اقامتگاه‌های ${city?.name??'مقصد'}`}</Button>
  </MotionSurface>:null;
  return <>{desktop?(portalTarget?createPortal(entry,portalTarget):null):entry}<HotelDialog model={model} catalog={catalog} session={session} canApplyTrip={available} initialScrollTop={restore?.scrollTop} referralAction={flow&&selectedSource?{quoteId:selectedSource.payload.quote.quoteId,node:<ProviderAction compact flow={flow} source={selectedSource} catalog={catalog}/ >}:undefined}/></>;

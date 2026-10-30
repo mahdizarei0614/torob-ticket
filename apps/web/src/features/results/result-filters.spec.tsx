@@ -1,11 +1,11 @@
 // Actual filter regressions adapted from independently reproduced R2/R3.
-import { render,screen,fireEvent,cleanup } from '@testing-library/react';
+import { render,screen,fireEvent,cleanup,within } from '@testing-library/react';
 import { afterEach,expect,it,vi } from 'vitest';
 import { displayOperatorName } from '@torob-ticket/ui';
 import { ResultFilters } from './result-filters';
 import { catalog,query } from '../search/search-test-data';
 import { group,recovery } from './results-test-data';
-afterEach(cleanup);
+afterEach(()=>{cleanup();vi.unstubAllGlobals();});
 it('Cancel abandons provisional result filters instead of committing them after reopening',()=>{
  const committed={...query,filters:{budgetMaxRial:50000000}};const apply=vi.fn();
  render(<ResultFilters query={committed} snapshot={recovery([group('a')]).snapshot} catalog={catalog} disabled={false} onApply={apply}/>);
@@ -40,4 +40,39 @@ it('Escape and toggle-close discard changes before another open without applying
 
 it('an obsolete panel cannot apply, reopen or return focus into the old result region',()=>{
  let current=true;const apply=vi.fn();render(<ResultFilters isCurrent={()=>current} query={query} snapshot={recovery([group('a')]).snapshot} catalog={catalog} disabled={false} onApply={apply}/>);const trigger=screen.getByRole('button',{name:/فیلتر نتایج/});fireEvent.click(trigger);screen.getByLabelText('سقف مبلغ کل (تومان)').focus();current=false;fireEvent.click(screen.getByRole('button',{name:'پاک کردن فیلترها'}));expect(apply).not.toHaveBeenCalled();fireEvent.click(screen.getByRole('button',{name:'انصراف از فیلتر'}));expect(trigger).not.toHaveFocus();fireEvent.click(trigger);expect(screen.queryByRole('form')).not.toBeInTheDocument();
+});
+
+it('retains only decorative exits and fences their submit, clear, input and Escape events after a rapid reopen',()=>{
+ vi.stubGlobal('matchMedia',()=>({matches:false,addEventListener(){},removeEventListener(){}}));
+ const apply=vi.fn();render(<ResultFilters query={query} snapshot={recovery([group('a')]).snapshot} catalog={catalog} disabled={false} onApply={apply}/>);
+ const trigger=screen.getByRole('button',{name:'فیلتر نتایج'});fireEvent.click(trigger);
+ const oldForm=screen.getByRole('form',{name:'فیلتر پیشنهادهای سفر'}),oldScope=within(oldForm);
+ const oldInput=oldScope.getByLabelText('سقف مبلغ کل (تومان)'),oldClear=oldScope.getByRole('button',{name:'پاک کردن فیلترها'}),oldCancel=oldScope.getByRole('button',{name:'انصراف از فیلتر'});
+ fireEvent.click(trigger);
+ expect(oldForm.isConnected).toBe(true);
+ expect(oldForm.closest('[data-content-presence]')).toHaveAttribute('inert');
+ expect(oldForm.closest('[data-content-presence]')).toHaveAttribute('aria-hidden','true');
+ expect(screen.queryByRole('form')).not.toBeInTheDocument();
+ fireEvent.submit(oldForm);fireEvent.click(oldClear);expect(apply).not.toHaveBeenCalled();
+ fireEvent.click(trigger);
+ const currentForm=screen.getByRole('form',{name:'فیلتر پیشنهادهای سفر'}),currentInput=within(currentForm).getByLabelText('سقف مبلغ کل (تومان)');
+ expect(currentForm).not.toBe(oldForm);currentInput.focus();fireEvent.change(currentInput,{target:{value:'22'}});
+ fireEvent.change(oldInput,{target:{value:'99'}});fireEvent.submit(oldForm);fireEvent.click(oldClear);fireEvent.keyDown(oldInput,{key:'Escape'});fireEvent.click(oldCancel);
+ expect(apply).not.toHaveBeenCalled();expect(currentInput).toHaveValue(22);expect(currentInput).toHaveFocus();
+ expect(screen.getByRole('form',{name:'فیلتر پیشنهادهای سفر'})).toBe(currentForm);expect(trigger).toHaveAttribute('aria-expanded','true');
+ fireEvent.submit(currentForm);expect(apply).toHaveBeenCalledExactlyOnceWith({...query,filters:{budgetMaxRial:220}});
+});
+
+it('changes the current stop and departure words without replacing focused inputs or provisional values',()=>{
+ vi.stubGlobal('matchMedia',()=>({matches:false,addEventListener(){},removeEventListener(){}}));
+ const props={snapshot:recovery([group('a')]).snapshot,catalog,disabled:false,onApply:vi.fn()};
+ const view=render(<ResultFilters {...props} query={query}/>);fireEvent.click(screen.getByRole('button',{name:'فیلتر نتایج'}));
+ const maximum=screen.getByRole('spinbutton',{name:'حداکثر توقف'});maximum.focus();fireEvent.change(maximum,{target:{value:'2'}});
+ expect(screen.getByRole('spinbutton',{name:'حداکثر توقف'})).toBe(maximum);expect(maximum).toHaveFocus();
+ view.rerender(<ResultFilters {...props} query={{...query,mode:'train',tripType:'round-trip',returnDate:'2026-11-03',classCode:'coupe',filters:{refundableOnly:true}}}/>);
+ expect(screen.getByRole('spinbutton',{name:'حداکثر مجموع تعویض وسیله'})).toBe(maximum);
+ expect(screen.queryByRole('spinbutton',{name:'حداکثر توقف'})).not.toBeInTheDocument();expect(maximum).toHaveValue(2);expect(maximum).toHaveFocus();
+ expect(screen.getByRole('group',{name:'ساعت حرکت رفت به وقت محلی مبدا'})).toBeInTheDocument();
+ expect(screen.queryByRole('group',{name:'ساعت حرکت به وقت محلی مبدا'})).not.toBeInTheDocument();
+ expect(screen.getByRole('button',{name:'فیلتر نتایج · ۱'})).toHaveAttribute('aria-expanded','true');
 });

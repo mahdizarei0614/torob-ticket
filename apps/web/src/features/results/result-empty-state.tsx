@@ -1,5 +1,5 @@
 import type { SearchSnapshot, TransportSearchQuery } from '@torob-ticket/contracts';
-import { Button, EmptyRouteIllustration, ProviderDelayIllustration } from '@torob-ticket/ui';
+import { Button, EmptyRouteIllustration, MotionText, ProviderDelayIllustration } from '@torob-ticket/ui';
 import styles from './results.module.css';
 
 const filterLabels = [
@@ -35,7 +35,7 @@ export function ResultEmptyState({ snapshot, query, unavailable=false, historica
  const description=historical ? 'شرایط سفر حفظ شده است؛ برای بررسی پیشنهادهای فعلی دوباره جست‌وجو کنید.' : !complete ? 'هنوز نمی‌توان موجودی این سفر را مشخص کرد. دوباره تلاش کنید یا شرایط سفر را تغییر دهید.' : filters.length ? 'در پاسخ فروشندگان، پیشنهادی مطابق شرایط انتخاب‌شده نبود. یک فیلتر را حذف کنید یا تاریخ دیگری را ببینید.' : 'در پاسخ فروشندگان برای این مسیر و تاریخ پیشنهادی نبود. تاریخ دیگری را ببینید یا شرایط سفر را تغییر دهید.';
  return <section className={styles.empty} aria-label="وضعیت پیشنهادهای سفر" data-results-empty={kind}>
   <div className={styles.emptyArt}>{!complete && !historical ? <ProviderDelayIllustration mode={query.mode} size="compact"/> : <EmptyRouteIllustration mode={query.mode} scope={query.scope} size="compact"/>}</div>
-  <div className={styles.emptyContent}><h3>{title}</h3><p role="status">{description}</p>
+  <div className={styles.emptyContent}><h3><MotionText value={title} appear/></h3><p role="status"><MotionText value={description} appear/></p>
    <div className={styles.emptyActions}>
     {(historical || !complete) && onFresh && <Button variant="secondary" onPress={onFresh}>تلاش دوباره</Button>}
     {complete && onDate && <Button variant="secondary" onPress={onDate}>بررسی تاریخ دیگر</Button>}
