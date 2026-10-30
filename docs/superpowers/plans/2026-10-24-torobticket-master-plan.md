@@ -10,7 +10,7 @@
 
 **Tech Stack:** Nx, pnpm, TypeScript, React, Vite, React Router, TanStack Query, React Aria, CSS Modules, CSS custom properties, Zod, NestJS, PostgreSQL, Prisma, Three.js, React Three Fiber, selected Drei utilities, Motion, @internationalized/date, Vitest, Testing Library, Playwright, Storybook, Docker Compose, Caddy.
 
-**Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.29, 2026-10-30 (scramble removed; eased vehicle-dependent controls and prior refinements retained).
+**Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.31, 2026-10-30 (arrival-based one-night hotel discovery; prior vehicle/control motion retained).
 
 **Plan state:** Approved. M1–M6 and T29 packaging are complete with independent reviews and packaged acceptance evidence. **29/35 tasks complete; M7 PARTIAL, T30 ACTIVE.** Owner requested a fast checkpoint before substantial design/logic changes: finish durable harness checks now; full T30 matrix and T31–T33 audits/rehearsal remain unfinished. M8 retains its planned scope.
 
@@ -2561,3 +2561,14 @@ Owner rejected the effect and requested rollback; [decision0060](../../decisions
 |---|---|---|
 | Restore prior motion | DONE | Seven files restored byte-exactly to71d0624; two scramble-only tests removed; no scramble APIs/opt-ins, earlier0058 ease/fade/filter motion retained |
 | Verify and assemble | DONE | [Checkpoint](../../evidence/adjustments/undo-word-scramble/checkpoint.md); independent36/36 PASS, refreshed desktop/mobile Chrome2/2PASS12.2s, web/e2e types PASS; source/review/exports recorded |
+
+## Owner redesign — arrival-based hotel discovery, 2026-10-30
+
+[Task brief](../../evidence/adjustments/arrival-hotel-discovery/task-brief.md), [decision0061](../../decisions/0061-arrival-based-hotel-discovery.md), source `e02c233`. Owner chose always one arrival-local night; specification1.31. M7partial29/35,T30active.
+
+| Work | Status | Evidence |
+|---|---|---|
+| Automatic arrival model | DONE | Exact selected airport/station/terminal and destination-local date+one calendar day; no configuration; auto-load/abort/StrictMode/unknown and historical-return fences; complete quote/higher-version authority preserved |
+| Street map and selection | DONE | Actual named hotel pins/static arrival, two-way card selection, all four orders and inline repeatable point selection; keyed canvas/markers, collision leaders, native focus and retained-exit/lazy ownership; truthful map failure |
+| Square cards and responsive composition | DONE | Five desktop/two phone/one tiny-screen columns, readable names/prices, selected details/compact handoff;390→320 no overflow with deferred ticket rendering retained; finite current/exit fades |
+| Review and native assembly | DONE | [Checkpoint](../../evidence/adjustments/arrival-hotel-discovery/checkpoint.md), [independent approval](../../evidence/adjustments/arrival-hotel-discovery/independent-review.md);146/146 source cases across20files PASS5.27s; final headedChrome7/7PASS1.1m, all-mode overnight/roundtrip/sort/map/fallback/handoff/GET-return checks; types/lint PASS; exact source scope/local exports recorded |
