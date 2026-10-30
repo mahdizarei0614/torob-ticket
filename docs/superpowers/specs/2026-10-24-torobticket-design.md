@@ -1,6 +1,6 @@
 # TorobTicket — Product and Architecture Specification
 
-**Revision:** 1.32 · 2026-10-30
+**Revision:** 1.33 · 2026-10-30
 
 **Purpose:** Authoritative design companion to the master implementation plan.  
 **Status:** Product scope and architecture approved in conversation. Implementation defaults below are explicit engineering decisions made while preparing the plan; they are not additional claims of user approval.
@@ -86,7 +86,7 @@ Prices are the eligible total for the whole party and include all known mandator
 
 Round trips compare complete outbound-and-return offers actually supplied by the same mock provider. The system does not create a complete fare by adding unrelated sellers' one-way prices.
 
-**Owner directional-trip correction,2026-10-30 (decision0062):** each supplied leg may have different stops, carriers, services, local timings and endpoint facilities. Preserve both actual ordered routes in cards/details/graphics, with separately labeled outbound/return map chains; never imply an unsupplied transfer across the destination stay or mirror the outbound geometry. Current v3 transport searches/date inventory explicitly freeze source-v4-directional-fares-2026-10-30, which supplies one complete gross influenced by both travel dates/directions/service bands and deterministic calendar demand. Fixture/catalog identities and old default/source bytes remain unchanged. Historical selected quotes recheck their recorded source; old searches/quotes/date caches/receipts remain immutable and accessible in the same session. No session reset/migration or independently sold one-way fare combination.
+**Owner directional-trip correction,2026-10-30 (decision0062):** each supplied leg may have different stops, carriers, services, local timings and endpoint facilities. Preserve both actual ordered routes in cards/details/graphics, with separately labeled outbound/return map chains; never imply an unsupplied transfer across the destination stay or mirror the outbound geometry. Decision0062 introduced source-v4-directional-fares-2026-10-30 for v3 transport operations, supplying one complete gross influenced by both travel dates/directions/service bands and deterministic calendar demand; decision0063 advances new operations to v5 while retaining this recorded source. Fixture/catalog identities and old default/source bytes remain unchanged. Historical selected quotes recheck their recorded source; old searches/quotes/date caches/receipts remain immutable and accessible in the same session. No session reset/migration or independently sold one-way fare combination.
 
 **Money default:** canonical integer rials throughout domain calculations and persistence; UI explicitly formats toman. Preserve original value and unit in provenance. Reject ambiguous source units. MVP fixtures use rials/toman only; international geography does not imply an unmodeled exchange rate.
 
@@ -105,6 +105,8 @@ Provider-supplied connections are supported. Self-transfers, overnight connectio
 | Cheapest — default | Lowest eligible whole-party total | Shorter total travel; fewer stops/transfers; stable ID |
 | Fastest | Shortest total travel, including waits | Lower total; fewer stops/transfers; stable ID |
 | Fewest stops/transfers | Fewest flight stops, or ground vehicle transfers | Shorter total travel; lower total; stable ID |
+
+**Owner ranking correction,2026-10-30 (decision0063):** retain both fastest and fewest-stop/transfer controls: total elapsed time and connection count are independent objectives, supported by primary travel-planner documentation. Keep the existing lexicographic comparators, truthful ground vehicle-change semantics and deterministic ties; never shuffle to force movement when data agrees. The18-query v4 baseline had identical orders because of monotone authored schedules. New v3 transport operations freeze source-v5-schedule-tradeoffs-2026-10-30 with selected long-haul long-layover versus well-timed multi-stop service trade-offs. Real airport paths/carriers/flying minutes remain; dependent stop/segment instants and IDs retime before return feasibility. Preserve twelve services, all sellers, both-date fares and exact recorded base/v4 source replay/rechecks. New server source identity and frontend date-policy identity retire prior estimates without rewriting old results. London showcases distinct leaders/order; same-count direct trains retain identical rankings. Sort changes remain local to received facts, preserving prices, selection/map pin, focus and immutable query, with no new search/date/referral mutation.
 
 For round trips, duration and stops/transfers sum both directions and exclude time at the destination. Rail/bus intermediate stops remain visible and their dwell affects duration, but a stop without changing vehicles is not a transfer. Provider offers inside a journey sort by eligible total, then stable ID.
 

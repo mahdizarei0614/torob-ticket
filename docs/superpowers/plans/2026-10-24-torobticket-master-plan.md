@@ -10,7 +10,7 @@
 
 **Tech Stack:** Nx, pnpm, TypeScript, React, Vite, React Router, TanStack Query, React Aria, CSS Modules, CSS custom properties, Zod, NestJS, PostgreSQL, Prisma, Three.js, React Three Fiber, selected Drei utilities, Motion, @internationalized/date, Vitest, Testing Library, Playwright, Storybook, Docker Compose, Caddy.
 
-**Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.32, 2026-10-30 (viewport-safe filters and directional round-trip routes/fares; arrival-based hotels and prior refinements retained).
+**Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.33, 2026-10-30 (independent fastest/fewest-connection schedule trade-offs; prior route, price, filter and hotel refinements retained).
 
 **Plan state:** Approved. M1–M6 and T29 packaging are complete with independent reviews and packaged acceptance evidence. **29/35 tasks complete; M7 PARTIAL, T30 ACTIVE.** Owner requested a fast checkpoint before substantial design/logic changes: finish durable harness checks now; full T30 matrix and T31–T33 audits/rehearsal remain unfinished. M8 retains its planned scope.
 
@@ -2583,3 +2583,14 @@ Owner rejected the effect and requested rollback; [decision0060](../../decisions
 | Independent return routes | DONE | Separate labeled outbound/return map chains and compact card routes/return carrier; existing actual return geometry retained; native two-stop outbound/three-stop return LAX animation verified |
 | Directional source and price authority | DONE | New recorded transport source under immutablev3, both dates/directions/service bands, exact date/search whole-total parity; old-source replay/cache/recheck/receipt continuity; author78source+2context+35PostgreSQL cases |
 | Review and assembly | DONE | [Checkpoint](../../evidence/adjustments/roundtrip-pricing-and-filter/checkpoint.md), [independent approval](../../evidence/adjustments/roundtrip-pricing-and-filter/independent-review.md);246sourcecases/30files PASS,35guardedPostgreSQLcases PASS; final headedChrome5/5PASS1.4m with exact prices, asymmetric return animation and bounded1366/390/320×480filters; exact28path source/exports recorded |
+
+## Owner correction — fastest and fewest-connection trade-offs, 2026-10-30
+
+[Task brief](../../evidence/adjustments/ranking-tradeoffs/task-brief.md), [primary research](../../evidence/adjustments/ranking-tradeoffs/research.md), [decision0063](../../decisions/0063-independent-duration-and-connection-tradeoffs.md), source `4a70916`. Specification1.33; M7partial29/35,T30active.
+
+| Work | Status | Evidence |
+|---|---|---|
+| Keep independent criteria | DONE | Primary DB/Google documentation confirms separate duration/connection objectives; actual18-query pre-edit v4 audit matches every order; existing comparators/local sorting remain correct and unchanged |
+| Meaningful source trade-offs | DONE | New recorded v5 supplies selected long-haul long versus short hub waits with unchanged routes/carriers/flying minutes;136v4+112base raw hashes and old-source rechecks preserved; honest ground equality remains |
+| Verify selection and parity | DONE | [Independent approval](../../evidence/adjustments/ranking-tradeoffs/independent-review.md);163sourcecases/17files PASS,2guardedPostgreSQLcases PASS6.57s, finalChrome4/4PASS43.8s; different London leaders/full48cardorders, same prices/selection/map/focus/query and0POSTs; directtrain equality and return-price parity |
+| Local assembly | DONE | [Checkpoint](../../evidence/adjustments/ranking-tradeoffs/checkpoint.md); exact14source/test paths, types/lint, local commits, SDD and byte-exact master/spec exports recorded; unrelated work preserved |
