@@ -10,7 +10,7 @@
 
 **Tech Stack:** Nx, pnpm, TypeScript, React, Vite, React Router, TanStack Query, React Aria, CSS Modules, CSS custom properties, Zod, NestJS, PostgreSQL, Prisma, Three.js, React Three Fiber, selected Drei utilities, Motion, @internationalized/date, Vitest, Testing Library, Playwright, Storybook, Docker Compose, Caddy.
 
-**Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.27, 2026-10-30 (compact search/date controls, validation tooltips and prior Docker/list/map refinements).
+**Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.28, 2026-10-30 (four labeled controls on one row, persistent outbound control and prior refinements).
 
 **Plan state:** Approved. M1–M6 and T29 packaging are complete with independent reviews and packaged acceptance evidence. **29/35 tasks complete; M7 PARTIAL, T30 ACTIVE.** Owner requested a fast checkpoint before substantial design/logic changes: finish durable harness checks now; full T30 matrix and T31–T33 audits/rehearsal remain unfinished. M8 retains its planned scope.
 
@@ -2520,3 +2520,12 @@ M7 remains partial29/35 and T30 active.
 | Empty city focus | Native options-on-focus, with selection/typing/clear/Escape and disabled destination preserved | DONE | [Checkpoint](../../evidence/adjustments/search-controls-tooltips/checkpoint.md); actual empty origin/destination focus opens options without choosing a city; correction and no invalid search POST verified |
 | Compact date controls | Portal existing owned outbound/return segments beside class; remove fixed-leg hint, retain price units | DONE | Desktop tracks exactly aligned;390/320px fit and44px targets; leg switching leaves URL/search intent untouched, calendar cancel/apply and invalid-return auto-selection preserved |
 | Validation overlays | Above whole field/label, stable heights, accessible descriptions, focus/hover/Escape, finite feedback | DONE | Final field/form/input height deltas0px at1366dark/390light; hoverable tip and generic calendar anchor pass. Author28 focused+final13 UI cases, independent71 checks, four unique native scenarios and scoped lint/types pass; original failures retained, independent approval |
+
+## Owner correction — four controls on one row, 2026-10-30
+
+[Task brief](../../evidence/adjustments/search-four-controls-row/task-brief.md), [decision0057](../../decisions/0057-four-controls-row-and-travel-direction.md), source `f35e8e9`, specification1.28. M7 remains partial29/35 and T30 active.
+
+| Adjustment | Subtasks | Status | Evidence |
+|---|---|---|---|
+| Single row | Origin, destination, class and outbound/return in one physical line, readable type and aligned labels | DONE | [Checkpoint](../../evidence/adjustments/search-four-controls-row/checkpoint.md); eight final native snapshots have0px label/control-top spread,54px surfaces and no page overflow; intrinsic overflow stays local |
+| Leg visibility | Keep one-way outbound visible; label «جهت سفر»; calendar stays below wheel | DONE | Final19 focused source cases, independent59-case checkpoint and five unique native cases pass; final label/geometry rerun passes5.2s. Leg/URL/calendar identity preserved, source/static/independent review approved |

@@ -1,6 +1,6 @@
 # TorobTicket — Product and Architecture Specification
 
-**Revision:** 1.27 · 2026-10-30
+**Revision:** 1.28 · 2026-10-30
 
 **Purpose:** Authoritative design companion to the master implementation plan.  
 **Status:** Product scope and architecture approved in conversation. Implementation defaults below are explicit engineering decisions made while preparing the plan; they are not additional claims of user approval.
@@ -77,6 +77,8 @@ Search controls share compact rows without smaller type. **Owner adjustment, 202
 **Owner compact-control refinement,2026-10-30 (decision0056):** focusing an empty enabled city input opens its supported options without choosing a city. Preserve native typing, keyboard choice, clearing, Escape and disabled-destination behavior. Place the class choices and round-trip departure/return exploration segments in a shared compact row; narrow layouts may wrap without shrinking type or touch targets. The date explorer continues to own the active leg and calendar/interaction state; relocating its control must not duplicate that state or alter search intent by itself. One-way travel can omit the redundant leg selector.
 
 Field validation uses above-control tooltips instead of below-field paragraphs, so invalid feedback does not change field or row height. Keep persistent accessible error descriptions and invalid styling even while the visual tooltip is dismissed. Tooltips are available through focus and hover, dismiss with Escape in either case, and do not steal focus, block the city menu/calendar or lock scrolling. Deliberate invalid-submit focus and finite shake remain. Routine fixed-opposite-leg captions are removed; calendar price units, actual missing-return errors and retrieval-failure distinctions remain meaningful.
+
+**Owner row/label clarification,2026-10-30 (decision0057):** origin, destination, class and the outbound/return exploration control occupy one physical nonwrapping row. The last control is visibly labeled «جهت سفر» and retains a checked outbound option for one-way trips; round trips expose both options. It selects the inspected travel leg. The calendar remains below the wheel. This supersedes the previous allowance to omit the one-way control or wrap these groups into a second row. Keep aligned labels, shared control heights, readable type and unchanged date ownership. Constrained widths or intrinsically long class choices scroll only this row horizontally; never overflow the page or wrap segment options. Portalled city menus and validation tips remain usable outside that clipping.
 
 **Default filter set:** budget, departure time window, operator/provider, mode-specific class, maximum flight stops or ground transfers, refundable-only, and a flight checked-baggage requirement. Unknown conditions never satisfy an affirmative requirement. A condition is shown as unknown instead of invented. The single departure-time window constrains the outbound departure in its origin time zone and is labeled outbound for round trips. The maximum stops/transfers filter uses the complete-trip count (both directions for round trips), with that total explicit in its label.
 
