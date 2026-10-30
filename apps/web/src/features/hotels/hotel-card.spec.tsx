@@ -3,8 +3,25 @@ import {describe,it,expect,vi} from 'vitest';
 import {HotelCard} from './hotel-card';
 import {hotelFixture,hotelSnapshot} from './hotel-test-data';
 import {catalog} from '../search/search-test-data';
-describe('whole-stay cards and honest condition variants',()=>{
- it('shows all-room/all-night totals, unknown stars/terms and exact per-room details without a fake handoff',()=>{const snapshot=hotelSnapshot(),onSelect=vi.fn();render(<HotelCard hotel={hotelFixture} result={snapshot.results![0]!} quotes={snapshot.quotes} catalog={catalog} disabled={false} onSelect={onSelect}/>);expect(screen.getAllByText('مجموع ۲ اتاق برای ۲ شب').length).toBeGreaterThan(0);expect(screen.getByText(/درجه هتل اعلام نشده/)).toBeInTheDocument();expect(screen.getByText(/میانگین هر شب برای همه اتاق‌ها/)).toBeInTheDocument();fireEvent.click(screen.getByText(/ترکیب اتاق‌ها و شرایط/));fireEvent.click(screen.getByRole('button',{name:'انتخاب این ترکیب اتاق'}));expect(onSelect).toHaveBeenCalledWith(snapshot.quotes[0]);expect(screen.queryByRole('link')).toBeNull();expect(screen.getAllByText(/صبحانه نامشخص/).length).toBeGreaterThanOrEqual(2);expect(screen.getAllByText(/پذیرش از/).length).toBe(2);});
- it('never makes an incomplete diagnostic subtotal selectable',()=>{render(<HotelCard hotel={hotelFixture} result={{hotelId:'hotel',status:'incomplete',reasons:['local-mandatory-fee'],representativeQuoteId:null,quoteIds:[],arrivalDistanceKm:null,locationDistanceKm:null,distanceKind:'straight-line',knownSubtotal:{amountRial:1000000,currency:'IRR'}}} quotes={[]} catalog={catalog} disabled={false} onSelect={vi.fn()}/>);expect(screen.getByText(/جمع بخش معلوم، غیرنهایی/)).toBeInTheDocument();expect(screen.queryByRole('button',{name:'انتخاب این ترکیب اتاق'})).toBeNull();expect(screen.getByText(/هزینه اجباری محلی/)).toBeInTheDocument();});
- it('blocks expired quotes and edited-result actions',()=>{const old=hotelSnapshot(Date.now()-700000);render(<HotelCard hotel={hotelFixture} result={old.results![0]!} quotes={old.quotes} catalog={catalog} disabled={true} onSelect={vi.fn()}/>);fireEvent.click(screen.getByText(/ترکیب اتاق‌ها و شرایط/));expect(screen.getByRole('button',{name:'انتخاب این ترکیب اتاق'})).toBeDisabled();});
+
+describe('compact selectable hotel cards',()=>{
+ it('shows the exact whole-stay total and selects the same hotel id without a room configuration or fake handoff',()=>{
+  const snapshot=hotelSnapshot(),inspect=vi.fn();render(<HotelCard hotel={hotelFixture} result={snapshot.results![0]!} quotes={snapshot.quotes} catalog={catalog} disabled={false} onSelectHotel={inspect}/>);
+  expect(screen.getByRole('group',{name:/مجموع ۲ اتاق برای ۲ شب/})).toBeInTheDocument();expect(screen.getByText('درجه اعلام نشده')).toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button',{name:/انتخاب هتل/}));expect(inspect).toHaveBeenCalledWith('hotel');expect(screen.queryByRole('link')).toBeNull();expect(screen.queryByRole('spinbutton')).toBeNull();
+ });
+ it('lets an incomplete hotel be inspected without presenting its subtotal as a selectable complete price',()=>{
+  const inspect=vi.fn();render(<HotelCard hotel={hotelFixture} result={{hotelId:'hotel',status:'incomplete',reasons:['local-mandatory-fee'],representativeQuoteId:null,quoteIds:[],arrivalDistanceKm:null,locationDistanceKm:null,distanceKind:'straight-line',knownSubtotal:{amountRial:1000000,currency:'IRR'}}} quotes={[]} catalog={catalog} disabled={false} onSelectHotel={inspect}/>);
+  expect(screen.queryByRole('group',{name:/تومان/})).toBeNull();expect(screen.getByText('هزینه نهایی کامل اعلام نشده')).toBeInTheDocument();fireEvent.click(screen.getByRole('button',{name:/انتخاب هتل/}));expect(inspect).toHaveBeenCalledWith('hotel');
+ });
+ it('marks a map-selected hotel and preserves an accepted higher-version price on its card',()=>{
+  const snapshot=hotelSnapshot(),fresh={...snapshot.quotes[0]!,version:2,total:{amountRial:45000000,currency:'IRR' as const}};
+  render(<HotelCard hotel={hotelFixture} result={snapshot.results![0]!} quotes={snapshot.quotes} catalog={catalog} disabled={false} selected={fresh} isSelected onSelectHotel={vi.fn()}/>);
+  expect(screen.getByRole('button',{name:/انتخاب هتل/})).toHaveAttribute('aria-pressed','true');expect(screen.getByRole('group',{name:/۴٬۵۰۰٬۰۰۰ تومان/})).toBeInTheDocument();
+ });
+ it('blocks obsolete card actions and never selects an expired quote through its compatibility action',()=>{
+  const old=hotelSnapshot(Date.now()-700000),inspect=vi.fn(),select=vi.fn();const view=render(<HotelCard hotel={hotelFixture} result={old.results![0]!} quotes={old.quotes} catalog={catalog} disabled onSelectHotel={inspect}/>);
+  fireEvent.click(screen.getByRole('button',{name:/انتخاب هتل/}));expect(inspect).not.toHaveBeenCalled();
+  view.rerender(<HotelCard hotel={hotelFixture} result={old.results![0]!} quotes={old.quotes} catalog={catalog} disabled={false} onSelect={select}/>);fireEvent.click(screen.getByRole('button',{name:/انتخاب هتل/}));expect(select).not.toHaveBeenCalled();expect(screen.getByText('نیاز به قیمت تازه')).toBeInTheDocument();
+ });
 });

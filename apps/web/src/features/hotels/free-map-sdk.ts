@@ -1,5 +1,5 @@
 import type {FreeMapSdk,MapPort,MarkerPort} from './free-map-adapter';
-/** Loaded only by an open location picker; pinned SDK, CSS and same-origin Vite worker. */
+/** Loaded only by an open hotel map; pinned SDK, CSS and same-origin Vite worker. */
 let runtime:Promise<FreeMapSdk>|undefined;
 async function load():Promise<FreeMapSdk>{
  const [sdk,worker]=await Promise.all([import('maplibre-gl'),import('maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url'),import('maplibre-gl/dist/maplibre-gl.css')]);

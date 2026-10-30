@@ -1,57 +1,83 @@
-import { AnimatePresence } from 'motion/react';
-import {StayRecovery} from '../recovery/stay-recovery';
-import {useLayoutEffect,useRef,type ReactNode} from 'react';
+import {useCallback,useLayoutEffect,useMemo,useRef,type ReactNode} from 'react';
 import type {CatalogSnapshot,SessionInfo} from '@torob-ticket/contracts';
-import {Button,Dialog,SegmentedControl,displayHotelName,displayPlaceName,LoadingSkeleton,ContentSwap,ContentItem} from '@torob-ticket/ui';
-import {suggestHotelStay} from '@torob-ticket/domain';
+import {Button,Dialog,SegmentedControl,displayHotelName,displayPlaceName,LoadingSkeleton,ContentSwap,ContentItem,HotelStayIllustration,useMotionPolicy} from '@torob-ticket/ui';
 import type {HotelDiscovery} from './use-hotel-discovery';
-import {arrivalPlaces,hotelBounds,queryKey} from './hotel-state';
-import {HotelDates} from './hotel-dates';
+import {queryKey} from './hotel-state';
 import {HotelCard} from './hotel-card';
-import {LocationPicker} from './location-picker';
-import {dateText,faNumber,nights} from './hotel-format';
+import {HotelSelection} from './hotel-selection';
+import {FreeLocationMap} from './free-location-map';
+import type {MapChoice} from './free-map-adapter';
+import {dateText,faNumber} from './hotel-format';
 import styles from './hotels.module.css';
-export function HotelDialog({model,catalog,session,canApplyTrip,referralAction,initialScrollTop}:{model:HotelDiscovery;catalog:CatalogSnapshot;session:SessionInfo;canApplyTrip:boolean;referralAction?:{quoteId:string;node:ReactNode};initialScrollTop?:number}){
- const locationTrigger=useRef<HTMLDivElement>(null);const cycle=useRef({open:model.open,epoch:0});const focusRequest=useRef<number|undefined>(undefined);if(cycle.current.open!==model.open){cycle.current={open:model.open,epoch:cycle.current.epoch+1};focusRequest.current=undefined;}
- useLayoutEffect(()=>{if(!model.state.point&&model.open&&focusRequest.current===cycle.current.epoch){focusRequest.current=undefined;locationTrigger.current?.querySelector('button')?.focus({preventScroll:true});}},[model.state.point,model.open]);const {state}=model,trip=state.trip,draft=state.draft,snapshot=state.snapshot;
- const revealedQuote=useRef(state.selected?.quoteId);
- useLayoutEffect(()=>{const id=state.selected?.quoteId;if(!id||revealedQuote.current===id||referralAction?.quoteId!==id)return;const action=document.querySelector<HTMLButtonElement>('[data-referral-source=hotel] button');if(!action||action.disabled)return;revealedQuote.current=id;action.focus({preventScroll:true});action.scrollIntoView({block:'nearest',behavior:'instant'});},[state.selected?.quoteId,referralAction?.quoteId]);
- const city=catalog.cities.find(c=>c.id===trip.query.destinationCityId)!;const bounds=hotelBounds(session.anchorInstant,city.timeZone);
- const places=arrivalPlaces(trip,catalog);const modeLabel=trip.query.mode==='flight'?'فرودگاه':trip.query.mode==='train'?'ایستگاه':'پایانه';
- const fresh=Boolean(snapshot&&model.query&&queryKey(snapshot.query)===queryKey(model.query)&&state.status==='ready'&&!model.stale&&!model.authorityStale&&!model.blocked);
- const policyTimes=[...new Set(snapshot?.quotes.flatMap(q=>q.roomDetails?.map(d=>d.policy.checkInLocalTime)??[])??[])];
- const early=policyTimes.filter(time=>{const suggested=suggestHotelStay(trip.itinerary,city.timeZone,time);return suggested.earlyArrival&&suggested.checkIn===draft.checkIn;});
- function focusLocation(){focusRequest.current=cycle.current.epoch;}
- function cancelPoint(){focusLocation();model.cancelPoint();}
- function applyPoint(){focusLocation();void model.applyPoint();}
- return <Dialog title={`مقایسه اقامتگاه‌های ${city.name}`} isOpen={model.open} initialScrollTop={initialScrollTop} onOpenChange={next=>{if(!next)model.closeDialog();}} mobileFullscreen stickyHeader size="wide">
-  <div className={styles.dialogContent} data-hotel-dialog data-hotel-authority-stale={model.authorityStale} data-hotel-blocked={model.blocked} data-hotel-context={trip.query.destinationCityId} data-hotel-stale={model.stale}>
-   <div className={styles.intro}><span className={styles.eyebrow}>بعد از مسیر، مقصد را زندگی کن</span><p>اقامتگاه‌ها را برای همه مسافران و تمام شب‌های سفر مقایسه کنید.</p></div>
-   {(model.authorityStale||state.status==='error')&&<StayRecovery model={model}/>}
-   {model.stale&&<aside className={styles.stale} role="status"><strong>{model.contextBlocked?'زمینه قبلی اقامت قابل تأیید نیست؛ پیش‌نویس حفظ شد.':'سفر تغییر کرده است؛ اقامت مستقل شما حفظ شد.'}</strong>{model.contextBlocked?<p>شواهد قبلی برای ادامه کافی نیست. سفر کنونی را اعمال و اقامت را دوباره مقایسه کنید.</p>:<p>این مقایسه هنوز برای سفر قبلی به {city.name} از {dateText(draft.checkIn)} تا {dateText(draft.checkOut)} است. قیمت یا اتاق قبلی تا اعمال سفر تازه قابل انتخاب نیست.</p>}<Button variant="secondary" onPress={model.applyTrip} isDisabled={!canApplyTrip}>{model.contextBlocked?'آماده‌سازی اقامت برای سفر کنونی':'استفاده از سفر جدید'}</Button>{!canApplyTrip&&<p>ابتدا سفر تازه را در فرم اصلی کامل و مقایسه کنید؛ سپس این تغییر را اعمال کنید.</p>}</aside>}
-   {state.point&&!model.stale?<LocationPicker model={model} catalog={catalog} onCancel={cancelPoint} onApply={applyPoint}/>:<>
-    <form aria-label="شرایط اقامت هتل" className={styles.form} onSubmit={event=>{event.preventDefault();void model.submit();}}>
-     <fieldset disabled={model.stale} className={styles.formFields}>
-      <HotelDates model={model} bounds={bounds}/>
-      <div className={styles.party}><strong>{faNumber(trip.query.party.adults)} بزرگسال{trip.query.party.children?`، ${faNumber(trip.query.party.children)} کودک`:''}{trip.query.party.infants?`، ${faNumber(trip.query.party.infants)} نوزاد`:''}</strong><label>تعداد اتاق<input aria-label="تعداد اتاق هتل" type="number" inputMode="numeric" min="1" max={trip.query.party.adults} value={draft.rooms} onChange={event=>model.edit({rooms:event.target.valueAsNumber})}/></label><small>هر اتاق حداقل یک بزرگسال دارد.</small></div>
-      {draft.childAges.length>0&&<div className={styles.ages}><p>سن در روز ورود به هتل؛ مستقل از سن درج‌شده برای بلیت</p>{draft.childAges.map((age,index)=><label key={index}>سن کودک {faNumber(index+1)} در ورود<input aria-label={`سن کودک ${index+1} در روز ورود به هتل`} type="number" min="0" max="17" value={age} onChange={event=>model.edit({childAges:draft.childAges.map((a,i)=>i===index?event.target.value:a)})}/></label>)}</div>}
-      <div className={styles.references}><label className={styles.field}>{modeLabel} رسیدن در {city.name}<select aria-label="نقطه رسیدن برای فاصله هتل" value={draft.arrivalPlaceId??''} onChange={event=>model.edit({arrivalPlaceId:event.target.value||undefined})}><option value="">انتخاب کنید؛ فاصله هنوز مشخص نیست</option>{places.map(place=><option key={place.id} value={place.id}>{displayPlaceName(place)}{place.code?` (${place.code})`:''}</option>)}</select></label><div ref={locationTrigger}><Button variant="secondary" onPress={model.openPoint}>انتخاب موقعیت روی نقشه</Button>{draft.customPoint&&<p className={styles.muted}>موقعیت مرجع اعمال شده · فاصله خط مستقیم</p>}</div></div>
-     </fieldset>
-     <div className={styles.formActions}><Button type="submit" isDisabled={!model.query||model.stale||state.status==='loading'} isLoading={state.status==='loading'}>مقایسه اقامتگاه‌ها</Button><span>{draft.checkIn&&draft.checkOut&&nights(draft.checkIn,draft.checkOut)>0?`${faNumber(nights(draft.checkIn,draft.checkOut))} شب · مجموع ${faNumber(draft.rooms)} اتاق`:'ورود و خروج را مشخص کنید'}</span></div>
-     {model.errors.length>0&&!model.stale&&<ul className={styles.validation} aria-label="موارد لازم برای مقایسه هتل">{model.errors.map(error=><li key={error}>{error}</li>)}</ul>}
-    </form>
-    <div className={styles.sorts}><SegmentedControl label="مرتب‌سازی اقامتگاه‌ها" value={draft.sort} isDisabled={model.stale||state.status==='loading'} onChange={value=>{void model.changeSort(value as typeof draft.sort);}} options={[{id:'cheapest',label:'کمترین هزینه اقامت'},{id:'stars',label:'ستاره بیشتر'},{id:'arrival-distance',label:`نزدیک به ${modeLabel}`},{id:'location-distance',label:'نزدیک به موقعیت من'}]}/></div>
-    {early.length>0?<p className={styles.note}>زمان رسیدن شما پیش از ساعت پذیرش اعلام‌شده برای برخی اتاق‌ها ({early.join('، ')}) است؛ ورود زودهنگام تضمین نمی‌شود. شرایط هر اتاق را بررسی کنید.</p>:<p className={styles.muted}>زمان پذیرش به شرایط هر اتاق بستگی دارد؛ ورود زودهنگام تضمین نمی‌شود.</p>}
-    <ContentSwap identity={state.status==='loading'?'loading':'ready'}>{state.status==='loading'&&<div role="status"><p>در حال بررسی اتاق‌ها و همه شب‌های اقامت…</p><LoadingSkeleton rows={2}/></div>}</ContentSwap>
 
-    {snapshot&&!fresh&&state.status!=='loading'&&<p role="status" className={styles.note}>شرایط اقامت تغییر کرده است؛ برای قیمت قابل انتخاب، دوباره مقایسه کنید.</p>}
-    <ContentSwap identity={model.selected?.quoteId??'no-selection'}>{model.selected&&<div className={styles.selection} role="status" data-selected-hotel-quote={model.selected.quoteId}><strong>ترکیب اتاق برای بررسی انتخاب شد</strong><p>{displayHotelName(snapshot?.hotels.find(h=>h.hotelId===model.selected?.hotelId))} · مجموع {faNumber(model.selected.total.amountRial/10)} تومان برای همه اتاق‌ها و شب‌ها.</p></div>}</ContentSwap>
-    {snapshot&&<section aria-label="نتایج مقایسه اقامتگاه‌ها" className={styles.results} data-hotel-search-id={snapshot.hotelSearchId} data-hotel-query={queryKey(snapshot.query)} data-hotel-status={snapshot.status}>
-     <header className={styles.resultHead}><h2>{snapshot.status==='failed'?'دریافت اقامتگاه‌ها کامل نشد':snapshot.status==='empty'?'اقامت کامل مطابق این شرایط پیدا نشد':`${faNumber(snapshot.results?.filter(r=>r.status==='priced').length??0)} اقامتگاه با قیمت کامل`}</h2><p>{snapshot.status==='empty'?'تعداد اتاق، سن کودکان یا تاریخ‌ها را بررسی کنید. اطلاعات ناقص با نبود اتاق یکسان نیست.':snapshot.status==='failed'?'دریافت ناموفق به معنی نبود اتاق نیست؛ دوباره تلاش کنید.':'مبلغ اصلی برای همه اتاق‌ها و همه شب‌هاست.'}</p></header>
-     <AnimatePresence initial={false}>{snapshot.results?.map(result=>{const hotel=snapshot.hotels.find(h=>h.hotelId===result.hotelId);return hotel?<ContentItem layout key={hotel.hotelId}><HotelCard referralAction={referralAction} hotel={hotel} result={result} quotes={snapshot.quotes.filter(q=>q.hotelId===hotel.hotelId)} catalog={catalog} disabled={!fresh} selected={model.selected} onSelect={model.selectQuote}/></ContentItem>:null;})}</AnimatePresence>
-    </section>}
-    <p className={styles.footnote}>فاصله‌ها خط مستقیم‌اند؛ نقشه شهری برای انتخاب موقعیت است و مسیر رانندگی را نشان نمی‌دهد.</p>
-   </>}
+export function HotelDialog({model,catalog,referralAction,initialScrollTop=0}:{model:HotelDiscovery;catalog:CatalogSnapshot;session:SessionInfo;canApplyTrip:boolean;referralAction?:{quoteId:string;node:ReactNode};initialScrollTop?:number}){
+ const {state}=model,trip=state.trip,draft=state.draft,policy=useMotionPolicy();
+ const city=catalog.cities.find(item=>item.id===trip.query.destinationCityId);
+ const segment=trip.itinerary?.outbound.segments.at(-1);
+ const arrival=catalog.places.find(place=>place.id===segment?.destinationPlaceId&&place.cityId===trip.query.destinationCityId);
+ const modeLabel=trip.query.mode==='flight'?'فرودگاه':trip.query.mode==='train'?'ایستگاه راه‌آهن':'پایانه اتوبوس';
+ const arrivalName=arrival?displayPlaceName(arrival):'';
+ const arrivalCode=arrival?.code&&!arrivalName.toLocaleUpperCase().includes(arrival.code.toLocaleUpperCase())?arrival.code:undefined;
+ const identity=[trip.query.destinationCityId,arrival?.id??'awaiting-arrival'].join(':');
+ const ownership=useRef({identity,open:model.open});ownership.current={identity,open:model.open};
+ const isMapCurrent=useCallback(()=>ownership.current.open&&ownership.current.identity===identity,[identity]);
+ const scroll=useRef<HTMLDivElement>(null),restored=useRef(false);
+ const bindScroll=useCallback((node:HTMLDivElement|null)=>{scroll.current=node;if(node&&!restored.current){node.scrollTop=initialScrollTop;restored.current=true;}},[initialScrollTop]);
+ useLayoutEffect(()=>{if(!model.open){restored.current=false;return;}if(scroll.current&&!restored.current){scroll.current.scrollTop=initialScrollTop;restored.current=true;}},[model.open,initialScrollTop]);
+ const snapshot=state.snapshot;
+ const sameQuery=Boolean(snapshot&&model.query&&queryKey(snapshot.query)===queryKey(model.query));
+ const visible=sameQuery&&!model.stale?snapshot:undefined;
+ const fresh=Boolean(visible&&state.status==='ready'&&!model.stale&&!model.authorityStale&&!model.blocked&&!state.point);
+ const hotels=useMemo(()=>(snapshot?.hotels??[]).filter(hotel=>hotel.destinationCityId===trip.query.destinationCityId),[snapshot?.hotels,trip.query.destinationCityId]);
+ const choices=useMemo<MapChoice[]>(()=>[
+  ...(arrival?[{id:`arrival:${arrival.id}`,name:arrivalName,point:arrival.point,kind:'arrival' as const,code:arrivalCode,mode:trip.query.mode}]:[]),
+  ...hotels.map(hotel=>({id:hotel.hotelId,name:displayHotelName(hotel),point:hotel.point,kind:'hotel' as const})),
+ ],[arrival,arrivalName,arrivalCode,hotels,trip.query.mode]);
+ const selectedHotel=hotels.find(hotel=>hotel.hotelId===state.selectedHotelId);
+ const selectedResult=visible?.results?.find(result=>result.hotelId===state.selectedHotelId);
+ const selectedQuote=fresh?model.selected:undefined;
+ const loading=state.status==='loading';
+ const failed=visible?.status==='failed';
+ const priced=visible?.results?.filter(result=>result.status==='priced').length??0;
+ function pickHotel(id:string){
+  if(!fresh||model.readState()!==state||!ownership.current.open||ownership.current.identity!==identity)return;
+  model.selectHotel(id);
+  if(model.readState().selectedHotelId!==id)return;
+  const panel=scroll.current;
+  const card=Array.from(panel?.querySelectorAll<HTMLElement>('[data-hotel-id]')??[]).find(node=>node.dataset['hotelId']===id&&!node.closest('[inert],[data-content-presence="exiting"]'));
+  if(!panel||!card)return;
+  const viewport=panel.getBoundingClientRect(),box=card.getBoundingClientRect(),map=panel.querySelector<HTMLElement>('[data-hotel-map-frame]');
+  const inset=map&&getComputedStyle(map).position==='sticky'?map.getBoundingClientRect().height:0;
+  const top=viewport.top+inset+8,bottom=viewport.bottom-4;
+  const delta=box.top<top?box.top-top:box.bottom>bottom?box.bottom-bottom:0;
+  if(Math.abs(delta)>1)panel.scrollTo({top:Math.max(0,panel.scrollTop+delta),behavior:policy.enabled?'smooth':'instant'});
+ }
+ function sort(value:string){
+  if(value==='location-distance'&&!draft.customPoint){model.openPoint();return;}
+  void model.changeSort(value as typeof draft.sort);
+ }
+ return <Dialog title={`هتل‌های ${city?.name??'مقصد'}`} isOpen={model.open} onOpenChange={next=>{if(!next)model.closeDialog();}} mobileFullscreen stickyHeader size="wide">
+  <div className={styles.arrivalDialog} data-hotel-dialog data-hotel-authority-stale={model.authorityStale} data-hotel-blocked={model.blocked} data-hotel-context={trip.query.destinationCityId} data-hotel-stale={model.stale} data-hotel-check-in={model.query?.checkIn??''} data-hotel-check-out={model.query?.checkOut??''} data-selected-hotel-id={state.selectedHotelId}>
+   <div className={styles.arrivalSummary}>
+    <div className={styles.arrivalPlace}><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true"><path d="M18 9c0 5-6 11-6 11S6 14 6 9a6 6 0 1 1 12 0Z"/><circle cx="12" cy="9" r="2"/></svg><span>{arrival?arrivalName:'در انتظار مشخص شدن محل رسیدن'}{arrivalCode&&<> <bdi>({arrivalCode})</bdi></>}</span></div>
+    <div className={styles.arrivalStay} data-arrival-stay-summary>{model.query?<><span>{dateText(model.query.checkIn)}</span><span>۱ شب · ۱ اتاق</span></>:<span>بر اساس زمان رسیدن بلیت انتخاب‌شده</span>}</div>
+   </div>
+   <div ref={bindScroll} className={styles.hotelDiscoveryScroll} data-hotel-scroll>
+    <div className={styles.arrivalMapFrame} data-hotel-map-frame>
+     {arrival?<FreeLocationMap identity={identity} active={model.open} variant="discovery" center={arrival.point} choices={choices} selectedHotelId={state.selectedHotelId} onSelectHotel={pickHotel} pickingPoint={Boolean(state.point)} point={state.point?.value??draft.customPoint} onPoint={model.chooseLocation} isCurrent={isMapCurrent}/>:<div className={styles.arrivalWaiting} role="status"><HotelStayIllustration size="compact"/><strong>هتل‌ها پس از مشخص شدن محل رسیدن نمایش داده می‌شوند</strong><span>محل رسیدن این بلیت هنوز مشخص نیست.</span></div>}
+    </div>
+     {state.point&&<div className={styles.referencePrompt} role="status"><span>نقطه دلخواه را روی نقشه انتخاب کنید</span><Button variant="quiet" onPress={model.cancelPoint}>انصراف</Button></div>}
+    <div className={styles.hotelOrder}><SegmentedControl hideLabel label="مرتب‌سازی اقامتگاه‌ها" value={state.point?'location-distance':draft.sort} isDisabled={model.stale||model.blocked||state.status==='loading'} onChange={sort} options={[{id:'cheapest',label:'ارزان‌ترین'},{id:'stars',label:'ستاره بیشتر'},{id:'arrival-distance',label:`نزدیک به ${modeLabel}`},{id:'location-distance',label:'نزدیک به نقطه دلخواه'}]}/>{draft.customPoint&&!state.point&&<div className={styles.referenceChange}><Button variant="secondary" isDisabled={loading||model.stale||model.blocked} onPress={model.openPoint}>تغییر نقطه مرجع</Button></div>}</div>
+    {(state.status==='error'||model.authorityStale||failed)&&<aside className={styles.arrivalRecovery} role="alert"><div><strong>{model.authorityStale?'قیمت هتل‌ها به بررسی تازه نیاز دارد':'دریافت هتل‌ها کامل نشد'}</strong><p>{state.error??(failed?'پاسخ ناموفق به معنی نبود اتاق نیست. دوباره بررسی کنید.':'همین یک شب و موقعیت انتخابی حفظ شده است.')}</p></div>{model.blocked&&model.resumeSession?<Button variant="secondary" onPress={model.resumeSession}>بازیابی نشست</Button>:<Button variant="secondary" isDisabled={!model.query||model.stale||model.blocked} onPress={()=>void model.submit()}>تلاش دوباره</Button>}</aside>}
+    {!model.query&&!loading&&model.errors.length>0&&<p role="status" className={styles.arrivalUnavailable}>{model.errors.join(' ')}</p>}
+    <section aria-label="نتایج مقایسه اقامتگاه‌ها" className={styles.arrivalResults} data-hotel-search-id={visible?.hotelSearchId} data-hotel-query={visible?queryKey(visible.query):undefined} data-hotel-status={visible?.status??(loading?'loading':'idle')} aria-busy={loading}>
+     <div className={styles.hotelResultsHeading}><h2>{visible?`${faNumber(visible.hotels.length)} هتل در ${city?.name??'مقصد'}`:'هتل‌های نزدیک محل رسیدن'}</h2>{visible&&<span>{faNumber(priced)} قیمت کامل · فاصله خط مستقیم</span>}</div>
+     <ContentSwap identity={loading?'loading':visible?.hotelSearchId??'waiting'}>
+      {loading?<div className={styles.hotelCardGrid} role="status" aria-label="در حال دریافت هتل‌ها"><span className={styles.srOnly}>در حال دریافت هتل‌ها و قیمت یک شب…</span>{Array.from({length:10},(_,index)=><div key={index} className={styles.squareHotelSkeleton} aria-hidden="true"><LoadingSkeleton compact rows={3}/></div>)}</div>:visible?.results?.length?<div className={styles.hotelCardGrid} role="list" aria-label="هتل‌ها و قیمت اقامت">{visible.results.map(result=>{const hotel=visible.hotels.find(item=>item.hotelId===result.hotelId);return hotel?<ContentItem key={hotel.hotelId} layout><div role="listitem"><HotelCard hotel={hotel} result={result} quotes={visible.quotes.filter(quote=>quote.hotelId===hotel.hotelId)} catalog={catalog} disabled={!fresh} selected={selectedQuote} isSelected={state.selectedHotelId===hotel.hotelId} distanceTo={draft.sort==='location-distance'?'location':'arrival'} onSelectHotel={model.selectHotel} onSelect={model.selectQuote}/></div></ContentItem>:null;})}</div>:state.status!=='error'&&visible?.status==='empty'?<div className={styles.hotelEmpty} role="status"><HotelStayIllustration size="compact"/><strong>برای این شب اقامتگاهی با شرایط کامل پیدا نشد</strong><p>زمان رسیدن و شهر مقصد بلیت شما مبنای همین مقایسه است.</p><Button variant="secondary" onPress={()=>void model.submit()}>بررسی دوباره</Button></div>:null}
+     </ContentSwap>
+    </section>
+   </div>
+   <ContentSwap identity={selectedHotel&&!state.point&&!model.stale?'selection':'no-selection'}>{selectedHotel&&!state.point&&!model.stale&&<HotelSelection hotel={selectedHotel} result={selectedResult} quote={selectedQuote} pending={loading} continuation={selectedQuote&&referralAction?.quoteId===selectedQuote.quoteId?referralAction.node:undefined} onRefresh={()=>void model.submit()}/>}</ContentSwap>
   </div>
  </Dialog>;
 }

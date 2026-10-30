@@ -1,14 +1,33 @@
 import type {ReactNode} from 'react';
 import type {Hotel,HotelComparisonResult,HotelQuoteSnapshot,CatalogSnapshot} from '@torob-ticket/contracts';
-import {Price,displayProviderName,displayHotelName,displayHotelAddress} from '@torob-ticket/ui';
-import {RoomRates} from './room-rates';
-import {breakfast,cancellation,faNumber,nights,refund,reasonsText,resultLabel} from './hotel-format';
+import {Price,displayHotelName} from '@torob-ticket/ui';
+import {faNumber,nights,resultLabel} from './hotel-format';
 import styles from './hotels.module.css';
-export function HotelCard({hotel,result,quotes,catalog,disabled,selected,onSelect,referralAction}:{referralAction?:{quoteId:string;node:ReactNode};hotel:Hotel;result:HotelComparisonResult;quotes:HotelQuoteSnapshot[];catalog:CatalogSnapshot;disabled:boolean;selected?:HotelQuoteSnapshot;onSelect:(quote:HotelQuoteSnapshot)=>void}){
- const quote=quotes.find(q=>q.quoteId===result.representativeQuoteId);const count=quote?nights(quote.query.checkIn,quote.query.checkOut):0;
- return <article className={styles.card} data-hotel-id={hotel.hotelId} data-hotel-status={result.status}>
-  <div className={styles.cardHead}><div className={styles.hotelIcon} aria-hidden="true"><svg viewBox="0 0 64 64" width="52" height="52"><path d="M14 54V17h24v37M38 29h12v25M8 54h48M20 24h4m6 0h3m-13 8h4m6 0h3m-13 8h4m6 0h3m-9 14V46h7v8m14-17h3m-3 8h3" fill="none" stroke="currentColor" strokeWidth="2"/></svg></div><div className={styles.identity}><h3>{displayHotelName(hotel)}</h3><p>{hotel.stars===null?'درجه هتل اعلام نشده':`${faNumber(hotel.stars)} ستاره`}</p><small>{displayHotelAddress(hotel)}</small></div>{quote&&<div className={styles.total}><small>مبلغ در مقایسه اصلی</small><Price total={quote.total} scope={{kind:'stay',rooms:quote.query.rooms,nights:count}}/><small>میانگین هر شب برای همه اتاق‌ها: {faNumber(quote.total.amountRial/10/count)} تومان</small></div>}</div>
-  <div className={styles.facts}><span>{result.arrivalDistanceKm===null?'فاصله تا نقطه رسیدن مشخص نیست':`${faNumber(result.arrivalDistanceKm)} کیلومتر خط مستقیم تا نقطه رسیدن`}</span>{result.locationDistanceKm!==null&&<span>{faNumber(result.locationDistanceKm)} کیلومتر خط مستقیم تا موقعیت انتخابی</span>}</div>
-  {quote?<><p className={styles.conditions}>{breakfast(quote.terms.breakfast)} · {refund(quote.terms.refundable)} · {cancellation(quote.terms.cancellation)}</p><p className={styles.muted}>ارائه‌شده توسط {displayProviderName(catalog.providerCapabilities.find(p=>p.providerId===quote.providerId))} · همه هزینه‌های اجباری معلوم</p><details className={styles.variants} open={quotes.some(q=>q.quoteId===selected?.quoteId)||undefined}><summary>ترکیب اتاق‌ها و شرایط · {faNumber(quotes.length)} گزینه کامل</summary>{quotes.map(q=><RoomRates continuation={referralAction?.quoteId===q.quoteId?referralAction.node:undefined} key={q.quoteId} quote={q} selected={selected?.quoteId===q.quoteId} disabled={disabled} onSelect={onSelect}/>)}</details></>:<div className={styles.diagnostic}><strong>{resultLabel(result.status)}</strong>{reasonsText(result.reasons).map(reason=><p key={reason}>{reason}</p>)}{result.knownSubtotal&&<small>جمع بخش معلوم، غیرنهایی: {faNumber(result.knownSubtotal.amountRial/10)} تومان؛ مبلغ قابل انتخاب نیست.</small>}</div>}
+
+interface HotelCardProps {
+ hotel:Hotel; result:HotelComparisonResult; quotes:HotelQuoteSnapshot[]; catalog:CatalogSnapshot;
+ disabled:boolean; selected?:HotelQuoteSnapshot; isSelected?:boolean; distanceTo?:'arrival'|'location';
+ onSelect?:(quote:HotelQuoteSnapshot)=>void; onSelectHotel?:(hotelId:string)=>void;
+ referralAction?:{quoteId:string;node:ReactNode};
+}
+export function HotelCard({hotel,result,quotes,disabled,selected,isSelected,distanceTo='arrival',onSelect,onSelectHotel}:HotelCardProps){
+ const base=quotes.find(quote=>quote.quoteId===result.representativeQuoteId);
+ const quote=base&&selected?.quoteId===base.quoteId&&selected.hotelId===hotel.hotelId&&selected.version>=base.version?selected:base;
+ const active=isSelected??selected?.hotelId===hotel.hotelId;
+ const distance=distanceTo==='location'?result.locationDistanceKm:result.arrivalDistanceKm;
+ const expired=Boolean(quote&&Date.parse(quote.expiresAt)<=Date.now());
+ function inspect(){
+  if(disabled)return;
+  if(onSelectHotel){onSelectHotel(hotel.hotelId);return;}
+  if(quote&&!expired&&quote.completeness.status==='complete'&&quote.eligibility.status==='eligible')onSelect?.(quote);
+ }
+ return <article className={styles.squareCard} data-hotel-id={hotel.hotelId} data-hotel-status={result.status} data-selected={Boolean(active)} data-hotel-quote-id={quote?.quoteId} data-quote-version={quote?.version} data-hotel-price-rial={quote?.total.amountRial} data-price-expired={expired||undefined}>
+  <button type="button" className={styles.squareCardSelect} data-hotel-card-select aria-label={`انتخاب ${displayHotelName(hotel)}`} aria-pressed={Boolean(active)} disabled={disabled} onClick={inspect}/>
+  <svg className={styles.hotelCardArt} width="96" height="96" viewBox="0 0 96 96" aria-hidden="true"><path d="M14 78V27l31-12 23 12v51M68 41h15v37M8 78h80M23 36h7m11-4h7m9 4h5M23 48h7m11-4h7m9 4h5M23 60h7m11-4h7m9 4h5M76 50h3m-3 12h3M36 78V66h15v12" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+  <div className={styles.squareCardIdentity} data-hotel-card-identity><span className={styles.hotelStars}>{hotel.stars===null?'درجه اعلام نشده':<><svg viewBox="0 0 20 20" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="m10 2 2.4 4.9 5.4.8-3.9 3.8.9 5.4-4.8-2.5-4.8 2.5.9-5.4L2.2 7.7l5.4-.8Z"/></svg>{faNumber(hotel.stars)} ستاره</>}</span><h3 title={displayHotelName(hotel)}>{displayHotelName(hotel)}</h3></div>
+  <div className={styles.squareCardBottom} data-hotel-card-meta><span className={styles.hotelDistance}>{distance===null?'فاصله نامشخص':<><svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d="M15.5 8c0 4-5.5 9-5.5 9S4.5 12 4.5 8a5.5 5.5 0 1 1 11 0Z"/><circle cx="10" cy="8" r="1.7"/></svg>{faNumber(distance)} کیلومتر {distanceTo==='location'?'تا نقطه':'تا رسیدن'}</>}</span>
+   {quote?<div className={styles.squareCardPrice}><Price total={quote.total} scope={{kind:'stay',rooms:quote.query.rooms,nights:nights(quote.query.checkIn,quote.query.checkOut)}}/>{expired&&<small>نیاز به قیمت تازه</small>}</div>:<strong className={styles.hotelPriceUnknown}>{resultLabel(result.status)}</strong>}
+  </div>
+  {active&&<span className={styles.hotelChosen} aria-hidden="true"><svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2"><path d="m4 10 4 4 8-8"/></svg></span>}
  </article>;
 }
