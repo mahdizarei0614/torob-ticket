@@ -10,7 +10,7 @@
 
 **Tech Stack:** Nx, pnpm, TypeScript, React, Vite, React Router, TanStack Query, React Aria, CSS Modules, CSS custom properties, Zod, NestJS, PostgreSQL, Prisma, Three.js, React Three Fiber, selected Drei utilities, Motion, @internationalized/date, Vitest, Testing Library, Playwright, Storybook, Docker Compose, Caddy.
 
-**Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.30, 2026-10-30 (selective word scramble, eased vehicle-dependent controls and prior refinements).
+**Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.29, 2026-10-30 (scramble removed; eased vehicle-dependent controls and prior refinements retained).
 
 **Plan state:** Approved. M1–M6 and T29 packaging are complete with independent reviews and packaged acceptance evidence. **29/35 tasks complete; M7 PARTIAL, T30 ACTIVE.** Owner requested a fast checkpoint before substantial design/logic changes: finish durable harness checks now; full T30 matrix and T31–T33 audits/rehearsal remain unfinished. M8 retains its planned scope.
 
@@ -2544,9 +2544,20 @@ Owner exact-copy correction,2026-10-30: the outbound/return control label is **�
 
 ## Owner refinement — selective word scramble, 2026-10-30
 
-[Task brief](../../evidence/adjustments/word-scramble-motion/task-brief.md), [decision0059](../../decisions/0059-selective-word-scramble.md), source `1223274`, specification1.30. M7 remains partial29/35; T30 active.
+[Task brief](../../evidence/adjustments/word-scramble-motion/task-brief.md), former decision0059 (withdrawn), source `1223274`, specification1.30. M7 remains partial29/35; T30 active.
 
 | Adjustment | Status | Evidence |
 |---|---|---|
-| Selective text effect | DONE | [Checkpoint](../../evidence/adjustments/word-scramble-motion/checkpoint.md); class options/comparison heading decode with immediate real semantics and fixed final-phrase geometry; existing finite Motion policy, no dependency |
-| Verification and assembly | DONE | Independent63/63 PASS; actual1366/390Chrome2/2PASS,6/4 class and7 heading intermediate frames,0px reserved-width spread,48cards/0 per-card scramble; types/lint pass, initial test-double failure retained; source/review/exports recorded |
+| Selective text effect | REVERTED | [Checkpoint](../../evidence/adjustments/word-scramble-motion/checkpoint.md); class options/comparison heading decode with immediate real semantics and fixed final-phrase geometry; existing finite Motion policy, no dependency |
+| Verification and assembly | REVERTED | Independent63/63 PASS; actual1366/390Chrome2/2PASS,6/4 class and7 heading intermediate frames,0px reserved-width spread,48cards/0 per-card scramble; types/lint pass, initial test-double failure retained; source/review/exports recorded |
+
+Owner rejected the effect and requested rollback; [decision0060](../../decisions/0060-remove-word-scramble.md) restores the previous fade/lift implementation. The verification above describes the withdrawn source.
+
+## Owner correction — remove word scramble, 2026-10-30
+
+[Task brief](../../evidence/adjustments/undo-word-scramble/task-brief.md), [decision0060](../../decisions/0060-remove-word-scramble.md), source `1f52395`. Restores specification1.29; M7 remains partial29/35, T30 active.
+
+| Adjustment | Status | Evidence |
+|---|---|---|
+| Restore prior motion | DONE | Seven files restored byte-exactly to71d0624; two scramble-only tests removed; no scramble APIs/opt-ins, earlier0058 ease/fade/filter motion retained |
+| Verify and assemble | DONE | [Checkpoint](../../evidence/adjustments/undo-word-scramble/checkpoint.md); independent36/36 PASS, refreshed desktop/mobile Chrome2/2PASS12.2s, web/e2e types PASS; source/review/exports recorded |
