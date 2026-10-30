@@ -33,18 +33,18 @@ test('@four-controls all four labeled controls share one row and the leg remains
  page.on('pageerror', error => errors.push(error.message));
  page.on('request', request => { if (request.method() === 'POST' && request.url().endsWith('/api/v1/searches')) searches.push(request.url()); });
  await page.goto('/?q=' + encodeURIComponent(JSON.stringify(query)));
- const leg = page.getByRole('radiogroup', { name: 'جهت سفر', exact: true });
+ const leg = page.getByRole('radiogroup', { name: 'جستجو بر اساس', exact: true });
  const explorer = page.getByRole('region', { name: 'کاوش تاریخ سفر', exact: true });
  const calendar = page.getByRole('button', { name: 'تقویم جلالی و انتخاب تاریخ', exact: true });
  await expect(leg.getByRole('radio', { name: 'تاریخ رفت', exact: true })).toBeChecked();
  await expect(leg.getByRole('radio')).toHaveCount(1);
- await expect(leg.getByText('جهت سفر', { exact: true })).toBeVisible();
+ await expect(leg.getByText('جستجو بر اساس', { exact: true })).toBeVisible();
  await page.evaluate(() => document.fonts.ready);
  const originalCalendar = await calendar.elementHandle();
  const record = async (phase: string) => {
   const value = await geometry(page); rows.push({ phase, geometry: value });
   expect(value.fields).toHaveLength(4);
-  expect(value.fields.map(field => field.name)).toEqual(['مبدا', 'مقصد', 'کلاس سفر', 'جهت سفر']);
+  expect(value.fields.map(field => field.name)).toEqual(['مبدا', 'مقصد', 'کلاس سفر', 'جستجو بر اساس']);
   expect(value.pageWidth).toBeLessThanOrEqual(value.viewport);
   expect(Math.max(...value.fields.map(field => field.top)) - Math.min(...value.fields.map(field => field.top))).toBeLessThan(1);
   expect(Math.max(...value.fields.map(field => field.labelTop!)) - Math.min(...value.fields.map(field => field.labelTop!))).toBeLessThan(1);

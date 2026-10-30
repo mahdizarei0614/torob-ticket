@@ -38,12 +38,12 @@ describe('deliberate inline search validation', () => {
   it('keeps the owned outbound choice visible in the same four-control row, then reveals return without replacing date controls', async () => {
     const user = userEvent.setup(), submit = vi.fn(), view = render(<Form explorer submit={submit}/>);
     const row = view.container.querySelector<HTMLElement>('[data-search-controls]')!;
-    const legs = within(row).getByRole('radiogroup', { name:'جهت سفر' });
+    const legs = within(row).getByRole('radiogroup', { name:'جستجو بر اساس' });
     expect(row.children).toHaveLength(4);
     expect(within(row).getByRole('combobox', { name:'مبدا' })).toBeInTheDocument();
     expect(within(row).getByRole('combobox', { name:'مقصد' })).toBeInTheDocument();
     expect(within(row).getByRole('radiogroup', { name:'کلاس سفر' })).toBeInTheDocument();
-    expect(within(legs).getByText('جهت سفر')).toBeInTheDocument();
+    expect(within(legs).getByText('جستجو بر اساس')).toBeInTheDocument();
     expect(within(legs).getAllByRole('radio')).toHaveLength(1);
     const outbound = within(legs).getByRole('radio', { name:'تاریخ رفت' }); expect(outbound).toBeChecked();
     const explorer = screen.getByRole('region', { name:'کاوش تاریخ سفر' }), calendar = screen.getByRole('button', { name:'تقویم جلالی و انتخاب تاریخ' });
@@ -59,7 +59,7 @@ describe('deliberate inline search validation', () => {
     const user = userEvent.setup(), submit = vi.fn();
     const view = render(<Form initial={{...query,tripType:'round-trip',returnDate:'2026-10-28'}} explorer submit={submit}/>);
     const preferences = view.container.querySelector<HTMLElement>('[data-search-preferences]')!;
-    const legs = within(preferences).getByRole('radiogroup', { name:'جهت سفر' });
+    const legs = within(preferences).getByRole('radiogroup', { name:'جستجو بر اساس' });
     expect(preferences.children).toHaveLength(4);
     expect(within(preferences).getByRole('radiogroup', { name:'کلاس سفر' })).toBeInTheDocument();
     const explorer = screen.getByRole('region', { name:'کاوش تاریخ سفر' }), calendar = screen.getByRole('button', { name:'تقویم جلالی و انتخاب تاریخ' });

@@ -2529,3 +2529,5 @@ M7 remains partial29/35 and T30 active.
 |---|---|---|---|
 | Single row | Origin, destination, class and outbound/return in one physical line, readable type and aligned labels | DONE | [Checkpoint](../../evidence/adjustments/search-four-controls-row/checkpoint.md); eight final native snapshots have0px label/control-top spread,54px surfaces and no page overflow; intrinsic overflow stays local |
 | Leg visibility | Keep one-way outbound visible; label «جهت سفر»; calendar stays below wheel | DONE | Final19 focused source cases, independent59-case checkpoint and five unique native cases pass; final label/geometry rerun passes5.2s. Leg/URL/calendar identity preserved, source/static/independent review approved |
+
+Owner exact-copy correction,2026-10-30: the outbound/return control label is **جستجو بر اساس**. Visible and accessible names and existing regression selectors updated; layout/behavior unchanged.

@@ -94,7 +94,7 @@ for (const width of [1366, 390]) {
   const round = { ...query, tripType: 'round-trip', returnDate: '2026-11-05' };
   await page.goto('/?q=' + encodeURIComponent(JSON.stringify(round)));
   const date = page.getByRole('region', { name: 'کاوش تاریخ سفر', exact: true });
-  const leg = page.getByRole('radiogroup', { name: 'جهت سفر', exact: true });
+  const leg = page.getByRole('radiogroup', { name: 'جستجو بر اساس', exact: true });
   const travelClass = page.getByRole('radiogroup', { name: 'کلاس سفر', exact: true });
   const row = page.locator('[data-search-preferences]');
   await expect(row).toBeVisible(); await expect(row.locator('[role="radiogroup"]')).toHaveCount(2);

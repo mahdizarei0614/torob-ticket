@@ -23,3 +23,7 @@ use807px intrinsic content in the same630px scroller. No universal desktop-fit
 claim is made. See the [checkpoint](../evidence/adjustments/search-four-controls-row/checkpoint.md)
 and [independent approval](../evidence/adjustments/search-four-controls-row/independent-review.md).
 M7 remains partial29/35 with T30 active. No remote action or image rebuild.
+
+Owner copy correction,2026-10-30: the final visible and accessible label is
+«جستجو بر اساس». This supersedes the earlier label wording only; layout, leg
+selection and calendar behavior are unchanged.
