@@ -55,7 +55,6 @@
 .classField [role='radio']{white-space:nowrap;min-height:44px;}
 @media(max-width:759px),(min-width:1120px) and (max-width:1279px){
  .tripFields{grid-template-columns:repeat(2,minmax(0,1fr));}
- .classField{grid-column:1/-1;}
 }
 
 /* Title and suggested trips share a compact row and a vertical center. */
@@ -71,14 +70,14 @@
 .fieldError { margin:5px 0 0; color:var(--danger); font-size:12px; line-height:1.8; }
 .submitRow > button[data-invalid] { background:var(--disabled-bg); border-color:var(--border); color:var(--disabled-text); cursor:pointer; }
 
-/* 0056: origin/destination share a row; owned date-leg controls are portalled
-   beside class without moving their date/calendar state. Tracks align at bottom. */
-.tripFields { grid-template-columns:repeat(2,minmax(0,1fr)); }
-.preferences { display:flex; flex-wrap:wrap; align-items:flex-end; gap:8px 12px; min-width:0; }
-.preferences > .classField,.dateLegSlot { min-width:0; }
+/* 0057: all four controls stay on one row. Narrow layouts scroll this row
+   locally; date/calendar state remains in its original DateExplorer owner. */
+.tripFields { grid-template-columns:repeat(2,minmax(140px,1fr)) max-content max-content; grid-auto-flow:column; align-items:end; gap:8px; min-width:0; max-width:100%; overflow-x:auto; overscroll-behavior-inline:contain; scrollbar-width:thin; padding-block:4px; }
+.tripFields > .classField,.dateLegSlot { grid-column:auto; min-width:0; }
+.tripFields [data-segment-track] { flex-wrap:nowrap; max-width:none; }
+.tripFields input[role='combobox'] { min-height:calc(var(--control-size) + var(--space-1) * 2); }
 .dateLegSlot:empty { display:none; }
-.preferences [role='radio'] { min-height:44px; white-space:nowrap; }
+.tripFields [role='radio'] { flex-shrink:0; min-height:44px; white-space:nowrap; }
 .submitRow > .fieldFeedback { width:100%; }
 .submitRow > .fieldFeedback > button { width:100%; }
 .submitRow > .fieldFeedback > button[data-invalid] { background:var(--disabled-bg); border-color:var(--border); color:var(--disabled-text); cursor:pointer; }
-@media(max-width:600px) { .preferences { gap:8px; } }

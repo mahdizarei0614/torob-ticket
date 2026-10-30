@@ -35,11 +35,32 @@ function Form({ initial = query, pending = false, disabled = false, covered = fa
   return <MotionPolicyProvider covered={covered}><SearchComposer draft={draft} catalog={catalog} session={session} edit={patch => setDraft(previous => ({ ...previous, ...patch }))} onSubmit={submit} errors={validateDraft(draft, catalog, session).errors} pending={pending} disabled={disabled} dateExplorer={explorer ? <DateExplorer draft={draft} catalog={catalog} session={session} onCommit={setDraft} onPreview={vi.fn()} onCovered={vi.fn()} onInteractionChange={vi.fn()} /> : undefined} /></MotionPolicyProvider>;
 }
 describe('deliberate inline search validation', () => {
+  it('keeps the owned outbound choice visible in the same four-control row, then reveals return without replacing date controls', async () => {
+    const user = userEvent.setup(), submit = vi.fn(), view = render(<Form explorer submit={submit}/>);
+    const row = view.container.querySelector<HTMLElement>('[data-search-controls]')!;
+    const legs = within(row).getByRole('radiogroup', { name:'جهت سفر' });
+    expect(row.children).toHaveLength(4);
+    expect(within(row).getByRole('combobox', { name:'مبدا' })).toBeInTheDocument();
+    expect(within(row).getByRole('combobox', { name:'مقصد' })).toBeInTheDocument();
+    expect(within(row).getByRole('radiogroup', { name:'کلاس سفر' })).toBeInTheDocument();
+    expect(within(legs).getByText('جهت سفر')).toBeInTheDocument();
+    expect(within(legs).getAllByRole('radio')).toHaveLength(1);
+    const outbound = within(legs).getByRole('radio', { name:'تاریخ رفت' }); expect(outbound).toBeChecked();
+    const explorer = screen.getByRole('region', { name:'کاوش تاریخ سفر' }), calendar = screen.getByRole('button', { name:'تقویم جلالی و انتخاب تاریخ' });
+    await user.click(outbound); expect(explorer).toHaveAttribute('data-selected-outbound',query.departureDate); expect(submit).not.toHaveBeenCalled();
+    await user.click(screen.getByRole('radio', { name:'رفت‌وبرگشت' }));
+    expect(within(legs).getAllByRole('radio')).toHaveLength(2); expect(row.children).toHaveLength(4);
+    await user.click(within(legs).getByRole('radio', { name:'تاریخ برگشت' }));
+    expect(screen.getByRole('region', { name:'کاوش تاریخ سفر' })).toBe(explorer);
+    expect(explorer).toHaveAttribute('data-date-leg','return'); expect(explorer).toHaveAttribute('data-selected-return','');
+    expect(screen.getByRole('button', { name:'تقویم جلالی و انتخاب تاریخ' })).toBe(calendar); expect(submit).not.toHaveBeenCalled();
+  });
   it('portals the owned round-trip leg segments beside class without committing dates, retaining the same explorer/calendar control', async () => {
     const user = userEvent.setup(), submit = vi.fn();
     const view = render(<Form initial={{...query,tripType:'round-trip',returnDate:'2026-10-28'}} explorer submit={submit}/>);
     const preferences = view.container.querySelector<HTMLElement>('[data-search-preferences]')!;
-    const legs = within(preferences).getByRole('radiogroup', { name:'بخش سفر برای قیمت روزها' });
+    const legs = within(preferences).getByRole('radiogroup', { name:'جهت سفر' });
+    expect(preferences.children).toHaveLength(4);
     expect(within(preferences).getByRole('radiogroup', { name:'کلاس سفر' })).toBeInTheDocument();
     const explorer = screen.getByRole('region', { name:'کاوش تاریخ سفر' }), calendar = screen.getByRole('button', { name:'تقویم جلالی و انتخاب تاریخ' });
     expect(explorer.contains(legs)).toBe(false); expect(explorer).toHaveAttribute('data-date-leg','outbound');
