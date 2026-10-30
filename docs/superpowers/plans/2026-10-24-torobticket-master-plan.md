@@ -10,7 +10,7 @@
 
 **Tech Stack:** Nx, pnpm, TypeScript, React, Vite, React Router, TanStack Query, React Aria, CSS Modules, CSS custom properties, Zod, NestJS, PostgreSQL, Prisma, Three.js, React Three Fiber, selected Drei utilities, Motion, @internationalized/date, Vitest, Testing Library, Playwright, Storybook, Docker Compose, Caddy.
 
-**Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.28, 2026-10-30 (four labeled controls on one row, persistent outbound control and prior refinements).
+**Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.29, 2026-10-30 (eased vehicle-dependent controls, bounded text motion and prior refinements).
 
 **Plan state:** Approved. M1–M6 and T29 packaging are complete with independent reviews and packaged acceptance evidence. **29/35 tasks complete; M7 PARTIAL, T30 ACTIVE.** Owner requested a fast checkpoint before substantial design/logic changes: finish durable harness checks now; full T30 matrix and T31–T33 audits/rehearsal remain unfinished. M8 retains its planned scope.
 
@@ -2531,3 +2531,13 @@ M7 remains partial29/35 and T30 active.
 | Leg visibility | Keep one-way outbound visible; label «جهت سفر»; calendar stays below wheel | DONE | Final19 focused source cases, independent59-case checkpoint and five unique native cases pass; final label/geometry rerun passes5.2s. Leg/URL/calendar identity preserved, source/static/independent review approved |
 
 Owner exact-copy correction,2026-10-30: the outbound/return control label is **جستجو بر اساس**. Visible and accessible names and existing regression selectors updated; layout/behavior unchanged.
+
+## Owner adjustment — vehicle filters and text motion, 2026-10-30
+
+[Task brief](../../evidence/adjustments/vehicle-filter-text-motion/task-brief.md), [decision0058](../../decisions/0058-vehicle-filter-and-text-motion.md), source `ea4d6aa`, specification1.29. M7 remains partial29/35 and T30 active.
+
+| Adjustment | Subtasks | Status | Evidence |
+|---|---|---|---|
+| Dynamic controls | Eased mode-dependent option width/reflow/words; native authority/focus, selected indicator and four-field row | DONE | [Checkpoint](../../evidence/adjustments/vehicle-filter-text-motion/checkpoint.md); actual1366/390px Chrome traces show11/14 intermediate-width and11/12 opacity frames;44px targets, same-row tops, no page overflow and0px indicator mismatch |
+| Text rollout | Bounded current/outgoing whole-phrase transitions on meaningful control/result/filter/empty/hotel surfaces | DONE | Native47 seller-word frames; Persian shaping/current semantics and input DOM preserved;48 cards with0 per-card MotionText; finite panel entry/exit with stale-generation guards |
+| Verification | Independent source/authority/policy review, actual desktop/mobile/rapid/input/panel checks, documentation/exports | DONE | Independent86/86 source cases PASS after test-only appearance timing repair; UI/web/e2e types and scoped lint pass;3 unique native cases have passing receipts, original failures retained; concurrent request-control/branding excluded |
