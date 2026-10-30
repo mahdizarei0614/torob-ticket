@@ -10,7 +10,7 @@
 
 **Tech Stack:** Nx, pnpm, TypeScript, React, Vite, React Router, TanStack Query, React Aria, CSS Modules, CSS custom properties, Zod, NestJS, PostgreSQL, Prisma, Three.js, React Three Fiber, selected Drei utilities, Motion, @internationalized/date, Vitest, Testing Library, Playwright, Storybook, Docker Compose, Caddy.
 
-**Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.26, 2026-10-30 (Docker hot reload, responsive large ticket lists and arrow-only trip-type heading changes).
+**Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.27, 2026-10-30 (compact search/date controls, validation tooltips and prior Docker/list/map refinements).
 
 **Plan state:** Approved. M1–M6 and T29 packaging are complete with independent reviews and packaged acceptance evidence. **29/35 tasks complete; M7 PARTIAL, T30 ACTIVE.** Owner requested a fast checkpoint before substantial design/logic changes: finish durable harness checks now; full T30 matrix and T31–T33 audits/rehearsal remain unfinished. M8 retains its planned scope.
 
@@ -2510,3 +2510,13 @@ M7 remains partial29/35 and T30 active.
 |---|---|---|---|
 | Heading identity | Keep unchanged city labels mounted on one-way/round-trip changes; isolate finite arrow animation and stable width | DONE | [Checkpoint](../../evidence/adjustments/map-heading-arrows/checkpoint.md); stable label/text/code owners,220ms arrow reveal, fresh epoch for genuine selected-service changes; stale facts clear truthfully |
 | Regression and assembly | Focused source review; actual form and selected-fare toggles; docs/export/commit | DONE | Author12/12 and independent33/33 source cases; final headed native six phases PASS11.5s, normal form0px movement/opacity1/16–17 arrow frames, connected service revocation and reduced motion; lint/types pass, existing Docker DEV/data retained |
+
+## Owner adjustment — compact search controls and error tooltips, 2026-10-30
+
+[Task brief](../../evidence/adjustments/search-controls-tooltips/task-brief.md), [decision0056](../../decisions/0056-search-controls-and-validation-tooltips.md), source `f4782bf`, specification1.27. M7 remains partial29/35 and T30 active.
+
+| Adjustment | Subtasks | Status | Evidence |
+|---|---|---|---|
+| Empty city focus | Native options-on-focus, with selection/typing/clear/Escape and disabled destination preserved | DONE | [Checkpoint](../../evidence/adjustments/search-controls-tooltips/checkpoint.md); actual empty origin/destination focus opens options without choosing a city; correction and no invalid search POST verified |
+| Compact date controls | Portal existing owned outbound/return segments beside class; remove fixed-leg hint, retain price units | DONE | Desktop tracks exactly aligned;390/320px fit and44px targets; leg switching leaves URL/search intent untouched, calendar cancel/apply and invalid-return auto-selection preserved |
+| Validation overlays | Above whole field/label, stable heights, accessible descriptions, focus/hover/Escape, finite feedback | DONE | Final field/form/input height deltas0px at1366dark/390light; hoverable tip and generic calendar anchor pass. Author28 focused+final13 UI cases, independent71 checks, four unique native scenarios and scoped lint/types pass; original failures retained, independent approval |

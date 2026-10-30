@@ -1,6 +1,6 @@
 # TorobTicket — Product and Architecture Specification
 
-**Revision:** 1.26 · 2026-10-30
+**Revision:** 1.27 · 2026-10-30
 
 **Purpose:** Authoritative design companion to the master implementation plan.  
 **Status:** Product scope and architecture approved in conversation. Implementation defaults below are explicit engineering decisions made while preparing the plan; they are not additional claims of user approval.
@@ -73,6 +73,10 @@ Search controls share compact rows without smaller type. **Owner adjustment, 202
 **Owner refinement,2026-10-29 (decision0049):** all segmented tracks use the ranking control's4px padding on every side; remove form/class overrides that collapse it. Preserve measured sliding indicators and readable option type. Operating-carrier marks use40px display boxes with14px desktop/13px narrow labels; marketplace identity remains separate.
 
 **Owner quiet-feedback refinement,2026-10-29 (decision0051):** remove routine quote-expired recovery cards and passive generic incomplete-form/date hints. Expired cards retain their concise invalid-price indicator and cannot select/refer old evidence. Incomplete search remains visually inactive but accepts a pointer/keyboard validation attempt: mark actual invalid fields, apply a finite horizontal shake and focus the first useful editable field. Invalid attempts never call search or alter committed evidence. Pending/reset/session/covered/date-interaction guards remain truly disabled; reduced motion retains errors without shaking. Calendar trigger shows its icon and compact readable label.
+
+**Owner compact-control refinement,2026-10-30 (decision0056):** focusing an empty enabled city input opens its supported options without choosing a city. Preserve native typing, keyboard choice, clearing, Escape and disabled-destination behavior. Place the class choices and round-trip departure/return exploration segments in a shared compact row; narrow layouts may wrap without shrinking type or touch targets. The date explorer continues to own the active leg and calendar/interaction state; relocating its control must not duplicate that state or alter search intent by itself. One-way travel can omit the redundant leg selector.
+
+Field validation uses above-control tooltips instead of below-field paragraphs, so invalid feedback does not change field or row height. Keep persistent accessible error descriptions and invalid styling even while the visual tooltip is dismissed. Tooltips are available through focus and hover, dismiss with Escape in either case, and do not steal focus, block the city menu/calendar or lock scrolling. Deliberate invalid-submit focus and finite shake remain. Routine fixed-opposite-leg captions are removed; calendar price units, actual missing-return errors and retrieval-failure distinctions remain meaningful.
 
 **Default filter set:** budget, departure time window, operator/provider, mode-specific class, maximum flight stops or ground transfers, refundable-only, and a flight checked-baggage requirement. Unknown conditions never satisfy an affirmative requirement. A condition is shown as unknown instead of invented. The single departure-time window constrains the outbound departure in its origin time zone and is labeled outbound for round trips. The maximum stops/transfers filter uses the complete-trip count (both directions for round trips), with that total explicit in its label.
 
