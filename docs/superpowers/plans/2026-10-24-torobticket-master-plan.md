@@ -10,7 +10,7 @@
 
 **Tech Stack:** Nx, pnpm, TypeScript, React, Vite, React Router, TanStack Query, React Aria, CSS Modules, CSS custom properties, Zod, NestJS, PostgreSQL, Prisma, Three.js, React Three Fiber, selected Drei utilities, Motion, @internationalized/date, Vitest, Testing Library, Playwright, Storybook, Docker Compose, Caddy.
 
-**Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.38, 2026-10-31 (gold recommendations, hotel reference/scroll/control refinements, four-person rates and map-heading/dot polish; prior comparison/referral decisions retained).
+**Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.39, 2026-10-31 (neutral champagne-metal recommendations with a restrained border sheen; prior comparison/referral/hotel/map decisions retained).
 
 **Plan state:** Approved. M1–M6 and T29 packaging are complete with independent reviews and packaged acceptance evidence. **29/35 tasks complete; M7 PARTIAL, T30 ACTIVE.** Owner requested a fast checkpoint before substantial design/logic changes: finish durable harness checks now; full T30 matrix and T31–T33 audits/rehearsal remain unfinished. M8 retains its planned scope.
 
@@ -2658,3 +2658,13 @@ Owner rejected the effect and requested rollback; [decision0060](../../decisions
 |8 Reference map interaction | DONE | Bare-map/pin/cluster picking, ordinary zoom/selection, cancellation and authority-key/epoch fences; actual bare-map,14hotelcluster mean, exact hotel-pin point/cancel/ordinary zoom PASS |
 |9 Shared sliding hotel segments | DONE | Shared moving/resizing indicator remains active through pending replacement; actual intermediate widths and zero gaps verified |
 | Review and scoped assembly | DONE | Independent471cases/64suites; web/UI/fixtures/graphics/E2Etypes and scopedlint PASS, APItypesPASSinDEVgeneratedclient environment; five final Chrome groups PASS with0pageerrors; actual270bloom/1452world draws, GPUp905.526ms and16.7ms submission in this run. Focused11case final-world followup overlaps471. Exact28sourcepaths committed; package/tokenprojections preserveforeignwork; docs/SDD/full exports recorded |
+
+## Owner correction — metallic recommendation finish, 2026-10-31
+
+[Task brief](../../evidence/adjustments/metallic-gold/task-brief.md), [decision0069](../../decisions/0069-metallic-recommendation-finish.md). Specification1.39; M7partial29/35,T30active. Source `f81189a`; [checkpoint](../../evidence/adjustments/metallic-gold/checkpoint.md) and [independent approval](../../evidence/adjustments/metallic-gold/review-independent.md).
+
+| Work | Status | Evidence |
+|---|---|---|
+| Neutral metallic appearance | DONE | Current-theme faces, subtle champagne reflection and thin multi-stop rim replace amber/brown warning fill; price/status/transport palettes untouched |
+| Border sheen and cue | DONE |9sCSSglint follows squircle rim; pointer-pass, existingpolicy pause/staticreduced/forced fallback;3sreveal/persistentidentity retained |
+| Review and assembly | DONE |31existingresultscases/webtypes/ownedlint PASS; native dark/light/mobile/cue/policy PASS0errors; exact3sourcepaths committed, frozen/tokenprojection verified; docs/SDD/full exports recorded |

@@ -1,6 +1,6 @@
 # TorobTicket — Product and Architecture Specification
 
-**Revision:** 1.38 · 2026-10-31
+**Revision:** 1.39 · 2026-10-31
 
 **Purpose:** Authoritative design companion to the master implementation plan.  
 **Status:** Product scope and architecture approved in conversation. Implementation defaults below are explicit engineering decisions made while preparing the plan; they are not additional claims of user approval.
@@ -117,6 +117,8 @@ Explanations are deterministic facts with a stated comparison: price difference,
 **Default contextual suggestion:** show at most one suggestion. Offer a nearby date within ±3 days when it saves at least 10% and 200,000 toman with the same party/filters and fixed opposite leg; or a journey that saves at least 90 minutes for no more than 10% extra. Evaluate relative to the current cheapest complete option, require comparable completed coverage, and show the exact tradeoff. Prefer the larger proportional price saving when multiple date candidates qualify, then nearer date, then stable ID. Otherwise use the time-saving candidate with the greatest minutes saved, then lower price. Dismissal lasts for that search. Thresholds are explicit defaults to validate with fixtures.
 
 **Owner suggestion refinement,2026-10-31 (decision0068):** the زودتر برسید surface and its exact qualifying price card use a semantic gold palette, independent of transport primary colors and price bands. نمایش مسیر پیشنهادی focuses the current native card-selection control and scrolls to that exact active card; a stronger gold cue fades over3seconds, leaving the card's ordinary gold identity in place. Repeated activation restarts only the transient cue. Dismissing the suggestion hides its banner while a still-valid target stays gold. Changed/expired/replaced evidence revokes the cue and gold recommendation; reduced/hidden/covered motion removes the transient animation without replay on resume. Qualification, organic ranking, selected quote and referral authority remain unchanged.
+
+**Owner metallic refinement,2026-10-31 (decision0069):** replace the warning-like amber fill with the current neutral surface, a faint champagne reflection and a thin metallic gradient rim. A restrained warm glint travels around the exact squircle border on a9second CSS cycle. Keep text readable, price/status and transport colors intact, all controls unobstructed, and the existing3second reveal cue/persistent recommendation identity. Use the existing motion policy to pause the glint when hidden/covered; reduced motion and forced colors use a static edge, as do browsers without mask support. No additional JS clock/dependency or comparison/referral change.
 
 **Sponsorship opportunity:** the owner designates the زودتر برسید recommendation/modal presentation as a reusable future sponsorship placement. Any sponsored version should identify its commercial placement and retain truthful eligible price/time facts. Current implementation remains the deterministic organic suggestion; no campaign backend, paid ranking, billing or fabricated sponsorship/conversion metrics is introduced.
 
