@@ -10,7 +10,7 @@
 
 **Tech Stack:** Nx, pnpm, TypeScript, React, Vite, React Router, TanStack Query, React Aria, CSS Modules, CSS custom properties, Zod, NestJS, PostgreSQL, Prisma, Three.js, React Three Fiber, selected Drei utilities, Motion, @internationalized/date, Vitest, Testing Library, Playwright, Storybook, Docker Compose, Caddy.
 
-**Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.39, 2026-10-31 (neutral champagne-metal recommendations with a restrained border sheen; prior comparison/referral/hotel/map decisions retained).
+**Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.40, 2026-10-31 (plain route headings, intrinsic hotel controls and repeatable reference picking; prior comparison/referral/metallic gold/map decisions retained).
 
 **Plan state:** Approved. M1–M6 and T29 packaging are complete with independent reviews and packaged acceptance evidence. **29/35 tasks complete; M7 PARTIAL, T30 ACTIVE.** Owner requested a fast checkpoint before substantial design/logic changes: finish durable harness checks now; full T30 matrix and T31–T33 audits/rehearsal remain unfinished. M8 retains its planned scope.
 
@@ -2668,3 +2668,14 @@ Owner rejected the effect and requested rollback; [decision0060](../../decisions
 | Neutral metallic appearance | DONE | Current-theme faces, subtle champagne reflection and thin multi-stop rim replace amber/brown warning fill; price/status/transport palettes untouched |
 | Border sheen and cue | DONE |9sCSSglint follows squircle rim; pointer-pass, existingpolicy pause/staticreduced/forced fallback;3sreveal/persistentidentity retained |
 | Review and assembly | DONE |31existingresultscases/webtypes/ownedlint PASS; native dark/light/mobile/cue/policy PASS0errors; exact3sourcepaths committed, frozen/tokenprojection verified; docs/SDD/full exports recorded |
+
+## Owner correction — plain heading and repeatable hotel reference, 2026-10-31
+
+[Task brief](../../evidence/adjustments/hotel-reference-reselection/task-brief.md), [decision0070](../../decisions/0070-hotel-reference-reactivation-and-plain-heading.md). Specification1.40; M7partial29/35,T30active. Source `e358b62`; [checkpoint](../../evidence/adjustments/hotel-reference-reselection/checkpoint.md) and [independent approval](../../evidence/adjustments/hotel-reference-reselection/review-independent.md).
+
+| Work | Status | Evidence |
+|---|---|---|
+| Plain route labels | DONE | Prior plain city/stop labels, finite fade and stable arrow/bdi behavior restored; unusedGSAPcomponent/tests/dependency removed, root44mapcasesPASS |
+| Intrinsic hotel controls | DONE | Fit-content track389.06px in663pxdesktop row, room gap149.94px, both54pxhigh; mobile nooverflow, unchanged sliding indicator |
+| Repeated reference selection | DONE | Before-fix secondcheckedpointerfailure captured; guardedonReselect/idempotentpointentry, savedpointreturnfromstars, pointer/touch/Space/Space/Enter/cancel/reopen and actualpin/clustercoords PASS |
+| Review and assembly | DONE | Independent171/21+web/UItypes/lintPASS, strengthenedcontrolledkeyboard8/1overlappingPASS;4nativegroups+2settledcapturesPASS0pageerrors. Source14paths including2intentional deletions committed; packageprojection/frozenbytesverified, docs/SDD/full exports recorded |
