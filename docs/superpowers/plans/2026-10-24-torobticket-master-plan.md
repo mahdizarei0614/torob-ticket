@@ -10,7 +10,7 @@
 
 **Tech Stack:** Nx, pnpm, TypeScript, React, Vite, React Router, TanStack Query, React Aria, CSS Modules, CSS custom properties, Zod, NestJS, PostgreSQL, Prisma, Three.js, React Three Fiber, selected Drei utilities, Motion, @internationalized/date, Vitest, Testing Library, Playwright, Storybook, Docker Compose, Caddy.
 
-**Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.41, 2026-10-31 (finite presence restored under StrictMode, hotel dock exits and two stronger metallic border glints; prior comparison/referral/map decisions retained).
+**Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.42, 2026-11-01 (brighter bounded bloom for Iran and zoomed map particles; prior comparison/referral/motion/device qualification decisions retained).
 
 **Plan state:** Approved. M1–M6 and T29 packaging are complete with independent reviews and packaged acceptance evidence. **29/35 tasks complete; M7 PARTIAL, T30 ACTIVE.** Owner requested a fast checkpoint before substantial design/logic changes: finish durable harness checks now; full T30 matrix and T31–T33 audits/rehearsal remain unfinished. M8 retains its planned scope.
 
@@ -2692,3 +2692,15 @@ Owner rejected the effect and requested rollback; [decision0060](../../decisions
 | Dock entry, replacement and exit | DONE | One inert retiring visual, latest city entry and live action guards;132/18 author cases PASS, native six presence groups PASS with17 unchanged camera-bound samples |
 | Two visible metallic border glints | DONE | Owner-refined short9s light streaks,1px core/3px local halo; final light/dark/390pxmobile, actual keyboard rings, pointer-state thin decoration and policy/cue checks PASS |
 | Independent review and assembly | DONE | Independent98/15PASS6.70s, web/UI types/six-filelint and8hashes PASS; native8groups PASS0errors. Exact8source paths committed `16e5c6e`; decision/spec/master/SDD and full local exports updated; foreign work retained |
+
+
+## Owner correction — brighter sparse-map bloom, 2026-11-01
+
+[Task brief](../../evidence/adjustments/sparse-map-bloom/task-brief.md), [decision0072](../../decisions/0072-brighter-sparse-map-bloom.md). Specification1.42; M7partial29/35,T30active. Source `f9adb19`; [checkpoint](../../evidence/adjustments/sparse-map-bloom/checkpoint.md) and [independent approval](../../evidence/adjustments/sparse-map-bloom/review-independent.md).
+
+| Work | Status | Evidence |
+|---|---|---|
+| Bounded particle-light extraction | DONE | Semantic dark .45/.008/.018, light .16/.025/.04 and3mips; ordinary particle shaders/colors/density and device gate unchanged; root60/5/type/lint PASS |
+| Iran/world sparse-view comparison | DONE | Four naturally qualified before/after same-frame capture pairs; sampled halo mean2.3–3.6×baseline,0outside-scissor changes; native images independently accepted with live-phase/heuristic limits |
+| Performance, themes and pauses | DONE | Separate4steady route/zoom windows onDPR1/DPR2 within actualCPU/GPU/cadence guards; genuine light, vehicle foreground, native dark/light themes and calendar/reduced/mobile pause+resume PASS0errors |
+| Independent review and assembly | DONE | Independent199/28PASS8.17s, graphics types/two-filelint and three hashes/token projection PASS; all96 steady runtime snapshots enabled. Exact3source paths committed `f9adb19`; decision/spec/master/SDD/full exports updated, foreign work preserved |
