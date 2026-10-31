@@ -10,7 +10,7 @@
 
 **Tech Stack:** Nx, pnpm, TypeScript, React, Vite, React Router, TanStack Query, React Aria, CSS Modules, CSS custom properties, Zod, NestJS, PostgreSQL, Prisma, Three.js, React Three Fiber, selected Drei utilities, Motion, @internationalized/date, Vitest, Testing Library, Playwright, Storybook, Docker Compose, Caddy.
 
-**Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.40, 2026-10-31 (plain route headings, intrinsic hotel controls and repeatable reference picking; prior comparison/referral/metallic gold/map decisions retained).
+**Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.41, 2026-10-31 (finite presence restored under StrictMode, hotel dock exits and two stronger metallic border glints; prior comparison/referral/map decisions retained).
 
 **Plan state:** Approved. M1–M6 and T29 packaging are complete with independent reviews and packaged acceptance evidence. **29/35 tasks complete; M7 PARTIAL, T30 ACTIVE.** Owner requested a fast checkpoint before substantial design/logic changes: finish durable harness checks now; full T30 matrix and T31–T33 audits/rehearsal remain unfinished. M8 retains its planned scope.
 
@@ -2679,3 +2679,16 @@ Owner rejected the effect and requested rollback; [decision0060](../../decisions
 | Intrinsic hotel controls | DONE | Fit-content track389.06px in663pxdesktop row, room gap149.94px, both54pxhigh; mobile nooverflow, unchanged sliding indicator |
 | Repeated reference selection | DONE | Before-fix secondcheckedpointerfailure captured; guardedonReselect/idempotentpointentry, savedpointreturnfromstars, pointer/touch/Space/Space/Enter/cancel/reopen and actualpin/clustercoords PASS |
 | Review and assembly | DONE | Independent171/21+web/UItypes/lintPASS, strengthenedcontrolledkeyboard8/1overlappingPASS;4nativegroups+2settledcapturesPASS0pageerrors. Source14paths including2intentional deletions committed; packageprojection/frozenbytesverified, docs/SDD/full exports recorded |
+
+
+## Owner correction — dock motion and dual gold glow, 2026-10-31
+
+[Task brief](../../evidence/adjustments/dock-motion-dual-gold-glow/task-brief.md).
+[Decision0071](../../decisions/0071-dock-presence-and-dual-gold-glow.md), specification1.41; M7 remains partial29/35,T30active. Source `16e5c6e`; [checkpoint](../../evidence/adjustments/dock-motion-dual-gold-glow/checkpoint.md) and [independent approval](../../evidence/adjustments/dock-motion-dual-gold-glow/review-independent.md).
+
+| Work | Status | Evidence |
+|---|---|---|
+| Restore shared finite entries | DONE | Real StrictMode regression repaired; running/held/settled ownership, stale completions and policy no-replay covered |
+| Dock entry, replacement and exit | DONE | One inert retiring visual, latest city entry and live action guards;132/18 author cases PASS, native six presence groups PASS with17 unchanged camera-bound samples |
+| Two visible metallic border glints | DONE | Owner-refined short9s light streaks,1px core/3px local halo; final light/dark/390pxmobile, actual keyboard rings, pointer-state thin decoration and policy/cue checks PASS |
+| Independent review and assembly | DONE | Independent98/15PASS6.70s, web/UI types/six-filelint and8hashes PASS; native8groups PASS0errors. Exact8source paths committed `16e5c6e`; decision/spec/master/SDD and full local exports updated; foreign work retained |
