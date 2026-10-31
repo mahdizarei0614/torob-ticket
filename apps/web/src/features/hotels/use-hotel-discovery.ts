@@ -63,7 +63,7 @@ export function useHotelDiscovery({trip,catalog,session,resetting=false,authorit
   const checked=hotelQuery(next,catalog,session.anchorInstant);if(checked.query)await search(checked.query,renderedView);
  }
  function applyTrip(){if(!owns(true,true)||!latest.current.trip.available||latest.current.trip.draftKey!==tripKey(latest.current.trip.query))return;abort();send({type:'apply-trip',trip:latest.current.trip,catalog});latest.current.onSelectHotelQuote?.(undefined);}
- function openPoint(){if(authority.current.blocked||authority.current.key!==authorityKey||authority.current.epoch!==renderedAuthorityEpoch||!owns())return;if(request.current)automatic.current=undefined;abort();send({type:'open-point'});}
+ function openPoint(){if(currentState.current.point||authority.current.blocked||authority.current.key!==authorityKey||authority.current.epoch!==renderedAuthorityEpoch||!owns())return;if(request.current)automatic.current=undefined;abort();send({type:'open-point'});}
  function pointOwns(){return !authority.current.blocked&&authority.current.key===authorityKey&&authority.current.epoch===renderedAuthorityEpoch&&viewOwns()&&tripEpoch.current.epoch===renderedTripEpoch&&!tripStale(currentState.current,latest.current.trip)&&pointToken!==undefined&&currentState.current.point?.token===pointToken;}
  function setPoint(value:GeoPoint){if(pointOwns())send({type:'point',value});}
  function cancelPoint(){if(!pointOwns())return;send({type:'cancel-point'});}

@@ -9,7 +9,6 @@ import type {TripMapController} from './use-trip-map';
 import {RouteTimeline} from './route-timeline';
 import {RouteDirectionControl} from './route-direction-control';
 import {routeHeading} from './route-heading';
-import {RouteHeadingText,type HeadingTextHistory} from './route-heading-text';
 import {ProvinceBoundaryAsset} from './province-boundaries';
 import styles from './trip-map.module.css';
 const NO_DOTS:[]=[];
@@ -51,7 +50,7 @@ function HeadingArrow({bidirectional,disabled}:{bidirectional:boolean;disabled:b
  },[bidirectional,policy.enabled,controls]);
  return <span className={styles.headingArrow} aria-hidden="true"><motion.i data-map-heading-arrow={bidirectional?'round-trip':'one-way'} data-arrow-motion={policy.enabled?'finite':'static'} initial={false} animate={controls}>{bidirectional?'↔':'←'}</motion.i></span>;
 }
-const HeadingFrame=forwardRef<HTMLDivElement,{heading:ReturnType<typeof routeHeading>;frameKey:string;disabled:boolean;history:HeadingTextHistory}>(function HeadingFrame({heading,frameKey,disabled,history},ref) {
+const HeadingFrame=forwardRef<HTMLDivElement,{heading:ReturnType<typeof routeHeading>;frameKey:string;disabled:boolean}>(function HeadingFrame({heading,frameKey,disabled},ref) {
  const present=useIsPresent();const policy=useMotionPolicy({disabled});
  const [,safeToRemove]=usePresence();
  const controls=useAnimationControls(),entered=useRef(false);
@@ -63,14 +62,12 @@ const HeadingFrame=forwardRef<HTMLDivElement,{heading:ReturnType<typeof routeHea
  useEffect(()=>{if(!present&&!policy.enabled)safeToRemove?.();},[present,policy.enabled,safeToRemove]);
  const occurrences=new Map<string,number>();
  return <motion.div ref={ref} className={styles.headingFrame} aria-hidden={!present||undefined} data-map-heading-key={frameKey} initial={false} animate={controls} transition={{duration:policy.enabled?.3:0,ease:'easeOut'}}>
-  <h2>{heading.nodes.map((node,index)=>{const identity=node.cityId??node.placeId??node.label;const occurrence=occurrences.get(identity)??0;occurrences.set(identity,occurrence+1);const slot=index===0?'origin':index===heading.nodes.length-1?'destination':`stop:${index}`;return <span key={identity+':'+occurrence} className={styles.headingCity}>{index>0&&<HeadingArrow bidirectional={heading.bidirectional} disabled={disabled}/>}<RouteHeadingText text={node.label} identity={identity} slot={slot} history={history} disabled={disabled} present={present}/><bdi className={styles.headingCode} data-map-city-code={identity} dir="ltr" hidden={!node.code}>{node.code?`(${node.code})`:''}</bdi></span>;})}</h2>
+  <h2>{heading.nodes.map((node,index)=>{const identity=node.cityId??node.placeId??node.label;const occurrence=occurrences.get(identity)??0;occurrences.set(identity,occurrence+1);return <span key={identity+':'+occurrence} className={styles.headingCity}>{index>0&&<HeadingArrow bidirectional={heading.bidirectional} disabled={disabled}/>}<span data-map-city-label={identity}>{node.label}</span><bdi className={styles.headingCode} data-map-city-code={identity} dir="ltr" hidden={!node.code}>{node.code?`(${node.code})`:''}</bdi></span>;})}</h2>
   {heading.service&&<p className={styles.service}><span>{heading.service}</span>{heading.showCodeRoute&&heading.routes.map(route=><span key={route.direction} className={styles.legRoute} data-map-leg-route={route.direction} role="group" aria-label={`مسیر ${route.label}`}><span>{route.label}</span><bdi dir={route.coded?'ltr':'rtl'}>{route.chain}</bdi></span>)}</p>}
  </motion.div>;
 });
 export function MapHeading({map,catalog,covered=false}:{map:TripMapController;catalog:CatalogSnapshot;covered?:boolean}) {
  const heading=routeHeading(map.presentationView,catalog);const policy=useMotionPolicy({covered});
- const textHistory=useRef<HeadingTextHistory>({values:new Map(),initialized:false});
- useLayoutEffect(()=>{textHistory.current.initialized=true;},[]);
  const [previous,setPrevious]=useState(()=>({key:heading.key,frameKey:heading.key,epoch:0,intentKey:heading.intentKey,tripType:heading.tripType}));
  let frameKey=previous.frameKey;
  if(previous.key!==heading.key||previous.intentKey!==heading.intentKey||previous.tripType!==heading.tripType){
@@ -83,7 +80,7 @@ export function MapHeading({map,catalog,covered=false}:{map:TripMapController;ca
   frameKey=changed?JSON.stringify([heading.key,epoch]):previous.frameKey;
   setPrevious({key:heading.key,frameKey,epoch,intentKey:heading.intentKey,tripType:heading.tripType});
  }
- return <div className={styles.headingSwap} data-map-heading><AnimatePresence initial={false} mode="popLayout"><HeadingFrame key={frameKey} frameKey={frameKey} heading={heading} disabled={!policy.enabled} history={textHistory.current}/></AnimatePresence></div>;
+ return <div className={styles.headingSwap} data-map-heading><AnimatePresence initial={false} mode="popLayout"><HeadingFrame key={frameKey} frameKey={frameKey} heading={heading} disabled={!policy.enabled}/></AnimatePresence></div>;
 }
 function RouteSummary({map,catalog}:{map:TripMapController;catalog:CatalogSnapshot}) {
  const view=map.view;const city=(id:string)=>catalog.cities.find(city=>city.id===id)?.name??'انتخاب نشده';const modes={flight:'پرواز',train:'قطار',bus:'اتوبوس'};

@@ -142,9 +142,7 @@ it('shows a double arrow and adjacent bidi-safe airport codes, retaining asymmet
  expect(heading.codes).toBe('IKA → MHD → THR');
  render(<MapHeading map={{ presentationView: { itinerary, direction: 'outbound', query } } as unknown as TripMapController} catalog={withSecondAirport} covered/>);
  const title = screen.getByRole('heading');
- expect(title).toHaveAccessibleName(/^آغاز\s*\(IKA \/ THR\)\s*پایان\s*\(MHD\)$/);
- expect(Array.from(title.querySelectorAll('[data-map-city-label]')).map(node=>node.textContent)).toEqual(['آغاز','پایان']);
- expect(title.querySelector('[data-map-heading-arrow]')?.textContent).toBe('↔');
+ expect(title).toHaveTextContent('آغاز(IKA / THR)↔پایان(MHD)');
  expect(title.querySelectorAll('bdi[dir="ltr"]')).toHaveLength(2);
  expect(routeHeading({ direction: 'outbound', query: { ...query, tripType: 'round-trip' } }, withSecondAirport)).toMatchObject({ bidirectional: true, labels: ['آغاز', 'پایان'] });
  expect(routeHeading({ itinerary, direction: 'return', query }, withSecondAirport).bidirectional).toBe(false);

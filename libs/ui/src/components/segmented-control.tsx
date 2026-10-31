@@ -10,17 +10,21 @@ export interface SegmentedControlProps {
   language?: Language;
   value: string;
   onChange: (value: string) => void;
+  /** Optional activation of an already selected option, without changing radio state. */
+  onReselect?: (value: string) => void;
   options: readonly { id: string; label: string; icon?: ReactNode; disabled?: boolean }[];
   isDisabled?: boolean;
   hideLabel?: boolean;
 }
 type Option = SegmentedControlProps['options'][number];
 interface RetiredOption { option: Option; gapAfter: boolean }
+interface SegmentPressEvent {pointerType:string;target:Element}
 
 /** Actual width changes let neighboring controls reflow without scaling words. */
-function SegmentSlot({ option, present, enter, gapAfter, enabled, epoch, onRetire }: {
+function SegmentSlot({ option, present, enter, gapAfter, enabled, epoch, onRetire, onPressStart, onPress }: {
   option: Option; present: boolean; enter: boolean; gapAfter: boolean; enabled: boolean; epoch: number;
   onRetire: (id: string, epoch: number) => void;
+  onPressStart?: (id: string,event:SegmentPressEvent) => void; onPress?: (id: string,event:SegmentPressEvent) => void;
 }) {
   const body = useRef<HTMLDivElement>(null), controls = useAnimationControls();
   const measured = useRef(0), [measurement, setMeasurement] = useState(0);
@@ -60,7 +64,7 @@ function SegmentSlot({ option, present, enter, gapAfter, enabled, epoch, onRetir
   }, [controls, enabled, geometry, measurement, option.id, present, enter, epoch, onRetire]);
   return <motion.div className={styles.segmentSlot} data-segment-slot={present ? 'current' : 'outgoing'} data-segment-retired-option={present ? undefined : option.id} inert={!present} aria-hidden={!present || undefined} initial={false} animate={controls}>
     <div ref={body} className={styles.segmentSlotInner} data-gap-after={gapAfter || undefined}>
-      <Radio className={styles.radio} value={option.id} data-segment-option={present ? option.id : undefined} aria-label={option.label} isDisabled={!present || option.disabled}>
+      <Radio className={styles.radio} value={option.id} data-segment-option={present ? option.id : undefined} aria-label={option.label} isDisabled={!present || option.disabled} onPressStart={present&&onPressStart?event=>onPressStart(option.id,event):undefined} onPress={present&&onPress?event=>onPress(option.id,event):undefined}>
         {option.icon && <span aria-hidden="true">{option.icon}</span>}
         <MotionText value={option.label}/>
       </Radio>
@@ -72,6 +76,7 @@ export function SegmentedControl({
   language = 'fa',
   value,
   onChange,
+  onReselect,
   options,
   isDisabled,
   hideLabel = false,
@@ -79,14 +84,40 @@ export function SegmentedControl({
   const track = useRef<HTMLDivElement>(null);
   const controls = useAnimationControls();
   const policy = useMotionPolicy({ disabled: isDisabled });
-  const liveChoice = useRef({ options, onChange, blocked: false });
-  liveChoice.current = { options, onChange, blocked: !!(isDisabled || policy.covered || policy.disabled || !policy.documentVisible) };
+  const signature = JSON.stringify(options.map(option => [option.id, option.label, !!option.disabled]));
+  const mounted=useRef(true);
+  const pressed=useRef<{value:string;signature:string;action:(value:string)=>void}|undefined>(undefined);
+  const nativeCompatibility=useRef<{value:string;target:Element}|undefined>(undefined);
+  const liveChoice = useRef({ options, value, signature, onChange, onReselect, blocked: false });
+  liveChoice.current = { options, value, signature, onChange, onReselect, blocked: !!(isDisabled || policy.covered || policy.disabled || !policy.documentVisible) };
+  // A blocked or replaced gesture cannot revive if the same option later returns.
+  if(pressed.current&&(liveChoice.current.blocked||pressed.current.value!==value||pressed.current.signature!==signature||!onReselect))pressed.current=undefined;
   const choose = useCallback((next: string) => {
     const live = liveChoice.current;
-    if (live.blocked || !live.options.some(option => option.id === next && !option.disabled)) return;
+    if (!mounted.current || live.blocked || !live.options.some(option => option.id === next && !option.disabled)) return;
     live.onChange(next);
   }, []);
-  const signature = JSON.stringify(options.map(option => [option.id, option.label, !!option.disabled]));
+  const beginReselect=useCallback((id:string,event:SegmentPressEvent)=>{
+    // React Aria reports Space on a native radio as a keyboard press followed
+    // by its native compatibility click. They belong to one input gesture.
+    const compatibility=nativeCompatibility.current;
+    if(event.pointerType==='virtual'&&compatibility?.value===id&&compatibility.target===event.target){nativeCompatibility.current=undefined;pressed.current=undefined;return;}
+    const live=liveChoice.current;
+    pressed.current=mounted.current&&!live.blocked&&live.value===id&&live.onReselect&&live.options.some(option=>option.id===id&&!option.disabled)?{value:id,signature:live.signature,action:live.onReselect}:undefined;
+  },[]);
+  const finishReselect=useCallback((id:string,event:SegmentPressEvent)=>{
+    if(event.pointerType==='keyboard'&&event.target.tagName==='INPUT'){
+      const compatibility={value:id,target:event.target};nativeCompatibility.current=compatibility;
+      // The input's default click belongs to this event turn, never a later
+      // assistive-technology activation or a second keyboard gesture.
+      queueMicrotask(()=>{if(nativeCompatibility.current===compatibility)nativeCompatibility.current=undefined;});
+    }
+    const gesture=pressed.current;pressed.current=undefined;const live=liveChoice.current;
+    if(!mounted.current||!gesture||gesture.value!==id||live.value!==id||gesture.signature!==live.signature||live.blocked||!live.onReselect||!live.options.some(option=>option.id===id&&!option.disabled))return;
+    // Keep the gesture's action owner. Ordinary focus/hover renders may replace
+    // callback identities; an authority-bound consumer still fences its old view.
+    gesture.action(id);
+  },[]);
   const [history, setHistory] = useState<{ signature: string; options: readonly Option[]; retired: RetiredOption[]; priorIds: string[]; epoch: number }>({ signature, options, retired: [], priorIds: [], epoch: 0 });
   const restoreFocus = useRef<Element | undefined>(undefined);
   if (history.signature !== signature) {
@@ -137,7 +168,7 @@ export function SegmentedControl({
     window.addEventListener('resize',update);void document.fonts?.ready.then(update);
     return()=>{live=false;observer?.disconnect();window.removeEventListener('resize',update);};
   },[measure,signature]);
-  useLayoutEffect(()=>()=>controls.stop(),[controls]);
+  useLayoutEffect(()=>{mounted.current=true;return()=>{mounted.current=false;pressed.current=undefined;nativeCompatibility.current=undefined;controls.stop();};},[controls]);
   return (
     <I18nProvider locale={language}>
       <MotionPolicyProvider disabled={isDisabled}>
@@ -152,7 +183,7 @@ export function SegmentedControl({
         <Label className={hideLabel ? styles.srOnly : styles.label}><MotionText value={label}/></Label>
         <div ref={track} className={styles.segments} data-segment-track data-indicator-ready={ready||undefined} data-segment-value={value}>
           <motion.span className={styles.segmentIndicator} aria-hidden="true" data-segment-indicator initial={false} animate={controls}/>
-          {[...options.map((option,index) => ({ option, present:true, gapAfter:index < options.length - 1 })), ...history.retired.map(item => ({ ...item, present:false }))].map(({option,present,gapAfter}) => <SegmentSlot key={option.id} option={option} present={present} enter={present && history.epoch > 0 && !history.priorIds.includes(option.id)} gapAfter={gapAfter} enabled={policy.enabled} epoch={history.epoch} onRetire={retire}/>)}
+          {[...options.map((option,index) => ({ option, present:true, gapAfter:index < options.length - 1 })), ...history.retired.map(item => ({ ...item, present:false }))].map(({option,present,gapAfter}) => <SegmentSlot key={option.id} option={option} present={present} enter={present && history.epoch > 0 && !history.priorIds.includes(option.id)} gapAfter={gapAfter} enabled={policy.enabled} epoch={history.epoch} onRetire={retire} onPressStart={onReselect?beginReselect:undefined} onPress={onReselect?finishReselect:undefined}/>)}
         </div>
       </RadioGroup>
       </MotionPolicyProvider>

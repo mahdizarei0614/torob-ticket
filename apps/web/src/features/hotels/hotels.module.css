@@ -38,12 +38,12 @@
 .arrivalWaiting svg{max-height:90px;width:120px;}.arrivalWaiting strong{color:var(--text);font-size:14px;}.arrivalWaiting span{font-size:13px;}
 .referencePrompt{position:absolute;z-index:4;inset:auto 12px 28px;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:4px 8px;border:1px solid var(--border-strong);border-radius:var(--radius-md);corner-shape:var(--corner-shape);background:var(--surface-raised);box-shadow:var(--elevation);font-size:13px;}
 .referencePrompt button{min-height:36px;padding:4px 8px;}
-.hotelOrder{--hotel-order-height:calc(var(--control-size) + var(--space-1) + var(--space-1) + 2px);display:flex;align-items:stretch;gap:8px;padding:0 0 8px;min-width:0;flex:none;}.hotelOrder>[role='radiogroup']{min-width:0;flex:1;}
-.hotelOrder [data-segment-track]{box-sizing:border-box;min-height:var(--hotel-order-height);width:100%;max-width:100%;flex-wrap:nowrap;overflow-x:auto;overscroll-behavior-inline:contain;scrollbar-width:none;}
+.hotelOrder{--hotel-order-height:calc(var(--control-size) + var(--space-1) + var(--space-1) + 2px);--hotel-capacity-width:124px;--hotel-order-gap:8px;display:flex;align-items:stretch;justify-content:space-between;gap:var(--hotel-order-gap);padding:0 0 8px;min-width:0;flex:none;}.hotelOrder>[role='radiogroup']{min-width:0;max-width:calc(100% - var(--hotel-capacity-width) - var(--hotel-order-gap));flex:0 1 auto;}
+.hotelOrder [data-segment-track]{box-sizing:border-box;min-height:var(--hotel-order-height);width:fit-content;max-width:100%;flex-wrap:nowrap;overflow-x:auto;overscroll-behavior-inline:contain;scrollbar-width:none;}
 .hotelOrder [data-segment-track]::-webkit-scrollbar{display:none;}
 .hotelOrder [data-segment-option]{min-height:44px;white-space:nowrap;font-size:13px;}
 .hotelOrder [data-segment-slot]>[data-gap-after]{padding-inline-end:0;}
-.hotelCapacity{display:block;flex:none;width:124px;min-width:0;font-size:13px;color:var(--text-muted);}
+.hotelCapacity{display:block;flex:none;width:var(--hotel-capacity-width);min-width:0;font-size:13px;color:var(--text-muted);}
 .capacitySelect{position:relative;display:block;height:100%;}
 .capacitySelect select{appearance:none;box-sizing:border-box;width:100%;height:var(--hotel-order-height);padding:8px 10px 8px 28px;border:1px solid var(--border);border-radius:var(--radius-md);corner-shape:var(--corner-shape);background:var(--surface-subtle);color:var(--text);font:inherit;cursor:pointer;}
 .capacitySelect select:focus-visible{outline:var(--focus-width) solid var(--focus);outline-offset:2px;border-color:var(--focus);}
@@ -86,7 +86,7 @@
  :global([data-dialog-scroll][data-dialog-size='wide']):has(.arrivalDialog){width:100%;height:100dvh;max-height:100dvh;}
  :global([data-dialog-scroll]):has(.arrivalDialog)>:global([role='dialog']){padding:12px;}
  .arrivalDialog{gap:6px;}.hotelSplit{grid-template-rows:clamp(210px,32dvh,280px) minmax(0,1fr);gap:8px;}
- .hotelOrder{gap:6px;}.hotelCapacity{width:118px;}
+ .hotelOrder{--hotel-order-gap:6px;--hotel-capacity-width:118px;}
  .hotelCardGrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;}
  .squareCard{padding:10px;gap:4px;}.squareCardIdentity h3{font-size:14px;margin-block-start:4px;}.squareCardBottom{gap:4px;}.squareCardPrice [role='group']>div{font-size:17px;}.hotelDistance{font-size:11px;gap:2px;}
  .hotelSelectionDock{gap:6px;padding:6px;}.selectedHotelIdentity>strong{font-size:13px;}.hotelContinuation button{font-size:12px;padding-inline:8px;}

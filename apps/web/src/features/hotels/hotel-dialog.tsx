@@ -69,10 +69,10 @@ export function HotelDialog({model,catalog,referralAction,initialScrollTop=0}:{m
   const delta=box.top<top?box.top-top:box.bottom>bottom?box.bottom-bottom:0;
   if(Math.abs(delta)>1)host.scrollTo({top:Math.max(0,host.scrollTop+delta),behavior:policy.enabled?'smooth':'instant'});
  }
- function sort(value:string){
-  if(value==='location-distance'&&!draft.customPoint){model.openPoint();return;}
+ const sort=useCallback((value:string)=>{
+  if(value==='location-distance'){model.openPoint();return;}
   void model.changeSort(value as typeof draft.sort);
- }
+ },[model]);
  return <Dialog title={`هتل‌های ${city?.name??'مقصد'}`} isOpen={model.open} onOpenChange={next=>{if(!next)model.closeDialog();}} mobileFullscreen stickyHeader size="wide">
   <div className={styles.arrivalDialog} data-hotel-dialog data-motion-enabled={policy.enabled} data-hotel-authority-stale={model.authorityStale} data-hotel-blocked={model.blocked} data-hotel-context={trip.query.destinationCityId} data-hotel-stale={model.stale} data-hotel-check-in={model.query?.checkIn??''} data-hotel-check-out={model.query?.checkOut??''} data-selected-hotel-id={state.selectedHotelId}>
    <div className={styles.hotelSplitFrame}>
@@ -85,7 +85,7 @@ export function HotelDialog({model,catalog,referralAction,initialScrollTop=0}:{m
     </div>
     <div className={styles.hotelCollectionPane} data-hotel-cards-pane>
      <div className={styles.hotelOrder}>
-      <SegmentedControl hideLabel label="مرتب‌سازی اقامتگاه‌ها" value={state.point?'location-distance':draft.sort} isDisabled={model.stale||model.blocked} onChange={sort} options={[{id:'cheapest',label:'ارزان‌ترین'},{id:'stars',label:'ستاره بیشتر'},{id:'arrival-distance',label:`نزدیک به ${modeLabel}`},{id:'location-distance',label:'نزدیک به نقطه دلخواه'}]}/>
+      <SegmentedControl hideLabel label="مرتب‌سازی اقامتگاه‌ها" value={state.point?'location-distance':draft.sort} isDisabled={model.stale||model.blocked} onChange={sort} onReselect={sort} options={[{id:'cheapest',label:'ارزان‌ترین'},{id:'stars',label:'ستاره بیشتر'},{id:'arrival-distance',label:`نزدیک به ${modeLabel}`},{id:'location-distance',label:'نزدیک به نقطه دلخواه'}]}/>
       <label className={styles.hotelCapacity}><span className={styles.srOnly}>{adultCapacity?'ظرفیت بزرگسال':'ظرفیت اتاق'}</span><span className={styles.capacitySelect}><select aria-label={adultCapacity?'ظرفیت بزرگسال':'ظرفیت اتاق'} title={adultCapacity?'ظرفیت بزرگسال اتاق؛ کودکان و نوزادان مطابق سفر انتخاب‌شده':'ظرفیت اتاق'} value={capacity} disabled={!draft.arrivalConfirmed||model.stale||model.blocked||Boolean(state.point)} onChange={event=>void model.changeCapacity(Number(event.target.value))}>{hotelCapacityOptions(capacity).map(value=><option key={value} value={value}>اتاق {faNumber(value)} {adultCapacity?'بزرگسال':'نفره'}</option>)}</select><svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d="m5 8 5 5 5-5"/></svg></span></label>
      </div>
      {draft.customPoint&&!state.point&&<div className={styles.referenceChange}><Button variant="quiet" isDisabled={loading||model.stale||model.blocked} onPress={model.openPoint}>تغییر نقطه مرجع</Button></div>}
