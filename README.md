@@ -108,6 +108,17 @@ retain source geometry.
 See [decision0065](docs/decisions/0065-directional-route-halos-and-overlap-lanes.md)
 for the display rules and verification.
 
+## Adaptive map rendering
+
+Bloom qualifies against stable native frame delivery and measured CPU/GPU cost,
+then runs a real effect trial. A 30 Hz native baseline is measured rather than treated
+as a slow60Hz renderer. Performance failures back off and remeasure; effect faults
+stay safely disabled. The blurred glow uses a CSS-resolution source while the
+base map retains its DPR. Hidden duplicate dots are omitted and completed morph batches process no
+vertices; covered, hidden and reduced-motion policies retain the existing clock.
+See [decision0066](docs/decisions/0066-bloom-performance-recovery.md) for budgets,
+recovery, measured native evidence and verification limits.
+
 ## Deterministic showcase catalog
 
 The immutable seeded catalog supplies 34 cities, 114 places, 348 directed mode/scope

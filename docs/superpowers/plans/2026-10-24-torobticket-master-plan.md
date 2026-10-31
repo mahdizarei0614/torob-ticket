@@ -10,7 +10,7 @@
 
 **Tech Stack:** Nx, pnpm, TypeScript, React, Vite, React Router, TanStack Query, React Aria, CSS Modules, CSS custom properties, Zod, NestJS, PostgreSQL, Prisma, Three.js, React Three Fiber, selected Drei utilities, Motion, @internationalized/date, Vitest, Testing Library, Playwright, Storybook, Docker Compose, Caddy.
 
-**Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.35, 2026-10-31 (soft directional line halos, both-leg round-trip tint and shared-section lanes; prior hotel, price, ranking and filter refinements retained).
+**Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.36, 2026-10-31 (soft directional line halos, both-leg round-trip tint and shared-section lanes; prior hotel, price, ranking and filter refinements retained).
 
 **Plan state:** Approved. M1–M6 and T29 packaging are complete with independent reviews and packaged acceptance evidence. **29/35 tasks complete; M7 PARTIAL, T30 ACTIVE.** Owner requested a fast checkpoint before substantial design/logic changes: finish durable harness checks now; full T30 matrix and T31–T33 audits/rehearsal remain unfinished. M8 retains its planned scope.
 
@@ -2617,3 +2617,15 @@ Owner rejected the effect and requested rollback; [decision0060](../../decisions
 | Motion and fallback | DONE | Existing permitted clock; coverage/resume and reduced fixed-phase cues, both-leg SVG arrows/tint/lanes. Foreground extends existing compositor with one bounded final scene draw; no new renderer/clock/dependency. Hidden-clock policy source-reviewed, native hidden-state limit recorded |
 | Vehicle foreground | DONE | Head and both wagons excluded from bloom input, drawn once after map/light; explicit ordinary ordering and state/failure cleanup. Real4/4ChromePASS40.9s roles0/2/3,3,1, no depth,0offscreen vehicles; live bloom gate chose insufficient-headroom, compositor tests cover successful bloom order |
 | Review and assembly | DONE | Independent81/8source casesPASS1.63s, graphics/E2Etypes+lint. Earlier halo native6/6PASS1.4m and current foreground4/4PASS40.9s are separate evidence runs. Exact9+5source paths committed (13unique), source/docs/SDD/local exports recorded; unrelated changes retained |
+
+## Owner correction — bloom performance recovery, 2026-10-31
+
+[Task brief](../../evidence/adjustments/bloom-performance/task-brief.md), [decision0066](../../decisions/0066-bloom-performance-recovery.md). Specification1.36; M7partial29/35,T30active. Source `1d7d43a`; [checkpoint](../../evidence/adjustments/bloom-performance/checkpoint.md) and [independent approval](../../evidence/adjustments/bloom-performance/review-independent.md).
+
+| Work | Status | Evidence |
+|---|---|---|
+| Actual rejection cause | DONE | M3Pro/Chrome33.4ms with domesticCPU/GPU1.4/.75ms and world1.1/2.17ms; fresh blank-page/app preflight also delivers30Hz; Low Power Mode1 recorded. Absolute23ms cutoff rejected it and old policy latched failure |
+| Safe recovered qualification | DONE | Deliberate cadence-rule revision: stable baseline reference + frozen no-regression trial at30/60/120Hz, CPU8/GPU10unchanged. Active5/10/20/30sbackoff,24+180recovery and24+90trial; terminal faults, diagnostics and GPU epochs retained |
+| Remove invisible/repeated work | DONE | Omit3212/3888hidden base points while preserving actual geography/major/semantic cohorts; memoized context cities, no empty timer polls. CSS-resolution glow with pass-aware point sizes; completed morph draws0. Current full graphics197/28PASS19.21s |
+| Real map performance and ownership | DONE | Four current native contexts PASS: domestic/world and RetinaDPR2 keep actual bloom/foreground at p90submitted16.7ms; Retina baseDPR1.7496, GPU7.86ms, source580×616. Controlled10×CPU rejection/1×recovery, covered/reduced pause and morph positive-work retirement verified |
+| Independent review and assembly | DONE | Independent197tests/28suites PASS8.04s, graphics types/scoped lint and10frozen source hashes PASS; native/source/visual APPROVED. Exact10source paths committed `1d7d43a`, decision/spec/master/SDD/evidence/local exports updated; foreign work retained |
