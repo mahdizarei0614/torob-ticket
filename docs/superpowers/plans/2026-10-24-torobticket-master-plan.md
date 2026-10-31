@@ -10,7 +10,7 @@
 
 **Tech Stack:** Nx, pnpm, TypeScript, React, Vite, React Router, TanStack Query, React Aria, CSS Modules, CSS custom properties, Zod, NestJS, PostgreSQL, Prisma, Three.js, React Three Fiber, selected Drei utilities, Motion, @internationalized/date, Vitest, Testing Library, Playwright, Storybook, Docker Compose, Caddy.
 
-**Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.37, 2026-10-31 (hotel split view/capacity, provider new-tab backdrop, themed overlays and darker background surfaces; prior route, price, ranking and filter refinements retained).
+**Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.38, 2026-10-31 (gold recommendations, hotel reference/scroll/control refinements, four-person rates and map-heading/dot polish; prior comparison/referral decisions retained).
 
 **Plan state:** Approved. M1–M6 and T29 packaging are complete with independent reviews and packaged acceptance evidence. **29/35 tasks complete; M7 PARTIAL, T30 ACTIVE.** Owner requested a fast checkpoint before substantial design/logic changes: finish durable harness checks now; full T30 matrix and T31–T33 audits/rehearsal remain unfinished. M8 retains its planned scope.
 
@@ -2641,3 +2641,20 @@ Owner rejected the effect and requested rollback; [decision0060](../../decisions
 | Confirmed provider backdrop | DONE | Fullscreen22pxblur/152pxloader in observedChrome; current confirmed receipt opens authorized zarei.xyz new tab with nullopener, original comparison retained, blocked same-receipt retry with exactlyoneprepare/confirm; author114referral cases PASS |
 | Close controls and dark surfaces | DONE | Shared28pxSVG/44pxtarget including final native profile fix; six calendar/hotel/filter theme combinations and12live morph inheritance samples PASS. Independent audit29bg/surface/haze/overlay declarations, primary/text/prices/borders unchanged |
 | Independent review and assembly | DONE | Independent328cases/40suites, web/UI/admin types/scopedlint PASS; finalCSS-only44pxminimum separately native-verified. Native matrix3checks+binding+targetedvisual/profile supplements PASS,0pageerrors;32owned sourcepaths committed, scopedtokenprojection excludes prior9brandlines/foreignUIindex; docs/SDD/full exports recorded |
+
+## Owner correction — gold suggestions and hotel map polish, 2026-10-31
+
+[Task brief](../../evidence/adjustments/gold-suggestions-hotel-polish/task-brief.md), [decision0068](../../decisions/0068-gold-suggestions-and-hotel-map-polish.md). Specification1.38; M7partial29/35,T30active. Global primary colors and organic ranking stay intact. Source `586e06d`; [checkpoint](../../evidence/adjustments/gold-suggestions-hotel-polish/checkpoint.md) and [independent approval](../../evidence/adjustments/gold-suggestions-hotel-polish/review-independent.md).
+
+| Owner item | Status | Evidence |
+|---|---|---|
+|1 Gold faster-arrival surface | DONE | Separate semantic gold banner and exact qualifying price card; primary/price/status palettes unchanged |
+|2 Reveal cue | DONE | Exact active card focus/scroll,3second fading cue with persistent gold identity; repeat/revocation/policy cleanup; author114results cases PASS |
+|3 Sponsorship documentation | DONE | Owner opportunity recorded in spec/decision, preserving truthful organic comparison and no current paid-campaign claim |
+|4 Hotel overflow fade | DONE | Hidden scrollbars, observed bottom gradient only with more below; desktop/short-landscape/all-fit native checks PASS |
+|5 Map-heading scramble | DONE | ActualGSAP3.15one-second RTL words, exact accessible text/unchanged codes, reserved final width and no unchanged/arrow-only replay; root48map cases PASS |
+|6 Particle halo | DONE | Slight bounded halo refinements in steady land, marker and morph shaders; RGB/core/alpha cap/gate/renderer unchanged; focused11world/cohort cases PASS |
+|7 Capacity control and room data | DONE | No visible caption, exact1–4ordinary options, matching54pxtrack, real append-only4adult rates;112hotel/fixture cases and guardedPG6/6PASS |
+|8 Reference map interaction | DONE | Bare-map/pin/cluster picking, ordinary zoom/selection, cancellation and authority-key/epoch fences; actual bare-map,14hotelcluster mean, exact hotel-pin point/cancel/ordinary zoom PASS |
+|9 Shared sliding hotel segments | DONE | Shared moving/resizing indicator remains active through pending replacement; actual intermediate widths and zero gaps verified |
+| Review and scoped assembly | DONE | Independent471cases/64suites; web/UI/fixtures/graphics/E2Etypes and scopedlint PASS, APItypesPASSinDEVgeneratedclient environment; five final Chrome groups PASS with0pageerrors; actual270bloom/1452world draws, GPUp905.526ms and16.7ms submission in this run. Focused11case final-world followup overlaps471. Exact28sourcepaths committed; package/tokenprojections preserveforeignwork; docs/SDD/full exports recorded |
