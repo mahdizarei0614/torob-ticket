@@ -71,6 +71,19 @@ describe('arrival hotel map controlled markers and geometry',()=>{
   controller.update({...options,pickingPoint:false});expect(reference).toBeDisabled();hotel.click();expect(options.onSelectHotel).toHaveBeenCalledExactlyOnceWith('hotel-b');
   mock.emit('click',{lngLat:{lng:52,lat:36}});expect(options.onPoint).toHaveBeenCalledTimes(2);
  });
+ it('chooses a real cluster aggregate during reference picking, while ordinary and retired cluster actions retain zoom authority',async()=>{
+  const mock=mockSdk(),options=discovery(),element=document.createElement('div');mock.map.project=()=>({x:100,y:100});mock.map.fitBounds=vi.fn();
+  const controller=createFreeMap(element,options,async()=>mock.sdk);owned.push(controller);await flush();const count=vi.mocked(mock.sdk.createMarker).mock.calls.map(call=>call[0]).find(node=>node.hasAttribute('data-map-cluster'))!,fits=vi.mocked(mock.map.fitBounds).mock.calls.length;
+  controller.update({...options,pickingPoint:true});expect(count).toHaveAccessibleName('انتخاب موقعیت گروه ۲ هتل');count.click();expect(mock.map.fitBounds).toHaveBeenCalledTimes(fits);expect(options.onSelectHotel).not.toHaveBeenCalled();expect(options.onPoint).toHaveBeenCalledTimes(1);expect(vi.mocked(options.onPoint).mock.calls[0]![0].latitude).toBeCloseTo((35.45+35.48)/2,8);expect(vi.mocked(options.onPoint).mock.calls[0]![0].longitude).toBeCloseTo((51.22+51.26)/2,8);
+  controller.update({...options,pickingPoint:false});expect(count).toHaveAccessibleName('بزرگ‌نمایی برای نمایش ۲ هتل');count.click();expect(mock.map.fitBounds).toHaveBeenCalledTimes(fits+1);expect(options.onPoint).toHaveBeenCalledTimes(1);
+  controller.dispose();count.click();expect(mock.map.fitBounds).toHaveBeenCalledTimes(fits+1);expect(options.onPoint).toHaveBeenCalledTimes(1);
+ });
+ it('accepts native lngLat getters and ignores missing or malformed bare-map event coordinates',async()=>{
+  const mock=mockSdk(),options={...discovery(),pickingPoint:true},controller=createFreeMap(document.createElement('div'),options,async()=>mock.sdk);owned.push(controller);await flush();
+  class LngLat {get lng(){return 181;}get lat(){return 40;}}
+  mock.emit('click',{lngLat:new LngLat()});expect(options.onPoint).toHaveBeenCalledExactlyOnceWith({latitude:40,longitude:-179});
+  for(const event of [null,{}, {lngLat:null},{lngLat:'invalid'},{lngLat:{lng:NaN,lat:40}},{lngLat:{lng:50,lat:100}}])expect(()=>mock.emit('click',event)).not.toThrow();expect(options.onPoint).toHaveBeenCalledTimes(1);
+ });
 
  it('uses current selection and point mode when the SDK resolves after those props changed',async()=>{
   const mock=mockSdk(),options=discovery();let resolve!:(sdk:FreeMapSdk)=>void;const pending=new Promise<FreeMapSdk>(r=>{resolve=r;});

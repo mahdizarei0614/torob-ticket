@@ -15,8 +15,9 @@ describe('automatic arrival stay and inspected-hotel authority',()=>{
   expect(hotelCapacity(state)).toBe(2);expect(hotelReducer(state,{type:'edit',patch:{capacity:2}})).toBe(state);
   const edited=hotelReducer(state,{type:'edit',patch:{capacity:3}}),request=hotelQuery(edited,arrivalCatalog,anchor).query;
   expect(request).toMatchObject({party:{adults:3,children:1,infants:1,infantAgesMonths:[10]},childAgesAtCheckIn:[8],rooms:1,checkIn:initial.draft.checkIn,checkOut:initial.draft.checkOut,arrivalPlaceId:'MHD'});
-  expect(JSON.stringify(trip)).toBe(original);expect(hotelCapacityOptions(2)).toEqual([1,2,3]);expect(hotelCapacityOptions(5)).toEqual([1,2,3,5]);
-  for(const capacity of [0,4,NaN,2.5])expect(hotelReducer(edited,{type:'edit',patch:{capacity}})).toBe(edited);
+  expect(JSON.stringify(trip)).toBe(original);expect(hotelCapacityOptions(2)).toEqual([1,2,3,4]);expect(hotelCapacityOptions(5)).toEqual([1,2,3,4,5]);
+  expect(hotelQuery(hotelReducer(edited,{type:'edit',patch:{capacity:4}}),arrivalCatalog,anchor).query?.party.adults).toBe(4);
+  for(const capacity of [0,5,NaN,2.5])expect(hotelReducer(edited,{type:'edit',patch:{capacity}})).toBe(edited);
  });
  it('follows a changed arrival party until an explicit room capacity is chosen, then retains only that preference in the same city',()=>{
   const initial=createHotelState(arrivingTrip(),arrivalCatalog),nextTrip=arrivingTrip();nextTrip.query={...nextTrip.query,party:{adults:2,children:0,infants:0}};nextTrip.draftKey=tripKey(nextTrip.query);

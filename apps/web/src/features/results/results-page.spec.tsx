@@ -2,6 +2,7 @@ import { fireEvent, render, screen, within } from '@testing-library/react';
 import { act } from '@testing-library/react';
 import { useReducer } from 'react';
 import { afterEach, expect, it, vi } from 'vitest';
+import {MotionPolicyProvider} from '@torob-ticket/ui';
 import {createMapState,mapReducer,mapView} from '../map/map-state';
 import { ResultsList, ResultsPage, type ResultsPageProps } from './results-page';
 import { useResults } from './use-results';
@@ -10,7 +11,7 @@ import { group, observedAt, recovery } from './results-test-data';
 import { catalog, query } from '../search/search-test-data';
 import { priceCardId } from './price-cards';
 vi.mock('./use-results',()=>({useResults:vi.fn()}));
-afterEach(()=>{vi.restoreAllMocks();vi.unstubAllGlobals();});
+afterEach(()=>{vi.useRealTimers();vi.restoreAllMocks();vi.unstubAllGlobals();});
 it('keeps edited-trip results readable but disables representative/provider choices and continuation',()=>{
  vi.spyOn(Date,'now').mockReturnValue(Date.parse(observedAt)+5000);const item=group('a'),value=recovery([item]);
  let state=resultsReducer(createResultsState('generation','search'),{type:'receive',recovery:value});
@@ -233,4 +234,63 @@ it('suggestion focus targets its exact price card when the itinerary has a cheap
  const target=screen.getAllByRole('article').find(card=>card.getAttribute('data-price-card-id')===priceCardId(alternative.groupId,higher))!;
  expect(within(target).getByRole('button',{name:'انتخاب پیشنهاد'})).toHaveFocus();
  expect(target).toHaveAttribute('data-quote-id','higher-target');
+});
+
+function fasterSuggestion() {
+ const baseline=group('baseline',10000000),alternative=group('alternative',10200000);baseline.durationMinutes=250;alternative.durationMinutes=100;
+ const higher={...structuredClone(alternative.eligibleQuotes[0]!),quoteId:'higher-target',total:{currency:'IRR' as const,amountRial:10500000}};alternative.eligibleQuotes.push(higher);
+ const value=completed([baseline,alternative]);value.snapshot.suggestion={kind:'faster-journey',alternativeId:higher.quoteId,baselineId:baseline.eligibleQuotes[0]!.quoteId,delta:{amountRial:500000,minutes:150,priceRatio:1.05},coverage:value.snapshot.coverage,dismissalScope:{searchId:'search'}};
+ return {value,alternative,higher};
+}
+function allowSuggestionMotion(reduced=false) {
+ vi.stubGlobal('matchMedia',(media:string)=>({media,matches:reduced&&media==='(prefers-reduced-motion: reduce)',addEventListener:vi.fn(),removeEventListener:vi.fn(),addListener:vi.fn(),removeListener:vi.fn(),dispatchEvent:()=>true,onchange:null}));
+ vi.spyOn(document,'visibilityState','get').mockReturnValue('visible');
+ vi.spyOn(window,'scrollTo').mockImplementation(()=>undefined);
+}
+it('keeps only the exact suggested price card gold and restarts its three-second navigation cue without choosing an offer',()=>{
+ vi.useFakeTimers();vi.setSystemTime(Date.parse(observedAt)+1000);allowSuggestionMotion();HTMLElement.prototype.scrollIntoView=vi.fn();
+ const {value,alternative,higher}=fasterSuggestion();const control=controlledResults(resultsReducer(createResultsState('generation','search'),{type:'receive',recovery:value}));render(<ResultsList {...resultProps}/>);
+ const target=screen.getAllByRole('article').find(card=>card.getAttribute('data-price-card-id')===priceCardId(alternative.groupId,higher))!;
+ expect(document.querySelectorAll('[data-suggested-route]')).toHaveLength(1);expect(target).toHaveAttribute('data-suggested-route','true');
+ const initialOrder=screen.getAllByRole('article').map(card=>card.getAttribute('data-price-card-id'));const initialSelection=control.state().selected;
+ fireEvent.click(screen.getByRole('button',{name:'نمایش مسیر پیشنهادی'}));expect(target).toHaveAttribute('data-suggestion-highlight','true');
+ const first=target.querySelector('[data-suggestion-highlight-epoch]');
+ act(()=>vi.advanceTimersByTime(2000));fireEvent.click(screen.getByRole('button',{name:'نمایش مسیر پیشنهادی'}));expect(target.querySelector('[data-suggestion-highlight-epoch]')).not.toBe(first);
+ act(()=>vi.advanceTimersByTime(2999));expect(target).toHaveAttribute('data-suggestion-highlight','true');act(()=>vi.advanceTimersByTime(1));expect(target).not.toHaveAttribute('data-suggestion-highlight');
+ expect(target).toHaveAttribute('data-suggested-route','true');expect(within(target).getByRole('button',{name:'انتخاب پیشنهاد'})).toHaveFocus();expect(control.state().selected).toEqual(initialSelection);expect(screen.getAllByRole('article').map(card=>card.getAttribute('data-price-card-id'))).toEqual(initialOrder);
+ fireEvent.click(screen.getByRole('button',{name:'بستن پیشنهاد جایگزین'}));expect(screen.queryByRole('button',{name:'نمایش مسیر پیشنهادی'})).not.toBeInTheDocument();expect(target).toHaveAttribute('data-suggested-route','true');
+});
+it('revokes a suggested highlight and gold identity when its current price expires or the draft is replaced',()=>{
+ vi.useFakeTimers();const instant=Date.parse(observedAt)+1000;vi.setSystemTime(instant);allowSuggestionMotion();HTMLElement.prototype.scrollIntoView=vi.fn();
+ const {value}=fasterSuggestion();controlledResults(resultsReducer(createResultsState('generation','search'),{type:'receive',recovery:value}));const view=render(<ResultsList {...resultProps}/>);
+ fireEvent.click(screen.getByRole('button',{name:'نمایش مسیر پیشنهادی'}));expect(document.querySelector('[data-suggestion-highlight]')).toBeTruthy();
+ view.rerender(<ResultsList {...resultProps} draftChanged/>);expect(document.querySelector('[data-suggestion-highlight]')).toBeNull();expect(document.querySelector('[data-suggested-route]')).toBeNull();
+ view.rerender(<ResultsList {...resultProps}/>);expect(document.querySelector('[data-suggested-route]')).toBeTruthy();expect(document.querySelector('[data-suggestion-highlight]')).toBeNull();
+ const expiresAt=Math.min(...value.snapshot.groups.flatMap(item=>item.eligibleQuotes.map(quote=>Date.parse(quote.expiresAt))));vi.setSystemTime(expiresAt);view.rerender(<ResultsList {...resultProps}/>);expect(document.querySelector('[data-suggested-route]')).toBeNull();expect(screen.queryByRole('button',{name:'نمایش مسیر پیشنهادی'})).not.toBeInTheDocument();
+});
+it('blocks retained suggestion callbacks after owner invalidation and never targets an exiting price-card cohort',()=>{
+ vi.spyOn(Date,'now').mockReturnValue(Date.parse(observedAt)+1000);allowSuggestionMotion();HTMLElement.prototype.scrollIntoView=vi.fn();
+ const {value}=fasterSuggestion();controlledResults(resultsReducer(createResultsState('generation','search'),{type:'receive',recovery:value}));let current=true;
+ const view=render(<ResultsList {...resultProps} isCurrent={()=>current}/>);const action=screen.getByRole('button',{name:'نمایش مسیر پیشنهادی'}),target=view.container.querySelector<HTMLElement>('[data-suggested-route]')!;
+ const exiting=document.createElement('div');exiting.inert=true;exiting.dataset.resultPresence='exiting';const old=target.cloneNode(true) as HTMLElement;exiting.append(old);target.parentElement!.before(exiting);
+ fireEvent.click(action);expect(within(target).getByRole('button',{name:'انتخاب پیشنهاد'})).toHaveFocus();expect(old).not.toHaveAttribute('data-suggestion-highlight');
+ current=false;HTMLElement.prototype.scrollIntoView=vi.fn();fireEvent.click(action);expect(HTMLElement.prototype.scrollIntoView).not.toHaveBeenCalled();
+});
+it('reduced motion reveals the exact gold suggestion immediately without a transient animated cue',()=>{
+ vi.spyOn(Date,'now').mockReturnValue(Date.parse(observedAt)+1000);allowSuggestionMotion(true);HTMLElement.prototype.scrollIntoView=vi.fn();
+ const {value}=fasterSuggestion();controlledResults(resultsReducer(createResultsState('generation','search'),{type:'receive',recovery:value}));render(<ResultsList {...resultProps}/>);
+ fireEvent.click(screen.getByRole('button',{name:'نمایش مسیر پیشنهادی'}));const target=document.querySelector<HTMLElement>('[data-suggested-route]')!;
+ expect(within(target).getByRole('button',{name:'انتخاب پیشنهاد'})).toHaveFocus();expect(HTMLElement.prototype.scrollIntoView).toHaveBeenCalledWith({block:'center',behavior:'instant'});expect(target).not.toHaveAttribute('data-suggestion-highlight');
+});
+it('settles a covered or hidden navigation cue without replaying it when the result list resumes',()=>{
+ vi.useFakeTimers();vi.setSystemTime(Date.parse(observedAt)+1000);allowSuggestionMotion();HTMLElement.prototype.scrollIntoView=vi.fn();
+ const {value}=fasterSuggestion();controlledResults(resultsReducer(createResultsState('generation','search'),{type:'receive',recovery:value}));
+ const view=render(<MotionPolicyProvider><ResultsList {...resultProps}/></MotionPolicyProvider>);
+ fireEvent.click(screen.getByRole('button',{name:'نمایش مسیر پیشنهادی'}));expect(document.querySelector('[data-suggestion-highlight]')).toBeTruthy();
+ view.rerender(<MotionPolicyProvider covered><ResultsList {...resultProps}/></MotionPolicyProvider>);expect(document.querySelector('[data-suggestion-highlight]')).toBeNull();
+ view.rerender(<MotionPolicyProvider><ResultsList {...resultProps}/></MotionPolicyProvider>);expect(document.querySelector('[data-suggestion-highlight]')).toBeNull();expect(document.querySelector('[data-suggested-route]')).toBeTruthy();
+ let visibility:DocumentVisibilityState='visible';vi.spyOn(document,'visibilityState','get').mockImplementation(()=>visibility);
+ fireEvent.click(screen.getByRole('button',{name:'نمایش مسیر پیشنهادی'}));expect(document.querySelector('[data-suggestion-highlight]')).toBeTruthy();
+ visibility='hidden';fireEvent(document,new Event('visibilitychange'));expect(document.querySelector('[data-suggestion-highlight]')).toBeNull();
+ visibility='visible';fireEvent(document,new Event('visibilitychange'));expect(document.querySelector('[data-suggestion-highlight]')).toBeNull();expect(document.querySelector('[data-suggested-route]')).toBeTruthy();
 });

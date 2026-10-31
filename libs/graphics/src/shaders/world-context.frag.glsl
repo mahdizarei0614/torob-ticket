@@ -41,7 +41,7 @@ vec4 lattice(float spacing, float proximity) {
     vec2 repel = particleFlowOffset(center,unitsPerPixel,amplitude,spacing/unitsPerPixel,particle.xy);
     float radius = length(separation - particle.xy - repel);
         float core = 1.0 - smoothstep(0.75, 1.45 + proximity * 0.24, radius);
-    float halo = exp(-radius * radius * 0.8) * (0.04 + proximity * 0.10);
+    float halo = exp(-radius * radius * 0.72) * (0.055 + proximity * 0.12);
     float breath = livingDotGlow(center,time);
     float landed = 1.0;
     if (scopeMorphProgress < 1.0) landed = scopeMorphLandOpacity(scopeMorphProgress, scopeMorphSeed(center));

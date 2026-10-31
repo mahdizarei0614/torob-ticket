@@ -18,7 +18,7 @@ void main() {
     gl_FragColor = vGeography > 0.5 ? dot : vEmphasis > 1.5 ? focus : vEmphasis > 0.5 ? highlight : dot;
   } else {
     float core = 1.0 - smoothstep(0.10,0.19,radius);
-    float halo = exp(-radius * radius * 25.0) * (0.1 + vHover * 0.07);
+    float halo = exp(-radius * radius * 22.0) * (0.14 + vHover * 0.085);
     float strength = vGeography>0.5?clamp(vBreath+vHover*0.10,0.58,0.90):clamp(vBreath + vEmphasis * 0.23 + vHover * 0.13,0.0,1.0);
     vec3 tint = vGeography>0.5?mix(dot.rgb,route.rgb,clamp(vHover*0.12+min(vEmphasis,1.0)*0.10,0.0,0.22)):mix(dot.rgb,highlight.rgb,clamp(vHover * 0.22 + min(vEmphasis,1.0) * 0.38,0.0,1.0));
     float alpha = (core * strength + halo) * dot.a;

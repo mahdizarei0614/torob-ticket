@@ -50,5 +50,16 @@ export function realHotelInventory(input:{fixtureVersion:string;destinationCityI
   };
   return{id,hotelId:hotel.hotelId,payload};
  }));
+ // Append the newly authored four-adult offer without changing any original
+ // room IDs/payloads. Recorded sources replay their own stored template list.
+ for(const hotel of hotels){
+  const original=templates.find(template=>template.id===`${hotel.hotelId}-rate-3`)!;
+  const value=bucket(hotel.hotelId),id=`${hotel.hotelId}-rate-4`,roomType='اتاق چهار‌نفره';
+  templates.push({id,hotelId:hotel.hotelId,payload:{...original.payload,
+   roomRateId:id,roomType,maxAdults:4,maxChildren:0,maxInfants:0,
+   nightlyTemplate:Array.from({length:120},(_,offset)=>({offset,amountRial:(450+value%14*35+(offset%7===5?70:0))*100000*(pricePercent[hotel.destinationCityId]??100)/100,availableRooms:2})),
+   provenance:[...hotel.provenance,{rawRecordId:id,sourceNamespace:'authored-offers/real-property-room-rates',sourceValue:{kind:'authored-mock-offer',propertySource:hotel.provenance[0]!.rawRecordId,roomType,rule:'four-adult-one-room; 120-night-integer-rial-bands; no real property rate, policy or availability verification'},sourceRevision:source.revision,mappingRevision:'mapping-v1',fixtureVersion:input.fixtureVersion}],
+  }});
+ }
  return{sourceRevision:source.revision,hotels,templates};
 }

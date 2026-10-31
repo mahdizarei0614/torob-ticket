@@ -11,6 +11,11 @@
 
 .headingSwap { position:relative; min-height:68px; }
 .headingFrame { width:100%; }
+.header h2 .headingTextOwner {position:relative;display:inline-grid;padding:0;vertical-align:baseline;}
+.header h2 .headingTextMeasure,.header h2 .headingTextVisual {padding-inline:9px;color:inherit;font:inherit;}
+.header h2 .headingTextMeasure {visibility:hidden;white-space:nowrap;}
+.header h2 .headingTextVisual {position:absolute;inset:0;overflow:hidden;white-space:nowrap;}
+.header h2 .headingAccessible {position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
 .header .headingCity { padding:0; color:var(--text); font-weight:inherit; }
 .header [data-map-city-label] { padding:0; color:inherit; font-weight:inherit; }
 .header .headingArrow { display:inline-block; position:relative; inline-size:1.6em; block-size:1em; padding:0; vertical-align:middle; color:var(--text-muted); font-weight:400; }

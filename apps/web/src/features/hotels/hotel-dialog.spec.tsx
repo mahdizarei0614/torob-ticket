@@ -12,7 +12,7 @@ const map=vi.hoisted(()=>({current:undefined as FreeLocationMapProps|undefined})
 vi.mock('./free-location-map',()=>({FreeLocationMap:(props:FreeLocationMapProps)=>{map.current=props;return <section aria-label="map"><span>{props.choices.find(choice=>choice.kind==='arrival')?.name}</span>{props.choices.filter(choice=>choice.kind==='hotel').map(choice=><button key={choice.id} aria-label={`pin ${choice.id}`} aria-pressed={props.selectedHotelId===choice.id} onClick={()=>props.onSelectHotel?.(choice.id)}>{choice.name}</button>)}{props.pickingPoint&&<button onClick={()=>props.onPoint({latitude:30.2,longitude:50.3})}>pick point</button>}</section>;}}));
 const scrollDescriptor=Object.getOwnPropertyDescriptor(HTMLElement.prototype,'scrollTo');
 beforeEach(()=>{vi.stubGlobal('matchMedia',()=>({matches:true,addEventListener(){},removeEventListener(){}}));Object.defineProperty(HTMLElement.prototype,'scrollTo',{value:vi.fn(),configurable:true});});
-afterEach(()=>{cleanup();vi.unstubAllGlobals();map.current=undefined;if(scrollDescriptor)Object.defineProperty(HTMLElement.prototype,'scrollTo',scrollDescriptor);else Reflect.deleteProperty(HTMLElement.prototype,'scrollTo');});
+afterEach(()=>{cleanup();vi.restoreAllMocks();vi.unstubAllGlobals();map.current=undefined;if(scrollDescriptor)Object.defineProperty(HTMLElement.prototype,'scrollTo',scrollDescriptor);else Reflect.deleteProperty(HTMLElement.prototype,'scrollTo');});
 function setup(transform=(snapshot:ReturnType<typeof arrivalSnapshot>)=>snapshot,trip=arrivingTrip('2026-10-25T22:00:00Z')){
  const queries:HotelSearchQuery[]=[];
  const client={startHotelSearch:vi.fn(async(query:HotelSearchQuery)=>{queries.push(query);return transform(arrivalSnapshot(query));})} as unknown as ApiClient;
@@ -34,7 +34,7 @@ describe('arrival map and square hotel collection',()=>{
   const trip=arrivingTrip('2026-10-25T22:00:00Z'),intent=JSON.stringify(trip.query),{queries,dialog}=setup(undefined,trip);await waitFor(()=>expect(dialog().querySelectorAll('[data-hotel-id]')).toHaveLength(2));
   const mapElement=within(dialog()).getByRole('region',{name:'map'}),identity=map.current?.identity,mapPane=dialog().querySelector('[data-hotel-map-pane]')!,cardsPane=dialog().querySelector('[data-hotel-cards-pane]')!,cardScroll=dialog().querySelector('[data-hotel-scroll]')!;
   expect(mapPane.parentElement).toBe(cardsPane.parentElement);expect(mapPane.contains(mapElement)).toBe(true);expect(cardsPane.contains(cardScroll)).toBe(true);expect(cardScroll.contains(mapElement)).toBe(false);
-  fireEvent.click(within(dialog()).getByRole('button',{name:'pin hotel-b'}));const capacity=within(dialog()).getByRole('combobox',{name:'ظرفیت اتاق'});expect(within(capacity).getAllByRole('option').map(option=>(option as HTMLOptionElement).value)).toEqual(['1','2','3']);
+  fireEvent.click(within(dialog()).getByRole('button',{name:'pin hotel-b'}));const capacity=within(dialog()).getByRole('combobox',{name:'ظرفیت اتاق'});expect(within(capacity).getAllByRole('option').map(option=>(option as HTMLOptionElement).value)).toEqual(['1','2','3','4']);expect(within(capacity).getAllByRole('option').map(option=>option.textContent)).toEqual(['اتاق ۱ نفره','اتاق ۲ نفره','اتاق ۳ نفره','اتاق ۴ نفره']);
   fireEvent.change(capacity,{target:{value:'2'}});await waitFor(()=>expect(queries).toHaveLength(2));expect(queries[1]).toMatchObject({party:{adults:2,children:0,infants:0},rooms:1,checkIn:'2026-10-26',checkOut:'2026-10-27'});
   await waitFor(()=>expect(dialog().querySelector('[data-hotel-id="hotel-b"]')).toHaveAttribute('data-selected','true'));
   expect(map.current?.identity).toBe(identity);expect(within(dialog()).getByRole('region',{name:'map'})).toBe(mapElement);expect(map.current?.selectedHotelId).toBe('hotel-b');
@@ -49,6 +49,28 @@ describe('arrival map and square hotel collection',()=>{
   fireEvent.change(capacity,{target:{value:'3'}});expect(requests).toHaveLength(3);expect(requests[1]!.signal?.aborted).toBe(true);
   await act(async()=>requests[1]!.resolve(arrivalSnapshot(requests[1]!.query)));expect(screen.getByRole('region',{name:'نتایج مقایسه اقامتگاه‌ها'})).toHaveAttribute('aria-busy','true');
   await act(async()=>requests[2]!.resolve(arrivalSnapshot(requests[2]!.query)));await waitFor(()=>expect(screen.getByRole('list',{name:'هتل‌ها و قیمت اقامت'})).toBeInTheDocument());expect(capacity).toHaveValue('3');expect(requests[2]!.query.party.adults).toBe(3);
+ });
+ it('shows the bottom fade only when more content remains, including when short landscape uses the outer scroll host',async()=>{
+  const {dialog}=setup();await waitFor(()=>expect(dialog().querySelectorAll('[data-hotel-id]')).toHaveLength(2));
+  const panel=dialog().querySelector<HTMLDivElement>('[data-hotel-scroll]')!,layout=dialog().querySelector<HTMLDivElement>('[data-hotel-layout]')!,cue=dialog().querySelector('[data-hotel-overflow-cue]')!;let height=700;
+  Object.defineProperties(panel,{clientHeight:{configurable:true,value:300},scrollHeight:{configurable:true,get:()=>height}});expect(cue).toHaveAttribute('data-visible','false');fireEvent.resize(window);expect(cue).toHaveAttribute('data-visible','true');
+  panel.scrollTop=400;fireEvent.scroll(panel);expect(cue).toHaveAttribute('data-visible','false');panel.scrollTop=0;height=280;fireEvent.resize(window);expect(cue).toHaveAttribute('data-visible','false');
+  layout.style.overflowY='auto';Object.defineProperties(layout,{clientHeight:{configurable:true,value:350},scrollHeight:{configurable:true,value:900}});fireEvent.resize(window);expect(cue).toHaveAttribute('data-visible','true');layout.scrollTop=550;fireEvent.scroll(layout);expect(cue).toHaveAttribute('data-visible','false');
+ });
+ it('keeps the shared measured indicator sliding and resizing while a newly chosen order is loading',async()=>{
+  vi.stubGlobal('matchMedia',()=>({matches:false,addEventListener(){},removeEventListener(){}}));vi.spyOn(document,'visibilityState','get').mockReturnValue('visible');
+  const nativeBox=HTMLElement.prototype.getBoundingClientRect,boxes:Record<string,[number,number]>={cheapest:[420,90],stars:[310,110],'arrival-distance':[140,170],'location-distance':[0,140]};
+  vi.spyOn(HTMLElement.prototype,'getBoundingClientRect').mockImplementation(function(this:HTMLElement){
+   if(this.hasAttribute('data-segment-track'))return new DOMRect(0,0,510,54);
+   const option=this.hasAttribute('data-segment-option')?this:this.matches('[data-segment-slot],[data-segment-slot]>div')?this.querySelector<HTMLElement>('[data-segment-option]'):null,box=option?boxes[option.dataset['segmentOption']!]:undefined;
+   return box?new DOMRect(box[0],5,box[1],44):nativeBox.call(this);
+  });
+  const requests:{query:HotelSearchQuery;resolve:(snapshot:HotelSearchSnapshot)=>void}[]=[],client={startHotelSearch:vi.fn((query:HotelSearchQuery)=>new Promise<HotelSearchSnapshot>(resolve=>requests.push({query,resolve})))} as unknown as ApiClient;
+  function App(){const model=useHotelDiscovery({trip:arrivingTrip(),catalog:arrivalCatalog,session,client});return <><button onClick={model.openDialog}>open hotels</button><HotelDialog model={model} catalog={arrivalCatalog} session={session} canApplyTrip/></>;}
+  render(<App/>);fireEvent.click(screen.getByText('open hotels'));await waitFor(()=>expect(requests).toHaveLength(1));await act(async()=>requests[0]!.resolve(arrivalSnapshot(requests[0]!.query)));await waitFor(()=>expect(screen.getByRole('list',{name:'هتل‌ها و قیمت اقامت'})).toBeInTheDocument());
+  const group=screen.getByRole('radiogroup',{name:'مرتب‌سازی اقامتگاه‌ها'}),indicator=group.querySelector<HTMLElement>('[data-segment-indicator]')!;expect(Number.parseFloat(indicator.style.width)).toBe(90);
+  fireEvent.click(screen.getByRole('radio',{name:'ستاره بیشتر'}));expect(requests).toHaveLength(2);expect(screen.getByRole('radio',{name:'ستاره بیشتر'})).toBeEnabled();expect(screen.getByRole('region',{name:'نتایج مقایسه اقامتگاه‌ها'})).toHaveAttribute('aria-busy','true');
+  await waitFor(()=>{const width=Number.parseFloat(indicator.style.width);expect(width).toBeGreaterThan(90);expect(width).toBeLessThan(110);},{interval:10});await waitFor(()=>expect(Number.parseFloat(indicator.style.width)).toBe(110));expect(requests[1]!.query.sort).toBe('stars');
  });
  it('binds map and card selection both ways while preserving the clicked control focus',async()=>{
   const {dialog}=setup();await waitFor(()=>expect(dialog().querySelectorAll('[data-hotel-id]')).toHaveLength(2));

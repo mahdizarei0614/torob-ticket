@@ -137,6 +137,7 @@ export function createFreeMap(element:HTMLElement,input:FreeMapInput,load:()=>Pr
   const click=(event:Event)=>{
    event.stopPropagation();if(!owns()||node.disabled||clusters.get(group.key)!==record||!map)return;
    node.focus({preventScroll:true});if(!owns())return;
+   if(canPick()){emitPoint(record.point);return;}
    const geometry=memberBounds(record.ids);if(!geometry)return;
    const current=map.getZoom(),zoom=Math.min(20,current+3),duration=motionEnabled?560:0;
    const pixels=map.project?geometry.points.map(point=>map!.project!(point)):[],span=(axis:'x'|'y')=>Math.max(...pixels.map(point=>point[axis]))-Math.min(...pixels.map(point=>point[axis]));
@@ -169,7 +170,7 @@ export function createFreeMap(element:HTMLElement,input:FreeMapInput,load:()=>Pr
    if(!cluster)continue;
    if(cluster.point.latitude!==point.latitude||cluster.point.longitude!==point.longitude){cluster.point=point;cluster.marker.setLngLat([point.longitude,point.latitude]);}
    cluster.ids=ids;const count=new Intl.NumberFormat('fa-IR').format(ids.length);
-   cluster.element.dataset['mapClusterCount']=String(ids.length);cluster.element.dataset['mapClusterMembers']=JSON.stringify(ids);cluster.element.setAttribute('aria-label',`بزرگ‌نمایی برای نمایش ${count} هتل`);
+   cluster.element.dataset['mapClusterCount']=String(ids.length);cluster.element.dataset['mapClusterMembers']=JSON.stringify(ids);cluster.element.setAttribute('aria-label',canPick()?`انتخاب موقعیت گروه ${count} هتل`:`بزرگ‌نمایی برای نمایش ${count} هتل`);
    const pin=cluster.element.querySelector<HTMLElement>('[data-marker-pin]')!;if(pin.textContent!==count)pin.textContent=count;
    cluster.element.style.zIndex='3';
   }
@@ -274,7 +275,11 @@ export function createFreeMap(element:HTMLElement,input:FreeMapInput,load:()=>Pr
   sdk=runtime;const initial=savedCamera??{center:input.center,zoom:12.5};
   map=sdk.createMap(element,{style:FREE_MAP_STYLES[appearance],center:[initial.center.longitude,initial.center.latitude],zoom:initial.zoom,pitch:0,bearing:0,maxPitch:0,dragRotate:false,touchPitch:false,attributionControl:{compact:false},locale:{'NavigationControl.ZoomIn':'بزرگ‌نمایی','NavigationControl.ZoomOut':'کوچک‌نمایی','Map.Title':input.discovery?'نقشه اقامتگاه‌ها و نقطه رسیدن':'نقشه انتخاب موقعیت'}});
   element.dataset['freeMapAppearance']=appearance;
-  on('click',event=>{if(event&&typeof event==='object'&&'lngLat'in event){const p=event.lngLat as {lng?:unknown;lat?:unknown};emitPoint({longitude:typeof p.lng==='number'&&Number.isFinite(p.lng)?((p.lng+180)%360+360)%360-180:p.lng,latitude:p.lat});}});
+  on('click',event=>{
+   if(!event||typeof event!=='object'||!('lngLat'in event)||!event.lngLat||typeof event.lngLat!=='object')return;
+   const p=event.lngLat as {lng?:unknown;lat?:unknown};
+   emitPoint({longitude:typeof p.lng==='number'&&Number.isFinite(p.lng)?((p.lng+180)%360+360)%360-180:p.lng,latitude:p.lat});
+  });
   const loaded=()=>{if(!owns())return;stopTimer();notify('ready');layoutMarkers();reportCamera();settle(true);};
   on('load',loaded);on('idle',loaded);on('style.load',()=>{if(owns()&&savedCamera)map?.jumpTo({center:[savedCamera.center.longitude,savedCamera.center.latitude],zoom:savedCamera.zoom,pitch:0,bearing:0});});on('move',layoutMarkers);on('resize',layoutMarkers);on('moveend',()=>{layoutMarkers();settleClusterFocus();reportCamera();});on('error',fail);on('webglcontextlost',fail);
   if(typeof ResizeObserver!=='undefined'){observer=new ResizeObserver(()=>{if(owns()){map?.resize();layoutMarkers();}});observer.observe(element);}

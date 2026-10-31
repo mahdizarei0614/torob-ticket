@@ -29,6 +29,12 @@
   --focus-width: 3px;
   --motion-fast: 140ms;
   --color-clear: transparent;
+  --promotion-accent: #885b0c;
+  --promotion-text: #61420e;
+  --promotion-surface: #fff5dc;
+  --promotion-border: #c99a43;
+  --promotion-highlight: #edbd594d;
+  --promotion-shadow: #6e4a101f;
   --surface: #ffffff;
   --canvas: #f4f6f8;
   --surface-raised: #ffffff;
@@ -78,6 +84,12 @@
   color-scheme: light;
 }
 [data-appearance='dark'] {
+  --promotion-accent: #f2cb7d;
+  --promotion-text: #f7e1b2;
+  --promotion-surface: #1b160d;
+  --promotion-border: #7a6131;
+  --promotion-highlight: #eac36c40;
+  --promotion-shadow: #09060066;
   --scene-bloom-intensity: 0.22;
   --surface: #090e17;
   --canvas: #03060c;
@@ -222,5 +234,11 @@
     --text: CanvasText;
     --surface: Canvas;
     --canvas: Canvas;
+    --promotion-accent: LinkText;
+    --promotion-text: CanvasText;
+    --promotion-surface: Canvas;
+    --promotion-border: ButtonText;
+    --promotion-highlight: Highlight;
+    --promotion-shadow: transparent;
   }
 }

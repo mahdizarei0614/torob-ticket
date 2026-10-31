@@ -27,6 +27,10 @@ const directory = {
     })),
 };
 const initialInventory: HotelInventoryResolver = input => realHotelInventory(input, directory);
+const preFourAdultInventory: HotelInventoryResolver = input => {
+    const inventory = initialInventory(input);
+    return inventory ? {...inventory, templates: inventory.templates.filter(template => !template.id.endsWith('-rate-4'))} : inventory;
+};
 const replacementInventory: HotelInventoryResolver = input => {
     const inventory = initialInventory(input);
     if (!inventory) return inventory;
@@ -43,7 +47,7 @@ const replacementInventory: HotelInventoryResolver = input => {
 describe('real hotel source upgrade preserves PostgreSQL history and current authority', () => {
     let sessions: SessionService;
     const owners: SessionContext[] = [], hotelServices: HotelService[] = [], referralServices: ReferralService[] = [];
-    let original: HotelService, current: HotelService, replacement: HotelService, published: HotelService;
+    let original: HotelService, current: HotelService, replacement: HotelService, published: HotelService, preFourAdult: HotelService;
     let oldReferrals: ReferralService, currentReferrals: ReferralService, replacementReferrals: ReferralService;
     beforeAll(async () => {
         process.env.DATABASE_URL = requireTestDatabaseUrl(process.env.TEST_DATABASE_URL);
@@ -58,6 +62,7 @@ describe('real hotel source upgrade preserves PostgreSQL history and current aut
         };
         ({referrals: oldReferrals, hotels: original} = service(() => undefined));
         ({referrals: currentReferrals, hotels: current} = service(initialInventory));
+        ({hotels: preFourAdult} = service(preFourAdultInventory));
         ({referrals: replacementReferrals, hotels: replacement} = service(replacementInventory));
         ({hotels: published} = service(realHotelInventory));
     });
@@ -130,6 +135,34 @@ describe('real hotel source upgrade preserves PostgreSQL history and current aut
         expect(receipt.payload).toEqual(intent.quote);
         expect(JSON.stringify((await stored(context, historic.hotelSearchId)).payload)).toBe(historicBytes);
         expect(await replacement.get(context, historic.hotelSearchId)).toEqual(historic);
+    });
+
+    it('adds a real eligible four-adult one-room rate while retaining exact pre-change sources, quotes and referral recheck', async () => {
+        const context = await owner(), historic = await preFourAdult.searchHotels(context, query), selected = historic.quotes[0]!;
+        const oldRun = (await stored(context, historic.hotelSearchId)).payload as unknown as HotelRun, oldSearchBytes = JSON.stringify(oldRun);
+        const oldQuoteKey = {sessionId_id_version: {sessionId: context.sessionId, id: selected.quoteId, version: selected.version}};
+        const oldQuoteBytes = JSON.stringify((await sessions.database.quote.findUniqueOrThrow({where: oldQuoteKey})).payload);
+        expect(oldRun.source.templates).toHaveLength(3);
+        const fresh = await current.searchHotels(context, {...query, party: {adults: 4, children: 0, infants: 0}});
+        expect(fresh.status).toBe('complete');expect(fresh.quotes.length).toBeGreaterThan(0);
+        const nextRun = (await stored(context, fresh.hotelSearchId)).payload as unknown as HotelRun;
+        expect(nextRun.source.templates).toHaveLength(4);expect(nextRun.fingerprint).not.toBe(oldRun.fingerprint);
+        expect(JSON.stringify(nextRun.source.templates.filter(template => !template.id.endsWith('-rate-4')))).toBe(JSON.stringify(oldRun.source.templates));
+        for (const quote of fresh.quotes) {
+            expect(quote.query).toMatchObject({rooms: 1, party: {adults: 4, children: 0, infants: 0}});
+            expect(quote.eligibility.status).toBe('eligible');expect(quote.roomAllocation).toHaveLength(1);
+            expect(quote.roomAllocation[0]).toMatchObject({adults: 4, children: 0, infants: 0, roomRateId: expect.stringContaining('-rate-4')});
+            expect(quote.roomDetails?.[0]).toMatchObject({roomType: 'اتاق چهار‌نفره', maxAdults: 4});
+            const rate = nextRun.source.rates.find(rate => rate.roomRateId === quote.roomAllocation[0]!.roomRateId)!;
+            expect(quote.total).toEqual(rate.nightlyPrices.find(night => night.date === query.checkIn)!.total);
+        }
+        const intent = await ready(currentReferrals, context, selected);
+        if (intent.quote.kind !== 'hotel') throw new Error('Expected historical hotel quote');
+        expect(intent.quote.quote.total).toEqual(selected.total);expect(intent.quote.quote.roomAllocation).toEqual(selected.roomAllocation);
+        const receipt = await currentReferrals.confirmReferral(context, accepted(intent));expect(receipt.payload).toEqual(intent.quote);
+        expect(JSON.stringify((await stored(context, historic.hotelSearchId)).payload)).toBe(oldSearchBytes);
+        expect(JSON.stringify((await sessions.database.quote.findUniqueOrThrow({where: oldQuoteKey})).payload)).toBe(oldQuoteBytes);
+        expect(await current.get(context, historic.hotelSearchId)).toEqual(historic);
     });
 
     it('keeps current provider, mapping and scenario authority fenced for recorded new-source intents', async () => {

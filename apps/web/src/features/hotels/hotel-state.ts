@@ -20,15 +20,15 @@ export function createHotelState(trip:HotelTrip,catalog:CatalogSnapshot):HotelSt
  return {trip,draft:{checkIn,checkOut:checkIn?parseDate(checkIn).add({days:1}).toString():'',rooms:1,childAges:Array.from({length:trip.query.party.children},()=>''),arrivalConfirmed:Boolean(checkIn&&place),sort:'cheapest',arrivalPlaceId:place?.id},revision:0,status:'idle'};
 }
 export function queryKey(query:HotelSearchQuery){return JSON.stringify(HotelSearchQuerySchema.parse(query));}
-/** Current room inventory supports one, two or three adults in a single room. */
-export const HOTEL_ROOM_CAPACITIES=[1,2,3] as const;
+/** Current authored room inventory supports up to four adults in one room. */
+export const HOTEL_ROOM_CAPACITIES=[1,2,3,4] as const;
 export function hotelCapacity(state:Pick<HotelState,'draft'|'trip'>){return state.draft.capacity??state.trip.query.party.adults;}
 export function hotelCapacityOptions(current:number){return [...new Set<number>([...HOTEL_ROOM_CAPACITIES,current])].sort((a,b)=>a-b);}
 function currentQuote(quote:HotelQuoteSnapshot|undefined,now:number){return quote&&Number.isFinite(Date.parse(quote.expiresAt))&&Date.parse(quote.expiresAt)>now&&Date.parse(quote.observedAt)<=now&&quote.completeness.status==='complete'&&quote.eligibility.status==='eligible'?quote:undefined;}
 function representative(snapshot:HotelSearchSnapshot,hotelId:string,now:number){const row=snapshot.results?.find(result=>result.hotelId===hotelId);return row?.status==='priced'?currentQuote(snapshot.quotes.find(quote=>quote.quoteId===row.representativeQuoteId&&quote.hotelId===hotelId),now):undefined;}
 export function hotelReducer(state:HotelState,action:HotelAction):HotelState{
  switch(action.type){
- case 'authority':return {...state,revision:state.revision+1,authorityStale:true,selected:undefined,requested:undefined,status:state.snapshot?'ready':'idle',error:undefined};
+ case 'authority':return {...state,revision:state.revision+1,authorityStale:true,selected:undefined,requested:undefined,point:undefined,status:state.snapshot?'ready':'idle',error:undefined};
  case 'edit':{
   // Setup fields are arrival-derived. Legacy callers cannot turn this view into
   // a different stay or change the known arrival while keeping a hotel quote.

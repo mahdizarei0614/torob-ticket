@@ -1,4 +1,4 @@
-import {useCallback,useLayoutEffect,useMemo,useRef,type ReactNode} from 'react';
+import {useCallback,useLayoutEffect,useMemo,useRef,useState,type ReactNode} from 'react';
 import type {CatalogSnapshot,SessionInfo} from '@torob-ticket/contracts';
 import {Button,Dialog,SegmentedControl,displayHotelName,displayPlaceName,LoadingSkeleton,ContentSwap,ContentItem,HotelStayIllustration,useMotionPolicy} from '@torob-ticket/ui';
 import type {HotelDiscovery} from './use-hotel-discovery';
@@ -9,6 +9,11 @@ import {FreeLocationMap} from './free-location-map';
 import type {MapChoice} from './free-map-adapter';
 import {faNumber} from './hotel-format';
 import styles from './hotels.module.css';
+
+function discoveryScrollHost(panel:HTMLDivElement){
+ const layout=panel.closest<HTMLDivElement>('[data-hotel-layout]');
+ return layout&&['auto','scroll'].includes(getComputedStyle(layout).overflowY)?layout:panel;
+}
 
 export function HotelDialog({model,catalog,referralAction,initialScrollTop=0}:{model:HotelDiscovery;catalog:CatalogSnapshot;session:SessionInfo;canApplyTrip:boolean;referralAction?:{quoteId:string;node:ReactNode};initialScrollTop?:number}){
  const {state}=model,trip=state.trip,draft=state.draft,policy=useMotionPolicy();
@@ -28,6 +33,18 @@ export function HotelDialog({model,catalog,referralAction,initialScrollTop=0}:{m
  const snapshot=state.snapshot;
  const sameQuery=Boolean(snapshot&&model.query&&queryKey(snapshot.query)===queryKey(model.query));
  const visible=sameQuery&&!model.stale?snapshot:undefined;
+ const [moreBelow,setMoreBelow]=useState(false),errorKey=model.errors.join('|');
+ useLayoutEffect(()=>{
+  const panel=scroll.current;if(!model.open||!panel){setMoreBelow(false);return;}
+  let live=true;
+  const layout=panel.closest<HTMLDivElement>('[data-hotel-layout]');
+  const update=()=>{if(live){const host=discoveryScrollHost(panel);setMoreBelow(host.clientHeight>0&&host.scrollHeight-host.clientHeight-host.scrollTop>2);}};
+  const observer=typeof ResizeObserver==='undefined'?undefined:new ResizeObserver(update);
+  observer?.observe(panel);for(const child of Array.from(panel.children))observer?.observe(child);
+  if(layout)observer?.observe(layout);
+  panel.addEventListener('scroll',update,{passive:true});layout?.addEventListener('scroll',update,{passive:true});window.addEventListener('resize',update);void document.fonts?.ready.then(update);update();
+  return()=>{live=false;observer?.disconnect();panel.removeEventListener('scroll',update);layout?.removeEventListener('scroll',update);window.removeEventListener('resize',update);};
+ },[model.open,state.status,visible,state.selectedHotelId,errorKey]);
  const fresh=Boolean(visible&&state.status==='ready'&&!model.stale&&!model.authorityStale&&!model.blocked&&!state.point);
  const hotels=useMemo(()=>(snapshot?.hotels??[]).filter(hotel=>hotel.destinationCityId===trip.query.destinationCityId),[snapshot?.hotels,trip.query.destinationCityId]);
  const choices=useMemo<MapChoice[]>(()=>[
@@ -47,17 +64,18 @@ export function HotelDialog({model,catalog,referralAction,initialScrollTop=0}:{m
   const panel=scroll.current;
   const card=Array.from(panel?.querySelectorAll<HTMLElement>('[data-hotel-id]')??[]).find(node=>node.dataset['hotelId']===id&&!node.closest('[inert],[data-content-presence="exiting"]'));
   if(!panel||!card)return;
-  const viewport=panel.getBoundingClientRect(),box=card.getBoundingClientRect();
+  const host=discoveryScrollHost(panel),viewport=host.getBoundingClientRect(),box=card.getBoundingClientRect();
   const top=viewport.top+8,bottom=viewport.bottom-4;
   const delta=box.top<top?box.top-top:box.bottom>bottom?box.bottom-bottom:0;
-  if(Math.abs(delta)>1)panel.scrollTo({top:Math.max(0,panel.scrollTop+delta),behavior:policy.enabled?'smooth':'instant'});
+  if(Math.abs(delta)>1)host.scrollTo({top:Math.max(0,host.scrollTop+delta),behavior:policy.enabled?'smooth':'instant'});
  }
  function sort(value:string){
   if(value==='location-distance'&&!draft.customPoint){model.openPoint();return;}
   void model.changeSort(value as typeof draft.sort);
  }
  return <Dialog title={`هتل‌های ${city?.name??'مقصد'}`} isOpen={model.open} onOpenChange={next=>{if(!next)model.closeDialog();}} mobileFullscreen stickyHeader size="wide">
-  <div className={styles.arrivalDialog} data-hotel-dialog data-hotel-authority-stale={model.authorityStale} data-hotel-blocked={model.blocked} data-hotel-context={trip.query.destinationCityId} data-hotel-stale={model.stale} data-hotel-check-in={model.query?.checkIn??''} data-hotel-check-out={model.query?.checkOut??''} data-selected-hotel-id={state.selectedHotelId}>
+  <div className={styles.arrivalDialog} data-hotel-dialog data-motion-enabled={policy.enabled} data-hotel-authority-stale={model.authorityStale} data-hotel-blocked={model.blocked} data-hotel-context={trip.query.destinationCityId} data-hotel-stale={model.stale} data-hotel-check-in={model.query?.checkIn??''} data-hotel-check-out={model.query?.checkOut??''} data-selected-hotel-id={state.selectedHotelId}>
+   <div className={styles.hotelSplitFrame}>
    <div className={styles.hotelSplit} data-hotel-layout="split">
     <div className={styles.hotelMapPane} data-hotel-map-pane>
     <div className={styles.arrivalMapFrame} data-hotel-map-frame>
@@ -67,10 +85,11 @@ export function HotelDialog({model,catalog,referralAction,initialScrollTop=0}:{m
     </div>
     <div className={styles.hotelCollectionPane} data-hotel-cards-pane>
      <div className={styles.hotelOrder}>
-      <SegmentedControl hideLabel label="مرتب‌سازی اقامتگاه‌ها" value={state.point?'location-distance':draft.sort} isDisabled={model.stale||model.blocked||state.status==='loading'} onChange={sort} options={[{id:'cheapest',label:'ارزان‌ترین'},{id:'stars',label:'ستاره بیشتر'},{id:'arrival-distance',label:`نزدیک به ${modeLabel}`},{id:'location-distance',label:'نزدیک به نقطه دلخواه'}]}/>
-      <label className={styles.hotelCapacity}><span>{adultCapacity?'ظرفیت بزرگسال':'ظرفیت اتاق'}</span><span className={styles.capacitySelect}><select aria-label={adultCapacity?'ظرفیت بزرگسال':'ظرفیت اتاق'} value={capacity} disabled={!draft.arrivalConfirmed||model.stale||model.blocked||Boolean(state.point)} onChange={event=>void model.changeCapacity(Number(event.target.value))}>{hotelCapacityOptions(capacity).map(value=><option key={value} value={value}>{faNumber(value)} {adultCapacity?'بزرگسال':'نفره'}</option>)}</select><svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d="m5 8 5 5 5-5"/></svg></span></label>
+      <SegmentedControl hideLabel label="مرتب‌سازی اقامتگاه‌ها" value={state.point?'location-distance':draft.sort} isDisabled={model.stale||model.blocked} onChange={sort} options={[{id:'cheapest',label:'ارزان‌ترین'},{id:'stars',label:'ستاره بیشتر'},{id:'arrival-distance',label:`نزدیک به ${modeLabel}`},{id:'location-distance',label:'نزدیک به نقطه دلخواه'}]}/>
+      <label className={styles.hotelCapacity}><span className={styles.srOnly}>{adultCapacity?'ظرفیت بزرگسال':'ظرفیت اتاق'}</span><span className={styles.capacitySelect}><select aria-label={adultCapacity?'ظرفیت بزرگسال':'ظرفیت اتاق'} title={adultCapacity?'ظرفیت بزرگسال اتاق؛ کودکان و نوزادان مطابق سفر انتخاب‌شده':'ظرفیت اتاق'} value={capacity} disabled={!draft.arrivalConfirmed||model.stale||model.blocked||Boolean(state.point)} onChange={event=>void model.changeCapacity(Number(event.target.value))}>{hotelCapacityOptions(capacity).map(value=><option key={value} value={value}>اتاق {faNumber(value)} {adultCapacity?'بزرگسال':'نفره'}</option>)}</select><svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d="m5 8 5 5 5-5"/></svg></span></label>
      </div>
      {draft.customPoint&&!state.point&&<div className={styles.referenceChange}><Button variant="quiet" isDisabled={loading||model.stale||model.blocked} onPress={model.openPoint}>تغییر نقطه مرجع</Button></div>}
+     <div className={styles.hotelScrollFrame}>
      <div ref={bindScroll} className={styles.hotelDiscoveryScroll} data-hotel-scroll>
     {(state.status==='error'||model.authorityStale||failed)&&<aside className={styles.arrivalRecovery} role="alert"><div><strong>{model.authorityStale?'قیمت هتل‌ها به بررسی تازه نیاز دارد':'دریافت هتل‌ها کامل نشد'}</strong><p>{state.error??(failed?'پاسخ ناموفق به معنی نبود اتاق نیست. دوباره بررسی کنید.':'همین یک شب و موقعیت انتخابی حفظ شده است.')}</p></div>{model.blocked&&model.resumeSession?<Button variant="secondary" onPress={model.resumeSession}>بازیابی نشست</Button>:<Button variant="secondary" isDisabled={!model.query||model.stale||model.blocked} onPress={()=>void model.submit()}>تلاش دوباره</Button>}</aside>}
     {!model.query&&!loading&&model.errors.length>0&&<p role="status" className={styles.arrivalUnavailable}>{model.errors.join(' ')}</p>}
@@ -81,7 +100,10 @@ export function HotelDialog({model,catalog,referralAction,initialScrollTop=0}:{m
      </ContentSwap>
     </section>
      </div>
+     </div>
     </div>
+   </div>
+   <div className={styles.hotelOverflowCue} data-hotel-overflow-cue data-visible={moreBelow} aria-hidden="true"/>
    </div>
    <ContentSwap identity={selectedHotel&&!state.point&&!model.stale?'selection':'no-selection'}>{selectedHotel&&!state.point&&!model.stale&&<HotelSelection hotel={selectedHotel} result={selectedResult} quote={selectedQuote} pending={loading} continuation={selectedQuote&&referralAction?.quoteId===selectedQuote.quoteId?referralAction.node:undefined} onRefresh={()=>void model.submit()}/>}</ContentSwap>
   </div>
