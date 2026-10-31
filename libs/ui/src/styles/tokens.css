@@ -29,12 +29,15 @@
   --focus-width: 3px;
   --motion-fast: 140ms;
   --color-clear: transparent;
-  --promotion-accent: #885b0c;
-  --promotion-text: #61420e;
-  --promotion-surface: #fff5dc;
-  --promotion-border: #c99a43;
-  --promotion-highlight: #edbd594d;
-  --promotion-shadow: #6e4a101f;
+  --promotion-accent: #806b48;
+  --promotion-text: #403b33;
+  --promotion-surface: var(--surface);
+  --promotion-border: #c6bba6;
+  --promotion-highlight: #bda67c14;
+  --promotion-shadow: #5b503118;
+  --promotion-metal-light: #fffdf7;
+  --promotion-metal-dim: #a2957d;
+  --promotion-glint: #fff9e9;
   --surface: #ffffff;
   --canvas: #f4f6f8;
   --surface-raised: #ffffff;
@@ -84,12 +87,15 @@
   color-scheme: light;
 }
 [data-appearance='dark'] {
-  --promotion-accent: #f2cb7d;
-  --promotion-text: #f7e1b2;
-  --promotion-surface: #1b160d;
-  --promotion-border: #7a6131;
-  --promotion-highlight: #eac36c40;
-  --promotion-shadow: #09060066;
+  --promotion-accent: #c5b18b;
+  --promotion-text: #e8e2d7;
+  --promotion-surface: var(--surface);
+  --promotion-border: #6d6556;
+  --promotion-highlight: #d8c5a114;
+  --promotion-shadow: #00000030;
+  --promotion-metal-light: #e8dcc6;
+  --promotion-metal-dim: #514d45;
+  --promotion-glint: #fff5df;
   --scene-bloom-intensity: 0.22;
   --surface: #090e17;
   --canvas: #03060c;
@@ -240,5 +246,8 @@
     --promotion-border: ButtonText;
     --promotion-highlight: Highlight;
     --promotion-shadow: transparent;
+    --promotion-metal-light: CanvasText;
+    --promotion-metal-dim: ButtonText;
+    --promotion-glint: Highlight;
   }
 }
