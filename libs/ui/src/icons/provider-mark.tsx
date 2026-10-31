@@ -5,7 +5,7 @@ import {resolveAirlineBrand} from '../presentation/airline-brands';
 import {resolveGroundOperatorBrand} from '../presentation/ground-operator-brands';
 import s from './icons.module.css';
 import airlineStyles from './airline-mark.module.css';
-export interface ProviderMarkProps {providerId?:string;operatorId?:string;mode?:Mode;label?:string;size?:24|32|40;className?:string}
+export interface ProviderMarkProps {providerId?:string;operatorId?:string;mode?:Mode;label?:string;size?:24|32|40|64;className?:string}
 const marks=[
  <path key="arch" d="M7 22V12l9-5 9 5v10M12 22v-7l4-2 4 2v7M6 25h20"/>,
  <path key="fold" d="m7 10 9-4 9 4-9 5-9-5Zm0 6 9 5 9-5M7 22l9 5 9-5"/>,

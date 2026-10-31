@@ -31,7 +31,8 @@ export async function hydrateReturn(checkpoint:ReturnCheckpoint,receipt:Referral
  const h=checkpoint.hotel;
  try{if(h?.hotelSearchId){
   const source=await client.getHotelSearch(h.hotelSearchId,signal);
-  if(source.hotelSearchId!==h.hotelSearchId||source.query.destinationCityId!==snapshot.query.destinationCityId||canonical([source.query.party.adults,source.query.party.children,source.query.party.infants,source.query.party.infantAgesMonths])!==canonical([snapshot.query.party.adults,snapshot.query.party.children,snapshot.query.party.infants,snapshot.query.party.infantAgesMonths]))fail();
+  const capacity=h.draft.capacity??snapshot.query.party.adults;
+  if(source.hotelSearchId!==h.hotelSearchId||source.query.destinationCityId!==snapshot.query.destinationCityId||source.query.party.adults!==capacity||canonical([source.query.party.children,source.query.party.infants,source.query.party.infantAgesMonths])!==canonical([snapshot.query.party.children,snapshot.query.party.infants,snapshot.query.party.infantAgesMonths]))fail();
   const hotelReceipt=receipt.payload.kind==='hotel'?receipt:h.referralId?await client.getReferral(h.referralId,signal):undefined;
   let selected=h.selected?source.quotes.find(q=>q.quoteId===h.selected?.quoteId&&q.version===h.selected.version):undefined;
   if(hotelReceipt){
@@ -41,7 +42,7 @@ export async function hydrateReturn(checkpoint:ReturnCheckpoint,receipt:Referral
   }
   if(h.selected&&!selected)fail();
   const draft=h.draft,q=source.query;
-  const draftMatches=draft.arrivalConfirmed&&draft.checkIn===q.checkIn&&draft.checkOut===q.checkOut&&draft.rooms===q.rooms&&draft.sort===q.sort&&canonical(draft.childAges.map(Number))===canonical(q.childAgesAtCheckIn??[])&&canonical(draft.customPoint)===canonical(q.customPoint)&&draft.arrivalPlaceId===q.arrivalPlaceId;
+  const draftMatches=draft.arrivalConfirmed&&capacity===q.party.adults&&draft.checkIn===q.checkIn&&draft.checkOut===q.checkOut&&draft.rooms===q.rooms&&draft.sort===q.sort&&canonical(draft.childAges.map(Number))===canonical(q.childAgesAtCheckIn??[])&&canonical(draft.customPoint)===canonical(q.customPoint)&&draft.arrivalPlaceId===q.arrivalPlaceId;
   const contextBlocked=h.stale!==false;result.hotel={snapshot:source,draft,selected:draftMatches&&!contextBlocked?selected:undefined,open:h.open,scrollTop:h.scrollTop,receipt:draftMatches&&!contextBlocked?hotelReceipt:undefined,tripItinerary:result.transportOrigin?.itinerary,contextBlocked};if(contextBlocked)result.hotelNotice='زمینه انتخاب قبلی اقامت قابل تأیید نیست؛ پیش‌نویس و شواهد حفظ شدند و برای ادامه به مقایسه تازه اقامت نیاز دارید.';
  }else if(receipt.payload.kind==='hotel'||h?.selected)fail();else if(h)result.hotelNotice='زمینه اقامت قبلی بدون مقایسه ثبت‌شده در این بارگذاری قابل بازگردانی نیست؛ شرایط اقامت را دوباره تنظیم و مقایسه کنید.';}catch{result.hotel=undefined;result.hotelMetadata=undefined;result.hotelReceipt=undefined;result.hotelNotice='زمینه اقامت قبلی با شهر یا مسافران این سفر قابل تأیید نبود؛ فقط مقایسه معتبر سفر بازگردانی شد. اقامت را برای مقصد و مسافران کنونی دوباره مقایسه کنید.';}
  return result;

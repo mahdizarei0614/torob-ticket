@@ -3,7 +3,7 @@ import {localDateAt} from '@torob-ticket/domain';
 import {parseDate} from '@internationalized/date';
 export interface HotelTrip {query:TransportSearchQuery; itinerary?:Itinerary; draftKey:string; available:boolean}
 /** Retained shape supports old return checkpoints; current dates/room count are automatic. */
-export interface HotelDraft {checkIn:string;checkOut:string;rooms:number;childAges:string[];arrivalConfirmed:boolean;sort:HotelSearchQuery['sort'];arrivalPlaceId?:string;customPoint?:GeoPoint}
+export interface HotelDraft {checkIn:string;checkOut:string;rooms:number;childAges:string[];arrivalConfirmed:boolean;sort:HotelSearchQuery['sort'];arrivalPlaceId?:string;customPoint?:GeoPoint;capacity?:number}
 export interface HotelState {trip:HotelTrip;draft:HotelDraft;revision:number;snapshot?:HotelSearchSnapshot;requested?:HotelSearchQuery;status:'idle'|'loading'|'ready'|'error';error?:string;selectedHotelId?:string;selected?:HotelQuoteSnapshot;authorityStale?:boolean;contextBlocked?:boolean;point?:{token:number;value?:GeoPoint;returnStatus?:HotelState['status']}}
 export type HotelAction={type:'authority'}|{type:'edit';patch:Partial<HotelDraft>}|{type:'apply-trip';trip:HotelTrip;catalog:CatalogSnapshot}|{type:'start';query:HotelSearchQuery}|{type:'success';revision:number;snapshot:HotelSearchSnapshot;now?:number}|{type:'failure';revision:number;error:string}|{type:'settle-close'}|{type:'open-point'}|{type:'point';value:GeoPoint}|{type:'cancel-point'}|{type:'apply-point'}|{type:'select-hotel';hotelId:string;now:number}|{type:'select';quote:HotelQuoteSnapshot;now:number}|{type:'bind-rechecked';previous:{quoteId:string;version:number};quote:HotelQuoteSnapshot;now:number}|{type:'hydrate';snapshot:HotelSearchSnapshot;draft:HotelDraft;selected?:HotelQuoteSnapshot;authorityStale?:boolean;contextBlocked?:boolean};
 /** Meaningful travel identity; filter/sort/auth/camera are not arrival facts. */
@@ -20,6 +20,10 @@ export function createHotelState(trip:HotelTrip,catalog:CatalogSnapshot):HotelSt
  return {trip,draft:{checkIn,checkOut:checkIn?parseDate(checkIn).add({days:1}).toString():'',rooms:1,childAges:Array.from({length:trip.query.party.children},()=>''),arrivalConfirmed:Boolean(checkIn&&place),sort:'cheapest',arrivalPlaceId:place?.id},revision:0,status:'idle'};
 }
 export function queryKey(query:HotelSearchQuery){return JSON.stringify(HotelSearchQuerySchema.parse(query));}
+/** Current room inventory supports one, two or three adults in a single room. */
+export const HOTEL_ROOM_CAPACITIES=[1,2,3] as const;
+export function hotelCapacity(state:Pick<HotelState,'draft'|'trip'>){return state.draft.capacity??state.trip.query.party.adults;}
+export function hotelCapacityOptions(current:number){return [...new Set<number>([...HOTEL_ROOM_CAPACITIES,current])].sort((a,b)=>a-b);}
 function currentQuote(quote:HotelQuoteSnapshot|undefined,now:number){return quote&&Number.isFinite(Date.parse(quote.expiresAt))&&Date.parse(quote.expiresAt)>now&&Date.parse(quote.observedAt)<=now&&quote.completeness.status==='complete'&&quote.eligibility.status==='eligible'?quote:undefined;}
 function representative(snapshot:HotelSearchSnapshot,hotelId:string,now:number){const row=snapshot.results?.find(result=>result.hotelId===hotelId);return row?.status==='priced'?currentQuote(snapshot.quotes.find(quote=>quote.quoteId===row.representativeQuoteId&&quote.hotelId===hotelId),now):undefined;}
 export function hotelReducer(state:HotelState,action:HotelAction):HotelState{
@@ -28,15 +32,16 @@ export function hotelReducer(state:HotelState,action:HotelAction):HotelState{
  case 'edit':{
   // Setup fields are arrival-derived. Legacy callers cannot turn this view into
   // a different stay or change the known arrival while keeping a hotel quote.
-  const patch={...(action.patch.sort?{sort:action.patch.sort}:{}),...('customPoint'in action.patch?{customPoint:action.patch.customPoint}:{})};
+  const capacity=action.patch.capacity;
+  const patch={...(action.patch.sort?{sort:action.patch.sort}:{}),...('customPoint'in action.patch?{customPoint:action.patch.customPoint}:{}),...(HOTEL_ROOM_CAPACITIES.some(value=>value===capacity)?{capacity}:{})};
   const nextSort=patch.sort??state.draft.sort,nextPoint='customPoint'in patch?patch.customPoint:state.draft.customPoint;
   const samePoint=nextPoint===state.draft.customPoint||Boolean(nextPoint&&state.draft.customPoint&&nextPoint.latitude===state.draft.customPoint.latitude&&nextPoint.longitude===state.draft.customPoint.longitude);
-  if(!Object.keys(patch).length||(nextSort===state.draft.sort&&samePoint))return state;
+  if(!Object.keys(patch).length||(nextSort===state.draft.sort&&samePoint&&(patch.capacity??hotelCapacity(state))===hotelCapacity(state)))return state;
   return {...state,draft:{...state.draft,...patch},revision:state.revision+1,status:'idle',requested:undefined,error:undefined,selected:undefined};
  }
  case 'apply-trip':{
   const next=createHotelState(action.trip,action.catalog),sameCity=state.trip.query.destinationCityId===action.trip.query.destinationCityId;
-  return {...next,revision:state.revision+1,...(sameCity?{draft:{...next.draft,sort:state.draft.sort,customPoint:state.draft.customPoint},selectedHotelId:state.selectedHotelId}:{})};
+  return {...next,revision:state.revision+1,...(sameCity?{draft:{...next.draft,sort:state.draft.sort,customPoint:state.draft.customPoint,...(state.draft.capacity===undefined?{}:{capacity:state.draft.capacity})},selectedHotelId:state.selectedHotelId}:{})};
  }
  case 'start':return {...state,revision:state.revision+1,requested:action.query,status:'loading',error:undefined,selected:undefined};
  case 'success':{
@@ -53,9 +58,10 @@ export function hotelReducer(state:HotelState,action:HotelAction):HotelState{
  case 'apply-point':return state.point?.value?{...state,draft:{...state.draft,customPoint:{...state.point.value},sort:'location-distance'},point:undefined,revision:state.revision+1,status:'idle',requested:undefined,selected:undefined,error:undefined}:state;
  case 'hydrate':{
   const sameArrival=action.draft.checkIn===state.draft.checkIn;
-  const draft={...state.draft,sort:action.draft.sort,customPoint:action.draft.customPoint,...(sameArrival?{childAges:[...action.draft.childAges]}:{})};
+  const validCapacity=action.draft.capacity===undefined||(Number.isInteger(action.draft.capacity)&&action.draft.capacity>=1&&action.draft.capacity<=9);
+  const draft={...state.draft,sort:action.draft.sort,customPoint:action.draft.customPoint,capacity:validCapacity?action.draft.capacity:undefined,...(sameArrival?{childAges:[...action.draft.childAges]}:{})};
   const q=action.snapshot.query;
-  const matches=Boolean(!action.contextBlocked&&draft.arrivalConfirmed&&q.destinationCityId===state.trip.query.destinationCityId&&q.checkIn===draft.checkIn&&q.checkOut===draft.checkOut&&q.rooms===1&&q.arrivalPlaceId===draft.arrivalPlaceId&&q.party.adults===state.trip.query.party.adults&&q.party.children===state.trip.query.party.children&&q.party.infants===state.trip.query.party.infants&&JSON.stringify(q.party.infantAgesMonths??[])===JSON.stringify(state.trip.query.party.infantAgesMonths??[])&&q.sort===draft.sort&&JSON.stringify(q.customPoint)===JSON.stringify(draft.customPoint)&&JSON.stringify(q.childAgesAtCheckIn??[])===JSON.stringify(draft.childAges.map(Number)));
+  const matches=Boolean(validCapacity&&!action.contextBlocked&&draft.arrivalConfirmed&&q.destinationCityId===state.trip.query.destinationCityId&&q.checkIn===draft.checkIn&&q.checkOut===draft.checkOut&&q.rooms===1&&q.arrivalPlaceId===draft.arrivalPlaceId&&q.party.adults===hotelCapacity({draft,trip:state.trip})&&q.party.children===state.trip.query.party.children&&q.party.infants===state.trip.query.party.infants&&JSON.stringify(q.party.infantAgesMonths??[])===JSON.stringify(state.trip.query.party.infantAgesMonths??[])&&q.sort===draft.sort&&JSON.stringify(q.customPoint)===JSON.stringify(draft.customPoint)&&JSON.stringify(q.childAgesAtCheckIn??[])===JSON.stringify(draft.childAges.map(Number)));
   const parsed=HotelQuoteSnapshotSchema.safeParse(action.selected),candidate=parsed.success?action.selected:undefined;
   const original=candidate&&action.snapshot.quotes.find(quote=>quote.quoteId===candidate.quoteId&&quote.hotelId===candidate.hotelId&&quote.providerId===candidate.providerId);
   const parsedOriginal=HotelQuoteSnapshotSchema.safeParse(original);
@@ -92,7 +98,7 @@ export function hotelQuery(state:HotelState,catalog:CatalogSnapshot,anchor:strin
  if(expected.arrivalConfirmed&&(draft.checkIn!==expected.checkIn||draft.checkOut!==expected.checkOut||draft.rooms!==1||draft.arrivalPlaceId!==expected.arrivalPlaceId||!draft.arrivalConfirmed))errors.push('اقامت باید از روز رسیدن همین بلیت و برای یک شب باشد.');
  if(draft.childAges.length!==trip.query.party.children||draft.childAges.some(a=>!a.trim()||!Number.isInteger(Number(a))||Number(a)<0||Number(a)>17))errors.push('سن معتبر کودکان در روز ورود برای این اقامت مشخص نیست.');
  if(draft.sort==='location-distance'&&!draft.customPoint)errors.push('موقعیت مرجع را روی نقشه انتخاب کنید.');
- const party={adults:trip.query.party.adults,children:trip.query.party.children,infants:trip.query.party.infants,...(trip.query.party.infantAgesMonths?{infantAgesMonths:[...trip.query.party.infantAgesMonths]}:{})};
+ const party={adults:hotelCapacity(state),children:trip.query.party.children,infants:trip.query.party.infants,...(trip.query.party.infantAgesMonths?{infantAgesMonths:[...trip.query.party.infantAgesMonths]}:{})};
  const parsed=HotelSearchQuerySchema.safeParse({destinationCityId:trip.query.destinationCityId,checkIn:expected.checkIn,checkOut:expected.checkOut,party,...(party.children?{childAgesAtCheckIn:draft.childAges.map(Number)}:{}),rooms:1,sort:draft.sort,...(expected.arrivalPlaceId?{arrivalPlaceId:expected.arrivalPlaceId}:{}),...(draft.customPoint?{customPoint:draft.customPoint}:{})});
  if(!parsed.success&&!errors.length)errors.push('شرایط معتبر اقامت یک‌شبه در دسترس نیست.');
  if(parsed.success&&city){const bounds=hotelBounds(anchor,city.timeZone);if(parsed.data.checkIn<bounds.min||parsed.data.checkOut>bounds.max)errors.push('روز رسیدن این بلیت خارج از محدوده موجودی هتل‌هاست.');}

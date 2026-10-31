@@ -39,3 +39,22 @@ it('an optional hotel with another city, party or inaccessible scope cannot disc
 });
 
 it('an interacted but unsearched optional stay has an explicit hotel-only fallback',async()=>{const f=fixture();f.checkpoint.hotel={open:false,stale:false,draft:{checkIn:query.departureDate,checkOut:'',rooms:1,childAges:[],arrivalConfirmed:false,sort:'cheapest'},scrollTop:0};const result=await hydrateReturn(f.checkpoint,f.receipt,f.client);expect(result.recovery).toBe(f.r);expect(result.hotel).toBeUndefined();expect(result.hotelNotice).toBeTruthy();});
+
+it('accepts chosen hotel capacity independently from transport adults only with exact saved capacity and scoped query',async()=>{
+ const f=fixture(),hotel=hotelSnapshot(),original=hotel.quotes[0]!,fresh={...original,version:2};
+ const receipt:ReferralReceipt={referralId:'r',intentId:'capacity-intent',selection:{kind:'hotel',quoteId:fresh.quoteId,quoteVersion:2},payload:{kind:'hotel',quote:fresh},confirmedAt:fresh.observedAt,handoffPath:'/provider-demo/r'};
+ f.checkpoint.hotel={open:true,stale:false,hotelSearchId:hotel.hotelSearchId,draft:{checkIn:hotel.query.checkIn,checkOut:hotel.query.checkOut,rooms:hotel.query.rooms,capacity:hotel.query.party.adults,childAges:[],arrivalConfirmed:true,sort:hotel.query.sort},selected:{quoteId:fresh.quoteId,version:2},scrollTop:50};
+ const client={...f.client,getHotelSearch:vi.fn(async()=>hotel)} as unknown as ApiClient;
+ expect(f.r.snapshot.query.party.adults).toBe(1);expect(hotel.query.party.adults).toBe(2);
+ const selected=await hydrateReturn(f.checkpoint,receipt,client);expect(selected.hotel?.selected).toEqual(fresh);expect(selected.hotel?.receipt).toBe(receipt);expect(selected.recovery.snapshot.query.party.adults).toBe(1);
+ for(const capacity of [undefined,1,3]){f.checkpoint.hotel.draft.capacity=capacity;const rejected=await hydrateReturn(f.checkpoint,receipt,client);expect(rejected.hotel).toBeUndefined();expect(rejected.hotelNotice).toBeTruthy();expect(rejected.recovery).toBe(f.r);}
+});
+
+it.each(['children','infants','infantAgesMonths'] as const)('chosen capacity cannot authorize changed transport %s evidence',async field=>{
+ const f=fixture(),hotel=hotelSnapshot(),original=hotel.quotes[0]!,fresh={...original,version:2};
+ const receipt:ReferralReceipt={referralId:'r',intentId:'capacity-intent',selection:{kind:'hotel',quoteId:fresh.quoteId,quoteVersion:2},payload:{kind:'hotel',quote:fresh},confirmedAt:fresh.observedAt,handoffPath:'/provider-demo/r'};
+ f.checkpoint.hotel={open:true,stale:false,hotelSearchId:hotel.hotelSearchId,draft:{checkIn:hotel.query.checkIn,checkOut:hotel.query.checkOut,rooms:hotel.query.rooms,capacity:2,childAges:[],arrivalConfirmed:true,sort:hotel.query.sort},selected:{quoteId:fresh.quoteId,version:2},scrollTop:0};
+ hotel.query={...hotel.query,party:{...hotel.query.party,...(field==='infantAgesMonths'?{infantAgesMonths:[6]}:{[field]:1})}};
+ const result=await hydrateReturn(f.checkpoint,receipt,{...f.client,getHotelSearch:vi.fn(async()=>hotel)} as unknown as ApiClient);
+ expect(result.hotel).toBeUndefined();expect(result.hotelReceipt).toBeUndefined();expect(result.hotelNotice).toBeTruthy();expect(result.recovery).toBe(f.r);
+});

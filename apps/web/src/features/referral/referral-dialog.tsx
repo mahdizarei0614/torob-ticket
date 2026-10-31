@@ -6,6 +6,7 @@ import {nights} from '../hotels/hotel-format';
 import {number} from '../results/format';
 import {useReferralController,type ReferralPayload,type ReferralSource} from './referral-controller';
 import styles from './referral.module.css';
+import {useProviderHandoff} from './provider-handoff';
 export function ReferralFacts({payload,catalog}:{payload:ReferralPayload;catalog:CatalogSnapshot}){
  const q=payload.quote;return <div data-checked-quote-id={q.quoteId} data-checked-quote-version={q.version} data-checked-amount-rial={q.total.amountRial}>
  <p>{displayProviderName(catalog.providerCapabilities.find(p=>p.providerId===q.providerId))} · نسخه {number(q.version)}</p>
@@ -16,7 +17,7 @@ export function ReferralFacts({payload,catalog}:{payload:ReferralPayload;catalog
 export function ProviderIconLink({quote,catalog,flow,resolveSource,variant}:{quote:QuoteSnapshot;catalog:CatalogSnapshot;flow:ReturnType<typeof useReferralController>;resolveSource:()=>ReferralSource|undefined;variant?:number}) {
  const provider=displayProviderName(catalog.providerCapabilities.find(item=>item.providerId===quote.providerId));
  const label=variant?`${provider}، گزینه ${number(variant)}`:provider;
- return <button type="button" role="link" className={styles.sellerLink} data-referral-source="transport" data-provider-id={quote.providerId} data-seller-link-quote-id={quote.quoteId} data-seller-link-version={quote.version} aria-label={label} title={label} disabled={flow.state.phase!=='idle'} onClick={()=>{const source=resolveSource();if(source)void flow.start(source);}}>
+ return <button type="button" role="link" className={styles.sellerLink} data-referral-source="transport" data-provider-id={quote.providerId} data-seller-link-quote-id={quote.quoteId} data-seller-link-version={quote.version} aria-label={label} title={label} disabled={flow.state.phase!=='idle'} onClick={()=>{const source=resolveSource();if(source)void flow.start(source,provider);}}>
   <ProviderMark providerId={quote.providerId} size={40}/><span>{provider}</span><svg className={styles.linkGlyph} viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9"/><path d="M10 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"/></svg>
  </button>;
 }
@@ -24,7 +25,7 @@ export function ProviderAction({source,flow,catalog,compact=false,layout='standa
  const payload=source.payload;
  const blocked=flow.needsFresh(source),recovery=flow.hasRecovery(source),expired=Date.parse(source.payload.quote.expiresAt)<=Date.now();
  if(layout==='ticket')return <section className={styles.ticketAction} aria-label="ادامه پیشنهاد انتخاب‌شده" data-referral-source={source.payload.kind}>
- <Button onPress={()=>void flow.start(source)} isDisabled={flow.state.phase!=='idle'}>{recovery?'بررسی نتیجه انتقال قبلی':blocked||expired?'مقایسه تازه همین سفر':<>رفتن به {displayProviderName(catalog.providerCapabilities.find(p=>p.providerId===payload.quote.providerId))}<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9"/><path d="M10 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"/></svg></>}</Button>
+ <Button onPress={()=>void flow.start(source,displayProviderName(catalog.providerCapabilities.find(p=>p.providerId===payload.quote.providerId)))} isDisabled={flow.state.phase!=='idle'}>{recovery?'بررسی نتیجه انتقال قبلی':blocked||expired?'مقایسه تازه همین سفر':<>رفتن به {displayProviderName(catalog.providerCapabilities.find(p=>p.providerId===payload.quote.providerId))}<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9"/><path d="M10 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"/></svg></>}</Button>
  {blocked?<p role="status">این نسخه به مقایسه تازه نیاز دارد.</p>:expired&&!recovery?<p role="status">اعتبار قیمت پایان یافته است.</p>:null}
  </section>;
  return <section className={styles.selected} aria-label="ادامه پیشنهاد انتخاب‌شده" data-referral-source={source.payload.kind}>
@@ -32,13 +33,14 @@ export function ProviderAction({source,flow,catalog,compact=false,layout='standa
  {compact&&<div><strong>{displayProviderName(catalog.providerCapabilities.find(p=>p.providerId===payload.quote.providerId))} · نسخه {number(payload.quote.version)}</strong><Price total={payload.quote.total} scope={payload.kind==='transport'?{kind:'party',travelers:payload.quote.party.adults+payload.quote.party.children+payload.quote.party.infants}:{kind:'stay',rooms:payload.quote.query.rooms,nights:nights(payload.quote.query.checkIn,payload.quote.query.checkOut)}}/></div>}
  {!compact&&<ReferralFacts payload={source.payload} catalog={catalog}/>}
  {blocked?<p role="status">این نسخه به مقایسه تازه نیاز دارد؛ پیشنهادهای قبلی به عنوان سابقه حفظ شده‌اند.</p>:expired&&!recovery?<p role="status">اعتبار قیمت پایان یافته است؛ برای قیمت قابل انتخاب دوباره مقایسه کنید.</p>:null}
- <Button onPress={()=>void flow.start(source)} isDisabled={flow.state.phase!=='idle'}>{recovery?'بررسی نتیجه انتقال قبلی':blocked||expired?'مقایسه تازه همین سفر':'ادامه با فروشنده'}</Button>
+ <Button onPress={()=>void flow.start(source,displayProviderName(catalog.providerCapabilities.find(p=>p.providerId===payload.quote.providerId)))} isDisabled={flow.state.phase!=='idle'}>{recovery?'بررسی نتیجه انتقال قبلی':blocked||expired?'مقایسه تازه همین سفر':'ادامه با فروشنده'}</Button>
  {compact&&<details><summary>مبلغ، شرایط و نسخه دقیق انتخاب برای ادامه</summary><ReferralFacts payload={source.payload} catalog={catalog}/></details>}
  </section>;
 }
 export function ReferralDialog({flow,catalog}:{flow:ReturnType<typeof useReferralController>;catalog:CatalogSnapshot}){
+ const external=useProviderHandoff();
  const s=flow.state,busy=s.phase==='checking'||s.phase==='confirming';const alternatives=s.source?.alternatives?.().filter(a=>s.alternativeQuoteIds?.includes(a.quoteId))??[];
- return <Dialog isDismissable={false} title={s.phase==='changed'?'شرایط تازه پیشنهاد':'ادامه با فروشنده'} isOpen={s.phase!=='idle'&&s.phase!=='completed'} onOpenChange={open=>{if(!open)flow.cancel();}} mobileFullscreen size={s.phase==='changed'?'wide':'standard'} stickyHeader>
+ return <Dialog isDismissable={false} title={s.phase==='changed'?'شرایط تازه پیشنهاد':'ادامه با فروشنده'} isOpen={s.phase!=='idle'&&s.phase!=='completed'&&!(external&&busy)} onOpenChange={open=>{if(!open)flow.cancel();}} mobileFullscreen size={s.phase==='changed'?'wide':'standard'} stickyHeader>
  <div className={styles.dialog} data-referral-phase={s.phase}><MotionSurface purpose="detail" motionKey={s.phase}>
  {busy&&<div role="status"><p>{s.phase==='checking'?'در حال بررسی قیمت و شرایط همین پیشنهاد…':'در حال ثبت ارجاع و دریافت نتیجه…'}</p><LoadingSkeleton rows={1} compact/></div>}
  {s.error&&<p role="alert">{s.error}</p>}

@@ -22,6 +22,8 @@
 .button[data-hovered] {
   background: var(--accent-hover);
 }
+.button[data-close-control] { min-width: 44px; min-height: 44px; padding: var(--space-1); flex: 0 0 auto; }
+.button[data-close-control] svg { display: block; flex: 0 0 auto; }
 .button[data-variant='secondary'] {
   background: var(--surface);
   color: var(--accent);

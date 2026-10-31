@@ -1,6 +1,6 @@
-import {fireEvent,render,screen,waitFor,within,cleanup} from '@testing-library/react';
+import {act,fireEvent,render,screen,waitFor,within,cleanup} from '@testing-library/react';
 import {afterEach,beforeEach,describe,expect,it,vi} from 'vitest';
-import type {HotelSearchQuery} from '@torob-ticket/contracts';
+import type {HotelSearchQuery,HotelSearchSnapshot} from '@torob-ticket/contracts';
 import type {ApiClient} from '@torob-ticket/client';
 import {HotelDialog} from './hotel-dialog';
 import {useHotelDiscovery} from './use-hotel-discovery';
@@ -22,12 +22,33 @@ function setup(transform=(snapshot:ReturnType<typeof arrivalSnapshot>)=>snapshot
 }
 
 describe('arrival map and square hotel collection',()=>{
- it('loads one arrival-local night automatically with no configuration and the actual hub on the map',async()=>{
+ it('loads one arrival-local night automatically and retains the actual hub without a duplicate arrival/date summary',async()=>{
   const {queries,dialog}=setup();await waitFor(()=>expect(dialog().querySelectorAll('[data-hotel-id]')).toHaveLength(2));
   expect(queries).toHaveLength(1);expect(queries[0]).toMatchObject({checkIn:'2026-10-26',checkOut:'2026-10-27',rooms:1,arrivalPlaceId:'MHD'});
-  expect(dialog().querySelectorAll('form,input:not([type=radio]),select')).toHaveLength(0);expect(within(dialog()).getByText('۱ شب · ۱ اتاق')).toBeInTheDocument();
+  expect(dialog().querySelectorAll('form,input:not([type=radio])')).toHaveLength(0);expect(dialog().querySelector('[data-arrival-stay-summary]')).toBeNull();expect(within(dialog()).getByRole('combobox',{name:'ظرفیت اتاق'})).toHaveValue('1');
   expect(map.current?.choices.find(choice=>choice.kind==='arrival')).toMatchObject({id:'arrival:MHD',point:{latitude:30,longitude:50},code:'MHD'});
   expect(within(dialog()).getByRole('radiogroup',{name:'مرتب‌سازی اقامتگاه‌ها'}).querySelectorAll('input[type=radio]')).toHaveLength(4);
+  expect(within(dialog()).getAllByRole('group',{name:/قیمت هر شب:/})).toHaveLength(2);
+ });
+ it('keeps the map separate from card scrolling and preserves its identity when capacity or ordering changes',async()=>{
+  const trip=arrivingTrip('2026-10-25T22:00:00Z'),intent=JSON.stringify(trip.query),{queries,dialog}=setup(undefined,trip);await waitFor(()=>expect(dialog().querySelectorAll('[data-hotel-id]')).toHaveLength(2));
+  const mapElement=within(dialog()).getByRole('region',{name:'map'}),identity=map.current?.identity,mapPane=dialog().querySelector('[data-hotel-map-pane]')!,cardsPane=dialog().querySelector('[data-hotel-cards-pane]')!,cardScroll=dialog().querySelector('[data-hotel-scroll]')!;
+  expect(mapPane.parentElement).toBe(cardsPane.parentElement);expect(mapPane.contains(mapElement)).toBe(true);expect(cardsPane.contains(cardScroll)).toBe(true);expect(cardScroll.contains(mapElement)).toBe(false);
+  fireEvent.click(within(dialog()).getByRole('button',{name:'pin hotel-b'}));const capacity=within(dialog()).getByRole('combobox',{name:'ظرفیت اتاق'});expect(within(capacity).getAllByRole('option').map(option=>(option as HTMLOptionElement).value)).toEqual(['1','2','3']);
+  fireEvent.change(capacity,{target:{value:'2'}});await waitFor(()=>expect(queries).toHaveLength(2));expect(queries[1]).toMatchObject({party:{adults:2,children:0,infants:0},rooms:1,checkIn:'2026-10-26',checkOut:'2026-10-27'});
+  await waitFor(()=>expect(dialog().querySelector('[data-hotel-id="hotel-b"]')).toHaveAttribute('data-selected','true'));
+  expect(map.current?.identity).toBe(identity);expect(within(dialog()).getByRole('region',{name:'map'})).toBe(mapElement);expect(map.current?.selectedHotelId).toBe('hotel-b');
+  fireEvent.click(within(dialog()).getByRole('radio',{name:'ستاره بیشتر'}));await waitFor(()=>expect(queries).toHaveLength(3));expect(queries[2]).toMatchObject({sort:'stars',party:{adults:2}});expect(within(dialog()).getByRole('region',{name:'map'})).toBe(mapElement);expect(JSON.stringify(trip.query)).toBe(intent);
+ });
+ it('keeps capacity editable while loading and replaces an older occupancy request before adopting cards',async()=>{
+  const requests:{query:HotelSearchQuery;signal?:AbortSignal;resolve:(snapshot:HotelSearchSnapshot)=>void}[]=[],trip=arrivingTrip();
+  const client={startHotelSearch:vi.fn((query:HotelSearchQuery,signal?:AbortSignal)=>new Promise<HotelSearchSnapshot>(resolve=>requests.push({query,signal,resolve})))} as unknown as ApiClient;
+  function App(){const model=useHotelDiscovery({trip,catalog:arrivalCatalog,session,client});return <><button onClick={()=>model.openDialog()}>open hotels</button><HotelDialog model={model} catalog={arrivalCatalog} session={session} canApplyTrip/></>;}
+  render(<App/>);fireEvent.click(screen.getByText('open hotels'));await waitFor(()=>expect(requests).toHaveLength(1));
+  const capacity=screen.getByRole('combobox',{name:'ظرفیت اتاق'});expect(capacity).toBeEnabled();fireEvent.change(capacity,{target:{value:'2'}});expect(requests).toHaveLength(2);expect(requests[0]!.signal?.aborted).toBe(true);expect(capacity).toBeEnabled();
+  fireEvent.change(capacity,{target:{value:'3'}});expect(requests).toHaveLength(3);expect(requests[1]!.signal?.aborted).toBe(true);
+  await act(async()=>requests[1]!.resolve(arrivalSnapshot(requests[1]!.query)));expect(screen.getByRole('region',{name:'نتایج مقایسه اقامتگاه‌ها'})).toHaveAttribute('aria-busy','true');
+  await act(async()=>requests[2]!.resolve(arrivalSnapshot(requests[2]!.query)));await waitFor(()=>expect(screen.getByRole('list',{name:'هتل‌ها و قیمت اقامت'})).toBeInTheDocument());expect(capacity).toHaveValue('3');expect(requests[2]!.query.party.adults).toBe(3);
  });
  it('binds map and card selection both ways while preserving the clicked control focus',async()=>{
   const {dialog}=setup();await waitFor(()=>expect(dialog().querySelectorAll('[data-hotel-id]')).toHaveLength(2));
@@ -59,7 +80,7 @@ describe('arrival map and square hotel collection',()=>{
   const {queries,dialog}=setup(undefined,{...arrivingTrip(),itinerary:undefined,available:false});
   await waitFor(()=>expect(within(dialog()).getByText('محل رسیدن این بلیت هنوز مشخص نیست.')).toBeInTheDocument());
   expect(queries).toHaveLength(0);expect(within(dialog()).getByRole('region',{name:'نتایج مقایسه اقامتگاه‌ها'})).toHaveAttribute('aria-busy','false');
-  expect(dialog().querySelectorAll('form,input:not([type=radio]),select')).toHaveLength(0);
+  expect(dialog().querySelectorAll('form,input:not([type=radio])')).toHaveLength(0);expect(within(dialog()).getByRole('combobox',{name:'ظرفیت اتاق'})).toBeDisabled();
  });
 
  it('uses Escape first for open room details and then for the enclosing hotel dialog',async()=>{

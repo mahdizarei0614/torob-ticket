@@ -5,11 +5,15 @@ import { Dialog as AriaDialog, Heading, Modal, ModalOverlay } from 'react-aria-c
 import { createContext, useContext, useRef, useCallback, type ReactNode } from 'react';
 const DialogSuspensionContext=createContext(false);
 export const DialogSuspensionProvider=DialogSuspensionContext.Provider;
-import { Button } from './button';
+import { Button, type ButtonProps } from './button';
 import { languageProps, type Language } from './language';
 import styles from '../styles/primitives.module.css';
 // A foreground portal owns its entry; background coverage does not suppress it.
 const MotionDialog=motion.create(AriaDialog);
+/** Shared dismissal control: a readable icon inside the existing44px target. */
+export function CloseButton({language='fa',...props}:Omit<ButtonProps,'children'|'variant'>){
+  return <Button {...props} language={language} variant="quiet" data-close-control aria-label={props['aria-label']??(language==='fa'?'بستن':'Close')}><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><path d="m4 4 16 16M20 4 4 20"/></svg></Button>;
+}
 export interface DialogProps {
   title: string;
   language?: Language;
@@ -47,14 +51,11 @@ export function Dialog({
             <Heading slot="title" className={styles.dialogTitle}>
               {title}
             </Heading>
-            <Button
+            <CloseButton
               language={language}
-              variant="quiet"
               aria-label={language === 'fa' ? 'بستن' : 'Close'}
               onPress={() => onOpenChange(false)}
-            >
-              <span aria-hidden="true">×</span>
-            </Button>
+            />
           </div>
           <ForegroundMotionPolicy suspended={suspended}>{children}</ForegroundMotionPolicy>
         </MotionDialog>

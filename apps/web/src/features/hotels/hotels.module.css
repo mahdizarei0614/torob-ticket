@@ -16,32 +16,37 @@
 .dockedEntry>button{flex:none;min-height:40px;padding-inline:12px;}
 .dockedEntry span{font-size:11px;}
 
-/* Arrival discovery owns a fixed dialog shell; only the hotel collection scrolls. */
-:global([data-dialog-scroll]):has(.arrivalDialog){height:min(880px,calc(100dvh - 32px));overflow:hidden;}
+/* The map keeps its own pane while the card collection scrolls independently. */
+:global([data-dialog-scroll][data-dialog-size='wide']):has(.arrivalDialog){width:min(86rem,calc(100dvw - 32px));height:min(880px,calc(100dvh - 32px));overflow:hidden;}
 :global([data-dialog-scroll]):has(.arrivalDialog)>:global([role='dialog']){height:100%;min-height:0;box-sizing:border-box;display:flex;flex-direction:column;padding:var(--space-4);overflow:hidden;}
 :global([data-dialog-scroll]):has(.arrivalDialog) :global([data-sticky]){position:relative;top:auto;flex:none;z-index:5;margin-block-end:var(--space-2);}
-.arrivalDialog{--hotel-map-height:clamp(190px,28dvh,270px);min-height:0;flex:1;display:flex;flex-direction:column;gap:var(--space-2);font-size:var(--text-sm);line-height:1.55;overflow:hidden;}
-.arrivalSummary{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:4px 16px;flex:none;min-height:30px;padding-inline:2px;}
-.arrivalPlace{display:flex;align-items:center;gap:6px;color:var(--text);font-size:13px;min-width:0;}
-.arrivalPlace>svg{flex:none;color:var(--accent);}.arrivalPlace bdi{color:var(--text-muted);}
-.arrivalStay{display:flex;align-items:center;gap:12px;color:var(--text-muted);font-size:13px;white-space:nowrap;}
-.hotelDiscoveryScroll{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;scrollbar-gutter:stable;scroll-padding-block-start:calc(var(--hotel-map-height) + 10px);padding-inline:2px;padding-block-end:4px;}
-.arrivalMapFrame{position:sticky;top:0;z-index:3;isolation:isolate;height:var(--hotel-map-height);min-height:0;background:var(--surface);padding-block-end:4px;}
+.arrivalDialog{min-height:0;flex:1;display:flex;flex-direction:column;gap:var(--space-2);font-size:var(--text-sm);line-height:1.55;overflow:hidden;}
+.hotelSplit{min-height:0;flex:1;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;direction:ltr;overflow:hidden;}
+.hotelMapPane,.hotelCollectionPane{min-width:0;min-height:0;display:flex;flex-direction:column;direction:rtl;overflow:hidden;}
+.hotelMapPane{position:relative;}
+.hotelDiscoveryScroll{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;scrollbar-gutter:stable;scroll-padding-block:8px;padding-inline:2px;padding-block-end:4px;}
+.arrivalMapFrame{isolation:isolate;flex:1;min-height:0;}
 .arrivalMapFrame [data-hotel-map]{height:100%;min-height:0;}
 .arrivalMapFrame [data-free-map-container]{height:calc(100% - 18px);min-height:0;}
 .arrivalWaiting{height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;border:1px solid var(--border);border-radius:var(--radius-md);corner-shape:var(--corner-shape);background:var(--surface-subtle);padding:16px;text-align:center;color:var(--text-muted);}
 .arrivalWaiting svg{max-height:90px;width:120px;}.arrivalWaiting strong{color:var(--text);font-size:14px;}.arrivalWaiting span{font-size:13px;}
-.referencePrompt{margin-block:4px;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:4px 8px;border:1px solid var(--border-strong);border-radius:var(--radius-md);corner-shape:var(--corner-shape);background:var(--surface-raised);box-shadow:var(--elevation);font-size:13px;}
+.referencePrompt{position:absolute;z-index:4;inset:auto 12px 28px;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:4px 8px;border:1px solid var(--border-strong);border-radius:var(--radius-md);corner-shape:var(--corner-shape);background:var(--surface-raised);box-shadow:var(--elevation);font-size:13px;}
 .referencePrompt button{min-height:36px;padding:4px 8px;}
-.hotelOrder{display:flex;align-items:center;gap:6px;padding:6px 0;min-width:0;}.hotelOrder>[role='radiogroup']{min-width:0;flex:1;}
+.hotelOrder{display:flex;align-items:end;gap:8px;padding:0 0 8px;min-width:0;flex:none;}.hotelOrder>[role='radiogroup']{min-width:0;flex:1;}
 .hotelOrder [data-segment-track]{width:100%;max-width:100%;flex-wrap:nowrap;overflow-x:auto;overscroll-behavior-inline:contain;scrollbar-width:thin;}
 .hotelOrder [data-segment-slot='current']{flex:1 0 auto;}
 .hotelOrder [data-segment-option]{min-height:44px;white-space:nowrap;font-size:13px;}
 .hotelOrder [data-segment-slot]>div{width:100%;}
+.hotelCapacity{display:grid;flex:none;gap:3px;width:112px;min-width:0;font-size:11px;color:var(--text-muted);}
+.capacitySelect{position:relative;display:block;}
+.capacitySelect select{appearance:none;box-sizing:border-box;width:100%;min-height:44px;padding:8px 10px 8px 30px;border:1px solid var(--border);border-radius:var(--radius-md);corner-shape:var(--corner-shape);background:var(--surface-subtle);color:var(--text);font:inherit;font-size:13px;cursor:pointer;}
+.capacitySelect select:focus-visible{outline:var(--focus-width) solid var(--focus);outline-offset:2px;border-color:var(--focus);}
+.capacitySelect select:disabled{opacity:.55;cursor:default;}
+.capacitySelect>svg{position:absolute;left:9px;top:50%;transform:translateY(-50%);pointer-events:none;}
 .hotelResultsHeading{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:4px 12px;margin:4px 0 10px;}
 .hotelResultsHeading h2{font-size:15px;margin:0;font-weight:650;}.hotelResultsHeading>span{font-size:12px;color:var(--text-muted);}
 .arrivalResults{min-width:0;}
-.hotelCardGrid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;}
+.hotelCardGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,172px),1fr));gap:10px;align-content:start;}
 .hotelCardGrid>div{min-width:0;}
 .squareCard{box-sizing:border-box;position:relative;isolation:isolate;display:flex;flex-direction:column;justify-content:space-between;gap:6px;width:100%;aspect-ratio:1;min-width:0;overflow:hidden;padding:12px;border:1px solid var(--border);border-radius:var(--radius-lg);corner-shape:var(--corner-shape);background:linear-gradient(145deg,var(--surface),var(--surface-subtle));color:var(--text);transition:border-color .25s ease,background .25s ease,box-shadow .25s ease,transform .2s ease;}
 .squareCard:has(.squareCardSelect:not(:disabled):hover){border-color:var(--border-strong);transform:translateY(-2px);}
@@ -54,7 +59,9 @@
 .hotelStars{display:flex;align-items:center;gap:4px;font-size:12px;line-height:18px;color:var(--text-muted);}.hotelStars svg{color:var(--accent);}
 .squareCardBottom{display:grid;gap:6px;margin-block-start:auto;min-width:0;}
 .hotelDistance{display:flex;align-items:center;gap:4px;white-space:nowrap;font-size:12px;color:var(--text-muted);}.hotelDistance svg{flex:none;}
-.squareCardPrice [role='group']{gap:0;}.squareCardPrice [role='group']>span{display:none;}.squareCardPrice [role='group']>div{font-size:18px;line-height:1.45;gap:4px;}.squareCardPrice small{font-size:11px;color:var(--text-muted);}
+.squareCardPrice [role='group']{gap:0;}.squareCardPrice [role='group']>span{font-size:11px;color:var(--text-muted);}.squareCardPrice [role='group']>div{font-size:18px;line-height:1.45;gap:4px;}.squareCardPrice small{font-size:11px;color:var(--text-muted);}
+.squareCardPrice .nightlyPrice{display:flex;align-items:baseline;flex-wrap:wrap;column-gap:8px;}
+.nightlyPrice>div{display:flex;align-items:baseline;font-weight:650;}.nightlyPrice>div>span{font-size:11px;font-weight:400;color:var(--text-muted);}
 .hotelPriceUnknown{font-size:13px;line-height:1.6;font-weight:550;color:var(--text-muted);}
 .hotelChosen{position:absolute;inset-inline-end:8px;top:8px;display:grid;place-items:center;width:20px;height:20px;border-radius:var(--radius-round);corner-shape:var(--corner-shape-round);background:var(--accent);color:var(--on-accent);}
 .squareHotelSkeleton{aspect-ratio:1;padding:16px;border:1px solid var(--border);border-radius:var(--radius-lg);corner-shape:var(--corner-shape);background:var(--surface-subtle);display:flex;align-items:center;overflow:hidden;}
@@ -68,23 +75,20 @@
 .hotelContinuation{min-width:0;}.hotelContinuation section{margin:0;padding:0;border:0;background:var(--color-clear);}.hotelContinuation button{min-height:44px;font-size:13px;white-space:nowrap;}.hotelContinuation p{margin:3px 0 0;font-size:11px;}
 .refreshHotelPrice{font:inherit;font-size:13px;min-height:44px;padding:6px 12px;border:1px solid var(--border-strong);border-radius:var(--radius-sm);corner-shape:var(--corner-shape);background:var(--surface);color:var(--accent);cursor:pointer;}
 .srOnly{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
-@media(max-width:1100px){.hotelCardGrid{grid-template-columns:repeat(4,minmax(0,1fr));}}
-@media(max-width:760px){.hotelCardGrid{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;}}
+@media(max-width:900px){.hotelSplit{grid-template-columns:minmax(0,1fr);grid-template-rows:clamp(230px,34dvh,300px) minmax(0,1fr);gap:10px;}}
 @media(max-width:600px){
- :global([data-dialog-scroll]):has(.arrivalDialog){height:100dvh;max-height:100dvh;}
+ :global([data-dialog-scroll][data-dialog-size='wide']):has(.arrivalDialog){width:100%;height:100dvh;max-height:100dvh;}
  :global([data-dialog-scroll]):has(.arrivalDialog)>:global([role='dialog']){padding:12px;}
- .arrivalDialog{--hotel-map-height:230px;gap:6px;}
- .arrivalSummary{align-items:start;gap:4px;}.arrivalPlace{font-size:12px;}.arrivalStay{font-size:12px;gap:8px;}
+ .arrivalDialog{gap:6px;}.hotelSplit{grid-template-rows:clamp(210px,32dvh,280px) minmax(0,1fr);gap:8px;}
+ .hotelOrder{gap:6px;}.hotelCapacity{width:104px;}
  .hotelCardGrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;}
  .squareCard{padding:10px;gap:4px;}.squareCardIdentity h3{font-size:14px;margin-block-start:4px;}.squareCardBottom{gap:4px;}.squareCardPrice [role='group']>div{font-size:17px;}.hotelDistance{font-size:11px;gap:2px;}
  .hotelSelectionDock{gap:6px;padding:6px;}.selectedHotelIdentity>strong{font-size:13px;}.hotelContinuation button{font-size:12px;padding-inline:8px;}
  .hotelResultsHeading{margin-block-end:8px;}.hotelResultsHeading h2{font-size:14px;}.hotelResultsHeading>span{font-size:11px;}
 }
-@media(max-height:700px){.arrivalDialog{--hotel-map-height:150px;}}
 @media(prefers-reduced-motion:reduce){.squareCard{transition:none;}.squareCard:has(.squareCardSelect:hover){transform:none;}}
 
-.referenceChange{flex:none;}.referenceChange button{min-height:40px;padding:4px 10px;font-size:12px;box-shadow:var(--elevation);}
-@media(max-height:550px){.arrivalMapFrame{position:relative;}.hotelDiscoveryScroll{scroll-padding-block-start:8px;}}
+.referenceChange{flex:none;margin-block-end:6px;}.referenceChange button{min-height:36px;padding:4px 10px;font-size:12px;}
+@media(max-height:580px) and (max-width:900px){.hotelSplit{display:flex;flex-direction:column;overflow:auto;overscroll-behavior:contain;}.hotelMapPane{flex:none;height:190px;}.hotelCollectionPane{flex:none;overflow:visible;}.hotelDiscoveryScroll{overflow:visible;flex:none;}.hotelOrder{position:sticky;top:0;z-index:4;background:var(--surface);}}
 
 @media(max-width:360px){.hotelCardGrid{grid-template-columns:minmax(0,1fr);}}
-@media(max-width:360px) and (max-height:700px){.arrivalMapFrame{position:relative;}.hotelDiscoveryScroll{scroll-padding-block-start:8px;}}

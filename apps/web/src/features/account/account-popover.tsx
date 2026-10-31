@@ -1,6 +1,6 @@
 import { useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { Dialog, DialogTrigger, Heading, Popover } from 'react-aria-components';
-import { Button, useMotionPolicy } from '@torob-ticket/ui';
+import { CloseButton, useMotionPolicy } from '@torob-ticket/ui';
 import styles from './account.module.css';
 
 /** The profile is a nonmodal anchored surface; outside interaction dismisses its current lease. */
@@ -38,7 +38,7 @@ export function AccountPopover({ trigger, children, isOpen, onOpenChange }: { tr
    <Dialog ref={setSurface} className={styles.profileDialog}>
     <div className={styles.profileHeader}>
      <Heading slot="title">حساب کاربری</Heading>
-     <Button variant="quiet" data-profile-close aria-label="بستن حساب کاربری" onPress={() => onOpenChange(false)}>×</Button>
+     <CloseButton data-profile-close aria-label="بستن حساب کاربری" onPress={() => onOpenChange(false)}/>
     </div>
     {children}
    </Dialog>

@@ -1,7 +1,7 @@
 import {useEffect,useLayoutEffect,useRef,useState} from 'react';
 import {GeoPointSchema,HOTEL_DIRECTORY_SOURCE_REVISION,ReferralReceiptSchema,type CatalogSnapshot,type SessionInfo,type HotelQuoteSnapshot,type GeoPoint,type HotelSearchQuery,type HotelSearchSnapshot,type ReferralReceipt} from '@torob-ticket/contracts';
 import {apiClient,ClientError,type ApiClient} from '@torob-ticket/client';
-import {createHotelState,hotelReducer,hotelQuery,queryKey,tripKey,tripStamp,tripStale,type HotelTrip,type HotelDraft,type HotelAction,type HotelState} from './hotel-state';
+import {createHotelState,hotelReducer,hotelQuery,hotelCapacity,queryKey,tripKey,tripStamp,tripStale,type HotelTrip,type HotelDraft,type HotelAction,type HotelState} from './hotel-state';
 import {canonical,complete,sameLineage} from '../referral/referral-facts';
 export interface HotelRestore {snapshot:HotelSearchSnapshot;draft:HotelDraft;selected?:HotelQuoteSnapshot;open:boolean;scrollTop:number;receipt?:ReferralReceipt;tripItinerary?:HotelTrip['itinerary'];contextBlocked?:boolean}
 export interface HotelDiscoveryProps {trip:HotelTrip;catalog:CatalogSnapshot;session:SessionInfo;resetting?:boolean;authorityKey?:string;blocked?:boolean;onResume?:()=>void;onSessionExpired?:()=>void;client?:ApiClient;onSelectHotelQuote?:(quote:HotelQuoteSnapshot|undefined)=>void;restore?:HotelRestore}
@@ -56,6 +56,12 @@ export function useHotelDiscovery({trip,catalog,session,resetting=false,authorit
  }
  async function submit(){if(authority.current.blocked||!owns()||currentState.current.point||currentState.current.status==='loading')return;const checked=hotelQuery(currentState.current,catalog,session.anchorInstant);if(checked.query&&!authority.current.blocked)await search(checked.query,renderedView);}
  async function changeSort(sort:HotelSearchQuery['sort']){if(!owns()||currentState.current.point||currentState.current.draft.sort===sort)return;abort();const next=send({type:'edit',patch:{sort}});latest.current.onSelectHotelQuote?.(undefined);const checked=hotelQuery(next,catalog,session.anchorInstant);if(checked.query&&!authority.current.blocked)await search(checked.query,renderedView);}
+ async function changeCapacity(capacity:number){
+  if(authority.current.blocked||!owns()||currentState.current.point||hotelCapacity(currentState.current)===capacity)return;
+  const next=hotelReducer(currentState.current,{type:'edit',patch:{capacity}});if(next===currentState.current)return;
+  abort();currentState.current=next;setState(next);latest.current.onSelectHotelQuote?.(undefined);
+  const checked=hotelQuery(next,catalog,session.anchorInstant);if(checked.query)await search(checked.query,renderedView);
+ }
  function applyTrip(){if(!owns(true,true)||!latest.current.trip.available||latest.current.trip.draftKey!==tripKey(latest.current.trip.query))return;abort();send({type:'apply-trip',trip:latest.current.trip,catalog});latest.current.onSelectHotelQuote?.(undefined);}
  function openPoint(){if(!owns())return;if(request.current)automatic.current=undefined;abort();send({type:'open-point'});}
  function pointOwns(){return viewOwns()&&tripEpoch.current.epoch===renderedTripEpoch&&!tripStale(currentState.current,latest.current.trip)&&pointToken!==undefined&&currentState.current.point?.token===pointToken;}
@@ -102,6 +108,6 @@ export function useHotelDiscovery({trip,catalog,session,resetting=false,authorit
   const refresh=()=>{if(!isCurrent())return;const checked=hotelQuery(currentState.current,catalog,session.anchorInstant);if(checked.query)void search(checked.query,view.current);};
   return {refresh,quote:selected,key:[capturedView.epoch,capturedRevision,selected.quoteId,selected.version].join('/'),isCurrent,accept,confirmed};
  }
- return {resumeSession:onResume,blocked,authorityStale:Boolean(state.authorityStale),contextBlocked:Boolean(state.contextBlocked),readState:()=>currentState.current,selectionLease,state,open,stale,query:checked.query,errors:checked.errors,selected,openDialog,closeDialog,edit,submit,changeSort,applyTrip,openPoint,setPoint,cancelPoint,applyPoint,chooseLocation,selectHotel,selectQuote,isPointCurrent:pointOwns};
+ return {resumeSession:onResume,blocked,authorityStale:Boolean(state.authorityStale),contextBlocked:Boolean(state.contextBlocked),readState:()=>currentState.current,selectionLease,state,open,stale,query:checked.query,errors:checked.errors,selected,openDialog,closeDialog,edit,submit,changeSort,changeCapacity,applyTrip,openPoint,setPoint,cancelPoint,applyPoint,chooseLocation,selectHotel,selectQuote,isPointCurrent:pointOwns};
 }
 export type HotelDiscovery=ReturnType<typeof useHotelDiscovery>;

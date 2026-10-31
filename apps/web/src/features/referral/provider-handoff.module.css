@@ -1,0 +1,15 @@
+.backdrop{position:fixed;inset:0;z-index:140;display:grid;place-items:center;padding:var(--space-5);background:var(--overlay);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);color:var(--text);font-family:var(--font-fa)}
+.panel{width:min(32rem,100%);outline:none}
+.dialog{display:flex;flex-direction:column;align-items:center;text-align:center;gap:var(--space-4);padding:var(--space-5);outline:none}
+.loader{position:relative;width:clamp(104px,13vw,152px);aspect-ratio:1;display:grid;place-items:center}
+.loaderTrack{position:absolute;inset:0;width:100%;height:100%;fill:none;stroke:var(--border-strong);stroke-width:3;overflow:visible}
+.loaderTrack .loaderArc{stroke:var(--accent);stroke-linecap:round;stroke-dasharray:90 250;transform-origin:60px 60px;animation:providerOrbit 1.25s linear infinite}
+.title{margin:0;font-size:clamp(1.3rem,2.4vw,1.8rem);font-weight:700;line-height:1.7}
+.caption{margin:0;color:var(--text-muted);font-size:var(--text-md);line-height:1.8}
+.backdrop[data-handoff-motion='finite'][data-entering]{animation:providerBackdropIn 220ms ease-out}
+.backdrop[data-handoff-motion='finite'][data-exiting]{animation:providerBackdropOut 180ms ease-in;pointer-events:none}
+.backdrop[data-handoff-motion='static'] .loaderArc{animation:none}
+@keyframes providerOrbit{to{transform:rotate(360deg)}}
+@keyframes providerBackdropIn{from{opacity:0}to{opacity:1}}
+@keyframes providerBackdropOut{from{opacity:1}to{opacity:0}}
+@media(prefers-reduced-motion:reduce){.backdrop .loaderArc,.backdrop[data-entering],.backdrop[data-exiting]{animation:none}}

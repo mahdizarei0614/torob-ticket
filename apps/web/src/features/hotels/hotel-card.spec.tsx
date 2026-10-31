@@ -3,12 +3,19 @@ import {describe,it,expect,vi} from 'vitest';
 import {HotelCard} from './hotel-card';
 import {hotelFixture,hotelSnapshot} from './hotel-test-data';
 import {catalog} from '../search/search-test-data';
+import {arrivalCatalog,arrivingTrip,arrivalSnapshot} from './arrival-hotel-test-data';
+import {createHotelState,hotelQuery} from './hotel-state';
 
 describe('compact selectable hotel cards',()=>{
  it('shows the exact whole-stay total and selects the same hotel id without a room configuration or fake handoff',()=>{
   const snapshot=hotelSnapshot(),inspect=vi.fn();render(<HotelCard hotel={hotelFixture} result={snapshot.results![0]!} quotes={snapshot.quotes} catalog={catalog} disabled={false} onSelectHotel={inspect}/>);
   expect(screen.getByRole('group',{name:/مجموع ۲ اتاق برای ۲ شب/})).toBeInTheDocument();expect(screen.getByText('درجه اعلام نشده')).toBeInTheDocument();
   fireEvent.click(screen.getByRole('button',{name:/انتخاب هتل/}));expect(inspect).toHaveBeenCalledWith('hotel');expect(screen.queryByRole('link')).toBeNull();expect(screen.queryByRole('spinbutton')).toBeNull();
+ });
+ it('labels the exact one-room, one-night total per night without deriving a price from occupancy',()=>{
+  const request=hotelQuery(createHotelState(arrivingTrip(),arrivalCatalog),arrivalCatalog,'2026-10-25T00:00:00Z').query!,snapshot=arrivalSnapshot(request);
+  render(<HotelCard hotel={snapshot.hotels[0]!} result={snapshot.results![0]!} quotes={snapshot.quotes} catalog={arrivalCatalog} disabled={false} onSelectHotel={vi.fn()}/>);
+  expect(screen.getByRole('group',{name:'قیمت هر شب: ۱٬۰۰۰٬۰۰۰ تومان'})).toBeInTheDocument();expect(screen.getByText('هر شب')).toBeVisible();expect(screen.queryByRole('group',{name:/مجموع/})).toBeNull();
  });
  it('lets an incomplete hotel be inspected without presenting its subtotal as a selectable complete price',()=>{
   const inspect=vi.fn();render(<HotelCard hotel={hotelFixture} result={{hotelId:'hotel',status:'incomplete',reasons:['local-mandatory-fee'],representativeQuoteId:null,quoteIds:[],arrivalDistanceKm:null,locationDistanceKm:null,distanceKind:'straight-line',knownSubtotal:{amountRial:1000000,currency:'IRR'}}} quotes={[]} catalog={catalog} disabled={false} onSelectHotel={inspect}/>);

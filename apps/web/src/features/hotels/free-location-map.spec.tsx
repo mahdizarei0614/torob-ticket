@@ -38,7 +38,7 @@ it('changes arrival ownership without importing the prior camera and rejects cal
 it('retains a retry camera and keeps honest local reference choices usable when the street map fails',()=>{
  const first=props(),view=render(<FreeLocationMap {...first}/>),old=harness.records[0]!;
  act(()=>old.input.onStatus('unavailable'));
- expect(screen.getByText('نقشه شهری در دسترس نیست.')).toBeVisible();expect(screen.getByText('اقامتگاه‌ها و قیمت‌ها در کارت‌های پایین در دسترس‌اند.')).toBeVisible();
+ expect(screen.getByText('نقشه شهری در دسترس نیست.')).toBeVisible();expect(screen.getByText('قیمت اقامتگاه‌ها در کارت‌ها در دسترس است.')).toBeVisible();
  expect(screen.queryByRole('button',{name:'هتل آفتاب'})).not.toBeInTheDocument();
  view.rerender(<FreeLocationMap {...first} pickingPoint/>);
  fireEvent.click(screen.getByRole('button',{name:'هتل آفتاب'}));expect(first.onPoint).toHaveBeenCalledExactlyOnceWith({latitude:36.25,longitude:59.58});

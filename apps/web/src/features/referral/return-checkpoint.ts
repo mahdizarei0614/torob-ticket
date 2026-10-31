@@ -34,7 +34,7 @@ const checkpointSchema=z.strictObject({
  camera:z.strictObject({x:z.number().finite().min(-1e7).max(1e7),y:z.number().finite().min(-1e7).max(1e7),width:z.number().finite().positive().max(1e7),height:z.number().finite().positive().max(1e7),zoom:z.number().finite().min(0.01).max(100)}).optional(),scrollY:position,
  hotel:z.strictObject({
   open:z.boolean(),stale:z.boolean().optional(),referralId:id.optional(),hotelSearchId:id.optional(),
-  draft:z.strictObject({checkIn:draftDate,checkOut:draftDate,rooms:z.number().int().min(1).max(20),childAges:z.array(z.string().refine(age=>age===''||/^\d{1,2}$/.test(age)&&Number(age)<=17)).max(8),arrivalConfirmed:z.boolean(),sort:z.enum(['cheapest','stars','arrival-distance','location-distance']),arrivalPlaceId:id.optional(),customPoint:GeoPointSchema.optional()}),
+  draft:z.strictObject({checkIn:draftDate,checkOut:draftDate,rooms:z.number().int().min(1).max(20),capacity:z.number().int().min(1).max(9).optional(),childAges:z.array(z.string().refine(age=>age===''||/^\d{1,2}$/.test(age)&&Number(age)<=17)).max(8),arrivalConfirmed:z.boolean(),sort:z.enum(['cheapest','stars','arrival-distance','location-distance']),arrivalPlaceId:id.optional(),customPoint:GeoPointSchema.optional()}),
   selected:z.strictObject({quoteId:id,version:integer.min(1)}).optional(),scrollTop:position,
  }).optional(),
 });
