@@ -10,7 +10,7 @@
 
 **Tech Stack:** Nx, pnpm, TypeScript, React, Vite, React Router, TanStack Query, React Aria, CSS Modules, CSS custom properties, Zod, NestJS, PostgreSQL, Prisma, Three.js, React Three Fiber, selected Drei utilities, Motion, @internationalized/date, Vitest, Testing Library, Playwright, Storybook, Docker Compose, Caddy.
 
-**Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.36, 2026-10-31 (soft directional line halos, both-leg round-trip tint and shared-section lanes; prior hotel, price, ranking and filter refinements retained).
+**Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.37, 2026-10-31 (hotel split view/capacity, provider new-tab backdrop, themed overlays and darker background surfaces; prior route, price, ranking and filter refinements retained).
 
 **Plan state:** Approved. M1–M6 and T29 packaging are complete with independent reviews and packaged acceptance evidence. **29/35 tasks complete; M7 PARTIAL, T30 ACTIVE.** Owner requested a fast checkpoint before substantial design/logic changes: finish durable harness checks now; full T30 matrix and T31–T33 audits/rehearsal remain unfinished. M8 retains its planned scope.
 
@@ -2629,3 +2629,15 @@ Owner rejected the effect and requested rollback; [decision0060](../../decisions
 | Remove invisible/repeated work | DONE | Omit3212/3888hidden base points while preserving actual geography/major/semantic cohorts; memoized context cities, no empty timer polls. CSS-resolution glow with pass-aware point sizes; completed morph draws0. Current full graphics197/28PASS19.21s |
 | Real map performance and ownership | DONE | Four current native contexts PASS: domestic/world and RetinaDPR2 keep actual bloom/foreground at p90submitted16.7ms; Retina baseDPR1.7496, GPU7.86ms, source580×616. Controlled10×CPU rejection/1×recovery, covered/reduced pause and morph positive-work retirement verified |
 | Independent review and assembly | DONE | Independent197tests/28suites PASS8.04s, graphics types/scoped lint and10frozen source hashes PASS; native/source/visual APPROVED. Exact10source paths committed `1d7d43a`, decision/spec/master/SDD/evidence/local exports updated; foreign work retained |
+
+## Owner correction — hotel split view and provider backdrop, 2026-10-31
+
+[Task brief](../../evidence/adjustments/modal-hotel-handoff/task-brief.md), [decision0067](../../decisions/0067-modal-hotel-split-and-provider-handoff.md). Specification1.37; M7partial29/35,T30active. Source `6762635`; [checkpoint](../../evidence/adjustments/modal-hotel-handoff/checkpoint.md) and [independent approval](../../evidence/adjustments/modal-hotel-handoff/review-independent.md). Primary accents remain unchanged under the owner's final clarification.
+
+| Work | Status | Evidence |
+|---|---|---|
+| Hotel map and square-card split | DONE | Persistent663×774desktop map beside208×208cards in observed1440×900view; stacked390/320portrait, short844×390inner scroll reaches sort/cards with close/dock available; actual map/card two-way selection retained |
+| Capacity and nightly prices | DONE | Actual1/2/3adult eligibility and1.8/2.7/3.6m nightly toman verified against rendered/server quotes; optional checkpoint capacity, late-response/selection fences, unchanged transport intent, historical stay-total fallback; author101hotel cases PASS |
+| Confirmed provider backdrop | DONE | Fullscreen22pxblur/152pxloader in observedChrome; current confirmed receipt opens authorized zarei.xyz new tab with nullopener, original comparison retained, blocked same-receipt retry with exactlyoneprepare/confirm; author114referral cases PASS |
+| Close controls and dark surfaces | DONE | Shared28pxSVG/44pxtarget including final native profile fix; six calendar/hotel/filter theme combinations and12live morph inheritance samples PASS. Independent audit29bg/surface/haze/overlay declarations, primary/text/prices/borders unchanged |
+| Independent review and assembly | DONE | Independent328cases/40suites, web/UI/admin types/scopedlint PASS; finalCSS-only44pxminimum separately native-verified. Native matrix3checks+binding+targetedvisual/profile supplements PASS,0pageerrors;32owned sourcepaths committed, scopedtokenprojection excludes prior9brandlines/foreignUIindex; docs/SDD/full exports recorded |

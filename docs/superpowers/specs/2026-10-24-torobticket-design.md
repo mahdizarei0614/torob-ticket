@@ -1,6 +1,6 @@
 # TorobTicket — Product and Architecture Specification
 
-**Revision:** 1.36 · 2026-10-31
+**Revision:** 1.37 · 2026-10-31
 
 **Purpose:** Authoritative design companion to the master implementation plan.  
 **Status:** Product scope and architecture approved in conversation. Implementation defaults below are explicit engineering decisions made while preparing the plan; they are not additional claims of user approval.
@@ -33,7 +33,7 @@ Quality takes precedence over an artificial deadline. Scope discipline, measurab
 
 - Nx monorepo; consumer frontend, backend, and admin.
 - Domestic/international flights, trains, and buses; one-way and round-trip.
-- Mock provider inventory and a local simulated provider handoff.
+- Mock provider inventory with tracked quote recheck and the owner-selected placeholder handoff in a new tab; legacy local receipt routes remain readable.
 - Guest comparison and referral, optional local identity with a compact profile.
 - Wheel for nearby-date exploration; calendar for jumping ahead.
 - Cheapest, fastest, and fewest stops/transfers; factual explanations.
@@ -206,7 +206,7 @@ Geography, city labels, route paths, hotel landmarks, and fonts are bundled loca
 
 The compact hotel action remains an absolute overlay at the bottom of the fixed desktop travel map, inset24px, entering upward without changing the map/WebGL viewport. Narrow layouts place the entry inline above results. It opens a wide desktop modal and a mobile full-page view. If no transport comparison exists, its first click may establish the ordinary comparison context; only the comparison's normal selected offer supplies actual arrival facts. Unknown/unselected arrival never becomes a guessed stay.
 
-Check-in is the chosen itinerary's final outbound arrival date in the destination time zone, with the exact airport, train station or bus terminal. Check-out is the following calendar day, including round trips and same-day returns. Room count is one and travelers follow the normalized consumer party. New consumer discovery has no date, room, age or arrival-point configuration. Generic backend/admin hotel contracts and historical party/stay facts remain supported and immutable; unknown eligibility is never invented.
+Check-in is the chosen itinerary's final outbound arrival date in the destination time zone, with the exact airport, train station or bus terminal. Check-out is the following calendar day, including round trips and same-day returns. Room count is one and travelers default to the normalized consumer party. New consumer discovery has no date, room-count, age or arrival-point configuration. Decision0067 adds a room-capacity selector as described below. Generic backend/admin hotel contracts and historical party/stay facts remain supported and immutable; unknown eligibility is never invented.
 
 Opening the view and changes to a current valid selected ticket automatically load its one-night offers, with bounded query/view/revision/session ownership and cancellation. Failures remain distinct and explicitly retryable; they are not automatic retry loops or proof of no rooms. Historical multi-night/room snapshots cannot appear as live prices under the new summary. A compatible one-night return retains a validated fresh higher-version quote, while incompatible context refreshes the new automatic query without changing the receipt.
 
@@ -220,6 +220,10 @@ Default order remains lowest complete stay total. Other orders are stars, distan
 
 Square cards show hotel identity/stars, distance and the complete one-night price. Read-only room/occupancy/breakfast/cancellation/mandatory-fee/check-in facts remain available in the selected-hotel area, alongside the tracked provider action. Do not promise early hotel access from an early arrival. Quote recheck, changed-version consent, eligibility, exact handoff and return authority remain intact. Selection does not issue a booking.
 
+**Owner split-view refinement,2026-10-31 (decision0067):** desktop discovery places a substantial street map beside the independently scrolling square-card collection. Keep the existing four ordering choices in a segmented control, with an adjacent room-capacity dropdown. Narrow views stack map/cards and short landscape views permit internal scrolling while keeping dismissal reachable. Remove the airport/station/terminal/date summary above the map; preserve the actual arrival pin, automatic arrival-local one-night query and referral evidence. Map/card selection remains two-way and ordering/capacity changes preserve the active map renderer.
+
+Capacity selects actual one-room adult occupancy, defaulting to the transport party; children/infants retain their supplied facts and the control says adult capacity when necessary. Offer current authored capacities1–3 and preserve an existing larger-party value without inventing a matching room. Requery actual eligible room rates; never multiply a displayed price cosmetically. Persist optional capacity in hotel checkpoints and validate it against hotel-query party facts while leaving the transport party and URL unchanged. Pending capacity changes can replace one another; abort/revision/selection fences reject late prices and actions. Label eligible one-room, one-night amounts **per night**; historical multi-room/night evidence continues to show its full stay total.
+
 **Hotel inventory defaults:** authored nightly inventory extends through day119 after the session anchor, with check-out allowed on day120 and every priced night covered. Room/adult/child/infant eligibility remains enforced. These are mock fixture policies, not claims about actual hotel operations. Current hotel/source data and immutable fixture versions are not rewritten for this UI change.
 
 **Free-map implementation ruling:** retain official OpenStreetMap-hosted VersaTiles Colorful/Shadow styles through the pinned MapLibre SDK, loaded lazily when hotel discovery opens. No registration/key/billing or Google/Neshan integration. Keep OSM attribution, ordinary caching/Referer and on-demand requests without proxy/bulk prefetch. One active provider map is permitted inside the dialog; the background travel scene pauses. Explicit active ownership covers retained exits, late SDK loads, rapid reopen, style/context/resize and disposal. Network/WebGL failure keeps hotel cards and known-location reference choices usable with a truthful unavailable state, without a fabricated replacement map.
@@ -232,9 +236,13 @@ Guest search, comparison, hotel discovery, and referral are fully supported. Opt
 
 A provider click triggers a fresh quote check. An unchanged eligible quote proceeds. A changed total or material condition requires explicit acceptance of the new version. A sold-out/expired/incomplete quote cannot be handed off; show alternatives.
 
-The server records one confirmed referral per idempotency key and returns a local handoff path. The simulated provider page shows the exact itinerary or hotel stay, party/rooms, provider, conditions, price version, and time of handoff. It has a clear return action and no fake purchase completion.
+The server records one confirmed referral per idempotency key and returns a local handoff path. Legacy local receipt routes retain the exact itinerary or hotel stay, party/rooms, provider, conditions, price version, time of handoff and return action. Current provider actions use the new-tab presentation below without changing that immutable server evidence or claiming a purchase.
 
-**Defaults:** quote expiry is 10 real minutes; referral acceptance intents expire after 2 real minutes. A confirm request validates the selected version and intent expiry. The same key cannot confirm a different payload. Referrals stay in the same browser tab so back navigation can restore context. Provider landing refreshes do not create extra referral clicks.
+**Defaults:** quote expiry is 10 real minutes; referral acceptance intents expire after 2 real minutes. A confirm request validates the selected version and intent expiry. The same key cannot confirm a different payload. Reading or reopening a confirmed handoff does not create an extra referral click.
+
+**Owner handoff refinement,2026-10-31 (decision0067):** transport and hotel provider actions fade in a fullscreen blurred backdrop with a large loader and Persian redirecting copy. Preserve ready/changed/unavailable/error handling and accepted quote versions. Only a confirmed, still-current receipt opens the authorized placeholder **https://zarei.xyz** in a new tab, then fades the backdrop away. Keep the original comparison and hotel selection in place. Sever the external tab's opener before navigation; do not reserve a blank tab before recheck/consent. A browser-blocked popup offers an explicit user-gesture retry for the same confirmed receipt, without rechecking/reconfirming or adding another referral. Cancellation, source replacement, hidden ownership and unmount fence delayed navigation. No external provider integration or booking completion is implied.
+
+**Owner modal/theme refinement,2026-10-31 (decision0067):** all shared modal, profile, result-filter and suggestion dismissal controls use a28px close SVG within the existing minimum44px target. Portal surfaces/backdrops inherit the current resolved visible-owner palette, including during mode morphing; they must not install a flight ThemeProvider. Darken only dark canvas/surface/disabled-background and ambient haze tokens. Preserve primary accents, text, prices/status, borders and route/dot/highlight tokens. Backdrop overlay colors follow flight/train/bus in both appearances, removing the fixed navy cast; light content surfaces otherwise remain unchanged.
 
 **Session defaults:** an opaque HttpOnly same-origin cookie; 24-hour inactivity expiry; demo/admin actions scoped on the server. The demo admin grants control only over its own sandbox. Reset cancels active work and clears that session's overrides, saved searches, searches, and referral evidence; immutable base fixtures remain. Another reviewer's data cannot be read or changed through guessed IDs.
 
