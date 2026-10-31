@@ -13,13 +13,14 @@ export function installMapBloom(renderer: WebGLRenderer, allowed: () => boolean,
   let source: WebGLRenderTarget | undefined, bloom: BloomEffect | undefined, quad: Mesh<PlaneGeometry, ShaderMaterial> | undefined;
   const copyScene = new Scene(), copyCamera = new OrthographicCamera(-1, 1, 1, -1, 0, 1);
   const feather = createMapEdgeFadeUniforms();
-  let strength = .22, threshold = .025;
+  let strength = .22, threshold = .025, smoothing = .04;
   const refreshStyle = () => {
     const style = getComputedStyle(renderer.domElement);
     const number = (key: string, fallback: number) => { const value = Number.parseFloat(style.getPropertyValue(key)); return Number.isFinite(value) ? value : fallback; };
     strength = Math.max(0, Math.min(.5, number('--scene-bloom-intensity', .22)));
     threshold = Math.max(0, number('--scene-bloom-threshold', .025));
-    if (bloom) bloom.luminanceMaterial.threshold = threshold;
+    smoothing = Math.max(.001, Math.min(.25, number('--scene-bloom-smoothing', .04)));
+    if (bloom) { bloom.luminanceMaterial.threshold = threshold; bloom.luminanceMaterial.smoothing = smoothing; }
   };
   const release = () => {
     source?.dispose(); bloom?.dispose();
@@ -31,7 +32,9 @@ export function installMapBloom(renderer: WebGLRenderer, allowed: () => boolean,
     if (!source) {
       source = new WebGLRenderTarget(size.width, size.height, { type: HalfFloatType, depthBuffer: false, stencilBuffer: false });
       source.texture.name = 'TorobTicket.MapBloom.Source';
-      bloom = new BloomEffect({ mipmapBlur: true, levels: 4, radius: .4, luminanceThreshold: threshold, luminanceSmoothing: .04 });
+      // Keep emitted light local to sparse, fixed-CSS-size particles. Fewer far
+      // mip levels also avoid spending passes on imperceptibly diffuse light.
+      bloom = new BloomEffect({ mipmapBlur: true, levels: 3, radius: .4, luminanceThreshold: threshold, luminanceSmoothing: smoothing });
       bloom.initialize(renderer, true, HalfFloatType);
       const material = new ShaderMaterial({
         uniforms: { ...feather, glow: { value: bloom.texture }, strength: { value: strength } },

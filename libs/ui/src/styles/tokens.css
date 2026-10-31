@@ -67,8 +67,9 @@
   --on-accent: #ffffff;
   --icon: var(--text-muted);
   --icon-active: var(--accent);
-  --scene-bloom-intensity: 0.12;
+  --scene-bloom-intensity: 0.16;
   --scene-bloom-threshold: 0.025;
+  --scene-bloom-smoothing: 0.04;
   --scene-background: var(--canvas);
   --scene-dot: var(--border-strong);
   --scene-route: var(--accent);
@@ -96,7 +97,9 @@
   --promotion-metal-light: #e8dcc6;
   --promotion-metal-dim: #514d45;
   --promotion-glint: #fff5df;
-  --scene-bloom-intensity: 0.22;
+  --scene-bloom-intensity: 0.45;
+  --scene-bloom-threshold: 0.008;
+  --scene-bloom-smoothing: 0.018;
   --surface: #090e17;
   --canvas: #03060c;
   --surface-raised: #0d1622;

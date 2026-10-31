@@ -3,11 +3,12 @@ import { Camera, Color, Mesh, PlaneGeometry, Scene, ShaderMaterial, Vector4, Web
 import { installMapBloom, MAP_BLOOM_SCENE_KEY } from './map-bloom';
 import { MAP_VEHICLE_FOREGROUND_LAYER, setMapVehicleForeground } from './map-foreground';
 
-const effect = vi.hoisted(() => ({ initialize: null as ((renderer: WebGLRenderer) => void) | null, update: null as ((renderer: WebGLRenderer) => void) | null, updates: 0, disposed: 0 }));
+const effect = vi.hoisted(() => ({ initialize: null as ((renderer: WebGLRenderer) => void) | null, update: null as ((renderer: WebGLRenderer) => void) | null, updates: 0, disposed: 0, materials: [] as {threshold:number;smoothing:number}[] }));
 vi.mock('postprocessing', async () => {
   const { Scene, Camera, Texture } = await import('three');
   return { BloomEffect: class {
-    texture = new Texture();luminanceMaterial = { threshold: 0 };
+    texture = new Texture();luminanceMaterial: {threshold:number;smoothing:number};
+    constructor(options:{luminanceThreshold:number;luminanceSmoothing:number}) { this.luminanceMaterial={threshold:options.luminanceThreshold,smoothing:options.luminanceSmoothing};effect.materials.push(this.luminanceMaterial); }
     initialize(renderer: WebGLRenderer) { effect.initialize?.(renderer); }
     setSize() { /* Resource allocation is covered by the actual browser. */ }
     update(renderer: WebGLRenderer) {
@@ -64,11 +65,30 @@ function harness() {
   return { renderer: renderer as unknown as WebGLRenderer, mock: renderer, scene, camera, state, draws, clears, snapshot, route, dots, head, wagon1, wagon2, handler };
 }
 const cleanup: (() => void)[] = [];
-beforeEach(() => { effect.initialize = null;effect.update = null;effect.updates = 0;effect.disposed = 0; });
+beforeEach(() => { effect.initialize = null;effect.update = null;effect.updates = 0;effect.disposed = 0;effect.materials = []; });
 afterEach(() => { cleanup.splice(0).forEach(dispose => dispose()); });
 function install(h: ReturnType<typeof harness>, allowed = true) { const failed = vi.fn(), controller = installMapBloom(h.renderer, () => allowed, failed);cleanup.push(() => controller.dispose());return { controller, failed }; }
 
 describe('map vehicle foreground composition', () => {
+  it('applies semantic extraction at allocation and updates it with the existing live effect across theme changes',()=>{
+    const h=harness(),style=h.renderer.domElement.style;
+    document.body.append(h.renderer.domElement);cleanup.push(()=>h.renderer.domElement.remove());
+    style.setProperty('--scene-bloom-intensity','.45');style.setProperty('--scene-bloom-threshold','.008');style.setProperty('--scene-bloom-smoothing','.018');
+    const {controller,failed}=install(h);h.renderer.render(h.scene,h.camera);const material=effect.materials[0];
+    expect(material).toEqual({threshold:.008,smoothing:.018});expect(controller.inspect().strength).toBe(.45);
+    style.setProperty('--scene-bloom-intensity','.16');style.setProperty('--scene-bloom-threshold','.025');style.setProperty('--scene-bloom-smoothing','.04');controller.refreshStyle();h.renderer.render(h.scene,h.camera);
+    expect(effect.materials).toEqual([material]);expect(material).toEqual({threshold:.025,smoothing:.04});expect(controller.inspect().strength).toBe(.16);
+    expect(h.clears[1]).toBe(h.clears[0]);expect(effect.disposed).toBe(0);expect(failed).not.toHaveBeenCalled();
+  });
+  it('keeps extraction finite and non-degenerate for missing or invalid stylesheet values without reallocating',()=>{
+    const h=harness();document.body.append(h.renderer.domElement);cleanup.push(()=>h.renderer.domElement.remove());
+    const {controller,failed}=install(h);h.renderer.render(h.scene,h.camera);const material=effect.materials[0]!;
+    for(const value of ['0','-1','NaN','Infinity','999']){
+      h.renderer.domElement.style.setProperty('--scene-bloom-smoothing',value);h.renderer.domElement.style.setProperty('--scene-bloom-intensity',value);controller.refreshStyle();h.renderer.render(h.scene,h.camera);
+      expect(Number.isFinite(material.smoothing)).toBe(true);expect(material.smoothing).toBeGreaterThan(0);expect(material.smoothing).toBeLessThanOrEqual(.25);expect(controller.inspect().strength).toBeGreaterThanOrEqual(0);expect(controller.inspect().strength).toBeLessThanOrEqual(.5);
+    }
+    h.renderer.domElement.style.removeProperty('--scene-bloom-smoothing');controller.refreshStyle();expect(material.smoothing).toBe(.04);expect(effect.materials).toHaveLength(1);expect(failed).not.toHaveBeenCalled();
+  });
   it('draws head and both wagons exactly once after base, vehicle-free bloom source and additive glow', () => {
     const h = harness(), before = h.snapshot(), { controller, failed } = install(h);
     h.renderer.render(h.scene, h.camera);
