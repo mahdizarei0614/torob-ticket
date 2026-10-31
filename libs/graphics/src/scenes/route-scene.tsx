@@ -156,7 +156,7 @@ function PresentationOverlay({ plan, store, endpoints, context, frame:targetFram
   };
   const visible = (point: GeoPoint) => { const [x, y] = projectPoint(point, context); return Math.abs(x - frame.x) <= frame.width / 2 && Math.abs(y - frame.y) <= frame.height / 2; };
   return <div className={presentationStyles.overlay} data-route-presentation data-context-label-count={contextual.length} data-map-dot-spacing={dotSpacing} data-map-dot-refinement={dotRefinement} data-map-dot-weights={dotSpacing?worldDotWeights(frame.width/dimensions.width,dotSpacing,dotRefinement).map(value=>value.toFixed(3)).join(','):undefined} data-route-reveal={current.reveal.toFixed(3)} data-route-travel={current.travel.toFixed(3)} data-vehicle-opacity={current.vehicleOpacity.toFixed(3)} data-vehicle-blur={current.vehicleBlur.toFixed(3)} data-vehicle-point={current.vehiclePoint?.map(value=>value.toFixed(6)).join(',')} data-route-round-trip={Boolean(plan.roundTrip)} data-route-animation-direction={current.direction ?? 'outbound'} data-route-turn-progress={current.turnProgress?.toFixed(3)} data-route-turn-mode={plan.roundTrip?.mode} data-route-complete={current.complete} data-journey-phase={current.complete ? 'complete' : current.turnProgress !== undefined ? 'turn' : current.activeStop === null ? 'travel' : 'stop'} data-reduced-motion={reducedMotion} data-motion-active={active} aria-label="نقاط مسیر انتخاب‌شده" role="group">
-    {worldContext && <div className={presentationStyles.contextCities} aria-hidden="true">{worldContext.cities.map(city=>{const p=projectPoint(city.point,context);return <ContextCityName key={city.id} city={city} label={contextual.find(item=>item.id===city.id)} x={dimensions.width*(.5+(p[0]-frame.x)/frame.width)} y={dimensions.height*(.5-(p[1]-frame.y)/frame.height)}/>;})}</div>}
+    {worldContext && <ContextCities cities={worldContext.cities} labels={contextual} context={context} frame={frame} dimensions={dimensions}/>}
     <svg className={presentationStyles.leaders} viewBox={`0 0 ${dimensions.width} ${dimensions.height}`} aria-hidden="true">{[...placements.values()].filter(item=>item.leader && visibleLabels.has(item.id)).map(item=><line key={item.id} {...item.leader!} />)}</svg>
     <EndpointPresence reducedMotion={reducedMotion} endpoints={endpoints.map(endpoint=>{
       const [x,y]=projectPoint(endpoint.point,context),left=dimensions.width*(.5+(x-frame.x)/frame.width),top=dimensions.height*(.5-(y-frame.y)/frame.height);
@@ -173,6 +173,11 @@ function PresentationOverlay({ plan, store, endpoints, context, frame:targetFram
   </div>;
 }
 
+// Vehicle travel updates do not change contextual geography. Keep its existing
+// city nodes/presence alive until the camera, label placement or inventory changes.
+const ContextCities=memo(function ContextCities({cities,labels,context,frame,dimensions}:{cities:readonly ContextCity[];labels:readonly ContextLabel[];context:ProjectionContext;frame:RouteBounds;dimensions:{width:number;height:number}}){
+  return <div className={presentationStyles.contextCities} aria-hidden="true">{cities.map(city=>{const p=projectPoint(city.point,context);return <ContextCityName key={city.id} city={city} label={labels.find(item=>item.id===city.id)} x={dimensions.width*(.5+(p[0]-frame.x)/frame.width)} y={dimensions.height*(.5-(p[1]-frame.y)/frame.height)}/>;})}</div>;
+});
 
 function ContextCityName({city,label,x,y}:{city:ContextCity;label?:ContextLabel;x:number;y:number}){
   const last=useRef({offset:7,width:70});

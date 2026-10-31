@@ -3,11 +3,11 @@ interface TimerExtension { TIME_ELAPSED_EXT: number; GPU_DISJOINT_EXT: number }
 export function createGpuFrameTimer(gl: WebGL2RenderingContext) {
   const extension = gl.getExtension('EXT_disjoint_timer_query_webgl2') as TimerExtension | null;
   const pending: WebGLQuery[] = [];
-  let active: WebGLQuery | null = null, frames = 0, disposed = false;
+  let active: WebGLQuery | null = null, attemptedAt = -Infinity, disposed = false;
   return {
     available: Boolean(extension),
     poll() {
-      if (!extension || disposed || gl.isContextLost()) return [];
+      if (!extension || disposed || pending.length === 0 || gl.isContextLost()) return [];
       if (gl.getParameter(extension.GPU_DISJOINT_EXT)) { for (const query of pending.splice(0)) gl.deleteQuery(query); return []; }
       const values: number[] = [];
       while (pending[0] && gl.getQueryParameter(pending[0], gl.QUERY_RESULT_AVAILABLE)) {
@@ -17,8 +17,12 @@ export function createGpuFrameTimer(gl: WebGL2RenderingContext) {
       }
       return values;
     },
-    begin() {
-      if (!extension || disposed || gl.isContextLost() || ++frames % 12 !== 0 || pending.length >= 6 || active || gl.getQuery(extension.TIME_ELAPSED_EXT, gl.CURRENT_QUERY)) return;
+    begin(time = performance.now()) {
+      // Keep enough fresh results at30Hz without over-querying faster displays.
+      // This uses the existing host timestamp; it never schedules a frame.
+      if (!extension || disposed || !Number.isFinite(time) || time - attemptedAt < 200) return;
+      attemptedAt = time;
+      if (gl.isContextLost() || pending.length >= 6 || active || gl.getQuery(extension.TIME_ELAPSED_EXT, gl.CURRENT_QUERY)) return;
       const query = gl.createQuery();
       if (query) { gl.beginQuery(extension.TIME_ELAPSED_EXT, query); active = query; }
     },

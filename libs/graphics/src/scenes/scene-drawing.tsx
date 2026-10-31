@@ -28,6 +28,7 @@ import glassFragment from '../shaders/vehicle-glass.frag.glsl?raw';
 import particleFlowShader from '../shaders/particle-flow-sampling.glsl?raw';
 import livingDotDrift from '../shaders/living-dot-drift.glsl?raw';
 import { LIVING_DOT_AMPLITUDE_PX } from './living-dot-drift';
+import { buildSceneDotData } from './scene-dot-data';
 import { setMapVehicleForeground } from '../map-foreground';
 interface DrawingProps {
   dots: readonly GeoPoint[]; markers: readonly SceneMarker[]; segments: readonly RouteSegmentGeometry[];
@@ -65,6 +66,7 @@ export function SceneDrawing({ dots, markers, segments, context, frame, progress
   const ambientSeconds = useRef(0);
   const [hoverTrail]=useState(createPointerTrail);
   const [edgeFade]=useState(createMapEdgeFadeUniforms);
+  const [pointViewport]=useState(()=>new Vector4());
   const [resources, setResources] = useState<Resources | null>(null);
   useLayoutEffect(()=>{
     hoverTrail.clear();if(pointer)pointer.current.active=false;
@@ -183,9 +185,6 @@ export function SceneDrawing({ dots, markers, segments, context, frame, progress
   useLayoutEffect(() => () => { transition.cancel(); outward.current?.(false); }, [transition]);
   useFrame(() => {
     updateMapEdgeFadeUniforms(edgeFade,get().size,featherGeography);
-    // The shared host can change DPR after a quality downgrade or display move.
-    // Refresh before every submitted frame, including the single reduced-motion frame.
-    if (resources?.atmospheric) resources.dotsMaterial.uniforms['pointSize']!.value = 8.5 * get().gl.getPixelRatio();
     const now = performance.now();
     const visibleSeconds = Math.max(0, (now - clock.current.last) / 1000);
     const delta = Math.min(.05, visibleSeconds);
@@ -204,7 +203,7 @@ export function SceneDrawing({ dots, markers, segments, context, frame, progress
       let changed = false;
       for (let i = 0; i < position.count; i++) {
         const before = hover.getX(i);
-        const next = hideGeography && i<dots.length ? 0 : hoverTrail.sample(position.getX(i),position.getY(i));
+        const next = hoverTrail.sample(position.getX(i),position.getY(i));
         if (Math.abs(next - before) > .00002) { hover.setX(i, next); changed = true; }
       }
       if (changed) hover.needsUpdate = true;
@@ -219,13 +218,13 @@ export function SceneDrawing({ dots, markers, segments, context, frame, progress
     applyScreenSizes();
   });
   useEffect(() => {
-    const points = [...dots.map(point => projectPoint(point, context)), ...majorCities.map(point => projectPoint(point, context)), ...markers.map(marker => { const point = projectPoint(marker.point, context); point[2] = .3; return point; })];
+    const data = buildSceneDotData({ dots, majorCities, markers, context, hideGeography });
     const geometry = new BufferGeometry();
-    geometry.setAttribute('position', new Float32BufferAttribute(points.flat(), 3));
-    geometry.setAttribute('geography', new Float32BufferAttribute([...dots.map(() => 1), ...majorCities.map(() => 1), ...markers.map(() => 0)], 1));
-    geometry.setAttribute('emphasis', new Float32BufferAttribute([...dots.map(() => 0), ...majorCities.map(() => .8), ...markers.map(marker => marker.enabled === false ? 0 : marker.kind === 'custom' || marker.role === 'origin' || marker.role === 'destination' ? 2 : 1)], 1));
-    geometry.setAttribute('hoverGlow', new Float32BufferAttribute(new Float32Array(points.length), 1).setUsage(DynamicDrawUsage));
-    geometry.setAttribute('phase', new Float32BufferAttribute(points.map(point => Math.sin(point[0] * 12.9898 + point[1] * 78.233) * 6.283185), 1));
+    geometry.setAttribute('position', new Float32BufferAttribute(data.position, 3));
+    geometry.setAttribute('geography', new Float32BufferAttribute(data.geography, 1));
+    geometry.setAttribute('emphasis', new Float32BufferAttribute(data.emphasis, 1));
+    geometry.setAttribute('hoverGlow', new Float32BufferAttribute(new Float32Array(data.emphasis.length), 1).setUsage(DynamicDrawUsage));
+    geometry.setAttribute('phase', new Float32BufferAttribute(data.phase, 1));
     const flowUniforms=pointer?.current.flow?.uniforms??{particleFlowState:{value:null},particleFlowFrame:{value:new Vector4(0,0,1,1)},particleFlowViewport:{value:new Vector2(1,1)},particleFlowActive:{value:0}};
     const base = { transparent: true, depthTest: false, depthWrite: false, toneMapped: false };
     const next: Resources = {
@@ -243,7 +242,7 @@ export function SceneDrawing({ dots, markers, segments, context, frame, progress
       next.dotsMaterial.dispose(); next.routeMaterial.dispose(); next.spriteMaterial.dispose();
       next.wagonMaterials.forEach(material => material.dispose());
     };
-  }, [dots, markers, majorCities, segments, context, uniforms, edgeFade, invalidate, atmospheric, get, presentation?.roundTrip?.splitSegment]);
+  }, [dots, markers, majorCities, segments, context, uniforms, edgeFade, invalidate, atmospheric, get, presentation?.roundTrip?.splitSegment, hideGeography]);
   useLayoutEffect(() => {
     if (!resources) return;
     if (resources.atmospheric) resources.dotsMaterial.uniforms['pointSize']!.value = 8.5 * dpr;
@@ -257,7 +256,9 @@ export function SceneDrawing({ dots, markers, segments, context, frame, progress
   }, [resources, frame.width, frame.height, reveal, get, invalidate, presentationReducedMotion, dpr, hideGeography,moving]);
   if (!resources) return null;
   return <group dispose={null}>
-    <points geometry={resources.dots} material={resources.dotsMaterial} frustumCulled={false} />
+    <points geometry={resources.dots} material={resources.dotsMaterial} onBeforeRender={renderer=>{
+      if(resources.atmospheric){resources.dotsMaterial.uniforms['pointSize']!.value=8.5*renderer.getCurrentViewport(pointViewport).z/Math.max(1,get().size.width);resources.dotsMaterial.uniformsNeedUpdate=true;}
+    }} frustumCulled={false} />
     {resources.atmospheric ? <mesh geometry={resources.line} material={resources.routeMaterial} frustumCulled={false} /> : <lineSegments geometry={resources.line} material={resources.routeMaterial} frustumCulled={false} />}
     {mode && segments.some(segment => segment.paths.length) && <mesh name="journey-vehicle-head" ref={value => { mesh.current = value;if (value) setMapVehicleForeground(value, resources.atmospheric); }} geometry={resources.atmospheric ? resources.glass : resources.sprites[mode]} material={resources.spriteMaterial} frustumCulled={false} />}
     {resources.atmospheric && resources.wagonMaterials.map((material,index) => <mesh key={index} name={`journey-vehicle-wagon-${index + 1}`} ref={value => { wagonMeshes.current[index] = value;if (value) setMapVehicleForeground(value, true, index + 1); }} geometry={resources.glass} material={material} frustumCulled={false} visible={false} />)}

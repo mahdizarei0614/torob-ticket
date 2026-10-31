@@ -74,11 +74,20 @@ function Driver(props: RendererProps & { onVisibility: (ids: string[]) => void; 
       const canvas = gl.domElement;
       const status = bloomEligible() ? budget.status : 'suspended';
       if (canvas.dataset['bloomStatus'] !== status) canvas.dataset['bloomStatus'] = status;
-      canvas.dataset['bloomReason'] = budget.reason;
+      if (canvas.dataset['bloomReason'] !== budget.reason) canvas.dataset['bloomReason'] = budget.reason;
       if (data.frames % 30 === 0) {
         canvas.dataset['bloomDraws'] = String(effect.draws);
         canvas.dataset['bloomTarget'] = `${effect.width}x${effect.height}`;
+        canvas.dataset['bloomFrameP90'] = String(budget.frameP90 ?? 'unavailable');
+        canvas.dataset['bloomSamples'] = String(budget.samples);
+        canvas.dataset['bloomFrameP50'] = String(budget.frameP50 ?? 'unavailable');
+        canvas.dataset['bloomCadenceReferenceMs'] = String(budget.cadenceReferenceMs ?? 'unavailable');
+        canvas.dataset['bloomCadenceLimitMs'] = String(budget.cadenceLimitMs ?? 'unavailable');
+        canvas.dataset['bloomCpuP90'] = String(budget.cpuP90 ?? 'unavailable');
         canvas.dataset['bloomGpuP90'] = String(budget.gpuP90 ?? 'unavailable');
+        canvas.dataset['bloomLimitingFactor'] = budget.limitingFactor ?? 'none';
+        canvas.dataset['bloomRetryInMs'] = String(budget.retryInMs);
+        canvas.dataset['bloomRecoveryCount'] = String(budget.recoveryCount);
       }
     };
     const scheduler = createRenderScheduler(time => {
@@ -86,7 +95,7 @@ function Driver(props: RendererProps & { onVisibility: (ids: string[]) => void; 
       const start = performance.now();
       const eligible = bloomEligible(), gpuMs = gpuTimer.poll();
       gpuSamples.push(...gpuMs); if (gpuSamples.length > 30) gpuSamples.splice(0, gpuSamples.length - 30);
-      if (eligible && bloomBudget.measuring()) gpuTimer.begin();
+      if (eligible && bloomBudget.measuring()) gpuTimer.begin(time);
       clear();
       try { state.advance(time / 1000, false); } finally { gpuTimer.end(); }
       data.frames++;
@@ -97,7 +106,12 @@ function Driver(props: RendererProps & { onVisibility: (ids: string[]) => void; 
       if (!ready && data.programsInMemory > 0 && !failed) { ready = true; status('ready'); }
       const elapsed = performance.now() - start;
       if (eligible) {
+        const previousPhase = bloomBudget.snapshot().status;
         bloomBudget.sample({ frameMs: sampleTime === undefined ? 0 : time - sampleTime, cpuMs: elapsed, gpuMs }); sampleTime = time;
+        if (previousPhase !== 'trial' && bloomBudget.snapshot().status === 'trial') {
+          // A delayed baseline query must never count as proof of effect cost.
+          gpuTimer.dispose();gpuTimer = createGpuFrameTimer(context);gpuSamples.length = 0;
+        }
       } else { sampleTime = undefined; bloomBudget.suspend(); }
       if (latest.current.diagnostics) {
         data.programs = readPrograms();

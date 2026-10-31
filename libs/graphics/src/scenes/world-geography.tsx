@@ -40,6 +40,7 @@ export function WorldGeography({countries,boundaries=NO_BOUNDARIES,context,frame
   const liveUniforms=useMemo(()=>({time:{value:0},dotDriftAmplitude:{value:0},unitsPerPixel:{value:1},centralLongitude:{value:0},viewportCss:{value:new Vector2(600,400)},liveFrame:{value:new Vector4(frame.x,frame.y,frame.width,frame.height)},...flow.uniforms}),[flow]);
   const [morph]=useState(createScopeMorph);
   const [edgeFade]=useState(createMapEdgeFadeUniforms);
+  const [pointViewport]=useState(()=>new Vector4());
   const morphResources=useMemo(()=>{
     const geometry=new BufferGeometry();
     for(const [name,size] of [['position',3],['targetPosition',2],['endpointOpacity',2],['sourceAnchor',4],['targetAnchor',4],['seed',1]] as const)geometry.setAttribute(name,new Float32BufferAttribute(new Float32Array(SCOPE_MORPH_PARTICLE_LIMIT*size),size).setUsage(DynamicDrawUsage));
@@ -108,6 +109,7 @@ export function WorldGeography({countries,boundaries=NO_BOUNDARIES,context,frame
     resources.landMaterial.uniforms['scopeMorphProgress']!.value=progress;
     morphResources.material.uniforms['morphProgress']!.value=progress;
     morphResources.material.uniforms['morphOpacity']!.value=progress<1?1:0;
+    if(progress>=1)morphResources.geometry.setDrawRange(0,0);
     displayed.current={...next,morphProgress:progress};previousTarget.current=targetKey;last.current=performance.now();invalidate();
   },[resources,morph,morphResources,context,domestic,frame.x,frame.y,frame.width,frame.height,reducedMotion,get,invalidate,trail,pointer,flow,liveUniforms]);
   useLayoutEffect(()=>{trail.clear();if(pointer)pointer.current.active=false;last.current=performance.now();invalidate();},[trail,resetKey,reducedMotion,invalidate,pointer]);
@@ -133,7 +135,7 @@ export function WorldGeography({countries,boundaries=NO_BOUNDARIES,context,frame
     values['scopeMorphProgress']!.value=progress;
     morphResources.material.uniforms['morphProgress']!.value=progress;
     morphResources.material.uniforms['morphOpacity']!.value=progress<1?1:0;
-    morphResources.material.uniforms['pointSize']!.value=6*get().gl.getPixelRatio();
+    if(progress>=1)morphResources.geometry.setDrawRange(0,0);
     values['unitsPerPixel']!.value=unit;
     values['dotDriftAmplitude']!.value=!reducedMotion?LIVING_DOT_AMPLITUDE_PX:0;
     (values['levelWeights']!.value as Vector4).set(...worldDotWeights(unit,baseSpacing,domestic?2:4));
@@ -154,7 +156,7 @@ export function WorldGeography({countries,boundaries=NO_BOUNDARIES,context,frame
     const mounted=new Set(renderedBoundaries.map(layer=>layer.value));
     for(const value of retiredBoundaries)if(!mounted.has(value)){value.dispose();retiredBoundaries.delete(value);}
   });
-  return <group dispose={null}><mesh geometry={resources.land} material={resources.landMaterial} frustumCulled={false}/>{renderedBoundaries.map((layer,index)=><lineSegments key={layer.value.uuid} name="map-boundary-layer" geometry={layer.value} material={resources.borderMaterial} position={[layer.longitude-context.centralLongitude,0,0]} userData={{boundaryOpacity:layer.opacity,boundaryIndex:index}} onBeforeRender={()=>{resources.borderMaterial.uniforms['mapOpacity']!.value=layer.opacity;resources.borderMaterial.uniforms['boundaryStrength']!.value=layer.value.userData['boundaryStrength'];resources.borderMaterial.uniformsNeedUpdate=true;}} frustumCulled={false}/>)}<points name="scope-dot-morph" geometry={morphResources.geometry} material={morphResources.material} frustumCulled={false}/></group>;
+  return <group dispose={null}><mesh geometry={resources.land} material={resources.landMaterial} frustumCulled={false}/>{renderedBoundaries.map((layer,index)=><lineSegments key={layer.value.uuid} name="map-boundary-layer" geometry={layer.value} material={resources.borderMaterial} position={[layer.longitude-context.centralLongitude,0,0]} userData={{boundaryOpacity:layer.opacity,boundaryIndex:index}} onBeforeRender={()=>{resources.borderMaterial.uniforms['mapOpacity']!.value=layer.opacity;resources.borderMaterial.uniforms['boundaryStrength']!.value=layer.value.userData['boundaryStrength'];resources.borderMaterial.uniformsNeedUpdate=true;}} frustumCulled={false}/>)}<points name="scope-dot-morph" geometry={morphResources.geometry} material={morphResources.material} onBeforeRender={renderer=>{morphResources.material.uniforms['pointSize']!.value=6*renderer.getCurrentViewport(pointViewport).z/Math.max(1,get().size.width);morphResources.material.uniformsNeedUpdate=true;}} frustumCulled={false}/></group>;
 }
 
 export function StaticWorldGeography({countries,boundaries=NO_BOUNDARIES,context,frame,domestic=false}:Omit<Props,'reducedMotion'>){
