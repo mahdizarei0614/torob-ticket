@@ -12,7 +12,7 @@
 
 **Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.42, 2026-11-01 (brighter bounded bloom for Iran and zoomed map particles; prior comparison/referral/motion/device qualification decisions retained).
 
-**Plan state:** Approved. M1–M6 and T29 packaging are complete with independent reviews and packaged acceptance evidence. **29/35 tasks complete; M7 PARTIAL, T30 ACTIVE.** Owner requested a fast checkpoint before substantial design/logic changes: finish durable harness checks now; full T30 matrix and T31–T33 audits/rehearsal remain unfinished. M8 retains its planned scope.
+**Plan state:** Approved. M1–M6, T29 and T30 are complete with independent reviews and recorded evidence. **30/35 tasks complete; M7 PARTIAL, T30 DONE.** Next is T31 accessibility/RTL/responsive/browser coverage. T32–T33 audits/rehearsal and M8 retain their planned scope.
 
 **Delivery location:** This outputs directory contains the user-facing source documents. On repository creation, copy the spec to docs/superpowers/specs/2026-10-24-torobticket-design.md and this plan to docs/superpowers/plans/2026-10-24-torobticket-master-plan.md. Preserve the revision, task IDs, and decision authority, and rewrite the Spec link to ../specs/2026-10-24-torobticket-design.md.
 
@@ -379,7 +379,7 @@ Each row indexes the detailed checkbox steps in section 6. DONE requires indepen
 | [T27 — Flat artwork, coordinated motion, and all theme transitions](#t27) | T27.1 Author the visual assets<br>T27.2 Implement useful motion<br>T27.3 Implement theme coordination<br>T27.4 Verify motion and all palettes<br>T27.5 Review and commit | T12, T13, T14, T16, T17, T21 | DONE | Source6451d55; independent reviews and M6 packaged20+17 acceptance; [checkpoint](../../evidence/M6/checkpoint.md) |
 | [T28 — Failure recovery and coherent state across features](#t28) | T28.1 Pin the scenario recovery matrix<br>T28.2 Run recovery cases red<br>T28.3 Implement recovery actions<br>T28.4 Reconcile stale selections<br>T28.5 Verify and commit | T09, T10, T16, T17, T18, T20, T21, T22, T24, T25 | DONE | Source6451d55; independent reviews and M6 packaged20+17 acceptance; [checkpoint](../../evidence/M6/checkpoint.md) |
 | [T29 — Docker packaging, gateway, initialization, and one-command startup](#t29) | T29.1 Define container lifecycle<br>T29.2 Implement ordered initialization<br>T29.3 Implement gateway and assets<br>T29.4 Implement one-command runner<br>T29.5 Verify and commit | T01, T04, T05 | DONE | Sourcea0e8ab2; independentc5a47d4; [checkpoint](../../evidence/T29/m7-completion/checkpoint.md) |
-| [T30 — Complete behavioral regression and multi-reviewer acceptance](#t30) | T30.1 Build stable e2e fixtures<br>T30.2 Exercise the full matrix<br>T30.3 Exercise cross-feature journeys<br>T30.4 Exercise hostile timing and isolation<br>T30.5 Verify and commit | T19, T22, T24, T25, T26, T28, T29 | ACTIVE | Partial harness675c409; independent4 config probes; full matrix deferred before redesign |
+| [T30 — Complete behavioral regression and multi-reviewer acceptance](#t30) | T30.1 Build stable e2e fixtures<br>T30.2 Exercise the full matrix<br>T30.3 Exercise cross-feature journeys<br>T30.4 Exercise hostile timing and isolation<br>T30.5 Verify and commit | T19, T22, T24, T25, T26, T28, T29 | DONE | Sourcecfcc3a9; actual unfiltered224PASS/0FAIL/2existingM6guards; independent5config+77UI+6PG PASS;1097frozen hashes preserved. [Checkpoint](../../evidence/T30/resume-2026-11-01/checkpoint.md) |
 | [T31 — Accessibility, RTL, responsive behavior, and browser compatibility](#t31) | T31.1 Define representative coverage<br>T31.2 Run semantic checks<br>T31.3 Inspect visual accessibility<br>T31.4 Run browser coverage<br>T31.5 Fix, verify, and commit | T27, T28, T30 | TODO | Unassigned / — |
 | [T32 — Graphics performance, visual regression, and resource budgets](#t32) | T32.1 Capture controlled visual baselines<br>T32.2 Measure real interaction performance<br>T32.3 Measure bundles and idle work<br>T32.4 Stress lifecycle and fallbacks<br>T32.5 Verify and commit | T27, T28, T30 | TODO | Unassigned / — |
 | [T33 — Fresh-start, offline-runtime, reset, and restart rehearsal](#t33) | T33.1 Rehearse a fresh environment<br>T33.2 Verify external-network independence<br>T33.3 Rehearse lifecycle failures<br>T33.4 Finalize verification runner<br>T33.5 Verify and commit | T29, T30, T31, T32 | TODO | Unassigned / — |
@@ -1931,10 +1931,11 @@ Run the root startup command on a new named test volume and again without deleti
 **Files — create unless introduced by a dependency; then modify:**
 
 - `tests/e2e/fixtures.ts`
-- `tests/e2e/six-mode-journeys.spec.ts`
-- `tests/e2e/roundtrip-pricing.spec.ts`
-- `tests/e2e/reviewer-isolation.spec.ts`
-- `tests/e2e/full-walkthrough.spec.ts`
+- `tests/e2e/src/acceptance/six-mode-journeys.spec.ts`
+- `tests/e2e/src/acceptance/roundtrip-pricing.spec.ts`
+- `tests/e2e/src/acceptance/reviewer-isolation.spec.ts`
+- `tests/e2e/src/acceptance/full-walkthrough.spec.ts`
+- `tests/e2e/src/acceptance/party-and-eligibility.spec.ts`
 - `docs/evidence/release/behavioral-matrix.md`
 
 **Interfaces:**
@@ -1942,29 +1943,33 @@ Run the root startup command on a new named test volume and again without deleti
 - Consumes: Complete running product, deterministic seed/scenario clock, existing focused suites.
 - Produces: Full six-combination one-way/round-trip matrix, guest/identity/hotel/referral/admin walkthrough, isolation and idempotency release evidence.
 
-- [ ] **T30.1 — Build stable e2e fixtures**
+- [x] **T30.1 — Build stable e2e fixtures**
 
 Create isolated browser contexts/sessions and explicit seed/anchor/scenario setup through supported demo APIs. Tests wait for observable state, not arbitrary sleeps. Never share mutable session state between parallel cases.
 
-- [ ] **T30.2 — Exercise the full matrix**
+- [x] **T30.2 — Exercise the full matrix**
 
 Run six mode/scope combinations in one-way and round-trip, varied parties, all sorts, meaningful filters, different provider fares, date/chart consistency, and correct direction/transfer timelines.
 
-- [ ] **T30.3 — Exercise cross-feature journeys**
+- [x] **T30.3 — Exercise cross-feature journeys**
 
-Cover guest referral, optional saved search, hotel custom-location/room selection, changed fare acceptance, sold-out recovery, normalization correction/replay, and the admin referral trace.
+Cover guest referral, compact identity/logout and retained legacy saved-search records, hotel custom-location/room selection, changed fare acceptance, sold-out recovery, normalization correction/replay, and the admin referral trace.
 
-- [ ] **T30.4 — Exercise hostile timing and isolation**
+- [x] **T30.4 — Exercise hostile timing and isolation**
 
 Use two reviewer contexts, delayed and duplicated events, rapid query changes, two simultaneous confirmations, reset during a running query, and guessed IDs. Assert no cross-session effects or duplicate referrals.
 
-- [ ] **T30.5 — Verify and commit**
+- [x] **T30.5 — Verify and commit**
 
 Run pnpm nx run e2e:e2e against the Compose stack and relevant unit/integration suites after any fixes. Record actual results and remaining limitations in behavioral-matrix.md; commit acceptance coverage.
 
 **Acceptance:** The entire agreed product works coherently across modes, parties, failures, and independent reviewer sessions.
 
 **T30 fast partial checkpoint — 2026-10-26:** Owner requested a very quick finish before substantial design/logic changes. Source `675c409` adds isolated external Compose execution, evidence/peer origin binding, custom touch context baseURL/CDP ownership and current admin assertions; no product logic/design changes. Types/lint pass. Actual default Nx smoke4PASS/1obsolete-heading failure is retained; corrected admin-only run1PASS separately. Four independent config probes approve the narrow three-source delta. Full12-row matrix, broad acceptance and T31–T33 audits/rehearsal remain unfinished; **29/35 complete, M7 PARTIAL, T30 ACTIVE**. Owned4329 stack/volume/image tags removed; default4300 remains ready. [Fast checkpoint](../../evidence/release/m7-fast-checkpoint.md), [independent partial review](../../evidence/T30/review/report.md).
+
+**T30 resumed full diagnostic — 2026-11-01:** [Decision0073](../../decisions/0073-t30-current-behavioral-acceptance.md), [live evidence](../../evidence/T30/resume-2026-11-01/continuation-status.md), [behavioral matrix](../../evidence/release/behavioral-matrix.md). Initial unfiltered Nx on development Compose:164PASS/60FAIL/2existing M6 guarded skips,0notrun/0globalerrors; all32 new acceptance cases PASS. Phase2 residual61:45PASS/16FAIL. Phase3 residual16:13PASS/3FAIL; original SSE/mobile/brand regressions pass. Shared city query/Escape/scroll corrections now have43 focused unit passes and6 separate native open/aligned observations with ownedreset201. Actual HTTP/build2checks and10 live web/admin head URLs pass. A deterministic PostgreSQL regression proves internal date/recheck evidence wrongly consumed the transport rolling budget: old1FAIL/3PASS→corrected4PASS, plus4existing admission cases pass (30 other integration cases were filtered, not claimed executed). Normal ground comparisons now pass complete-provider/source/price/layout checks after bounded recovery reads and measured subpixel reconciliation (phase6 pair2PASS); their earlier actual partial/interrupted evidence is retained. The next full unfiltered226 re-run finished220PASS/4FAIL/2existing guarded skips,0notrun/globalerrors; all32 acceptance cases pass. Retained failures concern date retry/session metadata, mobile indicator measurement, RTL scrollbar alignment and sampling a flight-loop fade. Date identity fixes pass50 related unit cases and controlled native before/after proof; the three observer closures pass together and the unchanged original retry case passes separately. Full unfiltered226 rerun2 finished222PASS/2FAIL/2existing guarded skips, all32acceptancePASS and all1097source hashes unchanged. The two failures are a rounded referral geometry comparison and generic GPU-link labels across intentional context loss; controlled diagnostics and reviewed corrections remain explicitly pending final native verification. The owner-reported missing map arrow glyph is corrected with stable inline SVG;11 heading unit cases and web types pass, with native toggle closure PASS (decision0074). The seven selected date/referral/GPU/arrow cases pass together and preserve all1097 source hashes. Full unfiltered226 rerun3 finished223PASS/1FAIL/2existingM6guardedSKIP, zero other error categories, all32acceptancePASS and all1097source hashes unchanged. The only failure is GraphicsHost reduced-motion report.frames22→33 after fixed80/180ms; native delivery/draw/report-commit diagnostic precedes any correction. Independent final execution and acceptance remain pending. Independent frozen review and owned commits remain. **29/35 complete; M7 PARTIAL, T30 ACTIVE.** Existing foreign work and default stack/data remain preserved; T31–T35 are not complete.
+
+**T30 COMPLETE — current final result:** source `cfcc3a9`; actual unfiltered224PASS/0FAIL/2existingM6guardedSKIP, all32newacceptancePASS and1097source hashes unchanged. Independent5config/77UI/6PG PASS; actual staged80source paths reviewed and committed. Exact owned test DB removed; original containers healthy. Earlier fast/resumed diagnostics above are historical. [Final checkpoint](../../evidence/T30/resume-2026-11-01/checkpoint.md). **30/35complete; T31next.**
 
 ---
 
@@ -2704,3 +2709,16 @@ Owner rejected the effect and requested rollback; [decision0060](../../decisions
 | Iran/world sparse-view comparison | DONE | Four naturally qualified before/after same-frame capture pairs; sampled halo mean2.3–3.6×baseline,0outside-scissor changes; native images independently accepted with live-phase/heuristic limits |
 | Performance, themes and pauses | DONE | Separate4steady route/zoom windows onDPR1/DPR2 within actualCPU/GPU/cadence guards; genuine light, vehicle foreground, native dark/light themes and calendar/reduced/mobile pause+resume PASS0errors |
 | Independent review and assembly | DONE | Independent199/28PASS8.17s, graphics types/two-filelint and three hashes/token projection PASS; all96 steady runtime snapshots enabled. Exact3source paths committed `f9adb19`; decision/spec/master/SDD/full exports updated, foreign work preserved |
+
+## Owner correction — font-independent map heading arrows, 2026-11-01
+
+[Decision0074](../../decisions/0074-font-independent-map-heading-arrows.md) corrects the visibly missing-font box above the map using an explicit left one-way SVG arrow and paired opposing round-trip arrows. Semantic color, stable icon footprint, finite motion and arrow-only trip-type changes preserve city/code owners. Actual user Chrome HMR shows the round-trip icon;11 related unit cases and web types pass. Maintained native arrow/label-identity verification passes with the other six closure cases. The map-arrow case also passes in full3; its separate GraphicsHost reduced-policy failure and independent final review remain pending; M7partial29/35,T30active.
+
+
+**T30 graphics closure — 2026-11-01:** full3failed223/1/2 with1097unchanged/all32newacceptancePASS. Reviewed live reduced-motion draw-boundary correction passes9graphics units, graphics types/lint and unchangedwhole10caseGraphicsHost nativefile with1097unchanged. See decision0073 and graphics-policy-closure evidence. Full4 actualunfiltered226 run is RUNNING on binding4; independent final execution/commits remain. T30ACTIVE29/35.
+
+
+**T30 final full execution — 2026-11-01:** actual full4 unfiltered Nx224PASS/0FAIL/2existingM6guardedSKIP, zero flaky/not-run/interrupted/global errors, all32newacceptancePASS; all1097source hashes and21literalforeign+4projections unchanged. All five prior full/selected failure boundaries remain in the behavioral matrix. Independent final5config/77UI/6PG and source/evidence assembly are pending; T30ACTIVE29/35.
+
+
+**T30 COMPLETE — 2026-11-01:** source `cfcc3a9`,80exact independently approved source paths. Actual unfiltered full4:224PASS/0FAIL/2existingM6guards, all32newacceptancePASS, zero flaky/not-run/interrupted/global errors;1097source hashes match. Independent5configuration probes,77UI cases/nine files and6PostgreSQL cases pass. Exact owned test DB removed and original five container IDs remain healthy. Prior failed runs and causal limitations retained. [Checkpoint](../../evidence/T30/resume-2026-11-01/checkpoint.md). **30/35tasks complete; M7PARTIAL,T30DONE; T31next.**
