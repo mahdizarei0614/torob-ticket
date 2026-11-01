@@ -5,7 +5,7 @@ import { LocalDateSchema } from '@torob-ticket/contracts';
 import type { CatalogSnapshot, DatePriceCell, DatePriceQuery, SessionInfo } from '@torob-ticket/contracts';
 import { dateBounds, validateDraft, type SearchDraft } from '../search/search-url';
 import { SearchFieldFeedback, useSearchFieldFeedback } from '../search/search-field-feedback';
-import { calendarWindow, commitDate, dateWindow, datePriceIdentityForSession, type DateLeg } from './date-state';
+import { calendarWindow, commitDate, dateWindow, datePriceIdentityForSession, datePriceSessionIdentity, type DateLeg } from './date-state';
 import { DateLegControl } from './date-leg-slot';
 import { DateWheel } from './date-wheel';
 import { DateCalendar } from './date-calendar';
@@ -22,7 +22,7 @@ export function DateExplorer({ draft, catalog, session, onCommit, onPreview, onC
     priorReturn.current = draft.returnDate;
   }, [draft.returnDate, draft.tripType]);
   const [ownedInteraction] = useState(createDateInteractions); const interaction = controlledInteraction ?? ownedInteraction;
-  const externalBasis = JSON.stringify([draft,session]); const basisRef = useRef(externalBasis); basisRef.current = externalBasis;
+  const externalBasis = JSON.stringify([draft,datePriceSessionIdentity(session)]); const basisRef = useRef(externalBasis); basisRef.current = externalBasis;
   const [provisional, setProvisional] = useState<{ draft: SearchDraft; basis: string; token: number } | undefined>(undefined);
   const provisionalRef = useRef(provisional); provisionalRef.current = provisional;
   const activeProvisional = provisional && provisional.basis === externalBasis && interaction.isCurrent(provisional.token) && !disabled ? provisional : undefined;

@@ -10,6 +10,7 @@ describe('date intent and semantic response ownership', () => {
     const {fixtureVersion,catalogRevision,seed,anchorInstant,scenario,mappingRevision,scenarioRevision}=session;
     const oldKey=datePriceKey(request,{fixtureVersion,catalogRevision,seed,anchorInstant,scenario,mappingRevision,scenarioRevision});
     const current=datePriceIdentityForSession(request,session);
+    expect(current).toBe(datePriceKey(request,{fixtureVersion,catalogRevision,seed,anchorInstant,scenario,mappingRevision,scenarioRevision,pricingPolicy:'schedule-tradeoffs-2026-10-30'}));
     expect(current).not.toBe(oldKey);
     const previousDirectionalKey=datePriceKey(request,{fixtureVersion,catalogRevision,seed,anchorInstant,scenario,mappingRevision,scenarioRevision,pricingPolicy:'directional-fares-2026-10-30'});
     expect(current).not.toBe(previousDirectionalKey);

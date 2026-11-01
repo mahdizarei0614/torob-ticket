@@ -1,4 +1,5 @@
-import { test, expect, type Page } from '@playwright/test';
+import type { Page } from '@playwright/test';
+import { test, expect } from '../fixtures';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
@@ -13,25 +14,25 @@ async function geometry(page: Page) {
    const label = labels.find(item => item.textContent?.trim());
    const surface = node.querySelector<HTMLElement>('[data-segment-track]') ?? control.parentElement!;
    const options = Array.from(node.querySelectorAll<HTMLElement>('[data-segment-option]'));
+   const frames = options.map(option => { const slot = option.closest<HTMLElement>('[data-segment-slot]')!, style = getComputedStyle(slot); return { opacity: Number(style.opacity), offsetY: style.transform === 'none' ? 0 : new DOMMatrixReadOnly(style.transform).m42 }; });
    const box = surface.getBoundingClientRect();
    return { name: label?.textContent?.trim(), labelTop: label?.getBoundingClientRect().top, labelWidth: label?.getBoundingClientRect().width,
     fieldTop: node.getBoundingClientRect().top, top: box.top, height: box.height, width: box.width, fontSize: getComputedStyle(control).fontSize,
-    optionTops: options.map(option => option.getBoundingClientRect().top), optionHeights: options.map(option => option.getBoundingClientRect().height) };
+    optionTops: options.map(option => option.getBoundingClientRect().top), optionHeights: options.map(option => option.getBoundingClientRect().height), optionCssHeights: options.map(option => parseFloat(getComputedStyle(option).height)), optionFrames: frames };
   });
   return { viewport: innerWidth, pageWidth: document.documentElement.scrollWidth, rowWidth: row.clientWidth, rowScrollWidth: row.scrollWidth, rowScrollLeft: row.scrollLeft,
    overflowX: getComputedStyle(row).overflowX, fields };
  });
 }
 
-test('@four-controls all four labeled controls share one row and the leg remains visible in one-way', async ({ page, context, browser }) => {
+test('@four-controls all four labeled controls share one row and the leg remains visible in one-way', async ({ newReviewer, browser }) => {
  test.setTimeout(60000); mkdirSync(evidence, { recursive: true });
- expect(await context.cookies()).toEqual([]);
- expect((await context.request.post('/api/v1/demo/session', { data: { seed: 5730, anchorInstant: '2026-10-29T06:00:00Z' } })).status()).toBe(201);
+ const reviewer = await newReviewer({ seed: 5730, scenario: 'normal', anchorInstant: '2026-10-29T06:00:00Z', viewport: { width: 1366, height: 768 }, reducedMotion: 'no-preference' });
+ const { page } = reviewer;
  await page.addInitScript(() => localStorage.setItem('torobticket.appearance', 'dark'));
- await page.setViewportSize({ width: 1366, height: 768 });
  const errors: string[] = [], searches: string[] = [], rows: { phase: string; geometry: Awaited<ReturnType<typeof geometry>> }[] = [];
- page.on('pageerror', error => errors.push(error.message));
- page.on('request', request => { if (request.method() === 'POST' && request.url().endsWith('/api/v1/searches')) searches.push(request.url()); });
+ page.on('pageerror', () => errors.push('uncaught-page-error'));
+ page.on('request', request => { if (request.method() === 'POST' && request.url().endsWith('/api/v1/searches')) searches.push(new URL(request.url()).pathname); });
  await page.goto('/?q=' + encodeURIComponent(JSON.stringify(query)));
  const leg = page.getByRole('radiogroup', { name: 'جستجو بر اساس', exact: true });
  const explorer = page.getByRole('region', { name: 'کاوش تاریخ سفر', exact: true });
@@ -42,6 +43,12 @@ test('@four-controls all four labeled controls share one row and the leg remains
  await page.evaluate(() => document.fonts.ready);
  const originalCalendar = await calendar.elementHandle();
  const record = async (phase: string) => {
+  // New radio slots enter with finite y/opacity motion. Observe that actual
+  // endpoint before measuring the shared final row; retain every<1px guard.
+  await expect.poll(async () => {
+   const current = (await geometry(page)).fields.filter(field => field.optionFrames.length);
+   return current.length === 2 && current.every(field => field.optionFrames.every(frame => Math.abs(frame.offsetY) < .05 && frame.opacity > .999));
+  }, { timeout: 10000 }).toBe(true);
   const value = await geometry(page); rows.push({ phase, geometry: value });
   expect(value.fields).toHaveLength(4);
   expect(value.fields.map(field => field.name)).toEqual(['مبدا', 'مقصد', 'کلاس سفر', 'جستجو بر اساس']);
@@ -51,7 +58,9 @@ test('@four-controls all four labeled controls share one row and the leg remains
   expect(value.fields.every(field => field.height >= 44 && field.labelWidth! > 20)).toBe(true);
   for (const field of value.fields) if (field.optionTops.length) {
    expect(Math.max(...field.optionTops) - Math.min(...field.optionTops)).toBeLessThan(1);
-   expect(field.optionHeights.every(height => height >= 44)).toBe(true);
+   // CSS44px can produce43.999984px DOMRects under finite transformed
+   // ancestors. Keep the CSS minimum and require native geometry within.001px.
+   field.optionCssHeights.forEach((height, index) => { expect(height).toBeGreaterThanOrEqual(44); expect(Math.abs(field.optionHeights[index]! - height)).toBeLessThan(.001); });
   }
   return value;
  };
@@ -84,7 +93,8 @@ test('@four-controls all four labeled controls share one row and the leg remains
   }
   expect(searches).toEqual([]); expect(errors).toEqual([]);
  } finally {
-  writeFileSync(resolve(evidence, 'four-controls.json'), JSON.stringify({ browser: browser.version(), rows, searchPosts: searches.length, pageErrors: errors,
-   cleanup: 'Fresh empty-cookie context, no reset/deletion. Playwright closes its context; isolated evidence follows normal expiry.' }, null, 2) + '\n');
+  writeFileSync(resolve(evidence, 'four-controls.json'), JSON.stringify({ browser: browser.version(), session: reviewer.session, rows, searchPosts: searches.length, pageErrors: errors,
+   readiness: 'Actual current radio-slot transform/opacity endpoint before unchanged final row/target/RTL-overflow assertions.',
+   cleanup: 'Shared owned fixture resets only this newly created namespace using its in-memory cookie jar, then closes the context.' }, null, 2) + '\n');
  }
 });

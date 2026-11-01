@@ -1,3 +1,4 @@
+import {assertTransportStartLimit} from './transport-start-limit';
 import {insertMissingTransportQuotes} from './transport-quote-batch';
 import {assertSearchAdmission} from './admission';
 import { IdSchema, PartySchema, NonnegativeIntegerSchema, SearchSnapshotSchema, SearchEventSchema, type SearchSnapshot, type SearchEvent, type ProviderStatus, type QuoteSnapshot, NormalizationTraceSchema, NormalizedOfferSchema, RawProviderRecordSchema, type RawProviderRecord, type NormalizationTrace, type NormalizedOffer } from '@torob-ticket/contracts';
@@ -100,6 +101,7 @@ export class SearchRepository {
   create(scope: DataScope, input: CreateSearchRun, now: Date, options: { enforceLimit?: boolean; id?: string; supersedesSearchId?: string } = {}) {
     return scopedTransaction(this.db, scope, async tx => {
       if (options.supersedesSearchId) await this.assertComparisonRun(tx, scope, options.supersedesSearchId);
+      if (options.enforceLimit) await assertTransportStartLimit(tx, scope, now);
       if (options.supersedesSearchId) await this.terminate(tx, scope, options.supersedesSearchId, 'cancelled', now);
       if (options.enforceLimit) await assertSearchAdmission(tx,scope);
       if (input.predecessorId) await this.assertComparisonRun(tx, scope, input.predecessorId);

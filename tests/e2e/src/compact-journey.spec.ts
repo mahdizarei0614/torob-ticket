@@ -8,7 +8,7 @@ const base: TransportSearchQuery = { mode: 'flight', scope: 'domestic', tripType
 const save = (name: string, value: unknown) => writeFileSync(resolve(evidence, name + '.json'), JSON.stringify(value, null, 2) + '\n');
 const form = (page: Page) => page.getByRole('form', { name: 'جست‌وجوی سفر', exact: true });
 const calendar = (page: Page) => page.getByRole('dialog', { name: 'انتخاب تاریخ سفر', exact: true });
-const hotel = (page: Page) => page.getByRole('dialog', { name: 'مقایسه اقامتگاه‌های مشهد', exact: true });
+const hotel = (page: Page) => page.getByRole('dialog', { name: 'هتل‌های مشهد', exact: true });
 const hotelTrigger = (page: Page) => page.getByRole('button', { name: 'مقایسه اقامتگاه‌های مشهد', exact: true });
 async function open(page: Page, query = base) {
   await page.goto('/?q=' + encodeURIComponent(JSON.stringify(query)));
@@ -39,7 +39,10 @@ test('@compact-journey compact forms keep defaults and searchable city controls'
   await expect(page.getByText('بکشید یا از کلیدهای بالا و پایین استفاده کنید', { exact: true })).toHaveCount(0);
   for (const [name, value] of [['قطار', 'seat'], ['اتوبوس', 'standard'], ['پرواز', 'economy']]) {
     await page.getByRole('radiogroup', { name: 'وسیله سفر', exact: true }).getByText(name!, { exact: true }).click();
-    await expect(page.getByRole('radiogroup', { name: 'کلاس سفر', exact: true }).getByRole('radio', {name:({seat:'صندلی',standard:'معمولی',economy:'اقتصادی'} as Record<string,string>)[value!]!,exact:true})).toBeChecked();
+    await expect(page.getByRole('radiogroup', { name: 'کلاس سفر', exact: true }).getByRole('radio', {name:({seat:'صندلی (سالنی)',standard:'معمولی',economy:'اقتصادی'} as Record<string,string>)[value!]!,exact:true})).toBeChecked();
+    // Decision0043: these are uncommitted form choices; URL keeps the actual
+    // economy comparison until another explicit search is accepted.
+    expect(JSON.parse(new URL(page.url()).searchParams.get('q')!).classCode).toBe('economy');
   }
   const destination = page.getByRole('combobox', { name: 'مقصد', exact: true });
   await page.getByRole('button', { name: 'پاک کردن مقصد', exact: true }).click();
@@ -87,45 +90,41 @@ test('@compact-journey calendar is small and preserves provisional apply and can
   save('compact-calendar', metrics);
 });
 
-test('@compact-journey hotel dock opens before a ticket search and survives responsive movement', async ({ page }) => {
+test('@compact-journey hotel dock starts one comparison and retains its automatic stay across responsive movement', async ({ page }) => {
   let transportPosts = 0; page.on('request', request => { if (request.method() === 'POST' && request.url().endsWith('/api/v1/searches')) transportPosts++; });
   await open(page);
   await expect(page.locator('[data-map-hotel-dock] [data-hotel-entry]')).toHaveCount(1);
   await expect(page.locator('[data-hotel-entry]')).toHaveCount(1); expect(transportPosts).toBe(0);
   await expect(page.locator('[data-hotel-entry]')).toHaveAttribute('data-motion-policy', 'finite');
-  await hotelTrigger(page).click(); await expect(hotel(page)).toBeVisible(); expect(transportPosts).toBe(1);
-  const checkout = hotel(page).getByLabel('تاریخ خروج از هتل میلادی', { exact: true }); await checkout.fill('2026-11-02');
+  const opening = page.waitForResponse(r => r.request().method() === 'POST' && r.url().endsWith('/api/v1/hotel-searches'));
+  await hotelTrigger(page).click(); await expect(hotel(page)).toBeVisible();
+  const http = await opening; const body = await http.json(); expect(http.status()).toBe(201); expect(body.status).toBe('complete');
+  expect(transportPosts).toBe(1); expect(body.query.rooms).toBe(1);
+  expect(new Date(body.query.checkOut + 'T12:00:00Z').getTime() - new Date(body.query.checkIn + 'T12:00:00Z').getTime()).toBe(86400000);
+  const snapshot = hotel(page).locator('[data-hotel-dialog]');
+  const capacity = hotel(page).getByRole('combobox', { name: 'ظرفیت اتاق', exact: true });
+  await expect(capacity).toHaveValue('1'); await expect(capacity.locator('option')).toHaveCount(4);
+  await expect(hotel(page).locator('input:not([type=radio])')).toHaveCount(0);
+  const results = hotel(page).getByRole('region', { name: 'نتایج مقایسه اقامتگاه‌ها', exact: true });
+  await expect(results).toHaveAttribute('data-hotel-search-id', body.hotelSearchId);
   for (const width of [968, 390, 1440]) {
-    await page.setViewportSize({ width, height: 900 }); await expect(hotel(page)).toBeVisible(); await expect(checkout).toHaveValue('2026-11-02');
+    await page.setViewportSize({ width, height: 900 }); await expect(hotel(page)).toBeVisible();
+    await expect(snapshot).toHaveAttribute('data-hotel-check-in', body.query.checkIn);
+    await expect(snapshot).toHaveAttribute('data-hotel-check-out', body.query.checkOut);
+    await expect(results).toHaveAttribute('data-hotel-search-id', body.hotelSearchId);
+    await expect(capacity).toHaveValue('1');
   }
   await page.setViewportSize({ width: 968, height: 900 });
   await hotel(page).getByRole('button', { name: 'بستن', exact: true }).click(); await expect(hotelTrigger(page)).toBeFocused();
   await expect(page.locator('[data-hotel-entry]')).toHaveAttribute('data-hotel-placement', 'inline');
   await page.setViewportSize({ width: 1440, height: 900 });
   await expect(page.locator('[data-map-hotel-dock] [data-hotel-entry]')).toHaveCount(1);
-  await hotelTrigger(page).click(); await expect(checkout).toHaveValue('2026-11-02'); expect(transportPosts).toBe(1);
+  await hotelTrigger(page).click(); await expect(results).toHaveAttribute('data-hotel-search-id', body.hotelSearchId); expect(transportPosts).toBe(1);
   await expect(page.getByRole('region', { name: 'نتایج مقایسه سفر', exact: true, includeHidden: true })).toHaveAttribute('data-status', 'complete');
   await expect(page.locator('article[data-group-id][data-selected="true"]')).toHaveCount(1);
-  // The newly selected ticket adds arrival facts; it must not overwrite the edited stay.
-  await expect(checkout).toHaveValue('2026-11-02');
-  const applyTrip = hotel(page).getByRole('button', { name: 'استفاده از سفر جدید', exact: true });
-  const arrivalUpdateOffered = await applyTrip.isVisible();
-  if (arrivalUpdateOffered) {
-    await expect(hotel(page).locator('[data-hotel-dialog]')).toHaveAttribute('data-hotel-stale', 'true');
-    await expect(checkout).toBeDisabled();
-    await applyTrip.click();
-    await checkout.fill('2026-11-02');
-  }
-  await expect(hotel(page).locator('[data-hotel-dialog]')).toHaveAttribute('data-hotel-stale', 'false');
-  const confirmation = hotel(page).getByRole('checkbox');
-  if (await confirmation.isVisible()) await confirmation.check();
-  const response = page.waitForResponse(r => r.request().method() === 'POST' && r.url().endsWith('/api/v1/hotel-searches'));
-  await hotel(page).getByRole('button', { name: 'مقایسه اقامتگاه‌ها', exact: true }).click();
-  const http = await response; const body = await http.json(); save('hotel-search-response', {status: http.status(), body}); expect(http.status()).toBe(201); expect(body.status).toBe('complete');
-  await expect(hotel(page).getByRole('region', { name: 'نتایج مقایسه اقامتگاه‌ها', exact: true })).toHaveAttribute('data-hotel-search-id', body.hotelSearchId);
   await hotel(page).getByRole('button', { name: 'بستن', exact: true }).click(); await expect(hotelTrigger(page)).toBeFocused();
   await page.screenshot({ path: resolve(evidence, 'hotel-under-map.png') });
-  save('hotel-dock', { transportPosts, arrivalUpdateOffered, retainedCheckoutBeforeApply: '2026-11-02', hotelStatus: body.status, hotelQuery: body.query });
+  save('hotel-dock', { transportPosts, hotelStatus: body.status, hotelQuery: body.query, replacedAssertion: 'Decision0061 automatic selected-arrival one-night stay supersedes editable hotel dates and Apply trip.' });
 });
 
 test('@compact-journey reduced motion settles hotel entry and respects clear route', async ({ page }) => {
@@ -134,7 +133,7 @@ test('@compact-journey reduced motion settles hotel entry and respects clear rou
   await page.getByRole('button', { name: 'پاک کردن مقصد', exact: true }).click();
   await expect(page.locator('[data-hotel-entry]')).toHaveCount(0);
   const destination = page.getByRole('combobox', { name: 'مقصد', exact: true }); await destination.fill('مشهد');
-  await page.getByRole('option', { name: 'مشهد', exact: true }).click();
+  await page.getByRole('option').filter({ has: page.getByText('مشهد', { exact: true }) }).click();
   await expect(page.locator('[data-map-hotel-dock] [data-hotel-entry]')).toHaveAttribute('data-motion-policy', 'static');
   const style = await page.locator('[data-hotel-entry]').evaluate(node => ({ opacity: getComputedStyle(node).opacity, transform: getComputedStyle(node).transform }));
   expect(style.opacity).toBe('1'); expect(style.transform).toBe('none'); save('reduced-motion-dock', style);

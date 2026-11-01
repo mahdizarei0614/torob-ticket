@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../fixtures';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
@@ -6,17 +6,15 @@ const evidence = resolve(process.env.SEARCH_CONTROLS_EVIDENCE_DIR ?? 'docs/evide
 const query = { mode: 'flight', scope: 'domestic', tripType: 'one-way', originCityId: 'tehran', destinationCityId: 'mashhad', departureDate: '2026-11-02', party: { adults: 1, children: 0, infants: 0 }, classCode: 'economy', filters: {}, sort: 'cheapest' };
 
 for (const width of [1366, 390]) {
- test(`@search-controls ${width}px empty-city focus and above-field errors keep layout stable`, async ({ page, context, browser }) => {
+ test(`@search-controls ${width}px empty-city focus and above-field errors keep layout stable`, async ({ newReviewer, browser }) => {
   test.setTimeout(60000);
   mkdirSync(evidence, { recursive: true });
-  expect(await context.cookies()).toEqual([]);
-  expect((await context.request.post('/api/v1/demo/session', { data: { seed: 5630, anchorInstant: '2026-10-29T06:00:00Z' } })).status()).toBe(201);
-  await page.setViewportSize({ width, height: width === 390 ? 844 : 768 });
+  const reviewer = await newReviewer({ seed: 5630, scenario: 'normal', anchorInstant: '2026-10-29T06:00:00Z', viewport: { width, height: width === 390 ? 844 : 768 }, reducedMotion: 'no-preference' });
+  const { page } = reviewer;
   await page.addInitScript(appearance => localStorage.setItem('torobticket.appearance', appearance), width === 1366 ? 'dark' : 'light');
-  await page.emulateMedia({ reducedMotion: 'no-preference' });
   const errors: string[] = [], searches: string[] = [];
-  page.on('pageerror', error => errors.push(error.message));
-  page.on('request', request => { if (request.method() === 'POST' && request.url().endsWith('/api/v1/searches')) searches.push(request.url()); });
+  page.on('pageerror', () => errors.push('uncaught-page-error'));
+  page.on('request', request => { if (request.method() === 'POST' && request.url().endsWith('/api/v1/searches')) searches.push(new URL(request.url()).pathname); });
   await page.goto('/?q=' + encodeURIComponent(JSON.stringify(query)));
   const origin = page.getByRole('combobox', { name: 'مبدا', exact: true });
   const destination = page.getByRole('combobox', { name: 'مقصد', exact: true });
@@ -28,8 +26,26 @@ for (const width of [1366, 390]) {
   await page.getByRole('button', { name: 'پاک کردن مبدا', exact: true }).click();
   await expect(origin).toHaveValue(''); await expect(destinationBox).toBeDisabled();
   await origin.press('Escape');
-  await submit.focus(); await origin.focus();
-  await expect(origin).toHaveAttribute('aria-expanded', 'true');
+  await expect(origin).toHaveAttribute('aria-expanded', 'false');
+  await expect(page.getByRole('option', { name: 'تهران', exact: true })).toHaveCount(0);
+  await expect(submit).toBeEnabled(); await submit.focus(); await expect(submit).toBeFocused();
+  await origin.focus(); await expect(origin).toBeFocused();
+  try { await expect(origin).toHaveAttribute('aria-expanded', 'true'); }
+  catch (error) {
+   // Public focus/lifecycle facts only; retain the actual failure and do not
+   // replace empty-focus behavior with a button-open or another gesture.
+   try {
+    const state = await page.evaluate(() => ({
+     visibility: document.visibilityState,
+     active: { tag: document.activeElement?.tagName, role: document.activeElement?.getAttribute('role'), label: document.activeElement?.getAttribute('aria-label'), expanded: document.activeElement?.getAttribute('aria-expanded') },
+     cities: Array.from(document.querySelectorAll<HTMLInputElement>('input[role="combobox"]')).map(input => ({ value: input.value, focused: input === document.activeElement, expanded: input.getAttribute('aria-expanded'), disabled: input.disabled })),
+     listboxes: Array.from(document.querySelectorAll('[role="listbox"]')).map(node => ({ label: node.getAttribute('aria-label'), hidden: node.getAttribute('aria-hidden'), text: node.textContent?.slice(0, 500) })),
+    }));
+    writeFileSync(resolve(evidence, `empty-focus-${width}-failure.json`), JSON.stringify(state, null, 2) + '\n');
+    await page.screenshot({ path: resolve(evidence, `empty-focus-${width}-failure.png`), timeout: 5000 });
+   } catch { /* Shared owned teardown also captures public failure state. */ }
+   throw error;
+  }
   await expect(page.getByRole('option', { name: 'تهران', exact: true })).toBeVisible();
   await expect(origin).toHaveValue('');
   await page.getByRole('option', { name: 'تهران', exact: true }).click();
@@ -76,21 +92,20 @@ for (const width of [1366, 390]) {
   await expect(tooltip).toBeHidden();
   expect(searches).toEqual([]); expect(errors).toEqual([]);
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
-  writeFileSync(resolve(evidence, `validation-${width}.json`), JSON.stringify({ browser: browser.version(), width, appearance: width === 1366 ? 'dark' : 'light', before, after, searchPosts: searches.length, pageErrors: errors,
+  writeFileSync(resolve(evidence, `validation-${width}.json`), JSON.stringify({ browser: browser.version(), session: reviewer.session, width, appearance: width === 1366 ? 'dark' : 'light', before, after, searchPosts: searches.length, pageErrors: errors,
    emptyFocusOpens: true, disabledDestinationPreserved: true, focusAndHoverEscape: true, descriptionRetainedWhileDismissed: true, correctionClearsError: true,
-   cleanup: 'Fresh empty-cookie context, no resets/deletions; Playwright closes its context and isolated evidence uses normal server expiry.' }, null, 2) + '\n');
+   cleanup: 'Shared owned fixture resets only this newly created namespace using its in-memory cookie jar, then closes the context.' }, null, 2) + '\n');
  });
 
- test(`@search-controls ${width}px date-leg segments share class row and retain calendar semantics`, async ({ page, context, browser }) => {
+ test(`@search-controls ${width}px date-leg segments share class row and retain calendar semantics`, async ({ newReviewer, browser }) => {
   test.setTimeout(60000);
   mkdirSync(evidence, { recursive: true });
-  expect(await context.cookies()).toEqual([]);
-  expect((await context.request.post('/api/v1/demo/session', { data: { seed: 5631, anchorInstant: '2026-10-29T06:00:00Z' } })).status()).toBe(201);
-  await page.setViewportSize({ width, height: width === 390 ? 844 : 768 });
+  const reviewer = await newReviewer({ seed: 5631, scenario: 'normal', anchorInstant: '2026-10-29T06:00:00Z', viewport: { width, height: width === 390 ? 844 : 768 }, reducedMotion: 'no-preference' });
+  const { page } = reviewer;
   await page.addInitScript(appearance => localStorage.setItem('torobticket.appearance', appearance), width === 1366 ? 'dark' : 'light');
   const errors: string[] = [], searches: string[] = [];
-  page.on('pageerror', error => errors.push(error.message));
-  page.on('request', request => { if (request.method() === 'POST' && request.url().endsWith('/api/v1/searches')) searches.push(request.url()); });
+  page.on('pageerror', () => errors.push('uncaught-page-error'));
+  page.on('request', request => { if (request.method() === 'POST' && request.url().endsWith('/api/v1/searches')) searches.push(new URL(request.url()).pathname); });
   const round = { ...query, tripType: 'round-trip', returnDate: '2026-11-05' };
   await page.goto('/?q=' + encodeURIComponent(JSON.stringify(round)));
   const date = page.getByRole('region', { name: 'کاوش تاریخ سفر', exact: true });
@@ -155,8 +170,8 @@ for (const width of [1366, 390]) {
    await page.screenshot({ path: resolve(evidence, 'date-controls-320.png') });
   }
   expect(errors).toEqual([]);
-  writeFileSync(resolve(evidence, `date-controls-${width}.json`), JSON.stringify({ browser: browser.version(), width, appearance: width === 1366 ? 'dark' : 'light', geometry, outbound, returning, switchDidNotEditURL: true, switchSearchPosts: 0,
+  writeFileSync(resolve(evidence, `date-controls-${width}.json`), JSON.stringify({ browser: browser.version(), session: reviewer.session, width, appearance: width === 1366 ? 'dark' : 'light', geometry, outbound, returning, switchDidNotEditURL: true, switchSearchPosts: 0,
    calendarCancelPreservedReturn: '2026-11-05', appliedReturn: '2026-11-06', laterDepartureClearsReturn: true, calendarBefore, calendarAfter, calendarTip, targets, pageErrors: errors,
-   cleanup: 'Fresh empty-cookie context, no resets/deletions; Playwright closes its context and isolated evidence uses normal server expiry.' }, null, 2) + '\n');
+   cleanup: 'Shared owned fixture resets only this newly created namespace using its in-memory cookie jar, then closes the context.' }, null, 2) + '\n');
  });
 }

@@ -54,7 +54,7 @@ async function observe(page:Page,unsupported:boolean){
 for(const sample of [{mode:'flight',unsupported:false},{mode:'train',unsupported:false},{mode:'bus',unsupported:false},{mode:'train',unsupported:true}] as const){
  test(`@vehicle-foreground ${sample.mode} stays above routes ${sample.unsupported?'without bloom':'with the runtime bloom policy'}`,async({page,context,browser})=>{
   const errors:string[]=[];page.on('pageerror',error=>errors.push(error.message));await observe(page,sample.unsupported);
-  expect(await context.cookies()).toEqual([]);expect((await context.request.post('/api/v1/demo/session',{data:{seed:6161,scenario:'normal',anchorInstant:'2026-10-29T06:00:00Z'}})).status()).toBe(201);
+  expect((await context.cookies()).length).toBe(0);expect((await context.request.post('/api/v1/demo/session',{data:{seed:6161,scenario:'normal',anchorInstant:'2026-10-29T06:00:00Z'}})).status()).toBe(201);
   const query={mode:sample.mode,scope:'domestic',tripType:'round-trip',originCityId:'tehran',destinationCityId:'mashhad',departureDate:'2026-11-02',returnDate:'2026-11-06',party:{adults:1,children:0,infants:0},classCode:sample.mode==='flight'?'economy':sample.mode==='train'?'seat':'standard',filters:{},sort:'cheapest'};
   await page.setViewportSize({width:1366,height:768});await page.goto('/?q='+encodeURIComponent(JSON.stringify(query)));
   // Observe the real gate's decision; never override performance or force qualification.

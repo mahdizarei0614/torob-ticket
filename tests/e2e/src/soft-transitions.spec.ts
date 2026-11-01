@@ -1,7 +1,7 @@
 import { test, expect, type Page } from '@playwright/test';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import type { TransportSearchQuery } from '@torob-ticket/contracts';
+import { CatalogSnapshotSchema, SearchRecoverySchema, type TransportSearchQuery } from '@torob-ticket/contracts';
 
 const out = resolve(process.env.SOFT_TRANSITIONS_EVIDENCE_DIR ?? 'docs/evidence/adjustments/soft-transitions/native');
 const query: TransportSearchQuery = { mode: 'flight', scope: 'domestic', tripType: 'one-way', originCityId: 'tehran', destinationCityId: 'mashhad', departureDate: '2026-10-29', party: { adults: 1, children: 0, infants: 0 }, classCode: 'economy', filters: {}, sort: 'cheapest' };
@@ -63,7 +63,7 @@ test('@soft-motion aligned class segments and calendar below a shorter wheel fit
     const classes = Array.from(document.querySelectorAll('[role="radiogroup"]')).find(node => node.textContent?.includes('کلاس سفر'))!;
     const wheel = document.querySelector('[role="listbox"][aria-label="روزهای نزدیک"]')!;
     const calendar = document.querySelector('[aria-label="تقویم جلالی و انتخاب تاریخ"]')!;
-    return { origin: box(city.parentElement!), destination: box(destination.parentElement!), classes: box(classes.querySelector('input[type="radio"]')!.closest('label')!.parentElement!), wheel: box(wheel), calendar: box(calendar), chart: box(document.querySelector('[aria-label="انتخاب روز از نمودار"]')!) };
+    return { origin: box(city.parentElement!), destination: box(destination.parentElement!), classes: box(classes.querySelector('[data-segment-track]')!), wheel: box(wheel), calendar: box(calendar), chart: box(document.querySelector('[aria-label="انتخاب روز از نمودار"]')!) };
   });
   expect(Math.abs(geometry.origin.y - geometry.destination.y)).toBeLessThan(2); expect(Math.abs(geometry.origin.y - geometry.classes.y)).toBeLessThan(2);
   expect(geometry.wheel.height).toBe(132); expect(Math.abs(geometry.calendar.width - geometry.wheel.width)).toBeLessThan(2);
@@ -84,14 +84,50 @@ test('@soft-motion skeleton, selected heading and list replacement retain safe f
   await expect(results(page)).toHaveAttribute('data-status', 'complete', { timeout: 20000 });
   const map = page.getByRole('complementary', { name: 'نقشه سفر', exact: true }); await expect(map).toHaveAttribute('data-map-itinerary', /.+/);
   const current = await map.getAttribute('data-map-itinerary');
-  const response = await page.request.get('/api/v1/searches/' + await results(page).getAttribute('data-search-id'));
-  const snapshot = (await response.json()).snapshot;
-  const target = snapshot.groups.find((group: { itinerary: { itineraryId: string } }) => group.itinerary.itineraryId !== current);
-  const ticket = results(page).locator('article[data-group-id="' + target.groupId + '"]').first();
-  const headingBefore = await map.locator('[data-map-heading]').innerText();
-  await ticket.getByRole('button', { name: 'انتخاب پیشنهاد', exact: true }).press('Enter'); await expect(map).toHaveAttribute('data-map-itinerary', target.itinerary.itineraryId);
-  await expect(map.locator('[data-map-heading-key]:not([aria-hidden])')).toHaveAttribute('data-map-heading-key', target.itinerary.itineraryId + ':outbound');
-  await expect.poll(async () => map.locator('[data-map-heading]').innerText()).not.toBe(headingBefore);
+  const searchId = await results(page).getAttribute('data-search-id');
+  const response = await page.request.get('/api/v1/searches/' + searchId);
+  expect(response.status()).toBe(200);
+  const recovery = SearchRecoverySchema.parse(await response.json());
+  const catalogResponse = await page.request.get('/api/v1/catalog');
+  expect(catalogResponse.status()).toBe(200);
+  const catalog = CatalogSnapshotSchema.parse(await catalogResponse.json());
+  const target = recovery.snapshot.groups.find(group => group.itinerary.itineraryId !== current);
+  expect(target).toBeDefined();
+  const chosen = target!;
+  const quote = chosen.eligibleQuotes.find(item => item.quoteId === chosen.representativeQuoteId)!;
+  expect(quote).toBeDefined();
+  const ticket = results(page).getByRole('article').locator(
+    `xpath=self::article[@data-group-id="${chosen.groupId}" and @data-quote-id="${quote.quoteId}"]`,
+  );
+  const active = map.locator('[data-map-heading-key]:not([aria-hidden="true"])');
+  await expect(active).toHaveCount(1);
+  const headingBefore = await active.innerText();
+  const keyBefore = await active.getAttribute('data-map-heading-key');
+  const select = ticket.getByRole('button', { name: 'انتخاب پیشنهاد', exact: true });
+  await select.focus(); await select.press('Enter');
+  await expect(ticket).toHaveAttribute('data-selected', 'true');
+  await expect(ticket).toHaveAttribute('data-amount-rial', String(quote.total.amountRial));
+  await expect(map).toHaveAttribute('data-map-itinerary', chosen.itinerary.itineraryId);
+  await expect(map).toHaveAttribute('data-map-direction', 'outbound');
+  await expect(active).toHaveCount(1);
+  await expect(active).not.toHaveAttribute('data-map-heading-key', keyBefore!);
+  await expect(active).toHaveAttribute('data-map-heading-key', new RegExp(chosen.itinerary.itineraryId));
+
+  const leg = chosen.itinerary.outbound;
+  const placeIds = [leg.segments[0]!.originPlaceId, ...leg.stops.map(stop => stop.placeId), leg.segments.at(-1)!.destinationPlaceId]
+    .filter((id, index, values) => index === 0 || id !== values[index - 1]);
+  const places = placeIds.map(id => catalog.places.find(place => place.id === id)!);
+  expect(places.every(Boolean)).toBe(true);
+  const labels = places.map(place => catalog.cities.find(city => city.id === place.cityId)?.name ?? place.name);
+  await expect.poll(() => active.locator('[data-map-city-label]').allTextContents()).toEqual(labels);
+  const codes = places.map(place => place.kind === 'airport' && place.code ? `(${place.code})` : '');
+  await expect.poll(() => active.locator('[data-map-city-code]').allTextContents()).toEqual(codes);
+  expect(await active.locator('[data-map-city-code]').evaluateAll(nodes => nodes.every(node => node.getAttribute('dir') === 'ltr'))).toBe(true);
+  const departure = new Intl.DateTimeFormat('fa-IR', { timeStyle: 'short', timeZone: leg.segments[0]!.departureTimeZone })
+    .format(new Date(leg.segments[0]!.departureAt));
+  await expect(active.locator('p')).toContainText(departure);
+  await expect.poll(() => active.innerText()).not.toBe(headingBefore);
+  await expect.poll(() => active.evaluate(node => Number(getComputedStyle(node).opacity))).toBeGreaterThan(.98);
   const detail = ticket.getByRole('button', { name: 'جزئیات سفر', exact: true }); await detail.click(); await expect(detail).toHaveAttribute('aria-expanded', 'true');
   await page.getByRole('button', { name: 'تقویم جلالی و انتخاب تاریخ', exact: true }).click(); await page.getByRole('button', { name: 'انصراف', exact: true }).click(); await expect(detail).toHaveAttribute('aria-expanded', 'true');
   await detail.click(); const exiting = ticket.locator('[data-result-presence="exiting"]'); await expect(exiting.first()).toHaveAttribute('inert'); await expect(exiting).toHaveCount(0);

@@ -8,14 +8,19 @@ export function useDatePrices(request: DatePriceQuery | undefined, session: Sess
   const cache = useQueryClient(); const [revision, setRevision] = useState(0);
   const [state, setState] = useState<DateJobState & { key?: string }>({ waiting: false });
   const key = request ? datePriceIdentityForSession(request, session) : undefined;
-  const latest = useRef(request); latest.current = request;
+  const latest = useRef({ request, session }); latest.current = { request, session };
   const retried = useRef(false);
   useEffect(() => {
-    if (!key || !enabled || !latest.current) return;
+    if (!key || !enabled || !latest.current.request) return;
     let release: (() => void) | undefined; let alive = true;
-    const timer = setTimeout(() => { release = datePriceJobs(client).acquire(latest.current!, session, next => { if (!alive) return; if (next.snapshot) cache.setQueryData<DatePriceSnapshot>(['date-prices', key], next.snapshot); setState({ ...next, key }); }, retried.current); retried.current = false; }, 120);
+    const timer = setTimeout(() => {
+      const current = latest.current;
+      if (!current.request || datePriceIdentityForSession(current.request, current.session) !== key) return;
+      release = datePriceJobs(client).acquire(current.request, current.session, next => { if (!alive) return; if (next.snapshot) cache.setQueryData<DatePriceSnapshot>(['date-prices', key], next.snapshot); setState({ ...next, key }); }, retried.current);
+      retried.current = false;
+    }, 120);
     return () => { alive = false; clearTimeout(timer); release?.(); };
-  }, [key, enabled, revision, session, client, cache]);
+  }, [key, enabled, revision, client, cache]);
   // A matching session/query owns estimates until its identity changes; elapsed time alone does not retire them.
   const current = enabled && state.key === key ? state : { waiting: !!request && enabled };
   const retryable = !!current.error && (!(current.error instanceof ClientError) || current.error.kind === 'network' || current.error.api?.retryable) || !!current.snapshot?.cells.some(cell => cell.status === 'unavailable' && cell.retryable);

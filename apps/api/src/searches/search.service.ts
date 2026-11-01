@@ -1,3 +1,4 @@
+import { Logger } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
 import { SearchRequestSchema, SearchSnapshotSchema, NormalizedOfferSchema, type SearchRequest, type SearchSnapshot, type SearchStatus, type ProviderStatus, type QuoteSnapshot } from '@torob-ticket/contracts';
 import { SearchRepository, RepositoryError, type ProjectionInput } from '@torob-ticket/data-access';
@@ -11,6 +12,7 @@ import { scheduleProviders } from './provider-scheduler';
 
 interface ActiveRun { controller: AbortController; done: Promise<void> }
 export class SearchService {
+  private readonly logger = new Logger(SearchService.name);
   private readonly active = new Map<string, ActiveRun>();
   private readonly pendingInterruptions = new Map<string, SessionContext>();
   private readonly unregisterRecovery: () => void;
@@ -56,7 +58,11 @@ export class SearchService {
       const statuses: ProviderStatus[] = expected.map(providerId => ({ providerId, status: 'pending', offerCount: 0 }));
       await this.repository.project(session.scope, id, now, state => this.project(session, context, { ...state, previous: { ...state.previous, providerStatuses: statuses } }));
       timer = setTimeout(() => controller.abort('deadline'), Math.max(0, deadline.getTime() - this.sessions.realClock.now().getTime()));
-      void this.execute(session, id, context, adapters as ProviderAdapter[]).catch(async () => {
+      void this.execute(session, id, context, adapters as ProviderAdapter[]).catch(async error => {
+        // Report only trusted technical codes, never provider payloads or credentials.
+        const candidate = error && typeof error === 'object' ? Reflect.get(error, 'code') : undefined;
+        const code = error instanceof RepositoryError ? error.code : typeof candidate === 'string' && /^P[0-9]{4}$/.test(candidate) ? candidate : 'UNCLASSIFIED';
+        this.logger.error({ event: 'search-persistence-failed', code });
         // A failed persistence path is never represented as successful completion.
         controller.abort('storage');
         await this.interruptAfterFailure(session, id);

@@ -8,6 +8,13 @@ import { MapHeading } from './trip-map';
 import { routeHeading } from './route-heading';
 import type { TripMapController } from './use-trip-map';
 afterEach(() => vi.unstubAllGlobals());
+function expectVectorArrow(arrow: Element, bidirectional: boolean) {
+ expect(arrow.tagName.toLowerCase()).toBe('svg');
+ expect(arrow).toHaveAttribute('data-map-heading-arrow', bidirectional ? 'round-trip' : 'one-way');
+ expect(arrow).toHaveAttribute('viewBox', '0 0 24 24');
+ expect(arrow.querySelector('path')).toHaveAttribute('d', bidirectional ? 'M20 7H4m5-4L4 7l5 4M4 17h16m-5-4 5 4-5 4' : 'M20 12H4m6-6-6 6 6 6');
+ expect(arrow.textContent).toBe('');
+}
 
 const routeCatalog: CatalogSnapshot = { ...catalog, places: [
  { id: 'IKA', cityId: 'a', name: 'فرودگاه آغاز', kind: 'airport', code: 'IKA', point: { latitude: 35, longitude: 51 }, timeZone: 'Asia/Tehran' },
@@ -35,14 +42,14 @@ it('animates only the stable arrow under StrictMode through repeated draft toggl
  const heading = screen.getByRole('heading'), frame = heading.closest<HTMLElement>('[data-map-heading-key]')!;
  const labels = Array.from(heading.querySelectorAll('[data-map-city-label]'));
  const textNodes = labels.map(label => label.firstChild), codes = Array.from(heading.querySelectorAll('bdi'));
- const arrow = heading.querySelector<HTMLElement>('[data-map-heading-arrow]')!;
+ const arrow = heading.querySelector<SVGSVGElement>('[data-map-heading-arrow]')!;
  await waitFor(() => expect(frame.style.opacity).toBe('1'));
  for (const tripType of ['round-trip', 'one-way', 'round-trip'] as const) {
   view.rerender(<StrictMode><MapHeading map={{ ...map, presentationView: { ...map.presentationView, query: { ...query, tripType } } }} catalog={routeCatalog}/></StrictMode>);
   expect(screen.getByRole('heading')).toBe(heading); expect(frame.style.opacity).toBe('1');
   expect(Array.from(heading.querySelectorAll('[data-map-city-label]'))).toEqual(labels);
   expect(labels.map(label => label.firstChild)).toEqual(textNodes); expect(Array.from(heading.querySelectorAll('bdi'))).toEqual(codes);
-  expect(heading.querySelector('[data-map-heading-arrow]')).toBe(arrow); expect(arrow.textContent).toBe(tripType === 'round-trip' ? '↔' : '←');
+  expect(heading.querySelector('[data-map-heading-arrow]')).toBe(arrow); expectVectorArrow(arrow, tripType === 'round-trip');
   await waitFor(() => { const opacity = Number(arrow.style.opacity); expect(opacity).toBeGreaterThan(0); expect(opacity).toBeLessThan(1); }, { interval: 10 });
   await waitFor(() => expect(arrow.style.opacity).toBe('1'));
  }
@@ -88,10 +95,10 @@ it('settles arrow changes immediately under reduced motion without retiring the 
  vi.stubGlobal('matchMedia', () => ({ matches: true, addEventListener: vi.fn(), removeEventListener: vi.fn() }));
  const map = { presentationView: { direction: 'outbound', query } } as unknown as TripMapController;
  const view = render(<MapHeading map={map} catalog={routeCatalog}/>);
- const heading = screen.getByRole('heading'), arrow = heading.querySelector<HTMLElement>('[data-map-heading-arrow]')!;
+ const heading = screen.getByRole('heading'), arrow = heading.querySelector<SVGSVGElement>('[data-map-heading-arrow]')!;
  view.rerender(<MapHeading map={{ ...map, presentationView: { ...map.presentationView, query: { ...query, tripType: 'round-trip' } } }} catalog={routeCatalog}/>);
  expect(screen.getByRole('heading')).toBe(heading); expect(arrow).toHaveAttribute('data-arrow-motion', 'static');
- expect(arrow.textContent).toBe('↔'); expect(arrow.style.opacity).not.toBe('0');
+ expectVectorArrow(arrow, true); expect(arrow.style.opacity).not.toBe('0');
  await waitFor(() => expect(arrow.style.opacity).toBe('1'));
 });
 
@@ -142,7 +149,8 @@ it('shows a double arrow and adjacent bidi-safe airport codes, retaining asymmet
  expect(heading.codes).toBe('IKA → MHD → THR');
  render(<MapHeading map={{ presentationView: { itinerary, direction: 'outbound', query } } as unknown as TripMapController} catalog={withSecondAirport} covered/>);
  const title = screen.getByRole('heading');
- expect(title).toHaveTextContent('آغاز(IKA / THR)↔پایان(MHD)');
+ expect(title).toHaveTextContent('آغاز(IKA / THR)پایان(MHD)');
+ expectVectorArrow(title.querySelector('[data-map-heading-arrow]')!, true);
  expect(title.querySelectorAll('bdi[dir="ltr"]')).toHaveLength(2);
  expect(routeHeading({ direction: 'outbound', query: { ...query, tripType: 'round-trip' } }, withSecondAirport)).toMatchObject({ bidirectional: true, labels: ['آغاز', 'پایان'] });
  expect(routeHeading({ itinerary, direction: 'return', query }, withSecondAirport).bidirectional).toBe(false);

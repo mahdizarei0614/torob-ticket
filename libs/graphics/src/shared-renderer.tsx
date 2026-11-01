@@ -144,7 +144,7 @@ function Driver(props: RendererProps & { onVisibility: (ids: string[]) => void; 
       if (stickyLow) bloomBudget.fail('low-quality-tier');
       if (bloomBudget.snapshot().status === 'disabled') bloom.release();
       publishBloom();
-    });
+    }, undefined, () => reduced.matches);
     const updatePolicy = () => {
       const visibleViews = latest.current.views.filter(inViewport);
       const visible = visibleViews.length > 0;

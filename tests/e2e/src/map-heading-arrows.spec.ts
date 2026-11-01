@@ -48,7 +48,7 @@ async function toggle(page: Page, label: string, endpointsOnly = false) {
 test('@map-heading trip-type changes preserve city labels and animate only arrows before and after selecting a fare', async ({ page, context, browser }) => {
  test.setTimeout(60000);
  mkdirSync(evidence, { recursive: true });
- expect(await context.cookies()).toEqual([]);
+ expect((await context.cookies()).length).toBe(0);
  expect((await context.request.post('/api/v1/demo/session', { data: { seed: 4529, anchorInstant: '2026-10-29T06:00:00Z' } })).status()).toBe(201);
  await page.setViewportSize({ width: 1366, height: 768 });
  await page.emulateMedia({ reducedMotion: 'no-preference' });
@@ -56,6 +56,7 @@ test('@map-heading trip-type changes preserve city labels and animate only arrow
  page.on('pageerror', error => errors.push(error.message));
  await page.goto('/?q=' + encodeURIComponent(JSON.stringify(query)));
  await page.bringToFront();
+ await expect(page.locator('[data-date-price-status]')).toHaveAttribute('data-date-price-status','complete',{timeout:20_000});
  const heading = page.locator('[data-map-heading]');
  await expect(heading.locator('[data-map-city-label]')).toHaveCount(2);
  await expect(heading).toContainText('تهران');
@@ -77,9 +78,11 @@ test('@map-heading trip-type changes preserve city labels and animate only arrow
     expect(Math.max(...frames.map(frame => frame.labelTops[index]!)) - Math.min(...frames.map(frame => frame.labelTops[index]!))).toBeLessThan(1);
    }
    expect(frames.some(frame => frame.arrowOpacities.some(opacity => opacity > .01 && opacity < .99))).toBe(true);
-   await expect(heading).toContainText(target === 'یک‌طرفه' ? '←' : '↔');
+   await expect(heading.locator('svg[data-map-heading-arrow]')).toHaveAttribute('data-map-heading-arrow', target === 'یک‌طرفه' ? 'one-way' : 'round-trip');
   }
-  await page.getByRole('button', { name: 'جست‌وجوی سفر', exact: true }).click();
+  await expect(page.locator('[data-date-price-status]')).toHaveAttribute('data-date-price-status','complete',{timeout:20_000});
+  const started=page.waitForResponse(response=>response.url().endsWith('/api/v1/searches')&&response.request().method()==='POST');
+  await page.getByRole('button', { name: 'جست‌وجوی سفر', exact: true }).click();expect((await started).status()).toBe(201);
   const region = page.getByRole('region', { name: 'نتایج مقایسه سفر', exact: true });
   await expect(region).toHaveAttribute('data-status', 'complete', { timeout: 30000 });
   await expect(region.locator('article[data-selected="true"]')).toHaveCount(1);
@@ -95,14 +98,14 @@ test('@map-heading trip-type changes preserve city labels and animate only arrow
   // persist; the revoked service's stop labels and facts must clear truthfully.
   const afterSelection = await toggle(page, 'رفت‌وبرگشت', true); runs.push({ phase: `selected-${selectedLabelCount}-cities-to-draft`, target: 'رفت‌وبرگشت', frames: afterSelection });
   expect(afterSelection.every(frame => frame.sameLabels && frame.minimumLabelOpacity > .99 && frame.headings === 1)).toBe(true);
-  await expect(heading).toContainText('↔');
+  await expect(heading.locator('svg[data-map-heading-arrow]')).toHaveAttribute('data-map-heading-arrow', 'round-trip');
   // The new draft must not retain revoked selected-service facts merely to keep labels mounted.
   await expect(heading.locator('bdi:not([hidden])')).toHaveCount(0);
   expect(await heading.locator('bdi[hidden]').allTextContents()).toEqual(['', '']);
   await page.emulateMedia({ reducedMotion: 'reduce' });
   const reduced = await toggle(page, 'یک‌طرفه'); runs.push({ phase: 'reduced-motion', target: 'یک‌طرفه', frames: reduced });
   expect(reduced.every(frame => frame.sameLabels && frame.minimumLabelOpacity > .99 && frame.headings === 1)).toBe(true);
-  await expect(heading).toContainText('←');
+  await expect(heading.locator('svg[data-map-heading-arrow]')).toHaveAttribute('data-map-heading-arrow', 'one-way');
   expect(errors).toEqual([]);
   await page.screenshot({ path: resolve(evidence, 'arrows-only.png') });
  } finally {

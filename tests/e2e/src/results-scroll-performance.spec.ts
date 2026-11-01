@@ -10,7 +10,7 @@ for (const width of [1366, 390]) test(`@results-scroll ${width}px defers native 
  test.setTimeout(90000);
  mkdirSync(evidence, { recursive: true });
  // This test never adopts reviewer credentials or resets/deletes any session.
- expect(await context.cookies()).toEqual([]);
+ expect((await context.cookies()).length).toBe(0);
  const created = await context.request.post('/api/v1/demo/session', { data: { seed: 4529, anchorInstant: '2026-10-29T06:00:00Z' } });
  expect(created.status()).toBe(201);
  await page.setViewportSize({ width, height: width === 390 ? 844 : 768 });
@@ -82,7 +82,7 @@ for (const width of [1366, 390]) test(`@results-scroll ${width}px defers native 
 test('@results-scroll pointer-synchronized first middle last disclosure height and scroll stability', async ({ context, page, browser }) => {
  test.setTimeout(90000);
  mkdirSync(evidence, { recursive: true });
- expect(await context.cookies()).toEqual([]);
+ expect((await context.cookies()).length).toBe(0);
  const created = await context.request.post('/api/v1/demo/session', { data: { seed: 4529, anchorInstant: '2026-10-29T06:00:00Z' } });
  expect(created.status()).toBe(201);
  await page.setViewportSize({ width: 1366, height: 768 });

@@ -1,7 +1,7 @@
 export interface RenderPolicy { active: boolean; motion: boolean; reducedMotion: boolean }
 export interface FrameClock { request: (callback: FrameRequestCallback) => number; cancel: (id: number) => void; now: () => number }
 /** The only application RAF owner. Idle changes coalesce; no measurement-only frames. */
-export function createRenderScheduler(render: (time: number) => void, clock: FrameClock = { request: callback => requestAnimationFrame(callback), cancel: id => cancelAnimationFrame(id), now: () => performance.now() }) {
+export function createRenderScheduler(render: (time: number) => void, clock: FrameClock = { request: callback => requestAnimationFrame(callback), cancel: id => cancelAnimationFrame(id), now: () => performance.now() }, readReducedMotion?: () => boolean) {
   let policy: RenderPolicy = { active: true, motion: false, reducedMotion: false };
   let pending: number | undefined;
   let disposed = false;
@@ -9,6 +9,9 @@ export function createRenderScheduler(render: (time: number) => void, clock: Fra
   const cancel = () => { if (pending !== undefined) clock.cancel(pending); pending = undefined; };
   const draw = (time: number) => {
     pending = undefined;
+    // Native media-change delivery may lag or be missed. An already scheduled
+    // frame must honor the live preference before it decides whether to repeat.
+    if (readReducedMotion) policy = { ...policy, reducedMotion: readReducedMotion() };
     if (disposed || !policy.active) return;
     drawing = true;
     try { render(time); } finally { drawing = false; }

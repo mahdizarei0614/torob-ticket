@@ -19,7 +19,7 @@ test.beforeEach(async ({ page }) => {
     }) as Document['startViewTransition'];
   });
 });
-async function settle(page: Page) { await page.evaluate(async () => { await Promise.all((window as unknown as { routeTransitions?: Promise<void>[] }).routeTransitions ?? []); await Promise.all(document.getAnimations().map(animation => animation.finished.catch(() => undefined))); await new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))); }); }
+async function settle(page: Page) { await page.evaluate(async () => { await Promise.all((window as unknown as { routeTransitions?: Promise<void>[] }).routeTransitions ?? []); await Promise.all(document.getAnimations().filter(item=>item.playState==='running'&&item.effect?.getTiming().iterations!==Infinity).map(animation => animation.finished.catch(() => undefined))); await new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))); }); }
 // Observe real draw output before Chrome discards the default framebuffer. Never alter context attributes or GPU calls.
 async function gpuObserver(page: Page) {
   await page.addInitScript(() => {
@@ -192,13 +192,17 @@ test('@route-scene unavailable WebGL retains native timeline and location action
 });
 
 test('@route-scene custom projection keeps real geography visible through empty fits and stable previews', async ({ page }) => {
+  const installed: string[] = [];
   // Supply the public prop at the existing lab caller; production lab/default behavior is unchanged.
-  await page.route('**/libs/graphics/src/route-lab.tsx', async route => {
+  await page.route(url => url.pathname.endsWith('/libs/graphics/src/route-lab.tsx'), async route => {
     const response = await route.fetch(); const source = await response.text(); const anchor = 'fitKey: String(fit),';
+    expect(response.status()).toBe(200);
     if (!source.includes(anchor)) throw new Error('Public RouteScene lab prop insertion point changed');
     await route.fulfill({ response, body: source.replace(anchor, 'projection: { centralLongitude: 54 }, fitKey: String(fit),') });
+    installed.push(route.request().url());
   });
   await gpuObserver(page); await ready(page); await settle(page);
+  await expect.poll(() => installed.length).toBeGreaterThan(0);
   const initial = await camera(page); expect(initial.x).toBe(0);
   const gpu = () => page.evaluate(() => (window as unknown as { routeGPU: { maxColoredPixels: number; hashes: number[] } }).routeGPU);
   expect((await gpu()).maxColoredPixels).toBeGreaterThan(400);
@@ -214,6 +218,6 @@ test('@route-scene custom projection keeps real geography visible through empty 
   await page.getByRole('button', { name: 'نمای کامل جغرافیا', exact: true }).click(); await settle(page);
   const world = await camera(page); expect(world.x).toBe(0); expect(world.width).toBe(360);
   const final = await report(page); expect(final.programs.every(program => program.linked && program.vertexCompiled && program.fragmentCompiled)).toBe(true);
-  await save('projection-browser', { projection: { centralLongitude: 54 }, initial, fitted, world, gpu: await gpu(), final });
+  await save('projection-browser', { installed, projection: { centralLongitude: 54 }, initial, fitted, world, gpu: await gpu(), final });
   if (process.env.GRAPHICS_EVIDENCE_DIR) await page.screenshot({ path: `${process.env.GRAPHICS_EVIDENCE_DIR}/projection-context54.png` });
 });

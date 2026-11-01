@@ -130,16 +130,20 @@ export class DatePriceRepository {
   }
   /** Composes after the authoritative SearchRun restart/storage interruption. */
   async reconcileInterrupted() {
-    const rows = await this.db.datePriceRun.findMany();
+    const rows = await this.db.datePriceRun.findMany({
+      where: { AND: [
+        { payload: { path: ['kind'], equals: 'date-price-evidence' } },
+        { payload: { path: ['snapshot', 'status'], equals: 'checking' } },
+      ] },
+      select: { sessionId: true, id: true },
+    });
     for (const row of rows) {
-      const payload = row.payload as unknown as DatePricePayload;
-      if (payload.kind !== 'date-price-evidence' || payload.snapshot.status !== 'checking') continue;
       try { await scopedTransaction(this.db, { sessionId: row.sessionId }, async tx => {
         const current = await tx.datePriceRun.findUnique({ where: { sessionId_id: { sessionId: row.sessionId, id: row.id } } });
         const parent = await tx.searchRun.findUnique({ where: { sessionId_id: { sessionId: row.sessionId, id: row.id } } });
         if (current && parent && parent.status !== 'collecting') {
           const latest = current.payload as unknown as DatePricePayload;
-          if (latest.snapshot.status === 'checking') await this.interrupt(tx, { sessionId: row.sessionId }, row.id, latest, parent.updatedAt);
+          if (latest.kind === 'date-price-evidence' && latest.snapshot.status === 'checking') await this.interrupt(tx, { sessionId: row.sessionId }, row.id, latest, parent.updatedAt);
         }
       }); } catch (error) { if (!(error instanceof RepositoryError) || error.code !== 'SESSION_EXPIRED') throw error; }
     }

@@ -14,6 +14,20 @@ describe('graphics quality budget', () => {
 });
 
 describe('on-demand graphics scheduling', () => {
+  it('stops repeating when live reduced motion changes without a delivered media event', () => {
+    let sequence = 0, draws = 0, reduced = false;
+    const pending = new Map<number, FrameRequestCallback>();
+    const scheduler = createRenderScheduler(() => { draws++; scheduler.invalidateScene(); }, { request: callback => { pending.set(++sequence, callback); return sequence; }, cancel: id => { pending.delete(id); }, now: () => 50 }, () => reduced);
+    const tick = () => { const callbacks = [...pending.values()]; pending.clear(); callbacks.forEach(callback => callback(50)); };
+    scheduler.setPolicy({ active: true, motion: true, reducedMotion: false });
+    tick(); expect(draws).toBe(1); expect(pending.size).toBe(1);
+    // The native query changes, but its change callback never calls setPolicy.
+    reduced = true; tick(); expect(draws).toBe(2); expect(pending.size).toBe(0);
+    tick(); expect(draws).toBe(2);
+    scheduler.invalidate(); tick(); expect(draws).toBe(3); expect(pending.size).toBe(0);
+    reduced = false; scheduler.invalidate(); tick(); expect(draws).toBe(4); expect(pending.size).toBe(1);
+    scheduler.dispose(); expect(pending.size).toBe(0);
+  });
   it('coalesces changes, stops hidden motion, redraws on resume, and cancels disposal', () => {
     let sequence = 0;
     const pending = new Map<number, FrameRequestCallback>();

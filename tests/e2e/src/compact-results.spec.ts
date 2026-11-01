@@ -1,7 +1,8 @@
 import { test, expect, type Page } from '@playwright/test';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import type { SearchRecovery, TransportSearchQuery } from '@torob-ticket/contracts';
+import { RecheckResultSchema, ReferralReceiptSchema, SearchRecoverySchema, type SearchRecovery, type TransportSearchQuery } from '@torob-ticket/contracts';
+import { exactReceipt, expectPlaceholder } from './acceptance/journey-helpers';
 
 const evidence = resolve(process.env.COMPACT_RESULTS_EVIDENCE_DIR ?? 'docs/evidence/adjustments/compact-results/native');
 const query: TransportSearchQuery = { mode: 'flight', scope: 'domestic', tripType: 'one-way', originCityId: 'tehran', destinationCityId: 'mashhad', departureDate: '2026-10-25', party: { adults: 1, children: 0, infants: 0 }, classCode: 'economy', filters: {}, sort: 'cheapest' };
@@ -115,17 +116,32 @@ for (const mode of ['train', 'bus'] as const) test(`@compact-results ${mode} def
   save(mode, { automatic, widths });
 });
 
-test('@compact-results explicit provider handoff returns to the exact automatic quote without another write', async ({ page }) => {
+test('@compact-results confirmed new-tab provider handoff preserves the exact automatic quote and original comparison', async ({ page, context }) => {
+  await context.route(/^https:\/\/zarei\.xyz(?:\/|$)/, route => route.fulfill({ contentType: 'text/html', body: '<!doctype html><title>Approved placeholder intercepted</title>' }));
   const recovery = await open(page); const automatic = await verifyDefault(page, recovery);
-  const confirm = page.waitForResponse(r => r.url().endsWith('/api/v1/referrals/confirm') && r.request().method() === 'POST');
-  await action(page).click(); const response = await confirm; expect(response.status()).toBe(201);
-  const receipt = await response.json();
-  await expect(page.getByText('ارجاع به فروشنده ثبت شد', { exact: true })).toBeVisible();
+  const originalURL = page.url(), originalHistory = await page.evaluate(() => history.length);
+  const originalCamera = await page.locator('[data-camera-intent]').getAttribute('data-camera-intent');
+  const quote = recovery.snapshot.groups.flatMap(group => group.eligibleQuotes).find(quote => quote.quoteId === automatic.quoteId)!;
   const posts: string[] = []; page.on('request', r => { if (r.method() === 'POST') posts.push(new URL(r.url()).pathname); });
-  await page.getByRole('button', { name: 'بازگشت به مقایسه سفر', exact: true }).click();
+  const prepare = page.waitForResponse(r => r.url().endsWith('/api/v1/referrals/prepare') && r.request().method() === 'POST');
+  const confirm = page.waitForResponse(r => r.url().endsWith('/api/v1/referrals/confirm') && r.request().method() === 'POST');
+  const popup = await expectPlaceholder(page, () => action(page).click());
+  const checked = await prepare; expect(checked.status()).toBe(201); const recheck = RecheckResultSchema.parse(await checked.json());
+  expect(recheck.status).toBe('ready'); if (recheck.status !== 'ready') throw new Error('Expected an exact ready referral intent');
+  const response = await confirm; expect(response.status()).toBe(201); const receipt = ReferralReceiptSchema.parse(await response.json());
+  exactReceipt(receipt, recheck.intent); expect(receipt.selection).toMatchObject({ quoteId: quote.quoteId, quoteVersion: quote.version + 1 });
+  expect(receipt.payload.quote.version).toBe(recheck.intent.selection.quoteVersion); expect(response.request().postDataJSON().acceptedQuoteVersion).toBe(recheck.intent.selection.quoteVersion);
+  expect(receipt.payload.kind).toBe('transport'); if (receipt.payload.kind !== 'transport') throw new Error('Expected a transport receipt');
+  expect(receipt.payload.quote.total.amountRial).toBe(automatic.amountRial); expect(receipt.payload.quote.party).toEqual(recovery.snapshot.query.party); expect(receipt.payload.quote.conditions.outbound.classCode).toBe(recovery.snapshot.query.classCode);
+  expect(receipt.payload.itinerary).toEqual(recovery.snapshot.groups.find(group => group.groupId === automatic.groupId)!.itinerary);
+  const read = await page.request.get('/api/v1/referrals/' + receipt.referralId); expect(read.status()).toBe(200); expect(ReferralReceiptSchema.parse(await read.json())).toEqual(receipt);
+  await popup.close(); await page.bringToFront();
+  expect(page.url()).toBe(originalURL); expect(await page.evaluate(() => history.length)).toBe(originalHistory);
   await expect(results(page)).toHaveAttribute('data-search-id', recovery.snapshot.searchId);
   await expect(selected(page)).toHaveAttribute('data-quote-id', automatic.quoteId!);
-  expect(posts.filter(path => /searches|referrals/.test(path))).toEqual([]);
-  await expect(action(page)).not.toBeFocused();
-  save('explicit-handoff', { automatic, receipt, returnPosts: posts });
+  await expect(selected(page)).toHaveAttribute('data-quote-version', String(quote.version)); await expect(action(page)).toBeEnabled();
+  expect(await page.locator('[data-camera-intent]').getAttribute('data-camera-intent')).toBe(originalCamera);
+  const immutable = await page.request.get('/api/v1/searches/' + recovery.snapshot.searchId); expect(immutable.status()).toBe(200); expect(SearchRecoverySchema.parse(await immutable.json()).snapshot).toEqual(recovery.snapshot);
+  expect(posts).toEqual(['/api/v1/referrals/prepare', '/api/v1/referrals/confirm']);
+  save('explicit-handoff', { automatic, receipt, originalURL, originalHistory, originalComparisonPreserved: true, posts, boundary: 'Only the approved external navigation is intercepted; recheck, confirm and immutable receipt GET are actual local server operations.' });
 });

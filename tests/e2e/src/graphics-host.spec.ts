@@ -31,9 +31,9 @@ test('@graphics-host real shaders share resources, clip, and synchronously follo
   expect(initial.activeViews).toBe(2);
   expect(initial.pixels['outside']).toEqual([0, 0, 0, 0]);
   const palettes = [
-    { mode: 'flight', light: [244, 246, 248, 255], dark: [14, 27, 37, 255] },
-    { mode: 'train', light: [241, 247, 243, 255], dark: [13, 33, 26, 255] },
-    { mode: 'bus', light: [250, 243, 243, 255], dark: [36, 18, 22, 255] },
+    { mode: 'flight', light: [244, 246, 248, 255], dark: [3, 6, 12, 255] },
+    { mode: 'train', light: [241, 247, 243, 255], dark: [3, 8, 6, 255] },
+    { mode: 'bus', light: [250, 243, 243, 255], dark: [9, 5, 7, 255] },
   ];
   const snapshots: unknown[] = [];
   // Capture pixels inside the actual native transition callback, immediately after its DOM update.
@@ -74,7 +74,7 @@ test('@graphics-host real shaders share resources, clip, and synchronously follo
   expect(transitionPixels).toEqual(palettes.flatMap(palette => [palette.dark, palette.light]));
   expect(errors).toEqual([]);
   await evidence('gpu-palettes', { browser: browser.version(), viewport: page.viewportSize(), initial, snapshots, transitionPixels, errors });
-  await page.evaluate(async () => { await Promise.all(document.getAnimations().map(animation => animation.finished.catch(() => undefined))); scrollTo(0, 0); await new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))); });
+  await page.evaluate(async () => { await Promise.all(document.getAnimations().filter(item=>item.playState==='running'&&item.effect?.getTiming().iterations!==Infinity).map(animation => animation.finished.catch(() => undefined))); scrollTo(0, 0); await new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))); });
   if (process.env.GRAPHICS_EVIDENCE_DIR) await page.screenshot({ path: `${process.env.GRAPHICS_EVIDENCE_DIR}/two-views.png` });
 });
 
@@ -155,7 +155,7 @@ test('@graphics-host actual context loss and restoration retain selection and ca
   expect(restored.restored).toBe(1);
   expect(restored.selected).toBe(before.selected);
   expect(restored.cameraX).toBe(before.cameraX);
-  expect(restored.pixels[firstView]).toEqual([14, 27, 37, 255]);
+  expect(restored.pixels[firstView]).toEqual([3, 6, 12, 255]);
   expect(restored.programs.every(program => program.linked)).toBe(true);
   await page.locator('canvas').evaluate(canvas => { (window as unknown as { releasedCanvas: HTMLCanvasElement }).releasedCanvas = canvas as HTMLCanvasElement; });
   await page.getByRole('button', { name: 'آزادسازی گرافیک' }).click();
@@ -253,7 +253,7 @@ test('@graphics-host genuinely hidden Chrome tab pauses and resumes with latest 
     await expect.poll(() => page.evaluate(() => document.visibilityState)).toBe('visible');
     await expect.poll(async () => (await report(page)).frames).toBeGreaterThan(hidden.frames);
     const resumed = await report(page);
-    expect(resumed.pixels[firstView]).toEqual([14, 27, 37, 255]);
+    expect(resumed.pixels[firstView]).toEqual([3, 6, 12, 255]);
     await evidence('document-visibility', { method: 'Chrome CDP noDefaults=true; real foreground/background tabs', running, hidden, resumed });
   } finally {
     await browser?.close();
@@ -286,10 +286,12 @@ test('@graphics-host real high-density resize respects desktop and mobile budget
 
 interface SceneProbe { hits: number; hiddenCommits: number }
 async function installNestedSceneProbe(page: Page) {
+  const installed: string[] = [];
   // Replace only the laboratory scene response, keeping the actual shared host/GLSL/GPU.
   // The nested component intentionally knows nothing about GraphicsController.
-  await page.route('**/libs/graphics/src/lab-scene.tsx', async route => {
+  await page.route(url => url.pathname.endsWith('/libs/graphics/src/lab-scene.tsx'), async route => {
     const response = await route.fetch();
+    expect(response.status()).toBe(200);
     let source = await response.text();
     const signature = 'export function LabScene({ resources, cameraX, moving }) {';
     if (!source.includes(signature) || !source.includes('geometry: resources.geometry,')) throw new Error('Laboratory scene probe insertion points changed');
@@ -310,14 +312,24 @@ async function installNestedSceneProbe(page: Page) {
     `);
     source = source.replace('geometry: resources.geometry,', 'visible: probeVisible, onPointerDown: () => { window.graphicsSceneProbe.hits++; setProbeVisible(false); }, geometry: resources.geometry,');
     await route.fulfill({ response, body: source });
+    installed.push(route.request().url());
   });
+  return async () => {
+    await expect.poll(() => installed.length).toBeGreaterThan(0);
+    await expect.poll(() => page.evaluate(() => {
+      const probe = window as unknown as { graphicsSceneProbe?: SceneProbe; graphicsCapturedInvalidations?: unknown[] };
+      return Boolean(probe.graphicsSceneProbe) && (probe.graphicsCapturedInvalidations?.length ?? 0) >= 2;
+    })).toBe(true);
+    await evidence('probe-' + test.info().title.replace(/[^a-z0-9]+/gi, '-').slice(-90), { installed, mounted: true, proof: 'Real DEV module intercepted by pathname, including any HMR query. Both view invalidators mounted before unchanged GPU assertions.' });
+  };
 }
 async function settleFrames(page: Page) {
   await page.evaluate(async () => { await new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))); });
 }
 test('@graphics-host retained fallback permits real mesh pointer hits without invisible keyboard targets', async ({ page }) => {
-  await installNestedSceneProbe(page);
+  const probeReady = await installNestedSceneProbe(page);
   await ready(page);
+  await probeReady();
   await settleFrames(page);
   const before = await report(page);
   const view = page.locator('[data-graphics-view]').first();
@@ -345,8 +357,9 @@ test('@graphics-host retained fallback permits real mesh pointer hits without in
   await evidence('review-pointer', { before, after, fallbackFocused: focus });
 });
 test('@graphics-host arbitrary nested local state commits draw without external host events', async ({ page }) => {
-  await installNestedSceneProbe(page);
+  const probeReady = await installNestedSceneProbe(page);
   await ready(page);
+  await probeReady();
   await settleFrames(page);
   const before = await report(page);
   await page.evaluate(() => window.dispatchEvent(new Event('graphics-probe-local-state')));
@@ -360,8 +373,9 @@ test('@graphics-host arbitrary nested local state commits draw without external 
   await evidence('review-local-state', { before, after });
 });
 test('@graphics-host standard useThree invalidate paints imperative changes once', async ({ page }) => {
-  await installNestedSceneProbe(page);
+  const probeReady = await installNestedSceneProbe(page);
   await ready(page);
+  await probeReady();
   await settleFrames(page);
   const before = await report(page);
   await page.evaluate(() => window.dispatchEvent(new Event('graphics-probe-invalidate')));

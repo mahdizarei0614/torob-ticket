@@ -50,8 +50,9 @@ export function SearchComposer({ draft, catalog, session, edit, onSubmit, errors
   const [originText, setOriginText] = useState('');
   const [destinationText, setDestinationText] = useState('');
   const cityName = (id: string) => catalog.cities.find(c => c.id === id)?.name ?? '';
-  useEffect(() => { if (typingOrigin.current && !draft.originCityId) { typingOrigin.current = false; return; } setOriginText(cityName(draft.originCityId)); }, [draft.originCityId, catalog]);
-  useEffect(() => { if (typingDestination.current && !draft.destinationCityId) { typingDestination.current = false; return; } setDestinationText(cityName(draft.destinationCityId)); }, [draft.destinationCityId, catalog]);
+  const originLabel = cityName(draft.originCityId), destinationLabel = cityName(draft.destinationCityId);
+  useEffect(() => { if (typingOrigin.current && !draft.originCityId) { typingOrigin.current = false; return; } setOriginText(originLabel); }, [draft.originCityId, originLabel]);
+  useEffect(() => { if (typingDestination.current && !draft.destinationCityId) { typingDestination.current = false; return; } setDestinationText(destinationLabel); }, [draft.destinationCityId, destinationLabel]);
   const routes = catalog.supportedConnections.filter(c => c.mode === draft.mode && c.scope === draft.scope);
   const origins = new Set(routes.map(c => c.originCityId));
   const destinations = new Set(routes.filter(c => c.originCityId === draft.originCityId).map(c => c.destinationCityId));

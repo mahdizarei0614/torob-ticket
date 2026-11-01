@@ -7,7 +7,10 @@ const query = { mode: 'flight', scope: 'domestic', tripType: 'one-way', originCi
 interface Frame {
  time: number; width: number; slots: { id: string; present: string; opacity: number; width: number; retiredSafe: boolean }[];
  texts: { text: string; opacity: number; kind: string }[];
- panels: { present: string; opacity: number; inert: boolean }[];
+ panels: {
+  present: string; opacity: number; inert: boolean;
+  surfaceOpacity: number; surfacePhase: 'entering' | 'exiting' | 'present'; policy: string | null;
+}[];
 }
 type TraceWindow = Window & { filterMotionTrace: { done: boolean; frames: Frame[] } };
 function receipt(name: string, data: unknown) { mkdirSync(evidence, { recursive: true }); writeFileSync(resolve(evidence, name + '.json'), JSON.stringify(data, null, 2) + '\n'); }
@@ -26,7 +29,18 @@ async function arm(target: Locator, duration = 850) {
       retiredSafe: slot.dataset['segmentSlot'] !== 'outgoing' || (slot.inert && slot.getAttribute('aria-hidden') === 'true' && !slot.querySelector('input:not(:disabled)') && !slot.querySelector('[data-segment-option]')),
      })),
      texts: Array.from(document.querySelectorAll<HTMLElement>('[data-motion-text-visual]')).map(node => ({ text: node.textContent ?? '', opacity: Number(getComputedStyle(node).opacity), kind: node.dataset['motionTextVisual']! })),
-     panels: Array.from(document.querySelectorAll<HTMLElement>('[data-content-presence]')).filter(node => node.querySelector('form[aria-label="فیلتر پیشنهادهای سفر"]')).map(node => ({ present: node.dataset['contentPresence']!, opacity: Number(getComputedStyle(node).opacity), inert: node.inert })),
+     panels: Array.from(document.querySelectorAll<HTMLElement>('[data-content-presence]'))
+  .filter(node => node.querySelector('form[aria-label="فیلتر پیشنهادهای سفر"]'))
+  .map(node => {
+    const surface = node.closest<HTMLElement>('[data-result-filter-panel]');
+    if (!surface) throw new Error('A filter body must belong to its native portalled surface');
+    return {
+      present: node.dataset['contentPresence']!, opacity: Number(getComputedStyle(node).opacity), inert: node.inert,
+      surfaceOpacity: Number(getComputedStyle(surface).opacity),
+      surfacePhase: surface.hasAttribute('data-entering') ? 'entering' : surface.hasAttribute('data-exiting') ? 'exiting' : 'present',
+      policy: surface.getAttribute('data-motion'),
+    };
+  }),
     });
     if (performance.now() - start < duration) requestAnimationFrame(sample); else state.done = true;
    }; sample();
@@ -50,7 +64,7 @@ async function rowGeometry(page: Page) {
 
 for (const width of [1366, 390]) test(`@filter-motion ${width}px eases vehicle options with bounded exits, native authority and stable fields`, async ({ page, context, browser }) => {
  test.setTimeout(90000); mkdirSync(evidence, { recursive: true });
- expect(await context.cookies()).toEqual([]);
+ expect((await context.cookies()).length).toBe(0);
  expect((await context.request.post('/api/v1/demo/session', { data: { seed: 5800 + width, anchorInstant: '2026-10-29T06:00:00Z' } })).status()).toBe(201);
  await page.setViewportSize({ width, height: width < 600 ? 844 : 768 }); await page.emulateMedia({ reducedMotion: 'no-preference' });
  await page.addInitScript(() => localStorage.setItem('torobticket.appearance', 'dark'));
@@ -78,12 +92,13 @@ for (const width of [1366, 390]) test(`@filter-motion ${width}px eases vehicle o
    return { x: Math.abs(selected.x-line.x), width: Math.abs(selected.width-line.width) };
   }); expect(indicator.x).toBeLessThan(1); expect(indicator.width).toBeLessThan(1);
   // A stable segmented label accepts real rapid clicks without accumulating exits.
-  for (const label of ['اتوبوس', 'پرواز', 'قطار', 'اتوبوس']) await modes.getByText(label, { exact: true }).click({ force: true });
+  for (const label of ['اتوبوس', 'پرواز', 'قطار', 'اتوبوس']) await modes.getByText(label, { exact: true }).click();
   await expect(classes.getByRole('radio', { name: 'معمولی', exact: true })).toBeChecked();
   await expect(classes.locator('[data-segment-slot="outgoing"]')).toHaveCount(0);
   expect(await origin.evaluate((node, original) => node === original, originalInput)).toBe(true);
   await origin.fill('تهر'); await expect(origin).toHaveValue('تهر'); expect(await origin.evaluate((node, original) => node === original, originalInput)).toBe(true);
-  await page.keyboard.press('Escape');
+  await expect(origin).toBeFocused(); await origin.press('Escape');
+  await expect(origin).toHaveAttribute('aria-expanded', 'false'); await expect(origin).toHaveValue('تهر');
   // Reduced motion settles synchronously and does not replay when enabled again.
   await page.emulateMedia({ reducedMotion: 'reduce' }); await modes.getByText('پرواز', { exact: true }).click();
   await expect(classes.getByRole('radio', { name: 'اقتصادی', exact: true })).toBeChecked();
@@ -101,7 +116,7 @@ for (const width of [1366, 390]) test(`@filter-motion ${width}px eases vehicle o
 
 test('@filter-motion results text and filter overlay ease without per-card motion or stale actions', async ({ page, context, browser }) => {
  test.setTimeout(90000); mkdirSync(evidence, { recursive: true });
- expect(await context.cookies()).toEqual([]);
+ expect((await context.cookies()).length).toBe(0);
  expect((await context.request.post('/api/v1/demo/session', { data: { seed: 5800, anchorInstant: '2026-10-29T06:00:00Z' } })).status()).toBe(201);
  await page.setViewportSize({ width: 1366, height: 768 }); await page.emulateMedia({ reducedMotion: 'no-preference' });
  const errors: string[] = [], posts: string[] = []; page.on('pageerror', error => errors.push(error.message));
@@ -117,16 +132,22 @@ test('@filter-motion results text and filter overlay ease without per-card motio
  const filter = region.getByRole('button', { name: 'فیلتر نتایج', exact: true }); await arm(filter); await filter.click();
  const form = page.getByRole('form', { name: 'فیلتر پیشنهادهای سفر', exact: true }); await expect(form).toBeVisible();
  const openFrames = await finish(page); receipt('filter-panel', { browser: browser.version(), openFrames });
- expect(openFrames.filter(frame => frame.panels.some(panel => panel.present === 'present' && panel.opacity > .01 && panel.opacity < .99)).length).toBeGreaterThan(2);
+ expect(openFrames.filter(frame => frame.panels.some(panel =>
+  panel.present === 'present' && !panel.inert && panel.policy === 'finite' &&
+  panel.surfacePhase === 'entering' && panel.surfaceOpacity > .01 && panel.surfaceOpacity < .99,
+)).length).toBeGreaterThan(2);
  const budget = form.getByRole('spinbutton', { name: 'سقف مبلغ کل (تومان)', exact: true }), original = await budget.elementHandle();
  await budget.fill('3000000'); expect(await budget.evaluate((node, old) => node === old, original)).toBe(true);
  const oldForm = await form.elementHandle(), oldClear = await form.getByRole('button', { name: 'پاک کردن فیلترها', exact: true }).elementHandle();
+ const retiredReferences: { step: string; connected: boolean }[] = [];
  const cancel = form.getByRole('button', { name: 'انصراف از فیلتر', exact: true }); await arm(cancel); await cancel.click();
  // Programmatic events must be rejected even while an old form is visually retained.
+ retiredReferences.push({ step: 'before-retired-submit', connected: await oldForm!.evaluate(node => node.isConnected) });
  await oldForm!.evaluate(node => node.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })));
  await oldClear!.evaluate(node => (node as HTMLButtonElement).click());
- await filter.click({ force: true }); const fresh = page.getByRole('form', { name: 'فیلتر پیشنهادهای سفر', exact: true });
+ await expect(filter).toBeFocused(); await filter.press('Space'); const fresh = page.getByRole('form', { name: 'فیلتر پیشنهادهای سفر', exact: true });
  await expect(fresh.getByRole('spinbutton', { name: 'سقف مبلغ کل (تومان)', exact: true })).toHaveValue('');
+ retiredReferences.push({ step: 'after-native-reopen', connected: await oldForm!.evaluate(node => node.isConnected) });
  await oldForm!.evaluate(node => { node.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true })); node.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })); });
  await expect(fresh).toBeVisible(); await expect(filter).toHaveAttribute('aria-expanded', 'true');
  const closeFrames = await finish(page); receipt('filter-panel', { browser: browser.version(), openFrames, closeFrames });
@@ -138,6 +159,6 @@ test('@filter-motion results text and filter overlay ease without per-card motio
  const animatedWords = providerFrames.filter(frame => frame.texts.some(text => /فروشنده/.test(text.text) && text.opacity > .01 && text.opacity < .99)).length;
  expect(animatedWords).toBeGreaterThan(0);
  await page.screenshot({ path: resolve(evidence, 'results.png') });
- receipt('results-text', { browser: browser.version(), providerFrames, animatedWords, cards: 48, perCardMotionText: 0, inputNodeRetained: true, rejectedOldActions: true, posts, errors,
+ receipt('results-text', { browser: browser.version(), providerFrames, animatedWords, cards: 48, perCardMotionText: 0, inputNodeRetained: true, rejectedOldActions: true, retiredReferences, proofLimit: 'Events on detached nodes prove inert retired DOM; direct retained-callback fencing has component coverage.', posts, errors,
   cleanup: 'Fresh empty-cookie context only. No server reset/deletion; normal expiry after context closes.' });
 });

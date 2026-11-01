@@ -24,10 +24,13 @@ export function calendarWindow(date: string): string[] {
   return Array.from({ length: end.day }, (_, i) => toCalendar(start.add({ days: i }), new GregorianCalendar()).toString());
 }
 /** Public revision evidence only: hidden override values stay on the server. */
-export function datePriceIdentityForSession(request: DatePriceQuery, session: SessionInfo): string {
+export function datePriceSessionIdentity(session: SessionInfo) {
   const { fixtureVersion, catalogRevision, seed, anchorInstant, scenario, mappingRevision, scenarioRevision } = session;
   // Schedule revisions can change eligibility, so retire earlier in-memory date estimates.
-  return datePriceKey(request, { fixtureVersion, catalogRevision, seed, anchorInstant, scenario, mappingRevision, scenarioRevision, pricingPolicy: 'schedule-tradeoffs-2026-10-30' });
+  return { fixtureVersion, catalogRevision, seed, anchorInstant, scenario, mappingRevision, scenarioRevision, pricingPolicy: 'schedule-tradeoffs-2026-10-30' };
+}
+export function datePriceIdentityForSession(request: DatePriceQuery, session: SessionInfo): string {
+  return datePriceKey(request, datePriceSessionIdentity(session));
 }
 export function matchesDateSnapshot(snapshot: DatePriceSnapshot, request: DatePriceQuery, session: SessionInfo, id?: string): boolean {
   if (snapshot.status !== 'checking' && snapshot.cells.some(cell => cell.status === 'checking')) return false;

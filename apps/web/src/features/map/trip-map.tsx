@@ -48,7 +48,7 @@ function HeadingArrow({bidirectional,disabled}:{bidirectional:boolean;disabled:b
   }else controls.set({opacity:1,y:0});
   return()=>{cancelled=true;controls.stop();};
  },[bidirectional,policy.enabled,controls]);
- return <span className={styles.headingArrow} aria-hidden="true"><motion.i data-map-heading-arrow={bidirectional?'round-trip':'one-way'} data-arrow-motion={policy.enabled?'finite':'static'} initial={false} animate={controls}>{bidirectional?'↔':'←'}</motion.i></span>;
+ return <span className={styles.headingArrow} aria-hidden="true"><motion.svg data-map-heading-arrow={bidirectional?'round-trip':'one-way'} data-arrow-motion={policy.enabled?'finite':'static'} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" focusable="false" initial={false} animate={controls}><path d={bidirectional?'M20 7H4m5-4L4 7l5 4M4 17h16m-5-4 5 4-5 4':'M20 12H4m6-6-6 6 6 6'}/></motion.svg></span>;
 }
 const HeadingFrame=forwardRef<HTMLDivElement,{heading:ReturnType<typeof routeHeading>;frameKey:string;disabled:boolean}>(function HeadingFrame({heading,frameKey,disabled},ref) {
  const present=useIsPresent();const policy=useMotionPolicy({disabled});

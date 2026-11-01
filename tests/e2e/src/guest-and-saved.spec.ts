@@ -15,7 +15,7 @@ async function setup(page: Page) {
   await expect(page.getByRole('button', { name: 'جست‌وجوی سفر', exact: true })).toBeEnabled();
   await expect(page.locator('[data-date-price-status]')).toHaveAttribute('data-date-price-status', 'complete', { timeout: 20000 });
 }
-async function open(page: Page) { const trigger = page.getByRole('button', { name: 'حساب کاربری', exact: true }); await trigger.scrollIntoViewIfNeeded(); await page.waitForTimeout(180); await trigger.click(); await expect(account(page)).toBeVisible(); }
+async function open(page: Page) { const trigger = page.getByRole('button', { name: 'حساب کاربری', exact: true }); await trigger.scrollIntoViewIfNeeded(); await trigger.click(); await expect(account(page)).toBeVisible(); await expect(page.locator('[data-profile-popover]')).not.toHaveAttribute('data-entering', /.*/); }
 async function login(page: Page) { await account(page).getByRole('button', { name: 'ادامه با ترب', exact: true }).click(); await expect(account(page).getByRole('button', { name: 'خروج از حساب', exact: true })).toBeEnabled(); }
 async function close(page: Page) { await account(page).getByRole('button', { name: 'بستن حساب کاربری', exact: true }).click(); await expect(account(page)).toHaveCount(0); }
 

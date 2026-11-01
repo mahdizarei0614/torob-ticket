@@ -1,11 +1,16 @@
-import { act, fireEvent, render, screen, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { useState } from 'react';
+import { StrictMode, useState } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { MemoryRouter } from 'react-router';
+import type { ApiClient } from '@torob-ticket/client';
+import type { CatalogSnapshot, SearchRecovery, SearchRequest } from '@torob-ticket/contracts';
 import { MotionPolicyProvider } from '@torob-ticket/ui';
 import { DateExplorer } from '../dates/date-explorer';
 import { SearchComposer } from './search-composer';
-import { validateDraft, type SearchDraft } from './search-url';
+import { serializeSearchUrl, validateDraft, type SearchDraft } from './search-url';
+import { useSearchController } from './use-search-controller';
 import { catalog, query, session } from './search-test-data';
 
 const animation = vi.hoisted(() => ({ fields: new Map<string, { start: ReturnType<typeof vi.fn>; stop: ReturnType<typeof vi.fn>; set: ReturnType<typeof vi.fn> }>() }));
@@ -18,6 +23,82 @@ vi.mock('motion/react', async original => {
   });
   const Span = forwardRef<HTMLSpanElement, Record<string, unknown>>(function FeedbackSpan({ children, ...props }, ref) { delete props['animate']; delete props['initial']; return createElement('span', { ...props, ref }, children as import('react').ReactNode); });
   return { ...actual, useAnimationControls: () => { const current = useRef({ start: vi.fn(async () => undefined), stop: vi.fn(), set: vi.fn() }); return current.current; }, motion: new Proxy(actual.motion, { get: (target, key, receiver) => key === 'div' ? Div : key === 'span' ? Span : Reflect.get(target, key, receiver) }) };
+});
+
+const cityCatalog: CatalogSnapshot = {
+  ...catalog,
+  cities: catalog.cities.map((city, index) => ({ ...city, name: ['تهران', 'مشهد', 'شیراز'][index]! })),
+  supportedConnections: [
+    ...catalog.supportedConnections,
+    { mode: 'flight', scope: 'domestic', originCityId: 'a', destinationCityId: 'c' },
+    { mode: 'flight', scope: 'domestic', originCityId: 'c', destinationCityId: 'b' },
+  ],
+};
+
+function ControllerCityForm({ choices, client }: { choices: CatalogSnapshot; client: ApiClient }) {
+  const controller = useSearchController(choices, session, client);
+  const [covered, setCovered] = useState(false), [interacting, setInteracting] = useState(false);
+  return <MotionPolicyProvider covered={covered}>
+    <SearchComposer draft={controller.state.draft} catalog={choices} session={session} edit={controller.edit}
+      onSubmit={() => { void controller.submit(undefined, true); }} errors={controller.validity.errors}
+      pending={controller.pending} disabled={interacting || controller.resetting}
+      dateExplorer={<DateExplorer interaction={controller.dateInteractions} draft={controller.state.draft} catalog={choices} session={session}
+        onCommit={controller.commitDates} onPreview={date => controller.dispatch({ type: 'preview-date', date })}
+        onCovered={setCovered} onInteractionChange={setInteracting} />} />
+    <output aria-label="مبدا تاییدشده">{controller.state.draft.originCityId}</output>
+    <output aria-label="مقصد تاییدشده">{controller.state.draft.destinationCityId}</output>
+  </MotionPolicyProvider>;
+}
+
+function cityForm() {
+  const cache = new QueryClient();
+  const startSearch = vi.fn(async (request: SearchRequest): Promise<SearchRecovery> => ({
+    snapshot: { searchId: 'city-comparison', clientGeneration: request.clientGeneration, query: request.query, status: 'collecting', groups: [], providerStatuses: [], coverage: { expectedProviderIds: [], successfulProviderIds: [], failedProviderIds: [], pendingProviderIds: [], complete: false }, observedAt: session.anchorInstant }, sequence: 0,
+  }));
+  const client = { startSearch, cancelSearch: vi.fn(async () => undefined) } as unknown as ApiClient;
+  const screen = (choices: CatalogSnapshot) => <StrictMode><QueryClientProvider client={cache}><MemoryRouter initialEntries={['/' + serializeSearchUrl(query)]}>
+    <ControllerCityForm choices={choices} client={client}/>
+  </MemoryRouter></QueryClientProvider></StrictMode>;
+  const view = render(screen(cityCatalog));
+  return { ...view, startSearch, refreshCatalog: () => view.rerender(screen({ ...cityCatalog, cities: cityCatalog.cities.map(city => ({ ...city })) })) };
+}
+
+describe('city replacement in the owned search controller', () => {
+  it.each(['مبدا', 'مقصد'])('keeps native replacement input in %s and requires explicit selection before another search', async label => {
+    const user = userEvent.setup(), view = cityForm();
+    await user.click(screen.getByRole('button', { name: 'جست‌وجوی سفر' }));
+    await waitFor(() => expect(view.startSearch).toHaveBeenCalledOnce());
+    const input = screen.getByRole('combobox', { name: label });
+    await user.click(input); fireEvent.input(input, { target: { value: 'شیراز' } });
+    expect(input).toHaveValue('شیراز'); expect(screen.getByLabelText(label + ' تاییدشده')).toBeEmptyDOMElement();
+    const option = await screen.findByRole('option', { name: 'شیراز' });
+    expect(option).toBeVisible(); expect(view.startSearch).toHaveBeenCalledOnce();
+    await user.click(option);
+    expect(input).toHaveValue('شیراز'); expect(screen.getByLabelText(label + ' تاییدشده')).toHaveTextContent('c');
+    expect(view.startSearch).toHaveBeenCalledOnce();
+  });
+  it('retains an uncommitted replacement query across an unchanged catalog refresh without selecting or searching it', async () => {
+    const user = userEvent.setup(), view = cityForm(), input = screen.getByRole('combobox', { name: 'مقصد' });
+    await user.click(input); fireEvent.input(input, { target: { value: 'شیراز' } });
+    expect(input).toHaveValue('شیراز'); expect(screen.getByLabelText('مقصد تاییدشده')).toBeEmptyDOMElement();
+    view.refreshCatalog();
+    expect(input).toHaveValue('شیراز'); expect(await screen.findByRole('option', { name: 'شیراز' })).toBeVisible();
+    expect(screen.getByLabelText('مقصد تاییدشده')).toBeEmptyDOMElement(); expect(view.startSearch).not.toHaveBeenCalled();
+  });
+  it.each(['شیراز', 'شهر ناشناخته'])('Escape preserves raw %s without reopening or manufacturing a searchable city', async raw => {
+    const user = userEvent.setup(), view = cityForm(), input = screen.getByRole('combobox', { name: 'مقصد' });
+    await user.click(input); fireEvent.input(input, { target: { value: raw } });
+    await waitFor(() => expect(input).toHaveAttribute('aria-expanded', 'true'));
+    expect(screen.getByLabelText('مقصد تاییدشده')).toBeEmptyDOMElement(); expect(view.startSearch).not.toHaveBeenCalled();
+    await user.keyboard('{Escape}');
+    expect(input).toHaveValue(raw); expect(input).toHaveAttribute('aria-expanded', 'false');
+    await act(async () => { view.refreshCatalog(); await Promise.resolve(); });
+    expect(input).toHaveValue(raw); expect(input).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.getByLabelText('مقصد تاییدشده')).toBeEmptyDOMElement();
+    await user.click(screen.getByRole('button', { name: 'جست‌وجوی سفر' }));
+    expect(view.startSearch).not.toHaveBeenCalled(); expect(screen.getByLabelText('مقصد تاییدشده')).toBeEmptyDOMElement();
+    expect(input).toHaveAttribute('aria-invalid', 'true'); expect(input).toHaveAccessibleDescription('شهر مقصد را از فهرست انتخاب کنید.');
+  });
 });
 vi.mock('../dates/date-chart', () => ({ DateChart: () => null }));
 vi.mock('../dates/use-date-prices', () => ({ useDatePrices: () => ({ waiting: false, retryable: false }) }));

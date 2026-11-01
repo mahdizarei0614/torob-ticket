@@ -1,7 +1,7 @@
-import { expect, test, type Locator, type Page } from '@playwright/test';
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { expect, test, type Locator, type Page, type Request } from '@playwright/test';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import type { CatalogSnapshot, ComparisonGroup, Itinerary, SearchRecovery, TransportSearchQuery } from '@torob-ticket/contracts';
+import { HotelSearchSnapshotSchema, SearchRecoverySchema, type CatalogSnapshot, type ComparisonGroup, type Itinerary, type SearchRecovery, type TransportSearchQuery } from '@torob-ticket/contracts';
 
 const out = resolve(process.env.REALISTIC_CATALOG_EVIDENCE_DIR ?? 'docs/evidence/adjustments/realistic-travel-catalog/native-catalog');
 const query: TransportSearchQuery = { mode: 'flight', scope: 'international', tripType: 'one-way', originCityId: 'tehran', destinationCityId: 'los-angeles', departureDate: '2026-11-01', party: { adults: 1, children: 0, infants: 0 }, classCode: 'economy', filters: {}, sort: 'cheapest' };
@@ -26,12 +26,36 @@ async function search(page: Page) {
   expect(response.status()).toBe(201);
   const initial = await response.json() as SearchRecovery;
   await expect(results(page)).toHaveAttribute('data-search-id', initial.snapshot.searchId);
-  await expect(results(page)).toHaveAttribute('data-status', 'complete', { timeout: 25000 });
-  const recovery = await page.request.get('/api/v1/searches/' + initial.snapshot.searchId);
-  expect(recovery.ok()).toBe(true);
-  const value = await recovery.json() as SearchRecovery;
+  const deadline = Date.now() + 25_000;
+  let captureAttempted = false;
+  const captureTerminal = async () => {
+    captureAttempted = true;
+    try {
+      const recovery = await page.request.get('/api/v1/searches/' + initial.snapshot.searchId, { timeout: 5_000 });
+      expect(recovery.status()).toBe(200);
+      const terminal = SearchRecoverySchema.parse(await recovery.json());
+      const native = await page.evaluate(() => { const region = document.querySelector('[aria-label="نتایج مقایسه سفر"]'); return { searchId: region?.getAttribute('data-search-id'), status: region?.getAttribute('data-status'), sequence: region?.getAttribute('data-sequence'), connection: region?.getAttribute('data-connection-state') }; });
+      record('terminal-' + nameFor(test.info().title) + '-' + initial.snapshot.searchId, { native, recovery: terminal });
+      return terminal;
+    } catch {
+      record('terminal-' + nameFor(test.info().title) + '-' + initial.snapshot.searchId, { kind: 'owned-terminal-recovery-capture-failed' });
+      throw new Error('Owned terminal search recovery could not be captured');
+    }
+  };
+  let value: SearchRecovery;
+  try {
+    await expect(results(page)).toHaveAttribute('data-status', /^(complete|partial|empty|failed|cancelled|interrupted)$/, { timeout: 25_000 });
+    value = await captureTerminal();
+    // Preserve the strict complete requirement and original UI deadline. A
+    // partial terminal is recorded before failing, never retried or accepted.
+    expect(value.snapshot.status).toBe('complete');
+    await expect(results(page)).toHaveAttribute('data-status', 'complete', { timeout: Math.max(1, deadline - Date.now()) });
+  } catch (primary) {
+    if (!captureAttempted) await captureTerminal().catch(() => undefined);
+    throw primary;
+  }
   for (const quote of value.snapshot.groups.flatMap(group => group.eligibleQuotes)) {
-    expect(quote.fixtureVersion).toBe('showcase-v3'); expect(quote.sourceRevision).toBe('source-v3-rich-inventory-2026-10-29');
+    expect(quote.fixtureVersion).toBe('showcase-v3'); expect(quote.sourceRevision).toBe('source-v5-schedule-tradeoffs-2026-10-30');
     expect(quote.provenance.every(source => source.fixtureVersion === 'showcase-v3' && source.sourceRevision === quote.sourceRevision)).toBe(true);
     expect(quote.breakdown.reduce((sum, item) => sum + item.amount.amountRial, 0)).toBe(quote.total.amountRial);
     expect(quote.party).toEqual({ adults: 1, children: 0, infants: 0 });
@@ -110,15 +134,66 @@ async function routeFacts(page: Page, catalog: CatalogSnapshot, itinerary: Itine
 }
 
 async function noOverflow(page: Page, selectors: string[]) {
-  const proof = await page.evaluate(selectors => ({ width: innerWidth, clientWidth: document.documentElement.clientWidth, scrollWidth: document.documentElement.scrollWidth, boxes: selectors.flatMap(selector => Array.from(document.querySelectorAll<HTMLElement>(selector)).filter(node => { const box = node.getBoundingClientRect(); return box.width > 0 && box.height > 0; }).map(node => { const box = node.getBoundingClientRect(); return { selector, text: node.textContent?.slice(0, 140), left: box.left, right: box.right, width: box.width, clientWidth: node.clientWidth, scrollWidth: node.scrollWidth }; })), selectedCardChildren: Array.from(document.querySelectorAll<HTMLElement>('article[data-selected="true"] *')).map(node => { const box = node.getBoundingClientRect(), style = getComputedStyle(node); return { tag: node.tagName, class: node.className, text: node.textContent?.slice(0, 120), left: box.left, right: box.right, width: box.width, clientWidth: node.clientWidth, scrollWidth: node.scrollWidth, font: style.fontSize, display: style.display, whiteSpace: style.whiteSpace, overflow: style.overflow, minWidth: style.minWidth }; }).filter(box => box.width > 0 && box.clientWidth > 0 && box.scrollWidth > box.clientWidth + 1) }), selectors);
+  const proof = await page.evaluate(selectors => ({ width: innerWidth, clientWidth: document.documentElement.clientWidth, scrollWidth: document.documentElement.scrollWidth, boxes: selectors.flatMap(selector => Array.from(document.querySelectorAll<HTMLElement>(selector)).filter(node => { const box = node.getBoundingClientRect(); return box.width > 0 && box.height > 0; }).map(node => { const box = node.getBoundingClientRect(), owner = node.matches('[data-segment-track]') ? node.closest<HTMLElement>('[data-search-controls]') : null, clip = owner?.getBoundingClientRect(); return { selector, text: node.textContent?.slice(0, 140), left: box.left, right: box.right, width: box.width, clientWidth: node.clientWidth, scrollWidth: node.scrollWidth, scrollOwner: owner && clip ? { left: clip.left, right: clip.right, overflowX: getComputedStyle(owner).overflowX, clientWidth: owner.clientWidth, scrollWidth: owner.scrollWidth } : null }; })), selectedCardChildren: Array.from(document.querySelectorAll<HTMLElement>('article[data-selected="true"] *')).map(node => { const box = node.getBoundingClientRect(), style = getComputedStyle(node); return { tag: node.tagName, class: node.className, text: node.textContent?.slice(0, 120), left: box.left, right: box.right, width: box.width, clientWidth: node.clientWidth, scrollWidth: node.scrollWidth, font: style.fontSize, display: style.display, whiteSpace: style.whiteSpace, overflow: style.overflow, minWidth: style.minWidth }; }).filter(box => box.width > 0 && box.clientWidth > 0 && box.scrollWidth > box.clientWidth + 1) }), selectors);
   record('layout-' + nameFor(test.info().title) + '-' + proof.width, proof);
   expect(proof.scrollWidth).toBeLessThanOrEqual(proof.clientWidth + 1);
   for (const box of proof.boxes) {
-    expect(box.left, box.selector).toBeGreaterThanOrEqual(-1);
-    expect(box.right, box.selector).toBeLessThanOrEqual(proof.width + 1);
+    if (box.scrollOwner) {
+      // Decision0057 gives only the four-control row its own horizontal scroll.
+      // Its unclipped track can extend beyond that actual viewport; page/card
+      // bounds and each control's native reachability remain strict.
+      expect(['auto', 'scroll']).toContain(box.scrollOwner.overflowX);
+      expect(box.scrollOwner.left).toBeGreaterThanOrEqual(-1); expect(box.scrollOwner.right).toBeLessThanOrEqual(proof.width + 1);
+      expect(box.left >= box.scrollOwner.left - 1 && box.right <= box.scrollOwner.right + 1 || box.scrollOwner.scrollWidth > box.scrollOwner.clientWidth).toBe(true);
+    } else {
+      expect(box.left, box.selector).toBeGreaterThanOrEqual(-1);
+      expect(box.right, box.selector).toBeLessThanOrEqual(proof.width + 1);
+    }
     expect(box.scrollWidth, box.selector).toBeLessThanOrEqual(box.clientWidth + 1);
   }
   return proof;
+}
+
+async function reachableControls(page: Page) {
+  const row = page.locator('[data-search-controls]'), originalURL = page.url(), selectedQuote = await page.locator('article[data-selected="true"]').getAttribute('data-quote-id'), facts = [];
+  const writes: string[] = [], onRequest = (request: Request) => { if (request.method() === 'POST' && (request.url().endsWith('/api/v1/searches') || request.url().includes('/api/v1/referrals/'))) writes.push(new URL(request.url()).pathname); };
+  const capture = (control: Locator) => control.evaluate(node => new Promise<{
+    control: string | null; rectangle: ReturnType<DOMRect['toJSON']>; intersection: ReturnType<DOMRectReadOnly['toJSON']>; root: ReturnType<DOMRectReadOnly['toJSON']> | null; ratio: number; intersecting: boolean; clips: unknown[]; centerOwned: boolean; centerTag?: string; pageWidth: number; viewportWidth: number; scrollX: number; scrollY: number;
+  }>((resolve, reject) => {
+    const timer = setTimeout(() => { observer.disconnect(); reject(new Error('public-intersection-observation-timeout')); }, 1_000);
+    const observer = new IntersectionObserver(entries => {
+      clearTimeout(timer); observer.disconnect(); const entry = entries[0]!, box = node.getBoundingClientRect(), hit = document.elementFromPoint(box.x + box.width / 2, box.y + box.height / 2), clips = [];
+      for (let parent = node.parentElement; parent; parent = parent.parentElement) {
+        const style = getComputedStyle(parent);
+        if ([style.overflowX, style.overflowY].some(value => /^(auto|scroll|hidden|clip)$/.test(value))) clips.push({ tag: parent.tagName, controlsOwner: parent.hasAttribute('data-search-controls'), segmentSlot: parent.getAttribute('data-segment-slot'), rectangle: parent.getBoundingClientRect().toJSON(), clientLeft: parent.clientLeft, clientTop: parent.clientTop, clientWidth: parent.clientWidth, clientHeight: parent.clientHeight, scrollWidth: parent.scrollWidth, scrollHeight: parent.scrollHeight, scrollLeft: parent.scrollLeft, overflowX: style.overflowX, overflowY: style.overflowY });
+      }
+      resolve({ control: node.getAttribute('data-segment-option') ?? node.getAttribute('aria-label') ?? node.getAttribute('placeholder'), rectangle: box.toJSON(), intersection: entry.intersectionRect.toJSON(), root: entry.rootBounds?.toJSON() ?? null, ratio: entry.intersectionRatio, intersecting: entry.isIntersecting, clips, centerOwned: hit === node || node.contains(hit), centerTag: hit?.tagName, pageWidth: document.documentElement.scrollWidth, viewportWidth: innerWidth, scrollX, scrollY });
+    });
+    observer.observe(node);
+  }));
+  page.on('request', onRequest);
+  const receipt = 'controls-' + nameFor(test.info().title) + '-' + page.viewportSize()!.width;
+  try {
+    for (const control of await row.locator('input[role="combobox"], [data-segment-option]').all()) {
+      await control.scrollIntoViewIfNeeded(); const before = await capture(control);
+      const fact = { before, after: undefined as Awaited<ReturnType<typeof capture>> | undefined, focused: false, urlAfter: page.url(), selectedAfter: selectedQuote };
+      facts.push(fact); record(receipt, { originalURL, selectedQuote, facts, writes, stage: 'before-native-focus' });
+      const radio = control.locator('input[type="radio"]'), native = await radio.count() ? radio : control;
+      await native.focus(); fact.focused = await native.evaluate(node => node === document.activeElement); fact.after = await capture(control); fact.urlAfter = page.url(); fact.selectedAfter = await page.locator('article[data-selected="true"]').getAttribute('data-quote-id');
+      record(receipt, { originalURL, selectedQuote, facts, writes, stage: 'before-strict-assertions' });
+      await expect(native).toBeFocused(); await expect(control).toBeInViewport();
+      // Native RTL scrolling rounds scrollLeft to pixels while labels retain
+      // subpixels. Preserve the existing1px edge tolerance without ratio guesses.
+      expect(fact.after.intersecting).toBe(true);
+      expect(fact.after.intersection.width).toBeGreaterThanOrEqual(fact.after.rectangle.width - 1);
+      expect(fact.after.intersection.height).toBeGreaterThanOrEqual(fact.after.rectangle.height - 1);
+      expect(fact.after.centerOwned).toBe(true); expect(fact.urlAfter).toBe(originalURL); expect(fact.selectedAfter).toBe(selectedQuote); expect(writes).toEqual([]);
+      const geometry = await control.evaluate(node => { const box = node.getBoundingClientRect(), clip = node.closest('[data-search-controls]')!.getBoundingClientRect(); return { left: box.left, right: box.right, height: box.height, clipLeft: clip.left, clipRight: clip.right, pageWidth: document.documentElement.scrollWidth, viewportWidth: innerWidth }; });
+      expect(geometry.left).toBeGreaterThanOrEqual(geometry.clipLeft - 1); expect(geometry.right).toBeLessThanOrEqual(geometry.clipRight + 1); expect(geometry.height).toBeGreaterThanOrEqual(44); expect(geometry.pageWidth).toBeLessThanOrEqual(geometry.viewportWidth);
+    }
+    expect(facts.length).toBeGreaterThanOrEqual(4); expect(page.url()).toBe(originalURL); await expect(page.locator('article[data-selected="true"]')).toHaveAttribute('data-quote-id', selectedQuote!);
+  } finally { page.off('request', onRequest); record(receipt, { originalURL, selectedQuote, facts, writes, stage: 'finalized' }); }
+  return facts;
 }
 
 test.beforeEach(async ({ page, context }, info) => {
@@ -149,7 +224,7 @@ test.beforeEach(async ({ page, context }, info) => {
 test.afterEach(async ({ page, context }, info) => {
   const gpu = page.isClosed() ? undefined : await page.evaluate(() => (window as unknown as { realisticCatalogGPU?: { draws: number; linked: number; failures: string[]; lost: number } }).realisticCatalogGPU);
   if (info.status !== info.expectedStatus && !page.isClosed()) {
-    record('failure-' + nameFor(info.title), { url: page.url(), errors: info.errors, body: await page.locator('body').innerText() });
+    record('failure-' + nameFor(info.title), { url: page.url(), failure: 'Native catalog assertion or operation failed; use the sanitized root reporter for error details.', body: await page.locator('body').innerText() });
     await page.screenshot({ path: resolve(out, 'failure-' + nameFor(info.title) + '.png') });
   }
   const reset = await context.request.post('/api/v1/admin/reset', { data: {} });
@@ -226,33 +301,41 @@ test('@realistic-catalog actual two and three stop LAX cards retain airport head
   record('lax-one-way', { browser: browser.version(), query: recovery.snapshot.query, searchId: recovery.snapshot.searchId, networkInterception: false, reducedMotionForExactFacts: true, trials, mobile, errors });
 });
 
-test('@realistic-catalog complete LAX round trip carries four segments each way and opens new-city hotel inventory', async ({ page, browser }) => {
+test('@realistic-catalog complete LAX round trip carries four outbound segments and an independent Doha return into new-city hotel discovery', async ({ page, browser }) => {
   test.setTimeout(90000);
   const input: TransportSearchQuery = { ...query, tripType: 'round-trip', returnDate: '2026-11-05' };
   await open(page, input); const recovery = await search(page);
   const catalog = await (await page.request.get('/api/v1/catalog')).json() as CatalogSnapshot;
-  const group = recovery.snapshot.groups.find(group => group.itinerary.outbound.segments.length === 4 && group.eligibleQuotes.length)!;
-  expect(group).toBeTruthy(); expect(group.itinerary.return?.segments).toHaveLength(4);
+  const group = recovery.snapshot.groups.find(group => group.itinerary.outbound.segments.length === 4 && group.itinerary.outbound.segments[0]!.serviceId.includes('-los-angeles-11-') && group.eligibleQuotes.length)!;
+  expect(group).toBeTruthy(); expect(group.itinerary.return?.segments).toHaveLength(2);
+  expect([group.itinerary.outbound.segments[0]!.originPlaceId, ...group.itinerary.outbound.segments.map(segment => segment.destinationPlaceId)]).toEqual(['ika', 'dxb', 'sin', 'hnd', 'lax']);
+  expect([group.itinerary.return!.segments[0]!.originPlaceId, ...group.itinerary.return!.segments.map(segment => segment.destinationPlaceId)]).toEqual(['lax', 'doh', 'ika']);
   const { card, quote } = await choose(page, group);
   expect(quote.conditions.return).toBeDefined(); expect(quote.completeness.status).toBe('complete'); expect(quote.total.amountRial).toBeGreaterThan(0);
-  await expect(heading(page).locator('h2')).toContainText('↔');
+  await expect(heading(page).locator('h2 svg[data-map-heading-arrow]')).toHaveAttribute('data-map-heading-arrow', 'round-trip');
   await expect(heading(page).locator('h2 bdi')).toHaveText(['(IKA)', '(LAX)']);
-  await expect(heading(page).locator('p bdi')).toHaveText('IKA → DXB → SIN → HND → LAX → HND → SIN → DXB → IKA');
+  for (const [direction, leg] of [['outbound', group.itinerary.outbound], ['return', group.itinerary.return!]] as const) {
+    const ids = [leg.segments[0]!.originPlaceId, ...leg.segments.map(segment => segment.destinationPlaceId)];
+    const chain = ids.map(id => catalog.places.find(place => place.id === id)!.code!).join(' → ');
+    await expect(heading(page).locator(`[data-map-leg-route="${direction}"] bdi`)).toHaveText(chain);
+  }
   const route = await routeFacts(page, catalog, group.itinerary);
   await card.getByRole('button', { name: 'جزئیات سفر', exact: true }).click();
-  for (const label of ['رفت', 'برگشت']) await expect(card.getByRole('region', { name: 'جزئیات مسیر ' + label, exact: true }).locator('[data-segment-id]')).toHaveCount(4);
+  for (const [label, leg] of [['رفت', group.itinerary.outbound], ['برگشت', group.itinerary.return!]] as const) await expect(card.getByRole('region', { name: 'جزئیات مسیر ' + label, exact: true }).locator('[data-segment-id]')).toHaveCount(leg.segments.length);
   const layout = await noOverflow(page, ['[data-map-heading]', '[data-map-heading-key]:not([aria-hidden="true"]) h2', '[data-map-heading-key]:not([aria-hidden="true"]) p', 'article[data-selected="true"]']);
   const trigger = page.getByRole('button', { name: 'مقایسه اقامتگاه‌های لس‌آنجلس', exact: true });
-  await trigger.click();
-  const dialog = page.getByRole('dialog', { name: 'مقایسه اقامتگاه‌های لس‌آنجلس', exact: true });
-  await expect(dialog.locator('[data-hotel-context]')).toHaveAttribute('data-hotel-context', 'los-angeles');
-  const arrival = dialog.getByLabel('نقطه رسیدن برای فاصله هتل', { exact: true });
-  await arrival.selectOption('lax');
   const pending = page.waitForResponse(response => response.request().method() === 'POST' && response.url().endsWith('/api/v1/hotel-searches'));
-  await dialog.getByRole('button', { name: 'مقایسه اقامتگاه‌ها', exact: true }).click();
-  const response = await pending; expect(response.status()).toBe(201); const hotels = await response.json();
+  await trigger.click();
+  const dialog = page.getByRole('dialog', { name: 'هتل‌های لس‌آنجلس', exact: true });
+  await expect(dialog.locator('[data-hotel-context]')).toHaveAttribute('data-hotel-context', 'los-angeles');
+  const response = await pending; expect(response.status()).toBe(201); const hotels = HotelSearchSnapshotSchema.parse(await response.json());
+  await expect(dialog.locator('input:not([type=radio])')).toHaveCount(0);
+  await expect(dialog.getByRole('combobox', { name: 'ظرفیت اتاق', exact: true })).toHaveValue('1');
+  expect(new Date(hotels.query.checkOut + 'T12:00:00Z').getTime() - new Date(hotels.query.checkIn + 'T12:00:00Z').getTime()).toBe(86400000);
   expect(hotels.query.destinationCityId).toBe('los-angeles'); expect(hotels.query.arrivalPlaceId).toBe('lax'); expect(hotels.status).toBe('complete');
-  expect(hotels.hotels).toHaveLength(14); expect(hotels.hotels.every((hotel: { destinationCityId: string }) => hotel.destinationCityId === 'los-angeles')).toBe(true);
+  const directory = JSON.parse(readFileSync(resolve('libs/fixtures/src/catalog/real-hotel-directory.json'), 'utf8')) as { revision: string; hotels: { hotelId: string; destinationCityId: string }[] };
+  const sourced = directory.hotels.filter(hotel => hotel.destinationCityId === 'los-angeles'); expect(sourced).toHaveLength(8); expect(hotels.sourceRevision).toBe(directory.revision);
+  expect(hotels.hotels.map(hotel => hotel.hotelId).sort()).toEqual(sourced.map(hotel => hotel.hotelId).sort()); expect(hotels.hotels.every(hotel => hotel.destinationCityId === 'los-angeles')).toBe(true);
   expect(hotels.quotes.length).toBeGreaterThan(0);
   await expect(dialog.getByRole('region', { name: 'نتایج مقایسه اقامتگاه‌ها', exact: true })).toHaveAttribute('data-hotel-search-id', hotels.hotelSearchId);
   await page.screenshot({ path: resolve(out, 'lax-hotel-inventory.png') });
@@ -275,7 +358,7 @@ for (const trip of [
   expect(quote.total.currency).toBe('IRR'); expect(quote.total.amountRial).toBeGreaterThanOrEqual(trip.minRial); expect(quote.total.amountRial).toBeLessThanOrEqual(trip.maxRial);
   await expect(card).toHaveAttribute('data-amount-rial', String(quote.total.amountRial));
   await expect(card.getByRole('group', { name: `مجموع ۱ مسافر: ${fa(quote.total.amountRial / 10)} تومان`, exact: true })).toBeVisible();
-  await expect(heading(page).locator('h2 bdi')).toHaveCount(0);
+  await expect(heading(page).locator('h2 bdi:not([hidden])')).toHaveCount(0);
   await card.getByRole('button', { name: 'جزئیات سفر', exact: true }).click();
   const offer = card.locator(`[data-offer-quote-id="${quote.quoteId}"]`);
   await expect(offer).toContainText(trip.label); await expect(offer).toContainText(trip.terms);
@@ -284,7 +367,7 @@ for (const trip of [
   const layouts = [];
   for (const width of [1366, 390, 320]) {
     await page.setViewportSize({ width, height: 900 });
-    await card.scrollIntoViewIfNeeded(); layouts.push(await noOverflow(page, ['form[aria-label="جست‌وجوی سفر"]', 'form[aria-label="جست‌وجوی سفر"] [data-segment-track]', 'article[data-selected="true"]', 'article[data-selected="true"] h3', 'article[data-selected="true"] [data-offer-quote-id]']));
+    const controls = await reachableControls(page); await card.scrollIntoViewIfNeeded(); layouts.push({ ...await noOverflow(page, ['form[aria-label="جست‌وجوی سفر"]', 'form[aria-label="جست‌وجوی سفر"] [data-segment-track]', 'article[data-selected="true"]', 'article[data-selected="true"] h3', 'article[data-selected="true"] [data-offer-quote-id]']), controls });
     await page.screenshot({ path: resolve(out, `${trip.mode}-details-${width}.png`) });
   }
   record(trip.mode + '-ground', { query: recovery.snapshot.query, searchId: recovery.snapshot.searchId, itinerary: group.itinerary, quote, mark, layouts, networkInterception: false });

@@ -1,7 +1,8 @@
 import { test, expect, type Page } from '@playwright/test';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import type { SearchRecovery, TransportSearchQuery } from '@torob-ticket/contracts';
+import { RecheckResultSchema, ReferralReceiptSchema, SearchRecoverySchema, type SearchRecovery, type TransportSearchQuery } from '@torob-ticket/contracts';
+import { exactReceipt, expectPlaceholder } from './acceptance/journey-helpers';
 
 const evidence = resolve(process.env.MAP_NAVIGATION_EVIDENCE_DIR ?? 'docs/evidence/adjustments/map-navigation/browser');
 const query: TransportSearchQuery = { mode: 'flight', scope: 'domestic', tripType: 'one-way', originCityId: 'tehran', destinationCityId: 'mashhad', departureDate: '2026-10-25', party: { adults: 1, children: 0, infants: 0 }, classCode: 'economy', filters: {}, sort: 'cheapest' };
@@ -72,7 +73,7 @@ async function search(page: Page) {
   return await (await page.request.get('/api/v1/searches/' + initial.snapshot.searchId)).json() as SearchRecovery;
 }
 async function pinFirst(page: Page) {
-  await results(page).locator('article[data-group-id]').first().getByRole('button', { name: 'انتخاب پیشنهاد', exact: true }).click();
+  const card=results(page).locator('article[data-price-card-id]').first(),control=card.getByRole('button', { name: 'انتخاب پیشنهاد', exact: true });await control.focus();await control.press('Space');await expect(card).toHaveAttribute('data-selected','true');
   await page.mouse.move(1439, 1);
   await expect(page.locator('[data-route-presentation]')).toHaveAttribute('data-route-complete', 'true', { timeout: 15000 });
 }
@@ -106,12 +107,38 @@ test('@map-navigation canvas and endpoint overlay stay aligned when RTL pages ga
   for (const height of [1000, 768, 1200]) {
     await page.setViewportSize({ width: 1440, height });
     await assertRendering(page);
-    const measurement = await page.evaluate(() => {
-      const box = (selector: string) => { const rect = document.querySelector(selector)!.getBoundingClientRect(); return { x: rect.x, y: rect.y, width: rect.width, height: rect.height }; };
-      const canvas = document.querySelector('canvas')!;
-      return { canvas: box('canvas'), labels: box('[data-graphics-label-layer]'), canvasStyle: canvas.getAttribute('style'), parentStyle: canvas.parentElement?.getAttribute('style'), viewport: { innerWidth, clientWidth: document.documentElement.clientWidth } };
+    // A rendered frame can precede R3F's ResizeObserver canvas-size commit.
+    // Observe actual layout until the same original strict alignment is present;
+    // retain the first and intermediate frames even if it never becomes aligned.
+    const observation = await page.evaluate(async () => {
+      const sample = () => {
+        const canvas = document.querySelector<HTMLCanvasElement>('[data-active-scenes] canvas');
+        const labels = document.querySelector<HTMLElement>('[data-graphics-label-layer]');
+        const box = (node: Element | null) => { const rect = node?.getBoundingClientRect(); return rect ? { x: rect.x, y: rect.y, width: rect.width, height: rect.height } : null; };
+        const wrapper = canvas?.closest<HTMLElement>('[data-active-scenes]');
+        return { at: performance.now(), canvas: box(canvas), labels: box(labels), wrapper: box(wrapper ?? null), canvasCount: document.querySelectorAll('[data-active-scenes] canvas').length, labelsCount: document.querySelectorAll('[data-graphics-label-layer]').length,
+          canvasStyle: canvas?.getAttribute('style'), parentStyle: canvas?.parentElement?.getAttribute('style'), wrapperStyle: wrapper ? { width: getComputedStyle(wrapper).width, height: getComputedStyle(wrapper).height, position: getComputedStyle(wrapper).position, left: getComputedStyle(wrapper).left, right: getComputedStyle(wrapper).right } : null,
+          backing: canvas ? { width: canvas.width, height: canvas.height } : null, endpoints: Array.from(labels?.querySelectorAll('[data-journey-endpoint]') ?? [], node => ({ role: node.getAttribute('data-journey-endpoint'), rect: box(node) })),
+          viewport: { innerWidth, innerHeight, clientWidth: document.documentElement.clientWidth, root: box(document.documentElement), scrollbarGutter: getComputedStyle(document.documentElement).scrollbarGutter, direction: getComputedStyle(document.documentElement).direction } };
+      };
+      const aligned = (value: ReturnType<typeof sample>) => {
+        const { canvas, labels, wrapper } = value;
+        return value.canvasCount === 1 && value.labelsCount === 1 && canvas !== null && labels !== null && wrapper !== null &&
+          [canvas, labels, wrapper].every(rect => Object.values(rect).every(Number.isFinite) && rect.width > 0 && rect.height > 0) &&
+          (['x', 'y', 'width', 'height'] as const).every(key => Math.abs(canvas[key] - labels[key]) < .05 && Math.abs(wrapper[key] - labels[key]) < .05);
+      };
+      const samples = [sample()], deadline = performance.now() + 5000;
+      while (!aligned(samples.at(-1)!) && performance.now() < deadline) {
+        await new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
+        samples.push(sample());
+      }
+      return { samples, settled: aligned(samples.at(-1)!), elapsed: samples.at(-1)!.at - samples[0]!.at };
     });
-    record('alignment-' + height, measurement);
+    record('alignment-' + height, observation);
+    expect(observation.settled).toBe(true);
+    const measurement = observation.samples.at(-1)!;
+    expect(measurement.canvas).not.toBeNull();expect(measurement.labels).not.toBeNull();
+    if (!measurement.canvas || !measurement.labels) throw new Error('Expected the one renderer canvas and endpoint layer');
     expect(measurement.canvas.x).toBeCloseTo(measurement.labels.x, 1);
     expect(measurement.canvas.y).toBeCloseTo(measurement.labels.y, 1);
     expect(measurement.canvas.width).toBeCloseTo(measurement.labels.width, 1);
@@ -122,46 +149,54 @@ test('@map-navigation canvas and endpoint overlay stay aligned when RTL pages ga
   await page.screenshot({ path: resolve(evidence, 'single-endpoints.png') });
 });
 
-test('@map-navigation selected map resumes through provider Back/Forward and home navigation', async ({ page }) => {
+test('@map-navigation confirmed new tab preserves the selected comparison and map rendering survives native home Back/Forward', async ({ page, context }) => {
   test.setTimeout(90000); const errors: string[] = []; page.on('pageerror', error => errors.push(error.message));
-  await open(page, { ...query, scope: 'international', destinationCityId: 'van' }); await search(page); await pinFirst(page); await assertRendering(page);
+  await context.route(/^https:\/\/zarei\.xyz(?:\/|$)/, route => route.fulfill({ contentType: 'text/html', body: '<!doctype html><title>Approved placeholder intercepted</title>' }));
+  await open(page, { ...query, scope: 'international', destinationCityId: 'van' }); const source=await search(page); await pinFirst(page); await assertRendering(page);
   const selected = await map(page).getAttribute('data-map-itinerary');
   const camera = await map(page).locator('[data-camera-intent]').getAttribute('data-camera-intent');
-  await page.locator('[data-referral-source="transport"]').getByRole('button', { name: 'ادامه با فروشنده', exact: true }).click();
-  await expect(page.getByText('ارجاع به فروشنده ثبت شد', { exact: true })).toBeVisible();
-  const route = page.url();
+  const comparisonURL=page.url(),historyLength=await page.evaluate(()=>history.length),quoteId=await results(page).locator('article[data-selected="true"]').getAttribute('data-quote-id');
+  const writes:string[]=[];page.on('request',r=>{if(r.method()==='POST'&&(r.url().endsWith('/api/v1/searches')||r.url().includes('/api/v1/referrals/')))writes.push(new URL(r.url()).pathname);});
+  const prepare=page.waitForResponse(r=>r.url().endsWith('/api/v1/referrals/prepare')&&r.request().method()==='POST'),confirm=page.waitForResponse(r=>r.url().endsWith('/api/v1/referrals/confirm')&&r.request().method()==='POST');
+  const popup=await expectPlaceholder(page,()=>results(page).locator(`article[data-selected="true"] [data-seller-link-quote-id="${quoteId}"]`).click());
+  const checked=await prepare;expect(checked.status()).toBe(201);const recheck=RecheckResultSchema.parse(await checked.json());expect(recheck.status).toBe('ready');if(recheck.status!=='ready')throw new Error('Expected the selected normal quote to recheck');
+  const confirmed=await confirm;expect(confirmed.status()).toBe(201);const receipt=ReferralReceiptSchema.parse(await confirmed.json());exactReceipt(receipt,recheck.intent);expect(receipt.selection.quoteId).toBe(quoteId);expect(receipt.payload.kind).toBe('transport');if(receipt.payload.kind!=='transport')throw new Error('Expected transport receipt');expect(receipt.payload.itinerary.itineraryId).toBe(selected);
+  const read=await page.request.get('/api/v1/referrals/'+receipt.referralId);expect(read.status()).toBe(200);expect(ReferralReceiptSchema.parse(await read.json())).toEqual(receipt);
+  await popup.close();await page.bringToFront();expect(page.url()).toBe(comparisonURL);expect(await page.evaluate(()=>history.length)).toBe(historyLength);await expect(results(page)).toHaveAttribute('data-search-id',source.snapshot.searchId);await expect(results(page).locator('article[data-selected="true"]')).toHaveAttribute('data-quote-id',quoteId!);await expect(map(page)).toHaveAttribute('data-map-itinerary',selected!);expect(await map(page).locator('[data-camera-intent]').getAttribute('data-camera-intent')).toBe(camera);await assertRendering(page);
+  // Real home/query history remains navigable. Current new-tab handoff does
+  // not create the legacy in-app provider checkpoint or provider history entry.
+  await page.getByRole('link', { name: 'ترب تیکت، خانه', exact: true }).click();await expect(page).toHaveURL(new URL('/',comparisonURL).href);await assertRendering(page);
   for (let index = 0; index < 2; index++) {
-    await page.goBack(); await assertRendering(page);
-    await expect(map(page)).toHaveAttribute('data-map-itinerary', selected!);
-    expect(await map(page).locator('[data-camera-intent]').getAttribute('data-camera-intent')).toBe(camera);
-    await page.goForward(); await expect(page).toHaveURL(route);
-    await expect(page.getByText('ارجاع به فروشنده ثبت شد', { exact: true })).toBeVisible();
+    await page.goBack();await expect(page).toHaveURL(comparisonURL);await assertRendering(page);await expect(page.getByRole('combobox',{name:'مقصد',exact:true})).toHaveValue('وان');
+    await page.goForward();await expect(page).toHaveURL(new URL('/',comparisonURL).href);await assertRendering(page);
   }
-  await page.getByRole('button', { name: 'بازگشت به مقایسه سفر', exact: true }).click(); await assertRendering(page);
-  await page.getByRole('link', { name: 'ترب تیکت، خانه', exact: true }).click(); await assertRendering(page);
-  await page.goBack(); await assertRendering(page);
+  await page.goBack();await expect(page).toHaveURL(comparisonURL);await assertRendering(page);
   await page.setViewportSize({ width: 390, height: 844 }); await expect(map(page)).toHaveCount(0);
   await page.setViewportSize({ width: 1440, height: 1000 }); await assertRendering(page);
-  expect(errors).toEqual([]); record('navigation-resume', { errors, stats: await gpu(page), selected, camera });
+  expect(writes).toEqual(['/api/v1/referrals/prepare','/api/v1/referrals/confirm']);expect(SearchRecoverySchema.parse(await(await page.request.get('/api/v1/searches/'+source.snapshot.searchId)).json()).snapshot).toEqual(source.snapshot);
+  expect(errors).toEqual([]); record('navigation-resume', { errors, stats: await gpu(page), selected, camera, comparisonURL, historyLength, receipt, writes, currentBoundary:'Confirmed external new-tab navigation intercepted; original comparison preserved. Subsequent Back/Forward is actual home/query history, not a fabricated legacy provider entry.' });
   await page.screenshot({ path: resolve(evidence, 'navigation-resumed.png') });
 });
 
 test('@map-navigation editing flight to train cannot select an old flight and the fresh train uses rail rendering', async ({ page }) => {
   const errors: string[] = []; page.on('pageerror', error => errors.push(error.message));
-  await open(page); await search(page); await pinFirst(page);
+  await open(page);const previous=await search(page);await pinFirst(page);const retired=await results(page).locator('article[data-price-card-id]').last().getByRole('button',{name:'انتخاب پیشنهاد',exact:true}).elementHandle();expect(retired).not.toBeNull();
+  const writes:string[]=[];page.on('request',r=>{if(r.method()==='POST'&&(r.url().endsWith('/api/v1/searches')||r.url().includes('/api/v1/referrals/')))writes.push(new URL(r.url()).pathname);});
   await page.getByRole('radiogroup', { name: 'وسیله سفر', exact: true }).getByText('قطار', { exact: true }).click();
   await expect(page.locator('html')).toHaveAttribute('data-mode', 'train');
   await expect(map(page)).not.toHaveAttribute('data-map-itinerary', /.+/);
-  const old = results(page).locator('article[data-group-id]').last();
-  await expect(old.getByRole('button', { name: 'انتخاب پیشنهاد', exact: true })).toBeDisabled();
-  await page.getByRole('radiogroup', { name: 'کلاس سفر', exact: true }).getByText('صندلی',{exact:true}).click();
+  await expect(results(page).locator('article[data-price-card-id]')).toHaveCount(0);
+  const retirement=await retired!.evaluate(node=>({connected:node.isConnected,inert:Boolean(node.closest('[inert]')),hidden:Boolean(node.closest('[aria-hidden="true"]'))}));expect(!retirement.connected||retirement.inert||retirement.hidden).toBe(true);
+  await retired!.evaluate(node=>(node as HTMLButtonElement).click());await expect(map(page)).not.toHaveAttribute('data-map-itinerary',/.+/);expect(writes).toEqual([]);
+  await expect(page.getByRole('radiogroup', { name: 'کلاس سفر', exact: true }).getByRole('radio',{name:'صندلی (سالنی)',exact:true})).toBeChecked();
   const current = await search(page); expect(current.snapshot.query.mode).toBe('train');
   expect(current.snapshot.groups.length).toBeGreaterThan(0);
   expect(current.snapshot.groups.every(group => group.itinerary.mode === 'train')).toBe(true);
   await pinFirst(page); await assertRendering(page);
   await expect.poll(async () => (await gpu(page)).vehicleModes.includes(1)).toBe(true);
   await expect.poll(async () => (await gpu(page)).vehicleModes.includes(3)).toBe(true);
-  expect(errors).toEqual([]); record('train-after-flight', { query: current.snapshot.query, stats: await gpu(page), errors });
+  expect(SearchRecoverySchema.parse(await(await page.request.get('/api/v1/searches/'+previous.snapshot.searchId)).json()).snapshot).toEqual(previous.snapshot);expect(writes).toEqual(['/api/v1/searches']);
+  expect(errors).toEqual([]); record('train-after-flight', { query: current.snapshot.query, stats: await gpu(page), errors, retirement, writes, proof:'Late retired DOM event cannot restore flight selection; no claim of direct retained React callback execution.' });
   await page.screenshot({ path: resolve(evidence, 'train-after-flight.png') });
 });
 

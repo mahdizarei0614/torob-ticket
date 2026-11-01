@@ -38,7 +38,7 @@ async function observe(page:Page,appearance:'light'|'dark'='dark',unavailable=fa
  },{appearance,unavailable});
 }
 async function search(page:Page,context:BrowserContext,query=base){
- expect(await context.cookies()).toEqual([]);
+ expect((await context.cookies()).length).toBe(0);
  expect((await context.request.post('/api/v1/demo/session',{data:{seed:6161,scenario:'normal',anchorInstant:'2026-10-29T06:00:00Z'}})).status()).toBe(201);
  await page.setViewportSize({width:1440,height:1000});
  await page.goto('/?q='+encodeURIComponent(JSON.stringify(query)));

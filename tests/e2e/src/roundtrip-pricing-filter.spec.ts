@@ -17,7 +17,7 @@ async function capture(page:Page,name:string){
  mkdirSync(evidence,{recursive:true});await page.screenshot({path:join(evidence,name+'.png')});
 }
 async function setup(page:Page,context:BrowserContext,query=base){
- expect(await context.cookies()).toEqual([]);
+ expect((await context.cookies()).length).toBe(0);
  expect((await context.request.post('/api/v1/demo/session',{data:{seed:6161,scenario:'normal',anchorInstant:'2026-10-29T06:00:00Z'}})).status()).toBe(201);
  await page.goto('/?q='+encodeURIComponent(JSON.stringify(query)));
 }

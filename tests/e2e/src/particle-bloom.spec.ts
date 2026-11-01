@@ -5,22 +5,42 @@ import { resolve } from 'node:path';
 const out = resolve(process.env.PARTICLE_BLOOM_EVIDENCE_DIR ?? 'docs/evidence/adjustments/staggered-particles-bloom/native-bloom');
 const query = { mode: 'flight', scope: 'domestic', tripType: 'one-way', originCityId: 'tehran', destinationCityId: 'mashhad', departureDate: '2026-11-01', party: { adults: 1, children: 0, infants: 0 }, classCode: 'economy', filters: {}, sort: 'cheapest' };
 interface PixelReceipt { viewport: number[]; scissor: number[]; scissorEnabled: boolean; canvas: number[]; changedInside: number; changedOutside: number; changedRight: number; clearEdgePixels: number; edgePixels: number; beforeAfterStateEqual: boolean; maxChange: number; error: number }
-interface BloomProof { draws: number; ordinaryDraws: number; compositePrograms: number; floatAllocations: number; contextCanvases: number; pixel?: PixelReceipt; errors: string[] }
-interface ProbeRuntime extends BloomProof { context?: WebGL2RenderingContext; capturePixels: boolean; restore?: WEBGL_lose_context }
+interface BloomProof { draws: number; ordinaryDraws: number; compositePrograms: number; floatAllocations: number; contextCanvases: number; pixel?: PixelReceipt; errors: string[]; gpuChecks: Record<string, unknown>[]; gpuLifecycle: Record<string, unknown>[] }
+interface ProbeRuntime extends BloomProof { context?: WebGL2RenderingContext; capturePixels: boolean; restore?: WEBGL_lose_context; markIntentionalLoss?: () => void }
 const record = (name: string, data: unknown) => writeFileSync(resolve(out, name + '.json'), JSON.stringify(data, null, 2) + '\n');
 async function installProbe(page: Page, options: { unsupported?: boolean; pixels?: boolean } = {}) {
   await page.addInitScript(({ unsupported, pixels }) => {
-    const proof: ProbeRuntime = { draws: 0, ordinaryDraws: 0, compositePrograms: 0, floatAllocations: 0, contextCanvases: 0, capturePixels: Boolean(pixels), errors: [] };
+    const proof: ProbeRuntime = { draws: 0, ordinaryDraws: 0, compositePrograms: 0, floatAllocations: 0, contextCanvases: 0, capturePixels: Boolean(pixels), errors: [], gpuChecks: [], gpuLifecycle: [] };
     Object.assign(window, { mapBloomProof: proof });
     const programs = new WeakSet<WebGLProgram>(), canvases = new WeakSet<HTMLCanvasElement>();
     const proto = WebGL2RenderingContext.prototype, link = proto.linkProgram, extension = proto.getExtension;
+    const states = new WeakMap<WebGL2RenderingContext, { id: number; generation: number; expectedLoss: boolean }>();
+    const objects = new WeakMap<object, number>(); let contextSequence = 0, objectSequence = 0;
+    const objectId = (value: object | null) => { if (!value) return null; let id = objects.get(value); if (id === undefined) { id = ++objectSequence; objects.set(value, id); } return id; };
+    const contextState = (gl: WebGL2RenderingContext) => {
+      let state = states.get(gl); if (state) return state;
+      state = { id: ++contextSequence, generation: 0, expectedLoss: false }; states.set(gl, state); const owned = state;
+      gl.canvas.addEventListener('webglcontextlost', () => proof.gpuLifecycle.push({ event: 'lost', at: performance.now(), contextId: owned.id, generation: owned.generation, intentional: owned.expectedLoss, nativeLost: gl.isContextLost() }), true);
+      gl.canvas.addEventListener('webglcontextrestored', () => { owned.generation++; owned.expectedLoss = false; proof.gpuLifecycle.push({ event: 'restored', at: performance.now(), contextId: owned.id, generation: owned.generation, nativeLost: gl.isContextLost() }); }, true);
+      return state;
+    };
+    proof.markIntentionalLoss = () => { const gl = proof.context; if (!gl) throw new Error('intentional-loss-context-unavailable'); const state = contextState(gl); state.expectedLoss = true; proof.gpuLifecycle.push({ event: 'intentional-loss-requested', at: performance.now(), contextId: state.id, generation: state.generation, nativeLost: gl.isContextLost() }); };
+    const status = (gl: WebGL2RenderingContext, kind: 'link' | 'compile', value: object | null, result: unknown, lostBefore: boolean, infoLog: string | null) => {
+      const state = contextState(gl), lostAfter = gl.isContextLost();
+      const unavailable = result === null && state.expectedLoss && lostBefore && lostAfter;
+      proof.gpuChecks.push({ kind, at: performance.now(), contextId: state.id, generation: state.generation, objectId: objectId(value), status: result, infoLog, intentional: state.expectedLoss, lostBefore, lostAfter, classification: result === true ? 'success' : unavailable ? 'unavailable-during-intentional-loss' : 'failure' });
+      if (result !== true && !unavailable) proof.errors.push(infoLog || (kind === 'link' ? 'program link failed' : 'shader compile failed'));
+    };
+    const programStatus = proto.getProgramParameter, shaderStatus = proto.getShaderParameter, programLog = proto.getProgramInfoLog, shaderLog = proto.getShaderInfoLog;
+    proto.getProgramParameter = function (program, pname) { const lost = this.isContextLost(), result: unknown = programStatus.call(this, program, pname); if (pname === this.LINK_STATUS) status(this, 'link', program, result, lost, programLog.call(this, program)); return result; };
+    proto.getShaderParameter = function (shader, pname) { const lost = this.isContextLost(), result: unknown = shaderStatus.call(this, shader, pname); if (pname === this.COMPILE_STATUS) status(this, 'compile', shader, result, lost, shaderLog.call(this, shader)); return result; };
     proto.getExtension = function (this: WebGL2RenderingContext, name: string) { if (unsupported && name === 'EXT_color_buffer_float') return null; return Reflect.apply(extension, this, [name]); } as WebGL2RenderingContext['getExtension'];
     proto.linkProgram = function (program) {
       link.call(this, program); proof.context = this;
       if (this.canvas instanceof HTMLCanvasElement && !canvases.has(this.canvas)) { canvases.add(this.canvas); proof.contextCanvases++; }
       const source = (this.getAttachedShaders(program) ?? []).map(shader => this.getShaderSource(shader) ?? '').join('\n');
       if (source.includes('uniform sampler2D glow') && source.includes('uniform float strength')) { programs.add(program); proof.compositePrograms++; }
-      if (!this.getProgramParameter(program, this.LINK_STATUS)) proof.errors.push(this.getProgramInfoLog(program) ?? 'program link failed');
+      this.getProgramParameter(program, this.LINK_STATUS);
     };
     const texture = proto.texImage2D, storage = proto.texStorage2D;
     const floating = (format: number) => [0x881a, 0x881b, 0x822d, 0x822f].includes(format);
@@ -57,7 +77,7 @@ async function installProbe(page: Page, options: { unsupported?: boolean; pixels
     }
   }, options);
 }
-const read = (page: Page) => page.evaluate(() => { const proof = (window as unknown as { mapBloomProof: ProbeRuntime }).mapBloomProof; return { draws: proof.draws, ordinaryDraws: proof.ordinaryDraws, compositePrograms: proof.compositePrograms, floatAllocations: proof.floatAllocations, contextCanvases: proof.contextCanvases, pixel: proof.pixel, errors: proof.errors }; });
+const read = (page: Page) => page.evaluate(() => { const proof = (window as unknown as { mapBloomProof: ProbeRuntime }).mapBloomProof; return { draws: proof.draws, ordinaryDraws: proof.ordinaryDraws, compositePrograms: proof.compositePrograms, floatAllocations: proof.floatAllocations, contextCanvases: proof.contextCanvases, pixel: proof.pixel, errors: proof.errors, gpuChecks: proof.gpuChecks, gpuLifecycle: proof.gpuLifecycle }; });
 const canvas = (page: Page) => page.locator('canvas[data-bloom-status]');
 async function open(page: Page) { await page.goto('/?q=' + encodeURIComponent(JSON.stringify(query))); await expect(page.locator('[data-graphics-status]')).toHaveAttribute('data-graphics-status', 'ready'); await expect(page.locator('[data-date-price-status]')).toHaveAttribute('data-date-price-status', 'complete', { timeout: 20000 }); }
 test.beforeEach(async ({ page }) => { mkdirSync(out, { recursive: true }); await page.setViewportSize({ width: 1366, height: 768 }); await page.addInitScript(() => localStorage.setItem('torobticket.appearance', 'dark')); expect((await page.request.post('/api/v1/demo/session', { data: { seed: 4545, anchorInstant: '2026-10-25T06:00:00Z', scenario: 'normal' } })).status()).toBe(201); });
@@ -97,11 +117,11 @@ test('@particle-bloom reduced covered and mobile policies stop composites and co
   await expect(page.locator('aside[aria-label="نقشه سفر"]')).toHaveCount(0); await expect(page.locator('[data-chart-gpu-ready]')).toHaveAttribute('data-chart-gpu-ready', 'true');
   await page.setViewportSize({ width: 1366, height: 768 }); await expect(canvas(page)).toHaveAttribute('data-bloom-status', 'enabled');
   const beforeLoss = await read(page);
-  await page.evaluate(() => { const proof = (window as unknown as { mapBloomProof: ProbeRuntime }).mapBloomProof; proof.restore = proof.context!.getExtension('WEBGL_lose_context')!; proof.restore.loseContext(); });
+  await page.evaluate(() => { const proof = (window as unknown as { mapBloomProof: ProbeRuntime }).mapBloomProof; proof.restore = proof.context!.getExtension('WEBGL_lose_context')!; proof.markIntentionalLoss!(); proof.restore.loseContext(); });
   await expect(page.locator('[data-graphics-status]')).toHaveAttribute('data-graphics-status', 'context-lost'); await paused('context-lost');
   await page.evaluate(() => { (window as unknown as { mapBloomProof: ProbeRuntime }).mapBloomProof.restore!.restoreContext(); });
   await expect(page.locator('[data-graphics-status]')).toHaveAttribute('data-graphics-status', 'ready', { timeout: 20000 });
   await expect(canvas(page)).toHaveAttribute('data-bloom-status', 'enabled', { timeout: 20000 });
-  const restored = await read(page); expect(restored.draws).toBeGreaterThan(beforeLoss.draws); expect(restored.compositePrograms).toBeGreaterThan(beforeLoss.compositePrograms); expect(restored.contextCanvases).toBe(1); expect(restored.errors).toEqual([]);
-  record('bloom-policy-and-context', { stages, beforeLoss, restored });
+  const restored = await read(page); record('bloom-policy-and-context', { stages, beforeLoss, restored });
+  expect(restored.draws).toBeGreaterThan(beforeLoss.draws); expect(restored.compositePrograms).toBeGreaterThan(beforeLoss.compositePrograms); expect(restored.contextCanvases).toBe(1); expect(restored.errors).toEqual([]);
 });
