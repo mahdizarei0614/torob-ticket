@@ -12,7 +12,7 @@
 
 **Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.42, 2026-11-01 (brighter bounded bloom for Iran and zoomed map particles; prior comparison/referral/motion/device qualification decisions retained).
 
-**Plan state:** Approved. M1–M6 and T29–T32 are complete with independent reviews and recorded evidence. **32/35 tasks complete; M7 PARTIAL, T33 next.** T31 retains its documented vendor-announcement residual and owner-waived VoiceOver check. T32 records actual production budgets, visual/performance/resource evidence and explicit device/layout limits. T33 and M8 retain their planned scope.
+**Plan state:** Approved. M1–M7 are complete with independent reviews and recorded evidence. **33/35 tasks complete; M7 COMPLETE; T34 next.** T33 source `62b39ad0` adds reproducible startup and bounded verification; clean Docker boots, isolated core, reset/recovery and selected quality checks pass. T31/T32 documented limits remain; M8 retains its planned scope.
 
 **Delivery location:** This outputs directory contains the user-facing source documents. On repository creation, copy the spec to docs/superpowers/specs/2026-10-24-torobticket-design.md and this plan to docs/superpowers/plans/2026-10-24-torobticket-master-plan.md. Preserve the revision, task IDs, and decision authority, and rewrite the Spec link to ../specs/2026-10-24-torobticket-design.md.
 
@@ -382,7 +382,7 @@ Each row indexes the detailed checkbox steps in section 6. DONE requires indepen
 | [T30 — Complete behavioral regression and multi-reviewer acceptance](#t30) | T30.1 Build stable e2e fixtures<br>T30.2 Exercise the full matrix<br>T30.3 Exercise cross-feature journeys<br>T30.4 Exercise hostile timing and isolation<br>T30.5 Verify and commit | T19, T22, T24, T25, T26, T28, T29 | DONE | Sourcecfcc3a9; actual unfiltered224PASS/0FAIL/2existingM6guards; independent5config+77UI+6PG PASS;1097frozen hashes preserved. [Checkpoint](../../evidence/T30/resume-2026-11-01/checkpoint.md) |
 | [T31 — Accessibility, RTL, responsive behavior, and browser compatibility](#t31) | T31.1 Define representative coverage<br>T31.2 Run semantic checks<br>T31.3 Inspect visual accessibility<br>T31.4 Run browser coverage<br>T31.5 Fix, verify, and commit | T27, T28, T30 | DONE | Source`0ee7f30`; [accessibility](../../evidence/release/accessibility.md), [browser matrix](../../evidence/release/browser-matrix.md). Chrome22/22 +Firefox22/22 affected closure; configured WebKit43PASS/1existing skip +desktop1PASS; independent5/5. Finite vendor residual and VoiceOver waiver recorded. |
 | [T32 — Graphics performance, visual regression, and resource budgets](#t32) | T32.1 Capture controlled visual baselines<br>T32.2 Measure real interaction performance<br>T32.3 Measure bundles and idle work<br>T32.4 Stress lifecycle and fallbacks<br>T32.5 Verify and commit | T27, T28, T30 | DONE | Source `c1f6085`; required8/8 + critical5/5, independent tools8/units4/native2 and exact budget audit pass. 24full/12map comparisons;349.894KiB initial/295.172KiB graphics. [Checkpoint](../../evidence/T32/checkpoint.md), [independent approval](../../evidence/T32/review/independent-verification.md). |
-| [T33 — Fresh-start, offline-runtime, reset, and restart rehearsal](#t33) | T33.1 Rehearse a fresh environment<br>T33.2 Verify external-network independence<br>T33.3 Rehearse lifecycle failures<br>T33.4 Finalize verification runner<br>T33.5 Verify and commit | T29, T30, T31, T32 | TODO | Unassigned / — |
+| [T33 — Fresh-start, offline-runtime, reset, and restart rehearsal](#t33) | T33.1 Rehearse a fresh environment<br>T33.2 Verify external-network independence<br>T33.3 Rehearse lifecycle failures<br>T33.4 Finalize verification runner<br>T33.5 Verify and commit | T29, T30, T31, T32 | COMPLETE | Source `62b39ad0`; clean boots37.6s/36.7s, isolated core/reset and normal restart/retry/persistence, initializer repair and Docker-only restoration.48source/60tool/7Chrome checks pass. [Checkpoint](../../evidence/T33/checkpoint.md), [independent review](../../evidence/T33/review/actual-results-review.md). |
 | [T34 — Reviewer guide, AI evidence, walkthrough, and submission-ready materials](#t34) | T34.1 Write the immediate-start guide<br>T34.2 Write an evidence-based AI log<br>T34.3 Prepare the timed walkthrough<br>T34.4 Review submission facts and licenses<br>T34.5 Verify and commit | T25, T26, T30, T31, T32, T33 | TODO | Unassigned / — |
 | [T35 — Independent final review and release checkpoint](#t35) | T35.1 Review against the product<br>T35.2 Resolve material findings<br>T35.3 Reconcile the tracker<br>T35.4 Run the final critical path<br>T35.5 Record the release checkpoint | T34 | TODO | Unassigned / — |
 
@@ -2082,27 +2082,30 @@ Run pnpm nx run e2e:e2e --grep '@visual|@graphics-lifecycle|@performance'. Inspe
 - Consumes: Final Compose build, complete acceptance suites, local assets, session/restart rules.
 - Produces: Repeatable release verification command and evidence of fresh startup, external-network independence at runtime, and non-destructive restart.
 
-- [ ] **T33.1 — Rehearse a fresh environment**
+- [x] **T33.1 — Rehearse a fresh environment**
 
 Create a disposable named volume and run pnpm docker:up from a clean checkout. Record initial build and ready times, exact commands, seed versions, URLs, and health status. Do not delete the user's unrelated Docker resources.
 
-- [ ] **T33.2 — Verify external-network independence**
+- [x] **T33.2 — Verify external-network independence**
 
 After images/dependencies are available, block nonlocal requests during the walkthrough. Confirm the core journey requires no remote font, image, analytics, OAuth, or model call. The approved on-demand hotel street map is the explicit external tile/style/glyph/sprite exception: block that service and verify the local list/coordinates and referral remain usable with an honest unavailable state. Do not claim the street map is bundled offline. Exercise the direct Compose startup path without host Node/pnpm.
 
-- [ ] **T33.3 — Rehearse lifecycle failures**
+- [x] **T33.3 — Rehearse lifecycle failures**
 
 Restart API during collection, restart the stack with existing data, fail initialization intentionally, and reset one of two reviewer sessions. Confirm interrupted-retry behavior, preserved completed evidence, actionable failures, and isolation.
 
-- [ ] **T33.4 — Finalize verification runner**
+- [x] **T33.4 — Finalize verification runner**
 
 Implement pnpm verify:release to run agreed health/build/test checks and produce a bounded report; keep destructive reset separate. Include clean shutdown instructions and known port/architecture troubleshooting.
 
-- [ ] **T33.5 — Verify and commit**
+- [x] **T33.5 — Verify and commit**
 
 Run the final release rehearsal and save actual outputs. Resolve failures before marking done, then commit packaging/evidence corrections.
 
 **Acceptance:** A reviewer can reproduce the demo without hidden setup, and routine restart/reset operations behave exactly as documented.
+
+
+**T33 COMPLETE — 2026-11-02:** Source `62b39ad0` has the exact9-path tree of the clean canonical boot; the private current-product snapshot retains99 audited pre-existing overlays separately. Actual plain Docker startup passes in37.6s/36.7s without host dependencies or .env. Fully isolated cold core, two-reviewer reset, real API interruption/linked retry/admin replay/full-stack evidence preservation, intentional initializer failure/repair and no-host-Node Docker restoration pass. Final selected quality profile passes48uncached source tasks,60tool contracts and7single-attempt Chrome cases; optional PostgreSQL is explicitly unperformed. Independent19runner contracts pass. All6 original containers and5 full inventory/migration fingerprints remain unchanged after removing only3task-owned stacks/data and2clean temporary worktrees. Images/cache/private provenance refs remain. [Checkpoint](../../evidence/T33/checkpoint.md), [Docker rehearsal](../../evidence/release/docker-rehearsal.md), [independent review](../../evidence/T33/review/actual-results-review.md). **33/35 tasks complete; M7 COMPLETE; T34 next.**
 
 ---
 

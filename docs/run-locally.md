@@ -13,7 +13,8 @@ migrations and the idempotent versioned seed, starts the API, waits for readines
 and serves the consumer at <http://localhost:4300/> and admin at
 <http://localhost:4300/admin/>. No `.env` copy, local database, manual migration,
 seed, login, or local compilation is required. The runner needs Node 24.17.0
-and pnpm 11.9.0. First build downloads images, Debian packages and dependencies;
+and pnpm 11.9.0, but does not need host `node_modules` or a host install.
+First build downloads images, Debian packages and dependencies;
 the comparison/referral runtime then uses local inventory, fonts, artwork and geography. The on-demand hotel street-map picker is the explicit exception: it requests public OpenStreetMap vector styles/tiles/glyphs/sprites when opened. No account/key is required; if those requests fail, the local landmark list and coordinate selection remain usable. Essential comparison and referral do not require that map service.
 
 Without local Node/pnpm, the equivalent is:
@@ -190,3 +191,39 @@ the default4300 project.
 Real database integration checks require an explicit owned disposable database
 ending in `_test`; see `tools/setup-test-database.mjs` and its ownership guards.
 Never point integration tests at the normal reviewer database.
+
+## Bounded release verification
+
+With the packaged stack already ready, install the pinned host verification
+dependencies once using `pnpm install --frozen-lockfile`, then run:
+
+```sh
+pnpm verify:release --base-url http://127.0.0.1:4300 --report-dir docs/evidence/release/local-smoke-001 --browser-channel chrome
+pnpm verify:release --base-url http://127.0.0.1:4300 --report-dir docs/evidence/release/local-quality-001 --profile quality --browser-channel chrome
+```
+
+Each report directory must be new. Omit `--browser-channel` to use installed
+Playwright Chromium. Smoke checks readiness, exact packaged local assets, strict
+host dependency state and seven real browser journeys. Quality also runs serial
+lint/type/unit/build and fixed tooling checks. Both create fresh reviewer
+namespaces and clean up those namespaces; they do not restart Docker, reset
+existing reviewer data, provision databases or install missing dependencies.
+The optional `--postgres` gate requires an explicit existing validated
+`TEST_DATABASE_URL` ending in `_test`; without it the gate is reported skipped.
+The JSON report records selected scope, source state, timeouts and sanitized
+bounded logs. Passing smoke is not full release certification.
+
+Workspace `verifyDepsBeforeRun` is disabled so the built-ins-only Docker
+shortcut can run from an uninstalled checkout. Verification explicitly restores
+the strict dependency check before running source checks; an ordinary bare
+source script no longer provides that check. Real restart/failure injection is
+separate from this verifier; see the [Docker rehearsal](evidence/release/docker-rehearsal.md)
+and [offline-runtime record](evidence/release/offline-runtime.md).
+
+For a port conflict choose an unused `TOROBTICKET_PORT` and keep the same
+`COMPOSE_PROJECT_NAME`/`COMPOSE_FILE` throughout that stack's lifecycle. For
+registry or image download failures, inspect the actual build output and retry
+with the documented public registry mirror overrides in `.env.example`; retain
+the frozen lockfile. No automatic volume deletion is needed for either issue.
+Architecture support is described above; a successful arm64 rehearsal does not
+establish an amd64 run.
