@@ -36,10 +36,10 @@ describe('calendar external intent invalidation',()=>{
     expect(screen.getByRole('radio',{name:'تاریخ رفت'})).toBeChecked();
     expect(commit).not.toHaveBeenCalled();
   });
-  it('allows explicit outbound and return editing inside a provisional calendar when return is missing',()=>{
+  it('allows explicit outbound and return editing inside a provisional calendar when return is missing',async()=>{
     const commit=vi.fn();render(<DateExplorer catalog={catalog} session={session} draft={{...query,tripType:'round-trip',returnDate:undefined}} onCommit={commit} onPreview={vi.fn()} onCovered={vi.fn()} onInteractionChange={vi.fn()}/>);
     fireEvent.click(screen.getByRole('button',{name:'تقویم جلالی و انتخاب تاریخ'}));
-    fireEvent.change(screen.getByLabelText('بخش سفر در تقویم'),{target:{value:'outbound'}});
+    fireEvent.change(await screen.findByLabelText('بخش سفر در تقویم'),{target:{value:'outbound'}});
     expect(screen.getByLabelText('بخش سفر در تقویم')).toHaveValue('outbound');
     fireEvent.click(screen.getByText('ورود تاریخ میلادی'));
     fireEvent.change(screen.getByLabelText('تاریخ رفت میلادی در تقویم'),{target:{value:'2026-10-26'}});
@@ -47,20 +47,20 @@ describe('calendar external intent invalidation',()=>{
     fireEvent.click(screen.getByRole('button',{name:'اعمال تاریخ‌ها'}));
     expect(commit).toHaveBeenCalledWith(expect.objectContaining({departureDate:'2026-10-26',returnDate:'2026-10-29'}));
   });
-  it('discards old whole-draft calendar data and uncovers/focuses the trigger after a same-date party restore',()=>{
+  it('discards old whole-draft calendar data and uncovers/focuses the trigger after a same-date party restore',async()=>{
     const commit=vi.fn(),covered=vi.fn();const props={catalog,session,onCommit:commit,onPreview:vi.fn(),onCovered:covered,onInteractionChange:vi.fn()};
     const view=render(<DateExplorer {...props} draft={{...query,party:{adults:2,children:0,infants:0}}}/>);
-    fireEvent.click(screen.getByRole('button',{name:'تقویم جلالی و انتخاب تاریخ'}));fireEvent.click(screen.getByText('ورود تاریخ میلادی'));fireEvent.change(screen.getByLabelText('تاریخ رفت میلادی در تقویم'),{target:{value:'2026-10-26'}});
+    fireEvent.click(screen.getByRole('button',{name:'تقویم جلالی و انتخاب تاریخ'}));fireEvent.click(await screen.findByText('ورود تاریخ میلادی'));fireEvent.change(screen.getByLabelText('تاریخ رفت میلادی در تقویم'),{target:{value:'2026-10-26'}});
     view.rerender(<DateExplorer {...props} draft={query}/>);const apply=screen.queryByRole('button',{name:'اعمال تاریخ‌ها'});if(apply)fireEvent.click(apply);
     expect(commit).not.toHaveBeenCalled();expect(screen.queryByRole('dialog')).not.toBeInTheDocument();expect(covered).toHaveBeenLastCalledWith(false);
   });
-  it('keeps the same provisional calendar and edited date across expiry-only and same-content SessionInfo refreshes', () => {
+  it('keeps the same provisional calendar and edited date across expiry-only and same-content SessionInfo refreshes', async () => {
     const commit = vi.fn(), covered = vi.fn();
     const props = { catalog, draft: query, onCommit: commit, onPreview: vi.fn(), onCovered: covered, onInteractionChange: vi.fn() };
     const view = render(<DateExplorer {...props} session={session} />);
     fireEvent.click(screen.getByRole('button', { name: 'تقویم جلالی و انتخاب تاریخ' }));
     const dialog = screen.getByRole('dialog');
-    fireEvent.click(screen.getByText('ورود تاریخ میلادی'));
+    fireEvent.click(await screen.findByText('ورود تاریخ میلادی'));
     const input = screen.getByLabelText('تاریخ رفت میلادی در تقویم');
     fireEvent.change(input, { target: { value: '2026-10-26' } });
     expect(input).toHaveValue('2026-10-26'); expect(commit).not.toHaveBeenCalled();
@@ -77,19 +77,19 @@ describe('calendar external intent invalidation',()=>{
     fireEvent.click(screen.getByRole('button', { name: 'اعمال تاریخ‌ها' }));
     expect(commit).toHaveBeenCalledExactlyOnceWith({ ...query, departureDate: '2026-10-26' });
   });
-  it.each(['scenarioRevision', 'mappingRevision'] as const)('still invalidates provisional dates for a real %s change and opens fresh intent', field => {
+  it.each(['scenarioRevision', 'mappingRevision'] as const)('still invalidates provisional dates for a real %s change and opens fresh intent', async field => {
     const commit = vi.fn(), covered = vi.fn();
     const props = { catalog, draft: query, onCommit: commit, onPreview: vi.fn(), onCovered: covered, onInteractionChange: vi.fn() };
     const view = render(<DateExplorer {...props} session={session} />);
     fireEvent.click(screen.getByRole('button', { name: 'تقویم جلالی و انتخاب تاریخ' }));
-    fireEvent.click(screen.getByText('ورود تاریخ میلادی'));
+    fireEvent.click(await screen.findByText('ورود تاریخ میلادی'));
     fireEvent.change(screen.getByLabelText('تاریخ رفت میلادی در تقویم'), { target: { value: '2026-10-26' } });
     const priorApply = screen.getByRole('button', { name: 'اعمال تاریخ‌ها' });
     view.rerender(<DateExplorer {...props} session={{ ...session, [field]: 'actual-new-pricing-revision' }} />);
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument(); expect(priorApply).not.toBeInTheDocument();
     expect(commit).not.toHaveBeenCalled(); expect(covered).toHaveBeenLastCalledWith(false);
     fireEvent.click(screen.getByRole('button', { name: 'تقویم جلالی و انتخاب تاریخ' }));
-    fireEvent.click(screen.getByText('ورود تاریخ میلادی'));
+    fireEvent.click(await screen.findByText('ورود تاریخ میلادی'));
     expect(screen.getByLabelText('تاریخ رفت میلادی در تقویم')).toHaveValue(query.departureDate);
     fireEvent.click(screen.getByRole('button', { name: 'اعمال تاریخ‌ها' }));
     expect(commit).toHaveBeenCalledExactlyOnceWith(query);

@@ -1,10 +1,11 @@
-import {useLayoutEffect,useRef,useState} from 'react';
+import {lazy,useLayoutEffect,useRef,useState} from 'react';
 import {createPortal} from 'react-dom';
 import type {CatalogSnapshot,HotelQuoteSnapshot,Itinerary,ReferralReceipt,SessionInfo,TransportSearchQuery} from '@torob-ticket/contracts';
 import {Button,displayHotelName,MotionSurface,MotionText} from '@torob-ticket/ui';
 import {validateDraft} from '../search/search-url';
 import type {SearchController,TripMapController} from '../map/use-trip-map';
-import {HotelDialog} from './hotel-dialog';
+import {DeferredBoundary} from '../../deferred-boundary';
+import {HotelDialogFrame,HotelDialogLoading} from './hotel-dialog-frame';
 import {HotelEntryPresence} from './hotel-entry-presence';
 import {tripKey,type HotelTrip} from './hotel-state';
 import {useHotelDiscovery,type HotelRestore} from './use-hotel-discovery';
@@ -12,6 +13,7 @@ import {ProviderAction} from '../referral/referral-dialog';
 import type {ReferralSource,useReferralController} from '../referral/referral-controller';
 import type {ReturnCheckpoint} from '../referral/return-checkpoint';
 import styles from './hotels.module.css';
+const HotelDialogContents=lazy(()=>import('./hotel-dialog').then(module=>({default:module.HotelDialogContents})));
 interface ReferralProps {authorityKey?:string;blocked?:boolean;onResume?:()=>void;onSessionExpired?:()=>void;flow?:ReturnType<typeof useReferralController>;restore?:HotelRestore;onCheckpoint?:(value:ReturnCheckpoint['hotel'])=>void;onOriginScroll?:(y:number)=>void}
 interface PlacementProps {desktop?:boolean;portalTarget?:HTMLElement|null}
 export function HotelEntry({controller,map,catalog,session,onCovered,onSelectHotelQuote,flow,restore,onCheckpoint,onOriginScroll,authorityKey,blocked,onResume,onSessionExpired,desktop=false,portalTarget}:{controller:SearchController;map:TripMapController;catalog:CatalogSnapshot;session:SessionInfo;onCovered:(open:boolean)=>void;onSelectHotelQuote?:(quote:HotelQuoteSnapshot|undefined)=>void}&ReferralProps&PlacementProps){
@@ -95,5 +97,6 @@ function HotelEntryContent({controller,map,catalog,session,query,routeReady,desk
   <div><strong><MotionText value={`اقامت در ${city?.name??'مقصد'}`}/></strong><span>اقامتگاه مناسب سفرت را پیدا کن</span></div>
   <Button variant="secondary" aria-label={`مقایسه اقامتگاه‌های ${city?.name??'مقصد'}`} isDisabled={!present||controller.resetting||blocked||controller.pending||controller.startLimitReached} isLoading={opening} onPress={()=>{void openHotel();}}>{`مقایسه اقامتگاه‌های ${city?.name??'مقصد'}`}</Button>
  </MotionSurface>}</HotelEntryPresence>;
- return <>{desktop?(portalTarget?createPortal(entry,portalTarget):null):entry}<HotelDialog model={model} catalog={catalog} session={session} canApplyTrip={available} initialScrollTop={restore?.scrollTop} referralAction={flow&&selectedSource?{quoteId:selectedSource.payload.quote.quoteId,node:<ProviderAction compact layout="ticket" flow={flow} source={selectedSource} catalog={catalog}/ >}:undefined}/></>;
+ const dialogProps={model,catalog,session,canApplyTrip:available,initialScrollTop:restore?.scrollTop,referralAction:flow&&selectedSource?{quoteId:selectedSource.payload.quote.quoteId,node:<ProviderAction compact layout="ticket" flow={flow} source={selectedSource} catalog={catalog}/ >}:undefined};
+ return <>{desktop?(portalTarget?createPortal(entry,portalTarget):null):entry}<HotelDialogFrame {...dialogProps}><DeferredBoundary loading={<HotelDialogLoading/>} unavailable={<div className={styles.arrivalDialog}><p role="alert">نمایش اقامتگاه‌ها ممکن نشد. پنجره را ببندید و مقایسه سفر را ادامه دهید.</p><Button variant="secondary" onPress={model.closeDialog}>بازگشت به مقایسه سفر</Button></div>}><HotelDialogContents {...dialogProps}/></DeferredBoundary></HotelDialogFrame></>;
 }

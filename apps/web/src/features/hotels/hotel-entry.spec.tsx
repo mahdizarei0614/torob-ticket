@@ -9,7 +9,7 @@ import {createSearchState} from '../search/search-reducer';
 import {query,session} from '../search/search-test-data';
 import {group} from '../results/results-test-data';
 import {arrivalCatalog,arrivalSnapshot} from './arrival-hotel-test-data';
-vi.mock('./hotel-dialog',()=>({HotelDialog:({model}:{model:HotelDiscovery})=>model.open?<div role="dialog" aria-label="hotel"><div data-hotel-scroll><output data-testid="dates" data-status={model.state.status}>{model.state.draft.checkIn}/{model.state.draft.checkOut}/{model.state.draft.rooms}</output><output data-testid="order">{model.state.draft.sort}</output><button onClick={()=>void model.changeSort('stars')}>stars</button><button onClick={model.closeDialog}>close</button></div></div>:null}));
+vi.mock('./hotel-dialog',()=>({HotelDialogContents:({model}:{model:HotelDiscovery})=>model.open?<div><div data-hotel-scroll><output data-testid="dates" data-status={model.state.status}>{model.state.draft.checkIn}/{model.state.draft.checkOut}/{model.state.draft.rooms}</output><output data-testid="order">{model.state.draft.sort}</output><button onClick={()=>void model.changeSort('stars')}>stars</button><button onClick={model.closeDialog}>close</button></div></div>:null}));
 const onCovered=vi.fn();
 beforeEach(()=>{vi.spyOn(apiClient,'startHotelSearch').mockImplementation(async q=>arrivalSnapshot(q));});
 afterEach(()=>{vi.restoreAllMocks();vi.clearAllMocks();});
@@ -28,7 +28,7 @@ it('moves only the entry to the dock while preserving automatic stay, ordering, 
 
 it('bootstraps transport only on explicit hotel open and waits for its actual asynchronously selected arrival',async()=>{
  const controller=controllerWithComparison();controller.state=createSearchState(query);controller.submit=vi.fn(async(input:TransportSearchQuery|undefined)=>{controller.state={...controller.state,committed:input!,generation:'fresh',searchId:'search',intentRevision:1};});const map={state:{selection:undefined}} as unknown as TripMapController;const props={controller,map,catalog:arrivalCatalog,session,onCovered};const view=render(<HotelEntry {...props}/>);
- expect(controller.submit).not.toHaveBeenCalled();fireEvent.click(screen.getByRole('button',{name:'مقایسه اقامتگاه‌های پایان'}));await waitFor(()=>expect(screen.getByRole('dialog',{name:'hotel'})).toBeVisible());expect(controller.submit).toHaveBeenCalledExactlyOnceWith(query,false);expect(apiClient.startHotelSearch).not.toHaveBeenCalled();expect(screen.getByTestId('dates')).toHaveTextContent('//1');
+ expect(controller.submit).not.toHaveBeenCalled();fireEvent.click(screen.getByRole('button',{name:'مقایسه اقامتگاه‌های پایان'}));await waitFor(()=>expect(screen.getByRole('dialog',{name:'هتل‌های پایان'})).toBeVisible());expect(controller.submit).toHaveBeenCalledExactlyOnceWith(query,false);expect(apiClient.startHotelSearch).not.toHaveBeenCalled();expect(screen.getByTestId('dates')).toHaveTextContent('//1');
  map.state.selection=selectedMap('2026-10-25T22:00:00Z',{generation:'fresh',searchId:'search'}).state.selection;view.rerender(<HotelEntry {...props}/>);await waitFor(()=>expect(apiClient.startHotelSearch).toHaveBeenCalledTimes(1));expect(screen.getByTestId('dates')).toHaveTextContent('2026-10-26/2026-10-27/1');
 });
 

@@ -11,7 +11,7 @@ import {query,session} from '../search/search-test-data';
 import {group} from '../results/results-test-data';
 import {arrivalCatalog,arrivalSnapshot} from './arrival-hotel-test-data';
 
-vi.mock('./hotel-dialog',()=>({HotelDialog:({model}:{model:HotelDiscovery})=>model.open?<div role="dialog" aria-label="hotel"><output data-testid="stay-sort">{model.state.draft.sort}</output><button onClick={()=>void model.changeSort('stars')}>stars</button><button onClick={model.closeDialog}>close</button></div>:null}));
+vi.mock('./hotel-dialog',()=>({HotelDialogContents:({model}:{model:HotelDiscovery})=>model.open?<div><output data-testid="stay-sort">{model.state.draft.sort}</output><button onClick={()=>void model.changeSort('stars')}>stars</button><button onClick={model.closeDialog}>close</button></div>:null}));
 let reduced=false,hidden=false;const media=new Set<()=>void>(),onCovered=vi.fn();
 const catalog={...arrivalCatalog,supportedConnections:[...arrivalCatalog.supportedConnections,{mode:'flight' as const,scope:'domestic' as const,originCityId:'a',destinationCityId:'c'}]};
 beforeEach(()=>{

@@ -22,15 +22,15 @@ function setup(){const r=recovery([group('a')],2);control.value={recovery:r,chec
  const scroll=vi.spyOn(window,'scrollTo').mockImplementation((options:ScrollToOptions|number)=>{if(typeof options==='object')Object.defineProperty(window,'scrollY',{configurable:true,value:options.top??0});});window.history.replaceState({key:'provider-entry',idx:0},'','/provider-demo/r');const view=render(<StrictMode><BrowserRouter><RetainedConsumerRoutes/></BrowserRouter></StrictMode>);scroll.mockClear();return {scroll,...view};}
 afterEach(()=>{vi.restoreAllMocks();Object.defineProperty(window,'scrollY',{configurable:true,value:0});window.history.replaceState({},'','/');});
 it('waits for bootstrap AND adopted DOM, restores origin once, then releases the independent hotel portal',async()=>{
- const {scroll}=setup();fireEvent.click(screen.getByText('return restored'));await screen.findByText('bootstrap');expect(scroll).not.toHaveBeenCalled();expect(screen.queryByRole('dialog')).toBeNull();expect(screen.getByText('suspended')).toBeTruthy();
+ const {scroll}=setup();fireEvent.click(await screen.findByText('return restored'));await screen.findByText('bootstrap');expect(scroll).not.toHaveBeenCalled();expect(screen.queryByRole('dialog')).toBeNull();expect(screen.getByText('suspended')).toBeTruthy();
  fireEvent.click(screen.getByText('finish bootstrap'));expect(screen.getByText('adopting')).toBeTruthy();expect(scroll).not.toHaveBeenCalled();expect(screen.queryByRole('dialog')).toBeNull();fireEvent.click(screen.getByText('finish adopted DOM'));await screen.findByRole('dialog',{name:'restored hotel'});expect(scroll).toHaveBeenCalledTimes(1);expect(scroll).toHaveBeenCalledWith({top:1635,behavior:'instant'});expect(control.origins.length).toBeGreaterThan(0);expect(control.origins.every(y=>y===1635)).toBe(true);fireEvent.click(screen.getByText('repeat readiness'));expect(scroll).toHaveBeenCalledTimes(1);
 });
 it('different real history fences a delayed adopted callback and releases the pending visual cover',async()=>{
- const {scroll}=setup();fireEvent.click(screen.getByText('return restored'));await screen.findByText('bootstrap');fireEvent.click(screen.getByText('finish bootstrap'));
+ const {scroll}=setup();fireEvent.click(await screen.findByText('return restored'));await screen.findByText('bootstrap');fireEvent.click(screen.getByText('finish bootstrap'));
  act(()=>{window.history.replaceState({key:'different',idx:0},'','/'+serializeSearchUrl({...query,sort:'fastest'}));window.dispatchEvent(new PopStateEvent('popstate'));});await waitFor(()=>expect(screen.getByText('interactive')).toBeTruthy());expect(screen.getByTestId('seed').textContent).toBe('no restore seed');fireEvent.click(screen.getByText('finish adopted DOM'));expect(scroll).not.toHaveBeenCalledWith({top:1635,behavior:'instant'});
 });
 
 it('a different entry with the same query revokes the seed before delayed bootstrap finishes',async()=>{
- const {scroll}=setup();fireEvent.click(screen.getByText('return restored'));await screen.findByText('bootstrap');
+ const {scroll}=setup();fireEvent.click(await screen.findByText('return restored'));await screen.findByText('bootstrap');
  act(()=>{window.history.replaceState({key:'different-same-query',idx:0},'','/'+serializeSearchUrl(query));window.dispatchEvent(new PopStateEvent('popstate'));});await waitFor(()=>expect(screen.getByTestId('seed').textContent).toBe('no restore seed'));fireEvent.click(screen.getByText('finish adopted DOM'));expect(scroll).not.toHaveBeenCalledWith({top:1635,behavior:'instant'});
 });

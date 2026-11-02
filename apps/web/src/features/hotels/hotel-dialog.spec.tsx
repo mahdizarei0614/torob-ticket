@@ -22,6 +22,15 @@ function setup(transform=(snapshot:ReturnType<typeof arrivalSnapshot>)=>snapshot
 }
 
 describe('arrival map and square hotel collection',()=>{
+ it('retires held map ownership on body unmount and gives a reopened dialog a new live owner',async()=>{
+  const {dialog}=setup();await waitFor(()=>expect(dialog().querySelectorAll('[data-hotel-id]')).toHaveLength(2));
+  const held=map.current!,selected=held.selectedHotelId;expect(held.isCurrent()).toBe(true);
+  fireEvent.click(within(dialog()).getByRole('button',{name:'بستن'}));
+  expect(screen.queryByRole('dialog')).not.toBeInTheDocument();expect(held.isCurrent()).toBe(false);
+  act(()=>held.onSelectHotel?.('hotel-b'));
+  fireEvent.click(screen.getByText('open hotels'));await waitFor(()=>expect(dialog().querySelectorAll('[data-hotel-id]')).toHaveLength(2));
+  expect(map.current).not.toBe(held);expect(map.current?.isCurrent()).toBe(true);expect(held.isCurrent()).toBe(false);expect(map.current?.selectedHotelId).toBe(selected);
+ });
  it('loads one arrival-local night automatically and retains the actual hub without a duplicate arrival/date summary',async()=>{
   const {queries,dialog}=setup();await waitFor(()=>expect(dialog().querySelectorAll('[data-hotel-id]')).toHaveLength(2));
   expect(queries).toHaveLength(1);expect(queries[0]).toMatchObject({checkIn:'2026-10-26',checkOut:'2026-10-27',rooms:1,arrivalPlaceId:'MHD'});

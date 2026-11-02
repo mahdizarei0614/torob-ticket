@@ -1,6 +1,6 @@
 import { createDateInteractions, type DateInteractions } from './date-interaction';
-import { useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { SegmentedControl, priceRange } from '@torob-ticket/ui';
+import { lazy, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { LoadingSkeleton, SegmentedControl, priceRange } from '@torob-ticket/ui';
 import { LocalDateSchema } from '@torob-ticket/contracts';
 import type { CatalogSnapshot, DatePriceCell, DatePriceQuery, SessionInfo } from '@torob-ticket/contracts';
 import { dateBounds, validateDraft, type SearchDraft } from '../search/search-url';
@@ -8,10 +8,12 @@ import { SearchFieldFeedback, useSearchFieldFeedback } from '../search/search-fi
 import { calendarWindow, commitDate, dateWindow, datePriceIdentityForSession, datePriceSessionIdentity, type DateLeg } from './date-state';
 import { DateLegControl } from './date-leg-slot';
 import { DateWheel } from './date-wheel';
-import { DateCalendar } from './date-calendar';
+import { DeferredBoundary } from '../../deferred-boundary';
+import { DateCalendarFrame } from './date-calendar-frame';
 import { DateChart } from './date-chart';
 import { useDatePrices } from './use-date-prices';
 import styles from './dates.module.css';
+const DateCalendarContents = lazy(() => import('./date-calendar').then(module => ({ default: module.DateCalendarContents })));
 export function DateExplorer({ draft, catalog, session, onCommit, onPreview, onCovered, onInteractionChange, interaction: controlledInteraction, disabled = false, waiting = false }: { draft: SearchDraft; catalog: CatalogSnapshot; session: SessionInfo; onCommit: (draft: SearchDraft) => void; onPreview: (date?: string) => void; onCovered: (covered: boolean) => void; onInteractionChange: (active: boolean) => void; disabled?: boolean; waiting?: boolean; interaction?: DateInteractions }) {
   const dateFeedback = useSearchFieldFeedback('departureDate', 'returnDate');
   const [leg, setLeg] = useState<DateLeg>(() => draft.tripType === 'round-trip' && !draft.returnDate ? 'return' : 'outbound');
@@ -78,7 +80,11 @@ export function DateExplorer({ draft, catalog, session, onCommit, onPreview, onC
     </div>
     {!!prices.error && <p role="alert" className={styles.error}>قیمت روزها دریافت نشد؛ این به معنی نبودن پیشنهاد نیست.</p>}
     {waiting && <p role="status" className={styles.status}>تاریخ انتخاب‌شده ثبت شد؛ آخرین انتخاب شما با آزاد شدن ظرفیت جست‌وجو می‌شود.</p>}
-    {activeProvisional && <DateCalendar draft={activeProvisional.draft} leg={activeLeg} onLeg={changeLeg} onDraft={next => setProvisional(previous => previous && interaction.isCurrent(previous.token) && previous.basis === basisRef.current ? { ...previous, draft: next } : undefined)} month={month} onMonth={setMonth} min={activeLeg === 'return' && model.departureDate > bounds.min ? model.departureDate : bounds.min} max={bounds.max} localBounds={{ outbound: dateBounds(session, catalog.cities.find(city => city.id === model.originCityId)?.timeZone ?? 'Asia/Tehran'), return: dateBounds(session, catalog.cities.find(city => city.id === model.destinationCityId)?.timeZone ?? 'Asia/Tehran') }} cells={cells} range={range} canApply={validateDraft(activeProvisional.draft, catalog, session).valid && !disabled} priceNotice={prices.error ? 'قیمت روزها در دسترس نیست؛ نبودن پیشنهاد ثابت نشده است.' : undefined} missingLabel={prices.error ? 'قیمت در دسترس نیست' : undefined} onApply={applyCalendar} onCancel={close} />}
+    {activeProvisional && <DateCalendarFrame canApply={validateDraft(activeProvisional.draft, catalog, session).valid && !disabled} onApply={applyCalendar} onCancel={close}>
+      <DeferredBoundary loading={<div data-calendar-loading role="status"><p className={styles.status}>در حال آماده‌سازی تقویم…</p><LoadingSkeleton rows={2} compact /></div>} unavailable={<p role="alert" className={styles.status}>تقویم در دسترس نیست؛ از روزهای نزدیک استفاده کنید.</p>}>
+        <DateCalendarContents draft={activeProvisional.draft} leg={activeLeg} onLeg={changeLeg} onDraft={next => setProvisional(previous => previous && interaction.isCurrent(previous.token) && previous.basis === basisRef.current ? { ...previous, draft: next } : undefined)} month={month} onMonth={setMonth} min={activeLeg === 'return' && model.departureDate > bounds.min ? model.departureDate : bounds.min} max={bounds.max} localBounds={{ outbound: dateBounds(session, catalog.cities.find(city => city.id === model.originCityId)?.timeZone ?? 'Asia/Tehran'), return: dateBounds(session, catalog.cities.find(city => city.id === model.destinationCityId)?.timeZone ?? 'Asia/Tehran') }} cells={cells} range={range} priceNotice={prices.error ? 'قیمت روزها در دسترس نیست؛ نبودن پیشنهاد ثابت نشده است.' : undefined} missingLabel={prices.error ? 'قیمت در دسترس نیست' : undefined} />
+      </DeferredBoundary>
+    </DateCalendarFrame>}
 
   </section>;
 }

@@ -4,12 +4,14 @@ import type {Location} from 'react-router';
 import type {ReferralReceipt} from '@torob-ticket/contracts';
 import {DialogSuspensionProvider} from '@torob-ticket/ui';
 import {SearchPage} from './features/search/search-page';
-import {ProviderPage} from './features/referral/provider-page';
+import {DeferredBoundary} from './deferred-boundary';
+import {ProviderRouteFrame} from './features/referral/provider-route-frame';
 import {retainComparisonHistory,clearComparisonHistory} from './features/referral/provider-history';
 import {writeReturnCheckpoint,type ReturnCheckpoint} from './features/referral/return-checkpoint';
 import type {HydratedReturn} from './features/referral/return-hydration';
 const GraphicsLab=lazy(()=>import('@torob-ticket/graphics').then(module=>({default:module.GraphicsLab})));
 const RouteLab=lazy(()=>import('@torob-ticket/graphics').then(module=>({default:module.RouteLab})));
+const ProviderPage=lazy(()=>import('./features/referral/provider-page').then(module=>({default:module.ProviderPage})));
 export function RetainedConsumerRoutes(){
  const location=useLocation(),navigate=useNavigate();const provider=/^\/provider-demo\/([A-Za-z0-9_-]+)$/.exec(location.pathname);
  const retained=useRef<Location|undefined>(location.pathname==='/'?location:undefined);const returnScroll=useRef(0),wasProvider=useRef(false);const [restored,setRestored]=useState<HydratedReturn|undefined>();const [restorePending,setRestorePending]=useState(false);const restoreRun=useRef<{value:HydratedReturn;entryKey?:string;done:boolean}|undefined>(undefined);const [,resumeComparison]=useState(0);const actualLocation=useRef(location);actualLocation.current=location;
@@ -27,11 +29,16 @@ export function RetainedConsumerRoutes(){
   if(retained.current){void navigate(-1);return;}
   if(!value)return;restoreRun.current={value,done:false};setRestorePending(true);setRestored(value);returnScroll.current=value.checkpoint.scrollY;void navigate({pathname:'/',search:value.checkpoint.returnSearch},{replace:true});
  }
+ function returnFromProvider(value?:HydratedReturn){
+  const current=actualLocation.current;
+  if(current.key!==location.key||current.pathname!==location.pathname||!provider)return;
+  returnToComparison(value);
+ }
  function restoreReady(value:HydratedReturn,ready=true){const pending=restoreRun.current,now=actualLocation.current;if(!pending||pending.done||pending.value!==value||now.pathname!=='/'||now.search!==value.checkpoint.returnSearch||pending.entryKey!==now.key)return;pending.done=true;if(ready)window.scrollTo({top:value.checkpoint.scrollY,behavior:'instant'});setRestorePending(false);}
  useLayoutEffect(()=>{const pending=restoreRun.current;if(pending?.entryKey&&!provider&&(location.pathname!=='/'||location.search!==pending.value.checkpoint.returnSearch||location.key!==pending.entryKey)){restoreRun.current=undefined;setRestorePending(false);setRestored(undefined);}},[location.key,location.search,location.pathname]);
  return <>
  {comparison&&(!covered||retained.current)&&<div hidden={covered} inert={covered||undefined} aria-hidden={covered||undefined}><DialogSuspensionProvider value={covered||restorePending||reopening}><Routes location={comparison}><Route path="/" element={<SearchPage themeActive={!covered} covered={covered||restorePending||reopening} onHandoff={handoff} restore={restorationSeed} onRestoreReady={restoreReady}/>} /><Route path="/graphics-lab" element={<Suspense fallback={<p>در حال آماده‌سازی آزمایشگاه…</p>}><GraphicsLab/></Suspense>}/><Route path="/route-lab" element={<Suspense fallback={<p>در حال آماده‌سازی نقشه…</p>}><RouteLab/></Suspense>}/><Route path="*" element={<main lang="fa" dir="rtl"><h1>این صفحه پیدا نشد</h1><a href="/">بازگشت به جست‌وجوی سفر</a></main>}/></Routes></DialogSuspensionProvider></div>}
- {provider&&<ProviderPage key={provider[1]} referralId={provider[1]!} retained={Boolean(retained.current)} onReturn={returnToComparison}/>}
+ {provider&&<DeferredBoundary key={provider[1]} loading={<ProviderRouteFrame retained={Boolean(retained.current)} onReturn={()=>returnFromProvider()}/>} unavailable={<ProviderRouteFrame retained={Boolean(retained.current)} unavailable onReturn={()=>returnFromProvider()}/>}><ProviderPage key={provider[1]} referralId={provider[1]!} retained={Boolean(retained.current)} onReturn={returnFromProvider}/></DeferredBoundary>}
  </>;
 }
 export function ConsumerRoutes(){return <BrowserRouter><RetainedConsumerRoutes/></BrowserRouter>;}

@@ -55,6 +55,12 @@ function Driver(props: RendererProps & { onVisibility: (ids: string[]) => void; 
       cpuSubmissionMs: [], programs: [], pixels: {}, uniforms: {}, geometries: 0, programsInMemory: 0, activeViews: 0, frameSubscribers: 0,
       lost: 0, restored: 0, disposed: false,
     };
+    const publishResources = () => {
+      // Read-only audit metadata; the existing driver remains the sole owner.
+      const values = { graphicsQuality: data.quality.tier, graphicsDpr: String(gl.getPixelRatio()), graphicsGeometries: String(data.geometries), graphicsPrograms: String(data.programsInMemory) };
+      for (const [key, value] of Object.entries(values)) if (gl.domElement.dataset[key] !== value) gl.domElement.dataset[key] = value;
+    };
+    publishResources();
     const status = (value: GraphicsStatus) => { if (!live) return; data.status = value; latest.current.onStatus(value); };
     const readPrograms = () => (gl.info.programs ?? []).map(program => ({
       linked: Boolean(context.getProgramParameter(program.program as WebGLProgram, context.LINK_STATUS)),
@@ -141,6 +147,7 @@ function Driver(props: RendererProps & { onVisibility: (ids: string[]) => void; 
       if (stickyLow) { quality.dpr = Math.min(1, devicePixelRatio); quality.tier = 'low'; quality.reason = 'measured-cpu-submission'; }
       if (gl.getPixelRatio() !== quality.dpr) { state.setDpr(quality.dpr); latest.current.onDpr(quality.dpr); scheduler.invalidate(); }
       data.quality = quality;
+      publishResources();
       if (stickyLow) bloomBudget.fail('low-quality-tier');
       if (bloomBudget.snapshot().status === 'disabled') bloom.release();
       publishBloom();

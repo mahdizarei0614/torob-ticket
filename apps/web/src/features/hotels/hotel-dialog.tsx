@@ -1,6 +1,6 @@
-import {useCallback,useId,useLayoutEffect,useMemo,useRef,useState,type ReactNode} from 'react';
-import {GeoPointSchema,type GeoPoint,type CatalogSnapshot,type SessionInfo} from '@torob-ticket/contracts';
-import {Button,Dialog,SegmentedControl,displayHotelName,displayPlaceName,LoadingSkeleton,ContentSwap,ContentItem,HotelStayIllustration,useMotionPolicy} from '@torob-ticket/ui';
+import {useCallback,useId,useLayoutEffect,useMemo,useRef,useState} from 'react';
+import {GeoPointSchema,type GeoPoint} from '@torob-ticket/contracts';
+import {Button,SegmentedControl,displayHotelName,displayPlaceName,LoadingSkeleton,ContentSwap,ContentItem,HotelStayIllustration,useMotionPolicy} from '@torob-ticket/ui';
 import type {HotelDiscovery} from './use-hotel-discovery';
 import {hotelCapacity,hotelCapacityOptions,queryKey} from './hotel-state';
 import {HotelCard} from './hotel-card';
@@ -8,6 +8,7 @@ import {HotelSelection} from './hotel-selection';
 import {FreeLocationMap} from './free-location-map';
 import type {MapChoice} from './free-map-adapter';
 import {faNumber} from './hotel-format';
+import {HotelDialogFrame,type HotelDialogProps} from './hotel-dialog-frame';
 import styles from './hotels.module.css';
 
 function discoveryScrollHost(panel:HTMLDivElement){
@@ -34,7 +35,10 @@ function CoordinateReference({model,initial,onCommit,onCancel}:{model:HotelDisco
  </details>;
 }
 
-export function HotelDialog({model,catalog,referralAction,initialScrollTop=0}:{model:HotelDiscovery;catalog:CatalogSnapshot;session:SessionInfo;canApplyTrip:boolean;referralAction?:{quoteId:string;node:ReactNode};initialScrollTop?:number}){
+export function HotelDialog(props:HotelDialogProps){
+ return <HotelDialogFrame {...props}><HotelDialogContents {...props}/></HotelDialogFrame>;
+}
+export function HotelDialogContents({model,catalog,referralAction,initialScrollTop=0}:HotelDialogProps){
  const {state}=model,trip=state.trip,draft=state.draft,policy=useMotionPolicy();
  const capacity=hotelCapacity(state),adultCapacity=Boolean(trip.query.party.children||trip.query.party.infants);
  const city=catalog.cities.find(item=>item.id===trip.query.destinationCityId);
@@ -45,6 +49,7 @@ export function HotelDialog({model,catalog,referralAction,initialScrollTop=0}:{m
  const arrivalCode=arrival?.code&&!arrivalName.toLocaleUpperCase().includes(arrival.code.toLocaleUpperCase())?arrival.code:undefined;
  const identity=[trip.query.destinationCityId,arrival?.id??'awaiting-arrival'].join(':');
  const ownership=useRef({identity,open:model.open});ownership.current={identity,open:model.open};
+ useLayoutEffect(()=>{ownership.current={identity,open:model.open};return()=>{ownership.current.open=false;};},[identity,model.open]);
  const isMapCurrent=useCallback(()=>ownership.current.open&&ownership.current.identity===identity,[identity]);
  const order=useRef<HTMLDivElement>(null),pointReturnFocus=useRef(false);
  useLayoutEffect(()=>{if(!model.open){pointReturnFocus.current=false;return;}if(!state.point&&pointReturnFocus.current){pointReturnFocus.current=false;order.current?.querySelector<HTMLInputElement>('input[type="radio"]:checked:not(:disabled)')?.focus();}},[model.open,state.point]);
@@ -96,8 +101,7 @@ export function HotelDialog({model,catalog,referralAction,initialScrollTop=0}:{m
   if(value==='location-distance'){model.openPoint();return;}
   void model.changeSort(value as typeof draft.sort);
  },[model]);
- return <Dialog title={`هتل‌های ${city?.name??'مقصد'}`} isOpen={model.open} onOpenChange={next=>{if(!next)model.closeDialog();}} mobileFullscreen stickyHeader size="wide">
-  <div className={styles.arrivalDialog} data-hotel-dialog data-motion-enabled={policy.enabled} data-hotel-authority-stale={model.authorityStale} data-hotel-blocked={model.blocked} data-hotel-context={trip.query.destinationCityId} data-hotel-stale={model.stale} data-hotel-check-in={model.query?.checkIn??''} data-hotel-check-out={model.query?.checkOut??''} data-selected-hotel-id={state.selectedHotelId}>
+ return <div className={styles.arrivalDialog} data-hotel-dialog data-motion-enabled={policy.enabled} data-hotel-authority-stale={model.authorityStale} data-hotel-blocked={model.blocked} data-hotel-context={trip.query.destinationCityId} data-hotel-stale={model.stale} data-hotel-check-in={model.query?.checkIn??''} data-hotel-check-out={model.query?.checkOut??''} data-selected-hotel-id={state.selectedHotelId}>
    <div className={styles.hotelSplitFrame}>
    <div className={styles.hotelSplit} data-hotel-layout="split">
     <div className={styles.hotelMapPane} data-hotel-map-pane>
@@ -129,6 +133,5 @@ export function HotelDialog({model,catalog,referralAction,initialScrollTop=0}:{m
    <div className={styles.hotelOverflowCue} data-hotel-overflow-cue data-visible={moreBelow} aria-hidden="true"/>
    </div>
    <ContentSwap identity={selectedHotel&&!state.point&&!model.stale?'selection':'no-selection'}>{selectedHotel&&!state.point&&!model.stale&&<HotelSelection hotel={selectedHotel} result={selectedResult} quote={selectedQuote} pending={loading} continuation={selectedQuote&&referralAction?.quoteId===selectedQuote.quoteId?referralAction.node:undefined} onRefresh={()=>void model.submit()}/>}</ContentSwap>
-  </div>
- </Dialog>;
+  </div>;
 }

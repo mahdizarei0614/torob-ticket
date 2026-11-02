@@ -1,22 +1,27 @@
 import { useId } from 'react';
 import { parseDate, toCalendar, PersianCalendar, GregorianCalendar, toCalendarDate, type DateValue, type CalendarDate } from '@internationalized/date';
 import { Button as AriaButton, Calendar, CalendarCell, CalendarGrid, CalendarGridHeader, CalendarHeaderCell, CalendarGridBody, Heading, I18nProvider } from 'react-aria-components';
-import { Button, Dialog, priceBand, type PriceRange } from '@torob-ticket/ui';
+import { priceBand, type PriceRange } from '@torob-ticket/ui';
 import type { DatePriceCell } from '@torob-ticket/contracts';
 import type { SearchDraft } from '../search/search-url';
 import { cellLabel, commitDate, dateLabel, type DateLeg } from './date-state';
 import { DateAmount } from './date-amount';
+import { DateCalendarFrame } from './date-calendar-frame';
 import styles from './dates.module.css';
 const gregorian = (date: DateValue) => toCalendar(toCalendarDate(date), new GregorianCalendar()).toString();
 const persian = (date: string) => toCalendar(parseDate(date), new PersianCalendar());
-export function DateCalendar({ draft, leg, onLeg, onDraft, month, onMonth, min, max, localBounds, cells, range, onApply, onCancel, canApply, priceNotice, missingLabel }: { draft: SearchDraft; leg: DateLeg; onLeg: (leg: DateLeg) => void; onDraft: (draft: SearchDraft) => void; month: string; onMonth: (date: string) => void; min: string; max: string; localBounds: { outbound: { min: string; max: string }; return: { min: string; max: string } }; cells: readonly DatePriceCell[]; range?: PriceRange; onApply: () => void; onCancel: () => void; canApply: boolean; priceNotice?: string; missingLabel?: string }) {
+export interface DateCalendarProps { draft: SearchDraft; leg: DateLeg; onLeg: (leg: DateLeg) => void; onDraft: (draft: SearchDraft) => void; month: string; onMonth: (date: string) => void; min: string; max: string; localBounds: { outbound: { min: string; max: string }; return: { min: string; max: string } }; cells: readonly DatePriceCell[]; range?: PriceRange; onApply: () => void; onCancel: () => void; canApply: boolean; priceNotice?: string; missingLabel?: string }
+export function DateCalendar(props: DateCalendarProps) {
+  return <DateCalendarFrame canApply={props.canApply} onApply={props.onApply} onCancel={props.onCancel}><DateCalendarContents {...props} /></DateCalendarFrame>;
+}
+export function DateCalendarContents({ draft, leg, onLeg, onDraft, month, onMonth, min, max, localBounds, cells, range, priceNotice, missingLabel }: Omit<DateCalendarProps, 'onApply' | 'onCancel' | 'canApply'>) {
   const descriptionId = useId();
   const value = leg === 'outbound' ? draft.departureDate : draft.returnDate;
   const focusedCell = cells.find(cell => cell.date === month);
   const months: CalendarDate[] = []; let cursor = persian(min).set({ day: 1 });
   while (gregorian(cursor) <= max && months.length < 5) { months.push(cursor); cursor = cursor.add({ months: 1 }); }
   const monthKey = `${persian(month).year}-${persian(month).month}`;
-  return <Dialog title="انتخاب تاریخ سفر" size="compact" isOpen onOpenChange={open => { if (!open) onCancel(); }}>
+  return <>
     {draft.tripType === 'round-trip' && <label className={styles.toolbar}>انتخاب بخش سفر<select aria-label="بخش سفر در تقویم" value={leg} onChange={event => onLeg(event.target.value as DateLeg)}><option value="outbound">رفت</option><option value="return">برگشت</option></select></label>}
     <p className={styles.caption}>قیمت‌ها به هزار تومان</p>
     {priceNotice && <p role="status" className={styles.status}>{priceNotice}</p>}
@@ -27,6 +32,5 @@ export function DateCalendar({ draft, leg, onLeg, onDraft, month, onMonth, min, 
     {draft.tripType === 'round-trip' && !draft.returnDate && <p className={styles.status}>تاریخ برگشت را دوباره انتخاب کنید؛ تاریخ رفت انتخاب‌شده حفظ می‌شود.</p>}
     <details className={styles.manualDisclosure}><summary>ورود تاریخ میلادی</summary><div className={styles.manual}><label>تاریخ رفت میلادی<input aria-label="تاریخ رفت میلادی در تقویم" type="date" dir="ltr" min={localBounds.outbound.min} max={localBounds.outbound.max} value={draft.departureDate} onChange={event => { if (event.target.value) onDraft(commitDate(draft, 'outbound', event.target.value)); }} /></label>{draft.tripType === 'round-trip' && <label>تاریخ برگشت میلادی<input aria-label="تاریخ برگشت میلادی در تقویم" type="date" dir="ltr" value={draft.returnDate ?? ''} min={draft.departureDate > localBounds.return.min ? draft.departureDate : localBounds.return.min} max={localBounds.return.max} onChange={event => onDraft({ ...draft, returnDate: event.target.value || undefined })} /></label>}</div></details>
     <p className={styles.status} aria-live="polite">{value ? <>{dateLabel(month)} · <span data-price-band={priceBand(focusedCell?.status === 'priced' ? focusedCell.minimum.amountRial : undefined, range)}>{focusedCell ? cellLabel(focusedCell,leg) : missingLabel ?? cellLabel(undefined)}</span></> : 'تاریخ برگشت را انتخاب کنید.'}</p>
-    <div className={styles.calendarFooter}><Button type="button" onPress={onApply} isDisabled={!canApply}>اعمال تاریخ‌ها</Button><Button type="button" variant="quiet" onPress={onCancel}>انصراف</Button></div>
-  </Dialog>;
+  </>;
 }
