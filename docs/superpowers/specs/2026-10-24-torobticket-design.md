@@ -1,6 +1,6 @@
 # TorobTicket — Product and Architecture Specification
 
-**Revision:** 1.45 · 2026-11-02
+**Revision:** 1.46 · 2026-11-02
 
 **Purpose:** Authoritative design companion to the master implementation plan.  
 **Status:** Product scope and architecture approved in conversation. Implementation defaults below are explicit engineering decisions made while preparing the plan; they are not additional claims of user approval.
@@ -149,6 +149,8 @@ Clicking a chart point synchronizes the wheel. The line describes the minimum el
 **Owner chart refinement,2026-10-28:** exact-date/price custom tooltips enter with a finite fade and move smoothly between cells. Use a gently smoothed3.25 CSSpx line with round ringed markers that grow on hover/focus; a persistent distinct ring and date guide retain the chosen day while another is inspected. Shared bounded monotone geometry never bridges unavailable days or introduces synthetic price observations. Tooltips show only actual cell values/statuses. Keyboard, touch, Escape and outside dismissal remain usable; overlapping or mismatched pointers cannot commit a date. GPU and SVG match; before each GPU draw read the actual renderer CSS viewport/DPR so narrow plots retain their intended stroke and marker proportions. Hover uses the existing finite Motion service even when the desktop map loop is absent.
 
 **Owner chart lifecycle refinement,2026-10-28 (decision0044):** first appearance and re-entry draw the curve from its chronological start to end with eased progress. Changed dates/inventory reshape from the currently displayed geometry; rapid interruptions continue there. No-priced-data transitions fade/retract the retained visual before clearing it. One finite frame store owns both GPU and SVG presentation, including tooltip coordinates, exact target-cell facts, gap topology and point opacity. Reduced/covered/hidden motion settles without a new persistent renderer loop. Range labels read «کمترین قیمت» and «بیشترین قیمت».
+
+**Owner pending date-price motion,2026-11-02 (decision0084):** reserve the existing chart plot with neutral structural skeleton/pending copy before real prices appear. Current valid pending date requests, including debounce, own this state; invalid/unselected forms, settled empty results and retrieval errors do not spin indefinitely. Partial priced cells can display immediately. Pending phrases/visuals in chart and checking wheel cells repeatedly ease from low to high opacity and back while awaiting their data. Loading visuals fade out as real data fades in, with retiring content immediately inert/accessibility-hidden and current facts authoritative. Preserve existing chart draw/morph/gaps, native date selection, layout/typography and price/query/leg/session identity. Suppress motion under shared reduced/covered/hidden/disabled policy. No fabricated price curve, artificial minimum wait, extra renderer, dependency or persistent JS clock.
 
 Calendar and wheel use one date-price model. Calendar interaction is provisional until “Apply dates.” Cancel restores the previous selection and focus. Jalali month boundaries, leap years, keyboard navigation, and valid Gregorian conversion are explicit test cases.
 

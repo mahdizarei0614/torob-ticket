@@ -53,7 +53,7 @@
 .chartHeading>span:last-child{flex:0 0 auto;}
 
 /* Keep the shared animated SVG visible until this chart, including its lazy scene, has actually drawn. */
-.chart[data-chart-gpu-ready='false'] > [data-graphics-view] > [aria-hidden] { opacity:1;visibility:visible;pointer-events:none; }
+.chart[data-chart-gpu-ready='false'] .chartContent > [data-graphics-view] > [aria-hidden] { opacity:1;visibility:visible;pointer-events:none; }
 
 .chartPoints { touch-action: pan-y; }
 .chartTooltipAnchor { position:absolute;z-index:3;width:136px;max-width:100%;pointer-events:none;direction:rtl;text-align:center;transition:left 160ms ease-out,top 160ms ease-out; }
@@ -70,3 +70,24 @@
 .priceAmount[data-enter] { animation: datePriceAppear 240ms ease-out both; }
 @keyframes datePriceAppear { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 @media (prefers-reduced-motion: reduce) { .priceAmount[data-enter] { animation: none; } }
+
+/* Loading and data share the same reserved plot; only their opacity changes. */
+.chartContent { position:absolute;inset:0; }
+.chartContent > [data-graphics-view] { position:absolute;inset:0;width:100%;height:100%; }
+.chartLoading { position:absolute;inset:0;z-index:4;pointer-events:none;color:var(--text-muted);font-size:11px;line-height:1.8; }
+.chartLoading > [data-loading-pulse] { display:grid;place-items:center;inline-size:100%;block-size:100%; }
+.chartLoadingContent { display:grid;justify-items:center;align-content:center;gap:10px;inline-size:100%;block-size:100%; }
+.chartLoadingGrid { position:absolute;inset:0;width:100%;height:100%;fill:none;stroke:var(--border);stroke-width:1; }
+.chartLoadingBars { display:grid;justify-items:center;gap:5px; }
+.chartLoadingBars i { display:block;inline-size:56px;block-size:5px;background:var(--surface-subtle);border-radius:var(--radius-pill);corner-shape:var(--corner-shape-round); }
+.chartLoadingBars i:nth-child(2) { inline-size:84px; }
+.chartLoadingBars i:nth-child(3) { inline-size:40px; }
+.loadingPulse { opacity:1; }
+.loadingPulse[data-animate] { animation:dateLoadingBreathe 1.45s ease-in-out infinite; }
+[data-date-loading-stage='exiting'] > .loadingPulse[data-animate] { animation-play-state:paused; }
+.priceAmount[data-date-amount-state] { display:inline-grid; }
+.amountVisual { grid-area:1/1;min-inline-size:0; }
+.amountVisual > span { display:block;overflow:hidden;text-overflow:ellipsis; }
+.amountVisual[data-date-loading-stage='exiting'],.amountVisual[data-date-value-stage='exiting'] { pointer-events:none; }
+@keyframes dateLoadingBreathe { 0%,100% { opacity:.38; } 50% { opacity:.88; } }
+@media (prefers-reduced-motion:reduce) { .loadingPulse[data-animate] { animation:none;opacity:1; } }

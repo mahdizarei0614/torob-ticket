@@ -99,6 +99,7 @@ Historical mock terminology is technical history, not current product UI copy.
 | [0081-negotiated-date-evidence-batches.md](0081-negotiated-date-evidence-batches.md) | 0081 — Negotiated date evidence batches and immutable preparation outside the session lock |
 | [0082-hotel-map-provider-and-tile-resilience.md](0082-hotel-map-provider-and-tile-resilience.md) | 0082 — Free hotel basemap provider, real-content readiness and recoverable tile errors |
 | [0083-route-aware-city-and-stop-labels.md](0083-route-aware-city-and-stop-labels.md) | 0083 — General route-aware city and stop/wait label clearance |
+| [0084-date-price-loading-motion.md](0084-date-price-loading-motion.md) | 0084 — Date-price loading presence and opacity breathing |
 
 ## Task-named foundational records
 
@@ -112,9 +113,9 @@ Historical mock terminology is technical history, not current product UI copy.
 | [T10-date-price-projection-and-cache.md](T10-date-price-projection-and-cache.md) | T10 — date-price projection, evidence, and scoped caching |
 | [T11-referral-recheck-and-handoff.md](T11-referral-recheck-and-handoff.md) | T11: Fresh referral evidence and atomic handoff |
 
-The 81 records present in T35 source `d1e052ba` are retained. Decisions0082 and0083
-add the hotel-map and general route-label corrections as records82and83; their
-proof is tracked separately.
+The 81 records present in T35 source `d1e052ba` are retained. Decisions0082 through0084
+add the hotel-map, general route-label and date-loading corrections as records82
+through84; their proof is tracked separately.
 Number gaps and historical duplicate prefixes remain; use the full filename.
 The original local search-control working ID 0057 is canonically
 [0079](0079-search-request-control.md), distinct from the committed four-control

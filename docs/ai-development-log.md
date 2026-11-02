@@ -139,3 +139,14 @@ recheck failed before building and the correct project config passed.
 [Decision0083](decisions/0083-route-aware-city-and-stop-labels.md) and the
 [checkpoint](evidence/adjustments/route-label-clearance/checkpoint.md) bind source,
 actual checks, reviewer scope and limits; no full-release recertification is inferred.
+
+
+The date-loading follow-up adds a neutral reserved chart skeleton and shared-policy
+opacity breathing for actual pending chart/wheel facts. Independent review caught
+that a DOM opacity wrapper cannot fade the shared GPU canvas; the implementation
+retains the existing common lifecycle as curve/marker authority and fades only HTML
+metadata separately.31focused tests and2first-attempt Chrome cases pass, observing
+real computed pulse/entry values and exact API prices after a controlled response
+hold. [Decision0084](decisions/0084-date-price-loading-motion.md) and the
+[checkpoint](evidence/adjustments/date-loading-motion/checkpoint.md) distinguish
+actual observations, static screenshots and the limits of shared lifecycle proof.
