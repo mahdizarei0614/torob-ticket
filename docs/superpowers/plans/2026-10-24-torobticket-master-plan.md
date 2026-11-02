@@ -12,7 +12,7 @@
 
 **Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.42, 2026-11-01 (brighter bounded bloom for Iran and zoomed map particles; prior comparison/referral/motion/device qualification decisions retained).
 
-**Plan state:** Approved. M1–M7 are complete with independent reviews and recorded evidence. **33/35 tasks complete; M7 COMPLETE; T34 next.** T33 source `62b39ad0` adds reproducible startup and bounded verification; clean Docker boots, isolated core, reset/recovery and selected quality checks pass. T31/T32 documented limits remain; M8 retains its planned scope.
+**Plan state:** Approved. M1–M7 complete; **34/35 tasks complete; M8 PARTIAL, T34 COMPLETE; T35 next.** Reviewer materials, truthful AI/process evidence, attribution and the actual 4:30 rehearsal are complete. T31–T33 documented limits remain; T35 owns the independent final release review.
 
 **Delivery location:** This outputs directory contains the user-facing source documents. On repository creation, copy the spec to docs/superpowers/specs/2026-10-24-torobticket-design.md and this plan to docs/superpowers/plans/2026-10-24-torobticket-master-plan.md. Preserve the revision, task IDs, and decision authority, and rewrite the Spec link to ../specs/2026-10-24-torobticket-design.md.
 
@@ -383,7 +383,7 @@ Each row indexes the detailed checkbox steps in section 6. DONE requires indepen
 | [T31 — Accessibility, RTL, responsive behavior, and browser compatibility](#t31) | T31.1 Define representative coverage<br>T31.2 Run semantic checks<br>T31.3 Inspect visual accessibility<br>T31.4 Run browser coverage<br>T31.5 Fix, verify, and commit | T27, T28, T30 | DONE | Source`0ee7f30`; [accessibility](../../evidence/release/accessibility.md), [browser matrix](../../evidence/release/browser-matrix.md). Chrome22/22 +Firefox22/22 affected closure; configured WebKit43PASS/1existing skip +desktop1PASS; independent5/5. Finite vendor residual and VoiceOver waiver recorded. |
 | [T32 — Graphics performance, visual regression, and resource budgets](#t32) | T32.1 Capture controlled visual baselines<br>T32.2 Measure real interaction performance<br>T32.3 Measure bundles and idle work<br>T32.4 Stress lifecycle and fallbacks<br>T32.5 Verify and commit | T27, T28, T30 | DONE | Source `c1f6085`; required8/8 + critical5/5, independent tools8/units4/native2 and exact budget audit pass. 24full/12map comparisons;349.894KiB initial/295.172KiB graphics. [Checkpoint](../../evidence/T32/checkpoint.md), [independent approval](../../evidence/T32/review/independent-verification.md). |
 | [T33 — Fresh-start, offline-runtime, reset, and restart rehearsal](#t33) | T33.1 Rehearse a fresh environment<br>T33.2 Verify external-network independence<br>T33.3 Rehearse lifecycle failures<br>T33.4 Finalize verification runner<br>T33.5 Verify and commit | T29, T30, T31, T32 | COMPLETE | Source `62b39ad0`; clean boots37.6s/36.7s, isolated core/reset and normal restart/retry/persistence, initializer repair and Docker-only restoration.48source/60tool/7Chrome checks pass. [Checkpoint](../../evidence/T33/checkpoint.md), [independent review](../../evidence/T33/review/actual-results-review.md). |
-| [T34 — Reviewer guide, AI evidence, walkthrough, and submission-ready materials](#t34) | T34.1 Write the immediate-start guide<br>T34.2 Write an evidence-based AI log<br>T34.3 Prepare the timed walkthrough<br>T34.4 Review submission facts and licenses<br>T34.5 Verify and commit | T25, T26, T30, T31, T32, T33 | TODO | Unassigned / — |
+| [T34 — Reviewer guide, AI evidence, walkthrough, and submission-ready materials](#t34) | T34.1 Write the immediate-start guide<br>T34.2 Write an evidence-based AI log<br>T34.3 Prepare the timed walkthrough<br>T34.4 Review submission facts and licenses<br>T34.5 Verify and commit | T25, T26, T30, T31, T32, T33 | COMPLETE | Materials `4a759379`; all eight guides/indexes, current submission/rights review, fresh README path and actual 270.006s rehearsal (254.532s declared presentation holds). Original stack/data preserved; independent review approved. [Checkpoint](../../evidence/T34/checkpoint.md), [walkthrough](../../walkthrough.md), [review](../../evidence/T34/review/final-review.md). |
 | [T35 — Independent final review and release checkpoint](#t35) | T35.1 Review against the product<br>T35.2 Resolve material findings<br>T35.3 Reconcile the tracker<br>T35.4 Run the final critical path<br>T35.5 Record the release checkpoint | T34 | TODO | Unassigned / — |
 
 ## 5. Milestones, order, and gates
@@ -2131,27 +2131,30 @@ Run the final release rehearsal and save actual outputs. Resolve failures before
 - Consumes: Implemented product, real evidence, selected architecture, actual AI-assisted work history.
 - Produces: Concise startup/reviewer documentation; 4:30 target walkthrough script/storyboard and timed rehearsal; honest AI/process evidence; limitations and attribution. Video capture remains a separate follow-up.
 
-- [ ] **T34.1 — Write the immediate-start guide**
+- [x] **T34.1 — Write the immediate-start guide**
 
 Lead README with what the product demonstrates, the one-command startup, app/admin URLs, simulated-data identity, and the prepared reviewer path. Link architecture, test commands, and known limitations without hiding the main launch action.
 
-- [ ] **T34.2 — Write an evidence-based AI log**
+- [x] **T34.2 — Write an evidence-based AI log**
 
 Record actual research/design/coding/data/testing assistance, useful prompts or summaries, rejected suggestions, human decisions, and verification. Do not invent model calls, user tests, metrics, or a live AI feature.
 
-- [ ] **T34.3 — Prepare the timed walkthrough**
+- [x] **T34.3 — Prepare the timed walkthrough**
 
 Write a script/storyboard and rehearse approximately 4:30: nearby date/calendar → grouped provider comparison → route/hotel → changed-fare referral → admin source/referral evidence. Use stable presets and record seed/date and measured duration. Actual video capture is a separately requested application artifact; do not claim a recording exists.
 
-- [ ] **T34.4 — Review submission facts and licenses**
+- [x] **T34.4 — Review submission facts and licenses**
 
 Recheck the current official challenge requirements before preparing final submission artifacts. Verify asset/font/geography attribution, clear simulation labels, accurate limitations, and links to actual evidence. No application is submitted by this task.
 
-- [ ] **T34.5 — Verify and commit**
+- [x] **T34.5 — Verify and commit**
 
 Follow the README in a fresh session, time the walkthrough, check links/commands, and commit documentation. Clearly distinguish the completed script/rehearsal from any future video recording.
 
 **Acceptance:** Reviewers can understand, run, and assess the demo quickly, with truthful evidence of both engineering quality and AI-assisted work.
+
+
+**T34 COMPLETE — 2026-11-02:** Materials commit `4a759379` delivers the eight reviewer/architecture/AI/evidence documents and scoped attribution notices. A fresh owned current-product snapshot starts with plain `pnpm docker:up` in 37.741s without host dependencies or .env; cached build layers are explicit. Ordinary fresh-browser README path passes 1/1. Actual paced rehearsal passes 1/1 in 270.006s with 254.532s intentional presentation holds, separate setup and interaction/wait remainder; no video/audio recorded. Dates/calendar, grouped comparison/local ranking, round-trip map, live hotel basemap, exact changed-fare v1→v2 consent, blocked placeholder-tab attempt and matching admin/source lineage are measured. Earlier operator failures are retained. Official challenge and mixed/uncleared transport-mark rights are documented; no public submission/deployment or blanket licence claim. Only the exact owned T34 stack/data and clean worktree were removed; original 6 containers and 5 full inventory/migration fingerprints remain unchanged. [Checkpoint](../../evidence/T34/checkpoint.md), [walkthrough](../../walkthrough.md), [independent review](../../evidence/T34/review/final-review.md). **34/35 tasks complete; M8 PARTIAL; T35 next.**
 
 ---
 
