@@ -43,6 +43,12 @@
   --surface-raised: #ffffff;
   --surface-subtle: #e9eef3;
   --brand-mark-surface: #edf1f7;
+  --brand-primary: #f3132b;
+  --brand-leaf: #249c3d;
+  --brand-ink: #25292b;
+  --brand-white: #ffffff;
+  --brand-surface-light: #ffffff;
+  --brand-surface-dark: #0c121e;
   --text: #182b3a;
   --text-muted: #4d6171;
   --border: #cbd5de;
@@ -97,6 +103,9 @@
   --promotion-metal-light: #e8dcc6;
   --promotion-metal-dim: #514d45;
   --promotion-glint: #fff5df;
+  --brand-primary: var(--brand-white);
+  --brand-leaf: var(--brand-white);
+  --brand-ink: var(--brand-white);
   --scene-bloom-intensity: 0.45;
   --scene-bloom-threshold: 0.008;
   --scene-bloom-smoothing: 0.018;

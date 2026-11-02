@@ -52,6 +52,20 @@ describe('cookie-authorized durable SSE HTTP', () => {
     const replay: SearchEvent[] = parseFrames(await (await get(`/${start.snapshot.searchId}/events`)).text());
     expect(replay.at(-1)?.type).toBe('terminal'); expect(replay.at(-1)?.sequence).toBe(final.sequence);
   });
+  it('returns 429 for rapid starts even when each prior search was cancelled', async () => {
+    const response = await fetch(`${base}/api/v1/demo/session`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ seed: 5, anchorInstant: '2026-10-24T00:00:00Z' }) });
+    const cookie = response.headers.get('set-cookie')!.split(';')[0]!;
+    const context = await app.get(SessionService).authenticate({ headers: { cookie } }, { setHeader: () => undefined }); ids.push(context.sessionId);
+    for (let index = 0; index < 5; index++) {
+      const started = await post('', { query, clientGeneration: `burst-${index}` }, cookie);
+      expect(started.status).toBe(201);
+      const run = SearchRecoverySchema.parse(await started.json());
+      expect((await post(`/${run.snapshot.searchId}/cancel`, {}, cookie)).status).toBe(201);
+    }
+    const refused = await post('', { query, clientGeneration: 'burst-refused' }, cookie);
+    expect(refused.status).toBe(429);
+    expect(await refused.json()).toMatchObject({ code: 'SEARCH_LIMIT', retryable: true });
+  });
   it('returns a retryable 429 under simultaneous admissions and rejects foreign supersession atomically', async () => {
     const results = await Promise.all([1, 2, 3].map(index => post('', { query, clientGeneration: `limit-${index}` })));
     expect(results.map(result => result.status).sort()).toEqual([201, 201, 429]);

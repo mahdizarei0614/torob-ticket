@@ -36,6 +36,9 @@ try {
   for (const library of ['client', 'graphics', 'ui', 'contracts', 'domain']) cpSync(`libs/${library}`, join(root, `libs/${library}`), { recursive: true });
   mkdirSync(join(root, 'tools'), { recursive: true });
   copyFileSync('tools/test-setup.ts', join(root, 'tools/test-setup.ts'));
+  copyFileSync('tools/vite-brand-metadata.mts', join(root, 'tools/vite-brand-metadata.mts'));
+  mkdirSync(join(root, 'assets/brand'), { recursive: true });
+  copyFileSync('assets/brand/asset-manifest.json', join(root, 'assets/brand/asset-manifest.json'));
   const base = JSON.parse(readFileSync(join(root, 'tsconfig.base.json'), 'utf8'));
   base.compilerOptions.paths['@torob-ticket/cache-source'] = ['libs/cache-source/src/index.ts'];
   write('tsconfig.base.json', base);

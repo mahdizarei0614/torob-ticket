@@ -18,7 +18,12 @@
       "executor": "nx:run-commands",
       "options": {
         "command": "tsc --noEmit -p apps/web/tsconfig.json"
-      }
+      },
+      "inputs": [
+        "default",
+        "^production",
+        "{workspaceRoot}/tools/vite-brand-metadata.mts"
+      ]
     },
     "build": {
       "executor": "nx:run-commands",
@@ -27,6 +32,14 @@
       },
       "outputs": [
         "{workspaceRoot}/dist/apps/web"
+      ],
+      "inputs": [
+        "production",
+        "^production",
+        "{workspaceRoot}/tools/vite-brand-metadata.mts",
+        {
+          "env": "TOROBTICKET_PUBLIC_ORIGIN"
+        }
       ]
     },
     "serve": {

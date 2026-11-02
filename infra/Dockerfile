@@ -18,6 +18,7 @@ RUN pnpm exec prisma generate
 
 FROM dependencies AS build
 ARG PRISMA_ENGINES_MIRROR=https://binaries.prisma.sh
+ARG TOROBTICKET_PUBLIC_ORIGIN=""
 ENV PRISMA_ENGINES_MIRROR=$PRISMA_ENGINES_MIRROR
 COPY . .
 ENV NX_DAEMON=false NX_ISOLATE_PLUGINS=false NX_TUI=false

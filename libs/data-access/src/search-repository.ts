@@ -101,6 +101,8 @@ export class SearchRepository {
   create(scope: DataScope, input: CreateSearchRun, now: Date, options: { enforceLimit?: boolean; id?: string; supersedesSearchId?: string } = {}) {
     return scopedTransaction(this.db, scope, async tx => {
       if (options.supersedesSearchId) await this.assertComparisonRun(tx, scope, options.supersedesSearchId);
+      // Count all admitted starts, including completed/cancelled runs. The session
+      // lock makes the rolling limit atomic across tabs and API processes.
       if (options.enforceLimit) await assertTransportStartLimit(tx, scope, now);
       if (options.supersedesSearchId) await this.terminate(tx, scope, options.supersedesSearchId, 'cancelled', now);
       if (options.enforceLimit) await assertSearchAdmission(tx,scope);

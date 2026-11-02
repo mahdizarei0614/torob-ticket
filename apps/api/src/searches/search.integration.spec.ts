@@ -13,6 +13,24 @@ describe('search admission and lifecycle on PostgreSQL', () => {
     sessionId = session.id;
   });
   afterAll(async () => { await db?.demoSession.deleteMany({ where: { id: sessionId } }); await db?.$disconnect(); });
+  it('limits rolling starts even after cancellation, isolates sessions, and recovers after the window', async () => {
+    const repository = new SearchRepository(db);
+    const owner = await new SessionRepository(db, fixtureIdentity).create(randomUUID(), {}, new Date());
+    const scope = { sessionId: owner.id };
+    const now = new Date();
+    const input = { query: {}, snapshot: {}, clientGeneration: 'burst' };
+    try {
+      for (let index = 0; index < 5; index++) {
+        const run = await repository.create(scope, input, now, { enforceLimit: true });
+        // Preserve durable history while simulating already-finished work.
+        await db.searchRun.update({ where: { sessionId_id: { sessionId: owner.id, id: run.id } }, data: { status: 'cancelled' } });
+      }
+      await expect(repository.create(scope, input, now, { enforceLimit: true })).rejects.toMatchObject({ code: 'SEARCH_LIMIT' });
+      const other = await repository.create({ sessionId }, input, now, { enforceLimit: true });
+      await db.searchRun.update({ where: { sessionId_id: { sessionId, id: other.id } }, data: { status: 'cancelled' } });
+      await expect(repository.create(scope, input, new Date(now.getTime() + 10_000), { enforceLimit: true })).resolves.toBeDefined();
+    } finally { await db.demoSession.delete({ where: { id: owner.id } }); }
+  });
   it('admits only two concurrent runs under a simultaneous admission race', async () => {
     const repository = new SearchRepository(db);
     const results = await Promise.allSettled(Array.from({ length: 3 }, () => repository.create(

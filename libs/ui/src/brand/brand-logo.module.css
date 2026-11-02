@@ -1,0 +1,8 @@
+.logo { display: inline-block; flex: none; width: auto; height: 34px; overflow: visible; vertical-align: middle; }
+.mark { fill: var(--brand-primary); }
+.leaf { fill: var(--brand-leaf); }
+.wordmark { fill: var(--brand-ink); }
+.symbol { height: 40px; }
+@media (forced-colors: active) {
+  .mark, .leaf, .wordmark { fill: CanvasText; }
+}

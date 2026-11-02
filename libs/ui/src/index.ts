@@ -1,4 +1,5 @@
 import './styles/index.css';
+export * from './brand/brand-logo';
 export * from './components/button';
 export * from './components/segmented-control';
 export * from './components/combobox';

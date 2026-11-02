@@ -19,6 +19,56 @@ function setup(client: ApiClient, initialPath = '/', restore?: Parameters<typeof
   return { ...hook, cache, navigate: (path: string) => navigate(path) };
 }
 describe('controller request and navigation ownership', () => {
+  it('drops identical pending submits and aborts obsolete starts when parameters change', async () => {
+    const held: { request: SearchRequest; signal: AbortSignal; release: (value: SearchRecovery) => void }[] = [];
+    const client = { startSearch: vi.fn((request: SearchRequest, signal: AbortSignal) => new Promise<SearchRecovery>(release => held.push({ request, signal, release }))), cancelSearch: vi.fn(async () => undefined) } as unknown as ApiClient;
+    const hook = setup(client, serializeSearchUrl(query));
+    let first!: Promise<void>; let second!: Promise<void>;
+    act(() => { first = hook.result.current.submit(); void hook.result.current.submit(); });
+    expect(held).toHaveLength(1);
+    act(() => hook.result.current.edit({ departureDate: '2026-10-28' }));
+    expect(hook.result.current.pending).toBe(false);
+    act(() => { second = hook.result.current.submit(); void hook.result.current.submit(); });
+    expect(held).toHaveLength(2);
+    expect(held[0]!.signal.aborted).toBe(true);
+    expect(held[1]!.signal.aborted).toBe(false);
+    await act(async () => { held[0]!.release({ ...recovery(held[0]!.request), snapshot: { ...recovery(held[0]!.request).snapshot, searchId: 'obsolete' } }); await first; });
+    expect(client.cancelSearch).toHaveBeenCalledWith('obsolete');
+    expect(hook.result.current.accepted).toBe(false);
+    await act(async () => { held[1]!.release(recovery(held[1]!.request)); await second; });
+    expect(hook.result.current.state.committed?.departureDate).toBe('2026-10-28');
+    expect(hook.result.current.accepted).toBe(true);
+    expect(hook.result.current.feedback).toBe('');
+    hook.unmount();
+  });
+  it('ignores duplicate starts during provider collection but allows refresh after completion', async () => {
+    const client = { startSearch: vi.fn(async (input: SearchRequest) => recovery(input)), cancelSearch: vi.fn(async () => undefined) } as unknown as ApiClient;
+    const hook = setup(client, serializeSearchUrl(query));
+    await act(() => hook.result.current.submit());
+    await act(() => hook.result.current.submit());
+    expect(client.startSearch).toHaveBeenCalledTimes(1);
+    await act(() => hook.result.current.refresh());
+    expect(client.startSearch).toHaveBeenCalledTimes(2);
+    const key = ['search', hook.result.current.state.generation, 'operation'];
+    const prior = hook.cache.getQueryData<SearchRecovery>(key)!;
+    hook.cache.setQueryData(key, { ...prior, snapshot: { ...prior.snapshot, status: 'complete' } });
+    await act(() => hook.result.current.submit());
+    expect(client.startSearch).toHaveBeenCalledTimes(3);
+    hook.unmount();
+  });
+  it('replaces a pending request when a different saved trip is opened', async () => {
+    const held: { request: SearchRequest; signal: AbortSignal; release: (value: SearchRecovery) => void }[] = [];
+    const client = { startSearch: vi.fn((request: SearchRequest, signal: AbortSignal) => new Promise<SearchRecovery>(release => held.push({ request, signal, release }))), cancelSearch: vi.fn(async () => undefined) } as unknown as ApiClient;
+    const hook = setup(client, serializeSearchUrl(query));
+    let first!: Promise<void>;
+    act(() => { first = hook.result.current.submit(); });
+    act(() => hook.result.current.openSavedSearch({ ...query, departureDate: '2026-10-28' }));
+    expect(held).toHaveLength(2); expect(held[0]!.signal.aborted).toBe(true);
+    await act(async () => { held[0]!.release(recovery(held[0]!.request)); await first; held[1]!.release(recovery(held[1]!.request)); });
+    expect(hook.result.current.state.committed?.departureDate).toBe('2026-10-28');
+    expect(hook.result.current.accepted).toBe(true);
+    hook.unmount();
+  });
   it('makes the first round-trip toggle searchable but requires reselecting an invalidated return',async()=>{
     const client={startSearch:vi.fn(async(input:SearchRequest)=>recovery(input)),cancelSearch:vi.fn(async()=>undefined)} as unknown as ApiClient;
     const hook=setup(client,serializeSearchUrl(query));
