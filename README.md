@@ -68,9 +68,15 @@ and [AI development evidence](docs/ai-development-log.md).
 
 ## Verify and explore the implementation
 
-T33's selected quality run passed 48 uncached source tasks, 60 tool contracts and
-7 single-attempt Chrome journeys. T34 adds a fresh README/browser check and the
-paced reviewer rehearsal. The original stack/inventory were preserved.
+T35's final selected quality run passed 48 uncached source tasks, 60 tool
+contracts, 189 real PostgreSQL cases and seven single-attempt Chrome journeys.
+A separate 16-case browser run covers all 12 mode/scope/trip combinations and
+four branding cases. The manually operated reviewer journey took 2:16.058;
+the final clean-source/fresh-data Docker startup took 38.221 seconds with caches.
+The [final review](docs/evidence/release/final-review.md) and
+[acceptance checklist](docs/evidence/release/acceptance-checklist.md) record the
+source, fixes and remaining limits, including unavailable hotel map tiles during
+the manual run. The original stack/inventory were preserved.
 These are scoped local results, not universal browser/device or live-service
 certification: [release evidence](docs/evidence/release/README.md).
 

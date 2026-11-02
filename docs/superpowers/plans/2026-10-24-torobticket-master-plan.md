@@ -10,9 +10,9 @@
 
 **Tech Stack:** Nx, pnpm, TypeScript, React, Vite, React Router, TanStack Query, React Aria, CSS Modules, CSS custom properties, Zod, NestJS, PostgreSQL, Prisma, Three.js, React Three Fiber, selected Drei utilities, Motion, @internationalized/date, Vitest, Testing Library, Playwright, Storybook, Docker Compose, Caddy.
 
-**Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.42, 2026-11-01 (brighter bounded bloom for Iran and zoomed map particles; prior comparison/referral/motion/device qualification decisions retained).
+**Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.43, 2026-11-02 (explicit faster-only automatic advice and negotiated date-evidence persistence; prior owner product, theme, map and referral decisions retained).
 
-**Plan state:** Approved. M1–M7 complete; **34/35 tasks complete; M8 PARTIAL, T34 COMPLETE; T35 next.** Reviewer materials, truthful AI/process evidence, attribution and the actual 4:30 rehearsal are complete. T31–T33 documented limits remain; T35 owns the independent final release review.
+**Plan state:** Approved. M1–M8 complete; **35/35 tasks complete; T35 COMPLETE.** Canonical source and independent final reviews, all selected release gates, the actual manual reviewer journey and scoped cleanup/preservation are recorded. Explicit bounded limitations remain; video recording, publication and application submission are separate follow-ups.
 
 **Delivery location:** This outputs directory contains the user-facing source documents. On repository creation, copy the spec to docs/superpowers/specs/2026-10-24-torobticket-design.md and this plan to docs/superpowers/plans/2026-10-24-torobticket-master-plan.md. Preserve the revision, task IDs, and decision authority, and rewrite the Spec link to ../specs/2026-10-24-torobticket-design.md.
 
@@ -384,7 +384,7 @@ Each row indexes the detailed checkbox steps in section 6. DONE requires indepen
 | [T32 — Graphics performance, visual regression, and resource budgets](#t32) | T32.1 Capture controlled visual baselines<br>T32.2 Measure real interaction performance<br>T32.3 Measure bundles and idle work<br>T32.4 Stress lifecycle and fallbacks<br>T32.5 Verify and commit | T27, T28, T30 | DONE | Source `c1f6085`; required8/8 + critical5/5, independent tools8/units4/native2 and exact budget audit pass. 24full/12map comparisons;349.894KiB initial/295.172KiB graphics. [Checkpoint](../../evidence/T32/checkpoint.md), [independent approval](../../evidence/T32/review/independent-verification.md). |
 | [T33 — Fresh-start, offline-runtime, reset, and restart rehearsal](#t33) | T33.1 Rehearse a fresh environment<br>T33.2 Verify external-network independence<br>T33.3 Rehearse lifecycle failures<br>T33.4 Finalize verification runner<br>T33.5 Verify and commit | T29, T30, T31, T32 | COMPLETE | Source `62b39ad0`; clean boots37.6s/36.7s, isolated core/reset and normal restart/retry/persistence, initializer repair and Docker-only restoration.48source/60tool/7Chrome checks pass. [Checkpoint](../../evidence/T33/checkpoint.md), [independent review](../../evidence/T33/review/actual-results-review.md). |
 | [T34 — Reviewer guide, AI evidence, walkthrough, and submission-ready materials](#t34) | T34.1 Write the immediate-start guide<br>T34.2 Write an evidence-based AI log<br>T34.3 Prepare the timed walkthrough<br>T34.4 Review submission facts and licenses<br>T34.5 Verify and commit | T25, T26, T30, T31, T32, T33 | COMPLETE | Materials `4a759379`; all eight guides/indexes, current submission/rights review, fresh README path and actual 270.006s rehearsal (254.532s declared presentation holds). Original stack/data preserved; independent review approved. [Checkpoint](../../evidence/T34/checkpoint.md), [walkthrough](../../walkthrough.md), [review](../../evidence/T34/review/final-review.md). |
-| [T35 — Independent final review and release checkpoint](#t35) | T35.1 Review against the product<br>T35.2 Resolve material findings<br>T35.3 Reconcile the tracker<br>T35.4 Run the final critical path<br>T35.5 Record the release checkpoint | T34 | TODO | Unassigned / — |
+| [T35 — Independent final review and release checkpoint](#t35) | T35.1 Review against the product<br>T35.2 Resolve material findings<br>T35.3 Reconcile the tracker<br>T35.4 Run the final critical path<br>T35.5 Record the release checkpoint | T34 | COMPLETE | Canonical integration `7bbf785b`, repair `d1e052ba`; final quality passes 48 uncached Nx tasks, 60 tool contracts, 189 real PostgreSQL cases and 7 critical Chrome journeys. Separate 16 browser cases pass; actual manual journey 136.058s. Independent reviews approve; owned resources removed, original stack/data preserved. [Checkpoint](../../evidence/T35/checkpoint.md), [final review](../../evidence/release/final-review.md), [checklist](../../evidence/release/acceptance-checklist.md). |
 
 ## 5. Milestones, order, and gates
 
@@ -2175,27 +2175,29 @@ Follow the README in a fresh session, time the walkthrough, check links/commands
 - Consumes: All implemented tasks, current code, spec, acceptance matrix, measured evidence, and reviewer materials.
 - Produces: Resolved independent review, accurate completed tracker, release checkpoint commit and explicit remaining limitations.
 
-- [ ] **T35.1 — Review against the product**
+- [x] **T35.1 — Review against the product**
 
 Use the requesting-code-review skill and a fresh reviewer to inspect the whole implementation against the specification, focusing on pricing/grouping/time/session/referral correctness and actual UX. Review all changed code and meaningful evidence, not only the demo script.
 
-- [ ] **T35.2 — Resolve material findings**
+- [x] **T35.2 — Resolve material findings**
 
 Fix critical/high-impact issues in their owning tasks and run the relevant regression checks. Record justified lower-impact limitations explicitly. A written explanation does not substitute for fixing a broken required journey.
 
-- [ ] **T35.3 — Reconcile the tracker**
+- [x] **T35.3 — Reconcile the tracker**
 
 Verify every D01–D25 requirement and acceptance-matrix row has implementation/evidence. Update task status, owners, commits, and checkboxes. Record any unperformed real-device checks as limitations; do not equate emulation with a device test. Video submission remains a separate follow-up.
 
-- [ ] **T35.4 — Run the final critical path**
+- [x] **T35.4 — Run the final critical path**
 
 Run pnpm verify:release after review fixes and manually complete the timed reviewer journey. Confirm the final README, screenshots/video, seed, and behavior describe the same build.
 
-- [ ] **T35.5 — Record the release checkpoint**
+- [x] **T35.5 — Record the release checkpoint**
 
 Commit the accepted implementation and evidence with no unrelated changes. Report the runnable locations, exact verification outcomes, and material limitations. Do not publish, deploy, merge, or submit an application without the user's separate instruction.
 
 **Acceptance:** The complete agreed scope is implemented, review findings are resolved, evidence matches the build, and the repository is ready for a reviewer.
+
+**T35 COMPLETE — 2026-11-02:** Independently reviewed integration `7bbf785b` and persistence repair `d1e052ba` make the tested current product canonical. Specification 1.43 explicitly retains faster-only automatic advice; nearby-date exploration remains manual. Fresh clean-source/fresh-data Docker startup002 passed in 38.221s with caches; 1050 application/build inputs match Git and the exact final images. Final quality002 passes all seven selected gates: 48 uncached Nx tasks, 60 tool contracts, 189 actual PostgreSQL cases/27files including the owned database restart, and 7 critical Chrome journeys. Separate 12 trip combinations + 4 branding cases pass; 61 assets/2 metadata contracts pass separately. The real large-calendar evidence loss was fixed without extending deadlines or reducing coverage; failed attempts remain. The actual concise manual CUA journey took 136.058s after a retained 562.528s over-target exploratory run; explicit v1→v2 consent, confirmed handoff and raw/normalized admin lineage were inspected. External hotel basemap tiles were unavailable in both manual attempts; no live basemap success is claimed. D01–D25 and all16acceptance rows are mapped. Exact owned release/test resources and clean checkout were removed; original six containers/five full immutable table fingerprints match and ready200. VoiceOver, physical-device/nativeSafari, finite graphics/heap/bundle/label limits, uncleared marks and automatic nearby-date advice remain explicit. No video/audio, push, publication, deployment or application submission. [Checkpoint](../../evidence/T35/checkpoint.md), [independent review](../../evidence/release/final-review.md), [acceptance](../../evidence/release/acceptance-checklist.md). **35/35 complete; M1–M8 COMPLETE.**
 
 ## 7. Release acceptance matrix
 

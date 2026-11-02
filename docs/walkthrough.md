@@ -128,3 +128,36 @@ Official challenge requirements and recheck evidence are in
 [submission and attribution facts](evidence/T34/submission-and-attribution.md).
 Actual video capture, final encoding/file size and delivery/submission remain
 separate follow-ups; this task does not submit an application.
+
+## T35 manual reviewer pass on the canonical build
+
+The final application source is `d1e052baec317a8b26085100920cd0a10553221b`,
+tree `72ed80841c2ccbebc865cdf2d86c1a0a88732e90`. Its fresh-data Docker startup
+took 38.221s with existing caches. The actual manually operated CUA journey is
+separate from the automated, intentionally paced T34 rehearsal above.
+
+| Attempt | Actual time and outcome |
+| --- | --- |
+| [Exploratory manual001](evidence/T35/manual-001.json) | 9:22.528; functional journey completed, five-minute target missed. Includes observation/tool-selector corrections and context compaction. Retained as measured. |
+| [Concise manual002](evidence/T35/manual-002.json) | **2:16.058, under five minutes**, 08:12:01.506–08:14:17.562 UTC on2026-11-02. Ordinary isolated session, no scripted holds, response injection, recording or session-seed override. Preparation is outside this clock. |
+
+The concise pass used calendar Apply for Tehran/Mashhad, departure7November and
+return10November; viewed four completed sellers and all three rankings; selected
+IranAir via هم‌مسیر and inspected both directional schedules and unknown terms.
+It opened the one-night arrival-based hotel list, saw14complete hotel prices and
+changed capacity to two people and sort to stars. External street-map tiles were
+unavailable in both actual manual runs: live basemap/pin interaction is **not**
+claimed. Golden Palace selection settled in001;002closed before a settled
+selection observation, so002does not claim it.
+
+The actual fare changed from **3,432,500toman/version1** to
+**4,462,200toman/version2**. Explicit acceptance produced a new `zarei.xyz` tab
+and confirmed referral `a098d203-44bb-4af9-8909-69db6e03a99a`. The same session's
+admin trail showed44,622,000IRR/version2, expanded immutable payload, and linked
+search `7ce74c48-7305-4ed7-b207-c26ccd5b9323`. Its raw `source-v5` and accepted
+`mapping-v1` normalization payloads were expanded and read; the final source
+inspection was also visually checked. Only the three newly created reviewer
+tabs were closed. Existing user tabs were preserved.
+
+This is a manual engineering walkthrough through browser control, not an
+independent human usability study, narrated application video or submission.

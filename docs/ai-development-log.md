@@ -80,3 +80,32 @@ keep this result distinct from spoken narration, a captured video or submission.
 The [walkthrough](walkthrough.md) distinguishes a script and measured rehearsal
 from any later application-video recording. These documents do not claim that a
 video was uploaded, an application was submitted, or a hiring outcome occurred.
+
+T35 used native task subagents for separate domain, UX/operations and traceability
+reviews, then independent review of the exact source and staged fixes. It did
+not invoke the owner-restricted Superpowers plugin. The reviews inspected current
+code and evidence, mapped25decisions/16acceptance areas, and integrated99previously
+preserved branding/search-control overlays into canonical source. An unconnected
+automatic nearby-date savings banner was explicitly narrowed to the implemented
+faster-journey advice; manual date exploration remains available.
+
+The final PostgreSQL gate first failed180pass/3fail. Two assertions lagged the
+actual source-v5 catalog and four-capacity hotel inventory; their corrections
+retained exact identities and full coverage. A real large-calendar persistence
+delay also exceeded existing deadlines. The first negotiated-batch repair still
+failed at2064/2112records, so it was not accepted as done. The final repair moves
+pure immutable preparation outside the reviewer session lock and negotiates96-row
+chunks only for the actual capable repository, retaining the custom32-row default,
+4MiB bound, atomic authority checks and original deadlines. A separate reviewer
+checked cancellation, foreign-session/error precedence and boundary tests.
+Focused47/47 and final189/189real PostgreSQL cases then passed.
+
+Final quality002also passes48uncached Nx tasks,60tool contracts and7critical
+Chrome cases; separate12trip combinations/4branding cases and61asset/2metadata
+checks pass on the same canonical application images. The actual manual journey
+first exceeded five minutes, then a concise pass took2:16.058. Both hotel basemap
+attempts were unavailable; the evidence does not turn this into live map success.
+Actual changed-fare acceptance and matching admin/raw/normalized source lineage
+were inspected. [Final review](evidence/release/final-review.md) and
+[checkpoint](evidence/T35/checkpoint.md) retain these failures, corrections,
+measurements and limits rather than claiming an error-free AI development run.

@@ -66,6 +66,7 @@ Historical mock terminology is technical history, not current product UI copy.
 | [0047-faster-morph-provinces-and-bounded-glow.md](0047-faster-morph-provinces-and-bounded-glow.md) | 0047 — Faster simultaneous departure, provinces, and bounded particle glow |
 | [0048-particle-scatter-and-momentum.md](0048-particle-scatter-and-momentum.md) | 0048 — Particle scattering with momentum and a slow return |
 | [0049-travel-research-catalog-and-compact-controls.md](0049-travel-research-catalog-and-compact-controls.md) | 0049 — Researched travel inventory, operator assets, and control/map refinements |
+| [0050-compact-loop-production-identity.md](0050-compact-loop-production-identity.md) | 0050 — Compact Loop production identity |
 | [0051-form-profile-and-route-polish.md](0051-form-profile-and-route-polish.md) | 0051 — Quiet search feedback, compact account controls and route-light exit |
 | [0052-rich-inventory-coverage.md](0052-rich-inventory-coverage.md) | 0052 — Broad, near-realistic normal ticket coverage |
 | [0053-docker-development-hot-reload.md](0053-docker-development-hot-reload.md) | 0053 — Docker development with automatic source updates |
@@ -92,6 +93,10 @@ Historical mock terminology is technical history, not current product UI copy.
 | [0075-t31-accessibility-and-browser-audit.md](0075-t31-accessibility-and-browser-audit.md) | T31 accessibility and browser audit |
 | [0076-t32-graphics-visual-and-resource-acceptance.md](0076-t32-graphics-visual-and-resource-acceptance.md) | T32 graphics, visual and resource acceptance |
 | [0077-t33-reproducible-startup-and-owned-lifecycle.md](0077-t33-reproducible-startup-and-owned-lifecycle.md) | T33 reproducible startup and owned lifecycle |
+| [0078-reviewer-materials-and-evidence-scope.md](0078-reviewer-materials-and-evidence-scope.md) | 0078 — Reviewer materials and evidence scope |
+| [0079-search-request-control.md](0079-search-request-control.md) | 0079 — Bound repeated ticket searches and cancel obsolete starts |
+| [0080-final-review-and-canonical-release-scope.md](0080-final-review-and-canonical-release-scope.md) | 0080 — Final review and canonical local release scope |
+| [0081-negotiated-date-evidence-batches.md](0081-negotiated-date-evidence-batches.md) | 0081 — Negotiated date evidence batches and immutable preparation outside the session lock |
 
 ## Task-named foundational records
 
@@ -105,8 +110,10 @@ Historical mock terminology is technical history, not current product UI copy.
 | [T10-date-price-projection-and-cache.md](T10-date-price-projection-and-cache.md) | T10 — date-price projection, evidence, and scoped caching |
 | [T11-referral-recheck-and-handoff.md](T11-referral-recheck-and-handoff.md) | T11: Fresh referral evidence and atomic handoff |
 
-The table preserves the 76 committed decision records present at the T34 starting
-revision. The [0078 reviewer-material ruling](0078-reviewer-materials-and-evidence-scope.md)
-is added with this packet. Number gaps and duplicate numeric prefixes are
-preserved; use the full filename. Other pre-existing local/untracked records are
-not silently represented as canonical committed history.
+These 81 canonical records are present in T35 source `d1e052ba`.
+Number gaps and historical duplicate prefixes remain; use the full filename.
+The original local search-control working ID 0057 is canonically
+[0079](0079-search-request-control.md), distinct from the committed four-control
+row decision 0057. Its original untracked working file remains local.
+[0080](0080-final-review-and-canonical-release-scope.md) records final review,
+source reconciliation and the faster-only automatic advice limitation.

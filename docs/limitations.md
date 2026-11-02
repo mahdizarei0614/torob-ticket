@@ -25,6 +25,10 @@ an official Torob account connection. These technical boundaries are deliberate.
 - A confirmed referral records an accepted quote/handoff, not a conversion,
   booking, commission or revenue. Commercial partnerships and verified conversion
   reporting are future work. Ranking does not sell placement.
+- Automatic contextual advice currently suggests qualifying faster journeys.
+  The domain supports nearby-date savings, but that automatic banner is not wired
+  into the server/UI. Nearby prices remain explorable through the wheel, linked
+  chart and calendar. [T35 P2-01 ruling](decisions/0080-final-review-and-canonical-release-scope.md).
 - Multi-city or mixed-mode trip composition, unrelated-seller return bundling,
   price prediction, delivery alerts and acquisition SEO are outside this release.
 
@@ -53,11 +57,17 @@ credentials. Publishing requires a separate deployment/security and rights revie
 | T32 bundle/resource boundaries | Recorded initial JS 358,291 gzip bytes, only 109 bytes below the 350 KiB gate; graphics loads after desktop mount. Heap/resource samples are finite observations, not a leak-free guarantee. Literal GPU/material byte counts, physical low-tier devices and desktop maximum-DPR attainment were not established. Existing bounded label clipping remains documented. |
 | [T33 startup/recovery](evidence/T33/checkpoint.md) | Actual clean source/fresh-data startup, isolated core and map-failure fallback, reviewer reset, API/stack interruption and persistence, plus selected quality checks. Builds were cache-warm; amd64 and cold-cache download time were not measured. |
 | T33 quality scope | 48 source tasks, 60 tool contracts and seven Chrome journeys passed. Optional PostgreSQL integration was explicitly skipped in that run; earlier real-DB evidence remains separate. Passing the selected profile is not universal release certification. |
+| [T35 final review](evidence/release/final-review.md), [checkpoint](evidence/T35/checkpoint.md) | Canonical source `d1e052ba`, clean packaged startup 38.221s; final quality002 passes 48 uncached Nx tasks, 60 tool contracts, 189 actual PostgreSQL tests and 7 critical Chrome journeys. Separate focused browser001 passes 12 trip combinations plus 4 branding cases; 61 assets and 2 metadata contracts pass separately. These overlapping checks are not added into one total. |
+| [T35 manual journey](evidence/T35/manual-002.json) | Concise manual pass 2:16.058, after an exploratory 9:22.528 run that missed the five-minute target. Actual date/ranking/route/changed-fare consent/confirmed handoff and persisted source evidence were inspected. External hotel street-map tiles were unavailable in both manual passes; no live basemap or manual map/card two-way proof is claimed. No video, audio or independent human usability study was performed. |
 
 Each receipt binds its source, scenario, build and environment. Earlier failures
 remain in the evidence; overlapping runs are not added into an inflated test
 count. T33 separately identifies a clean canonical source and a private snapshot
-of pre-existing working overlays; they are not interchangeable repository claims.
+of pre-existing working overlays; they are not interchangeable repository claims. T35 source `7bbf785b` now
+integrates those exact reviewed branding/search-control overlays into canonical
+history; `d1e052ba` adds independently reviewed date-evidence batching/preparation
+and exact inventory assertions without extending provider/job deadlines or
+reducing required evidence. Earlier receipts keep their original source identity.
 
 ## Sharing and handoff
 
