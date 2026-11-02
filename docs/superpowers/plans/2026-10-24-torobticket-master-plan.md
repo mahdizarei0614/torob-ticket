@@ -12,7 +12,7 @@
 
 **Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.42, 2026-11-01 (brighter bounded bloom for Iran and zoomed map particles; prior comparison/referral/motion/device qualification decisions retained).
 
-**Plan state:** Approved. M1–M6 and T29–T31 are complete with independent reviews and recorded evidence. **31/35 tasks complete; M7 PARTIAL, T31 DONE.** T31 retains its documented finite vendor-announcement residual and owner-waived VoiceOver check. T32–T33 and M8 retain their planned scope.
+**Plan state:** Approved. M1–M6 and T29–T32 are complete with independent reviews and recorded evidence. **32/35 tasks complete; M7 PARTIAL, T33 next.** T31 retains its documented vendor-announcement residual and owner-waived VoiceOver check. T32 records actual production budgets, visual/performance/resource evidence and explicit device/layout limits. T33 and M8 retain their planned scope.
 
 **Delivery location:** This outputs directory contains the user-facing source documents. On repository creation, copy the spec to docs/superpowers/specs/2026-10-24-torobticket-design.md and this plan to docs/superpowers/plans/2026-10-24-torobticket-master-plan.md. Preserve the revision, task IDs, and decision authority, and rewrite the Spec link to ../specs/2026-10-24-torobticket-design.md.
 
@@ -381,7 +381,7 @@ Each row indexes the detailed checkbox steps in section 6. DONE requires indepen
 | [T29 — Docker packaging, gateway, initialization, and one-command startup](#t29) | T29.1 Define container lifecycle<br>T29.2 Implement ordered initialization<br>T29.3 Implement gateway and assets<br>T29.4 Implement one-command runner<br>T29.5 Verify and commit | T01, T04, T05 | DONE | Sourcea0e8ab2; independentc5a47d4; [checkpoint](../../evidence/T29/m7-completion/checkpoint.md) |
 | [T30 — Complete behavioral regression and multi-reviewer acceptance](#t30) | T30.1 Build stable e2e fixtures<br>T30.2 Exercise the full matrix<br>T30.3 Exercise cross-feature journeys<br>T30.4 Exercise hostile timing and isolation<br>T30.5 Verify and commit | T19, T22, T24, T25, T26, T28, T29 | DONE | Sourcecfcc3a9; actual unfiltered224PASS/0FAIL/2existingM6guards; independent5config+77UI+6PG PASS;1097frozen hashes preserved. [Checkpoint](../../evidence/T30/resume-2026-11-01/checkpoint.md) |
 | [T31 — Accessibility, RTL, responsive behavior, and browser compatibility](#t31) | T31.1 Define representative coverage<br>T31.2 Run semantic checks<br>T31.3 Inspect visual accessibility<br>T31.4 Run browser coverage<br>T31.5 Fix, verify, and commit | T27, T28, T30 | DONE | Source`0ee7f30`; [accessibility](../../evidence/release/accessibility.md), [browser matrix](../../evidence/release/browser-matrix.md). Chrome22/22 +Firefox22/22 affected closure; configured WebKit43PASS/1existing skip +desktop1PASS; independent5/5. Finite vendor residual and VoiceOver waiver recorded. |
-| [T32 — Graphics performance, visual regression, and resource budgets](#t32) | T32.1 Capture controlled visual baselines<br>T32.2 Measure real interaction performance<br>T32.3 Measure bundles and idle work<br>T32.4 Stress lifecycle and fallbacks<br>T32.5 Verify and commit | T27, T28, T30 | TODO | Unassigned / — |
+| [T32 — Graphics performance, visual regression, and resource budgets](#t32) | T32.1 Capture controlled visual baselines<br>T32.2 Measure real interaction performance<br>T32.3 Measure bundles and idle work<br>T32.4 Stress lifecycle and fallbacks<br>T32.5 Verify and commit | T27, T28, T30 | DONE | Source `c1f6085`; required8/8 + critical5/5, independent tools8/units4/native2 and exact budget audit pass. 24full/12map comparisons;349.894KiB initial/295.172KiB graphics. [Checkpoint](../../evidence/T32/checkpoint.md), [independent approval](../../evidence/T32/review/independent-verification.md). |
 | [T33 — Fresh-start, offline-runtime, reset, and restart rehearsal](#t33) | T33.1 Rehearse a fresh environment<br>T33.2 Verify external-network independence<br>T33.3 Rehearse lifecycle failures<br>T33.4 Finalize verification runner<br>T33.5 Verify and commit | T29, T30, T31, T32 | TODO | Unassigned / — |
 | [T34 — Reviewer guide, AI evidence, walkthrough, and submission-ready materials](#t34) | T34.1 Write the immediate-start guide<br>T34.2 Write an evidence-based AI log<br>T34.3 Prepare the timed walkthrough<br>T34.4 Review submission facts and licenses<br>T34.5 Verify and commit | T25, T26, T30, T31, T32, T33 | TODO | Unassigned / — |
 | [T35 — Independent final review and release checkpoint](#t35) | T35.1 Review against the product<br>T35.2 Resolve material findings<br>T35.3 Reconcile the tracker<br>T35.4 Run the final critical path<br>T35.5 Record the release checkpoint | T34 | TODO | Unassigned / — |
@@ -2037,27 +2037,30 @@ Fix defects in their owning feature files and rerun only affected checks plus th
 - Consumes: Shared graphics lifecycle, finalized tokens/art, seeded stable views and complete UI.
 - Produces: Measured bundle/frame/interaction results, visual baselines, GPU failure/recovery evidence, idle/resource cleanup gate.
 
-- [ ] **T32.1 — Capture controlled visual baselines**
+- [x] **T32.1 — Capture controlled visual baselines**
 
 Record seed, clock, viewport, browser, theme, quality tier, and reduced-motion settings. Wait for fonts/data/render readiness. Review at least 24 key captures: six palettes × desktop/mobile × search/results-or-hotels; add admin/reference screens.
 
-- [ ] **T32.2 — Measure real interaction performance**
+- [x] **T32.2 — Measure real interaction performance**
 
 Record reference hardware/browser. Measure date drag, chart synchronization, route preview/pin, scroll, modal open, and theme toggle. Use the <200 ms, 60/30 fps, first-result and completion targets; report p95/frame behavior and measurement method.
 
-- [ ] **T32.3 — Measure bundles and idle work**
+- [x] **T32.3 — Measure bundles and idle work**
 
 Run node tools/measure-bundles.mjs. Verify initial/deferred graphics gzip targets, lazy loading, no repeated canvas/context allocation, bounded material/geometry counts, and no continuing animation after scenes settle or the tab is hidden.
 
-- [ ] **T32.4 — Stress lifecycle and fallbacks**
+- [x] **T32.4 — Stress lifecycle and fallbacks**
 
 Repeatedly open/close hotels, change modes/themes, resize across breakpoint, simulate context loss/restoration and WebGL unavailability. Inspect memory/resource trends and shader compilation errors. Essential forms/selection must survive every graphics fallback.
 
-- [ ] **T32.5 — Verify and commit**
+- [x] **T32.5 — Verify and commit**
 
 Run pnpm nx run e2e:e2e --grep '@visual|@graphics-lifecycle|@performance'. Inspect screenshots manually with sensible cross-GPU tolerances. Fix measured bottlenecks and rerun relevant checks; record actual budgets/limitations and commit.
 
 **Acceptance:** The GLSL-heavy identity remains responsive, stable, and resource-bounded, with evidence from a recorded environment.
+
+**T32 COMPLETE — 2026-11-02:** Source `c1f6085`,69independently approved paths (33source/test/tools +36PNG baselines). Required actual Nx selection8/8 and five affected keyboard/calendar/hotel/immutable-return journeys pass. Independent tool8/ownership4/native2 and separately recomputed emitted graph pass. Initial349.8936KiB (109bytes headroom), graphics295.1719KiB; optional SDK/worker and full union disclosed. Actual24full/12map no-update comparisons and manual desktop/mobile/hotel/admin/world review pass. On the recorded headless Chrome/M3 reference, steady maps submit approximately60fps with measured bloom enabled; all six four-sample interaction-family p95 values are below200ms. GPU resources plateau and all7hotel workers close; postGC heap rises3.8% across five repeats, not a leak-free guarantee. Literal materials, actual low-tier/physical-display timing, desktop max-DPR attainment and existing clipped scroll labels remain explicit limits. [Checkpoint](../../evidence/T32/checkpoint.md), [performance](../../evidence/release/performance.md), [visual review](../../evidence/release/visual-review.md), [independent review](../../evidence/T32/review/independent-verification.md). **32/35 tasks complete; M7 PARTIAL; T33 next.**
+
 
 ---
 
