@@ -21,11 +21,35 @@ it('keeps13-row duplicate dates together under32 while preserving each local dup
  const c=context();c.caseId='duplicate';const chunks:ProviderEvidence[][]=[];c.traceBatchSink=async rows=>{chunks.push([...rows]);};const result=await finish(new MockProvider('demo-provider-01').dateInventory(request(),c));
  expect(chunks.map(rows=>rows.length)).toEqual([26,13]);expect(result.dates.every(row=>row.batch.records.filter(record=>record.trace.decisions.some(decision=>decision.ruleCode==='duplicate-source-payload')).length===1)).toBe(true);expect(vi.getTimerCount()).toBe(0);
 });
-it('flushes below4MiB including envelope headroom when bytes bind before record count',async()=>{
- const c=context(),chunks:ProviderEvidence[][]=[];c.traceBatchSink=async rows=>{chunks.push([...rows]);};
+it('negotiates96 rows without changing any record, date order, or source evidence',async()=>{
+ const days=Array.from({length:9},(_,offset)=>`2026-11-${String(offset+1).padStart(2,'0')}`);
+ const baseline=context(),provider=new MockProvider('demo-provider-01');
+ const original=await finish(provider.dateInventory(request(days),baseline));
+ const c=context(),chunks:ProviderEvidence[][]=[];
+ c.traceBatchSink=Object.assign(async function(this:ProviderContext,rows:readonly ProviderEvidence[],check:()=>void){
+  expect(this).toBe(c);check();chunks.push([...rows]);
+ },{maxRows:96});
+ const result=await finish(provider.dateInventory(request(days),c));
+ expect(result.status).toBe('success');expect(chunks.map(rows=>rows.length)).toEqual([96,12]);
+ expect(result.dates.map(row=>row.date)).toEqual(days);
+ expect(result.dates.every(row=>row.batch.status==='success'&&row.batch.records.length===12)).toBe(true);
+ expect(result.dates).toEqual(original.dates);
+ expect(chunks.flat()).toEqual(result.dates.flatMap(row=>row.batch.records));
+ expect(c.traceSink).not.toHaveBeenCalled();expect(vi.getTimerCount()).toBe(0);
+});
+it.each([undefined,0,-1,97,1.5,Number.NaN,Number.POSITIVE_INFINITY])('retains the32-row default for unsupported sink capacity %s',async offered=>{
+ const c=context(),chunks:ProviderEvidence[][]=[];
+ const sink=async(rows:readonly ProviderEvidence[])=>{chunks.push([...rows]);};
+ c.traceBatchSink=offered===undefined?sink:Object.assign(sink,{maxRows:offered});
+ const result=await finish(new MockProvider('demo-provider-01').dateInventory(request(),c));
+ expect(result.status).toBe('success');expect(chunks.map(rows=>rows.length)).toEqual([24,12]);
+ expect(chunks.flat()).toEqual(result.dates.flatMap(row=>row.batch.records));expect(vi.getTimerCount()).toBe(0);
+});
+it.each([32,96])('flushes below4MiB including envelope headroom before the negotiated%d-row limit',async maxRows=>{
+ const c=context(),chunks:ProviderEvidence[][]=[];c.traceBatchSink=Object.assign(async(rows:readonly ProviderEvidence[])=>{chunks.push([...rows]);},{maxRows});
  const provider=new MockProvider('demo-provider-01',input=>generateProviderRecords(input,'demo-provider-01').slice(0,2).map(raw=>({...raw,payload:{...raw.payload as object,largeSourceField:'x'.repeat(280000)}})));
  const result=await finish(provider.dateInventory(request([...dates,'2026-11-04']),c));expect(result.status).toBe('success');expect(chunks.map(rows=>rows.length)).toEqual([6,2]);
- for(const chunk of chunks){expect(chunk.length).toBeLessThanOrEqual(32);expect(chunk.reduce((sum,row)=>sum+Buffer.byteLength(JSON.stringify(row),'utf8')+2048,0)).toBeLessThanOrEqual(4*1024*1024);}expect(vi.getTimerCount()).toBe(0);
+ for(const chunk of chunks){expect(chunk.length).toBeLessThanOrEqual(maxRows);expect(chunk.reduce((sum,row)=>sum+Buffer.byteLength(JSON.stringify(row),'utf8')+2048,0)).toBeLessThanOrEqual(4*1024*1024);}expect(vi.getTimerCount()).toBe(0);
 });
 it('fails explicitly on an oversized single date without silently dropping its records',async()=>{
  const c=context();c.traceBatchSink=vi.fn(async()=>{});const provider=new MockProvider('demo-provider-01',input=>generateProviderRecords(input,'demo-provider-01').slice(0,1).map(raw=>({...raw,payload:{...raw.payload as object,largeSourceField:'x'.repeat(2200000)}})));
@@ -35,11 +59,36 @@ it('returns no success after a later chunk fails while retaining only earlier co
  const c=context(),committed:ProviderEvidence[][]=[];let calls=0;c.traceBatchSink=async rows=>{if(++calls===2)throw new Error('later-write-failure');committed.push([...rows]);};
  const result=await finish(new MockProvider('demo-provider-01').dateInventory(request([...dates,'2026-11-04']),c));expect(result).toMatchObject({status:'failed',dates:[],errorCode:'TRACE_SINK_FAILED'});expect(committed.map(rows=>rows.length)).toEqual([24]);expect(vi.getTimerCount()).toBe(0);
 });
+it('keeps a committed96-row prefix but never returns success or flushes a tail after a later negotiated chunk fails',async()=>{
+ const c=context(),committed:ProviderEvidence[][]=[];let calls=0;
+ c.traceBatchSink=Object.assign(async(rows:readonly ProviderEvidence[])=>{
+  if(++calls===2)throw new Error('later-write-failure');committed.push([...rows]);
+ },{maxRows:96});
+ const days=Array.from({length:17},(_,offset)=>`2026-11-${String(offset+1).padStart(2,'0')}`);
+ const result=await finish(new MockProvider('demo-provider-01').dateInventory(request(days),c));
+ expect(result).toMatchObject({status:'failed',dates:[],errorCode:'TRACE_SINK_FAILED'});
+ expect(calls).toBe(2);expect(committed.map(rows=>rows.length)).toEqual([96]);expect(vi.getTimerCount()).toBe(0);
+});
 it.each(['abort','deadline'] as const)('fences an awaited chunk on %s without flushing a tail or returning staged dates',async cause=>{
  const c=context(),controller=new AbortController();c.signal=controller.signal;let release!:()=>void;const gate=new Promise<void>(done=>{release=done;});let calls=0,guardRejected=false;
  c.traceBatchSink=async(_rows,check)=>{calls++;await gate;try{check();}catch(error){guardRejected=true;throw error;}};
  const work=new MockProvider('demo-provider-01').dateInventory(request(),c);await vi.advanceTimersByTimeAsync(0);expect(calls).toBe(1);if(cause==='abort')controller.abort();else await vi.advanceTimersByTimeAsync(3500);
  expect(await work).toMatchObject({status:cause==='abort'?'cancelled':'timeout',dates:[]});release();await vi.advanceTimersByTimeAsync(0);expect(guardRejected).toBe(true);expect(calls).toBe(1);expect(vi.getTimerCount()).toBe(0);
+});
+it.each(['abort','deadline'] as const)('fences an awaited96-row negotiated chunk on %s without returning staged date success',async cause=>{
+ const c=context(),controller=new AbortController();c.signal=controller.signal;
+ let release!:()=>void;const gate=new Promise<void>(done=>{release=done;});let calls=0,guardRejected=false;
+ c.traceBatchSink=Object.assign(async(rows:readonly ProviderEvidence[],check:()=>void)=>{
+  calls++;expect(rows).toHaveLength(96);await gate;
+  try{check();}catch(error){guardRejected=true;throw error;}
+ },{maxRows:96});
+ const days=Array.from({length:9},(_,offset)=>`2026-11-${String(offset+1).padStart(2,'0')}`);
+ const work=new MockProvider('demo-provider-01').dateInventory(request(days),c);
+ await vi.advanceTimersByTimeAsync(0);expect(calls).toBe(1);
+ if(cause==='abort')controller.abort();else await vi.advanceTimersByTimeAsync(3500);
+ expect(await work).toMatchObject({status:cause==='abort'?'cancelled':'timeout',dates:[]});
+ release();await vi.advanceTimersByTimeAsync(0);
+ expect(guardRejected).toBe(true);expect(calls).toBe(1);expect(vi.getTimerCount()).toBe(0);
 });
 it('keeps a copied custom row-sink context on the original sequential path',async()=>{
  const c=context(),controller=new AbortController();c.signal=controller.signal;const batch=Object.assign(vi.fn(async()=>{}),{isAvailable:(receiver:ProviderContext)=>receiver.traceSink===c.traceSink});c.traceBatchSink=batch;

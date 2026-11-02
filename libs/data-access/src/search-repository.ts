@@ -11,6 +11,18 @@ const json=(value:unknown):Prisma.InputJsonValue=>JSON.parse(JSON.stringify(valu
 export interface AppendNormalizationEvidence {
   searchId:string; raw:RawProviderRecord; sourceRawRecordId:string; trace:NormalizationTrace; offer?:NormalizedOffer; source?:SourceFareEvidence;
 }
+interface ParsedNormalizationRow {
+  raw:RawProviderRecord; trace:NormalizationTrace; offer?:NormalizedOffer;
+  source?:SourceFareEvidence; sourceRawRecordId:string;
+}
+interface PreparedNormalizationRow extends ParsedNormalizationRow {
+  rawPayload:Prisma.InputJsonValue; tracePayload:Prisma.InputJsonValue;
+  offerPayload?:Prisma.InputJsonValue; rawObservedAt:Date; traceObservedAt:Date;
+}
+type NormalizationPreparation=
+  | {status:'invalid-input';error:unknown}
+  | {status:'parsed';row:ParsedNormalizationRow;result:
+      {status:'invalid-binding';error:unknown}|{status:'ready';row:PreparedNormalizationRow}};
 export interface CreateSearchRun {
   query: Prisma.InputJsonValue;
   clientGeneration: string;
@@ -27,6 +39,8 @@ export interface AppendQuoteVersion {
   expiresAt: Date;
 }
 export class SearchRepository {
+  /** Persisted date inventory may negotiate this bound; custom sinks default to 32. */
+  static readonly maximumEvidenceBatchRows=96;
   constructor(private readonly db: PrismaClient) {}
   providerContextSnapshot(scope:DataScope,searchId:string) {
     return scopedTransaction(this.db,scope,async tx=>{
@@ -53,47 +67,76 @@ export class SearchRepository {
    * The caller's guard carries cancellation/deadline through session-lock acquisition. */
   async appendNormalizationEvidenceBatch(scope:DataScope,inputs:readonly AppendNormalizationEvidence[],assertActive:()=>void=()=>{}) {
     assertActive();
-    if(!inputs.length||inputs.length>32)throw new RepositoryError('INVALID_QUERY');
+    if(!inputs.length||inputs.length>SearchRepository.maximumEvidenceBatchRows)throw new RepositoryError('INVALID_QUERY');
     let bytes=0;const batch:AppendNormalizationEvidence[]=[];
     for(const input of inputs){
       const encoded=JSON.stringify(input);bytes+=Buffer.byteLength(encoded,'utf8');
       if(bytes>4*1024*1024)throw new RepositoryError('INVALID_QUERY');
       batch.push(JSON.parse(encoded) as AppendNormalizationEvidence);
     }
-    return scopedTransaction(this.db,scope,async tx=>{
-      assertActive();
-      const searchId=IdSchema.parse(batch[0]!.searchId);
-      const run=await tx.searchRun.findUnique({where:{sessionId_id:{sessionId:scope.sessionId,id:searchId}}});
-      if(!run||run.status!=='collecting')throw new RepositoryError('NOT_FOUND');
+    // Parse/serialize immutable captured values before taking the session lock.
+    // Keep errors in source order: current scope/run and each row's revision
+    // still decide authority before that row's deferred binding failure.
+    const header=(()=>{
+      try{return{valid:true as const,searchId:IdSchema.parse(batch[0]!.searchId)};}
+      catch(error){return{valid:false as const,error};}
+    })();
+    const prepared:NormalizationPreparation[]=[];
+    if(header.valid){
       const rawIds=new Set<string>(),traceIds=new Set<string>(),offerIds=new Set<string>();
       let sourceRevision:string|undefined;
-      const rows=batch.map(input=>{
-        if(input.searchId!==searchId)throw new RepositoryError('INVALID_QUERY');
-        const raw=RawProviderRecordSchema.parse(input.raw),trace=NormalizationTraceSchema.parse(input.trace);
-        const sourceRawRecordId=IdSchema.parse(input.sourceRawRecordId);
-        const offer=input.offer?NormalizedOfferSchema.parse(input.offer):undefined,source=input.source;
+      for(const input of batch){
+        let row:ParsedNormalizationRow;
+        try{
+          if(input.searchId!==header.searchId)throw new RepositoryError('INVALID_QUERY');
+          const raw=RawProviderRecordSchema.parse(input.raw),trace=NormalizationTraceSchema.parse(input.trace);
+          const sourceRawRecordId=IdSchema.parse(input.sourceRawRecordId);
+          const offer=input.offer?NormalizedOfferSchema.parse(input.offer):undefined,source=input.source;
+          row={raw,trace,offer,source,sourceRawRecordId};
+        }catch(error){prepared.push({status:'invalid-input',error});break;}
+        try{
+          const {raw,trace,offer,source,sourceRawRecordId}=row;
+          if(raw.providerId!==batch[0]!.raw.providerId||rawIds.has(raw.rawRecordId)||traceIds.has(trace.traceId)||offer&&offerIds.has(offer.offerId))throw new RepositoryError('INVALID_QUERY');
+          rawIds.add(raw.rawRecordId);traceIds.add(trace.traceId);if(offer)offerIds.add(offer.offerId);
+          if(trace.rawRecordId!==raw.rawRecordId||Boolean(offer)!==(trace.outcome==='accepted')||(!offer&&trace.offerId!==undefined)||
+            trace.issues.some(issue=>issue.rawRecordId!==undefined&&issue.rawRecordId!==raw.rawRecordId)||
+            offer&&(trace.offerId!==offer.offerId||offer.providerId!==raw.providerId||!source||!offer.provenance.every(p=>p.rawRecordId===raw.rawRecordId&&p.sourceNamespace===raw.sourceNamespace&&p.mappingRevision===trace.mappingRevision&&p.fixtureVersion===raw.fixtureVersion&&p.sourceRevision===source.sourceRevision)||offer.issues.some(issue=>issue.rawRecordId!==undefined&&issue.rawRecordId!==raw.rawRecordId)))throw new RepositoryError('INVALID_QUERY');
+          if(source){
+            PartySchema.parse(source.party);IdSchema.parse(source.sourceRawRecordId);IdSchema.parse(source.sourceRevision);NonnegativeIntegerSchema.parse(source.seats);
+            if(sourceRevision!==undefined&&sourceRevision!==source.sourceRevision)throw new RepositoryError('MAPPING_COLLISION');
+            sourceRevision=source.sourceRevision;
+            if(!offer||source.sourceRawRecordId!==sourceRawRecordId||source.pricingBasis!=='whole-party-gross')throw new RepositoryError('INVALID_QUERY');
+          }
+          prepared.push({status:'parsed',row,result:{status:'ready',row:{...row,
+            rawPayload:json({sourceRawRecordId,raw}),tracePayload:json(trace),
+            ...(offer?{offerPayload:json({offer,source})}:{}),
+            rawObservedAt:new Date(raw.observedAt),traceObservedAt:new Date(trace.observedAt),
+          }}});
+        }catch(error){prepared.push({status:'parsed',row,result:{status:'invalid-binding',error}});break;}
+      }
+    }
+    return scopedTransaction(this.db,scope,async tx=>{
+      assertActive();
+      if(!header.valid)throw header.error;
+      const searchId=header.searchId;
+      const run=await tx.searchRun.findUnique({where:{sessionId_id:{sessionId:scope.sessionId,id:searchId}}});
+      if(!run||run.status!=='collecting')throw new RepositoryError('NOT_FOUND');
+      const rows:PreparedNormalizationRow[]=[];
+      for(const item of prepared){
+        if(item.status==='invalid-input')throw item.error;
+        const {raw,trace}=item.row;
         if(run.mappingRevision!==trace.mappingRevision||run.fixtureVersion!==raw.fixtureVersion)throw new RepositoryError('MAPPING_COLLISION');
-        if(raw.providerId!==batch[0]!.raw.providerId||rawIds.has(raw.rawRecordId)||traceIds.has(trace.traceId)||offer&&offerIds.has(offer.offerId))throw new RepositoryError('INVALID_QUERY');
-        rawIds.add(raw.rawRecordId);traceIds.add(trace.traceId);if(offer)offerIds.add(offer.offerId);
-        if(trace.rawRecordId!==raw.rawRecordId||Boolean(offer)!==(trace.outcome==='accepted')||(!offer&&trace.offerId!==undefined)||
-          trace.issues.some(issue=>issue.rawRecordId!==undefined&&issue.rawRecordId!==raw.rawRecordId)||
-          offer&&(trace.offerId!==offer.offerId||offer.providerId!==raw.providerId||!source||!offer.provenance.every(p=>p.rawRecordId===raw.rawRecordId&&p.sourceNamespace===raw.sourceNamespace&&p.mappingRevision===run.mappingRevision&&p.fixtureVersion===run.fixtureVersion&&p.sourceRevision===source.sourceRevision)||offer.issues.some(issue=>issue.rawRecordId!==undefined&&issue.rawRecordId!==raw.rawRecordId)))throw new RepositoryError('INVALID_QUERY');
-        if(source){
-          PartySchema.parse(source.party);IdSchema.parse(source.sourceRawRecordId);IdSchema.parse(source.sourceRevision);NonnegativeIntegerSchema.parse(source.seats);
-          if(sourceRevision!==undefined&&sourceRevision!==source.sourceRevision)throw new RepositoryError('MAPPING_COLLISION');
-          sourceRevision=source.sourceRevision;
-          if(!offer||source.sourceRawRecordId!==sourceRawRecordId||source.pricingBasis!=='whole-party-gross')throw new RepositoryError('INVALID_QUERY');
-        }
-        return{raw,trace,offer,source,sourceRawRecordId};
-      });
+        if(item.result.status==='invalid-binding')throw item.result.error;
+        rows.push(item.result.row);
+      }
       assertActive();
       const provider=await tx.providerRun.upsert({where:{sessionId_searchId_providerId:{sessionId:scope.sessionId,searchId,providerId:rows[0]!.raw.providerId}},create:{sessionId:scope.sessionId,searchId,id:randomUUID(),providerId:rows[0]!.raw.providerId,status:'collecting',payload:{}},update:{}});
       if(!['pending','running','collecting'].includes(provider.status))throw new RepositoryError('NOT_FOUND');
-      await tx.rawRecord.createMany({data:rows.map(({raw,sourceRawRecordId})=>({sessionId:scope.sessionId,id:raw.rawRecordId,providerRunId:provider.id,sourceNamespace:raw.sourceNamespace,fixtureVersion:raw.fixtureVersion,observedAt:new Date(raw.observedAt),payload:json({sourceRawRecordId,raw})}))});
+      await tx.rawRecord.createMany({data:rows.map(({raw,rawPayload,rawObservedAt})=>({sessionId:scope.sessionId,id:raw.rawRecordId,providerRunId:provider.id,sourceNamespace:raw.sourceNamespace,fixtureVersion:raw.fixtureVersion,observedAt:rawObservedAt,payload:rawPayload}))});
       assertActive();
-      await tx.normalizationDecision.createMany({data:rows.map(({raw,trace})=>({sessionId:scope.sessionId,id:trace.traceId,rawRecordId:raw.rawRecordId,mappingRevision:trace.mappingRevision,payload:json(trace),createdAt:new Date(trace.observedAt)}))});
+      await tx.normalizationDecision.createMany({data:rows.map(({raw,trace,tracePayload,traceObservedAt})=>({sessionId:scope.sessionId,id:trace.traceId,rawRecordId:raw.rawRecordId,mappingRevision:trace.mappingRevision,payload:tracePayload,createdAt:traceObservedAt}))});
       assertActive();
-      const offers=rows.flatMap(({offer,source,trace})=>offer?[{sessionId:scope.sessionId,id:offer.offerId,searchId,payload:json({offer,source}),createdAt:new Date(trace.observedAt)}]:[]);
+      const offers=rows.flatMap(({offer,offerPayload,traceObservedAt})=>offer?[{sessionId:scope.sessionId,id:offer.offerId,searchId,payload:offerPayload!,createdAt:traceObservedAt}]:[]);
       if(offers.length)await tx.offerSnapshot.createMany({data:offers});
       assertActive();
     });

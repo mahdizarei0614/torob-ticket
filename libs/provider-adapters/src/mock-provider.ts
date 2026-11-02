@@ -94,6 +94,10 @@ export class MockProvider implements ProviderAdapter {
         const dates:ProviderDateBatch['dates']=[];
         const originalSink=c.traceBatchSink;
         const coalesce=originalSink&&originalSink.isAvailable?.(c)!==false;
+        // Only a real sink can advertise greater capacity. Keep old custom sinks
+        // on their 32-row contract, and never trust an unbounded/invalid hint.
+        const offeredMaxRows=originalSink?.maxRows;
+        const maxRows=typeof offeredMaxRows==='number'&&Number.isSafeInteger(offeredMaxRows)&&offeredMaxRows>0&&offeredMaxRows<=96?offeredMaxRows:32;
         let pending:ProviderEvidence[]=[],pendingBytes=0;
         const flush=async()=>{
           check();if(!pending.length)return;
@@ -106,9 +110,9 @@ export class MockProvider implements ProviderAdapter {
           // ProviderService adds a searchId (IdSchema max200). Reserve2KiB/row
           // for its worst-case escaped JSON envelope under the repository4MiB cap.
           const bytes=records.reduce((sum,row)=>sum+Buffer.byteLength(JSON.stringify(row),'utf8')+2048,0);
-          if(pending.length&&(pending.length+records.length>32||pendingBytes+bytes>4*1024*1024))await flush();
+          if(pending.length&&(pending.length+records.length>maxRows||pendingBytes+bytes>4*1024*1024))await flush();
           check();
-          if(records.length>32||bytes>4*1024*1024)throw new OperationFailure('failed','TRACE_SINK_FAILED');
+          if(records.length>maxRows||bytes>4*1024*1024)throw new OperationFailure('failed','TRACE_SINK_FAILED');
           pending.push(...records);pendingBytes+=bytes;
         }}:c;
         for(const date of new Set(parsed.dates)) {

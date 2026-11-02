@@ -31,7 +31,7 @@ export class ProviderService {
     const traceBatchSink=Object.assign(async function(this:ProviderContext,evidence:readonly ProviderEvidence[],assertActive:()=>void){
       if(!canBatch(this)){for(const row of evidence){assertActive();await this.traceSink(row);assertActive();}return;}
       await getRepository().appendNormalizationEvidenceBatch(session.scope,evidence.map(row=>({...row,searchId})),assertActive);
-    },{isAvailable:canBatch});
+    },{isAvailable:canBatch,maxRows:SearchRepository.maximumEvidenceBatchRows});
     const catalog=catalogForIdentity(info.fixtureVersion,info.catalogRevision);
     // A supplied old frozen context replays its original source unless its owner
     // explicitly supplies the independently frozen source versions (dates/rechecks).

@@ -26,12 +26,25 @@ async function rows(owner=owners[2]!){
   return{searchId:run.id,raw,sourceRawRecordId:original.rawRecordId,...normalizeRecord(decoded,{query,catalog,mappingRevision:'mapping-v1',aliases:[],realClock:{now:()=>now}})};
  });return{owner,run,evidence};
 }
+async function wideRows(count:number){
+ const owner=owners[2]!;
+ const run=await repository.create(owner.scope,{query,clientGeneration:randomUUID(),snapshot:{}},now);
+ const catalog=catalogForIdentity(owner.info.fixtureVersion,owner.info.catalogRevision);
+ const evidence=Array.from({length:Math.ceil(count/12)},(_,offset)=>{
+  const datedQuery={...query,departureDate:new Date(Date.UTC(2026,10,1+offset)).toISOString().slice(0,10)};
+  return generateProviderRecords({fixtureVersion:owner.info.fixtureVersion,seed:5151,anchorInstant:anchor,scenario:'normal',scenarioRevision:'scenario-v1',mappingRevision:'mapping-v1',query:datedQuery},'demo-provider-01').map(original=>{
+   const raw={...original,rawRecordId:randomUUID()},decoded=decodeRawRecord(raw);decoded.sourceRawRecordId=original.rawRecordId;
+   return{searchId:run.id,raw,sourceRawRecordId:original.rawRecordId,...normalizeRecord(decoded,{query:datedQuery,catalog,mappingRevision:'mapping-v1',aliases:[],realClock:{now:()=>now}})};
+  });
+ }).flat().slice(0,count);
+ return{owner,run,evidence};
+}
 async function counts(scope:DataScope,searchId:string){return{raw:await db.rawRecord.count({where:{sessionId:scope.sessionId,providerRun:{searchId}}}),decisions:await db.normalizationDecision.count({where:{sessionId:scope.sessionId,rawRecord:{providerRun:{searchId}}}}),offers:await db.offerSnapshot.count({where:{sessionId:scope.sessionId,searchId}}),providers:await db.providerRun.count({where:{sessionId:scope.sessionId,searchId}})};}
 it('persists exact v1/v2/v3 successful payloads through the wired batch service and keeps row instrumentation effective',async()=>{
  for(const owner of owners.slice(0,3)){
   const run=await repository.create(owner.scope,{query,clientGeneration:randomUUID(),snapshot:{}},now),service=new ProviderService(()=>repository,{now:()=>now});
   const context=await service.createContext(owner,run.id,new AbortController().signal,new Date(now.getTime()+5000));context.overrides={'demo-provider-01':{latencyMs:0}};
-  expect(context.traceBatchSink).toBeTypeOf('function');const result=await new MockProvider('demo-provider-01').search(query,context),expected=owner.info.fixtureVersion==='showcase-v3'?12:3;
+  expect(context.traceBatchSink).toBeTypeOf('function');expect(context.traceBatchSink?.maxRows).toBe(96);const result=await new MockProvider('demo-provider-01').search(query,context),expected=owner.info.fixtureVersion==='showcase-v3'?12:3;
   expect(result.status).toBe('success');expect(result.records).toHaveLength(expected);expect(await counts(owner.scope,run.id)).toEqual({raw:expected,decisions:expected,offers:expected,providers:1});
   for(const record of result.records){expect((await db.rawRecord.findUniqueOrThrow({where:{sessionId_id:{sessionId:owner.sessionId,id:record.raw.rawRecordId}}})).payload).toEqual({sourceRawRecordId:record.sourceRawRecordId,raw:record.raw});expect((await db.offerSnapshot.findUniqueOrThrow({where:{sessionId_id:{sessionId:owner.sessionId,id:record.offer!.offerId}}})).payload).toEqual({offer:record.offer,source:record.source});}
  }
@@ -68,27 +81,83 @@ it('rolls back raw and decision bulk inserts when the final offer bulk insert co
  await expect(repository.appendNormalizationEvidenceBatch(owner.scope,evidence)).rejects.toThrow();expect(await counts(owner.scope,run.id)).toEqual({raw:0,decisions:0,offers:1,providers:0});
  expect((await db.offerSnapshot.findUniqueOrThrow({where:{sessionId_id:{sessionId:owner.sessionId,id:conflict}}})).payload).toEqual({existing:true});
 });
-it('rejects repeated persisted IDs atomically without skipDuplicates and enforces batch size bounds',async()=>{
+it('accepts96 distinct normalized source rows atomically and rejects97 otherwise valid rows without committing a prefix',async()=>{
+ const accepted=await wideRows(96);
+ expect(accepted.evidence).toHaveLength(96);
+ expect(new Set(accepted.evidence.map(row=>row.raw.rawRecordId)).size).toBe(96);
+ expect(new Set(accepted.evidence.map(row=>row.trace.traceId)).size).toBe(96);
+ expect(new Set(accepted.evidence.map(row=>row.offer!.offerId)).size).toBe(96);
+ await repository.appendNormalizationEvidenceBatch(accepted.owner.scope,accepted.evidence);
+ expect(await counts(accepted.owner.scope,accepted.run.id)).toEqual({raw:96,decisions:96,offers:96,providers:1});
+ for(const row of [accepted.evidence[0]!,accepted.evidence.at(-1)!]){
+  const raw=await db.rawRecord.findUniqueOrThrow({where:{sessionId_id:{sessionId:accepted.owner.sessionId,id:row.raw.rawRecordId}}});
+  const trace=await db.normalizationDecision.findUniqueOrThrow({where:{sessionId_id:{sessionId:accepted.owner.sessionId,id:row.trace.traceId}}});
+  const offer=await db.offerSnapshot.findUniqueOrThrow({where:{sessionId_id:{sessionId:accepted.owner.sessionId,id:row.offer!.offerId}}});
+  expect(raw.payload).toEqual({sourceRawRecordId:row.sourceRawRecordId,raw:row.raw});expect(raw.observedAt).toEqual(new Date(row.raw.observedAt));
+  expect(trace.payload).toEqual(row.trace);expect(trace.createdAt).toEqual(new Date(row.trace.observedAt));
+  expect(offer.payload).toEqual({offer:row.offer,source:row.source});expect(offer.createdAt).toEqual(new Date(row.trace.observedAt));
+ }
+ const refused=await wideRows(97);
+ expect(refused.evidence).toHaveLength(97);
+ expect(refused.evidence.every(row=>row.offer&&row.source&&row.trace.outcome==='accepted')).toBe(true);
+ expect(new Set(refused.evidence.map(row=>row.raw.rawRecordId)).size).toBe(97);
+ expect(new Set(refused.evidence.map(row=>row.trace.traceId)).size).toBe(97);
+ expect(new Set(refused.evidence.map(row=>row.offer!.offerId)).size).toBe(97);
+ await expect(repository.appendNormalizationEvidenceBatch(refused.owner.scope,refused.evidence)).rejects.toMatchObject({code:'INVALID_QUERY'});
+ expect(await counts(refused.owner.scope,refused.run.id)).toEqual({raw:0,decisions:0,offers:0,providers:0});
+});
+it('validates the96th source binding before committing any part of a maximum-size batch',async()=>{
+ const {owner,run,evidence}=await wideRows(96);
+ evidence.at(-1)!.source!.sourceRawRecordId='not-the-recorded-source';
+ await expect(repository.appendNormalizationEvidenceBatch(owner.scope,evidence)).rejects.toMatchObject({code:'INVALID_QUERY'});
+ expect(await counts(owner.scope,run.id)).toEqual({raw:0,decisions:0,offers:0,providers:0});
+});
+it('checks owned run authority before exposing a malformed row from another session',async()=>{
+ const a=await wideRows(96),b=await rows(owners[3]!);
+ a.evidence[0]!.trace.traceId='';
+ await expect(repository.appendNormalizationEvidenceBatch(b.owner.scope,a.evidence)).rejects.toMatchObject({code:'NOT_FOUND'});
+ expect(await counts(a.owner.scope,a.run.id)).toEqual({raw:0,decisions:0,offers:0,providers:0});
+ expect(await counts(b.owner.scope,b.run.id)).toEqual({raw:0,decisions:0,offers:0,providers:0});
+});
+it('retains session expiry precedence over a malformed batch search identifier',async()=>{
+ const {owner,run,evidence}=await wideRows(96);evidence[0]!.searchId='';
+ await expect(repository.appendNormalizationEvidenceBatch({sessionId:randomUUID()},evidence)).rejects.toMatchObject({code:'SESSION_EXPIRED'});
+ expect(await counts(owner.scope,run.id)).toEqual({raw:0,decisions:0,offers:0,providers:0});
+});
+it('retains an earlier locked revision failure before a later row schema failure',async()=>{
+ const {owner,run,evidence}=await wideRows(96),first=evidence[0]!;
+ first.trace.mappingRevision='mapping-other';first.offer!.provenance.forEach(item=>{item.mappingRevision='mapping-other';});
+ evidence.at(-1)!.raw.fixtureVersion='';
+ await expect(repository.appendNormalizationEvidenceBatch(owner.scope,evidence)).rejects.toMatchObject({code:'MAPPING_COLLISION'});
+ expect(await counts(owner.scope,run.id)).toEqual({raw:0,decisions:0,offers:0,providers:0});
+});
+it('retains an earlier binding failure before a later locked revision mismatch',async()=>{
+ const {owner,run,evidence}=await wideRows(96),last=evidence.at(-1)!;
+ evidence[0]!.source!.sourceRawRecordId='not-the-recorded-source';
+ last.trace.mappingRevision='mapping-other';last.offer!.provenance.forEach(item=>{item.mappingRevision='mapping-other';});
+ await expect(repository.appendNormalizationEvidenceBatch(owner.scope,evidence)).rejects.toMatchObject({code:'INVALID_QUERY'});
+ expect(await counts(owner.scope,run.id)).toEqual({raw:0,decisions:0,offers:0,providers:0});
+});
+it('rejects repeated persisted IDs atomically without skipDuplicates and enforces the encoded byte bound',async()=>{
  const {owner,run,evidence}=await rows();await repository.appendNormalizationEvidenceBatch(owner.scope,evidence);
  await expect(repository.appendNormalizationEvidenceBatch(owner.scope,evidence)).rejects.toThrow();expect(await counts(owner.scope,run.id)).toEqual({raw:12,decisions:12,offers:12,providers:1});
- await expect(repository.appendNormalizationEvidenceBatch(owner.scope,Array.from({length:33},()=>evidence[0]!))).rejects.toMatchObject({code:'INVALID_QUERY'});
  const large=structuredClone(evidence);large[0]!.raw.payload='x'.repeat(4*1024*1024);await expect(repository.appendNormalizationEvidenceBatch(owner.scope,large)).rejects.toMatchObject({code:'INVALID_QUERY'});
 });
 it.each(['raw','offer'] as const)('rolls back an already-entered atomic batch cancelled after the %s bulk write',async stage=>{
- const {owner,run,evidence}=await rows(),controller=new AbortController();let observed=false;
+ const {owner,run,evidence}=await wideRows(96),controller=new AbortController();let observed=false;
  const extended=db.$extends({query:{rawRecord:{async createMany({args,query}){const result=await query(args);if(stage==='raw'){observed=true;controller.abort();}return result;}},offerSnapshot:{async createMany({args,query}){const result=await query(args);if(stage==='offer'){observed=true;controller.abort();}return result;}}}});
  const assertActive=()=>{if(controller.signal.aborted)throw new Error('operation-cancelled');};
  await expect(new SearchRepository(extended as unknown as PrismaClient).appendNormalizationEvidenceBatch(owner.scope,evidence,assertActive)).rejects.toThrow('operation-cancelled');expect(observed).toBe(true);expect(await counts(owner.scope,run.id)).toEqual({raw:0,decisions:0,offers:0,providers:0});
 });
 it('fences cancelled lock wait and snapshots caller-owned input before a queued append',async()=>{
  for(const cancel of [true,false]){
-  const {owner,run,evidence}=await rows(),captured=structuredClone(evidence);let entered!:()=>void,release!:()=>void;
+  const {owner,run,evidence}=await wideRows(96),captured=structuredClone(evidence);let entered!:()=>void,release!:()=>void;
   const locked=new Promise<void>(resolve=>{entered=resolve;}),gate=new Promise<void>(resolve=>{release=resolve;});
   const holder=db.$transaction(async tx=>{await tx.$queryRaw`SELECT id FROM "DemoSession" WHERE id=${owner.sessionId} FOR UPDATE`;entered();await gate;});await locked;
   const controller=new AbortController(),work=repository.appendNormalizationEvidenceBatch(owner.scope,evidence,()=>{if(controller.signal.aborted)throw new Error('queued-cancelled');});
   const observed=work.then(()=>null,error=>error as Error);evidence[0]!.raw.payload='mutated after call';evidence.push(...Array.from({length:40},()=>evidence[0]!));if(cancel)controller.abort();release();await holder;
   const failure=await observed;
   if(cancel){expect(failure?.message).toBe('queued-cancelled');expect(await counts(owner.scope,run.id)).toEqual({raw:0,decisions:0,offers:0,providers:0});}
-  else{expect(failure).toBeNull();expect(await counts(owner.scope,run.id)).toEqual({raw:12,decisions:12,offers:12,providers:1});expect((await db.rawRecord.findUniqueOrThrow({where:{sessionId_id:{sessionId:owner.sessionId,id:captured[0]!.raw.rawRecordId}}})).payload).toEqual({raw:captured[0]!.raw,sourceRawRecordId:captured[0]!.sourceRawRecordId});}
+  else{expect(failure).toBeNull();expect(await counts(owner.scope,run.id)).toEqual({raw:96,decisions:96,offers:96,providers:1});expect((await db.rawRecord.findUniqueOrThrow({where:{sessionId_id:{sessionId:owner.sessionId,id:captured[0]!.raw.rawRecordId}}})).payload).toEqual({raw:captured[0]!.raw,sourceRawRecordId:captured[0]!.sourceRawRecordId});}
  }
 });

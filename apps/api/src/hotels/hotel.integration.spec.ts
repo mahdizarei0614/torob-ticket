@@ -89,7 +89,13 @@ describe('hotel whole-stay HTTP/PostgreSQL authority', () => {
         expect(saved.payload).toEqual(snapshot);
         const run = await sessions.database.hotelSearchRun.findUniqueOrThrow({ where: { sessionId_id: { sessionId: owner.sessionId, id: snapshot.hotelSearchId } } });
         const data = run.payload as unknown as HotelRun;
-        expect(data.source.templates).toHaveLength(42);
+        expect(data.source.templates).toHaveLength(56);
+        for (const hotel of snapshot.hotels) {
+            const expectedIds = [1, 2, 3, 4].map(capacity => `${hotel.hotelId}-rate-${capacity}`);
+            expect(data.source.templates.filter(rate => rate.hotelId === hotel.hotelId).map(rate => rate.id).sort()).toEqual(expectedIds);
+            expect(data.source.rates.filter(rate => rate.hotelId === hotel.hotelId).map(rate => [rate.roomRateId, rate.maxAdults]).sort()).toEqual(expectedIds.map((id, index) => [id, index + 1]));
+            expect(data.source.rates.find(rate => rate.roomRateId === `${hotel.hotelId}-rate-4`)).toMatchObject({ maxAdults: 4, maxChildren: 0, maxInfants: 0 });
+        }
         expect(data.source.policies).toBeDefined();
         expect(data.source.engineRevision).toBe('hotel-engine-v1');
         expect(data.snapshot).toEqual(snapshot);

@@ -1,6 +1,6 @@
 # TorobTicket — Product and Architecture Specification
 
-**Revision:** 1.42 · 2026-11-01
+**Revision:** 1.43 · 2026-11-02
 
 **Purpose:** Authoritative design companion to the master implementation plan.  
 **Status:** Product scope and architecture approved in conversation. Implementation defaults below are explicit engineering decisions made while preparing the plan; they are not additional claims of user approval.
@@ -115,6 +115,8 @@ The group representative is its cheapest eligible complete quote. Ranking, badge
 Explanations are deterministic facts with a stated comparison: price difference, time saved, connection count, baggage differences, and responding-provider coverage. While collection is ongoing, claims say “so far.” They do not imply coverage of the entire travel market.
 
 **Default contextual suggestion:** show at most one suggestion. Offer a nearby date within ±3 days when it saves at least 10% and 200,000 toman with the same party/filters and fixed opposite leg; or a journey that saves at least 90 minutes for no more than 10% extra. Evaluate relative to the current cheapest complete option, require comparable completed coverage, and show the exact tradeoff. Prefer the larger proportional price saving when multiple date candidates qualify, then nearer date, then stable ID. Otherwise use the time-saving candidate with the greatest minutes saved, then lower price. Dismissal lasts for that search. Thresholds are explicit defaults to validate with fixtures.
+
+**Engineering release clarification,2026-11-02 (decision0080):** current runtime contextual advice is faster-journey only. The domain can evaluate nearby-date savings, but that automatic banner is not integrated into the server/UI. Users retain full nearby-date wheel/chart/calendar exploration. Do not claim the domain-only branch shipped or start hidden provider searches to fabricate its candidates. This explicitly narrows the default suggestion composition without changing a locked traveler/referral journey.
 
 **Owner suggestion refinement,2026-10-31 (decision0068):** the زودتر برسید surface and its exact qualifying price card use a semantic gold palette, independent of transport primary colors and price bands. نمایش مسیر پیشنهادی focuses the current native card-selection control and scrolls to that exact active card; a stronger gold cue fades over3seconds, leaving the card's ordinary gold identity in place. Repeated activation restarts only the transient cue. Dismissing the suggestion hides its banner while a still-valid target stays gold. Changed/expired/replaced evidence revokes the cue and gold recommendation; reduced/hidden/covered motion removes the transient animation without replay on resume. Qualification, organic ranking, selected quote and referral authority remain unchanged.
 
@@ -338,7 +340,7 @@ Three application projects: web, admin, api. Shared libraries: contracts, domain
 
 Domain rules do not import React, Nest, Prisma, or transport code. Contracts contain runtime schemas and public types, not persistence models. UI does not import provider raw formats or database code. API alone orchestrates providers and persistence. Nx ESLint tags enforce these boundaries.
 
-**Rich-inventory storage ruling,2026-10-29 (decision0052):** snapshot-only REST/internal reads share comparison-parent guards, scope locking and an atomic snapshot/cursor with replay, but skip decoding discarded history. Projection quote reads use the same session and the exact already-loaded owned offer IDs, retaining all versions and immutable payloads; no offers means no quote read. Provider date chunks remain bounded by32rows/4MiB and preserve cancellation, row-hook fallback and partial committed evidence.
+**Rich-inventory storage ruling,2026-10-29 (decision0052):** snapshot-only REST/internal reads share comparison-parent guards, scope locking and an atomic snapshot/cursor with replay, but skip decoding discarded history. Projection quote reads use the same session and the exact already-loaded owned offer IDs, retaining all versions and immutable payloads; no offers means no quote read. Provider date chunks retain a default of 32 rows for custom sinks. **Engineering deadline repair,2026-11-02 (decision0081):** the actual persistence sink advertises a validated capacity of 96 rows, enforced by the repository and used for date coalescing. The 4 MiB encoded limit and per-row envelope headroom remain; byte limits may flush earlier. Preserve exact records, whole-date ordering, receiver-aware row-hook fallback, atomic bindings/rollback, cancellation and committed-prefix evidence. Provider/job deadlines, full inventory and all source/quote identities remain unchanged.
 
 Core backend modules: sessions, catalog, providers, searches, date-prices, hotels, referrals, saved-searches, and admin. One backend process executes bounded searches. Persisted logs/snapshots support audit and reconnect, not a distributed event-sourcing platform.
 

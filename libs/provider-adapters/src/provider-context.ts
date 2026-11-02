@@ -6,6 +6,9 @@ export interface ProviderTraceBatchSink {
   (this:ProviderContext,evidence:readonly ProviderEvidence[],assertActive:()=>void):Promise<void>;
   /** Receiver-aware availability keeps copied contexts with custom row hooks on fallback. */
   isAvailable?:(context:ProviderContext)=>boolean;
+  /** Actual sink capacity, bounded to 1..96. Unannotated sinks retain 32.
+   * The 4MiB encoded envelope limit is independent and always applies. */
+  maxRows?:number;
 }
 export interface ProviderContext {
   operationId:string;
