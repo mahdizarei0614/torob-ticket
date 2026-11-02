@@ -1,5 +1,5 @@
-import {useCallback,useLayoutEffect,useMemo,useRef,useState,type ReactNode} from 'react';
-import type {CatalogSnapshot,SessionInfo} from '@torob-ticket/contracts';
+import {useCallback,useId,useLayoutEffect,useMemo,useRef,useState,type ReactNode} from 'react';
+import {GeoPointSchema,type GeoPoint,type CatalogSnapshot,type SessionInfo} from '@torob-ticket/contracts';
 import {Button,Dialog,SegmentedControl,displayHotelName,displayPlaceName,LoadingSkeleton,ContentSwap,ContentItem,HotelStayIllustration,useMotionPolicy} from '@torob-ticket/ui';
 import type {HotelDiscovery} from './use-hotel-discovery';
 import {hotelCapacity,hotelCapacityOptions,queryKey} from './hotel-state';
@@ -15,6 +15,25 @@ function discoveryScrollHost(panel:HTMLDivElement){
  return layout&&['auto','scroll'].includes(getComputedStyle(layout).overflowY)?layout:panel;
 }
 
+function CoordinateReference({model,initial,onCommit,onCancel}:{model:HotelDiscovery;initial?:GeoPoint;onCommit:(point:GeoPoint)=>void;onCancel:()=>void}){
+ const [latitude,setLatitude]=useState(initial?String(initial.latitude):''),[longitude,setLongitude]=useState(initial?String(initial.longitude):''),[attempted,setAttempted]=useState(false);
+ const latitudeInput=useRef<HTMLInputElement>(null),longitudeInput=useRef<HTMLInputElement>(null),errorId=useId();
+ const latitudeValid=latitude.trim()!==''&&Number.isFinite(Number(latitude))&&Number(latitude)>=-90&&Number(latitude)<=90;
+ const longitudeValid=longitude.trim()!==''&&Number.isFinite(Number(longitude))&&Number(longitude)>=-180&&Number(longitude)<=180;
+ const value=GeoPointSchema.safeParse({latitude:Number(latitude),longitude:Number(longitude)}),valid=latitudeValid&&longitudeValid&&value.success;
+ return <details className={styles.referenceCoordinates} onKeyDown={event=>{if(event.key==='Escape'){event.preventDefault();event.stopPropagation();onCancel();}}}>
+  <summary>انتخاب با مختصات</summary>
+  <form noValidate aria-label="مختصات نقطه مرجع" onSubmit={event=>{event.preventDefault();if(!model.isPointCurrent())return;setAttempted(true);if(!valid||!value.success){(!latitudeValid?latitudeInput:longitudeInput).current?.focus();return;}onCommit(value.data);}}>
+   <div className={styles.referenceCoordinateFields}>
+    <label>عرض جغرافیایی<input ref={latitudeInput} type="number" inputMode="decimal" dir="ltr" min="-90" max="90" step="any" aria-label="عرض جغرافیایی نقطه مرجع" value={latitude} aria-invalid={attempted&&!latitudeValid||undefined} aria-describedby={attempted&&!valid?errorId:undefined} onChange={event=>setLatitude(event.target.value)}/></label>
+    <label>طول جغرافیایی<input ref={longitudeInput} type="number" inputMode="decimal" dir="ltr" min="-180" max="180" step="any" aria-label="طول جغرافیایی نقطه مرجع" value={longitude} aria-invalid={attempted&&!longitudeValid||undefined} aria-describedby={attempted&&!valid?errorId:undefined} onChange={event=>setLongitude(event.target.value)}/></label>
+   </div>
+   {attempted&&!valid&&<p id={errorId} className={styles.referenceCoordinateError} role="alert">عرض جغرافیایی باید بین ۹۰- تا ۹۰ و طول جغرافیایی بین ۱۸۰- تا ۱۸۰ باشد.</p>}
+   <Button type="submit" variant="secondary" isDisabled={model.stale||model.blocked}>اعمال نقطه مرجع</Button>
+  </form>
+ </details>;
+}
+
 export function HotelDialog({model,catalog,referralAction,initialScrollTop=0}:{model:HotelDiscovery;catalog:CatalogSnapshot;session:SessionInfo;canApplyTrip:boolean;referralAction?:{quoteId:string;node:ReactNode};initialScrollTop?:number}){
  const {state}=model,trip=state.trip,draft=state.draft,policy=useMotionPolicy();
  const capacity=hotelCapacity(state),adultCapacity=Boolean(trip.query.party.children||trip.query.party.infants);
@@ -27,6 +46,10 @@ export function HotelDialog({model,catalog,referralAction,initialScrollTop=0}:{m
  const identity=[trip.query.destinationCityId,arrival?.id??'awaiting-arrival'].join(':');
  const ownership=useRef({identity,open:model.open});ownership.current={identity,open:model.open};
  const isMapCurrent=useCallback(()=>ownership.current.open&&ownership.current.identity===identity,[identity]);
+ const order=useRef<HTMLDivElement>(null),pointReturnFocus=useRef(false);
+ useLayoutEffect(()=>{if(!model.open){pointReturnFocus.current=false;return;}if(!state.point&&pointReturnFocus.current){pointReturnFocus.current=false;order.current?.querySelector<HTMLInputElement>('input[type="radio"]:checked:not(:disabled)')?.focus();}},[model.open,state.point]);
+ function cancelPoint(){if(!model.isPointCurrent())return;pointReturnFocus.current=true;model.cancelPoint();}
+ function commitPoint(value:GeoPoint){if(!model.isPointCurrent())return;pointReturnFocus.current=true;void model.chooseLocation(value);}
  const scroll=useRef<HTMLDivElement>(null),restored=useRef(false);
  const bindScroll=useCallback((node:HTMLDivElement|null)=>{scroll.current=node;if(node&&!restored.current){node.scrollTop=initialScrollTop;restored.current=true;}},[initialScrollTop]);
  useLayoutEffect(()=>{if(!model.open){restored.current=false;return;}if(scroll.current&&!restored.current){scroll.current.scrollTop=initialScrollTop;restored.current=true;}},[model.open,initialScrollTop]);
@@ -81,16 +104,16 @@ export function HotelDialog({model,catalog,referralAction,initialScrollTop=0}:{m
     <div className={styles.arrivalMapFrame} data-hotel-map-frame>
      {arrival?<FreeLocationMap identity={identity} active={model.open} variant="discovery" center={arrival.point} choices={choices} selectedHotelId={state.selectedHotelId} onSelectHotel={pickHotel} pickingPoint={Boolean(state.point)} point={state.point?.value??draft.customPoint} onPoint={model.chooseLocation} isCurrent={isMapCurrent}/>:<div className={styles.arrivalWaiting} role="status"><HotelStayIllustration size="compact"/><strong>هتل‌ها پس از مشخص شدن محل رسیدن نمایش داده می‌شوند</strong><span>محل رسیدن این بلیت هنوز مشخص نیست.</span></div>}
     </div>
-    {state.point&&<div className={styles.referencePrompt} role="status"><span>نقطه دلخواه را روی نقشه انتخاب کنید</span><Button variant="quiet" onPress={model.cancelPoint}>انصراف</Button></div>}
+    {state.point&&<div className={styles.referencePrompt}><div className={styles.referencePromptBar}><span role="status">نقطه دلخواه را انتخاب کنید</span><Button variant="quiet" onPress={cancelPoint}>انصراف</Button></div><CoordinateReference key={identity+':'+state.point.token} model={model} initial={state.point.value??draft.customPoint??arrival?.point??city?.point} onCommit={commitPoint} onCancel={cancelPoint}/></div>}
     </div>
     <div className={styles.hotelCollectionPane} data-hotel-cards-pane>
-     <div className={styles.hotelOrder}>
+     <div ref={order} className={styles.hotelOrder}>
       <SegmentedControl hideLabel label="مرتب‌سازی اقامتگاه‌ها" value={state.point?'location-distance':draft.sort} isDisabled={model.stale||model.blocked} onChange={sort} onReselect={sort} options={[{id:'cheapest',label:'ارزان‌ترین'},{id:'stars',label:'ستاره بیشتر'},{id:'arrival-distance',label:`نزدیک به ${modeLabel}`},{id:'location-distance',label:'نزدیک به نقطه دلخواه'}]}/>
       <label className={styles.hotelCapacity}><span className={styles.srOnly}>{adultCapacity?'ظرفیت بزرگسال':'ظرفیت اتاق'}</span><span className={styles.capacitySelect}><select aria-label={adultCapacity?'ظرفیت بزرگسال':'ظرفیت اتاق'} title={adultCapacity?'ظرفیت بزرگسال اتاق؛ کودکان و نوزادان مطابق سفر انتخاب‌شده':'ظرفیت اتاق'} value={capacity} disabled={!draft.arrivalConfirmed||model.stale||model.blocked||Boolean(state.point)} onChange={event=>void model.changeCapacity(Number(event.target.value))}>{hotelCapacityOptions(capacity).map(value=><option key={value} value={value}>اتاق {faNumber(value)} {adultCapacity?'بزرگسال':'نفره'}</option>)}</select><svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d="m5 8 5 5 5-5"/></svg></span></label>
      </div>
      {draft.customPoint&&!state.point&&<div className={styles.referenceChange}><Button variant="quiet" isDisabled={loading||model.stale||model.blocked} onPress={model.openPoint}>تغییر نقطه مرجع</Button></div>}
      <div className={styles.hotelScrollFrame}>
-     <div ref={bindScroll} className={styles.hotelDiscoveryScroll} data-hotel-scroll>
+     <div ref={bindScroll} className={styles.hotelDiscoveryScroll} data-hotel-scroll tabIndex={0} role="region" aria-label="فهرست اقامتگاه‌ها">
     {(state.status==='error'||model.authorityStale||failed)&&<aside className={styles.arrivalRecovery} role="alert"><div><strong>{model.authorityStale?'قیمت هتل‌ها به بررسی تازه نیاز دارد':'دریافت هتل‌ها کامل نشد'}</strong><p>{state.error??(failed?'پاسخ ناموفق به معنی نبود اتاق نیست. دوباره بررسی کنید.':'همین یک شب و موقعیت انتخابی حفظ شده است.')}</p></div>{model.blocked&&model.resumeSession?<Button variant="secondary" onPress={model.resumeSession}>بازیابی نشست</Button>:<Button variant="secondary" isDisabled={!model.query||model.stale||model.blocked} onPress={()=>void model.submit()}>تلاش دوباره</Button>}</aside>}
     {!model.query&&!loading&&model.errors.length>0&&<p role="status" className={styles.arrivalUnavailable}>{model.errors.join(' ')}</p>}
     <section aria-label="نتایج مقایسه اقامتگاه‌ها" className={styles.arrivalResults} data-hotel-search-id={visible?.hotelSearchId} data-hotel-query={visible?queryKey(visible.query):undefined} data-hotel-status={visible?.status??(loading?'loading':'idle')} aria-busy={loading}>

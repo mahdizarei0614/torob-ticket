@@ -29,6 +29,7 @@
 .hotelScrollFrame{position:relative;flex:1;min-height:0;display:flex;overflow:hidden;}
 .hotelDiscoveryScroll{flex:1;min-width:0;min-height:0;overflow:auto;overscroll-behavior:contain;scrollbar-width:none;scroll-padding-block:8px;padding-inline:2px;padding-block-end:4px;}
 .hotelDiscoveryScroll::-webkit-scrollbar{display:none;}
+.hotelDiscoveryScroll:focus-visible{outline:var(--focus-width) solid var(--focus);outline-offset:-3px;}
 .hotelOverflowCue{position:absolute;z-index:3;right:0;left:calc(50% + 8px);bottom:0;height:clamp(32px,8dvh,64px);pointer-events:none;background:linear-gradient(to top,var(--surface),color-mix(in srgb,var(--surface) 72%,var(--color-clear)) 35%,var(--color-clear));opacity:0;visibility:hidden;transition:opacity var(--motion-fast),visibility 0s var(--motion-fast);}
 .hotelOverflowCue[data-visible='true']{opacity:1;visibility:visible;transition-delay:0s;}
 .arrivalDialog[data-motion-enabled='false'] .hotelOverflowCue{transition:none;}
@@ -99,3 +100,25 @@
 @media(max-height:580px) and (max-width:900px){.hotelSplit{display:flex;flex-direction:column;overflow:auto;overscroll-behavior:contain;scrollbar-width:none;}.hotelSplit::-webkit-scrollbar{display:none;}.hotelMapPane{flex:none;height:190px;}.hotelCollectionPane{flex:none;overflow:visible;}.hotelScrollFrame,.hotelDiscoveryScroll{overflow:visible;flex:none;}.hotelOrder{position:sticky;top:0;z-index:4;background:var(--surface);}}
 
 @media(max-width:360px){.hotelCardGrid{grid-template-columns:minmax(0,1fr);}}
+
+/* The optional keyboard point editor stays inside the existing overlay prompt. */
+.referencePrompt{display:block;max-height:calc(100% - 40px);overflow:auto;overscroll-behavior:contain;}
+.referencePromptBar{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.referencePrompt button{min-height:44px;}
+.referenceCoordinates{min-width:0;}
+.referenceCoordinates>summary{display:flex;align-items:center;min-height:44px;cursor:pointer;color:var(--accent);}
+.referenceCoordinates form{display:grid;gap:8px;padding-block:4px;}
+.referenceCoordinateFields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;}
+.referenceCoordinateFields label{display:grid;gap:4px;min-width:0;font-size:12px;}
+.referenceCoordinateFields input{width:100%;min-width:0;min-height:44px;padding:6px 8px;font:inherit;background:var(--surface);color:var(--text);border:1px solid var(--border-strong);border-radius:var(--radius-sm);corner-shape:var(--corner-shape);}
+.referenceCoordinates summary:focus-visible,.referenceCoordinateFields input:focus-visible{outline:var(--focus-width) solid var(--focus);outline-offset:-3px;}
+.referenceCoordinateFields input[aria-invalid='true']{border-color:var(--danger);}
+.referenceCoordinateError{margin:0;color:var(--danger);font-size:12px;line-height:1.8;}
+
+/* The SDK attribution has its own opaque theme surface; legal links stay inline. */
+.arrivalMapFrame [data-hotel-map] :global(.maplibregl-ctrl-attrib){background:var(--surface);color:var(--text);padding:6px 8px;}
+.arrivalMapFrame [data-hotel-map] :global(.maplibregl-ctrl-attrib a){color:inherit;text-decoration:underline;text-underline-offset:.15em;}
+.arrivalMapFrame [data-hotel-map] :global(.maplibregl-ctrl-attrib a:focus-visible){outline:var(--focus-width) solid var(--focus);outline-offset:2px;box-shadow:none;}
+/* A theme-surface halo gives the focus ring a known backdrop beside native icons. */
+.arrivalMapFrame [data-hotel-map] :global(.maplibregl-ctrl-group button:focus-visible){position:relative;z-index:1;outline:var(--focus-width) solid var(--focus);outline-offset:2px;box-shadow:0 0 0 calc(var(--focus-width) + 3px) var(--surface);}
+@media(max-width:767px){.arrivalMapFrame [data-hotel-map] :global(.maplibregl-ctrl-group button){width:44px;height:44px;}}

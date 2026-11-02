@@ -113,3 +113,32 @@ describe('arrival map and square hotel collection',()=>{
  });
 
 });
+
+describe('keyboard reference coordinates',()=>{
+ it('validates coordinates without writes, commits one exact reference and cancels a replacement draft',async()=>{
+  const {queries,dialog}=setup();await waitFor(()=>expect(dialog().querySelectorAll('[data-hotel-id]')).toHaveLength(2));
+  fireEvent.click(within(dialog()).getByRole('radio',{name:'نزدیک به نقطه دلخواه'}));
+  const details=within(dialog()).getByText('انتخاب با مختصات').closest('details')!;fireEvent.click(within(dialog()).getByText('انتخاب با مختصات'));details.open=true;
+  const latitude=within(dialog()).getByRole('spinbutton',{name:'عرض جغرافیایی نقطه مرجع'}),longitude=within(dialog()).getByRole('spinbutton',{name:'طول جغرافیایی نقطه مرجع'}),form=within(dialog()).getByRole('form',{name:'مختصات نقطه مرجع'});
+  expect(latitude).toHaveAttribute('dir','ltr');expect(longitude).toHaveAttribute('dir','ltr');
+  fireEvent.change(latitude,{target:{value:'91'}});fireEvent.change(longitude,{target:{value:'51.5'}});expect(queries).toHaveLength(1);expect(map.current?.point).toBeUndefined();
+  fireEvent.submit(form);expect(latitude).toHaveAttribute('aria-invalid','true');expect(latitude).toHaveFocus();expect(within(dialog()).getByRole('alert')).toHaveTextContent('عرض جغرافیایی');expect(queries).toHaveLength(1);
+  fireEvent.change(latitude,{target:{value:'35.5'}});expect(queries).toHaveLength(1);fireEvent.submit(form);await waitFor(()=>expect(queries).toHaveLength(2));
+  expect(queries[1]).toMatchObject({sort:'location-distance',customPoint:{latitude:35.5,longitude:51.5},checkIn:queries[0]!.checkIn,checkOut:queries[0]!.checkOut,party:queries[0]!.party,rooms:1});
+  await waitFor(()=>expect(map.current?.pickingPoint).toBe(false));expect(within(dialog()).getByRole('radio',{name:'نزدیک به نقطه دلخواه'})).toHaveFocus();
+  fireEvent.click(within(dialog()).getByRole('button',{name:'تغییر نقطه مرجع'}));const disclosure=within(dialog()).getByText('انتخاب با مختصات').closest('details')!;disclosure.open=true;
+  const edited=within(dialog()).getByRole('spinbutton',{name:'عرض جغرافیایی نقطه مرجع'});expect(edited).toHaveValue(35.5);fireEvent.change(edited,{target:{value:'10'}});fireEvent.keyDown(edited,{key:'Escape'});
+  await waitFor(()=>expect(map.current?.pickingPoint).toBe(false));expect(queries).toHaveLength(2);expect(map.current?.point).toEqual({latitude:35.5,longitude:51.5});
+  fireEvent.click(within(dialog()).getByRole('button',{name:'تغییر نقطه مرجع'}));const reopened=within(dialog()).getByText('انتخاب با مختصات').closest('details')!;reopened.open=true;expect(within(dialog()).getByRole('spinbutton',{name:'عرض جغرافیایی نقطه مرجع'})).toHaveValue(35.5);
+ });
+ it('retires the coordinate form and fences its retained point owner when authority is blocked',async()=>{
+  const queries:HotelSearchQuery[]=[],trip=arrivingTrip();const client={startHotelSearch:vi.fn(async(query:HotelSearchQuery)=>{queries.push(query);return arrivalSnapshot(query);})} as unknown as ApiClient;
+  let current!:ReturnType<typeof useHotelDiscovery>;
+  function App({blocked=false}:{blocked?:boolean}){current=useHotelDiscovery({trip,catalog:arrivalCatalog,session,client,blocked});return <><button onClick={current.openDialog}>open hotels</button><HotelDialog model={current} catalog={arrivalCatalog} session={session} canApplyTrip/></>;}
+  const view=render(<App/>);fireEvent.click(screen.getByText('open hotels'));await waitFor(()=>expect(queries).toHaveLength(1));await waitFor(()=>expect(current.state.status).toBe('ready'));
+  fireEvent.click(screen.getByRole('radio',{name:'نزدیک به نقطه دلخواه'}));const details=screen.getByText('انتخاب با مختصات').closest('details')!;details.open=true;
+  const retained=current;expect(retained.isPointCurrent()).toBe(true);fireEvent.change(screen.getByRole('spinbutton',{name:'عرض جغرافیایی نقطه مرجع'}),{target:{value:'35.5'}});
+  view.rerender(<App blocked/>);await waitFor(()=>expect(screen.queryByRole('form',{name:'مختصات نقطه مرجع'})).not.toBeInTheDocument());expect(retained.isPointCurrent()).toBe(false);
+  await act(async()=>retained.chooseLocation({latitude:35.5,longitude:51.5}));expect(queries).toHaveLength(1);expect(current.state.draft.customPoint).toBeUndefined();expect(current.state.draft.sort).toBe('cheapest');
+ });
+});

@@ -52,7 +52,8 @@ describe('compact card selection and facts', () => {
   expect(select).toHaveBeenLastCalledWith(selectionFor(data.groupId, data.eligibleQuotes[0]!));
   expect(surface).toHaveAttribute('aria-pressed', 'true');
   expect(screen.getByRole('article')).toHaveAttribute('data-selected', 'true');
-  expect(screen.getByLabelText('انتخاب‌شده')).toBeInTheDocument();
+  // The native pressed button owns selection; its visual check is decorative.
+  expect(screen.queryByLabelText('انتخاب‌شده')).not.toBeInTheDocument();
   expect(screen.getByRole('button', { name: 'رفتن به فروشنده' })).toBeInTheDocument();
   await user.keyboard(' ');
   expect(select).toHaveBeenCalledTimes(2);
@@ -63,7 +64,7 @@ describe('compact card selection and facts', () => {
   const continueToProvider = vi.fn();
   const user = userEvent.setup();
   render(<Harness onSelect={select} onContinue={continueToProvider}/>);
-  await user.click(screen.getByRole('button', { name: 'فرودگاه امام خمینی' }));
+  await user.click(screen.getByRole('button', { name: 'IKA · فرودگاه امام خمینی' }));
   expect(select).not.toHaveBeenCalled();
   const details = screen.getByRole('button', { name: 'جزئیات سفر' });
   await user.click(details);

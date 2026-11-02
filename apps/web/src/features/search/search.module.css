@@ -81,3 +81,6 @@
 .submitRow > .fieldFeedback { width:100%; }
 .submitRow > .fieldFeedback > button { width:100%; }
 .submitRow > .fieldFeedback > button[data-invalid] { background:var(--disabled-bg); border-color:var(--border); color:var(--disabled-text); cursor:pointer; }
+
+/* Invalid submission remains an actionable validation control, with readable text. */
+.submitRow > button[data-invalid],.submitRow > .fieldFeedback > button[data-invalid] { color:var(--text); }

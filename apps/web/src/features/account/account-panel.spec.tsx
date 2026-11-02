@@ -56,6 +56,22 @@ it('keeps guest sign-in reachable and preserves local theme preference through l
  expect(avatar()).toHaveAttribute('data-profile-avatar','glyph');expect(avatar().querySelector('svg')).not.toBeNull();
  expect(localStorage.getItem('torobticket.appearance')).toBe('dark');expect(h.client.listSavedSearches).not.toHaveBeenCalled();expect(h.client.saveSearch).not.toHaveBeenCalled();expect(h.client.deleteSavedSearch).not.toHaveBeenCalled();
 });
+it('retains one native focused account action and its pending announcement target through sign-in and sign-out',async()=>{
+ const h=setup();vi.mocked(h.client.authState).mockResolvedValue({identity:null});
+ let finishSignIn!:(value:{identity:typeof identity})=>void,finishSignOut!:(value:{identity:null})=>void;
+ vi.mocked(h.client.signIn).mockReturnValueOnce(new Promise(resolve=>{finishSignIn=resolve;}));
+ vi.mocked(h.client.signOut).mockReturnValueOnce(new Promise(resolve=>{finishSignOut=resolve;}));
+ const user=await open(false),action=screen.getByRole('button',{name:'ادامه با ترب'}),id=action.id;expect(id).toBeTruthy();
+ const announcements=()=>Array.from(document.querySelectorAll<HTMLElement>('[data-live-announcer] [role="img"][aria-labelledby]')).filter(node=>node.getAttribute('aria-labelledby')?.split(/\s+/).includes(id));
+ const namedAnnouncements=()=>{expect(announcements().length).toBeGreaterThan(0);for(const node of announcements()){expect(document.getElementById(id)).toBe(action);expect(node).toHaveAccessibleName();}};
+ await user.click(action);await waitFor(()=>expect(action).toHaveAttribute('data-pending','true'));expect(action).toHaveFocus();await waitFor(namedAnnouncements);
+ await act(async()=>finishSignIn({identity}));const logout=await screen.findByRole('button',{name:'خروج از حساب'});
+ expect(logout).toBe(action);expect(logout.id).toBe(id);expect(logout).toHaveFocus();expect(logout).toHaveAttribute('data-profile-logout');namedAnnouncements();
+ await user.click(logout);await waitFor(()=>expect(action).toHaveAttribute('data-pending','true'));
+ await act(async()=>finishSignOut({identity:null}));const guest=await screen.findByRole('button',{name:'ادامه با ترب'});
+ expect(guest).toBe(action);expect(guest.id).toBe(id);expect(guest).toHaveFocus();expect(guest).not.toHaveAttribute('data-profile-logout');namedAnnouncements();
+ expect(h.client.signIn).toHaveBeenCalledOnce();expect(h.client.signOut).toHaveBeenCalledOnce();
+});
 it.each(['signIn','signOut'] as const)('rejects a retained %s after close/reopen while current controls still work',async action=>{
  const h=setup();if(action==='signIn')vi.mocked(h.client.authState).mockResolvedValue({identity:null});const user=await open(action==='signOut'),old=capture[action]!;
  await user.keyboard('{Escape}');await waitFor(()=>expect(screen.queryByRole('dialog')).toBeNull());await open(action==='signOut');act(()=>old());expect(h.client[action]).not.toHaveBeenCalled();

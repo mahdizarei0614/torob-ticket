@@ -12,6 +12,7 @@ import {
   Text,
 } from 'react-aria-components';
 import { useContext, useId, useLayoutEffect, useRef, type ReactNode, type RefObject } from 'react';
+import { flushSync } from 'react-dom';
 import { useOverlayPosition } from 'react-aria/useOverlayPosition';
 import { Code, languageProps, type Language } from './language';
 import { FieldErrorTooltip } from './field-error-tooltip';
@@ -68,6 +69,21 @@ function ComboBoxPopover({ inputRef, groupRef, popoverRef, listBoxRef, language,
   const state = useContext(ComboBoxStateContext), present = state !== null;
   const live = useRef(state); live.current = state;
   const scroll = useRef<Event | undefined>(undefined);
+  useLayoutEffect(() => {
+    const anchor = inputRef.current;
+    if (!present || !anchor) return;
+    const commitBeforeTab = (event: KeyboardEvent) => {
+      const current = live.current;
+      if (event.key !== 'Tab' || event.defaultPrevented || event.isComposing || event.repeat || !current?.isOpen || !anchor.isConnected || anchor.disabled || anchor.ownerDocument.activeElement !== anchor) return;
+      // Firefox can move native focus before React's pending popup cleanup.
+      // Use the same public commit as the normal Tab handler, synchronously,
+      // so outside content is exposed before the browser chooses its next focus.
+      // Do not prevent navigation, move focus or alter the vendor's AT hiding.
+      flushSync(() => current.commit());
+    };
+    anchor.addEventListener('keydown', commitBeforeTab, true);
+    return () => anchor.removeEventListener('keydown', commitBeforeTab, true);
+  }, [present, inputRef]);
   const position = useOverlayPosition({
     targetRef: groupRef, overlayRef: popoverRef, scrollRef: listBoxRef,
     placement: 'bottom start', offset: 8, containerPadding: 12, shouldFlip: true,

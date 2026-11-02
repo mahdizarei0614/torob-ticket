@@ -8,9 +8,9 @@ import {after,test} from 'node:test';
 const repo=fileURLToPath(new URL('../../',import.meta.url)),evidence=realpathSync(mkdtempSync(resolve(tmpdir(),'torobticket-t30-config-')));
 const config=pathToFileURL(resolve(repo,'tests/e2e/playwright.config.ts')).href;
 function load(patch={}){
- const env={...process.env};for(const key of Object.keys(env))if(/EVIDENCE_DIR$/.test(key)||['E2E_BASE_URL','E2E_DEV_SERVERS','GRAPHICS_E2E_PORT','ADMIN_E2E_URL','TOROBTICKET_PORT'].includes(key))delete env[key];
+ const env={...process.env};for(const key of Object.keys(env))if(/EVIDENCE_DIR$/.test(key)||['E2E_BASE_URL','E2E_DEV_SERVERS','GRAPHICS_E2E_PORT','ADMIN_E2E_URL','TOROBTICKET_PORT','E2E_BROWSER','PLAYWRIGHT_CHANNEL'].includes(key))delete env[key];
  Object.assign(env,{E2E_EVIDENCE_DIR:evidence},patch);
- const code=`import config from ${JSON.stringify(config)};console.log(JSON.stringify({origin:config.use.baseURL,servers:config.webServer??null,workers:config.workers,parallel:config.fullyParallel,trace:config.use.trace,output:config.outputDir,metadata:config.metadata,environment:Object.fromEntries(Object.entries(process.env).filter(([key])=>/EVIDENCE_DIR$/.test(key)||['E2E_BASE_URL','ADMIN_E2E_URL'].includes(key)))}));`;
+ const code=`import config from ${JSON.stringify(config)};console.log(JSON.stringify({projects:config.projects.map(p=>({name:p.name,channel:p.use?.channel,browser:p.use?.defaultBrowserType})),origin:config.use.baseURL,servers:config.webServer??null,workers:config.workers,parallel:config.fullyParallel,trace:config.use.trace,output:config.outputDir,metadata:config.metadata,environment:Object.fromEntries(Object.entries(process.env).filter(([key])=>/EVIDENCE_DIR$/.test(key)||['E2E_BASE_URL','ADMIN_E2E_URL'].includes(key)))}));`;
  const result=spawnSync(process.execPath,['--input-type=module','-e',code],{cwd:repo,env,encoding:'utf8'});return {...result,value:result.status===0?JSON.parse(result.stdout.trim()):null};
 }
 after(()=>rmSync(evidence,{recursive:true,force:true}));
@@ -39,4 +39,12 @@ test('evidence roots reject broad trees and canonical symlink aliases while allo
 test('the actual Playwright loader discovers tests with the same CommonJS config path used by Nx',()=>{
  const env={...process.env,E2E_BASE_URL:'http://127.0.0.1:4300',E2E_EVIDENCE_DIR:evidence};delete env.E2E_DEV_SERVERS;delete env.GRAPHICS_E2E_PORT;
  const run=spawnSync(process.execPath,['node_modules/@playwright/test/cli.js','test','--config','tests/e2e/playwright.config.ts','tests/e2e/src/foundation.spec.ts','--list'],{cwd:repo,env,encoding:'utf8'});assert.equal(run.status,0,run.stderr);assert.match(run.stdout,/foundation\.spec\.ts/);assert.match(run.stdout,/Total:/);
+});
+
+test('browser audit selects exactly one engine and keeps Chrome channels out of Firefox and WebKit',()=>{
+ for(const E2E_BROWSER of ['chromium','firefox','webkit']){
+  const r=load({E2E_BROWSER,PLAYWRIGHT_CHANNEL:'chrome'});assert.equal(r.status,0,r.stderr);assert.equal(r.value.projects.length,1);assert.equal(r.value.projects[0].name,E2E_BROWSER);assert.equal(r.value.projects[0].channel,E2E_BROWSER==='chromium'?'chrome':undefined);assert.equal(r.value.servers,null);assert.equal(r.value.trace,'off');
+ }
+ assert.equal(load().value.projects[0].name,'chromium');
+ for(const E2E_BROWSER of ['all','safari','', 'chromium,firefox'])assert.notEqual(load({E2E_BROWSER}).status,0);
 });

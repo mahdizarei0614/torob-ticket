@@ -3,6 +3,8 @@ import { mkdirSync, readFileSync, readdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import evidenceRoots from './evidence-root.cjs';
 const graphicsPort = process.env.GRAPHICS_E2E_PORT;
+const engine = process.env.E2E_BROWSER ?? 'chromium';
+if (!['chromium', 'firefox', 'webkit'].includes(engine)) throw new Error('E2E_BROWSER must be chromium, firefox or webkit');
 if (graphicsPort && (!/^\d+$/.test(graphicsPort) || Number(graphicsPort) < 1024 || Number(graphicsPort) > 65535 || ['4300', '4301', '4302'].includes(graphicsPort))) throw new Error('GRAPHICS_E2E_PORT must be an isolated port between 1024 and 65535');
 const devServers = process.env.E2E_DEV_SERVERS === '1';
 if (devServers && (process.env.E2E_BASE_URL || graphicsPort)) throw new Error('Choose E2E_DEV_SERVERS, external Compose or the isolated graphics server');
@@ -48,8 +50,9 @@ export default defineConfig({
   reporter: external ? [['./safe-reporter.mjs']] : [['list']],
   metadata: evidence ? { evidenceRoot: evidence, workspaceRoot: workspace } : {},
   outputDir: evidence ? resolve(evidence, 'artifacts') : undefined,
-  use: { baseURL: webUrl, trace: external ? 'off' : 'retain-on-failure', channel: process.env.PLAYWRIGHT_CHANNEL, actionTimeout: 10000, navigationTimeout: 30000 },
-  projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
+  use: { baseURL: webUrl, trace: external ? 'off' : 'retain-on-failure', actionTimeout: 10000, navigationTimeout: 30000 },
+  // Choose one engine per run; callers supply a distinct evidence root per engine.
+  projects: [{ name: engine, use: { ...devices[engine === 'chromium' ? 'Desktop Chrome' : engine === 'firefox' ? 'Desktop Firefox' : 'Desktop Safari'], ...(engine === 'chromium' ? { channel: process.env.PLAYWRIGHT_CHANNEL } : {}) } }],
   webServer: external ? undefined : graphicsPort ? [{ command: `pnpm exec vite --config apps/web/vite.config.mts --port=${graphicsPort}`, url: webUrl, reuseExistingServer: false, cwd: '../..' }] : [
     { command: 'pnpm nx serve web', url: 'http://127.0.0.1:4300', reuseExistingServer: false, cwd: '../..' },
     { command: 'pnpm nx serve admin', url: 'http://127.0.0.1:4301/admin/', reuseExistingServer: false, cwd: '../..' },

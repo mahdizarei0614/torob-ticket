@@ -105,6 +105,6 @@ export function DateChart({ cells, selected, onSelect, leg, range }: { cells: re
       {activeCell && <ChartTooltip id={tooltipId} cell={activeCell} cells={cells} leg={leg} range={range ?? { min: presentation.min, max: presentation.max }} lifecycle={lifecycle}/>}
     </div>
     <div className={styles.axis} aria-hidden="true"><span>{cells[0] ? dateLabel(cells[0].date) : ''}</span><span>{cells.at(-1) ? dateLabel(cells.at(-1)!.date) : ''}</span></div>
-    <div className={styles.range} aria-label="بازه قیمت روزهای قابل مقایسه"><span><span>کمترین قیمت:</span><bdi data-price-band={priceBand(geometry.points.length ? geometry.min : undefined, range)}>{geometry.points.length?new Intl.NumberFormat('fa-IR').format(geometry.min/10):'نامشخص'}</bdi></span><span><span>بیشترین قیمت:</span><bdi data-price-band={priceBand(geometry.points.length ? geometry.max : undefined, range)}>{geometry.points.length?new Intl.NumberFormat('fa-IR').format(geometry.max/10):'نامشخص'}</bdi></span></div>
+    <div className={styles.range} role="group" aria-label="بازه قیمت روزهای قابل مقایسه"><span><span>کمترین قیمت:</span><bdi data-price-band={priceBand(geometry.points.length ? geometry.min : undefined, range)}>{geometry.points.length?new Intl.NumberFormat('fa-IR').format(geometry.min/10):'نامشخص'}</bdi></span><span><span>بیشترین قیمت:</span><bdi data-price-band={priceBand(geometry.points.length ? geometry.max : undefined, range)}>{geometry.points.length?new Intl.NumberFormat('fa-IR').format(geometry.max/10):'نامشخص'}</bdi></span></div>
   </div>;
 }

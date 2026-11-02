@@ -167,7 +167,7 @@ function PresentationOverlay({ plan, store, endpoints, context, frame:targetFram
       if (!stop || !visible(stop.point)) return null;
       return <div key={stop.id} className={presentationStyles.stop} style={position(stop.point)} data-route-stop={stop.placeId} data-journey-stop={stop.id} data-stop-direction={plan.roundTrip ? stop.id.startsWith('return:') ? 'return' : 'outbound' : undefined} data-stop-occurrence={stop.id} data-wait-minutes={revealed.count ?? 'unknown'} data-side={index % 2 ? 'below' : 'above'} data-stop-active={plan.stops[current.activeStop ?? -1]?.id === stop.id}>
         <span className={presentationStyles.stopOrbit} aria-hidden="true" />
-        <div className={presentationStyles.stopText} style={textPosition(stop.id)} dir="rtl"><strong>{stop.name}</strong><span aria-label={stop.waitMinutes === null ? 'زمان توقف نامعلوم' : `توقف ${number(stop.waitMinutes)} دقیقه`}>{plan.roundTrip && (stop.id.startsWith('return:') ? 'برگشت · ' : 'رفت · ')}<span data-wait-count>{revealed.count === null ? 'نامعلوم' : number(revealed.count)}</span>{revealed.count !== null && ' دقیقه توقف'}</span></div>
+        <div className={presentationStyles.stopText} style={textPosition(stop.id)} dir="rtl"><strong>{stop.name}</strong><span role="group" aria-label={stop.waitMinutes === null ? 'زمان توقف نامعلوم' : `توقف ${number(stop.waitMinutes)} دقیقه`}>{plan.roundTrip && (stop.id.startsWith('return:') ? 'برگشت · ' : 'رفت · ')}<span data-wait-count>{revealed.count === null ? 'نامعلوم' : number(revealed.count)}</span>{revealed.count !== null && ' دقیقه توقف'}</span></div>
       </div>;
     })}
   </div>;
