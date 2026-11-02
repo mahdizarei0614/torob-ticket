@@ -10,9 +10,9 @@
 
 **Tech Stack:** Nx, pnpm, TypeScript, React, Vite, React Router, TanStack Query, React Aria, CSS Modules, CSS custom properties, Zod, NestJS, PostgreSQL, Prisma, Three.js, React Three Fiber, selected Drei utilities, Motion, @internationalized/date, Vitest, Testing Library, Playwright, Storybook, Docker Compose, Caddy.
 
-**Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.43, 2026-11-02 (explicit faster-only automatic advice and negotiated date-evidence persistence; prior owner product, theme, map and referral decisions retained).
+**Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.44, 2026-11-02 (single free OpenFreeMap hotel basemap and current-style tile resilience; prior owner product and referral decisions retained).
 
-**Plan state:** Approved. M1–M8 complete; **35/35 tasks complete; T35 COMPLETE.** Canonical source and independent final reviews, all selected release gates, the actual manual reviewer journey and scoped cleanup/preservation are recorded. Explicit bounded limitations remain; video recording, publication and application submission are separate follow-ups.
+**Plan state:** Approved. Hotel-map reliability follow-up COMPLETE. M1–M8 complete; **35/35 tasks complete; T35 COMPLETE.** Canonical source and independent final reviews, all selected release gates, the actual manual reviewer journey and scoped cleanup/preservation are recorded. Explicit bounded limitations remain; video recording, publication and application submission are separate follow-ups.
 
 **Delivery location:** This outputs directory contains the user-facing source documents. On repository creation, copy the spec to docs/superpowers/specs/2026-10-24-torobticket-design.md and this plan to docs/superpowers/plans/2026-10-24-torobticket-master-plan.md. Preserve the revision, task IDs, and decision authority, and rewrite the Spec link to ../specs/2026-10-24-torobticket-design.md.
 
@@ -2764,3 +2764,17 @@ verification. Accessibility and browser evidence is recorded in
   T31 projections committed from shared files. No push or deployment performed.
 
 **Progress:31/35 tasks complete. M7 remains PARTIAL; T32 and T33 are pending.**
+
+
+## Hotel map reliability follow-up — 2026-11-02
+
+Owner-authorized correction after the completed35-task baseline. Source/proof commit `4db021cd`. [Decision0082](../../decisions/0082-hotel-map-provider-and-tile-resilience.md), [checkpoint](../../evidence/adjustments/hotel-map-resilience/checkpoint.md), [independent review](../../evidence/adjustments/hotel-map-resilience/review/final-evidence-review-001.md). Historical T35 unavailable-map attempts remain unchanged.
+
+| Step | Status | Evidence / owner |
+| --- | --- | --- |
+| Diagnose actual requests and SDK behavior | DONE | Actual Chrome CORS MissingAllowOriginHeader; exact-Origin HTTP probes; pinned MapLibre6.16 error/style behavior inspected. |
+| Repair provider/readiness/recovery | DONE | Single free OpenFreeMap Bright/Dark; current-style primary vector features required; recoverable errors retain map;15s truthful fallback. Independently reviewed code committed `4db021cd`. |
+| Focused checks and live browser verification | DONE | 39 tests/3 files; consumer/browser types, scoped lint and frontend build pass.3 single-attempt Chrome journeys pass,0 failures/skips/retries/globalerrors; real domestic/international streets, pins/card binding, all4orders and controlled outage/sprite/retry. Native dark/light/selection/close/reopen verified separately. |
+| Independent final review and scoped commit | DONE | Separate source/evidence and exact53-path stage reviews approved; accepted54-path source/proof commit above. Tracker/spec exports synchronized; unrelated working master edits preserved through canonical projection. Closing receipt records the documentation commit separately. |
+
+External service availability remains best-effort; current readiness proves initial supported urban content, not every future pan/tile. Existing cards/reference fallback, prior T35 failed observations and accessibility/device/graphics/rights limits remain explicit. No Docker rebuild/restart, dependency/backend/data change, public push/deployment/submission or recording. Baseline remains **35/35 tasks complete**; this corrective increment is **COMPLETE**.
