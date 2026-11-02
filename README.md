@@ -1,165 +1,119 @@
 # TorobTicket
 
-A Persian travel comparison and referral product in an Nx monorepo: React/Vite consumer and admin apps, a Nest API and eight bounded libraries. It includes compact flight/train/bus comparison, complete provider-owned round trips, linked date-price exploration, WebGL route animation, hotel discovery, local account flows, fresh quote checks and immutable provider handoffs. The English admin supports scoped provider controls, mapping corrections and factual evidence inspection. Provider offers, room availability, account authentication and provider landing pages are mocked for this local demonstration; there are no payments, real bookings, external OAuth or runtime provider integrations. See the [master tracker](docs/superpowers/plans/2026-10-24-torobticket-master-plan.md) for completed work and remaining M7 audits.
+Compare flight, train and bus journeys, inspect the route, find a hotel near the
+arrival terminal, and continue with a seller. The Persian/RTL traveler app pairs
+a compact comparison list with a WebGL map; the English admin shows the source,
+normalization, ranking and referral evidence behind each result.
 
-## Run with Docker
+## Start the complete app
 
-With Docker Engine/Desktop running, start the complete app from the repository root:
+With Docker Engine/Desktop and Compose running, from the repository root:
 
 ```sh
 pnpm docker:up
 ```
 
-Consumer: <http://localhost:4300/> · Admin: <http://localhost:4300/admin/>.
+**Traveler:** <http://localhost:4300/> · **Admin:** <http://localhost:4300/admin/>
 
-Docker builds and serves both frontends through its Caddy gateway, runs the API
-and PostgreSQL, and applies migrations and seeds. No separate `pnpm start`, Vite
-server, local compilation or local database is needed. The runner uses Node
-24.17.0 and pnpm 11.9.0. Without local Node/pnpm, use:
+The command builds and serves both frontends, the API and PostgreSQL, applies
+migrations/seeds and waits for readiness. No host `node_modules`, `.env` copy,
+manual database setup or API key is required. The shortcut uses pinned Node
+24.17.0 and pnpm 11.9.0. Without host Node/pnpm, use this single Docker command:
 
 ```sh
 docker compose up --build --wait --wait-timeout 120
 ```
 
-See [Run locally](docs/run-locally.md) for ports, logs and data-preserving shutdown.
+First build needs internet for images and dependencies. Comparison assets and
+inventory are local; the optional hotel street map requests public OpenStreetMap
+content and retains local hotel/coordinate controls if that service is unavailable.
+Ports, registry mirrors, architecture support and startup diagnostics are in
+[Run locally](docs/run-locally.md).
 
-## Develop with Docker
+## Try the reviewer path
 
-```sh
-pnpm docker:dev
-```
+1. Open the traveler app and choose **سفرهای پیشنهادی** for a supported route.
+2. Compare nearby dates with the wheel/chart; use the calendar to jump ahead.
+   **اعمال تاریخ‌ها** commits the dates and starts the comparison.
+3. Inspect the resulting comparison, switch cheapest/fastest/fewest stops, and
+   select a compact ticket card. If you edited the form without committing a
+   date, use **جست‌وجوی سفر** to start it.
+4. Inspect its supplied route and stops. Open destination hotels, compare room
+   capacity and ordering, and select the same hotel in the list/map.
+5. Continue through a seller action; an exact recheck precedes the handoff.
+6. Open admin in the same browser and inspect **Searches** and **Referrals**.
 
-Use the same consumer/admin URLs above. Saved app and shared-library source edits
-refresh through Vite; successful API TypeScript compilations restart the API
-automatically. Type errors keep its last working process available until corrected.
-Dependencies, generated Prisma content and build caches stay inside Linux containers.
-The runner prepares an empty ignored mountpoint when needed and leaves existing
-host-generated files untouched.
+[Reviewer guide](docs/reviewer-guide.md) gives the exact labels and optional
+scenario controls. [Walkthrough](docs/walkthrough.md) contains the 4:30 script,
+reproducible preparation and passed **4:30.006 paced operator rehearsal**. Startup
+is separate from the presentation; no video was recorded by that rehearsal.
 
-`pnpm docker:up` switches back to the packaged build. `pnpm docker:down` stops
-either mode and preserves the database. Dependency, Prisma-schema or runtime-tool
-changes require another `pnpm docker:dev`; see [development details](docs/run-locally.md#docker-development-with-hot-reload)
-for the Node-free command, file-watch fallback and migration workflow.
+## What is implemented
 
-## Local development
+- Equivalent-journey grouping and same-price seller choices, complete
+  provider-owned round trips, eligibility and factual ranking explanations.
+- Linked Jalali dates and prices, route-aware WebGL/GLSL motion, distinct supplied
+  outbound/return paths, responsive semantic controls and reduced-motion fallback.
+- Arrival-based one-night hotel discovery, real sourced property locations,
+  authored room prices, two-way map/card selection and coordinate fallback.
+- Exact-version recheck/consent, idempotent confirmed referrals and immutable
+  admin evidence, isolated per reviewer session.
 
-Use Node **24.17.0** (`nvm use`) and pnpm **11.9.0**. The package manager is pinned in `package.json`; an existing Corepack installation can activate that exact version. No global configuration change is required.
+This is an independent local demonstration inspired by Torob. Provider inventory,
+room prices/availability and authentication are controlled implementations. The
+current seller handoff opens `https://zarei.xyz` as an authorized placeholder;
+a recorded referral is not a purchase. There is no real provider/OAuth integration,
+payment, ticket issuance or runtime LLM. See [limitations](docs/limitations.md)
+and [AI development evidence](docs/ai-development-log.md).
+
+## Verify and explore the implementation
+
+T33's selected quality run passed 48 uncached source tasks, 60 tool contracts and
+7 single-attempt Chrome journeys. T34 adds a fresh README/browser check and the
+paced reviewer rehearsal. The original stack/inventory were preserved.
+These are scoped local results, not universal browser/device or live-service
+certification: [release evidence](docs/evidence/release/README.md).
+
+For maintainer checks, install the pinned host dependencies and use a new report
+folder for each invocation:
 
 ```sh
 pnpm install --frozen-lockfile
-pnpm start
+pnpm verify:release --base-url http://localhost:4300 --report-dir docs/evidence/release/local-quality-001 --profile quality --browser-channel chrome
 ```
 
-Consumer: http://127.0.0.1:4300/ · Admin: http://127.0.0.1:4301/admin/ · API liveness: http://127.0.0.1:4302/api/health/live.
+Omit `--profile quality` for the shorter health/assets/critical-browser profile.
+Omit `--browser-channel` to use installed Playwright Chromium. Verification does
+not provision/reset Docker or an existing reviewer session. PostgreSQL integration
+is a separate explicit `--postgres` gate with a validated existing test database;
+see [verification details](docs/run-locally.md#bounded-release-verification).
 
-The development frontends proxy `/api` to Nest. For the packaged same-origin gateway, database initialization, and one-command startup, see [Run locally](docs/run-locally.md). Liveness confirms the API process responds; `/api/health/ready` additionally checks the database, required migration, active showcase seed, and initial reconciliation. Direct development requires a PostgreSQL `DATABASE_URL`, followed by `pnpm db:generate`, `pnpm db:migrate`, and `pnpm db:seed` before database-backed routes are usable.
+| Read next | Purpose |
+| --- | --- |
+| [Architecture](docs/architecture.md) | Nx boundaries, processing pipeline and rendering choices |
+| [Decisions](docs/decisions/README.md) | Product tradeoffs and implementation rulings |
+| [AI log](docs/ai-development-log.md) | Actual assistance, human corrections and verification |
+| [Reviewer guide](docs/reviewer-guide.md) | An immediately usable product review path |
+| [Master tracker](docs/superpowers/plans/2026-10-24-torobticket-master-plan.md) | Task status, commits and evidence |
 
-## Verification
+## Development reference
 
-```sh
-pnpm nx run-many -t lint,typecheck,build --projects=web,admin,api
-pnpm test
-pnpm verify:boundaries
-pnpm exec playwright install chromium
-pnpm nx e2e e2e
-pnpm nx run-many -t lint,typecheck,build
-```
+`pnpm docker:dev` enables frontend Fast Refresh and successful-build API restart
+inside Docker, using the same URLs and selected project's database. Saved source
+edits update the app without rebuilding everything. `pnpm docker:up` returns to
+packaged mode; `pnpm docker:down` preserves data. [Development details](docs/run-locally.md#docker-development-with-hot-reload)
+cover dependency/schema changes, polling fallback and explicit destructive reset.
 
-`pnpm test` runs the common standalone tool checks (`pnpm test:tools`) once, then all current Nx unit suites. Vitest defines application, pure/client, UI, and server-library environments; empty library targets report no tests until their owning task introduces behavior. Empty libraries contain no placeholder tests. Set `PLAYWRIGHT_CHANNEL=chrome` to use an already installed Chrome instead of bundled Chromium. E2E starts and stops its own three local servers; their ports must be available.
+For direct host development use the pinned tools, `pnpm install --frozen-lockfile`
+and `pnpm start`; database setup and the three development ports are documented
+in [Run locally](docs/run-locally.md). `pnpm test` runs the common tool checks and
+Nx unit suites; `pnpm verify` runs lint/type/unit/build. The strict release runner
+checks installed dependency state explicitly. Real database tests require an
+owned disposable database ending in `_test`; they never fall back to `DATABASE_URL`.
 
-Real PostgreSQL integration checks require an **owned disposable PostgreSQL database**. Its simple database name must end in `_test`; the explicit PostgreSQL URL must have a host and no query parameters or fragment. Never point these tests at shared or valuable data: they exercise cleanup, schema constraints, and database connection recovery.
-
-```sh
-TEST_DATABASE_URL=postgresql://USER:PASSWORD@127.0.0.1:5432/torobticket_test pnpm nx run api:test-integration
-```
-
-The target first runs uncached `api:test-db-setup`: validate `TEST_DATABASE_URL`, generate the Prisma client, deploy migrations, then apply the idempotent foundation and showcase seeds. Setup assigns the verified test URL to the Prisma child processes and never falls back to `DATABASE_URL`. Both setup and every integration entrypoint validate before connecting. Tests cover real HTTP session creation/resume/reset, cookie isolation, readiness/recovery, scoped repositories, immutable evidence, transaction rollback, the guarded catalog, and legacy-session version preservation. Missing/unsafe URLs, unreachable PostgreSQL, or initialization failures fail the run rather than skipping it. To initialize separately, use the same test URL with `pnpm db:setup-test`; direct Vitest runs require that initialization first.
-
-Session anchor inputs use UTC seconds with optional 1–3 fractional digits. Equivalent spellings resume the same session; stored/returned anchors use canonical milliseconds. Finer precision is rejected rather than truncated.
-
-For changed projects, use `pnpm nx affected -t lint,typecheck,test,build --base=main --head=HEAD`, with the appropriate existing base ref. CI chooses the PR base or preceding commit and falls back to all projects on the first commit. `pnpm verify` runs the lint/typecheck/unit/build targets; integration and browser commands above remain separate. Remote GitHub CI and full-demo release acceptance are not established by local checks.
-
-## Libraries and boundaries
-
-The public aliases are `@torob-ticket/{contracts,domain,fixtures,provider-adapters,data-access,client,ui,graphics}`. Each has lint/typecheck/declaration-build/test targets. Exact tags and allowed dependencies are documented in [decision 0001](docs/decisions/0001-foundation.md).
-
-Create a tagged library with the reusable local scaffold:
-
-```sh
-pnpm generate:library example-helper domain shared
-pnpm generate:library example-repository data server
-```
-
-The generator refuses existing names and invalid scope/type combinations. Add its first behavior test alongside the implementation. The aligned installed `@nx/js` generator is also available (`pnpm nx g @nx/js:library --help`) for larger standard scaffolds; use the documented tags and verify boundaries afterward.
-
-See the approved specification in `docs/superpowers/specs`, task verification in `docs/evidence/T01`, and architecture decisions in `docs/decisions`.
-
-Verification regressions exercise real Nx cache hits in disposable workspaces: dependency export changes invalidate consumer typechecks, and root test-setup changes invalidate UI tests. `pnpm test` and CI `test:tools` include those checks. The boundary verifier checks production Vitest rejection, unit-test allowance, and retained server-import restrictions. Library scaffolding checks all Nx project names, including applications, before writing a new library.
-
-## Route direction
-
-Flight, train and road lines carry a soft directional light with a leading tip and
-fading tail. Round trips illuminate both supplied directions; the return uses a
-related theme tint. Fully shared sections separate into small tapered display lanes
-that meet at their actual endpoints. Reduced motion and SVG fallback keep settled
-directional cues. Vehicle heads and both train wagons render in the foreground,
-above route strokes and emitted light. Canonical route facts and camera fitting
-retain source geometry.
-See [decision0065](docs/decisions/0065-directional-route-halos-and-overlap-lanes.md)
-for the display rules and verification.
-
-## Adaptive map rendering
-
-Bloom qualifies against stable native frame delivery and measured CPU/GPU cost,
-then runs a real effect trial. A 30 Hz native baseline is measured rather than treated
-as a slow60Hz renderer. Performance failures back off and remeasure; effect faults
-stay safely disabled. The blurred glow uses a CSS-resolution source while the
-base map retains its DPR. Hidden duplicate dots are omitted and completed morph batches process no
-vertices; covered, hidden and reduced-motion policies retain the existing clock.
-See [decision0066](docs/decisions/0066-bloom-performance-recovery.md) for budgets,
-recovery, measured native evidence and verification limits.
-
-## Deterministic showcase catalog
-
-The immutable seeded catalog supplies 34 cities, 114 places, 348 directed mode/scope
-connections, six mock providers, 476 original authored hotel rows and 1,428 relative
-room-rate templates. New hotel operations use a separate recorded directory of
-301 real mapped properties across all 34 cities, with 903 authored room-rate templates;
-old hotel rows/quotes/receipts remain unchanged. See the [hotel source directory](libs/fixtures/src/catalog/real-hotel-directory.README.md)
-for primary identities, locations, operator corroboration and ODbL licence.
-Ordinary supported transport dates/classes have 12 distinct services and four
-sellers. New sessions use `showcase-v3` / `catalog-v3`;
-`GET /api/v1/catalog` requires the session cookie. London,Paris,Frankfurt,
-NewYork,LosAngeles,Toronto,Singapore,Bangkok,Tokyo,Sydney andAuckland have
-complete one/two/three-stop flight alternatives and reverse/round-trip coverage.
-Domestic routes include 156 directions between non-Tehran cities. International
-rail beyond Van explicitly includes the Van–Tatvan road connector between trains
-in the same supplied fare, with unknown protection/baggage conditions. Baku is
-air-only in the new catalog. Same-day returns must depart after outbound arrival.
-Public provider research calibrates bounded authored prices and conditions;
-the runtime does not query those sites. Airline and bus/train brand PNGs load locally.
-
-Existing sessions retain their original immutable catalog and quote evidence.
-Use a fresh/private browser session to explore the expanded inventory; an
-explicit operations reset also starts the latest version but clears that
-session's mutable evidence. Reseeding inserts all three rich catalog versions without
-rewriting any prior root, raw source, fare policy or hotel template. Foundation sessions retain their empty foundation catalog.
-`generateProviderRecords(FixtureQuery)` and `fixtureCase(id)` remain server-only
-fixture interfaces; search,date-price,normalization and referral use that same
-versioned evidence pipeline.
-
-Local geographic assets and their primary-source licenses are recorded in
-[assets/provenance.json](assets/provenance.json). Schedules, provider offers, legacy
-hotel inventory, station/terminal points and destination display extents remain
-authored or illustrative. Current hotel property identity/geography is sourced
-separately; room prices/availability are authored and do not establish live rates.
-For coverage, source extracts and checks see
-[the current research and implementation evidence](docs/evidence/adjustments/realistic-travel-catalog/fixture-research.md),
-[the rich-coverage checkpoint](docs/evidence/adjustments/rich-inventory-coverage/checkpoint.md),
-and [the original T05 evidence](docs/evidence/T05/README.md).
-
-### Optional city location map
-
-Hotel location selection uses the official [OpenStreetMap vector service](https://vector.openstreetmap.org/) with the pinned open-source MapLibre GL JS6.16.0 renderer. No account, API key, billing or environment variable is required. The existing `pnpm docker:up` command works unchanged. Opening the optional picker downloads its SDK/CSS/worker and public map style/tiles; initial ticket comparison does not request them. Offline, failed tiles or unavailable WebGL show a clear message while the local landmark list and coordinates remain usable. New hotel names/points come from the directory of 301 sourced properties; room prices and availability remain authored. Hotel names appear on hover/focus, overlapping real points use count aggregates with zoom, and cards select the same true-coordinate pin. Distances are straight-line, with no routing service.
-
-Map attribution to OpenStreetMap contributors remains visible. Official VersaTiles Colorful/Shadow styles provide light/dark appearances with local place names. MapLibre is BSD-3-Clause ([bundled license](assets/licenses/maplibre-gl-6.16.0.txt)); OSM data and CC0 styles retain their [license notice](assets/licenses/osm-vector-notice.md). The app uses browser-default caching and Referer, with no tile proxy, offline download, prefetch or cache-bypass headers. The community service has [usage requirements](https://operations.osmfoundation.org/policies/vector/) and no SLA. App-owned theme colors remain semantic; vendor map styles are third-party assets.
+The eight public library aliases are
+`@torob-ticket/{contracts,domain,fixtures,provider-adapters,data-access,client,ui,graphics}`.
+[Foundation boundaries](docs/decisions/0001-foundation.md) explain tags and imports.
+`pnpm verify:boundaries` checks those rules; `pnpm generate:library example-helper domain shared`
+creates a tagged library and rejects duplicate names or invalid scope/type pairs.
+See [architecture](docs/architecture.md) for the component and data flows.
