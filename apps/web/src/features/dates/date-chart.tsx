@@ -7,6 +7,9 @@ import type { DatePriceCell } from '@torob-ticket/contracts';
 import { cellLabel, dateLabel, disabledCell, type DateLeg } from './date-state';
 import styles from './dates.module.css';
 const Scene = lazy(() => import('@torob-ticket/graphics').then(module => ({ default: module.PriceChartScene })));
+// Two identical decorative tiles meet at the same height and horizontal tangent.
+// Translating exactly one tile loops continuously, without implying price facts.
+const loadingCurve = 'M0 100C25 100 35 62 70 62S110 128 140 128S180 84 210 84S245 114 270 114S300 100 320 100C345 100 355 62 390 62S430 128 460 128S500 84 530 84S565 114 590 114S620 100 640 100';
 interface Inspection { date: string; source: 'pointer' | 'touch' }
 interface PointerStart { id: number; x: number; y: number; moved: boolean }
 function ChartTooltip({ cell, cells, leg, range, lifecycle, id }: { cell: DatePriceCell; cells: readonly DatePriceCell[]; leg: DateLeg; range: PriceRange; lifecycle: PriceChartLifecycle; id: string }) {
@@ -121,11 +124,14 @@ export function DateChart({ cells, selected, onSelect, leg, range, loading = fal
         }} />
       {activeCell && <ChartTooltip id={tooltipId} cell={activeCell} cells={cells} leg={leg} range={range ?? { min: presentation.min, max: presentation.max }} lifecycle={lifecycle}/>}
       </div>
-      <AnimatePresence initial={false}>{loading && <DateLoadingVisual key="loading" block loading motionEnabled={moving} className={styles.chartLoading}>
+      <AnimatePresence>{loading && <DateLoadingVisual key="loading" block loading motionEnabled={moving} className={styles.chartLoading}>
         <span data-chart-loading-visual className={styles.chartLoadingContent} role="status">
           <svg className={styles.chartLoadingGrid} viewBox="0 0 320 184" preserveAspectRatio="none" aria-hidden="true"><path d="M12 28H308M12 70H308M12 112H308M12 154H308" /></svg>
-          <span className={styles.chartLoadingBars} aria-hidden="true"><i /><i /><i /></span>
-          <span>در حال دریافت قیمت روزها…</span>
+          <svg data-loading-wave className={styles.chartLoadingWave} viewBox="0 0 640 184" preserveAspectRatio="none" aria-hidden="true">
+            <path className={styles.chartLoadingArea} d={`${loadingCurve}L640 184H0Z`} />
+            <path data-loading-wave-path className={styles.chartLoadingLine} d={loadingCurve} vectorEffect="non-scaling-stroke" />
+          </svg>
+          <span className={styles.chartLoadingStatus}>در حال دریافت قیمت روزها…</span>
         </span>
       </DateLoadingVisual>}</AnimatePresence>
     </div>

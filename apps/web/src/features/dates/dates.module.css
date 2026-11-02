@@ -74,14 +74,16 @@
 /* Loading and data share the same reserved plot; only their opacity changes. */
 .chartContent { position:absolute;inset:0; }
 .chartContent > [data-graphics-view] { position:absolute;inset:0;width:100%;height:100%; }
-.chartLoading { position:absolute;inset:0;z-index:4;pointer-events:none;color:var(--text-muted);font-size:11px;line-height:1.8; }
+.chartLoading { position:absolute;inset:0;z-index:4;pointer-events:none;background:var(--surface);color:var(--text-muted);font-size:11px;line-height:1.8;overflow:hidden; }
 .chartLoading > [data-loading-pulse] { display:grid;place-items:center;inline-size:100%;block-size:100%; }
-.chartLoadingContent { display:grid;justify-items:center;align-content:center;gap:10px;inline-size:100%;block-size:100%; }
+.chartLoadingContent { display:block;position:relative;overflow:hidden;inline-size:100%;block-size:100%; }
 .chartLoadingGrid { position:absolute;inset:0;width:100%;height:100%;fill:none;stroke:var(--border);stroke-width:1; }
-.chartLoadingBars { display:grid;justify-items:center;gap:5px; }
-.chartLoadingBars i { display:block;inline-size:56px;block-size:5px;background:var(--surface-subtle);border-radius:var(--radius-pill);corner-shape:var(--corner-shape-round); }
-.chartLoadingBars i:nth-child(2) { inline-size:84px; }
-.chartLoadingBars i:nth-child(3) { inline-size:40px; }
+.chartLoadingWave { position:absolute;inset-block:0;left:0;right:auto;inline-size:200%;block-size:100%;transform-box:border-box;filter:grayscale(1); }
+.chartLoadingLine { fill:none;stroke:var(--text-muted);stroke-width:2.75;stroke-linecap:round;stroke-linejoin:round; }
+.chartLoadingArea { fill:var(--text-muted);fill-opacity:.08;stroke:none; }
+.chartLoadingStatus { position:absolute;inset-inline:8px;bottom:8px;text-align:center; }
+.loadingPulse[data-animate] .chartLoadingWave { animation:dateLoadingDrift 3.2s linear infinite; }
+.chartLoading[data-date-loading-stage='exiting'] .chartLoadingWave { animation-play-state:paused; }
 .loadingPulse { opacity:1; }
 .loadingPulse[data-animate] { animation:dateLoadingBreathe 1.45s ease-in-out infinite; }
 [data-date-loading-stage='exiting'] > .loadingPulse[data-animate] { animation-play-state:paused; }
@@ -90,4 +92,5 @@
 .amountVisual > span { display:block;overflow:hidden;text-overflow:ellipsis; }
 .amountVisual[data-date-loading-stage='exiting'],.amountVisual[data-date-value-stage='exiting'] { pointer-events:none; }
 @keyframes dateLoadingBreathe { 0%,100% { opacity:.38; } 50% { opacity:.88; } }
-@media (prefers-reduced-motion:reduce) { .loadingPulse[data-animate] { animation:none;opacity:1; } }
+@keyframes dateLoadingDrift { from { transform:translateX(0); } to { transform:translateX(-50%); } }
+@media (prefers-reduced-motion:reduce) { .loadingPulse[data-animate] { animation:none;opacity:1; }.loadingPulse[data-animate] .chartLoadingWave { animation:none; } }

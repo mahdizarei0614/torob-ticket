@@ -150,3 +150,14 @@ real computed pulse/entry values and exact API prices after a controlled respons
 hold. [Decision0084](decisions/0084-date-price-loading-motion.md) and the
 [checkpoint](evidence/adjustments/date-loading-motion/checkpoint.md) distinguish
 actual observations, static screenshots and the limits of shared lifecycle proof.
+
+
+The owner clarified that chart loading should itself look like a gray chart and
+have a moving line. The narrow follow-up replaces the three bars with two exact
+SVG waveform tiles for seamless CSS drift, preserves breathing/policy boundaries
+and fades a nonpulsing surface with the retained placeholder to cover the shared
+GPU guide. Initial presence now permits entry. Actual data keeps its existing
+shared lifecycle; the strengthened browser regression observes wave movement,
+loader fade-out, real entry and flight-to-train real exit/new-placeholder entry
+using held original responses. [Decision0085](decisions/0085-moving-gray-chart-placeholder.md)
+and the task evidence distinguish a decorative skeleton from real price facts.
