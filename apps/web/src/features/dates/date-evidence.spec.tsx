@@ -6,7 +6,7 @@ import {useDatePrices} from './use-date-prices';
 import {catalog,query,session} from '../search/search-test-data';
 vi.mock('./use-date-prices',()=>({useDatePrices:vi.fn()}));
 vi.mock('./date-chart',()=>({DateChart:()=>null}));
-it('uses the same relative price bands in the wheel and provisional calendar without coloring date labels',()=>{
+it('uses the same relative price bands in the wheel and provisional calendar without coloring date labels',async()=>{
  const observedAt='2026-10-25T06:00:00.000Z';
  const dates=['2026-10-25','2026-10-26','2026-10-27','2026-10-28'];
  const snapshot=DatePriceSnapshotSchema.parse({datePriceId:'days',clientGeneration:'dates',query:{query,leg:'outbound',dates,clientGeneration:'dates'},status:'complete',observedAt,cells:dates.map((date,index)=>index===3?{date,status:'unavailable',reason:'incomplete-price',retryable:false,coverage:{complete:true,expectedProviderIds:['p'],successfulProviderIds:['p'],failedProviderIds:[],pendingProviderIds:[]}}:{date,status:'priced',minimum:{amountRial:[1000000,2000000,3000000][index],currency:'IRR'},quoteIds:['q'+index],offerIds:['o'+index],observedAt,coverage:{complete:true,expectedProviderIds:['p'],successfulProviderIds:['p'],failedProviderIds:[],pendingProviderIds:[]}})});
@@ -17,15 +17,17 @@ it('uses the same relative price bands in the wheel and provisional calendar wit
  expect(options[0]).toHaveAttribute('aria-selected','true'); expect(options.every(option=>!option.firstElementChild?.hasAttribute('data-price-band'))).toBe(true);
  fireEvent.click(screen.getByRole('button',{name:'تقویم جلالی و انتخاب تاریخ'}));
  const dialog=screen.getByRole('dialog');
+ await within(dialog).findByRole('grid',{name:/^تقویم تاریخ رفت(?:,|$)/});
  expect(dates.map(date=>dialog.querySelector(`[data-date="${date}"] small`)?.getAttribute('data-price-band'))).toEqual(['low','mid','high','unknown']);
  fireEvent.click(within(dialog).getByRole('button',{name:'انصراف'})); expect(props.onCommit).not.toHaveBeenCalled();
 });
-it('does not convert a retrieval failure into an empty-price or zero-price claim',()=>{
+it('does not convert a retrieval failure into an empty-price or zero-price claim',async()=>{
  const retry=vi.fn();vi.mocked(useDatePrices).mockReturnValue({waiting:false,retryable:true,retry,error:new Error('offline')});
  render(<DateExplorer draft={query} catalog={catalog} session={session} onCommit={vi.fn()} onPreview={vi.fn()} onCovered={vi.fn()} onInteractionChange={vi.fn()}/>);
  expect(screen.getByRole('alert')).toHaveTextContent('قیمت روزها دریافت نشد');
  const options=within(screen.getByRole('listbox',{name:'روزهای نزدیک'})).getAllByRole('option');expect(options.every(option=>option.textContent?.includes('قیمت در دسترس نیست'))).toBe(true);
  expect(screen.queryByRole('button',{name:/دوباره/})).not.toBeInTheDocument();
  fireEvent.click(screen.getByRole('button',{name:'تقویم جلالی و انتخاب تاریخ'}));
+ await within(screen.getByRole('dialog')).findByRole('grid',{name:/^تقویم تاریخ رفت(?:,|$)/});
  expect(within(screen.getByRole('dialog')).queryByRole('button',{name:/دوباره/})).not.toBeInTheDocument();expect(retry).not.toHaveBeenCalled();
 });

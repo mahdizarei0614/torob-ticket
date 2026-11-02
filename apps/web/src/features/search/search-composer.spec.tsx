@@ -150,7 +150,7 @@ describe('deliberate inline search validation', () => {
     await user.keyboard('{ArrowRight}'); expect(explorer).toHaveAttribute('data-date-leg','outbound');
     expect(explorer).toHaveAttribute('data-selected-outbound',query.departureDate); expect(screen.getByRole('button', { name:'تقویم جلالی و انتخاب تاریخ' })).toBe(calendar);
     expect(screen.queryByText(/برگشت ثابت|رفت ثابت/)).not.toBeInTheDocument(); expect(submit).not.toHaveBeenCalled();
-    await user.click(calendar); expect(screen.getByText('قیمت‌ها به هزار تومان')).toBeInTheDocument();
+    await user.click(calendar); expect(await within(screen.getByRole('dialog')).findByText('قیمت‌ها به هزار تومان')).toBeInTheDocument();
     expect(screen.queryByText(/برگشت ثابت|رفت ثابت/)).not.toBeInTheDocument(); await user.click(screen.getByRole('button',{name:'انصراف'}));
     expect(explorer).toHaveAttribute('data-selected-return','2026-10-28'); expect(submit).not.toHaveBeenCalled();
   });

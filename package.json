@@ -14,6 +14,7 @@
     "build": "nx run-many -t build --projects=web,admin,api",
     "test": "pnpm test:tools && nx run-many -t test",
     "verify": "nx run-many -t lint,typecheck,test,build",
+    "verify:release": "node tools/verify-release.mjs",
     "verify:boundaries": "node tools/verify-boundaries.mjs",
     "affected": "nx affected -t lint,typecheck,test,build",
     "generate:library": "node tools/generators/library/generate.mjs",
