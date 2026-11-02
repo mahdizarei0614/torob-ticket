@@ -12,7 +12,7 @@
 
 **Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.42, 2026-11-01 (brighter bounded bloom for Iran and zoomed map particles; prior comparison/referral/motion/device qualification decisions retained).
 
-**Plan state:** Approved. M1–M6, T29 and T30 are complete with independent reviews and recorded evidence. **30/35 tasks complete; M7 PARTIAL, T30 DONE.** Next is T31 accessibility/RTL/responsive/browser coverage. T32–T33 audits/rehearsal and M8 retain their planned scope.
+**Plan state:** Approved. M1–M6 and T29–T31 are complete with independent reviews and recorded evidence. **31/35 tasks complete; M7 PARTIAL, T31 DONE.** T31 retains its documented finite vendor-announcement residual and owner-waived VoiceOver check. T32–T33 and M8 retain their planned scope.
 
 **Delivery location:** This outputs directory contains the user-facing source documents. On repository creation, copy the spec to docs/superpowers/specs/2026-10-24-torobticket-design.md and this plan to docs/superpowers/plans/2026-10-24-torobticket-master-plan.md. Preserve the revision, task IDs, and decision authority, and rewrite the Spec link to ../specs/2026-10-24-torobticket-design.md.
 
@@ -380,7 +380,7 @@ Each row indexes the detailed checkbox steps in section 6. DONE requires indepen
 | [T28 — Failure recovery and coherent state across features](#t28) | T28.1 Pin the scenario recovery matrix<br>T28.2 Run recovery cases red<br>T28.3 Implement recovery actions<br>T28.4 Reconcile stale selections<br>T28.5 Verify and commit | T09, T10, T16, T17, T18, T20, T21, T22, T24, T25 | DONE | Source6451d55; independent reviews and M6 packaged20+17 acceptance; [checkpoint](../../evidence/M6/checkpoint.md) |
 | [T29 — Docker packaging, gateway, initialization, and one-command startup](#t29) | T29.1 Define container lifecycle<br>T29.2 Implement ordered initialization<br>T29.3 Implement gateway and assets<br>T29.4 Implement one-command runner<br>T29.5 Verify and commit | T01, T04, T05 | DONE | Sourcea0e8ab2; independentc5a47d4; [checkpoint](../../evidence/T29/m7-completion/checkpoint.md) |
 | [T30 — Complete behavioral regression and multi-reviewer acceptance](#t30) | T30.1 Build stable e2e fixtures<br>T30.2 Exercise the full matrix<br>T30.3 Exercise cross-feature journeys<br>T30.4 Exercise hostile timing and isolation<br>T30.5 Verify and commit | T19, T22, T24, T25, T26, T28, T29 | DONE | Sourcecfcc3a9; actual unfiltered224PASS/0FAIL/2existingM6guards; independent5config+77UI+6PG PASS;1097frozen hashes preserved. [Checkpoint](../../evidence/T30/resume-2026-11-01/checkpoint.md) |
-| [T31 — Accessibility, RTL, responsive behavior, and browser compatibility](#t31) | T31.1 Define representative coverage<br>T31.2 Run semantic checks<br>T31.3 Inspect visual accessibility<br>T31.4 Run browser coverage<br>T31.5 Fix, verify, and commit | T27, T28, T30 | TODO | Unassigned / — |
+| [T31 — Accessibility, RTL, responsive behavior, and browser compatibility](#t31) | T31.1 Define representative coverage<br>T31.2 Run semantic checks<br>T31.3 Inspect visual accessibility<br>T31.4 Run browser coverage<br>T31.5 Fix, verify, and commit | T27, T28, T30 | DONE | Source`0ee7f30`; [accessibility](../../evidence/release/accessibility.md), [browser matrix](../../evidence/release/browser-matrix.md). Chrome22/22 +Firefox22/22 affected closure; configured WebKit43PASS/1existing skip +desktop1PASS; independent5/5. Finite vendor residual and VoiceOver waiver recorded. |
 | [T32 — Graphics performance, visual regression, and resource budgets](#t32) | T32.1 Capture controlled visual baselines<br>T32.2 Measure real interaction performance<br>T32.3 Measure bundles and idle work<br>T32.4 Stress lifecycle and fallbacks<br>T32.5 Verify and commit | T27, T28, T30 | TODO | Unassigned / — |
 | [T33 — Fresh-start, offline-runtime, reset, and restart rehearsal](#t33) | T33.1 Rehearse a fresh environment<br>T33.2 Verify external-network independence<br>T33.3 Rehearse lifecycle failures<br>T33.4 Finalize verification runner<br>T33.5 Verify and commit | T29, T30, T31, T32 | TODO | Unassigned / — |
 | [T34 — Reviewer guide, AI evidence, walkthrough, and submission-ready materials](#t34) | T34.1 Write the immediate-start guide<br>T34.2 Write an evidence-based AI log<br>T34.3 Prepare the timed walkthrough<br>T34.4 Review submission facts and licenses<br>T34.5 Verify and commit | T25, T26, T30, T31, T32, T33 | TODO | Unassigned / — |
@@ -1981,8 +1981,9 @@ Run pnpm nx run e2e:e2e against the Compose stack and relevant unit/integration 
 
 **Files — create unless introduced by a dependency; then modify:**
 
-- `tests/e2e/accessibility.spec.ts`
-- `tests/e2e/responsive-rtl.spec.ts`
+- `tests/e2e/src/accessibility.spec.ts`
+- `tests/e2e/src/responsive-rtl.spec.ts`
+- `tests/e2e/src/a11y-helpers.ts` and `tests/e2e/src/city-menu-focus.ts`
 - `tests/e2e/playwright.config.ts`
 - `docs/evidence/release/accessibility.md`
 - `docs/evidence/release/browser-matrix.md`
@@ -1992,23 +1993,23 @@ Run pnpm nx run e2e:e2e against the Compose stack and relevant unit/integration 
 - Consumes: Complete UI and recovery states; keyboard and motion policies; supported browsers.
 - Produces: Automated accessibility checks plus documented manual keyboard/screen-reader/contrast review; Chromium/Firefox/WebKit and responsive acceptance.
 
-- [ ] **T31.1 — Define representative coverage**
+- [x] **T31.1 — Define representative coverage**
 
 Select landing/composer, wheel/calendar, results/provider details, route timeline, hotel/location dialog, recheck/handoff, and admin inspection. Cover 390×844, 768×1024, 1280×800, and 1440×900, including the map breakpoint boundary.
 
-- [ ] **T31.2 — Run semantic checks**
+- [x] **T31.2 — Run semantic checks**
 
 Add axe-based checks for representative states, then manually complete the journey by keyboard. Inspect focus visibility/order, dialog focus return, text alternatives, live announcements without spam, and code-route LTR isolation.
 
-- [ ] **T31.3 — Inspect visual accessibility**
+- [x] **T31.3 — Inspect visual accessibility**
 
 Measure text/control contrast in six palettes; check touch targets, 200% zoom, long Persian strings, unknown prices, reduced motion, and fallback charts. Verify a no-map small-screen user receives all route information.
 
-- [ ] **T31.4 — Run browser coverage**
+- [x] **T31.4 — Run browser coverage**
 
 Run pnpm nx run e2e:e2e --grep '@a11y|@responsive|@dates|@hotels|@referral' in Chromium, Firefox, and WebKit. Manually record actual assistive-technology/device checks performed; distinguish browser emulation from a real device.
 
-- [ ] **T31.5 — Fix, verify, and commit**
+- [x] **T31.5 — Fix, verify, and commit**
 
 Fix defects in their owning feature files and rerun only affected checks plus the critical journey. Save evidence without claiming a complete compliance certification from automated results. Commit accessibility/responsive corrections.
 
@@ -2722,3 +2723,33 @@ Owner rejected the effect and requested rollback; [decision0060](../../decisions
 
 
 **T30 COMPLETE — 2026-11-01:** source `cfcc3a9`,80exact independently approved source paths. Actual unfiltered full4:224PASS/0FAIL/2existingM6guards, all32newacceptancePASS, zero flaky/not-run/interrupted/global errors;1097source hashes match. Independent5configuration probes,77UI cases/nine files and6PostgreSQL cases pass. Exact owned test DB removed and original five container IDs remain healthy. Prior failed runs and causal limitations retained. [Checkpoint](../../evidence/T30/resume-2026-11-01/checkpoint.md). **30/35tasks complete; M7PARTIAL,T30DONE; T31next.**
+
+## T31 completion — 2026-11-02
+
+Implementation committed as `0ee7f30` after independent source review and native
+verification. Accessibility and browser evidence is recorded in
+[the final run index](../../evidence/T31/final-verification-summary.json),
+[accessibility report](../../evidence/release/accessibility.md) and
+[browser matrix](../../evidence/release/browser-matrix.md).
+
+- Chrome and Firefox each pass all22 affected semantic/referral/hotel/keyboard
+  checks on the final source. Their earlier full44 runs and corrections remain
+  separate. Configured WebKit passes43 with one existing Chromium-CDP touch
+  guard, plus its final desktop keyboard case. The independent reviewer passes5.
+- Measured fixes cover names/roles, visible wheel contrast and focus,44px mobile
+  targets, keyboard hotel coordinates and scrolling, native menu dismissal,
+  stable pending account identity and readable map attribution/navigation.
+  Actual200percent Chrome zoom, RTL/reflow, six palettes and fallback/no-map
+  route facts retain their exact observation limits.
+- VoiceOver is NOT PERFORMED at owner request. A separate real vendor-announcement
+  residual produces two temporary orphan references after profile close; they
+  retire naturally after about7seconds. Focus and current identity remain usable;
+  this is an explicitly accepted lower-impact follow-up, not a clean immediate
+  scan or screen-reader certification. The manual zoom alias reset/tab closure
+  remains NOT CONFIRMED, distinct from verified zoom restoration and automated
+  fixture cleanup.
+- All1102 bound source/config/test/assets remain unchanged through verification;
+  all26 pre-existing modified tracked paths are preserved, with only scoped
+  T31 projections committed from shared files. No push or deployment performed.
+
+**Progress:31/35 tasks complete. M7 remains PARTIAL; T32 and T33 are pending.**
