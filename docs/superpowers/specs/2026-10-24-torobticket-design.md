@@ -1,6 +1,6 @@
 # TorobTicket — Product and Architecture Specification
 
-**Revision:** 1.44 · 2026-11-02
+**Revision:** 1.45 · 2026-11-02
 
 **Purpose:** Authoritative design companion to the master implementation plan.  
 **Status:** Product scope and architecture approved in conversation. Implementation defaults below are explicit engineering decisions made while preparing the plan; they are not additional claims of user approval.
@@ -431,6 +431,8 @@ Scrolling cards under a stationary pointer must not publish hover previews hidde
 Target WCAG 2.2 AA behaviors through explicit audits: keyboard completion, visible focus, meaningful names, dialog focus/return, sufficient contrast, non-color-only status, and reduced motion. Mobile targets are at least 44 × 44 CSS px; compact desktop controls may have smaller visible surfaces while preserving practical hit areas. A test tool alone does not establish compliance.
 
 **Performance defaults to measure:** 60 fps target during desktop interaction, low-tier target ≥30 fps; interaction latency <200 ms; normal scenario first useful result ≤1.5 s and complete results ≤3 s on the recorded reference setup. The provider concurrency and delay schedule must be authored to meet these normal-case targets. Initial route JavaScript target ≤350 KiB gzip; deferred graphics target ≤500 KiB gzip. Record hardware/browser/dataset; do not claim universal performance or reduce approved features silently to meet a number.
+
+**Owner route-label clearance correction,2026-11-02 (decision0083):** selected city names and stop/wait facts must stay clear of the actual drawn route across flights, trains and buses, both trip directions and multiple stops. Feed complete presentation paths, including lane offsets, into shared screen-space annotation layout using the displayed camera frame. Reserve the route stroke/halo envelope and finite text-entry travel. Measure full final Persian names and waits, including unknown values and outbound/return prefixes, before reveal/count-up; preserve full selected facts and existing font sizes. Keep safe prior placements when possible, reserve every stop in advance, and recalculate for actual font/viewport/camera changes. Passive context captions yield to selected facts and route envelopes. Do not move geographic anchors, rewrite itinerary facts, mask collisions with opaque covers or add a persistent render clock. Use deterministic bounded placement with finite minimal-conflict behavior if a pathological viewport has no feasible packing. Meaningful geometry regressions and actual visible DOM/path clearance, in-frame fact coverage and text bounds must support acceptance; reduced/settled evidence is distinct from a continuous animation audit.
 
 ## 13. Packaging, verification, and handoff
 

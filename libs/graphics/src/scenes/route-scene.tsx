@@ -3,11 +3,13 @@ import { memo, useMemo, useEffect, useLayoutEffect, useRef, useCallback, useSync
 import type { City, GeoPoint, Itinerary, Mode, Place } from '@torob-ticket/contracts';
 import { buildRouteGeometry, type IllustrativePath, type RouteSegmentGeometry } from '../geo/route-geometry';
 import { DEFAULT_PROJECTION, fitRouteBounds, projectPoint, projectRoute, type ProjectionContext, type RouteBounds } from '../geo/projection';
+import { offsetPresentationPath, presentationRoutePaths, type PresentationRoutePath } from '../geo/route-lanes';
 import { SceneCamera, SceneSurface, useCameraIntent, frameForAspect, type CameraIntent, type SceneMarker } from './scene-surface';
 import { SceneDrawing, StaticMap } from './scene-drawing';
 import { useGraphics } from '../graphics-provider';
 import { buildJourneyPresentation, buildRoundTripPresentation, sampleJourneyPresentation, type JourneyPresentation, type JourneyPresentationFrame } from './journey-presentation';
-import { placeAnnotations } from './annotation-layout';
+import { createAnnotationRouteCollisionTest, placeAnnotations, type AnnotationPlacement } from './annotation-layout';
+import { useAnnotationMeasurements } from './annotation-measurements';
 import { createSceneFrameStore, fitPresentationBounds, type SceneFrameStore } from './camera-transition';
 import { contextCityLabels, DOMESTIC_DOT_BASE_SPACING, INTERNATIONAL_DOT_BASE_SPACING, worldDotWeights, type ContextCity, type ContextLabel, type WorldCountry, type WorldBoundary, type WorldContext } from '../geo/world-context';
 import { WorldGeography, StaticWorldGeography } from './world-geography';
@@ -17,6 +19,7 @@ import presentationStyles from './route-presentation.module.css';
 export interface RouteCityMarker { city:City;enabled:boolean;role:'origin'|'destination'|'network' }
 const NO_CITIES:readonly RouteCityMarker[]=[];
 const NO_PATHS: readonly IllustrativePath[] = [];
+const number = (value: number) => value.toLocaleString('fa-IR');
 export interface RoutePresentationEndpoint { id: string; name: string; point: GeoPoint; role: 'origin' | 'destination' }
 export interface RoutePresentation {
   key: string;
@@ -61,6 +64,7 @@ export const RouteScene = memo(function RouteScene({ places, dots, scope, itiner
     ? buildRoundTripPresentation(legSegments, itinerary.outbound, returnSegments, itinerary.return, places, presentation.cityNames)
     : buildJourneyPresentation(legSegments, leg, places, presentation?.cityNames), [legSegments, returnSegments, direction, itinerary, leg, places, Boolean(presentation), presentation?.cityNames]);
   const segments = useMemo(() => plan.roundTrip ? [...legSegments, ...returnSegments] : legSegments, [plan.roundTrip, legSegments, returnSegments]);
+  const annotationPaths = useMemo(() => presentationRoutePaths(segments, plan.roundTrip?.splitSegment), [segments, plan.roundTrip?.splitSegment]);
   const endpoints = useMemo(() => (presentation?.endpoints ?? []).map(endpoint => {
     const placeId = endpoint.role === 'origin' ? leg?.segments[0]?.originPlaceId : leg?.segments.at(-1)?.destinationPlaceId;
     const place = placeId && places.find(item => item.id === placeId);
@@ -107,7 +111,7 @@ export const RouteScene = memo(function RouteScene({ places, dots, scope, itiner
     <SceneSurface bloom={Boolean(presentation)} portalLabels={presentation ? true : portalLabels} labelsVisible={labelsVisible && !presentation} showControls={showControls} label={label} camera={camera} setZoom={zoom => setCamera(value => ({ ...value, zoom }))} context={projection} markers={markers} onMarkerSelect={onPlaceSelect||onCitySelect?chooseMarker:undefined} isCurrent={isCurrent} markerSelectLabel={cities.length?'انتخاب شهر روی نقشه':undefined}
       pointer={presentation ? pointer : undefined}
       displayFrame={presentation ? cameraFrames : undefined}
-      overlay={presentation ? (frame,dimensions) => <PresentationOverlay plan={plan} store={store} endpoints={endpoints} worldContext={world} dotSpacing={land?scope==='domestic'?DOMESTIC_DOT_BASE_SPACING:INTERNATIONAL_DOT_BASE_SPACING:undefined} dotRefinement={scope==='domestic'?2:4} context={projection} frame={frame} cameraFrames={cameraFrames} dimensions={dimensions} reducedMotion={presentation.reducedMotion} finalState={status !== 'ready' && status !== 'loading'} active={presentation.active} /> : undefined}
+      overlay={presentation ? (frame,dimensions) => <PresentationOverlay plan={plan} paths={annotationPaths} store={store} endpoints={endpoints} worldContext={world} dotSpacing={land?scope==='domestic'?DOMESTIC_DOT_BASE_SPACING:INTERNATIONAL_DOT_BASE_SPACING:undefined} dotRefinement={scope==='domestic'?2:4} context={projection} frame={frame} cameraFrames={cameraFrames} dimensions={dimensions} reducedMotion={presentation.reducedMotion} finalState={status !== 'ready' && status !== 'loading'} active={presentation.active} /> : undefined}
       fallback={(frame,dimensions) => <StaticMap featherGeography={featherGeography && Boolean(presentation)} viewport={dimensions} hideGeography={Boolean(land)} background={land ? <StaticWorldGeography boundaries={scope==='domestic'?provinceBoundaries:undefined} countries={land} context={projection} frame={frame} domestic={scope==='domestic'}/> : undefined} dots={dots} markers={drawnMarkers} segments={segments} context={projection} frame={frame} progress={presentation ? 1 : progress} mode={itinerary?.mode??illustrative?.mode} presentation={presentation ? plan : undefined} majorCities={presentation?.majorCities} />}>
       {frame => <><SceneCamera frame={frame} transition={presentation ? {active:presentation.active,reducedMotion:presentation.reducedMotion,initialFrame:initialCamera?undefined:frameForAspect({...overview,zoom:1},frame.width/frame.height),projectionLongitude:projection.centralLongitude,store:cameraFrames}:undefined} /><SceneDrawing featherGeography={featherGeography && Boolean(presentation)} hideGeography={Boolean(land)} dots={dots} markers={drawnMarkers} segments={segments} context={projection} frame={frame} mode={itinerary?.mode ?? illustrative?.mode} progress={progress} reveal={reveal} animateProgress={animateProgress} onMotionChange={onMotionChange} motionKey={motionKey} presentation={presentation ? plan : undefined} presentationKey={presentation?.key} presentationReducedMotion={presentation?.reducedMotion} onPresentationFrame={presentation ? reportPresentation : undefined} pointer={presentation ? pointer : undefined} ambientMotion={presentation?.active} majorCities={presentation?.majorCities} />{land && <WorldGeography boundaries={scope==='domestic'?provinceBoundaries:undefined} featherGeography={featherGeography && Boolean(presentation)} countries={land} context={projection} frame={frame} pointer={pointer} reducedMotion={presentation!.reducedMotion} domestic={scope==='domestic'} active={presentation!.active} resetKey={presentation!.key}/>}</>}
     </SceneSurface>
@@ -127,8 +131,8 @@ function createPresentationStore(initial: JourneyPresentationFrame) {
     update: (next: JourneyPresentationFrame) => { value = next; listeners.forEach(listener => listener()); },
   };
 }
-function PresentationOverlay({ plan, store, endpoints, context, frame:targetFrame, cameraFrames, dimensions, reducedMotion, finalState, active, worldContext, dotSpacing, dotRefinement }: {
-  plan: JourneyPresentation; store: ReturnType<typeof createPresentationStore>; endpoints: readonly RoutePresentationEndpoint[];
+function PresentationOverlay({ plan, paths, store, endpoints, context, frame:targetFrame, cameraFrames, dimensions, reducedMotion, finalState, active, worldContext, dotSpacing, dotRefinement }: {
+  plan: JourneyPresentation; paths: readonly PresentationRoutePath[]; store: ReturnType<typeof createPresentationStore>; endpoints: readonly RoutePresentationEndpoint[];
   worldContext?:WorldContext; dotSpacing?:number; dotRefinement:number; context: ProjectionContext; frame: RouteBounds; cameraFrames:SceneFrameStore; dimensions: {width:number;height:number}; reducedMotion: boolean; finalState: boolean; active: boolean;
 }) {
   const sampled = useSyncExternalStore(store.subscribe, store.getSnapshot, store.getSnapshot);
@@ -136,26 +140,39 @@ function PresentationOverlay({ plan, store, endpoints, context, frame:targetFram
   const frame = reducedMotion || finalState ? targetFrame : displayedFrame ?? targetFrame;
   const finalFrame = useMemo(() => sampleJourneyPresentation(plan, 0, { reducedMotion: true }), [plan]);
   const current = reducedMotion || finalState ? finalFrame : sampled;
+  const measurements = useRef<HTMLDivElement>(null);
+  const previousPlacements = useRef<readonly AnnotationPlacement[]>([]);
+  const measureIdentity = useMemo(() => JSON.stringify([dimensions.width, endpoints.map(endpoint => [endpoint.id, endpoint.name, endpoint.role]), plan.stops.map(stop => [stop.id, stop.name, stop.waitMinutes]), Boolean(plan.roundTrip)]), [dimensions.width, endpoints, plan]);
+  const measuredSizes = useAnnotationMeasurements(measurements, measureIdentity);
+  const routeObstacles = useMemo(() => paths.map(path => ({ points: offsetPresentationPath(path, frame.width / Math.max(1, dimensions.width)).map(([x, y]) => ({ x: dimensions.width * (.5 + (x! - frame.x) / frame.width), y: dimensions.height * (.5 - (y! - frame.y) / frame.height) })) })), [paths, frame.x, frame.y, frame.width, frame.height, dimensions.width, dimensions.height]);
   // Reserve all selected-stop label positions from the start, so revealed facts do not move earlier labels.
   const placements = useMemo(() => {
     const points = [...endpoints.map(endpoint => ({ ...endpoint, id: `endpoint:${endpoint.role}:${endpoint.id}`, width: 132, height: 44, preferBelow: endpoint.role === 'destination' })), ...plan.stops.map((stop,index) => ({ ...stop, width: 144, height: 40, preferBelow: index % 2 === 1 }))];
-    const anchors = points.map(item => { const [x,y] = projectPoint(item.point,context); return {id:item.id,width:item.width,height:item.height,preferBelow:item.preferBelow,x:dimensions.width*(.5+(x-frame.x)/frame.width),y:dimensions.height*(.5-(y-frame.y)/frame.height)}; }).filter(item=>item.x>=0 && item.y>=0 && item.x<=dimensions.width && item.y<=dimensions.height);
-    return new Map(placeAnnotations(anchors,dimensions).map(item=>[item.id,item]));
-  },[endpoints,plan,context,frame.x,frame.y,frame.width,frame.height,dimensions.width,dimensions.height]);
+    const anchors = points.map(item => { const [x,y] = projectPoint(item.point,context), size = measuredSizes.get(item.id) ?? item; return {id:item.id,width:size.width,height:size.height,preferBelow:item.preferBelow,x:dimensions.width*(.5+(x-frame.x)/frame.width),y:dimensions.height*(.5-(y-frame.y)/frame.height)}; }).filter(item=>item.x>=0 && item.y>=0 && item.x<=dimensions.width && item.y<=dimensions.height);
+    return new Map(placeAnnotations(anchors,dimensions,routeObstacles,previousPlacements.current).map(item=>[item.id,item]));
+  },[endpoints,plan,context,frame.x,frame.y,frame.width,frame.height,dimensions.width,dimensions.height,measuredSizes,routeObstacles]);
+  useLayoutEffect(() => { previousPlacements.current = [...placements.values()]; }, [placements]);
   const contextual=useMemo(()=>{
     if(!worldContext)return [];
     const reserved=[...placements.values()].flatMap(item=>[{left:item.left,top:item.top,width:item.width,height:item.height},{left:item.x-22,top:item.y-22,width:44,height:44}]);
-    return contextCityLabels(worldContext.cities,frame,dimensions,context,reserved,new Set([...endpoints.flatMap(endpoint=>[endpoint.id,endpoint.name]),...plan.stops.map(stop=>stop.name)]));
-  },[worldContext,placements,endpoints,plan,frame,dimensions,context]);
+    const intersectsRoute = createAnnotationRouteCollisionTest(routeObstacles);
+    return contextCityLabels(worldContext.cities,frame,dimensions,context,reserved,new Set([...endpoints.flatMap(endpoint=>[endpoint.id,endpoint.name]),...plan.stops.map(stop=>stop.name)])).filter(label => !intersectsRoute({ left: label.left, top: label.top, width: label.width, height: 22 }));
+  },[worldContext,placements,endpoints,plan,frame,dimensions,context,routeObstacles]);
   const textPosition = (id:string) => { const item=placements.get(id);return item ? {left:item.left-item.x,top:item.top-item.y,width:item.width,height:item.height}:undefined; };
   const visibleLabels = new Set([...endpoints.map(endpoint=>`endpoint:${endpoint.role}:${endpoint.id}`),...current.revealedStops.map(stop=>stop.id)]);
-  const number = (value: number) => value.toLocaleString('fa-IR');
   const position = (point: GeoPoint) => {
     const [x, y] = projectPoint(point, context);
     return { left: `${50 + (x - frame.x) / frame.width * 100}%`, top: `${50 - (y - frame.y) / frame.height * 100}%` };
   };
   const visible = (point: GeoPoint) => { const [x, y] = projectPoint(point, context); return Math.abs(x - frame.x) <= frame.width / 2 && Math.abs(y - frame.y) <= frame.height / 2; };
+  const measurementContent = useMemo(() => (
+    <div ref={measurements} className={presentationStyles.measurements} aria-hidden="true" inert>
+      {endpoints.map(endpoint => <div key={`endpoint:${endpoint.role}:${endpoint.id}`} data-annotation-measure={`endpoint:${endpoint.role}:${endpoint.id}`} className={presentationStyles.endpointText} style={{ width: 'max-content', maxWidth: Math.max(1, dimensions.width - 16), height: 'auto' }} dir="rtl"><small>{endpoint.role === 'origin' ? 'مبدأ' : 'مقصد'}</small><strong>{endpoint.name}</strong></div>)}
+      {plan.stops.map(stop => <div key={stop.id} data-annotation-measure={stop.id} className={presentationStyles.stopText} style={{ width: 'max-content', maxWidth: Math.max(1, dimensions.width - 16), height: 'auto' }} dir="rtl"><strong>{stop.name}</strong><span>{plan.roundTrip && (stop.id.startsWith('return:') ? 'برگشت · ' : 'رفت · ')}<span className={presentationStyles.waitCount}>{stop.waitMinutes === null ? 'نامعلوم' : number(stop.waitMinutes)}</span>{stop.waitMinutes !== null && ' دقیقه توقف'}</span></div>)}
+    </div>
+  ), [endpoints, plan, dimensions.width]);
   return <div className={presentationStyles.overlay} data-route-presentation data-context-label-count={contextual.length} data-map-dot-spacing={dotSpacing} data-map-dot-refinement={dotRefinement} data-map-dot-weights={dotSpacing?worldDotWeights(frame.width/dimensions.width,dotSpacing,dotRefinement).map(value=>value.toFixed(3)).join(','):undefined} data-route-reveal={current.reveal.toFixed(3)} data-route-travel={current.travel.toFixed(3)} data-vehicle-opacity={current.vehicleOpacity.toFixed(3)} data-vehicle-blur={current.vehicleBlur.toFixed(3)} data-vehicle-point={current.vehiclePoint?.map(value=>value.toFixed(6)).join(',')} data-route-round-trip={Boolean(plan.roundTrip)} data-route-animation-direction={current.direction ?? 'outbound'} data-route-turn-progress={current.turnProgress?.toFixed(3)} data-route-turn-mode={plan.roundTrip?.mode} data-route-complete={current.complete} data-journey-phase={current.complete ? 'complete' : current.turnProgress !== undefined ? 'turn' : current.activeStop === null ? 'travel' : 'stop'} data-reduced-motion={reducedMotion} data-motion-active={active} aria-label="نقاط مسیر انتخاب‌شده" role="group">
+    {measurementContent}
     {worldContext && <ContextCities cities={worldContext.cities} labels={contextual} context={context} frame={frame} dimensions={dimensions}/>}
     <svg className={presentationStyles.leaders} viewBox={`0 0 ${dimensions.width} ${dimensions.height}`} aria-hidden="true">{[...placements.values()].filter(item=>item.leader && visibleLabels.has(item.id)).map(item=><line key={item.id} {...item.leader!} />)}</svg>
     <EndpointPresence reducedMotion={reducedMotion} endpoints={endpoints.map(endpoint=>{
@@ -167,7 +184,7 @@ function PresentationOverlay({ plan, store, endpoints, context, frame:targetFram
       if (!stop || !visible(stop.point)) return null;
       return <div key={stop.id} className={presentationStyles.stop} style={position(stop.point)} data-route-stop={stop.placeId} data-journey-stop={stop.id} data-stop-direction={plan.roundTrip ? stop.id.startsWith('return:') ? 'return' : 'outbound' : undefined} data-stop-occurrence={stop.id} data-wait-minutes={revealed.count ?? 'unknown'} data-side={index % 2 ? 'below' : 'above'} data-stop-active={plan.stops[current.activeStop ?? -1]?.id === stop.id}>
         <span className={presentationStyles.stopOrbit} aria-hidden="true" />
-        <div className={presentationStyles.stopText} style={textPosition(stop.id)} dir="rtl"><strong>{stop.name}</strong><span role="group" aria-label={stop.waitMinutes === null ? 'زمان توقف نامعلوم' : `توقف ${number(stop.waitMinutes)} دقیقه`}>{plan.roundTrip && (stop.id.startsWith('return:') ? 'برگشت · ' : 'رفت · ')}<span data-wait-count>{revealed.count === null ? 'نامعلوم' : number(revealed.count)}</span>{revealed.count !== null && ' دقیقه توقف'}</span></div>
+        <div className={presentationStyles.stopText} style={textPosition(stop.id)} dir="rtl"><strong>{stop.name}</strong><span role="group" aria-label={stop.waitMinutes === null ? 'زمان توقف نامعلوم' : `توقف ${number(stop.waitMinutes)} دقیقه`}>{plan.roundTrip && (stop.id.startsWith('return:') ? 'برگشت · ' : 'رفت · ')}<span className={presentationStyles.waitCount} data-wait-count>{revealed.count === null ? 'نامعلوم' : number(revealed.count)}</span>{revealed.count !== null && ' دقیقه توقف'}</span></div>
       </div>;
     })}
   </div>;
@@ -183,7 +200,7 @@ function ContextCityName({city,label,x,y}:{city:ContextCity;label?:ContextLabel;
   const last=useRef({offset:7,width:70});
   const placement=label?{offset:label.top-label.y,width:label.width}:last.current;
   useLayoutEffect(()=>{if(label)last.current={offset:label.top-label.y,width:label.width};},[label]);
-  return <span data-context-city={city.id} data-visible={Boolean(label)} className={presentationStyles.contextCity} style={{left:x-placement.width/2,top:y+placement.offset,width:placement.width,opacity:label?.opacity??0}}><i style={{left:placement.width/2-1.5,top:-placement.offset-1.5}}/>{city.name}</span>;
+  return <span data-context-city={city.id} data-visible={Boolean(label)} className={presentationStyles.contextCity} style={{left:x-placement.width/2,top:y+placement.offset,width:placement.width,opacity:label?.opacity??0}}><i style={{left:placement.width/2-1.5,top:-placement.offset-1.5}}/><span className={presentationStyles.contextName}>{city.name}</span></span>;
 }
 
 export function RouteTimeline({ itinerary, places, direction = 'outbound' }: Pick<RouteSceneProps, 'itinerary' | 'places' | 'direction'>) {

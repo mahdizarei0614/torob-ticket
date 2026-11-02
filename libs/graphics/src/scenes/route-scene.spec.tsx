@@ -109,6 +109,53 @@ it('presents only chosen endpoints before selection and settles canonical stop f
   measure.mockRestore();
 });
 
+it('measures complete final stop text before reveal and updates only for actual font/viewport sizes without duplicate route facts', async () => {
+  let viewportWidth=560,contentWidth=236;
+  const observers:{nodes:Element[];callback:ResizeObserverCallback;disconnected:boolean}[]=[];
+  vi.stubGlobal('ResizeObserver',class {
+    record:{nodes:Element[];callback:ResizeObserverCallback;disconnected:boolean};
+    constructor(callback:ResizeObserverCallback){this.record={nodes:[],callback,disconnected:false};observers.push(this.record);}
+    observe(node:Element){this.record.nodes.push(node);}disconnect(){this.record.disconnected=true;}
+  });
+  let fontsReady!:()=>void;const ready=new Promise<void>(resolve=>{fontsReady=resolve;});
+  const originalFonts=Object.getOwnPropertyDescriptor(document,'fonts');
+  Object.defineProperty(document,'fonts',{configurable:true,value:{ready,addEventListener:vi.fn(),removeEventListener:vi.fn()}});
+  const measure=vi.spyOn(HTMLElement.prototype,'getBoundingClientRect').mockImplementation(function(this:HTMLElement){
+    const probe=this.dataset['annotationMeasure'];
+    const width=probe?Math.min(contentWidth,Number.parseFloat(this.style.maxWidth)):viewportWidth;
+    const height=probe?(width<contentWidth?80:44):400;
+    return {left:20,top:30,width,height,right:20+width,bottom:30+height,x:20,y:30,toJSON:()=>({})};
+  });
+  const endpoints=[{id:'tehran',name:'تهران',point:places.find(place=>place.id==='thr')!.point,role:'origin' as const},{id:'mashhad',name:'مشهد',point:places.find(place=>place.id==='mhd')!.point,role:'destination' as const}];
+  const longWait={...itinerary,outbound:{...itinerary.outbound,stops:itinerary.outbound.stops.map(stop=>({...stop,waitMinutes:9999}))}};
+  const props:RouteSceneProps={...base,itinerary:longWait,showNotes:false,showTimeline:false,showControls:false,presentation:{key:'measured-waits',endpoints,active:false,reducedMotion:false,cityNames:{isfahan:'اصفهان و نام طولانی شهر میانی'}}};
+  let view:ReturnType<typeof render>|undefined;
+  try{
+    view=render(element(props));await act(async()=>undefined);
+    const probes=view.container.querySelectorAll<HTMLElement>('[data-annotation-measure]');
+    expect(probes.length).toBeGreaterThan(2);
+    expect(probes[0]!.parentElement).toHaveAttribute('aria-hidden','true');expect(probes[0]!.parentElement).toHaveAttribute('inert');
+    const fullWait=[...probes].find(probe=>probe.textContent?.includes('۹٬۹۹۹'));expect(fullWait).toBeTruthy();expect(fullWait).toHaveTextContent('رفت ·');expect(fullWait).toHaveTextContent('دقیقه توقف');
+    expect(probes[0]!.parentElement!.querySelector('[data-route-stop],[data-route-endpoint],[data-wait-count]')).toBeNull();
+    const identity=fullWait!.dataset['annotationMeasure'];
+    view.rerender(element({...props,presentation:{...props.presentation!,reducedMotion:true}}));await act(async()=>undefined);
+    const label=()=>[...view!.container.querySelectorAll<HTMLElement>('[data-journey-stop]')].find(stop=>stop.dataset['journeyStop']===identity)!.querySelector<HTMLElement>(':scope > div')!;
+    expect(label()).toHaveStyle({width:'236px',height:'44px'});
+    expect(view.container.querySelectorAll('[data-journey-endpoint]')).toHaveLength(2);
+    expect(view.container.querySelectorAll('[data-wait-count]')).toHaveLength(longWait.outbound.stops.length+(longWait.return?.stops.length??0));
+    contentWidth=302;await act(async()=>{fontsReady();await ready;});
+    expect(label()).toHaveStyle({width:'302px',height:'44px'});
+    viewportWidth=280;
+    await act(async()=>{for(const observer of [...observers])if(!observer.disconnected)observer.callback([],{} as ResizeObserver);});
+    expect(label()).toHaveStyle({width:'264px',height:'80px'});
+    expect(fullWait!.textContent).toContain('۹٬۹۹۹');
+    view.unmount();view=undefined;
+    expect(observers.filter(observer=>observer.nodes.some(node=>(node as HTMLElement).dataset['annotationMeasure'])).every(observer=>observer.disconnected)).toBe(true);
+  }finally{
+    view?.unmount();measure.mockRestore();if(originalFonts)Object.defineProperty(document,'fonts',originalFonts);else Reflect.deleteProperty(document,'fonts');
+  }
+});
+
 it('fits an international endpoint region before a ticket exists and refits when the form destination changes', async () => {
   const endpoints = [{ id:'tehran',name:'تهران',point:{longitude:51,latitude:35},role:'origin' as const },{ id:'istanbul',name:'استانبول',point:{longitude:29,latitude:41},role:'destination' as const }];
   const props:RouteSceneProps={...base,scope:'international',fitMode:'geography',showNotes:false,showTimeline:false,showControls:false,presentation:{key:'world-endpoints',endpoints,active:false,reducedMotion:true}};
@@ -123,11 +170,19 @@ it('fits an international endpoint region before a ticket exists and refits when
 
 it('keeps world context passive, sparse and separate from selected endpoint labels in static fallback',async()=>{
   const measure=vi.spyOn(HTMLElement.prototype,'getBoundingClientRect').mockReturnValue({left:0,top:0,width:560,height:400,right:560,bottom:400,x:0,y:0,toJSON:()=>({})});
-  const props:RouteSceneProps={...base,scope:'international',projection:{centralLongitude:0},showNotes:false,showTimeline:false,showControls:false,labelsVisible:false,presentation:{key:'context',endpoints:[],active:false,reducedMotion:true},worldContext:{countries:[{geometry:{type:'Polygon',coordinates:[[[0,0],[30,0],[30,40],[0,40],[0,0]]]}}],cities:[{id:'capital',name:'پایتخت',point:{longitude:15,latitude:20},tier:0}]}};
+  const longName='شهری با نام بسیار طولانی برای بررسی مرز برچسب زمینه';
+  const props:RouteSceneProps={...base,scope:'international',projection:{centralLongitude:0},showNotes:false,showTimeline:false,showControls:false,labelsVisible:false,presentation:{key:'context',endpoints:[],active:false,reducedMotion:true},worldContext:{countries:[{geometry:{type:'Polygon',coordinates:[[[0,0],[30,0],[30,40],[0,40],[0,0]]]}}],cities:[{id:'capital',name:longName,point:{longitude:15,latitude:20},tier:0}]}};
   const view=render(element(props));await act(async()=>undefined);
   expect(view.container.querySelector('[data-world-country-borders]')).toHaveAttribute('data-world-country-borders','1');
   expect(view.container.querySelector('[data-world-geography] path')).not.toBeNull();
-  expect(view.container.querySelector('[data-context-city="capital"]')).toHaveAttribute('data-visible','true');
+  const city=view.container.querySelector<HTMLElement>('[data-context-city="capital"]')!;
+  expect(city).toHaveAttribute('data-visible','true');expect(city).toHaveStyle({width:'100px'});
+  const caption=city.querySelector<HTMLElement>(':scope > i + span')!;
+  expect(caption.textContent).toBe(longName);expect(caption.className).toContain('contextName');
+  // Only decorative caption glyphs clip; its real geographic point remains a
+  // sibling outside the clip. Selected route facts use their measured full text.
+  expect(city.querySelector(':scope > i')).not.toBeNull();expect(caption.querySelector('i')).toBeNull();
+  expect(view.container.querySelectorAll('[data-annotation-measure]')).toHaveLength(0);
   expect(view.queryByRole('button')).toBeNull();expect(view.container.querySelector('[data-journey-endpoint]')).toBeNull();
   view.rerender(element({...props,scope:'domestic'}));expect(view.container.querySelector('[data-context-city]')).toBeNull();expect(view.container.querySelector('[data-world-geography]')).toBeNull();
   measure.mockRestore();

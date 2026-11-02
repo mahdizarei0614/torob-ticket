@@ -124,3 +124,18 @@ Native dark/light, two-way selection and close/reopen were also inspected.
 [checkpoint](evidence/adjustments/hotel-map-resilience/checkpoint.md) keep the
 diagnosis, source review, operator correction and actual proof separate from
 T35's earlier unavailable-map observations and from a full release recertification.
+
+
+The route-label follow-up replaces anchor-only scoring with full actual path/lane
+clearance and measured final Persian facts. A task implementation agent and
+independent reviewer caught a coarse-grid narrow-corridor miss and passive-caption
+overflow; both were corrected without shrinking selected text or moving geography.
+Root's browser regression uses independent segment/actual-DOM-box intersection,
+then was strengthened to wait for responsive observer settlement and require every
+in-frame fact. Earlier failures remain recorded rather than relabelled as passes.
+23focused tests and final Chrome0038/8/20settled geometry samples pass; native
+dark normal-motion IFN120wait was separately inspected. A mistyped build-config
+recheck failed before building and the correct project config passed.
+[Decision0083](decisions/0083-route-aware-city-and-stop-labels.md) and the
+[checkpoint](evidence/adjustments/route-label-clearance/checkpoint.md) bind source,
+actual checks, reviewer scope and limits; no full-release recertification is inferred.
