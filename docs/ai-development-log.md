@@ -109,3 +109,18 @@ Actual changed-fare acceptance and matching admin/raw/normalized source lineage
 were inspected. [Final review](evidence/release/final-review.md) and
 [checkpoint](evidence/T35/checkpoint.md) retain these failures, corrections,
 measurements and limits rather than claiming an error-free AI development run.
+
+The hotel-map follow-up captured the next failure in native Chrome: a200style
+response lacked the required CORS header. A separate implementation subagent
+found that our generic MapLibre error handler also destroyed maps after ordinary
+recoverable tile/sprite failures. An independent reviewer checked the public API
+readiness boundary and warned that default style diffing could accept old streets
+as proof of a new style. The accepted change uses a single free OpenFreeMap
+provider, actual current vector content and bounded recovery; no proxy or fake
+map hides the failure.39focused tests and3actual Chrome journeys pass, including
+an explicitly controlled outage and sprite failure with real provider recovery.
+Native dark/light, two-way selection and close/reopen were also inspected.
+[Decision0082](decisions/0082-hotel-map-provider-and-tile-resilience.md) and the
+[checkpoint](evidence/adjustments/hotel-map-resilience/checkpoint.md) keep the
+diagnosis, source review, operator correction and actual proof separate from
+T35's earlier unavailable-map observations and from a full release recertification.

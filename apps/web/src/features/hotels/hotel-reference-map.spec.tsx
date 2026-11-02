@@ -18,7 +18,7 @@ afterEach(()=>{cleanup();vi.unstubAllGlobals();vi.clearAllMocks();});
 function mapRuntime(){
  const events=new Map<MapEventName,Set<(event:unknown)=>void>>();let element:HTMLElement|undefined;
  const emit=(name:MapEventName,event:unknown={})=>{for(const callback of events.get(name)??[])callback(event);};
- const map:MapPort={on:(name,fn)=>{const callbacks=events.get(name)??new Set();callbacks.add(fn);events.set(name,callbacks);},off:(name,fn)=>events.get(name)?.delete(fn),remove:vi.fn(),resize:vi.fn(),setStyle:vi.fn(),getCenter:()=>({lat:30,lng:50}),getZoom:()=>12,jumpTo:vi.fn(),fitBounds:vi.fn(),getBounds:()=>({contains:()=>true})};
+ const map:MapPort={on:(name,fn)=>{const callbacks=events.get(name)??new Set();callbacks.add(fn);events.set(name,callbacks);},off:(name,fn)=>events.get(name)?.delete(fn),remove:vi.fn(),resize:vi.fn(),setStyle:vi.fn(),isStyleLoaded:()=>true,queryRenderedFeatures:()=>[{source:'openmaptiles'}],getCenter:()=>({lat:30,lng:50}),getZoom:()=>12,jumpTo:vi.fn(),fitBounds:vi.fn(),getBounds:()=>({contains:()=>true})};
  const sdk:FreeMapSdk={createMap:vi.fn(node=>{element=node;return map;}),createMarker:vi.fn(node=>{
   let point={lng:0,lat:0};const marker:MarkerPort={setLngLat:next=>{point={lng:next[0],lat:next[1]};return marker;},addTo:()=>{element?.append(node);return marker;},remove:()=>node.remove(),getLngLat:()=>point,on:vi.fn(),off:vi.fn(),setDraggable:vi.fn()};return marker;
  })};
@@ -31,7 +31,7 @@ it('reopens the checked reference option by pointer, Space and Enter for repeate
  const queries:HotelSearchQuery[]=[],client={startHotelSearch:vi.fn(async(query:HotelSearchQuery)=>{queries.push(query);return arrivalSnapshot(query);})} as unknown as ApiClient;
  let latest!:HotelDiscovery;
  function App(){const model=useHotelDiscovery({trip:arrivingTrip(),catalog:arrivalCatalog,session,client});latest=model;return <><button onClick={model.openDialog}>open</button><HotelDialog model={model} catalog={arrivalCatalog} session={session} canApplyTrip/></>;}
- render(<ThemeProvider><App/></ThemeProvider>);fireEvent.click(screen.getByText('open'));await waitFor(()=>expect(screen.getByRole('list',{name:'هتل‌ها و قیمت اقامت'})).toBeInTheDocument());await waitFor(()=>expect(sdk.createMap).toHaveBeenCalledTimes(1));act(()=>emit('load'));
+ render(<ThemeProvider><App/></ThemeProvider>);fireEvent.click(screen.getByText('open'));await waitFor(()=>expect(screen.getByRole('list',{name:'هتل‌ها و قیمت اقامت'})).toBeInTheDocument());await waitFor(()=>expect(sdk.createMap).toHaveBeenCalledTimes(1));act(()=>{emit('style.load');emit('load');});
  fireEvent.click(document.querySelector('[data-hotel-id="hotel-a"] [data-hotel-card-select]')!);const lease=latest.selectionLease()!;expect(lease.isCurrent()).toBe(true);
  const reference=()=>screen.getByRole('radio',{name:'نزدیک به نقطه دلخواه'}),label=()=>reference().closest<HTMLElement>('[data-segment-option]')!;
  await user.click(label());expect(latest.state.point).toBeDefined();expect(lease.isCurrent()).toBe(false);

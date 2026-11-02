@@ -58,14 +58,14 @@ it('reacquires an SDK that resolved while a closed dialog retained the same map 
  const actual=await vi.importActual<typeof import('./free-map-adapter')>('./free-map-adapter');
  vi.mocked(createFreeMap).mockImplementationOnce(actual.createFreeMap).mockImplementationOnce(actual.createFreeMap);
  let resolve!:(sdk:FreeMapSdk)=>void;const pending=new Promise<FreeMapSdk>(done=>{resolve=done;}),events=new Map<string,(event:unknown)=>void>();
- const map:MapPort={on:(name,fn)=>events.set(name,fn),off:(name)=>events.delete(name),remove:vi.fn(),resize:vi.fn(),setStyle:vi.fn(),getCenter:()=>({lat:36.2,lng:59.6}),getZoom:()=>12,jumpTo:vi.fn()};
+ const map:MapPort={on:(name,fn)=>events.set(name,fn),off:(name)=>events.delete(name),remove:vi.fn(),resize:vi.fn(),setStyle:vi.fn(),isStyleLoaded:()=>true,queryRenderedFeatures:()=>[{source:'openmaptiles'}],getCenter:()=>({lat:36.2,lng:59.6}),getZoom:()=>12,jumpTo:vi.fn()};
  const sdk:FreeMapSdk={createMap:vi.fn(()=>map),createMarker:vi.fn(()=>{const marker={setLngLat:()=>marker,addTo:()=>marker,remove:vi.fn(),getLngLat:()=>({lat:36.2,lng:59.6}),on:vi.fn(),off:vi.fn()};return marker;})};
  vi.mocked(loadFreeMapSdk).mockReturnValue(pending);
  let open=true;const options={...props(),isCurrent:()=>open};const view=render(<FreeLocationMap {...options} active/>);
  open=false;view.rerender(<FreeLocationMap {...options} active={false}/>);
  await act(async()=>{resolve(sdk);await pending;});expect(sdk.createMap).not.toHaveBeenCalled();
  open=true;await act(async()=>view.rerender(<FreeLocationMap {...options} active/>));
- expect(sdk.createMap).toHaveBeenCalledTimes(1);act(()=>events.get('load')?.({}));
+ expect(sdk.createMap).toHaveBeenCalledTimes(1);act(()=>{events.get('style.load')?.({});events.get('load')?.({});});
  expect(screen.getByRole('region',{name:'نقشه اقامتگاه‌ها و نقطه رسیدن'})).toHaveAttribute('data-free-map-status','ready');
  view.unmount();expect(map.remove).toHaveBeenCalledTimes(1);
 });

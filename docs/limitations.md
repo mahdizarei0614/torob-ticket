@@ -36,7 +36,8 @@ an official Torob account connection. These technical boundaries are deliberate.
 
 The core runtime uses local providers, assets, fonts and geography, with no model
 API key or runtime LLM. First Docker build may download dependencies and images.
-The optional hotel street map uses external OSM styles/tiles/glyphs/sprites; no
+The optional hotel street map uses external OpenFreeMap styles/tiles/glyphs/sprites
+and OpenStreetMap data; no
 bundled-offline map or service availability guarantee is claimed. Its cards and
 manual coordinate alternative remain usable when the map is unavailable.
 
@@ -59,6 +60,7 @@ credentials. Publishing requires a separate deployment/security and rights revie
 | T33 quality scope | 48 source tasks, 60 tool contracts and seven Chrome journeys passed. Optional PostgreSQL integration was explicitly skipped in that run; earlier real-DB evidence remains separate. Passing the selected profile is not universal release certification. |
 | [T35 final review](evidence/release/final-review.md), [checkpoint](evidence/T35/checkpoint.md) | Canonical source `d1e052ba`, clean packaged startup 38.221s; final quality002 passes 48 uncached Nx tasks, 60 tool contracts, 189 actual PostgreSQL tests and 7 critical Chrome journeys. Separate focused browser001 passes 12 trip combinations plus 4 branding cases; 61 assets and 2 metadata contracts pass separately. These overlapping checks are not added into one total. |
 | [T35 manual journey](evidence/T35/manual-002.json) | Concise manual pass 2:16.058, after an exploratory 9:22.528 run that missed the five-minute target. Actual date/ranking/route/changed-fare consent/confirmed handoff and persisted source evidence were inspected. External hotel street-map tiles were unavailable in both manual passes; no live basemap or manual map/card two-way proof is claimed. No video, audio or independent human usability study was performed. |
+| [Hotel-map follow-up](evidence/adjustments/hotel-map-resilience/checkpoint.md) | Subsequent Chrome diagnosis captures a style CORS failure. Single OpenFreeMap provider and recoverable-error/current-content checks pass39focused tests, consumer/browser types, scoped lint/build and3actual Chrome journeys including controlled outage/retry. Separate native dark/light/selection/reopen proof passes. This updates current behavior without rewriting T35's failures or claiming a service SLA/full release recertification. |
 
 Each receipt binds its source, scenario, build and environment. Earlier failures
 remain in the evidence; overlapping runs are not added into an inflated test

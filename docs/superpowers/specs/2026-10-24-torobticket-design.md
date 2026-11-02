@@ -1,6 +1,6 @@
 # TorobTicket — Product and Architecture Specification
 
-**Revision:** 1.43 · 2026-11-02
+**Revision:** 1.44 · 2026-11-02
 
 **Purpose:** Authoritative design companion to the master implementation plan.  
 **Status:** Product scope and architecture approved in conversation. Implementation defaults below are explicit engineering decisions made while preparing the plan; they are not additional claims of user approval.
@@ -242,7 +242,7 @@ Capacity selects actual one-room adult occupancy, defaulting to the transport pa
 
 **Hotel inventory defaults:** authored nightly inventory extends through day119 after the session anchor, with check-out allowed on day120 and every priced night covered. Room/adult/child/infant eligibility remains enforced. These are mock fixture policies, not claims about actual hotel operations. Current hotel/source data and immutable fixture versions are not rewritten for this UI change.
 
-**Free-map implementation ruling:** retain official OpenStreetMap-hosted VersaTiles Colorful/Shadow styles through the pinned MapLibre SDK, loaded lazily when hotel discovery opens. No registration/key/billing or Google/Neshan integration. Keep OSM attribution, ordinary caching/Referer and on-demand requests without proxy/bulk prefetch. One active provider map is permitted inside the dialog; the background travel scene pauses. Explicit active ownership covers retained exits, late SDK loads, rapid reopen, style/context/resize and disposal. Network/WebGL failure keeps hotel cards and known-location reference choices usable with a truthful unavailable state, without a fabricated replacement map.
+**Free-map implementation ruling, updated2026-11-02 (decision0082):** use the single OpenFreeMap Bright/Dark provider through the pinned MapLibre SDK, loaded lazily when hotel discovery opens. Actual Chrome CORS rejection of the previous official OSM style host motivates this engineering default change; historical receipts retain their original source. Current initial urban-view readiness requires current style.load, isStyleLoaded and genuine rendered openmaptiles features, never DOM pins or another raster source. Transient tile/glyph/sprite errors retain healthy streets; an unrenderable initial/new style still reaches the existing15s unavailable/retry boundary. Theme swaps replace the style without diffing, preserving map/camera/markers and fencing retired callbacks; readiness probes/listeners stop after success. No registration/key/billing or Google/Neshan integration. Keep OSM attribution, ordinary caching/Referer and on-demand requests without proxy/bulk prefetch. One active provider map is permitted inside the dialog; the background travel scene pauses. Explicit active ownership covers retained exits, late SDK loads, rapid reopen, style/context/resize and disposal. Network/WebGL failure keeps hotel cards and known-location reference choices usable with a truthful unavailable state, without a fabricated replacement map.
 
 ## 8. Sessions, optional login, and referrals
 
@@ -376,7 +376,7 @@ Local font defaults are Vazirmatn for Persian and Inter for English; verify and 
 
 A persistent app-owned WebGL2 renderer uses clipped views for transport maps and charts. Context/material/geometry resources are shared, not allocated per ticket card. **Owner’s free-map exception:** the on-demand arrival hotel view uses a separate MapLibre renderer inside its native dialog, with at most one active provider map and complete cleanup on dismissal. It does not create another app-owned renderer or alter the transport scene. HTML owns labels, controls, forms, calendars, dialogs, and selectable information. App WebGL handles dotted transport geography, routes, vehicle progress, chart emphasis, and selected flat effects.
 
-Official OSM-hosted VersaTiles styles and required OpenStreetMap contributor attribution are third-party assets; authored hotel controls and custom markers still use semantic tokens. Record its lazy SDK/network weight separately from app-owned bundles and disclose the total map cost. No provider key or account is required. Provider map styles and SDK UI are vendor assets; custom controls and markers remain subject to semantic theme tokens.
+OpenFreeMap styles/tiles and their OpenMapTiles/OpenStreetMap contributor credits are third-party assets; authored hotel controls and custom markers still use semantic tokens. Record its lazy SDK/network weight separately from app-owned bundles and disclose the total map cost. No provider key or account is required. Provider map styles and SDK UI are vendor assets; custom controls and markers remain subject to semantic theme tokens.
 
 When the hotel modal is open, pause the background travel scene and preserve its camera/pinned state. Scene layering must keep native modal focus and pointer semantics correct. All UI animations are flat except shallow map/route depth.
 

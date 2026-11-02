@@ -1,14 +1,91 @@
 import {afterEach,describe,it,expect,vi} from 'vitest';
 import {createFreeMap,type FreeMapSdk,type MapPort,type MarkerPort,type FreeMapInput,type MapEventName} from './free-map-adapter';
-function mockSdk(){const events=new Map<MapEventName,Set<(event:unknown)=>void>>();const map:MapPort={on:(name,fn)=>{const set=events.get(name)??new Set();set.add(fn);events.set(name,set);},off:(name,fn)=>events.get(name)?.delete(fn),remove:vi.fn(),resize:vi.fn(),setStyle:vi.fn(),getCenter:()=>({lng:51.45,lat:35.75}),getZoom:()=>13,jumpTo:vi.fn()};const markers:MarkerPort[]=[];const sdk:FreeMapSdk={createMap:vi.fn(()=>map),createMarker:vi.fn(()=>{const marker:MarkerPort={setLngLat:vi.fn(()=>marker),addTo:vi.fn(()=>marker),remove:vi.fn(),getLngLat:()=>({lng:51,lat:35}),on:vi.fn(),off:vi.fn(),setDraggable:vi.fn()};markers.push(marker);return marker;})};return {map,sdk,markers,events,emit:(name:MapEventName,event:unknown={})=>{for(const fn of events.get(name)??[])fn(event);}};}
+function mockSdk(){const events=new Map<MapEventName,Set<(event:unknown)=>void>>();const map:MapPort={on:(name,fn)=>{const set=events.get(name)??new Set();set.add(fn);events.set(name,set);},off:(name,fn)=>events.get(name)?.delete(fn),remove:vi.fn(),resize:vi.fn(),setStyle:vi.fn(),isStyleLoaded:vi.fn(()=>true),queryRenderedFeatures:vi.fn(()=>[{source:'openmaptiles'}]),getCenter:()=>({lng:51.45,lat:35.75}),getZoom:()=>13,jumpTo:vi.fn()};const markers:MarkerPort[]=[];const sdk:FreeMapSdk={createMap:vi.fn(()=>map),createMarker:vi.fn(()=>{const marker:MarkerPort={setLngLat:vi.fn(()=>marker),addTo:vi.fn(()=>marker),remove:vi.fn(),getLngLat:()=>({lng:51,lat:35}),on:vi.fn(),off:vi.fn(),setDraggable:vi.fn()};markers.push(marker);return marker;})};return {map,sdk,markers,events,emit:(name:MapEventName,event:unknown={})=>{for(const fn of events.get(name)??[])fn(event);}};}
 const input=():FreeMapInput=>({center:{latitude:35,longitude:51},appearance:'light',choices:[{id:'h',name:'هتل نمونه (خیالی)',number:1,point:{latitude:35,longitude:51}}],isCurrent:()=>true,onPoint:vi.fn(),onStatus:vi.fn(),markerClassName:'marker',timeoutMs:1000});
 const owned:ReturnType<typeof createFreeMap>[]=[];afterEach(()=>{owned.splice(0).forEach(c=>c.dispose());vi.useRealTimers();});
 describe('free provider adapter with controlled SDK, no network',()=>{
- it('defers construction, maps native lngLat to the provisional point, keeps full accessible marker titles and cleans every owned resource',async()=>{const mock=mockSdk(),options=input(),element=document.createElement('div');const controller=createFreeMap(element,options,async()=>mock.sdk);owned.push(controller);await Promise.resolve();await Promise.resolve();expect(mock.sdk.createMap).toHaveBeenCalledTimes(1);expect(mock.sdk.createMap).toHaveBeenCalledWith(element,expect.objectContaining({style:'https://vector.openstreetmap.org/styles/shortbread/colorful.json',pitch:0,bearing:0,maxPitch:0}));mock.emit('load');await expect(controller.ready).resolves.toBe(true);mock.emit('click',{lngLat:{lng:52,lat:36}});expect(options.onPoint).toHaveBeenCalledWith({latitude:36,longitude:52});const button=vi.mocked(mock.sdk.createMarker).mock.calls[0]![0];expect(button.textContent).toBe('۱');expect(button.getAttribute('aria-label')).toContain('هتل نمونه (خیالی)');controller.dispose();expect(mock.map.remove).toHaveBeenCalledTimes(1);expect(mock.markers.every(m=>vi.mocked(m.remove).mock.calls.length===1)).toBe(true);mock.emit('click',{lngLat:{lng:53,lat:37}});expect(options.onPoint).toHaveBeenCalledTimes(1);});
+ it('defers construction, maps native lngLat to the provisional point, keeps full accessible marker titles and cleans every owned resource',async()=>{const mock=mockSdk(),options=input(),element=document.createElement('div');const controller=createFreeMap(element,options,async()=>mock.sdk);owned.push(controller);await Promise.resolve();await Promise.resolve();expect(mock.sdk.createMap).toHaveBeenCalledTimes(1);expect(mock.sdk.createMap).toHaveBeenCalledWith(element,expect.objectContaining({style:'https://tiles.openfreemap.org/styles/bright',pitch:0,bearing:0,maxPitch:0}));mock.emit('style.load');mock.emit('load');await expect(controller.ready).resolves.toBe(true);mock.emit('click',{lngLat:{lng:52,lat:36}});expect(options.onPoint).toHaveBeenCalledWith({latitude:36,longitude:52});const button=vi.mocked(mock.sdk.createMarker).mock.calls[0]![0];expect(button.textContent).toBe('۱');expect(button.getAttribute('aria-label')).toContain('هتل نمونه (خیالی)');controller.dispose();expect(mock.map.remove).toHaveBeenCalledTimes(1);expect(mock.markers.every(m=>vi.mocked(m.remove).mock.calls.length===1)).toBe(true);mock.emit('click',{lngLat:{lng:53,lat:37}});expect(options.onPoint).toHaveBeenCalledTimes(1);});
  it('never constructs or publishes after disposal while the module import is unresolved',async()=>{const mock=mockSdk(),options=input();let resolve!:(sdk:FreeMapSdk)=>void;const pending=new Promise<FreeMapSdk>(r=>{resolve=r;});const controller=createFreeMap(document.createElement('div'),options,()=>pending);owned.push(controller);controller.dispose();resolve(mock.sdk);await Promise.resolve();await Promise.resolve();expect(mock.sdk.createMap).not.toHaveBeenCalled();await expect(controller.ready).resolves.toBe(false);expect(options.onStatus).not.toHaveBeenCalledWith('ready');});
- it('switches official light/dark style without losing camera, point or click ownership',async()=>{const mock=mockSdk(),options=input(),controller=createFreeMap(document.createElement('div'),options,async()=>mock.sdk);owned.push(controller);await Promise.resolve();await Promise.resolve();mock.emit('load');controller.update({appearance:'dark',choices:options.choices,point:{latitude:37,longitude:53}});expect(mock.map.setStyle).toHaveBeenCalledWith('https://vector.openstreetmap.org/styles/shortbread/shadow.json');expect(mock.map.jumpTo).toHaveBeenCalledWith({center:[51.45,35.75],zoom:13,pitch:0,bearing:0});expect(mock.markers.some(m=>vi.mocked(m.setLngLat).mock.calls.some(c=>c[0][0]===53&&c[0][1]===37))).toBe(true);mock.emit('click',{lngLat:{lng:54,lat:38}});expect(options.onPoint).toHaveBeenCalledWith({latitude:38,longitude:54});});
+ it('switches the provider light/dark style without losing camera, point or click ownership',async()=>{const mock=mockSdk(),options=input(),controller=createFreeMap(document.createElement('div'),options,async()=>mock.sdk);owned.push(controller);await Promise.resolve();await Promise.resolve();mock.emit('style.load');mock.emit('load');controller.update({appearance:'dark',choices:options.choices,point:{latitude:37,longitude:53}});expect(mock.map.setStyle).toHaveBeenCalledWith('https://tiles.openfreemap.org/styles/dark',{diff:false});expect(mock.map.jumpTo).toHaveBeenCalledWith({center:[51.45,35.75],zoom:13,pitch:0,bearing:0});expect(mock.markers.some(m=>vi.mocked(m.setLngLat).mock.calls.some(c=>c[0][0]===53&&c[0][1]===37))).toBe(true);mock.emit('click',{lngLat:{lng:54,lat:38}});expect(options.onPoint).toHaveBeenCalledWith({latitude:38,longitude:54});});
  it('bounds failed network/module loading and rejects stale transaction events without a substitute basemap',async()=>{vi.useFakeTimers();const mock=mockSdk(),options=input();let current=true;options.isCurrent=()=>current;const controller=createFreeMap(document.createElement('div'),options,async()=>mock.sdk);owned.push(controller);await Promise.resolve();await Promise.resolve();current=false;mock.emit('click',{lngLat:{lng:52,lat:36}});expect(options.onPoint).not.toHaveBeenCalled();current=true;await vi.advanceTimersByTimeAsync(1001);expect(options.onStatus).toHaveBeenLastCalledWith('unavailable');await expect(controller.ready).resolves.toBe(false);expect(mock.map.remove).toHaveBeenCalledTimes(1);});
  it('allows only one active provider instance and removes the prior map before mounting a replacement',async()=>{const first=mockSdk(),second=mockSdk();const a=createFreeMap(document.createElement('div'),input(),async()=>first.sdk);owned.push(a);await Promise.resolve();await Promise.resolve();const b=createFreeMap(document.createElement('div'),input(),async()=>second.sdk);owned.push(b);await Promise.resolve();await Promise.resolve();expect(first.map.remove).toHaveBeenCalledTimes(1);expect(second.sdk.createMap).toHaveBeenCalledTimes(1);a.dispose();expect(second.map.remove).not.toHaveBeenCalled();});
+});
+
+describe('real basemap readiness and recoverable provider errors',()=>{
+ it('waits for actual rendered streets after a transient tile error, then stops readiness probes',async()=>{
+  vi.useFakeTimers();const mock=mockSdk(),options=input();
+  vi.mocked(mock.map.queryRenderedFeatures).mockReturnValue([]);
+  const controller=createFreeMap(document.createElement('div'),options,async()=>mock.sdk);owned.push(controller);await flush();
+  mock.emit('style.load');mock.emit('error',{tile:{},error:new Error('temporary tile failure')});mock.emit('load');mock.emit('idle');
+  expect(options.onStatus).toHaveBeenLastCalledWith('loading');expect(mock.map.remove).not.toHaveBeenCalled();
+  vi.mocked(mock.map.queryRenderedFeatures).mockReturnValue([{source:'openmaptiles'}]);mock.emit('idle');
+  await expect(controller.ready).resolves.toBe(true);expect(options.onStatus).toHaveBeenLastCalledWith('ready');
+  const probes=vi.mocked(mock.map.queryRenderedFeatures).mock.calls.length;
+  mock.emit('idle');mock.emit('load');mock.emit('error',{error:new Error('unavailable optional glyph')});await vi.advanceTimersByTimeAsync(2000);
+  expect(mock.map.queryRenderedFeatures).toHaveBeenCalledTimes(probes);expect(mock.map.remove).not.toHaveBeenCalled();
+ });
+
+ it('never accepts DOM hotel pins, other sources or a settled all-tile failure as a basemap',async()=>{
+  vi.useFakeTimers();const mock=mockSdk(),options=discovery(),element=document.createElement('div');
+  vi.mocked(mock.map.queryRenderedFeatures).mockReturnValue([]);
+  const controller=createFreeMap(element,options,async()=>mock.sdk);owned.push(controller);await flush();
+  expect(markerNode(mock,'hotel-a')).toHaveAttribute('data-map-hotel-id','hotel-a');
+  mock.emit('style.load');mock.emit('error',{tile:{},error:new Error('all visible tiles failed')});mock.emit('load');mock.emit('idle');
+  vi.mocked(mock.map.queryRenderedFeatures).mockReturnValue([{source:'hillshade'},{source:'hotel-pins'}]);mock.emit('idle');
+  expect(options.onStatus).not.toHaveBeenCalledWith('ready');
+  await vi.advanceTimersByTimeAsync(1001);await expect(controller.ready).resolves.toBe(false);
+  expect(options.onStatus).toHaveBeenLastCalledWith('unavailable');expect(mock.map.remove).toHaveBeenCalledTimes(1);expect(element).not.toHaveAttribute('data-selected-hotel-id');
+ });
+
+ it('retains the current map, camera, markers and selection through post-ready tile, glyph and sprite errors',async()=>{
+  vi.useFakeTimers();const mock=mockSdk(),options=discovery(),element=document.createElement('div');
+  const controller=createFreeMap(element,options,async()=>mock.sdk);owned.push(controller);await flush();mock.emit('style.load');mock.emit('load');
+  const hotel=markerNode(mock,'hotel-a'),camera=controller.getCamera(),probes=vi.mocked(mock.map.queryRenderedFeatures).mock.calls.length;
+  for(const error of [{tile:{},error:new Error('tile timeout')},{error:new Error('glyph timeout')},{error:new Error('sprite timeout')}])mock.emit('error',error);
+  mock.emit('idle');await vi.advanceTimersByTimeAsync(10000);hotel.click();
+  expect(options.onStatus).toHaveBeenLastCalledWith('ready');expect(controller.getCamera()).toEqual(camera);
+  expect(mock.sdk.createMap).toHaveBeenCalledTimes(1);expect(mock.map.remove).not.toHaveBeenCalled();expect(mock.markers.every(marker=>vi.mocked(marker.remove).mock.calls.length===0)).toBe(true);
+  expect(markerNode(mock,'hotel-a')).toBe(hotel);expect(hotel).toHaveAttribute('aria-pressed','true');expect(options.onSelectHotel).toHaveBeenCalledExactlyOnceWith('hotel-a');expect(mock.map.queryRenderedFeatures).toHaveBeenCalledTimes(probes);
+ });
+
+ it('replaces a theme style and rejects old readiness callbacks and old features until the new style renders',async()=>{
+  const mock=mockSdk(),options=discovery(),element=document.createElement('div');
+  const controller=createFreeMap(element,options,async()=>mock.sdk);owned.push(controller);await flush();
+  const oldStyle=[...mock.events.get('style.load')!][0]!,oldIdle=[...mock.events.get('idle')!][0]!;
+  mock.emit('style.load');mock.emit('load');await expect(controller.ready).resolves.toBe(true);
+  const hotel=markerNode(mock,'hotel-a'),probes=vi.mocked(mock.map.queryRenderedFeatures).mock.calls.length;
+  controller.update({...options,appearance:'dark'});
+  expect(mock.map.setStyle).toHaveBeenCalledExactlyOnceWith('https://tiles.openfreemap.org/styles/dark',{diff:false});
+  oldStyle({});oldIdle({});mock.emit('load');mock.emit('idle');
+  expect(options.onStatus).toHaveBeenLastCalledWith('loading');expect(mock.map.queryRenderedFeatures).toHaveBeenCalledTimes(probes);
+  mock.emit('style.load');vi.mocked(mock.map.isStyleLoaded).mockReturnValue(false);mock.emit('idle');expect(options.onStatus).toHaveBeenLastCalledWith('loading');
+  vi.mocked(mock.map.isStyleLoaded).mockReturnValue(true);vi.mocked(mock.map.queryRenderedFeatures).mockReturnValue([]);mock.emit('idle');expect(options.onStatus).toHaveBeenLastCalledWith('loading');
+  vi.mocked(mock.map.queryRenderedFeatures).mockReturnValue([{source:'openmaptiles'}]);mock.emit('idle');
+  expect(options.onStatus).toHaveBeenLastCalledWith('ready');expect(mock.sdk.createMap).toHaveBeenCalledTimes(1);expect(markerNode(mock,'hotel-a')).toBe(hotel);
+  expect(mock.map.jumpTo).toHaveBeenLastCalledWith({center:[51.45,35.75],zoom:13,pitch:0,bearing:0});expect(element).toHaveAttribute('data-selected-hotel-id','hotel-a');
+ });
+
+ it('bounds an unavailable replacement style and fences retained callbacks after teardown',async()=>{
+  vi.useFakeTimers();const mock=mockSdk(),options=discovery(),element=document.createElement('div');
+  const controller=createFreeMap(element,options,async()=>mock.sdk);owned.push(controller);await flush();mock.emit('style.load');mock.emit('load');
+  controller.update({...options,appearance:'dark'});const style=[...mock.events.get('style.load')!][0]!,idle=[...mock.events.get('idle')!][0]!,hotel=markerNode(mock,'hotel-a');
+  mock.emit('error',{error:new Error('style unavailable')});mock.emit('idle');expect(options.onStatus).toHaveBeenLastCalledWith('loading');
+  await vi.advanceTimersByTimeAsync(1001);expect(options.onStatus).toHaveBeenLastCalledWith('unavailable');expect(mock.map.remove).toHaveBeenCalledTimes(1);
+  const probes=vi.mocked(mock.map.queryRenderedFeatures).mock.calls.length;style({});idle({});hotel.click();
+  expect(mock.map.queryRenderedFeatures).toHaveBeenCalledTimes(probes);expect(options.onStatus).toHaveBeenLastCalledWith('unavailable');expect(options.onSelectHotel).not.toHaveBeenCalled();
+ });
+
+ it('fails immediately when a style replacement throws and removes its owned map exactly once',async()=>{
+  const mock=mockSdk(),options=input(),controller=createFreeMap(document.createElement('div'),options,async()=>mock.sdk);owned.push(controller);await flush();mock.emit('style.load');mock.emit('load');
+  vi.mocked(mock.map.setStyle).mockImplementation(()=>{throw new Error('invalid provider style');});
+  expect(()=>controller.update({...options,appearance:'dark'})).not.toThrow();expect(options.onStatus).toHaveBeenLastCalledWith('unavailable');expect(mock.map.remove).toHaveBeenCalledTimes(1);
+  controller.dispose();expect(mock.map.remove).toHaveBeenCalledTimes(1);
+ });
+
+ it('handles an SDK rejection without mounting a substitute map',async()=>{
+  const options=input(),element=document.createElement('div'),controller=createFreeMap(element,options,()=>Promise.reject(new Error('SDK unavailable')));owned.push(controller);
+  await expect(controller.ready).resolves.toBe(false);expect(options.onStatus).toHaveBeenLastCalledWith('unavailable');expect(element).toBeEmptyDOMElement();
+ });
 });
 
 const discovery=():FreeMapInput=>({...input(),discovery:true,pickingPoint:false,selectedHotelId:'hotel-a',onSelectHotel:vi.fn(),choices:[
@@ -89,7 +166,7 @@ describe('arrival hotel map controlled markers and geometry',()=>{
   const mock=mockSdk(),options=discovery();let resolve!:(sdk:FreeMapSdk)=>void;const pending=new Promise<FreeMapSdk>(r=>{resolve=r;});
   const controller=createFreeMap(document.createElement('div'),{...options,choices:options.choices.slice(0,1)},()=>pending);owned.push(controller);
   controller.update({...options,appearance:'dark',selectedHotelId:'hotel-b',pickingPoint:true,motionEnabled:false});resolve(mock.sdk);await flush();
-  expect(mock.sdk.createMap).toHaveBeenCalledWith(expect.any(HTMLElement),expect.objectContaining({style:'https://vector.openstreetmap.org/styles/shortbread/shadow.json'}));
+  expect(mock.sdk.createMap).toHaveBeenCalledWith(expect.any(HTMLElement),expect.objectContaining({style:'https://tiles.openfreemap.org/styles/dark'}));
   expect(markerNode(mock,'hotel-b')).toHaveAttribute('aria-pressed','true');expect(markerNode(mock,'hotel-b')).toHaveAccessibleName('انتخاب موقعیت هتل ماه');
   markerNode(mock,'hotel-b').click();expect(options.onPoint).toHaveBeenCalledExactlyOnceWith({latitude:35.48,longitude:51.26});expect(options.onSelectHotel).not.toHaveBeenCalled();
  });

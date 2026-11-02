@@ -25,7 +25,7 @@ nightly prices and availability are deterministic authored inventory with
 separate provenance. Unknown stars, addresses, amenities and hotel policies
 remain unknown. The app does not contact a hotel inventory/booking service.
 
-The optional street basemap has its separate OpenStreetMap vector-service
-notice. Hotel data is bundled; basemap styles, tiles, glyphs and sprites require
+The optional street basemap has its separate [OpenFreeMap/OSM notice](osm-vector-notice.md).
+Hotel data is bundled; basemap styles, tiles, glyphs and sprites require
 external access. The renderer retains the local list and coordinate fallback
 when that service is unavailable.

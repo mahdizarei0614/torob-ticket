@@ -97,6 +97,7 @@ Historical mock terminology is technical history, not current product UI copy.
 | [0079-search-request-control.md](0079-search-request-control.md) | 0079 — Bound repeated ticket searches and cancel obsolete starts |
 | [0080-final-review-and-canonical-release-scope.md](0080-final-review-and-canonical-release-scope.md) | 0080 — Final review and canonical local release scope |
 | [0081-negotiated-date-evidence-batches.md](0081-negotiated-date-evidence-batches.md) | 0081 — Negotiated date evidence batches and immutable preparation outside the session lock |
+| [0082-hotel-map-provider-and-tile-resilience.md](0082-hotel-map-provider-and-tile-resilience.md) | 0082 — Free hotel basemap provider, real-content readiness and recoverable tile errors |
 
 ## Task-named foundational records
 
@@ -110,7 +111,8 @@ Historical mock terminology is technical history, not current product UI copy.
 | [T10-date-price-projection-and-cache.md](T10-date-price-projection-and-cache.md) | T10 — date-price projection, evidence, and scoped caching |
 | [T11-referral-recheck-and-handoff.md](T11-referral-recheck-and-handoff.md) | T11: Fresh referral evidence and atomic handoff |
 
-These 81 canonical records are present in T35 source `d1e052ba`.
+The 81 records present in T35 source `d1e052ba` are retained. Decision0082 adds
+the current hotel-map correction as the 82nd record; its proof is tracked separately.
 Number gaps and historical duplicate prefixes remain; use the full filename.
 The original local search-control working ID 0057 is canonically
 [0079](0079-search-request-control.md), distinct from the committed four-control

@@ -7,7 +7,8 @@ export type MapEventName='load'|'style.load'|'click'|'error'|'webglcontextlost'|
 export interface MapPort {
  on:(name:MapEventName,callback:(event:unknown)=>void)=>unknown;
  off:(name:MapEventName,callback:(event:unknown)=>void)=>unknown;
- remove:()=>void;resize:()=>unknown;setStyle:(url:string)=>unknown;stop?:()=>unknown;
+ remove:()=>void;resize:()=>unknown;setStyle:(url:string,options?:{diff?:boolean})=>unknown;stop?:()=>unknown;
+ isStyleLoaded:()=>boolean;queryRenderedFeatures:()=>readonly {source?:string}[];
  getCenter:()=>{lng:number;lat:number};getZoom:()=>number;
  jumpTo:(options:{center:[number,number];zoom:number;pitch:number;bearing:number})=>unknown;
  fitBounds?:(bounds:[[number,number],[number,number]],options:{padding:number;maxZoom:number;duration:number})=>unknown;
@@ -29,7 +30,7 @@ export interface FreeMapInput {
 }
 export type FreeMapUpdate=Pick<FreeMapInput,'appearance'|'choices'|'point'|'pickingPoint'|'selectedHotelId'|'motionEnabled'>;
 export interface FreeMapController {ready:Promise<boolean>;update:(input:FreeMapUpdate)=>void;getCamera:()=>MapCamera|undefined;dispose:()=>void;}
-export const FREE_MAP_STYLES={light:'https://vector.openstreetmap.org/styles/shortbread/colorful.json',dark:'https://vector.openstreetmap.org/styles/shortbread/shadow.json'} as const;
+export const FREE_MAP_STYLES={light:'https://tiles.openfreemap.org/styles/bright',dark:'https://tiles.openfreemap.org/styles/dark'} as const;
 let active:FreeMapController|undefined;
 interface MarkerRecord {choice:MapChoice;element:HTMLElement;marker:MarkerPort;stop:()=>void}
 interface ClusterRecord {ids:string[];point:GeoPoint;element:HTMLButtonElement;marker:MarkerPort;stop:()=>void}
@@ -70,6 +71,8 @@ export function createFreeMap(element:HTMLElement,input:FreeMapInput,load:()=>Pr
  let pendingClusterFocus:{ids:string[];target:HTMLElement}|undefined;
  const records=new Map<string,MarkerRecord>(),clusters=new Map<string,ClusterRecord>();let selectedPoint:MarkerRecord|undefined;
  const listeners:{name:MapEventName;fn:(event:unknown)=>void}[]=[];
+ let readinessGeneration=0,awaitingBasemap=true;
+ const readinessListeners:{name:MapEventName;fn:(event:unknown)=>void}[]=[];
  let settle!:(ready:boolean)=>void;const ready=new Promise<boolean>(resolve=>{settle=resolve;});
  const owns=()=>!closed&&active===controller&&input.isCurrent();
  const notify=(status:FreeMapStatus)=>{if(owns())input.onStatus(status);};
@@ -78,9 +81,25 @@ export function createFreeMap(element:HTMLElement,input:FreeMapInput,load:()=>Pr
  function camera(){return map?{center:{latitude:map.getCenter().lat,longitude:map.getCenter().lng},zoom:map.getZoom()}:savedCamera;}
  function reportCamera(){if(!owns())return;const value=camera();if(value)element.dataset['freeMapCamera']=JSON.stringify(value);}
  function removeRecord(record:MarkerRecord){record.stop();record.element.dataset['mapLabelVisible']='false';record.marker.remove();if(hoveredHotelId===record.choice.id)hoveredHotelId=undefined;if(focusedHotelId===record.choice.id)focusedHotelId=undefined;}
- function cleanup(){stopTimer();observer?.disconnect();observer=undefined;pendingClusterFocus=undefined;for(const {name,fn}of listeners.splice(0))map?.off(name,fn);for(const record of records.values())removeRecord(record);records.clear();for(const cluster of clusters.values())removeCluster(cluster);clusters.clear();if(selectedPoint)removeRecord(selectedPoint);selectedPoint=undefined;if(map){savedCamera=camera();map.remove();map=undefined;}element.replaceChildren();delete element.dataset['freeMapCamera'];delete element.dataset['selectedHotelId'];delete element.dataset['pickingPoint'];delete element.dataset['freeMapAppearance'];delete element.dataset['hotelMapLabels'];delete element.dataset['freeMapMotion'];}
+ function stopReadinessListeners(){for(const {name,fn}of readinessListeners.splice(0))map?.off(name,fn);}
+ function cleanup(){stopTimer();readinessGeneration++;awaitingBasemap=false;stopReadinessListeners();observer?.disconnect();observer=undefined;pendingClusterFocus=undefined;for(const {name,fn}of listeners.splice(0))map?.off(name,fn);for(const record of records.values())removeRecord(record);records.clear();for(const cluster of clusters.values())removeCluster(cluster);clusters.clear();if(selectedPoint)removeRecord(selectedPoint);selectedPoint=undefined;if(map){savedCamera=camera();map.remove();map=undefined;}element.replaceChildren();delete element.dataset['freeMapCamera'];delete element.dataset['selectedHotelId'];delete element.dataset['pickingPoint'];delete element.dataset['freeMapAppearance'];delete element.dataset['hotelMapLabels'];delete element.dataset['freeMapMotion'];}
  function fail(){if(closed)return;notify('unavailable');cleanup();closed=true;if(active===controller)active=undefined;settle(false);}
  function bounded(){stopTimer();timer=setTimeout(fail,input.timeoutMs??15000);}
+ function watchReadiness(){
+  stopReadinessListeners();const generation=++readinessGeneration;awaitingBasemap=true;let styleLoaded=false;
+  const current=()=>owns()&&awaitingBasemap&&generation===readinessGeneration;
+  const loaded=()=>{
+   if(!current()||!styleLoaded||!map)return;
+   try{
+    // MapLibre also considers failed sources/tiles settled. Only genuine
+    // viewport features from this provider's vector basemap prove streets.
+    if(!map.isStyleLoaded()||!map.queryRenderedFeatures().some(feature=>feature.source==='openmaptiles'))return;
+   }catch{fail();return;}
+   awaitingBasemap=false;stopTimer();stopReadinessListeners();notify('ready');layoutMarkers();reportCamera();settle(true);
+  };
+  const styleLoad=()=>{if(!current())return;styleLoaded=true;if(savedCamera)map?.jumpTo({center:[savedCamera.center.longitude,savedCamera.center.latitude],zoom:savedCamera.zoom,pitch:0,bearing:0});};
+  for(const [name,fn]of [['style.load',styleLoad],['load',loaded],['idle',loaded]] as const){map?.on(name,fn);readinessListeners.push({name,fn});}
+ }
  function emitPoint(value:unknown){if(!owns()||!canPick())return;const parsed=GeoPointSchema.safeParse(value);if(parsed.success)input.onPoint(parsed.data);}
  function makeMarker(choice:MapChoice,customPoint=false):MarkerRecord|undefined {
   if(!sdk||!map)return undefined;
@@ -265,7 +284,11 @@ export function createFreeMap(element:HTMLElement,input:FreeMapInput,load:()=>Pr
   const changed=next.selectedHotelId!==selectedHotelId,wasMoving=motionEnabled;
   choices=next.choices;point=next.point;pickingPoint=next.pickingPoint;selectedHotelId=next.selectedHotelId;motionEnabled=next.motionEnabled!==false;
   if(wasMoving&&!motionEnabled)map?.stop?.();
-  if(map&&next.appearance!==appearance){savedCamera=camera();appearance=next.appearance;notify('loading');bounded();map.setStyle(FREE_MAP_STYLES[appearance]);if(savedCamera)map.jumpTo({center:[savedCamera.center.longitude,savedCamera.center.latitude],zoom:savedCamera.zoom,pitch:0,bearing:0});element.dataset['freeMapAppearance']=appearance;}else appearance=next.appearance;
+  if(map&&next.appearance!==appearance){savedCamera=camera();appearance=next.appearance;notify('loading');bounded();watchReadiness();try{
+   // A diff can leave the old loaded style visible while the new request fails.
+   // Replace the style, retaining the map/DOM markers and restored camera.
+   map.setStyle(FREE_MAP_STYLES[appearance],{diff:false});if(savedCamera)map.jumpTo({center:[savedCamera.center.longitude,savedCamera.center.latitude],zoom:savedCamera.zoom,pitch:0,bearing:0});element.dataset['freeMapAppearance']=appearance;
+  }catch{fail();return;}}else appearance=next.appearance;
   const fitted=drawMarkers();if(changed&&!fitted)focusSelected();
  },getCamera:camera,dispose(){if(closed)return;closed=true;cleanup();if(active===controller)active=undefined;settle(false);}};
  active=controller;notify('loading');bounded();
@@ -274,14 +297,17 @@ export function createFreeMap(element:HTMLElement,input:FreeMapInput,load:()=>Pr
   if(!owns())return;
   sdk=runtime;const initial=savedCamera??{center:input.center,zoom:12.5};
   map=sdk.createMap(element,{style:FREE_MAP_STYLES[appearance],center:[initial.center.longitude,initial.center.latitude],zoom:initial.zoom,pitch:0,bearing:0,maxPitch:0,dragRotate:false,touchPitch:false,attributionControl:{compact:false},locale:{'NavigationControl.ZoomIn':'بزرگ‌نمایی','NavigationControl.ZoomOut':'کوچک‌نمایی','Map.Title':input.discovery?'نقشه اقامتگاه‌ها و نقطه رسیدن':'نقشه انتخاب موقعیت'}});
+  watchReadiness();
   element.dataset['freeMapAppearance']=appearance;
   on('click',event=>{
    if(!event||typeof event!=='object'||!('lngLat'in event)||!event.lngLat||typeof event.lngLat!=='object')return;
    const p=event.lngLat as {lng?:unknown;lat?:unknown};
    emitPoint({longitude:typeof p.lng==='number'&&Number.isFinite(p.lng)?((p.lng+180)%360+360)%360-180:p.lng,latitude:p.lat});
   });
-  const loaded=()=>{if(!owns())return;stopTimer();notify('ready');layoutMarkers();reportCamera();settle(true);};
-  on('load',loaded);on('idle',loaded);on('style.load',()=>{if(owns()&&savedCamera)map?.jumpTo({center:[savedCamera.center.longitude,savedCamera.center.latitude],zoom:savedCamera.zoom,pitch:0,bearing:0});});on('move',layoutMarkers);on('resize',layoutMarkers);on('moveend',()=>{layoutMarkers();settleClusterFocus();reportCamera();});on('error',fail);on('webglcontextlost',fail);
+  on('move',layoutMarkers);on('resize',layoutMarkers);on('moveend',()=>{layoutMarkers();settleClusterFocus();reportCamera();});
+  // Tile/glyph/sprite errors can be recoverable. Keep real streets and markers;
+  // startup/style readiness still has its bounded, content-checked deadline.
+  on('error',()=>undefined);on('webglcontextlost',fail);
   if(typeof ResizeObserver!=='undefined'){observer=new ResizeObserver(()=>{if(owns()){map?.resize();layoutMarkers();}});observer.observe(element);}
   drawMarkers();reportCamera();
  }).catch(fail);

@@ -158,7 +158,8 @@ on API restart and expose explicit retry; they do not pretend in-memory work res
 
 The build packages all app-owned fonts, geography, shader code and authored flat
 art. The lazy MapLibre SDK/worker/CSS are bundled; the optional street-map content
-comes from `vector.openstreetmap.org`. There is no tile proxy, background download,
+comes from OpenFreeMap (`tiles.openfreemap.org`), using OpenStreetMap data and
+OpenMapTiles. There is no tile proxy, background download,
 external OAuth/provider connection or runtime model dependency. A blocked map
 service produces an explicit unavailable state alongside local location controls.
 

@@ -75,8 +75,9 @@ four branding cases. The manually operated reviewer journey took 2:16.058;
 the final clean-source/fresh-data Docker startup took 38.221 seconds with caches.
 The [final review](docs/evidence/release/final-review.md) and
 [acceptance checklist](docs/evidence/release/acceptance-checklist.md) record the
-source, fixes and remaining limits, including unavailable hotel map tiles during
-the manual run. The original stack/inventory were preserved.
+source, fixes and remaining limits. Hotel map availability observed in that run
+was subsequently [fixed and browser-verified](docs/evidence/adjustments/hotel-map-resilience/checkpoint.md)
+using a free provider and recoverable tile handling. The original stack/inventory were preserved.
 These are scoped local results, not universal browser/device or live-service
 certification: [release evidence](docs/evidence/release/README.md).
 

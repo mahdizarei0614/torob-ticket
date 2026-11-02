@@ -41,8 +41,8 @@ async function ready(page:Page,city='مشهد'){
  const map=dialog(page,city).locator('[data-free-map-status]');
  await expect.poll(()=>map.getAttribute('data-free-map-status'),{timeout:20000}).toMatch(/ready|unavailable/);
  if(await map.getAttribute('data-free-map-status')==='unavailable'){
-  const key='map-retry-'+test.info().title.slice(0,55).replace(/\W/g,'-');record(key,{city,before:'unavailable',method:'One explicit visible retry; actual OSM network, no intercepted replacement.'});
-  await map.getByRole('button',{name:'تلاش دوباره برای نقشه شهری',exact:true}).click();await expect(map).toHaveAttribute('data-free-map-status','ready',{timeout:25000});record(key,{city,before:'unavailable',after:'ready',method:'One explicit visible retry; actual OSM network, no intercepted replacement.'});
+  const key='map-retry-'+test.info().title.slice(0,55).replace(/\W/g,'-');record(key,{city,before:'unavailable',method:'One explicit visible retry; actual OpenFreeMap network, no intercepted replacement.'});
+  await map.getByRole('button',{name:'تلاش دوباره برای نقشه شهری',exact:true}).click();await expect(map).toHaveAttribute('data-free-map-status','ready',{timeout:25000});record(key,{city,before:'unavailable',after:'ready',method:'One explicit visible retry; actual OpenFreeMap network, no intercepted replacement.'});
  }
  await expect(map).toHaveAttribute('data-free-map-status','ready');
  await settledCamera(map);
@@ -113,6 +113,32 @@ test.describe('@hotels arrival-based one-night discovery',()=>{
   const after=await geometry(page);for(const dimension of ['x','y','width','height'] as const)expect(after.map[dimension]).toBe(selectedMap[dimension]);expect(errors).toEqual([]);expect(posts.filter(path=>path==='/api/v1/searches')).toHaveLength(1);expect(posts.some(path=>path.includes('/referrals/'))).toBe(false);
   await d.getByRole('button',{name:'بستن',exact:true}).click();await expect(page.locator('canvas.maplibregl-canvas')).toHaveCount(0);await expect(page.getByRole('button',{name:'مقایسه اقامتگاه‌های مشهد',exact:true})).toBeFocused();
   record('desktop-arrival',{browser:browser.version(),arrival:trip.arrival,query:snapshot.query,sourceRevision:snapshot.sourceRevision,hotels:snapshot.hotels.map(hotel=>({id:hotel.hotelId,name:hotel.name,point:hotel.point,source:hotel.provenance[0]})),overviewCamera,sortQueries:variants.map(s=>s.query),locationQuery:location.query,before,selectedMap,after,posts,errors,cleanup:'Only this test-owned fresh namespace is reset in afterEach.'});
+ });
+ test('style outage retries real streets while a single sprite failure keeps the map usable',async({page,context,browser})=>{
+  test.setTimeout(90000);await page.setViewportSize({width:1366,height:900});await setup(page,context);
+  const provider='https://tiles.openfreemap.org',responses:{url:string;status:number}[]=[];
+  page.on('response',response=>{if(response.url().startsWith(provider))responses.push({url:response.url(),status:response.status()});});
+  const stylePattern=provider+'/styles/*';await page.route(stylePattern,route=>route.abort('failed'));
+  const snapshot=await open(page),d=dialog(page),map=d.locator('[data-hotel-map]');
+  await expect(map).toHaveAttribute('data-free-map-status','unavailable',{timeout:20000});
+  await expect(map.locator('canvas')).toHaveCount(0);await expect(d.locator('[data-hotel-id]')).toHaveCount(14);
+  await capture(page,'controlled-style-outage');await page.unroute(stylePattern);
+  let failedSprites=0;
+  await page.route(provider+'/sprites/**',route=>{
+   if(new URL(route.request().url()).pathname.endsWith('.json')&&failedSprites===0){failedSprites++;return route.abort('failed');}
+   return route.continue();
+  });
+  await map.getByRole('button',{name:'تلاش دوباره برای نقشه شهری',exact:true}).click();
+  await expect(map).toHaveAttribute('data-free-map-status','ready',{timeout:25000});await settledCamera(map);
+  await expect(map).toHaveAttribute('data-free-map-provider','OpenFreeMap');await expect(map.locator('canvas')).toHaveCount(1);expect(failedSprites).toBe(1);
+  const id=snapshot.results!.find(result=>result.status==='priced')!.hotelId;
+  await d.locator(`[data-hotel-id="${id}"] [data-hotel-card-select]`).click();
+  await expect(map.locator(`[data-map-hotel-id="${id}"]`)).toHaveAttribute('aria-pressed','true');
+  await expect(d.locator(`[data-hotel-id="${id}"]`)).toHaveAttribute('data-selected','true');
+  await capture(page,'real-streets-after-controlled-failures');
+  expect(responses.some(response=>response.url.includes('/styles/')&&response.status===200)).toBe(true);
+  expect(responses.some(response=>response.url.includes('/fonts/')&&response.status===200)).toBe(true);
+  record('style-and-sprite-recovery',{browser:browser.version(),controlledStyleOutage:true,controlledSingleSpriteFailures:failedSprites,actualSuccessfulProviderResponses:responses,selectedHotel:id,readyProof:'Current-style load and genuine rendered openmaptiles features, not marker DOM. Live provider responses are not substituted.',scope:'One supported Mashhad viewport; no bulk sweep, proxy or synthetic basemap.'});
  });
  for(const mode of ['train','bus'] as const)test(`${mode} uses the actual overnight arrival hub and arrival day`,async({page,context,browser})=>{
   test.setTimeout(60000);await page.setViewportSize({width:1280,height:900});const trip=await setup(page,context,{...base,mode,classCode:mode==='train'?'seat':'standard'},true);const snapshot=await open(page);await ready(page);const place=trip.catalog.places.find(place=>place.id===trip.arrival.destinationPlaceId)!;
