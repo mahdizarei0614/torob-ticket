@@ -10,9 +10,9 @@
 
 **Tech Stack:** Nx, pnpm, TypeScript, React, Vite, React Router, TanStack Query, React Aria, CSS Modules, CSS custom properties, Zod, NestJS, PostgreSQL, Prisma, Three.js, React Three Fiber, selected Drei utilities, Motion, @internationalized/date, Vitest, Testing Library, Playwright, Storybook, Docker Compose, Caddy.
 
-**Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.44, 2026-11-02 (single free OpenFreeMap hotel basemap and current-style tile resilience; prior owner product and referral decisions retained).
+**Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.45, 2026-11-02 (general route-aware city/wait label clearance; prior hotel-map, product and referral decisions retained).
 
-**Plan state:** Approved. Hotel-map reliability follow-up COMPLETE. M1–M8 complete; **35/35 tasks complete; T35 COMPLETE.** Canonical source and independent final reviews, all selected release gates, the actual manual reviewer journey and scoped cleanup/preservation are recorded. Explicit bounded limitations remain; video recording, publication and application submission are separate follow-ups.
+**Plan state:** Approved. General route-label clearance follow-up COMPLETE. Hotel-map reliability follow-up COMPLETE. M1–M8 complete; **35/35 tasks complete; T35 COMPLETE.** Canonical source and independent final reviews, all selected release gates, the actual manual reviewer journey and scoped cleanup/preservation are recorded. Explicit bounded limitations remain; video recording, publication and application submission are separate follow-ups.
 
 **Delivery location:** This outputs directory contains the user-facing source documents. On repository creation, copy the spec to docs/superpowers/specs/2026-10-24-torobticket-design.md and this plan to docs/superpowers/plans/2026-10-24-torobticket-master-plan.md. Preserve the revision, task IDs, and decision authority, and rewrite the Spec link to ../specs/2026-10-24-torobticket-design.md.
 
@@ -2778,3 +2778,16 @@ Owner-authorized correction after the completed35-task baseline. Source/proof co
 | Independent final review and scoped commit | DONE | Separate source/evidence and exact53-path stage reviews approved; accepted54-path source/proof commit above. Tracker/spec exports synchronized; unrelated working master edits preserved through canonical projection. Closing receipt records the documentation commit separately. |
 
 External service availability remains best-effort; current readiness proves initial supported urban content, not every future pan/tile. Existing cards/reference fallback, prior T35 failed observations and accessibility/device/graphics/rights limits remain explicit. No Docker rebuild/restart, dependency/backend/data change, public push/deployment/submission or recording. Baseline remains **35/35 tasks complete**; this corrective increment is **COMPLETE**.
+
+## General route-label clearance follow-up — 2026-11-02
+
+Owner requires readable city/wait labels clear of drawn routes for every vehicle type, not a Tehran/Isfahan-only offset. Accepted source/proof commit `4c6a75f3`. [Decision0083](../../decisions/0083-route-aware-city-and-stop-labels.md), [brief](../../evidence/adjustments/route-label-clearance/task-brief.md).
+
+| Step | Status | Evidence / owner |
+| --- | --- | --- |
+| Diagnose and design general geometry clearance | DONE | Prior layout ignores paths; exact WebGL/SVG lane/projection/stroke envelope inspected. Native THR→IFN→MHD case opened. |
+| Implement measured route-aware annotation layout | DONE | Full both-leg presentation paths,15px clearance and9px entry envelope; full measured facts, stable bounded placement and passive caption yielding. Separate source review approved. |
+| Verify all vehicles, return legs, zoom/resize and fallback | DONE | 23focused tests; graphics/web/E2E types, lint and frontend build pass. Chrome0038/8,20settled DOM/path samples with0collisions/missing visible facts. Native dark IFN120wait separately inspected. [Checkpoint](../../evidence/adjustments/route-label-clearance/checkpoint.md). |
+| Independent review, exports and scoped commits | DONE | Separate source, pure-entry, test-correction, runtime/visual, final evidence and exact221-path stage reviews approved; accepted223-path source/proof commit `4c6a75f3`. Spec/export1.45 synchronized; unrelated working master body preserved by canonical projection. Final documentation commit is recorded separately. |
+
+All4follow-up steps are **COMPLETE**. Baseline remains **35/35 tasks complete**. [Checkpoint](../../evidence/adjustments/route-label-clearance/checkpoint.md), [source receipt](../../evidence/adjustments/route-label-clearance/source-commit.json) and [tracker transaction](../../evidence/adjustments/route-label-clearance/tracker-update.json) retain exact source, actual results and preservation scope. No Docker restart/rebuild, backend/data change, push, publication, deployment or submission. Reduced/settled samples and one native normal-motion view do not establish a continuous frame/device/performance audit.
