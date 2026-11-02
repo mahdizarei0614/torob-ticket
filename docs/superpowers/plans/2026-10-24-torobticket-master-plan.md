@@ -10,9 +10,9 @@
 
 **Tech Stack:** Nx, pnpm, TypeScript, React, Vite, React Router, TanStack Query, React Aria, CSS Modules, CSS custom properties, Zod, NestJS, PostgreSQL, Prisma, Three.js, React Three Fiber, selected Drei utilities, Motion, @internationalized/date, Vitest, Testing Library, Playwright, Storybook, Docker Compose, Caddy.
 
-**Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.46, 2026-11-02 (pulsing date-price loading and finite pending-to-ready transitions; prior route-label, hotel-map, product and referral decisions retained).
+**Spec:** [TorobTicket Product and Architecture Specification](../specs/2026-10-24-torobticket-design.md), revision 1.47, 2026-11-02 (moving gray chart skeleton and reciprocal loading/real-data transitions; prior product and referral decisions retained).
 
-**Plan state:** Approved. Date-loading motion follow-up COMPLETE. General route-label clearance follow-up COMPLETE. Hotel-map reliability follow-up COMPLETE. M1–M8 complete; **35/35 tasks complete; T35 COMPLETE.** Canonical source and independent final reviews, all selected release gates, the actual manual reviewer journey and scoped cleanup/preservation are recorded. Explicit bounded limitations remain; video recording, publication and application submission are separate follow-ups.
+**Plan state:** Approved. Moving chart-skeleton follow-up COMPLETE. Date-loading motion follow-up COMPLETE. General route-label clearance follow-up COMPLETE. Hotel-map reliability follow-up COMPLETE. M1–M8 complete; **35/35 tasks complete; T35 COMPLETE.** Canonical source and independent final reviews, all selected release gates, the actual manual reviewer journey and scoped cleanup/preservation are recorded. Explicit bounded limitations remain; video recording, publication and application submission are separate follow-ups.
 
 **Delivery location:** This outputs directory contains the user-facing source documents. On repository creation, copy the spec to docs/superpowers/specs/2026-10-24-torobticket-design.md and this plan to docs/superpowers/plans/2026-10-24-torobticket-master-plan.md. Preserve the revision, task IDs, and decision authority, and rewrite the Spec link to ../specs/2026-10-24-torobticket-design.md.
 
@@ -2803,3 +2803,15 @@ Owner requests pulsing pending chart/wheel feedback, then loading fade-out and r
 | Independent review and scoped closure | DONE | Separate source, runtime/visual, final evidence and exact36-path stage reviews approved;38-path source/proof `bd5fc5cc`. Spec/master exports synchronized and unrelated master body preserved through canonical projection. Documentation commit recorded separately. |
 
 All3date-loading follow-up steps are **COMPLETE**; baseline remains **35/35 tasks complete**. [Source receipt](../../evidence/adjustments/date-loading-motion/source-commit.json) and [tracker transaction](../../evidence/adjustments/date-loading-motion/tracker-update.json) record actual local commits/export preservation. Controlled response holds verify motion and actual prices, not provider speed or native GPU pixel/uniform output. No Docker rebuild/restart, backend/data change, push, deployment or publication.
+
+## Moving chart-skeleton follow-up — 2026-11-02
+
+Owner requests a gray chart-like placeholder with a continuously moving loading line and reciprocal entry/exit. Accepted source/proof `b07fd819`. [Decision0085](../../decisions/0085-moving-gray-chart-placeholder.md), [brief](../../evidence/adjustments/moving-chart-skeleton/task-brief.md).
+
+| Step | Status | Evidence / owner |
+| --- | --- | --- |
+| Moving gray placeholder and state presence | DONE | Narrow two-file task-agent change; seamless tiled SVG drift, neutral backing, initial/retained finite fades; shared real-series lifecycle unchanged. Source review approved for execution. |
+| Focused and browser verification | DONE | 31tests/6files; web/finalE2E types, lint/build exit0. Chrome0032/2: actual SVGtravel/pulse, loaderexit/realentry and realexit/newloaderentry,184px plot and reduced-static behavior. Earlier001/002 test-action/sampling failures retained. [Checkpoint](../../evidence/adjustments/moving-chart-skeleton/checkpoint.md). |
+| Independent evidence review and closure | DONE | Separate source, input/sampling, runtime/visual, final evidence and exact66-path stage reviews approved;68-path source/proof `b07fd819`. Spec/master exports synchronized; canonical projection preserves unrelated working body. Documentation commit recorded separately. |
+
+All3moving-skeleton follow-up steps are **COMPLETE**; baseline remains **35/35 tasks complete**. [Source receipt](../../evidence/adjustments/moving-chart-skeleton/source-commit.json) and [tracker transaction](../../evidence/adjustments/moving-chart-skeleton/tracker-update.json) retain actual local identities and export/body preservation. The waveform is decorative; real prices/curve lifecycle remain authoritative. Controlled response holds and DOM observations are not provider latency, native GPU pixel/uniform or full release/device/performance certification. No Docker lifecycle, backend/data change, push, deployment or publication.
