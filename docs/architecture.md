@@ -102,9 +102,11 @@ Selecting a seller prepares a fresh quote version. A material change exposes the
 old and new facts and requires explicit acceptance. Confirmation validates the
 intent, current authority, exact accepted version and expiry in a transaction;
 a session/idempotency key returns one immutable receipt. Read-only receipt
-refresh does not add clicks or conversions. Current actions open the owner’s
-`https://zarei.xyz/` placeholder in a new tab; that is not a real seller or a
-purchase. [Referral authority](decisions/T11-referral-recheck-and-handoff.md).
+refresh does not add traffic. Current actions open the authenticated same-origin
+`/api/v1/referrals/:id/outbound` route in a new tab. It records an idempotent
+redirect-issued operation, then redirects only to the owner’s `https://zarei.xyz/`
+placeholder. This is neither a real provider integration nor proof of page load
+or purchase. [Referral authority](decisions/T11-referral-recheck-and-handoff.md).
 
 Hotel discovery binds to the selected outbound arrival facility and its local
 arrival date, always one night. Real OSM property names/coordinates are separate
@@ -114,6 +116,52 @@ MapLibre SDK requests external OSM basemap content; local cards and coordinate
 entry remain usable if it fails. [Hotel authority](decisions/0061-arrival-based-hotel-discovery.md),
 [real property source](../libs/fixtures/src/catalog/real-hotel-directory.README.md),
 [authored room/rate generator](../libs/fixtures/src/real-hotel-inventory.ts).
+
+## Provider traffic and referral fees
+
+The default admin view is **Traffic**. Accepted-offer confirmation and outbound
+navigation are separate evidence: a popup can be blocked after confirmation.
+`OutboundReferral` records one redirect operation per reviewer workspace and
+confirmed receipt. The authenticated GET validates the same-scope immutable
+receipt, derives provider/type from it and issues a server-owned destination.
+Client-supplied provider, destination, rate and timestamp cannot alter that
+operation. HEAD, receipt reads and replay of the same redirect do not create a
+new operation or fee. Redirect responses use no-store and no-referrer headers.
+
+Server-minted anonymous browser visitor cookies are signed with an independent,
+durable private random secret and bound to the reviewer namespace. Namespace-
+specific cookie names fence late responses from old reset scopes. Ordinary
+request authentication verifies without writing cookies. Explicit bootstrap
+restores visitor state for a live workspace without rotating its auth credential.
+New-workspace/reset responses preserve their intentional auth rotation and append
+the visitor cookie rather than overwriting the authentication Set-Cookie value.
+Browser-session lifetime follows existing auth, with server expiry/revocation
+as its bound. Signing in or out does not create a new visitor. Different
+browser visitors may be counted within one authorized workspace, while separate
+reviewer workspaces never aggregate. This is not person fingerprinting or
+production multi-tenant authorization.
+
+Within the scoped transaction lock, the real server clock records the redirect,
+checks the visitor/provider's last billable event and assigns an eligible event
+its per-provider Persian-month ordinal. Eligibility is a rolling 60 minutes,
+including across month boundaries; nonbillable repeats do not slide its anchor.
+The same receipt remains idempotent even after the hour. Graduated pricing uses
+only the rate for that new ordinal: default checkpoints are 100 and 1,000,
+followed by an unbounded tier. Persian month boundaries use Asia/Tehran, reset
+counters and preserve the ledger. Tariff revisions, tier and nullable integer-IRR
+rate are frozen on each qualified event. Future tariff changes cannot reprice
+known or unpriced history. Admin formats exact toman values and distinguishes
+an unset rate from a deliberate zero.
+
+The traffic contract applies the same month/date/provider/type filters to totals,
+provider rows, daily counts and event pages. Daily bins stop at server-current
+Tehran time rather than implying future traffic. The server supplies selected
+and current month keys. Current-month checkpoint progress uses all billable
+types for that provider; closed months show recorded counts and fees without
+predicting a rate from today's tariff. The older **Referrals** route remains an
+accepted-receipt/recheck/source audit, not a substitute outbound counter.
+No rates are invented, and recorded fees are not provider invoices, settled
+payments or purchase conversions. [Decision0086](decisions/0086-provider-traffic-and-graduated-referral-fees.md).
 
 ## Graphics enhance semantic content
 

@@ -2,7 +2,37 @@
 
 Target: **4 minutes 30 seconds**, excluding Docker build/startup and operator
 preparation. This script follows one comparison from nearby dates to a checked
-handoff and its admin evidence. It is not a video recording.
+handoff and its admin evidence. It is not a video recording. The timed T34/T35
+results below belong to their recorded source. The current provider-traffic
+extension is a separate, un-timed addendum and does not alter those results.
+
+## Current provider-traffic addendum — 2026-11-03
+
+The current admin starts on **Traffic**. After the seller handoff, show the same
+workspace’s provider row, outbound/visitor/billable/repeat counts and daily trend.
+Explain the business model: providers pay for a qualifying referral whether or
+not the visitor buys. A confirmed accepted-offer receipt alone is not a visit;
+the authenticated outbound route records a redirect-issued operation before
+sending the browser to the authorized `https://zarei.xyz` placeholder. A blocked
+popup has no outbound record until the tracked route is actually requested.
+
+Open **Referral pricing** for that provider. The default graduated checkpoints
+are first 100, next 900 and above 1,000 referrals, reset monthly on the Persian
+calendar in Tehran time. A browser visitor can qualify once per provider in a
+rolling 60 minutes; repeats do not slide the anchor, and the exclusion survives
+a month boundary. Rates are unset until configured. Show **Unpriced** rather than
+inventing earnings, and explain that a future rate never reprices old known or
+unknown fees. The private visitor cookie identifies an anonymous browser session
+within its reviewer workspace, not a verified person or production anti-fraud.
+
+Then follow **View referral** into the accepted receipt and its **Original
+search** lineage. Keep this audit secondary to the business traffic overview.
+Historical months show recorded counts/fees, not a predicted tier from today’s
+tariff. The current dashboard’s separate evidence belongs to
+[decision0086](decisions/0086-provider-traffic-and-graduated-referral-fees.md) and
+its task receipts; no new duration, recording, invoice, collected payment or
+purchase conversion is claimed here. The earlier timed storyboard and captures
+remain unchanged historical evidence.
 
 ## Preparation outside the clock
 

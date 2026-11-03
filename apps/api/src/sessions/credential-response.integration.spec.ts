@@ -28,7 +28,7 @@ describe('HTTP credential rotation survives stale ordinary responses', () => {
   const post = (path: string, cookie = '') => fetch(base + '/api/v1/demo/' + path, { method: 'POST', headers: { cookie, 'content-type': 'application/json' }, body: '{}' });
   const current = (cookie: string) => fetch(base + '/api/v1/demo/session', { headers: { cookie } });
   // Only explicit lifecycle responses are allowed to change the browser's cookie jar.
-  const apply = (prior: string, response: Response) => response.headers.get('set-cookie')?.split(';')[0] ?? prior;
+  const apply = (prior:string,response:Response) => {const jar=new Map(prior.split('; ').filter(Boolean).map(item=>{const at=item.indexOf('=');return [item.slice(0,at),item.slice(at+1)];}));for(const value of response.headers.getSetCookie()){const item=value.split(';')[0]!,at=item.indexOf('=');jar.set(item.slice(0,at),item.slice(at+1));}return [...jar].map(([name,value])=>name+'='+value).join('; ');};
   async function remember(cookie: string) { const context = await sessions.authenticate({ headers: { cookie } }, { setHeader() { /* No browser response. */ } }); ids.push(context.sessionId); return context; }
   async function create() { const response = await post('session'); expect(response.status).toBe(201); const cookie = apply('', response); const context = await remember(cookie); return { response, cookie, context }; }
   beforeAll(async () => {
@@ -71,7 +71,7 @@ describe('HTTP credential rotation survives stale ordinary responses', () => {
     const original = await create(); const issuance = original.response.headers.get('set-cookie') ?? '';
     expect(issuance.includes('HttpOnly')).toBe(true); expect(issuance.includes('SameSite=Strict')).toBe(true); expect(issuance.includes('Max-Age=')).toBe(false); expect(issuance.includes('Expires=')).toBe(false);
     clock.advance(23 * 3600000); const active = await current(original.cookie); expect(active.status).toBe(200); expect(active.headers.has('set-cookie')).toBe(false);
-    clock.advance(2 * 3600000); expect((await current(original.cookie)).status).toBe(200);
+    clock.advance(2 * 3600000); expect((await current(original.cookie)).status).toBe(200);expect((await remember(original.cookie)).visitorId).toBe(original.context.visitorId);
     const before = await sessions.database.demoSession.findUniqueOrThrow({ where: { id: original.context.sessionId } });
     clock.advance(24 * 3600000 + 1); const expired = await current(original.cookie); expect(expired.status).toBe(401); expect(expired.headers.has('set-cookie')).toBe(false);
     const after = await sessions.database.demoSession.findUniqueOrThrow({ where: { id: original.context.sessionId } }); expect(after.expiresAt).toEqual(before.expiresAt);

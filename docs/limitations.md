@@ -22,9 +22,16 @@ an official Torob account connection. These technical boundaries are deliberate.
   ticket, book a room, operate refunds or prove a purchase. Local authentication
   is not Torob OAuth. `https://zarei.xyz/` is the owner-selected external handoff
   placeholder; legacy `/provider-demo/:id` routes display local receipts.
-- A confirmed referral records an accepted quote/handoff, not a conversion,
-  booking, commission or revenue. Commercial partnerships and verified conversion
-  reporting are future work. Ranking does not sell placement.
+- Confirmation records an accepted offer before outbound navigation. A separate
+  idempotent outbound ledger records a server-issued redirect, not external
+  page-load confirmation, booking or purchase. Historical confirmations are not
+  backfilled as traffic.
+- The business model is per qualified referral, independent of purchase: once
+  per anonymous browser visitor/provider in a rolling 60 minutes, with graduated
+  provider rates and Persian-month counters in Tehran time. Rates default unset;
+  recorded known/unpriced fees remain immutable when future rates change. These
+  fees are not invoices, provider payments received or proof of a commercial
+  partnership. Ranking does not sell placement.
 - Automatic contextual advice currently suggests qualifying faster journeys.
   The domain supports nearby-date savings, but that automatic banner is not wired
   into the server/UI. Nearby prices remain explorable through the wheel, linked
@@ -46,6 +53,35 @@ process executes bounded work with persistent PostgreSQL evidence; it has no
 production distributed queue, load-test guarantee, real identity provider or
 public multi-tenant security certification. Docker defaults include local review
 credentials. Publishing requires a separate deployment/security and rights review.
+
+## Visitor identity and billing scope
+
+Traffic uses a server-minted, signed anonymous browser visitor cookie bound to
+its private reviewer namespace. It is separate from local sign-in and workspace
+authentication, uses an independent durable server-random secret, and is not a
+person/device fingerprint. Cookie names are namespaced so late old-workspace
+responses cannot overwrite a new workspace’s visitor state. Ordinary request
+authentication does not write cookies. Explicit bootstrap repairs visitor state;
+reset retains its intentional namespace/auth rotation. Visitor cookies follow
+browser-session auth lifetime and the server’s live expiry/revocation bound.
+No secret is exposed through public session/admin data.
+
+Two authorized browser visitors in one workspace may count separately; unrelated
+reviewer workspaces never aggregate. These are browser-session counts, not
+verified people or cross-device deduplication. The local flow is not production
+anti-fraud, bot detection, account verification, invoicing, payment collection or
+public multi-tenant authorization. Clearing browser state may change visitor
+identity. A blocked popup or cancelled action does not request the outbound route;
+a recorded redirect still cannot prove the external provider actually loaded.
+
+Hourly eligibility uses the last billable event, not the last repeat. Monthly
+reset preserves ledger history and the hourly exclusion across the boundary.
+Rate edits are prospective; historical unknown rates are not backfilled. Admin
+uses known fee subtotals with explicit unpriced counts, and closed-month records
+never infer a past rate from current pricing. [Decision0086](decisions/0086-provider-traffic-and-graduated-referral-fees.md)
+records the current model. Its incremental evidence is separate from the dated
+T30–T35 checks below; no new full release, public-scale or financial settlement
+certification is inferred.
 
 ## What was actually checked
 

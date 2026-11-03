@@ -161,3 +161,31 @@ shared lifecycle; the strengthened browser regression observes wave movement,
 loader fade-out, real entry and flight-to-train real exit/new-placeholder entry
 using held original responses. [Decision0085](decisions/0085-moving-gray-chart-placeholder.md)
 and the task evidence distinguish a decorative skeleton from real price facts.
+
+
+## Provider traffic and referral-fee model — 2026-11-03
+
+The owner clarified that providers pay for customers sent onward regardless of
+purchase, then locked a rolling-hour visitor/provider exclusion, graduated
+checkpoints and Persian calendar month reset in Tehran time. The implementation
+separates immutable accepted-offer receipts from actual server-issued redirects.
+Independent review identified that existing confirmation can precede a blocked
+popup, that reviewer workspace and browser visitor are different identities, and
+that signed visitor state needs a durable private secret and namespaced cookies
+without ordinary authenticated-response cookie writes. These are explicit
+engineering boundaries, not a claim of verified people or production anti-fraud.
+
+A separate backend task owns the redirect ledger, exact integer-IRR graduated
+fees and prospective tariff snapshots. The admin task makes Traffic the entry
+point while preserving technical audits, exact toman editing, unpriced history,
+filter coherence and server-current month authority. A historical-month review
+caught an incorrect next-tier prediction from today’s tariff; closed months now
+show recorded counts instead. The owner has supplied no commercial rates, and
+no invented earnings, purchase conversion, invoice or collected payment is added.
+
+The optional Mobbin reference search refused a paid-plan gate. No reference image
+was inspected or cited; the separately authorized product work uses its existing
+design system and owner requirements. Root owns runtime, migration and browser
+verification. [Decision0086](decisions/0086-provider-traffic-and-graduated-referral-fees.md)
+and its task evidence record actual source/check outcomes separately from this
+implementation account and the older T35 release results.

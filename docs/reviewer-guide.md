@@ -1,8 +1,8 @@
 # Reviewer guide
 
 TorobTicket demonstrates a travel comparison/referral product and the engineering
-behind it. Start with the ordinary traveler experience; admin is an optional
-second view of the same session. No email, real account, API key or guided tour
+behind it. Start with the ordinary traveler experience; admin is a business and
+engineering view of the same private reviewer workspace. No email, real account, API key or guided tour
 is required.
 
 ## Launch and open
@@ -31,7 +31,8 @@ not a cold-download promise.
 | Open **جزئیات سفر** | Ordered legs, local times/zones and stops retain the actual supplied outbound/return data. Airport-code hover/focus reveals the place name. |
 | Open the destination hotel entry below the desktop map | One night starts on the selected trip's local arrival date. Capacity and four ordering choices update actual local quotes; map/card selection remains linked. |
 | Choose a seller from the selected fare | The exact quote is rechecked. Changed terms require acceptance; unavailable or expired offers do not quietly hand off the original amount. |
-| Open **Searches** / **Referrals** in admin | Inspect real recorded source, normalized offers, exact quote versions and confirmed-handoff lineage. No revenue or purchase conversion is invented. |
+| Open **Traffic** in admin | Compare outbound referrals, unique browser visitor sessions, billable/repeat counts and recorded fees by provider. Empty activity stays empty; missing rates stay unpriced. |
+| Follow a **View referral** link, then inspect **Searches** | Trace the accepted receipt, exact quote version and original source. Confirmation and the later outbound redirect are separate records. |
 
 The large route map is a display, not an alternative origin/destination form.
 It stays fixed on desktop; small screens use the semantic route details instead.
@@ -52,7 +53,40 @@ continue with the local hotel list and **انتخاب با مختصات** refere
 The absence of map tiles does not establish a missing hotel or zero price.
 Distances are straight-line distances, not a navigation/driving-time service.
 
-## Inspect the same session in admin
+## Inspect traffic and referral fees in admin
+
+Admin opens on **Traffic**. Select a Persian billing month and, if useful, provider
+and referral type. **Custom dates** narrows dates within that month in Tehran
+time. The totals, provider table, daily trend/count disclosure and outbound
+record page use those same filters. The table compares outbound operations,
+unique browser visitor sessions, billable referrals, excluded repeats and fees.
+Current-month checkpoint progress uses all billable types for that provider;
+closed months show recorded counts instead of predicting from current pricing.
+
+TorobTicket earns a fee from the provider for a qualifying referral, regardless of purchase. A
+fresh workspace’s first actual outbound redirect to a provider qualifies; another
+distinct referral from that browser visitor to the same provider within 60 minutes
+remains traffic but is excluded from billing. Repeats do not move the last-billable
+anchor. Reading a receipt or retrying its identical redirect does not add traffic.
+A browser-blocked popup can leave a confirmed receipt without an outbound record;
+the visible retry uses that same receipt. A redirect record means the server
+issued the redirect, not that the external page loaded.
+
+Use a provider’s **Referral pricing** action to inspect or edit its graduated
+checkpoints and optional toman rates. Defaults cover referrals 1–100, 101–1,000
+and 1,001 onward, with every rate unset. Only later referrals receive later rates.
+The count restarts at Persian month midnight in Tehran, while the ledger and
+rolling-hour exclusion persist. Empty rates differ from explicit zero. Saving
+changes future billable referrals only: old **Unpriced** / **No rate at referral**
+records remain unpriced. Fees are recorded amounts, not invoices or payments
+received. No commercial rate or purchase conversion is invented.
+
+Visitor identity is a private, signed, namespace-bound anonymous browser cookie,
+separate from the reviewer workspace and local sign-in identity. It is not a
+verified-person or cross-device count. Keep the same origin/browser for an
+ordinary review; separate reviewer workspaces never share their traffic.
+
+## Inspect the accepted offer and its source
 
 Use the same origin/browser as the traveler app. In **Searches**, open the latest row
 matching your route and date. For an exact link, start from the confirmed referral
@@ -61,11 +95,14 @@ groups, quote versions and frozen processing context. Under **Processing evidenc
 use `raw`, `normalizations`, `offers`, `quotes` or `projections` to follow an
 individual source record through the pipeline.
 
-In **Referrals**, open the recorded handoff. **Referral trail** shows the original
-comparison quote, accepted version, exact payload and **Search-to-source lineage**.
-**Confirmed handoff** means the local referral was recorded; it does not mean a
-booking or purchase succeeded. The external placeholder is `https://zarei.xyz`.
-If external navigation is blocked, the recorded local evidence remains inspectable.
+In **Referrals**, open a **Confirmed receipt** or follow **View referral** from
+Traffic. **Referral trail** shows the original comparison quote, accepted version,
+exact payload and **Search-to-source lineage**. This accepted-offer evidence is
+created before the provider tab opens. Traffic is recorded separately by
+`/api/v1/referrals/:id/outbound`, which redirects only to `https://zarei.xyz`.
+Historical confirmations are not backfilled as sent traffic. If external
+navigation is blocked, the accepted receipt remains inspectable without a new
+outbound record. Neither record proves a booking, page load or purchase.
 
 **Providers** contains observed response history and scoped pause/latency/failure
 controls. **Data quality** previews alias corrections before applying a new

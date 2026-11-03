@@ -10,7 +10,7 @@ class SessionController {
   constructor(@Inject(SessionService) private readonly sessions: SessionService) {}
   @Get('session')
   @UseGuards(SessionGuard)
-  current(@Req() request: SessionRequest) { return request.sessionContext!.info; }
+  current(@Req() request: SessionRequest,@Res({passthrough:true})response:CookieResponse) { return this.sessions.current(request.sessionContext!,request,response); }
   @Post('session')
   create(@Body(new ZodValidationPipe(CreateDemoSessionInputSchema)) input: CreateDemoSessionInput, @Req() request: SessionRequest, @Res({ passthrough: true }) response: CookieResponse) { return this.sessions.createOrResume(input, request, response); }
   @Post('reset')

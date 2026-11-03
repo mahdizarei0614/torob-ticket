@@ -2,8 +2,9 @@
 
 Compare flight, train and bus journeys, inspect the route, find a hotel near the
 arrival terminal, and continue with a seller. The Persian/RTL traveler app pairs
-a compact comparison list with a WebGL map; the English admin shows the source,
-normalization, ranking and referral evidence behind each result.
+a compact comparison list with a WebGL map. The English admin starts with
+provider traffic and referral fees, with source, normalization, ranking and
+accepted-offer evidence available behind each result.
 
 ## Start the complete app
 
@@ -41,7 +42,9 @@ Ports, registry mirrors, architecture support and startup diagnostics are in
 4. Inspect its supplied route and stops. Open destination hotels, compare room
    capacity and ordering, and select the same hotel in the list/map.
 5. Continue through a seller action; an exact recheck precedes the handoff.
-6. Open admin in the same browser and inspect **Searches** and **Referrals**.
+6. Open admin in the same browser. **Traffic** shows outbound referrals, unique
+   visitor sessions, billable/repeat counts and provider fees. Open a referral
+   record for **Referrals** evidence, then follow its source into **Searches**.
 
 [Reviewer guide](docs/reviewer-guide.md) gives the exact labels and optional
 scenario controls. [Walkthrough](docs/walkthrough.md) contains the 4:30 script,
@@ -56,15 +59,41 @@ is separate from the presentation; no video was recorded by that rehearsal.
   outbound/return paths, responsive semantic controls and reduced-motion fallback.
 - Arrival-based one-night hotel discovery, real sourced property locations,
   authored room prices, two-way map/card selection and coordinate fallback.
-- Exact-version recheck/consent, idempotent confirmed referrals and immutable
-  admin evidence, isolated per reviewer session.
+- Exact-version recheck/consent and immutable accepted-offer receipts, followed
+  by separately recorded, idempotent outbound redirects.
+- Provider traffic, daily trends and graduated referral-fee settings in the
+  default admin view, isolated per reviewer workspace.
 
 This is an independent local demonstration inspired by Torob. Provider inventory,
 room prices/availability and authentication are controlled implementations. The
-current seller handoff opens `https://zarei.xyz` as an authorized placeholder;
-a recorded referral is not a purchase. There is no real provider/OAuth integration,
+current seller handoff uses a tracked same-origin redirect before opening
+`https://zarei.xyz` as the authorized placeholder. A redirect record is not proof
+of external page load or purchase. There is no real provider/OAuth integration,
 payment, ticket issuance or runtime LLM. See [limitations](docs/limitations.md)
 and [AI development evidence](docs/ai-development-log.md).
+
+## Referral-based monetization
+
+Providers pay for qualified outbound referrals, regardless of purchase. The
+server counts a redirect only when the browser requests the tracked outbound
+route; accepting an offer alone does not count as sent traffic. Blocked popups,
+receipt reads and retries of the same confirmed receipt add no extra referral.
+
+- A browser visitor can qualify once per provider in a rolling 60-minute window.
+  Repeat visits remain visible and do not move the last-billable time forward.
+- Per-provider rates are graduated: by default referrals 1–100 use tier 1,
+  101–1,000 tier 2 and 1,001 onward tier 3. Checkpoints and rates are editable.
+  Counters restart at Persian calendar month boundaries in Tehran time; the
+  historical ledger remains intact.
+- Rates start unset. Admin separates known fees from referrals that had no rate
+  when recorded. An explicit zero rate is valid. Rate changes affect future
+  billable referrals; earlier priced and unpriced records never reprice.
+
+Anonymous browser visitor identity is separate from the private reviewer
+workspace. It does not establish a verified person or cross-device identity.
+Recorded fees are not invoices, collected provider payments or purchase
+conversions. [Decision0086](docs/decisions/0086-provider-traffic-and-graduated-referral-fees.md)
+records these boundaries.
 
 ## Verify and explore the implementation
 

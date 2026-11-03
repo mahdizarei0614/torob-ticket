@@ -54,7 +54,7 @@ describe('actual App provider handoff policy',()=>{
   expect(screen.queryByText('در حال ثبت ارجاع و دریافت نتیجه…')).not.toBeInTheDocument();
   expect(open).not.toHaveBeenCalled();expect(scenario.confirmReferral).toHaveBeenCalledTimes(1);
   await advance(719);expect(open).not.toHaveBeenCalled();
-  await advance(1);expect(open).toHaveBeenCalledTimes(1);expect(target.location.replace).toHaveBeenCalledWith('https://zarei.xyz');expect(target.opener).toBeNull();
+  await advance(1);expect(open).toHaveBeenCalledTimes(1);expect(target.location.replace).toHaveBeenCalledWith(new URL('/api/v1/referrals/confirmed-referral/outbound',window.location.origin).href);expect(target.opener).toBeNull();
   expect(scenario.prepareReferral).toHaveBeenCalledTimes(1);expect(scenario.source.confirmed).toHaveBeenCalledWith(scenario.receipt);
   await advance(181);expect(screen.getByTestId('phase')).toHaveTextContent('idle');expect(screen.getByRole('button',{name:'ادامه مقایسه'})).toBeEnabled();
   expect(scenario.legacyHandoff).not.toHaveBeenCalled();expect(window.location.href).toBe(location);
@@ -75,7 +75,7 @@ describe('actual App provider handoff policy',()=>{
   const target=tab(),open=vi.spyOn(window,'open').mockReturnValueOnce(null).mockReturnValueOnce(target);render(<App/>);await start();await advance(720);
   expect(screen.getByTestId('phase')).toHaveTextContent('handoff-error');expect(scenario.confirmReferral).toHaveBeenCalledTimes(1);
   const retry=screen.getByRole('button',{name:'باز کردن صفحه فروشنده'});
-  fireEvent.click(retry);expect(open).toHaveBeenCalledTimes(2);expect(target.location.replace).toHaveBeenCalledWith('https://zarei.xyz');
+  fireEvent.click(retry);expect(open).toHaveBeenCalledTimes(2);expect(target.location.replace).toHaveBeenCalledWith(new URL('/api/v1/referrals/confirmed-referral/outbound',window.location.origin).href);
   expect(scenario.prepareReferral).toHaveBeenCalledTimes(1);expect(scenario.confirmReferral).toHaveBeenCalledTimes(1);expect(scenario.source.confirmed).toHaveBeenCalledTimes(1);
   await advance(181);expect(screen.getByTestId('phase')).toHaveTextContent('idle');expect(scenario.legacyHandoff).not.toHaveBeenCalled();
  });

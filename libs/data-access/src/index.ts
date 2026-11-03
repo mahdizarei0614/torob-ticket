@@ -13,3 +13,5 @@ export * from './admin-referral-repository';
 export * from './admin-controls-repository';
 export * from './admin-search-repository';
 export * from './admin-mapping-repository';
+export * from './provider-traffic-repository';
+export * from './provider-billing';

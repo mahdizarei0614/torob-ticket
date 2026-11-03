@@ -101,6 +101,7 @@ Historical mock terminology is technical history, not current product UI copy.
 | [0083-route-aware-city-and-stop-labels.md](0083-route-aware-city-and-stop-labels.md) | 0083 — General route-aware city and stop/wait label clearance |
 | [0084-date-price-loading-motion.md](0084-date-price-loading-motion.md) | 0084 — Date-price loading presence and opacity breathing |
 | [0085-moving-gray-chart-placeholder.md](0085-moving-gray-chart-placeholder.md) | 0085 — Moving gray chart placeholder and reciprocal presence |
+| [0086-provider-traffic-and-graduated-referral-fees.md](0086-provider-traffic-and-graduated-referral-fees.md) | 0086 — Provider traffic and graduated referral fees |
 
 ## Task-named foundational records
 
@@ -114,9 +115,10 @@ Historical mock terminology is technical history, not current product UI copy.
 | [T10-date-price-projection-and-cache.md](T10-date-price-projection-and-cache.md) | T10 — date-price projection, evidence, and scoped caching |
 | [T11-referral-recheck-and-handoff.md](T11-referral-recheck-and-handoff.md) | T11: Fresh referral evidence and atomic handoff |
 
-The 81 records present in T35 source `d1e052ba` are retained. Decisions0082 through0085
-add the hotel-map, general route-label and date-loading corrections as records82
-through85; their proof is tracked separately.
+The 81 records present in T35 source `d1e052ba` are retained. Decisions0082 through0086
+add the hotel-map, general route-label and date-loading corrections, plus the
+provider-traffic and graduated referral-fee ruling, as records82 through86; their
+proof is tracked separately.
 Number gaps and historical duplicate prefixes remain; use the full filename.
 The original local search-control working ID 0057 is canonically
 [0079](0079-search-request-control.md), distinct from the committed four-control

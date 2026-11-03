@@ -3,6 +3,7 @@ import type { DataScope } from '@torob-ticket/data-access';
 import type { DemoClock } from '@torob-ticket/domain';
 export interface SessionContext {
   readonly sessionId: string;
+  readonly visitorId?: string;
   readonly scope: DataScope;
   readonly info: SessionInfo;
   readonly demoClock: DemoClock;
@@ -15,4 +16,8 @@ export interface SessionRequest {
   secure?: boolean;
   sessionContext?: SessionContext;
 }
-export interface CookieResponse { setHeader(name: string, value: string): void }
+export interface CookieResponse {
+ setHeader(name:string,value:string|string[]):void;
+ appendHeader?(name:string,value:string|string[]):void;
+ getHeader?(name:string):number|string|string[]|undefined;
+}

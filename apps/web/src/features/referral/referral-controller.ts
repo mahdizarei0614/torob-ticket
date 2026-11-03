@@ -61,8 +61,8 @@ export function useReferralController({client=apiClient,enabled=true,onHandoff,t
  async function handoff(flow:Flow,receipt:ReferralReceipt,direct=false){
   try{
    if(latest.current.external){
-    if(direct)await latest.current.external.deliverNow(flow.id,receipt.payload.quote.providerId,flow.providerLabel,()=>owns(flow));
-    else await latest.current.external.deliver(flow.id,()=>owns(flow));
+    if(direct)await latest.current.external.deliverNow(flow.id,receipt.referralId,receipt.payload.quote.providerId,flow.providerLabel,()=>owns(flow));
+    else await latest.current.external.deliver(flow.id,receipt.referralId,()=>owns(flow));
    }else await latest.current.onHandoff(receipt,flow.source);
    if(current.current!==flow)return;
    current.current=undefined;epoch.current++;setState({phase:'idle'});

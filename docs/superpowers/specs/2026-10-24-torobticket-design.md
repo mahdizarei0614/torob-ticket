@@ -1,6 +1,6 @@
 # TorobTicket — Product and Architecture Specification
 
-**Revision:** 1.47 · 2026-11-02
+**Revision:** 1.48 · 2026-11-03
 
 **Purpose:** Authoritative design companion to the master implementation plan.  
 **Status:** Product scope and architecture approved in conversation. Implementation defaults below are explicit engineering decisions made while preparing the plan; they are not additional claims of user approval.
@@ -50,7 +50,7 @@ Future provider research must establish actual payloads, conditions, identifiers
 
 ### Monetization and identity
 
-The demo records outbound referral clicks. It does not infer bookings or earnings from them. Booking commissions are a possible future partnership model only when verified conversion reporting exists. Ranking is independent of commercial relationships. Provider and offer presentation uses ordinary product names without fictional/test annotations. Identity controls use normal sign-in wording; the implementation remains local and does not assert an official partnership or verified external OAuth connection.
+**Owner monetization ruling,2026-11-03 (decision0086):** providers pay per qualified outbound referral regardless of purchase. A visitor/provider is billable at most once per rolling60minutes; nonbillable repeats remain visible and do not slide the last-billable anchor. Graduated provider-specific rates apply only above each monthly checkpoint (default first100,101..1000,1001onward), with editable checkpoints and initially unset rates. Reset counters, not history, each Persian calendar month in Asia/Tehran; hourly exclusion spans month boundaries. Persist exact per-event tier/rate/version/ordinal evidence, nullable unset fees distinct from zero, and apply tariff changes prospectively. The local implementation records calculated referral fees, never claims provider payment, purchase conversion or unconfigured earnings. Ranking is independent of commercial relationships. Provider and offer presentation uses ordinary product names without fictional/test annotations. Identity controls use normal sign-in wording; the implementation remains local and does not assert an official partnership or verified external OAuth connection.
 
 ## 3. Search, inventory, and money
 
@@ -248,6 +248,10 @@ Capacity selects actual one-room adult occupancy, defaulting to the transport pa
 
 **Free-map implementation ruling, updated2026-11-02 (decision0082):** use the single OpenFreeMap Bright/Dark provider through the pinned MapLibre SDK, loaded lazily when hotel discovery opens. Actual Chrome CORS rejection of the previous official OSM style host motivates this engineering default change; historical receipts retain their original source. Current initial urban-view readiness requires current style.load, isStyleLoaded and genuine rendered openmaptiles features, never DOM pins or another raster source. Transient tile/glyph/sprite errors retain healthy streets; an unrenderable initial/new style still reaches the existing15s unavailable/retry boundary. Theme swaps replace the style without diffing, preserving map/camera/markers and fencing retired callbacks; readiness probes/listeners stop after success. No registration/key/billing or Google/Neshan integration. Keep OSM attribution, ordinary caching/Referer and on-demand requests without proxy/bulk prefetch. One active provider map is permitted inside the dialog; the background travel scene pauses. Explicit active ownership covers retained exits, late SDK loads, rapid reopen, style/context/resize and disposal. Network/WebGL failure keeps hotel cards and known-location reference choices usable with a truthful unavailable state, without a fabricated replacement map.
 
+
+
+**Owner revenue/admin clarification,2026-11-03 (decision0086):** distinguish immutable accepted referral receipts from actual redirect-issued traffic. Confirmed receipts alone, blocked popups, HEAD/reads and duplicate receipt retries are not additional outbound operations. New provider tabs resolve the same-origin authenticated receipt tracking route; only after an idempotent server ledger write does it redirect to the authorized placeholder. Server-owned destinations and no-store/no-referrer remain mandatory. Separate anonymous browser visitor identity from reviewer workspace with namespace-bound server-signed cookies and a durable private random secret. Ordinary authentication never writes cookies; resumed bootstrap restores visitor state without rotating auth, while new-workspace/reset responses retain intentional auth rotation and preserve both auth/visitor Set-Cookie headers. Namespace-specific cookie names prevent late old-workspace responses replacing new visitor state. Match browser-session auth lifetime and live namespace expiry/revocation. Preserve reviewer isolation, no fingerprints and truthful browser-session rather than verified-person counts.
+
 ## 8. Sessions, optional login, and referrals
 
 Guest search, comparison, hotel discovery, and referral are fully supported. Optional “Continue with Torob” establishes a local identity inside the same isolated session. No password, real OAuth, OTP delivery, or real personal information is needed.
@@ -313,12 +317,13 @@ Admin uses shared design primitives and English copy.
 
 | Area | Evidence | Actions |
 |---|---|---|
+| Traffic | Same-filter provider/browser-visitor/outbound/billable/repeat counts, daily trend and priced/unpriced fees | Inspect immutable redirects; edit prospective graduated provider rates |
 | Providers | Response time, status, offer counts, freshness | Pause provider; choose latency/failure profile |
 | Data quality | Raw record → normalized record → grouped itinerary; rejected/ambiguous records | Preview alias correction impact; apply revision; reprocess |
 | Searches | Coverage, grouping, exclusions, ranking inputs/explanations | Replay a query and inspect decisions |
 | Referrals | Quote and recheck versions, handoff payload, event trail | Inspect the search-to-referral sequence |
 
-Controls produce actual backend behavior and audit events. Charts derive from real session events; empty activity stays empty. There are no fictional revenue or conversion metrics.
+Controls produce actual backend behavior and audit events. Charts derive from real session events; empty activity stays empty. There are no fictional revenue or conversion metrics. Configured referral-fee calculations are supported independently of purchases; initially unset fees remain unpriced. Traffic is the default admin entry. Current-month checkpoint progress uses all billable referral types for the provider, clearly separate from activity filters; historical months use recorded fees/counts and do not predict with current rates. Selected/current month identities come from the server.
 
 A mapping correction targets a specific entity type/source namespace. Preview shows collisions and affected records. Applying a valid mapping creates a new revision. Existing search/quote evidence remains immutable; new searches or an explicit replay use the new revision.
 

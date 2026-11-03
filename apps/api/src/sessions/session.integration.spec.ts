@@ -37,7 +37,7 @@ describe('reviewer session HTTP contract with PostgreSQL', () => {
     const created = await post(anchorInstant);
     expect(created.status).toBe(201);
     expect(await created.json()).toMatchObject({ anchorInstant: canonical });
-    const cookie = created.headers.get('set-cookie')!.split(';')[0]!;
+    const cookie = created.headers.getSetCookie().map(value=>value.split(';')[0]).join('; ');
     for (const anchor of [anchorInstant, equivalent, canonical]) {
       const resumed = await post(anchor, cookie);
       expect(resumed.status).toBe(201);

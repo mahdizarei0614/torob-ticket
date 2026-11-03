@@ -1,7 +1,8 @@
+import {appendTrafficVisitorCookie,mintTrafficVisitor,trafficVisitorCookie,verifyTrafficVisitor} from './traffic-visitor';
 import { HttpException, Injectable, Inject, type OnApplicationBootstrap, type OnModuleDestroy } from '@nestjs/common';
 import { createHash, randomBytes, randomUUID } from 'node:crypto';
 import type { ApiErrorCode, CreateDemoSessionInput } from '@torob-ticket/contracts';
-import { createPrisma, checkDatabaseReady, RepositoryError, SearchRepository, SessionRepository, sessionInfo, type PrismaClient, type SessionResetOptions, type SessionRecord } from '@torob-ticket/data-access';
+import { createPrisma, checkDatabaseReady, RepositoryError, scopedTransaction, SearchRepository, SessionRepository, sessionInfo, type PrismaClient, type SessionResetOptions, type SessionRecord } from '@torob-ticket/data-access';
 import { fixtureIdentity } from '@torob-ticket/fixtures';
 import { FrozenDemoClock, SystemRealClock } from '../common/clocks';
 import type { CookieResponse, SessionContext, SessionRequest } from './session-context';
@@ -80,9 +81,9 @@ export class SessionService implements OnApplicationBootstrap, OnModuleDestroy {
     for (const controller of this.controllers.get(id) ?? []) controller.abort(reason);
     this.controllers.delete(id);
   }
-  private context(row: SessionRecord): SessionContext {
+  private context(row: SessionRecord, request?:SessionRequest): SessionContext {
     const info = sessionInfo(row);
-    return Object.freeze({ sessionId: row.id, scope: Object.freeze({ sessionId: row.id }), info, demoClock: new FrozenDemoClock(info.anchorInstant) });
+    return Object.freeze({ sessionId: row.id, visitorId:verifyTrafficVisitor(request?.headers.cookie,row.id,row.trafficVisitorSecret??undefined), scope: Object.freeze({ sessionId: row.id }), info, demoClock: new FrozenDemoClock(info.anchorInstant) });
   }
   private credential(request: SessionRequest): string | undefined {
     const matches = (request.headers.cookie ?? '').split(';').map(part => part.trim()).filter(part => part.startsWith(`${SESSION_COOKIE}=`));
@@ -93,8 +94,9 @@ export class SessionService implements OnApplicationBootstrap, OnModuleDestroy {
   }
   private hash(token: string) { return createHash('sha256').update(token).digest('hex'); }
   /** Browser-session persistence avoids a fixed client deadline; PostgreSQL enforces sliding 24h inactivity. */
-  private cookie(response: CookieResponse, token: string, secure: boolean) {
-    response.setHeader('Set-Cookie', `${SESSION_COOKIE}=${token}; Path=/api; HttpOnly; SameSite=Strict${secure ? '; Secure' : ''}`);
+  private cookie(response: CookieResponse, token: string, secure: boolean, visitorCookie?:string) {
+    const auth=`${SESSION_COOKIE}=${token}; Path=/api; HttpOnly; SameSite=Strict${secure ? '; Secure' : ''}`;
+    response.setHeader('Set-Cookie', visitorCookie?[auth,visitorCookie]:auth);
   }
   assertNoSessionSelector(request: SessionRequest) {
     if (request.query && 'sessionId' in request.query || request.body && typeof request.body === 'object' && 'sessionId' in request.body) throw sessionError('INVALID_QUERY', 400);
@@ -108,9 +110,26 @@ export class SessionService implements OnApplicationBootstrap, OnModuleDestroy {
       // Failed bootstrap must recover/reconcile before any resumed or guarded work.
       if (!this.recoveryReady) await this.ensureReady();
       // Never echo or clear credentials here: this response may arrive after an explicit reset rotated them.
-      const context = this.context(await this.repository.resolveAndTouch(this.hash(token), this.realClock.now()));
+      const context = this.context(await this.repository.resolveAndTouch(this.hash(token), this.realClock.now()),request);
       return context;
     } catch (error) { return repositoryHttpError(error); }
+  }
+  /** Only explicit bootstrap may mint a visitor; ordinary authenticated responses remain cookie-write free. */
+  private async bootstrapVisitor(context:Pick<SessionContext,'sessionId'|'scope'|'visitorId'>,request:SessionRequest){
+    if(context.visitorId)return {visitorId:context.visitorId};
+    const secret=await scopedTransaction(this.database,context.scope,async tx=>{
+      const row=await tx.demoSession.findUniqueOrThrow({where:{id:context.sessionId}});
+      if(row.trafficVisitorSecret)return row.trafficVisitorSecret;
+      const value=randomBytes(32).toString('base64url');
+      await tx.demoSession.update({where:{id:context.sessionId},data:{trafficVisitorSecret:value}});return value;
+    });
+    const existing=verifyTrafficVisitor(request.headers.cookie,context.sessionId,secret);
+    if(existing)return {visitorId:existing};
+    const next=mintTrafficVisitor(context.sessionId,secret);
+    return {visitorId:next.visitorId,cookie:trafficVisitorCookie(context.sessionId,next.value,!!request.secure)};
+  }
+  async current(context:SessionContext,request:SessionRequest,response:CookieResponse){
+    try{const visitor=await this.bootstrapVisitor(context,request);if(visitor.cookie)appendTrafficVisitorCookie(response,visitor.cookie);return context.info;}catch(error){return repositoryHttpError(error);}
   }
   private expiredCredential(error:unknown){
     const body=error instanceof HttpException?error.getResponse():undefined;
@@ -129,13 +148,16 @@ export class SessionService implements OnApplicationBootstrap, OnModuleDestroy {
       }
       if(context){
         if (input.seed !== undefined && input.seed !== context.info.seed || input.anchorInstant !== undefined && Date.parse(input.anchorInstant) !== Date.parse(context.info.anchorInstant) || input.scenario !== undefined && input.scenario !== context.info.scenario) throw sessionError('INVALID_QUERY', 409);
+        const visitor=await this.bootstrapVisitor(context,request);
+        if(visitor.cookie)appendTrafficVisitorCookie(response,visitor.cookie);
         return context.info;
       }
     }
     await this.ensureReady();
     const token = randomBytes(32).toString('base64url');
     const row = await this.repository.create(this.hash(token), input, this.realClock.now());
-    this.cookie(response, token, !!request.secure);
+    const visitor=await this.bootstrapVisitor({sessionId:row.id,scope:{sessionId:row.id}},request);
+    this.cookie(response, token, !!request.secure,visitor.cookie);
     return sessionInfo(row);
   }
   async reset(context: SessionContext, input: CreateDemoSessionInput, request: SessionRequest, response: CookieResponse, options?:SessionResetOptions) {
@@ -144,7 +166,8 @@ export class SessionService implements OnApplicationBootstrap, OnModuleDestroy {
       // A new internal ID fences stale async work from the replacement sandbox.
       const row = await this.repository.reset(context.scope, this.hash(token), { seed: input.seed ?? context.info.seed, anchorInstant: input.anchorInstant ?? context.info.anchorInstant, scenario: input.scenario ?? context.info.scenario }, this.realClock.now(), options);
       this.cancelSession(context.sessionId);
-      this.cookie(response, token, !!request.secure);
+      const visitor=await this.bootstrapVisitor({sessionId:row.id,scope:{sessionId:row.id}},request);
+      this.cookie(response, token, !!request.secure,visitor.cookie);
       return sessionInfo(row);
     } catch (error) { return repositoryHttpError(error); }
   }

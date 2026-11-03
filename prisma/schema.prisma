@@ -43,6 +43,7 @@ model RoomRate {
 model DemoSession {
   id String @id
   credentialHash String @unique
+  trafficVisitorSecret String?
   seed BigInt
   anchorInstant DateTime @db.Timestamptz(3)
   scenario String
@@ -60,6 +61,8 @@ model DemoSession {
   hotelSearches HotelSearchRun[]
   intents ReferralIntent[]
   referrals ReferralEvent[]
+  outboundReferrals OutboundReferral[]
+  providerTariffs ProviderTariff[]
   identity DemoIdentity?
   savedSearches SavedSearch[]
   audits AuditEvent[]
@@ -217,6 +220,7 @@ model ReferralIntent {
   @@index([sessionId, expiresAt])
 }
 model ReferralEvent {
+  outbound OutboundReferral?
   sessionId String
   id String
   intentId String
@@ -259,4 +263,37 @@ model AuditEvent {
   session DemoSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
   @@id([sessionId, id])
   @@index([sessionId, createdAt])
+}
+
+/// A server-issued outbound redirect, separate from an accepted quote receipt.
+model OutboundReferral {
+  sessionId String
+  referralId String
+  providerId String
+  visitorKey String
+  kind String
+  redirectedAt DateTime @db.Timestamptz(3)
+  billable Boolean
+  reason String
+  monthKey String
+  monthOrdinal BigInt?
+  rateRial BigInt?
+  tariffRevision String
+  tierIndex Int?
+  session DemoSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  referral ReferralEvent @relation(fields: [sessionId, referralId], references: [sessionId, id], onDelete: Cascade)
+  @@id([sessionId, referralId])
+  @@unique([sessionId, providerId, monthKey, monthOrdinal])
+  @@index([sessionId, providerId, redirectedAt])
+  @@index([sessionId, redirectedAt])
+  @@index([sessionId, visitorKey, providerId, billable, redirectedAt], map: "OutboundReferral_visitor_provider_billable_time_idx")
+}
+model ProviderTariff {
+  sessionId String
+  providerId String
+  revision String
+  payload Json
+  updatedAt DateTime @db.Timestamptz(3)
+  session DemoSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  @@id([sessionId, providerId])
 }

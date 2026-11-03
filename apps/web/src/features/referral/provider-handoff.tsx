@@ -9,8 +9,8 @@ interface PendingDelay {id:string;timer:ReturnType<typeof setTimeout>;reject:(er
 interface ProviderHandoff {
  show:(id:string,providerId:string,label:string,cancel?:()=>void)=>void;
  dismiss:(id:string)=>void;
- deliver:(id:string,isCurrent:()=>boolean)=>Promise<void>;
- deliverNow:(id:string,providerId:string,label:string,isCurrent:()=>boolean)=>Promise<void>;
+ deliver:(id:string,referralId:string,isCurrent:()=>boolean)=>Promise<void>;
+ deliverNow:(id:string,referralId:string,providerId:string,label:string,isCurrent:()=>boolean)=>Promise<void>;
 }
 const Context=createContext<ProviderHandoff|undefined>(undefined);
 export const useProviderHandoff=()=>useContext(Context);
@@ -49,21 +49,21 @@ export function ProviderHandoffBoundary({children,minimumVisibleMs=720}:{childre
   await wait(id,latest.current.motion?180:0);
   if(current.current?.id===id)current.current=undefined;
  },[wait]);
- const deliver=useCallback(async(id:string,isCurrent:()=>boolean)=>{
+ const deliver=useCallback(async(id:string,referralId:string,isCurrent:()=>boolean)=>{
   const item=current.current;if(!item||item.id!==id)throw cancelled();
   // Finite presentation time lets the requested backdrop enter before navigation;
   // it is not a fabricated server request or provider booking step.
   await wait(id,Math.max(0,latest.current.minimumVisibleMs-(performance.now()-item.started)));
   if(!owns(id,isCurrent))throw cancelled();
-  if(document.visibilityState==='hidden'||!openProviderWindow())throw blocked();
+  if(document.visibilityState==='hidden'||!openProviderWindow(referralId))throw blocked();
   await fade(id);
  },[fade,owns,wait]);
- const deliverNow=useCallback((id:string,providerId:string,label:string,isCurrent:()=>boolean)=>{
+ const deliverNow=useCallback((id:string,referralId:string,providerId:string,label:string,isCurrent:()=>boolean)=>{
   // This path is called synchronously from the popup-blocked retry gesture.
   // No await precedes window.open, and no referral is prepared/confirmed again.
   if(!live.current||!isCurrent()||document.visibilityState==='hidden')return Promise.reject(cancelled());
   show(id,providerId,label);
-  if(!openProviderWindow()){dismiss(id);return Promise.reject(blocked());}
+  if(!openProviderWindow(referralId)){dismiss(id);return Promise.reject(blocked());}
   return fade(id);
  },[dismiss,fade,show]);
  const value=useMemo(()=>({show,dismiss,deliver,deliverNow}),[show,dismiss,deliver,deliverNow]);
