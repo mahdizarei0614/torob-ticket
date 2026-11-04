@@ -2849,3 +2849,14 @@ regressions,211unit/component cases, one complete Chrome journey with desktop/mo
 captures, API/consumer/admin/e2e types, targeted lint, API/frontend builds and SDK
 build/runtime packaging. See the owning verification record for local delivery,
 trust boundaries, bundle warnings and external integration requirements.
+
+
+### SMS verification testing — 2026-11-04
+
+Owner requested fixed verification code `123456`. COMPLETE in `b95ade2d`.
+The Docker development API opts in for loopback development/test use, with both
+issuance and stamped redemption gated. Existing challenge controls and prior
+random codes remain valid under their recorded rules. Eight unit guards and all15
+Direct Login HTTP/PostgreSQL cases passed, along with types/lint/API build and live
+verification on both login endpoints in a temporary isolated workspace. Independent
+review approved the source. See the Direct Login verification record for evidence.
