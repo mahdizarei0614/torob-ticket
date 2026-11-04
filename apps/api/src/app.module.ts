@@ -1,3 +1,4 @@
+import {DirectLoginModule} from './direct-login/direct-login.controller';
 import {AdminModule} from './admin/admin.module';
 import {HotelModule} from './hotels/hotel.module';
 import {DemoAuthModule} from './auth/demo-auth.module';
@@ -9,5 +10,5 @@ import { HealthController } from './health.controller';
 import { SessionModule } from './sessions/session.module';
 import { ProviderModule } from './providers/provider.module';
 import { CatalogModule } from './catalog/catalog.module';
-@Module({ imports: [AdminModule, HotelModule, DemoAuthModule, SessionModule, CatalogModule, ProviderModule, SearchModule, DatePriceModule, ReferralModule], controllers: [HealthController] })
+@Module({ imports: [DirectLoginModule, AdminModule, HotelModule, DemoAuthModule, SessionModule, CatalogModule, ProviderModule, SearchModule, DatePriceModule, ReferralModule], controllers: [HealthController] })
 export class AppModule {}

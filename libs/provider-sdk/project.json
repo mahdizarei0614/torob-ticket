@@ -1,0 +1,38 @@
+{
+  "name": "provider-sdk",
+  "sourceRoot": "libs/provider-sdk/src",
+  "projectType": "library",
+  "tags": [
+    "scope:server",
+    "type:data"
+  ],
+  "targets": {
+    "lint": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "eslint libs/provider-sdk"
+      }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc --noEmit -p libs/provider-sdk/tsconfig.json"
+      }
+    },
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc -p libs/provider-sdk/tsconfig.build.json && cp libs/provider-sdk/package.json libs/provider-sdk/README.md dist/libs/provider-sdk/"
+      },
+      "outputs": [
+        "{workspaceRoot}/dist/libs/provider-sdk"
+      ]
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "vitest run --project server-libs libs/provider-sdk"
+      }
+    }
+  }
+}

@@ -21,3 +21,5 @@ button[data-profile-trigger]{gap:var(--space-2);padding:var(--space-1) var(--spa
 .panel button[data-profile-logout]{display:inline-flex;align-items:center;justify-content:center;gap:var(--space-2);box-sizing:border-box;width:100%;min-width:0;color:var(--danger);border-color:var(--danger);background:var(--danger-bg)}
 .panel button[data-profile-logout]:is([data-hovered],[data-pressed],[data-focus-visible]){color:var(--danger);border-color:var(--danger);background:var(--danger-bg)}
 .panel button[data-profile-logout]>svg{flex:0 0 auto;display:block}
+
+.directLogin{display:block;padding:var(--space-2);color:var(--accent);text-align:center;min-height:44px;line-height:2}

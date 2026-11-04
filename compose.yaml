@@ -39,6 +39,7 @@ services:
       target: api
     environment:
       DATABASE_URL: postgresql://torobticket:local-demo-only@database:5432/torobticket
+      TOROBTICKET_SSO_ORIGIN: ${TOROBTICKET_SSO_ORIGIN:-http://localhost:${TOROBTICKET_PORT:-4300}}
     depends_on:
       initializer:
         condition: service_completed_successfully

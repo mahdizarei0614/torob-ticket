@@ -189,3 +189,14 @@ design system and owner requirements. Root owns runtime, migration and browser
 verification. [Decision0086](decisions/0086-provider-traffic-and-graduated-referral-fees.md)
 and its task evidence record actual source/check outcomes separately from this
 implementation account and the older T35 release results.
+
+## 2026-11-04 — Direct Login
+
+Implemented the owner-requested local issuer, provider SDK, reference provider,
+partner enrollment/consent, private prior-account proof transport and acquisition
+ledger. Independent review drove fixes for callback recovery, revocation races,
+all-channel enrollment witnesses, trust-origin isolation and exact fee totals.
+Actual HTTP/PostgreSQL, SDK/component and desktop/mobile browser evidence is in
+`docs/evidence/adjustments/direct-login/verification.md`. The default independent
+verifier rejects external attestations, and phone delivery remains a scoped local
+admin inbox. No external integration or provider payment is claimed.

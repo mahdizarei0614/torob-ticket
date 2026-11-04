@@ -65,6 +65,9 @@ model DemoSession {
   providerTariffs ProviderTariff[]
   identity DemoIdentity?
   savedSearches SavedSearch[]
+  directLogin DirectLoginWorkspace?
+  directClients DirectLoginClient[]
+  referenceProvider ReferenceProviderWorkspace?
   audits AuditEvent[]
   @@index([expiresAt])
 }
@@ -296,4 +299,30 @@ model ProviderTariff {
   updatedAt DateTime @db.Timestamptz(3)
   session DemoSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
   @@id([sessionId, providerId])
+}
+
+model DirectLoginWorkspace {
+  sessionId String @id
+  payload Json
+  session DemoSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+}
+model ReferenceProviderWorkspace {
+  sessionId String @id
+  payload Json
+  session DemoSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+}
+model DirectLoginClient {
+  clientId String @id
+  sessionId String
+  providerId String
+  name String
+  secretHash String
+  callbackUrl String
+  loginStartUrl String
+  enabled Boolean
+  kind String
+  revision Int
+  acquisitionRateRial BigInt?
+  session DemoSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  @@unique([sessionId, providerId])
 }

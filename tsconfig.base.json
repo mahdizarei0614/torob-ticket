@@ -45,6 +45,9 @@
       ],
       "@torob-ticket/client": [
         "libs/client/src/index.ts"
+      ],
+      "@torob-ticket/provider-sdk": [
+        "libs/provider-sdk/src/index.ts"
       ]
     }
   }

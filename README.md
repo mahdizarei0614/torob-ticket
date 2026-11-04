@@ -153,3 +153,17 @@ The eight public library aliases are
 `pnpm verify:boundaries` checks those rules; `pnpm generate:library example-helper domain shared`
 creates a tagged library and rejects duplicate names or invalid scope/type pairs.
 See [architecture](docs/architecture.md) for the component and data flows.
+
+## Direct Login
+
+Open `/admin/direct-login` to enroll a provider, retrieve local verification
+messages and inspect acquisition evidence. Connected providers offer Continue
+with TorobTicket alongside ordinary navigation. The reference provider includes
+its own account/session store and returns to the selected offer after consent.
+
+The standalone Node SDK and its integration guide are in
+[libs/provider-sdk](libs/provider-sdk/README.md). See
+[Direct Login integration](docs/direct-login-integration.md) for the local
+walkthrough, configuration, proof protocol and external verification boundary.
+Local verification uses the admin inbox. Actual SMS, Torob federation and external
+account verification require their respective connections.

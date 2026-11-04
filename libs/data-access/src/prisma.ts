@@ -4,7 +4,7 @@ export const FOUNDATION_FIXTURE_VERSION = 'foundation-v1';
 export const FOUNDATION_CATALOG_REVISION = 'foundation-catalog-v1';
 export interface FixtureIdentity { fixtureVersion:string; catalogRevision:string; }
 export const FOUNDATION_IDENTITY:FixtureIdentity={fixtureVersion:FOUNDATION_FIXTURE_VERSION,catalogRevision:FOUNDATION_CATALOG_REVISION};
-export const REQUIRED_MIGRATIONS = ['0001_initial', '0002_normalization_mapping_deferred', '0003_demo_identity_state', '0004_outbound_referral_traffic', '0005_outbound_traffic_index_name', '0006_traffic_visitor_secret'];
+export const REQUIRED_MIGRATIONS = ['0001_initial', '0002_normalization_mapping_deferred', '0003_demo_identity_state', '0004_outbound_referral_traffic', '0005_outbound_traffic_index_name', '0006_traffic_visitor_secret', '0007_direct_login'];
 export function createPrisma(connectionString: string): PrismaClient {
   if (!connectionString) throw new Error('DATABASE_URL is required');
   return new PrismaClient({ adapter: new PrismaPg({ connectionString, max: 5, connectionTimeoutMillis: 3000 }) });

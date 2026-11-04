@@ -1,3 +1,5 @@
+import {DirectLoginService} from '../direct-login/direct-login.service';
+import {ReferralService} from '../referrals/referral.service';
 import {BadRequestException,Controller,Get,Head,Inject,MethodNotAllowedException,Param,Patch,Query,Req,Res,Body,UseGuards} from '@nestjs/common';
 import {randomUUID} from 'node:crypto';
 import {TrafficQuerySchema,UpdateProviderTariffSchema,type TrafficQuery,type UpdateProviderTariff} from '@torob-ticket/contracts';
@@ -20,13 +22,17 @@ interface RedirectResponse {setHeader(name:string,value:string):void;redirect(st
 @Controller('v1/referrals')
 @UseGuards(SessionGuard)
 export class OutboundReferralController {
- constructor(@Inject(ProviderTrafficService)private readonly service:ProviderTrafficService){}
+ constructor(@Inject(ProviderTrafficService)private readonly service:ProviderTrafficService,@Inject(DirectLoginService)private readonly direct:DirectLoginService,@Inject(ReferralService)private readonly referrals:ReferralService){}
  // Express may otherwise dispatch HEAD to a GET handler. Neither route may issue a ledger entry for HEAD.
  @Head(':id/outbound')head(){throw new MethodNotAllowedException();}
- @Get(':id/outbound')async outbound(@Req()r:SessionRequest&{method:string},@Param('id')id:string,@Res()response:RedirectResponse){
+ @Get(':id/outbound')async outbound(@Req()r:SessionRequest&{method:string},@Param('id')id:string,@Res()response:RedirectResponse,@Query('visit')visit?:string){
   response.setHeader('Cache-Control','no-store, private');response.setHeader('Referrer-Policy','no-referrer');
   if(r.method!=='GET')throw new MethodNotAllowedException();
+  const receipt=await this.referrals.getReferral(r.sessionContext!,id).catch(trafficError);
+  const partner=await this.direct.partner(r.sessionContext!.scope,receipt.payload.quote.providerId);
+  if(partner&&visit!=='1'){response.redirect(302,`/direct-login/choose/${id}`);return;}
+  if(partner)await this.direct.bindReferral(r.sessionContext!,receipt);
   await this.service.issue(r.sessionContext!,id).catch(trafficError);
-  response.redirect(302,OUTBOUND_PROVIDER_DESTINATION);
+  response.redirect(302,partner?(partner.kind==='reference'?`/reference-provider/${partner.providerId}?referral=${id}`:new URL(partner.loginStartUrl).origin):OUTBOUND_PROVIDER_DESTINATION);
  }
 }

@@ -1,0 +1,1 @@
+{"name":"@torob-ticket/provider-sdk","version":"0.1.0","description":"TorobTicket backend Direct Login and account commitment SDK","type":"module","main":"./index.js","types":"./index.d.ts","exports":{".":{"types":"./index.d.ts","import":"./index.js"}},"files":["index.js","index.d.ts","README.md"],"engines":{"node":">=22"},"license":"UNLICENSED"}

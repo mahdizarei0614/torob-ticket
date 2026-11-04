@@ -14,5 +14,6 @@ export function DemoLogin({ account }: {
   خروج از حساب
   </> : 'ادامه با ترب'}
  </Button>
+ <a href="/direct-login/account" className={styles.directLogin}>ورود با شماره همراه</a>
  </>;
 }

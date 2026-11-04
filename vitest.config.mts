@@ -7,7 +7,7 @@ export default defineConfig({ plugins: [react()], resolve: { alias: Object.fromE
   { extends: true, test: { name: 'admin', environment: 'jsdom', include: ['apps/admin/src/**/*.spec.tsx'], setupFiles: ['./tools/test-setup.ts'] } },
   { extends: true, test: { name: 'api', environment: 'node', include: ['apps/api/src/**/*.spec.ts'], exclude: ['**/*.integration.spec.ts'], testTimeout: 10000 } },
   integration,
-  { extends: true, test: { name: 'server-libs', environment: 'node', include: ['libs/{fixtures,provider-adapters,data-access}/src/**/*.spec.ts'] } },
+  { extends: true, test: { name: 'server-libs', environment: 'node', include: ['libs/{fixtures,provider-adapters,data-access,provider-sdk}/src/**/*.spec.ts'] } },
   { extends: true, test: { name: 'pure', environment: 'node', include: ['libs/{domain,contracts,client}/src/**/*.spec.ts'] } },
   { extends: true, test: { name: 'ui', environment: 'jsdom', include: ['libs/{ui,graphics}/src/**/*.spec.{ts,tsx}'], setupFiles: ['./tools/test-setup.ts'] } }
 ] } });
