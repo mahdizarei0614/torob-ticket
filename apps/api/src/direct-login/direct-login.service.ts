@@ -1,8 +1,12 @@
+import { configuredOrigin } from './issuer-origin';
+export { configuredOrigin } from './issuer-origin';
+import {exampleProviderOrigin,exampleProviderInternalOrigin} from './example-provider-config';
+import {travelerProfileForTrip,localDateAt} from '@torob-ticket/domain';
 import {ENROLLMENT_VERIFIER,type EnrollmentVerifier} from './enrollment-verifier';
 import { localSmsTestCode } from './sms-test-code';
 import { BadRequestException, ConflictException, ForbiddenException, Inject, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { createHmac, generateKeyPairSync, randomInt, randomUUID, sign } from 'node:crypto';
-import { type AuthorizeInput, type CommitmentProof, type PartnerInput, type ReferralReceipt } from '@torob-ticket/contracts';
+import { ReferralReceiptSchema, type TravelerProfile, type TravelContext, type AuthorizeInput, type CommitmentProof, type PartnerInput, type ReferralReceipt } from '@torob-ticket/contracts';
 import { scopedTransaction, type DataScope, type Prisma } from '@torob-ticket/data-access';
 import { accountTree, constantEqual, createProviderSdk, pkceChallenge, randomToken, sha256, verifyAccountProof } from '@torob-ticket/provider-sdk';
 import { catalogForIdentity } from '@torob-ticket/fixtures';
@@ -17,11 +21,6 @@ function newIssuer(): IssuerState {
   return { version: 1, sequence: 0, privateKey: keys.privateKey.export({ format: 'pem', type: 'pkcs8' }).toString(), publicKey: keys.publicKey.export({ format: 'jwk' }) as Record<string, string>, kid: randomUUID(), subjectSecret: randomToken(), identities: [], challenges: [], sessions: [], references: [], flows: [], snapshots: [], acknowledgments: [], acquisitions: [], access: [] };
 }
 interface WebRequest extends SessionRequest { method?: string; headers: SessionRequest['headers'] & { origin?: string; 'sec-fetch-site'?: string; authorization?: string } }
-export function configuredOrigin() {
-  const url = new URL(process.env.TOROBTICKET_SSO_ORIGIN ?? 'http://localhost:4300');
-  if (url.pathname !== '/' || url.search || url.hash || url.username || url.password || (url.protocol !== 'https:' && !(url.protocol === 'http:' && ['localhost', '127.0.0.1', '[::1]'].includes(url.hostname)))) throw new Error('TOROBTICKET_SSO_ORIGIN must be an HTTPS origin or loopback HTTP origin');
-  return url.origin;
-}
 @Injectable()
 export class DirectLoginService {
   constructor(@Inject(SessionService) private readonly sessions: SessionService, @Inject(ENROLLMENT_VERIFIER) private readonly verifier: EnrollmentVerifier) {}
@@ -36,6 +35,7 @@ export class DirectLoginService {
       const state = stored ? stored.payload as unknown as IssuerState : newIssuer();
       const reference = provider ? provider.payload as unknown as ReferenceState : emptyProvider();
       reference.enrollments ??= [];
+      state.installations = (state.installations??[]).filter(i=>i.expires>Date.now());
       for (const snapshot of state.snapshots) snapshot.origin ??= snapshot.trusted ? 'reference' : 'external';
       // Preserve acknowledgment records authored by the first local state format.
       state.acknowledgments ??= state.acquisitions.filter(a => !a.identityId).map(a => ({referralId:a.referralId,clientId:state.references.find(r=>r.referralId===a.referralId)?.clientId??'',revision:a.tariffRevision,acceptedAt:a.createdAt,rateRial:a.rateRial}));
@@ -78,7 +78,7 @@ export class DirectLoginService {
     const record = session && state.sessions.find(s => s.hash === sha256(session) && s.expires > Date.now());
     return record ? state.identities.find(i => i.id === record.identityId) : undefined;
   }
-  private publicIdentity(identity?: { phone: string }) { return identity ? { displayName: 'مسافر', phone: identity.phone } : null; }
+  private publicIdentity(identity?: { phone: string; profile?: TravelerProfile }) { return identity ? { displayName: identity.profile ? `${identity.profile.givenName} ${identity.profile.familyName}` : 'مسافر', phone: identity.phone, ...(identity.profile ? {profile:identity.profile} : {}) } : null; }
   async requestCode(scope: DataScope, phone: string, purpose: string, browser: string) {
     if (purpose !== 'torob' && (await this.partner(scope, purpose))?.kind !== 'reference') throw new NotFoundException();
     return this.mutate(scope, async (state, reference, tx) => {
@@ -140,6 +140,32 @@ export class DirectLoginService {
     return result;
   }
   async account(scope: DataScope, request: WebRequest) { return this.mutate(scope, state => ({ identity: this.publicIdentity(this.identity(state, scope, request)) })); }
+  async saveProfile(scope: DataScope, request: WebRequest, profile: TravelerProfile) {
+    return this.mutate(scope, state => {
+      const identity=this.identity(state,scope,request);
+      if(!identity)throw new UnauthorizedException('ابتدا وارد حساب کاربری شوید');
+      if(profile.birthDate>localDateAt(new Date().toISOString(),'Asia/Tehran'))throw invalid('تاریخ تولد نباید در آینده باشد');
+      identity.profile=structuredClone(profile);
+      return {identity:this.publicIdentity(identity)};
+    });
+  }
+  private async travelContext(tx: Prisma.TransactionClient, scope: DataScope, referralId: string): Promise<TravelContext> {
+    const row=await tx.referralEvent.findUnique({where:{sessionId_id:{sessionId:scope.sessionId,id:referralId}}});
+    if(!row)throw invalid();
+    const receipt=ReferralReceiptSchema.parse(row.payload), payload=receipt.payload;
+    const fixture=await tx.fixtureVersion.findUniqueOrThrow({where:{id:payload.quote.fixtureVersion}});
+    const catalog=catalogForIdentity(fixture.id,fixture.catalogRevision);
+    if(payload.kind==='hotel') {
+      const city=catalog.cities.find(c=>c.id===payload.quote.query.destinationCityId);
+      if(!city)throw invalid('اطلاعات مقصد برای تکمیل مشخصات مسافر در دسترس نیست');
+      return {international:city.countryCode!=='IR',travelDate:payload.quote.query.checkIn,lastTravelDate:payload.quote.query.checkOut};
+    }
+    const segments=[...payload.itinerary.outbound.segments,...(payload.itinerary.return?.segments??[])];
+    const countries=segments.flatMap(segment=>[segment.originPlaceId,segment.destinationPlaceId]).map(id=>catalog.cities.find(c=>c.id===catalog.places.find(p=>p.id===id)?.cityId)?.countryCode);
+    if(countries.some(c=>!c))throw invalid('اطلاعات مسیر برای تکمیل مشخصات مسافر در دسترس نیست');
+    const first=segments[0]!,last=segments.at(-1)!;
+    return {international:countries.some(c=>c!=='IR'),travelDate:localDateAt(first.departureAt,first.departureTimeZone),lastTravelDate:localDateAt(last.arrivalAt,last.arrivalTimeZone)};
+  }
   async logout(scope: DataScope, request: WebRequest) {
     const token = this.cookie(scope, 'identity', request);
     return this.mutate(scope, state => { if (token) { const hash = sha256(token); state.sessions = state.sessions.filter(s => s.hash !== hash); for (const flow of state.flows) if (flow.identitySession === hash) flow.consumed = true; } return { signedOut: true }; });
@@ -161,6 +187,7 @@ export class DirectLoginService {
     if (!constantEqual(row.secretHash, sha256(secret))) throw new UnauthorizedException('Invalid client credentials');
     return row;
   }
+  async clientStatus(clientId:string,secret:string) { const client=await this.credentials(clientId,secret); return this.clientMutation(client,()=>({active:true})); }
   async partner(scope: DataScope, providerId: string) { return this.database.directLoginClient.findFirst({ where: { sessionId: scope.sessionId, providerId, enabled: true } }); }
   async savePartner(context: SessionContext, input: PartnerInput) {
     if (!catalogForIdentity(context.info.fixtureVersion, context.info.catalogRevision).providerCapabilities.some(p => p.providerId === input.providerId)) throw new NotFoundException();
@@ -182,8 +209,52 @@ export class DirectLoginService {
       return { partner: this.publicPartner(partner), clientSecret: secret };
     });
   }
-  private publicPartner(row: { providerId: string; name: string; callbackUrl: string; loginStartUrl: string; enabled: boolean; acquisitionRateRial: bigint | null; kind: string; clientId: string; revision: number }) { return { providerId: row.providerId, name: row.name, callbackUrl: row.callbackUrl, loginStartUrl: row.loginStartUrl, enabled: row.enabled, acquisitionRateRial: row.acquisitionRateRial === null ? null : Number(row.acquisitionRateRial), kind: row.kind, clientId: row.clientId, revision: row.revision, issuer: this.issuer(row.clientId) }; }
-  async metadata(clientId: string) { await this.client(clientId); return { issuer: this.issuer(clientId), authorization_endpoint: `${configuredOrigin()}/direct-login/begin`, token_endpoint: `${configuredOrigin()}/api/v1/direct-login/token`, jwks_uri: `${this.issuer(clientId)}/jwks`, userinfo_endpoint: `${this.issuer(clientId)}/userinfo`, response_types_supported: ['code'], subject_types_supported: ['pairwise'], id_token_signing_alg_values_supported: ['EdDSA'], token_endpoint_auth_methods_supported: ['client_secret_post'], code_challenge_methods_supported: ['S256'], scopes_supported: ['openid', 'phone'] }; }
+  async installExampleProvider(context:SessionContext,providerId:string,name:string) {
+    const site=exampleProviderOrigin();
+    const previous=await this.database.directLoginClient.findUnique({where:{sessionId_providerId:{sessionId:context.sessionId,providerId}}});
+    const saved=await this.savePartner(context,{providerId,name,callbackUrl:site+'/callback',loginStartUrl:site+'/login',kind:'external',enabled:false,acquisitionRateRial:previous?.acquisitionRateRial===null||previous?.acquisitionRateRial===undefined?null:Number(previous.acquisitionRateRial)});
+    const code=randomToken(),clientId=saved.partner.clientId;
+    await this.mutate(context.scope,async(state,reference,tx)=>{
+      void reference;
+      const client=await tx.directLoginClient.findUniqueOrThrow({where:{clientId}});
+      if(client.revision!==saved.partner.revision||!constantEqual(client.secretHash,sha256(saved.clientSecret)))throw invalid('Connection changed. Try again.');
+      if(state.installations!.length>=20)throw new ConflictException('Installation capacity reached');
+      await tx.directLoginClient.update({where:{clientId},data:{loginStartUrl:`${site}/providers/${clientId}/login`}});
+      state.installations!.push({hash:sha256(code),clientId,secret:saved.clientSecret,revision:client.revision,origin:site,expires:Date.now()+60000,consumed:false});
+    });
+    try {
+      const response=await fetch(new URL('/internal/registrations',exampleProviderInternalOrigin()),{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({clientId,code}),redirect:'error',signal:AbortSignal.timeout(8000)});
+      if(!response.ok)throw Error('Installation failed');
+      const result=await response.json() as {installed?:boolean;clientId?:string};
+      if(!result.installed||result.clientId!==clientId)throw Error('Invalid installation response');
+    } catch {throw new ConflictException('Example provider is unavailable. Start its service and connect again.');}
+    return this.mutate(context.scope,async(state,reference,tx)=>{
+      void reference;
+      const client=await tx.directLoginClient.findUniqueOrThrow({where:{clientId}});
+      const installation=state.installations!.find(i=>i.clientId===clientId&&i.hash===sha256(code));
+      if(!installation?.consumed||installation.expires<=Date.now()||client.revision!==saved.partner.revision||!constantEqual(client.secretHash,sha256(saved.clientSecret)))throw invalid('Connection changed during installation');
+      const active=await tx.directLoginClient.update({where:{clientId},data:{enabled:true}});
+      return {partner:this.publicPartner(active)};
+    });
+  }
+  async exchangeExampleInstallation(clientId:string,code:string) {
+    const client=await this.database.directLoginClient.findUnique({where:{clientId}});
+    if(!client)throw invalid();
+    return this.mutate(client,async(state,reference,tx)=>{
+      void reference;
+      const live=await tx.directLoginClient.findUniqueOrThrow({where:{clientId}});
+      const installation=state.installations!.find(i=>i.clientId===clientId&&i.hash===sha256(code)&&!i.consumed&&i.expires>Date.now());
+      if(!installation||live.revision!==installation.revision||installation.origin!==exampleProviderOrigin()||live.kind!=='external'||live.callbackUrl!==installation.origin+'/callback'||!constantEqual(live.secretHash,sha256(installation.secret)))throw invalid();
+      installation.consumed=true;
+      return {clientId,revision:live.revision,clientSecret:installation.secret,issuer:this.issuer(clientId),callbackUrl:live.callbackUrl,providerId:live.providerId,providerName:live.name,providerOrigin:installation.origin};
+    });
+  }
+  exampleSiteUrl(client:{clientId:string;kind:string;loginStartUrl:string;callbackUrl:string}) {
+    const site=exampleProviderOrigin();
+    return client.kind==='external'&&client.loginStartUrl===`${site}/providers/${client.clientId}/login`&&client.callbackUrl===site+'/callback'?`${site}/providers/${client.clientId}`:undefined;
+  }
+  private publicPartner(row: { providerId: string; name: string; callbackUrl: string; loginStartUrl: string; enabled: boolean; acquisitionRateRial: bigint | null; kind: string; clientId: string; revision: number }) { return { providerId: row.providerId, name: row.name, callbackUrl: row.callbackUrl, loginStartUrl: row.loginStartUrl, enabled: row.enabled, acquisitionRateRial: row.acquisitionRateRial === null ? null : Number(row.acquisitionRateRial), kind: row.kind, clientId: row.clientId, revision: row.revision, issuer: this.issuer(row.clientId), ...(this.exampleSiteUrl(row)?{exampleSiteUrl:this.exampleSiteUrl(row)}:{}) }; }
+  async metadata(clientId: string) { await this.client(clientId); return { issuer: this.issuer(clientId), authorization_endpoint: `${configuredOrigin()}/direct-login/begin`, token_endpoint: `${configuredOrigin()}/api/v1/direct-login/token`, jwks_uri: `${this.issuer(clientId)}/jwks`, userinfo_endpoint: `${this.issuer(clientId)}/userinfo`, response_types_supported: ['code'], subject_types_supported: ['pairwise'], id_token_signing_alg_values_supported: ['EdDSA'], token_endpoint_auth_methods_supported: ['client_secret_post'], code_challenge_methods_supported: ['S256'], scopes_supported: ['openid', 'phone', 'traveler'] }; }
   async jwks(clientId: string) { const client = await this.client(clientId); return this.clientMutation(client, state => ({ keys: [{ ...state.publicKey, kid: state.kid, alg: 'EdDSA', use: 'sig' }] })); }
   async choices(context: SessionContext, receipt: ReferralReceipt) {
     const partner = await this.partner(context.scope, receipt.payload.quote.providerId);
@@ -251,13 +322,15 @@ export class DirectLoginService {
     return Boolean(proof && state.snapshots.some(s => s.providerId === ref.providerId && s.root === proof.root && s.sequence < ref.sequence && s.at <= ref.created && s.trusted && s.origin === kind) && verifyAccountProof(ref.providerId, phone, proof));
   }
   async flow(scope: DataScope, id: string, browser: string, request: WebRequest) {
-    return this.mutate(scope, async state => {
+    return this.mutate(scope, async (state,reference,tx) => {
+      void reference;
       const flow = this.ownedFlow(state, id, browser), client = await this.client(flow.request.client_id), identity = this.identity(state, scope, request), ref = this.reference(state, client.clientId, flow.request.ref);
-      return { id: flow.id, providerId: client.providerId, providerName: client.name, referralId: ref.referralId, identity: this.publicIdentity(identity), existingProof: Boolean(identity && this.existing(state, flow, identity.phone, client.kind)), status: flow.status, expiresAt: new Date(flow.expires).toISOString() };
+      return { id: flow.id, providerId: client.providerId, providerName: client.name, referralId: ref.referralId, identity: this.publicIdentity(identity), existingProof: Boolean(identity && this.existing(state, flow, identity.phone, client.kind)), status: flow.status, expiresAt: new Date(flow.expires).toISOString(), profileRequired:flow.request.scope==='openid phone traveler', travelContext:flow.request.scope==='openid phone traveler'?await this.travelContext(tx,scope,ref.referralId):null };
     });
   }
   async consent(scope: DataScope, id: string, browser: string, request: WebRequest, approved: boolean) {
-    return this.mutate(scope, async state => {
+    return this.mutate(scope, async (state,reference,tx) => {
+      void reference;
       const flow = this.ownedFlow(state, id, browser), client = await this.client(flow.request.client_id);
       if (flow.status !== 'pending' || client.sessionId !== scope.sessionId) throw invalid();
       const callback = new URL(client.callbackUrl);
@@ -266,6 +339,11 @@ export class DirectLoginService {
       const identity = this.identity(state, scope, request);
       if (!identity) throw new UnauthorizedException('ابتدا وارد حساب کاربری شوید');
       const ref = this.reference(state, client.clientId, flow.request.ref), existing = this.existing(state, flow, identity.phone, client.kind);
+      if(flow.request.scope==='openid phone traveler') {
+        if(!identity.profile)throw invalid('ابتدا اطلاعات مسافر را کامل کنید');
+        try {flow.authorizedProfile=travelerProfileForTrip(identity.profile,await this.travelContext(tx,scope,ref.referralId),localDateAt(new Date().toISOString(),'Asia/Tehran'));}
+        catch(error){throw invalid(error instanceof Error?error.message:'اطلاعات مسافر را بررسی کنید');}
+      }
       const prior = state.acquisitions.find(a => a.providerId === client.providerId && a.identityId === identity.id && a.integration === client.kind && a.status === 'new');
       const acquisition: Acquisition = { integration: client.kind, id: randomUUID(), providerId: client.providerId, referralId: ref.referralId, identityId: identity.id, accountId: existing ? flow.proof!.accountId : null, status: existing ? 'existing' : prior ? 'repeat' : 'pending', reason: existing ? 'Verified account commitment predates referral' : prior ? 'Customer acquisition already recorded' : 'Attribution accepted before identity release; awaiting account evidence', createdAt: new Date().toISOString(), confirmedAt: existing ? new Date().toISOString() : null, rateRial: !existing && !prior && client.acquisitionRateRial !== null ? Number(client.acquisitionRateRial) : null, tariffRevision: client.revision, evidence: existing ? 'prior-commitment' : 'none' };
       if (!existing && !state.acknowledgments.some(a => a.referralId === ref.referralId && a.clientId === client.clientId && a.revision === client.revision)) throw new ConflictException('Provider attribution acknowledgment required');
@@ -291,11 +369,11 @@ export class DirectLoginService {
       if (!identity || !acquisition) throw invalid();
       flow.consumed = true; flow.status = 'complete';
       const now = Math.floor(Date.now() / 1000), access = randomToken();
-      const claims = { iss: this.issuer(client.clientId), aud: client.clientId, sub: this.subject(state, client.clientId, identity.id), iat: now, exp: now + 120, nonce: flow.request.nonce, phone_number: identity.phone, phone_number_verified: true, referral_id: acquisition.referralId, attribution: acquisition.status === 'existing' ? 'existing' : 'pending' };
+      const claims = { iss: this.issuer(client.clientId), aud: client.clientId, sub: this.subject(state, client.clientId, identity.id), iat: now, exp: now + 120, nonce: flow.request.nonce, phone_number: identity.phone, phone_number_verified: true, referral_id: acquisition.referralId, attribution: acquisition.status === 'existing' ? 'existing' : 'pending', ...(flow.authorizedProfile?{traveler_profile:flow.authorizedProfile}:{}) };
       const header = Buffer.from(JSON.stringify({ alg: 'EdDSA', kid: state.kid, typ: 'JWT' })).toString('base64url');
       const body = Buffer.from(JSON.stringify(claims)).toString('base64url');
       const signature = sign(null, Buffer.from(`${header}.${body}`), state.privateKey).toString('base64url');
-      state.access.push({ hash: sha256(access), clientId: client.clientId, identityId: identity.id, acquisitionId: acquisition.id, identitySession: flow.identitySession!, expires: Date.now() + 120000 });
+      state.access.push({ hash: sha256(access), clientId: client.clientId, identityId: identity.id, acquisitionId: acquisition.id, identitySession: flow.identitySession!, ...(flow.authorizedProfile?{authorizedProfile:flow.authorizedProfile}:{}), expires: Date.now() + 120000 });
       return { token_type: 'Bearer', expires_in: 120, access_token: access, id_token: `${header}.${body}.${signature}` };
     });
   }
@@ -308,7 +386,7 @@ export class DirectLoginService {
       const access = state.access.find(a => a.hash === sha256(bearer) && a.clientId === clientId && a.expires > Date.now());
       const acquisition = access && state.acquisitions.find(a => a.id === access.acquisitionId), identity = access && state.identities.find(i => i.id === access.identityId);
       if (!identity || !acquisition || !access || !state.sessions.some(s => s.hash === access.identitySession && s.expires > Date.now())) throw new UnauthorizedException();
-      return { sub: this.subject(state, clientId, identity.id), phone_number: identity.phone, phone_number_verified: true, referral_id: acquisition.referralId };
+      return { sub: this.subject(state, clientId, identity.id), phone_number: identity.phone, phone_number_verified: true, referral_id: acquisition.referralId, ...(access.authorizedProfile?{traveler_profile:access.authorizedProfile}:{}) };
     });
   }
   private reconcile(state: IssuerState, reference: ReferenceState) {

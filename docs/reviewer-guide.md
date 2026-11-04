@@ -151,3 +151,16 @@ browser results. [AI log](ai-development-log.md) describes the assisted process;
 [limitations](limitations.md) separates observed proof from unperformed checks.
 The [walkthrough](walkthrough.md) is a script/rehearsal artifact; an actual video
 recording is a separately requested follow-up.
+
+
+## Separate provider SSO
+
+Open the canonical platform origin, then admin **Direct Login → Connect separate
+site** for a provider. Its standalone website uses the other loopback hostname on
+port4310. Choose that provider's offer and continue with TorobTicket, verify the
+phone, complete primary-traveler details and approve sharing. The provider shows
+the verified claims in a JSON pre block and creates/reuses its own account. The
+local development verification code is123456 when the documented gates are enabled.
+See [integration instructions](direct-login-integration.md#separate-provider-website-and-traveler-profile).
+The separate website is an owned local integration, with self-reported documents
+and pending external attribution; no commercial provider or ticket is involved.

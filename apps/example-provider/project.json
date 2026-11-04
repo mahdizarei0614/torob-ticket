@@ -1,0 +1,47 @@
+{
+  "name": "example-provider",
+  "sourceRoot": "apps/example-provider/src",
+  "projectType": "application",
+  "tags": [
+    "scope:server",
+    "type:app"
+  ],
+  "targets": {
+    "lint": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "eslint apps/example-provider"
+      }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc --noEmit -p apps/example-provider/tsconfig.json"
+      }
+    },
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc -p apps/example-provider/tsconfig.build.json && tsc-alias -p apps/example-provider/tsconfig.build.json"
+      },
+      "outputs": [
+        "{workspaceRoot}/dist/apps/example-provider"
+      ]
+    },
+    "serve": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "node --watch dist/apps/example-provider/apps/example-provider/src/main.js"
+      },
+      "dependsOn": [
+        "build"
+      ]
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "vitest run --project example-provider"
+      }
+    }
+  }
+}

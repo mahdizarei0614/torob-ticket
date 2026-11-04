@@ -167,3 +167,12 @@ The standalone Node SDK and its integration guide are in
 walkthrough, configuration, proof protocol and external verification boundary.
 Local verification uses the admin inbox. Actual SMS, Torob federation and external
 account verification require their respective connections.
+
+
+### Separate provider website
+
+The standalone provider runs on a different hostname at port4310. In admin Direct
+Login, choose **Connect separate site** for a provider, then **Open provider
+website**. Start from a selected TorobTicket offer to obtain its current referral.
+The provider performs the backend SDK code exchange and displays the consented
+traveler claims in a JSON pre block. See [setup and traveler fields](docs/direct-login-integration.md#separate-provider-website-and-traveler-profile).

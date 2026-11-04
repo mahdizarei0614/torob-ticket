@@ -7,6 +7,14 @@
 
 ## 1. Intent and success
 
+**Owner external-provider extension, 2026-11-04 (decision0088):** add a standalone
+provider website with its own backend/origin/session store, actual SDK SSO and an
+escaped JSON response. Support an explicitly consented primary-traveler profile
+and route-relevant ticket identity fields. The new profile scope supersedes the
+old exclusion on collecting these fields only for this optional SSO/profile flow.
+Comparison party/quote authority, guest access and external evidence requirements
+remain authoritative. Document details are self-reported.
+
 **Owner Direct Login extension, 2026-11-04 (decision0087):** implement a local
 OIDC code/PKCE issuer, backend provider SDK, reference provider, explicit partner
 enrollment, phone consent, witnessed prior-account exemptions and acquisition

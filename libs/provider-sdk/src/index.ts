@@ -38,13 +38,19 @@ export function verifyAccountProof(providerId: string, phone: string, proof: Com
   return constantEqual(hash, proof.root);
 }
 
+export interface TravelerProfile {
+  givenName: string; familyName: string; birthDate: string; gender: 'female' | 'male' | 'unspecified'; nationality: string;
+  email?: string; latinGivenName?: string; latinFamilyName?: string; nationalId?: string;
+  passport?: { number: string; issuingCountry: string; expiresOn: string };
+}
 export interface ProviderConfiguration {
   issuer: string; clientId: string; clientSecret: string; callbackUrl: string;
   /** Supply a bounded HTTP transport for the provider backend. */
   transport?: typeof fetch;
+  scope?: 'openid phone' | 'openid phone traveler';
 }
 export interface LoginTransaction { state: string; nonce: string; verifier: string; referral: string; createdAt: number }
-export interface IdentityClaims { iss: string; aud: string; sub: string; exp: number; iat: number; nonce: string; phone_number: string; phone_number_verified: true; referral_id: string; attribution: 'existing' | 'pending' }
+export interface IdentityClaims { iss: string; aud: string; sub: string; exp: number; iat: number; nonce: string; phone_number: string; phone_number_verified: true; referral_id: string; attribution: 'existing' | 'pending'; traveler_profile?: TravelerProfile }
 /** Backend only. Persist the transaction under a random HttpOnly browser cookie.
  * Consume that transaction atomically before redeeming a callback. Never use a
  * query-string state value as its own expected state. */
@@ -59,7 +65,7 @@ export function createProviderSdk(config: ProviderConfiguration) {
     begin(referral: string) {
       const transaction: LoginTransaction = { state: randomToken(), nonce: randomToken(), verifier: randomToken(), referral, createdAt: Date.now() };
       const url = new URL('/direct-login/begin', config.issuer);
-      url.search = new URLSearchParams({ response_type: 'code', client_id: config.clientId, redirect_uri: config.callbackUrl, scope: 'openid phone', state: transaction.state, nonce: transaction.nonce, code_challenge: pkceChallenge(transaction.verifier), code_challenge_method: 'S256', ref: referral }).toString();
+      url.search = new URLSearchParams({ response_type: 'code', client_id: config.clientId, redirect_uri: config.callbackUrl, scope: config.scope ?? 'openid phone', state: transaction.state, nonce: transaction.nonce, code_challenge: pkceChallenge(transaction.verifier), code_challenge_method: 'S256', ref: referral }).toString();
       return { transaction, url: url.href };
     },
     async acceptReferral(referral: string) {
@@ -89,6 +95,7 @@ export function createProviderSdk(config: ProviderConfiguration) {
       const claims = JSON.parse(Buffer.from(parts[1]!, 'base64url').toString()) as IdentityClaims;
       const now = Math.floor(Date.now() / 1000);
       if (claims.iss !== config.issuer || claims.aud !== config.clientId || claims.nonce !== expected.nonce || typeof claims.sub !== 'string' || !claims.sub || typeof claims.iat !== 'number' || claims.iat > now + 30 || typeof claims.exp !== 'number' || claims.exp <= now || claims.exp > claims.iat + 300 || typeof claims.phone_number !== 'string' || claims.phone_number_verified !== true || typeof claims.referral_id !== 'string' || !['existing', 'pending'].includes(claims.attribution)) throw new Error('Invalid identity claims');
+      if (config.scope === 'openid phone traveler' && (!claims.traveler_profile || typeof claims.traveler_profile.givenName !== 'string' || typeof claims.traveler_profile.familyName !== 'string' || typeof claims.traveler_profile.birthDate !== 'string')) throw new Error('Missing consented traveler profile');
       return claims;
     }
   };

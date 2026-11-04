@@ -66,7 +66,7 @@ async function fixture(t, mode, health = 200, development = false, hasFrontends 
   await writeFile(join(directory, 'docker'), `#!/usr/bin/env node
 const args = process.argv.slice(2);
 ${development ? `if (args.splice(1, 4).join(' ') !== '-f compose.yaml -f compose.dev.yaml') { console.error('Missing dev Compose override'); process.exit(45); }` : ''}
-if (args.join(' ') === 'compose config --format json') console.log(JSON.stringify({ name: 'runner-test', services: { gateway: { ports: [{ host_ip: '127.0.0.1', published: '${port}', target: 80 }] } } }));
+if (args.join(' ') === 'compose config --format json') console.log(JSON.stringify({ name: 'runner-test', services: { gateway: { ports: [{ host_ip: '127.0.0.1', published: '${port}', target: 80 }] }, api: { environment: { TOROBTICKET_SSO_ORIGIN: 'http://localhost:${port}' } }, 'example-provider': { environment: { TOROBTICKET_EXAMPLE_PROVIDER_PORT: '4310' } } } }));
 else if (args.join(' ') === 'compose up --build --wait --wait-timeout 120') { console.log('initializer executed'); process.exit(${mode === 'fail' ? 17 : 0}); }
 else if (args.join(' ') === 'compose ps --all --format json') console.log(${JSON.stringify(JSON.stringify(containers))});
 else if (args.join(' ') === 'compose down') console.log('project stopped; volumes preserved');

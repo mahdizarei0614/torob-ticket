@@ -35,7 +35,10 @@ try {
     }
     console.log('Hot reload: source edits update web/admin automatically; successful API TypeScript compilations restart the server.');
   }
-  console.log(`Web: http://localhost:${port}/\nAdmin: http://localhost:${port}/admin/`);
+  const issuer = new URL(config.services.api.environment.TOROBTICKET_SSO_ORIGIN);
+  const provider = config.services['example-provider'];
+  const providerOrigin = provider.environment.TOROBTICKET_EXAMPLE_PROVIDER_ORIGIN || `http://${issuer.hostname === 'localhost' ? '127.0.0.1' : 'localhost'}:${provider.environment.TOROBTICKET_EXAMPLE_PROVIDER_PORT}`;
+  console.log(`Web: ${issuer.origin}/\nAdmin: ${issuer.origin}/admin/\nProvider: ${providerOrigin}/`);
 } catch (error) {
   const command = development ? 'pnpm docker:dev' : 'pnpm docker:up';
   const inspection = `docker compose ${composeFiles.length ? composeFiles.join(' ') + ' ' : ''}`;

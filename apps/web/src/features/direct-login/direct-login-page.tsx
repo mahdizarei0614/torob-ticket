@@ -1,3 +1,4 @@
+import { TravelerForm } from './traveler-form';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router';
 import { apiClient, directLoginClient } from '@torob-ticket/client';
@@ -30,7 +31,7 @@ export function PhoneVerification({ providerId, onVerified }: { providerId?: str
 }
 export function DirectLoginPage() {
   const { id } = useParams(), location = useLocation(), navigate = useNavigate();
-  const [flow, setFlow] = useState<z.infer<typeof DirectFlowSchema>>(), [identity, setIdentity] = useState<Identity | null>(), [error, setError] = useState(''), [busy, setBusy] = useState(false), [generation, reload] = useState(0);
+  const [flow, setFlow] = useState<z.infer<typeof DirectFlowSchema>>(), [identity, setIdentity] = useState<Identity | null>(), [error, setError] = useState(''), [busy, setBusy] = useState(false), [generation, reload] = useState(0), [editing, setEditing] = useState(false);
   const begin = location.pathname === '/direct-login/begin', alive = useRef(true), lock = useRef(false);
   useEffect(() => { alive.current = true; const controller = new AbortController();
     void (async () => {
@@ -43,16 +44,17 @@ export function DirectLoginPage() {
     return () => { alive.current = false; controller.abort(); };
   }, [id, begin, location.search, navigate, generation]);
   async function action(approved: boolean) {
-    if (!id || lock.current) return; lock.current = true; setBusy(true); setError('');
+    if (!id || flow?.id !== id || lock.current) return; lock.current = true; setBusy(true); setError('');
     try { const result = await directLoginClient.consent(id, approved); if (alive.current) window.location.assign(result.redirect); }
     catch (e) { if (alive.current) setError(message(e)); }
     finally { lock.current = false; if (alive.current) setBusy(false); }
   }
-  async function logout() { setBusy(true); try { await directLoginClient.logout(); if (alive.current) { setIdentity(null); reload(n => n + 1); } } catch (e) { if (alive.current) setError(message(e)); } finally { if (alive.current) setBusy(false); } }
+  async function logout() { setBusy(true); try { await directLoginClient.logout(); if (alive.current) { setIdentity(null); setEditing(false); reload(n => n + 1); } } catch (e) { if (alive.current) setError(message(e)); } finally { if (alive.current) setBusy(false); } }
+  if (begin || (id && flow?.id !== id)) return <Frame>{error ? <div className={s.error} role="alert">{error}</div> : <p role="status">در حال آماده‌سازی ورود…</p>}</Frame>;
   return <Frame providerId={flow?.providerId}><h1>{flow ? `ادامه در ${flow.providerName}` : 'ورود به ترب‌تیکت'}</h1>{error && <div className={s.error} role="alert">{error}</div>}
     {identity === undefined ? <p role="status">در حال آماده‌سازی ورود…</p> : !identity ? <><p>با شماره همراه خود وارد شوید</p><PhoneVerification onVerified={value => { setIdentity(value); reload(n => n + 1); }} /></> : <>
       <div className={s.details}>شماره همراه شما <bdi dir="ltr">{identity.phone}</bdi></div>
-      {flow ? flow.status === 'pending' ? <><p>با ادامه، شماره همراه تأییدشده شما در اختیار {flow.providerName} قرار می‌گیرد تا وارد حساب خود شوید یا حساب بسازید.</p>{flow.existingProof && <p>حساب قبلی شما در این فروشنده پیدا شد</p>}<div className={s.actions}><button className={s.button} disabled={busy} onClick={() => void action(true)}>اجازه و ادامه</button><button className={s.quiet} disabled={busy} onClick={() => void action(false)}>انصراف</button></div></> : <><p>این درخواست ورود پایان یافته است. برای ورود دوباره از صفحه فروشنده ادامه دهید.</p><a href={`/api/v1/direct-login/start/${flow.referralId}`} className={s.quiet}>ادامه از همین پیشنهاد</a></> : <a href="/" className={s.button}>جست‌وجوی سفر</a>}
+      {flow ? flow.status === 'pending' ? <><p>با ادامه، شماره همراه تأییدشده{flow.profileRequired ? ' و مشخصات مسافر شامل نام، تاریخ تولد، جنسیت، تابعیت، مدرک هویتی مرتبط با سفر و ایمیل اختیاری' : ''} شما در اختیار {flow.providerName} قرار می‌گیرد تا وارد حساب خود شوید یا حساب بسازید.</p>{flow.profileRequired && flow.travelContext && ((!identity.profile || editing) ? <TravelerForm key={`${id}:${identity.phone}`} profile={identity.profile} context={flow.travelContext} onSaved={profile => { setIdentity(current => current?.phone === identity.phone ? { ...current, profile } : current); setEditing(false); }} /> : <div className={s.details}><h2>{identity.profile.givenName} {identity.profile.familyName}</h2><p>تولد {identity.profile.birthDate} · تابعیت {identity.profile.nationality}</p><p>مشخصات ثبت‌شده توسط شما برای ادامه سفر ارسال می‌شود.</p><button className={s.inline} onClick={() => setEditing(true)}>ویرایش مشخصات مسافر</button></div>)}{flow.existingProof && <p>حساب قبلی شما در این فروشنده پیدا شد</p>}<div className={s.actions}><button className={s.button} disabled={busy || Boolean(flow.profileRequired && (!identity.profile || editing))} onClick={() => void action(true)}>اجازه و ادامه</button><button className={s.quiet} disabled={busy} onClick={() => void action(false)}>انصراف</button></div></> : <><p>این درخواست ورود پایان یافته است. برای ورود دوباره از صفحه فروشنده ادامه دهید.</p><a href={`/api/v1/direct-login/start/${flow.referralId}`} className={s.quiet}>ادامه از همین پیشنهاد</a></> : <a href="/" className={s.button}>جست‌وجوی سفر</a>}
       <button className={s.inline} disabled={busy} onClick={() => void logout()}>ورود با شماره دیگر</button>
     </>}{flow && !identity && <button className={s.quiet} disabled={busy} onClick={() => void action(false)}>انصراف</button>}
   </Frame>;

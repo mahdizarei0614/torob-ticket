@@ -45,6 +45,15 @@ services:
     healthcheck:
       start_period: 30s
 
+  example-provider:
+    build:
+      target: development
+    command: [node, tools/dev-api.mjs, apps/example-provider/tsconfig.build.json, .dev/example-provider, apps/example-provider/src/main.js]
+    environment:
+      NODE_ENV: development
+      TOROBTICKET_DEV_POLLING: ${TOROBTICKET_DEV_POLLING:-false}
+    volumes: [./apps:/app/apps:ro, ./libs:/app/libs:ro, ./assets:/app/assets:ro, ./tools:/app/tools:ro, ./tsconfig.base.json:/app/tsconfig.base.json:ro, example_provider:/data]
+
   web:
     labels:
       org.torobticket.runtime: development

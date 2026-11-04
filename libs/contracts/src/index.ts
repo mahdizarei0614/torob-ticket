@@ -13,3 +13,4 @@ export * from './admin-mapping';
 export * from './admin-referrals';
 export * from './provider-traffic';
 export * from './direct-login';
+export * from './traveler-profile';

@@ -119,3 +119,67 @@ evidence verifies admin enrollment, sign-in, consent and the resumed provider of
 Protocol references are OpenID Connect Core, OAuth security BCP RFC9700, and the
 Merkle inclusion construction described in RFC9162. The local implementation supports
 the documented subset and has not undergone OpenID conformance certification.
+
+
+## Separate provider website and traveler profile
+
+`apps/example-provider` is a standalone Node application with its own persistent
+private credentials/accounts/sessions/transaction/outbox store. It does the actual
+SDK authorization-code exchange, verifies the signed claims, and renders escaped
+JSON in `pre#sso-response`. The app is local; it does not contact a commercial
+travel provider or issue a ticket.
+
+`pnpm docker:dev` and `pnpm docker:up` now start the provider service too. Host
+`pnpm start` includes its build/serve target. The canonical platform origin is
+`TOROBTICKET_SSO_ORIGIN`. The provider defaults to the other loopback hostname:
+platform127.0.0.1:4300 → providerlocalhost:4310, or platformlocalhost:4300 →
+provider127.0.0.1:4310. Different ports alone would share host cookies and are
+insufficient isolation. `TOROBTICKET_EXAMPLE_PROVIDER_ORIGIN` overrides the public
+origin and must use a different hostname; outside loopback use HTTPS. The optional
+`TOROBTICKET_EXAMPLE_PROVIDER_PORT` changes the published/default public port.
+Internal Docker traffic uses the fixed operator-configured service origins.
+
+1. Open the canonical platform `/admin/direct-login` in the browser used for search.
+2. Choose **Connect separate site** on the desired provider row. The API stages a
+   disabled client, sends a one-use60-second installation code server-to-server,
+   and activates only the unchanged successfully installed registration. No secret
+   is copied through the browser. Failed installation stays disabled; retry it.
+3. Search and select an offer from that provider. Choose either ordinary site
+   navigation followed by **ادامه با ترب‌تیکت**, or the direct continuation option.
+4. Verify the TorobTicket phone. In the opted-in local development runtime,
+   `123456` works under the existing loopback/test gates. Complete primary-traveler
+   information, save it, and explicitly authorize sharing with the named provider.
+5. The separate site creates/reuses its own subject-bound account. The displayed
+   `provider_account.status` is `created` on first successful login and `existing`
+   on subsequent logins. A different verified phone creates a different subject.
+   Existing accounts from the older same-origin reference provider are retained
+   there and are not silently copied into this separate store.
+
+Base fields are given/family name, Gregorian birth date, gender and two-letter
+nationality, with optional contact email. Domestic Iranian travel requires a
+10-digit national ID. International travel requires passport number, issuing
+country, expiry through the recorded last travel date and Latin names. Foreign
+travelers on domestic routes use passport. These are self-reported signup fields,
+not verified identity documents or a guarantee of every carrier's requirements.
+Other travelers must be completed at the provider; no party is fabricated from
+one profile. The issuer derives travel context from its stored referral receipt.
+
+The additive SDK scope is `openid phone traveler`. Old `openid phone` integrations
+remain valid and do not receive profile/document claims. Consent freezes only the
+relevant document projection in both ID-token and UserInfo data. Later profile
+edits cannot rewrite a prior grant. Denial produces no new disclosure. JSON shows
+verified decoded claims, not raw tokens or credentials. Cookies are host-only;
+provider cookies use Lax for cross-site callback and issuer cookies retain Strict.
+Logout requires a session-bound form CSRF token even for `Origin:null` forms.
+
+The provider's persistent JSON store is a bounded, single-process local example,
+written atomically with private file permissions. Container data is in the
+`example_provider` volume; host data defaults to ignored `.local/example-provider`.
+Both ordinary shutdown paths preserve it. Explicit Docker reset removes project
+volumes. Do not run multiple writers against this example file store.
+
+An external account event remains `pending` and unbilled until independently
+verified. The local site's `existing` result is not an existing-customer billing
+exemption. Merkle proofs still require a trusted commitment from before referral;
+provider assertions alone cannot waive referral attribution. See decision0088 and
+`docs/evidence/adjustments/external-provider/verification.md` for actual evidence.

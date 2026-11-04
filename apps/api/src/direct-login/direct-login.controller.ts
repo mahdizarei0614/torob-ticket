@@ -2,7 +2,7 @@ import {ENROLLMENT_VERIFIER,unavailableVerifier} from './enrollment-verifier';
 import {sha256} from '@torob-ticket/provider-sdk';
 import { Body, Controller, Get, Head, Header, HttpCode, HttpException, BadRequestException, UnauthorizedException, Inject, Injectable, MethodNotAllowedException, Module, Param, Post, Query, Req, Res, UseGuards, UseInterceptors, type CallHandler, type ExecutionContext, type NestInterceptor } from '@nestjs/common';
 import { z } from 'zod';
-import { AuthorizeSchema, CommitmentProofSchema, IdSchema, PartnerInputSchema, PhoneSchema, TokenRequestSchema, type AuthorizeInput, type PartnerInput } from '@torob-ticket/contracts';
+import { AuthorizeSchema, CommitmentProofSchema, IdSchema, PartnerInputSchema, PhoneSchema, TokenRequestSchema, TravelerProfileSchema, type TravelerProfile, type AuthorizeInput, type PartnerInput } from '@torob-ticket/contracts';
 import { ZodValidationPipe } from '../common/zod-validation.pipe';
 import { SessionGuard } from '../sessions/session.guard';
 import { SessionModule } from '../sessions/session.module';
@@ -41,6 +41,7 @@ class DirectBrowserController {
     this.service.setCookie(r.sessionContext!.scope, 'identity', result.token, response);
     return { identity: result.identity };
   }
+  @Post('profile') profile(@Req() r: Request,@Body(new ZodValidationPipe(TravelerProfileSchema)) input:TravelerProfile){this.service.assertBrowserMutation(r);return this.service.saveProfile(r.sessionContext!.scope,r,input);}
   @Post('logout') async logout(@Req() r: Request, @Body(new ZodValidationPipe(Empty)) _body: object) { void _body; this.service.assertBrowserMutation(r); return this.service.logout(r.sessionContext!.scope, r); }
   @Get('choices/:id') async choices(@Req() r: Request, @Param('id') id: string) { return this.service.choices(r.sessionContext!, await this.referrals.getReferral(r.sessionContext!, id)); }
   @Head('start/:id') head() { throw new MethodNotAllowedException(); }
@@ -83,6 +84,8 @@ class DirectBackchannelController {
     catch (error) { if (error instanceof UnauthorizedException) throw new UnauthorizedException({error:'invalid_client'}); if (error instanceof HttpException && error.getStatus() === 400) throw new BadRequestException({error:'invalid_grant'}); throw error; }
   }
   @Get('issuer/:clientId/userinfo') userinfo(@Param('clientId') clientId: string, @Req() r: Request) { return this.service.userinfo(clientId, /^Bearer ([A-Za-z0-9_-]{43})$/.exec(r.headers.authorization ?? '')?.[1] ?? ''); }
+  @Post('client-status') status(@Body(new ZodValidationPipe(z.strictObject({client_id:IdSchema,client_secret:z.string().regex(/^[A-Za-z0-9_-]{43}$/)}))) input:{client_id:string;client_secret:string}){return this.service.clientStatus(input.client_id,input.client_secret);}
+  @Post('example-registration') installation(@Body(new ZodValidationPipe(z.strictObject({client_id:IdSchema,code:z.string().regex(/^[A-Za-z0-9_-]{43}$/)}))) input:{client_id:string;code:string}){return this.service.exchangeExampleInstallation(input.client_id,input.code);}
   @Post('account-events') event(@Body(new ZodValidationPipe(z.strictObject({ client_id: z.string(), client_secret: z.string(), referral_id: z.string(), sub: z.string(), account_id: IdSchema, attestation: z.string().max(16000).optional() }))) input: { client_id: string; client_secret: string; referral_id: string; sub: string; account_id: string; attestation?: string }) { return this.service.reportAccount(input.client_id, input.client_secret, input.referral_id, input.sub, input.account_id, input.attestation); }
   @Post('commitments') commitment(@Body(new ZodValidationPipe(z.strictObject({ client_id: z.string(), client_secret: z.string(), root: z.string().regex(/^[a-f0-9]{64}$/), attestation: z.string().max(16000) }))) input: { client_id: string; client_secret: string; root: string; attestation: string }) { return this.service.publishCommitment(input.client_id, input.client_secret, input.root, input.attestation); }
   @Post('existing-proofs') proof(@Body(new ZodValidationPipe(z.strictObject({ client_id: z.string(), client_secret: z.string(), ref: z.string(), proof: CommitmentProofSchema }))) input: { client_id: string; client_secret: string; ref: string; proof: z.infer<typeof CommitmentProofSchema> }) { return this.service.proveExisting(input.client_id, input.client_secret, input.ref, input.proof); }
@@ -94,6 +97,7 @@ class DirectBackchannelController {
 class DirectAdminController {
   constructor(@Inject(DirectLoginService) private readonly service: DirectLoginService) {}
   @Get() list(@Req() r: Request) { return this.service.admin(r.sessionContext!.scope); }
+  @Post('example-provider') example(@Req() r:Request,@Body(new ZodValidationPipe(z.strictObject({providerId:IdSchema,name:z.string().trim().min(1).max(100)}))) input:{providerId:string;name:string}){this.service.assertBrowserMutation(r);return this.service.installExampleProvider(r.sessionContext!,input.providerId,input.name);}
   @Post('partners') partner(@Req() r: Request, @Body(new ZodValidationPipe(PartnerInputSchema)) input: PartnerInput) { this.service.assertBrowserMutation(r); return this.service.savePartner(r.sessionContext!, input); }
 }
 @Controller('v1/reference-provider/:providerId')

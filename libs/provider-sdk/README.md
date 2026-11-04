@@ -46,7 +46,20 @@ report stays pending until the configured EnrollmentVerifier confirms first
 account enrollment. The default adapter trusts no external attestation.
 
 Current supported protocol is OIDC authorization code with S256 PKCE, EdDSA ID
-tokens, client_secret_post and `openid phone`. There are no refresh tokens or
+tokens, client_secret_post and `openid phone` / `openid phone traveler`. There are no refresh tokens or
 implicit grants. Endpoint URLs are derived from the registered TorobTicket issuer.
 The consuming backend owns browser session binding, account linking, callback
 recovery, secure secret storage and outbox delivery. Use HTTPS outside loopback.
+
+For ticket-related signup, pass `scope: 'openid phone traveler'` in the SDK
+configuration. `claims.traveler_profile` then contains the explicitly approved
+primary-traveler snapshot: names, date of birth, gender, nationality, optional
+email, and the document fields relevant to the recorded trip. Domestic Iranian
+travel uses national ID; international travel uses passport and Latin names.
+Foreign domestic travelers use passport. Entered documents are self-reported.
+Phone-only clients remain supported and receive no traveler profile.
+
+The runnable integration is `apps/example-provider`: a separate Node HTTP backend,
+private account/session store, cross-host redirects and escaped claims JSON in
+`pre#sso-response`. Its browser never receives the client secret or raw ID/access
+tokens. See `docs/direct-login-integration.md` for setup and scope boundaries.

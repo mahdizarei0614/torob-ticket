@@ -40,6 +40,9 @@ services:
     environment:
       DATABASE_URL: postgresql://torobticket:local-demo-only@database:5432/torobticket
       TOROBTICKET_SSO_ORIGIN: ${TOROBTICKET_SSO_ORIGIN:-http://localhost:${TOROBTICKET_PORT:-4300}}
+      TOROBTICKET_EXAMPLE_PROVIDER_ORIGIN: ${TOROBTICKET_EXAMPLE_PROVIDER_ORIGIN:-}
+      TOROBTICKET_EXAMPLE_PROVIDER_PORT: ${TOROBTICKET_EXAMPLE_PROVIDER_PORT:-4310}
+      TOROBTICKET_EXAMPLE_PROVIDER_INTERNAL_ORIGIN: http://example-provider:4310
     depends_on:
       initializer:
         condition: service_completed_successfully
@@ -51,6 +54,35 @@ services:
       timeout: 5s
       retries: 30
       start_period: 5s
+  example-provider:
+    build:
+      context: .
+      dockerfile: infra/Dockerfile
+      target: example-provider
+      args:
+        NPM_REGISTRY: ${TOROBTICKET_NPM_REGISTRY:-https://registry.npmjs.org}
+        PRISMA_ENGINES_MIRROR: ${TOROBTICKET_PRISMA_ENGINES_MIRROR:-https://binaries.prisma.sh}
+    environment:
+      HOST: 0.0.0.0
+      PORT: 4310
+      TOROBTICKET_SSO_ORIGIN: ${TOROBTICKET_SSO_ORIGIN:-http://localhost:${TOROBTICKET_PORT:-4300}}
+      TOROBTICKET_EXAMPLE_PROVIDER_ORIGIN: ${TOROBTICKET_EXAMPLE_PROVIDER_ORIGIN:-}
+      TOROBTICKET_EXAMPLE_PROVIDER_PORT: ${TOROBTICKET_EXAMPLE_PROVIDER_PORT:-4310}
+      TOROBTICKET_ISSUER_INTERNAL_ORIGIN: http://api:4302
+      TOROBTICKET_PROVIDER_STORE: /data/provider.json
+    ports:
+      - '127.0.0.1:${TOROBTICKET_EXAMPLE_PROVIDER_PORT:-4310}:4310'
+    volumes:
+      - example_provider:/data
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: [CMD, node, -e, "fetch('http://127.0.0.1:4310/health/ready').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
   gateway:
     build:
       context: .
@@ -72,3 +104,4 @@ services:
       retries: 30
 volumes:
   database:
+  example_provider:

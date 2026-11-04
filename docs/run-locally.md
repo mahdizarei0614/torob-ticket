@@ -228,3 +228,12 @@ with the documented public registry mirror overrides in `.env.example`; retain
 the frozen lockfile. No automatic volume deletion is needed for either issue.
 Architecture support is described above; a successful arm64 rehearsal does not
 establish an amd64 run.
+
+
+## Separate provider website
+
+The fourth app, `example-provider`, runs its Node backend on4310 with a separate
+hostname from the canonical `TOROBTICKET_SSO_ORIGIN`. It is included in normal
+build/start and both Compose modes. Setup, environment settings, persistent local
+store and the traveler consent walkthrough are in
+[Direct Login integration](direct-login-integration.md#separate-provider-website-and-traveler-profile).

@@ -200,3 +200,14 @@ Actual HTTP/PostgreSQL, SDK/component and desktop/mobile browser evidence is in
 `docs/evidence/adjustments/direct-login/verification.md`. The default independent
 verifier rejects external attestations, and phone delivery remains a scoped local
 admin inbox. No external integration or provider payment is claimed.
+
+## 2026-11-04 — Separate provider and traveler signup
+
+Implemented owner-requested standalone provider website with an actual backend SDK
+SSO round trip, escaped approved-claims JSON and its own persistent accounts.
+Added explicit traveler scope, phone-bound primary-traveler data, trip-derived
+identity-document requirements and immutable consent snapshots. Independent review
+identified installation revision and consent-route races; both were fixed with
+regressions. Chrome exposed null-Origin logout forms under no-referrer; a
+session-bound CSRF token fixed them. See decision0088 and the owning verification
+record for tests, local runtime evidence and external verification limits.

@@ -39,6 +39,16 @@ COPY infra/healthcheck.mjs ./infra/healthcheck.mjs
 USER node
 CMD ["node", "dist/apps/api/apps/api/src/main.js"]
 
+FROM node-base AS example-provider
+ENV NODE_ENV=production PORT=4310 HOST=0.0.0.0 TOROBTICKET_PROVIDER_STORE=/data/provider.json
+COPY --from=build /app/dist/apps/example-provider ./dist/apps/example-provider
+COPY apps/example-provider/public ./apps/example-provider/public
+COPY libs/ui/src/styles/tokens.css ./libs/ui/src/styles/tokens.css
+COPY assets/fonts/Vazirmatn-wght.woff2 ./assets/fonts/Vazirmatn-wght.woff2
+RUN mkdir -p /data && chown node:node /data
+USER node
+CMD ["node", "dist/apps/example-provider/apps/example-provider/src/main.js"]
+
 FROM caddy:2.11.7-alpine@sha256:eb4d35b7452d1ab6171fbdbe8d9275b2301dad6dad92115d91e19fb9b24d510f AS gateway
 COPY infra/Caddyfile /etc/caddy/Caddyfile
 COPY --from=build /app/dist/apps/web /srv/web

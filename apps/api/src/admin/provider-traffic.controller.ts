@@ -31,8 +31,9 @@ export class OutboundReferralController {
   const receipt=await this.referrals.getReferral(r.sessionContext!,id).catch(trafficError);
   const partner=await this.direct.partner(r.sessionContext!.scope,receipt.payload.quote.providerId);
   if(partner&&visit!=='1'){response.redirect(302,`/direct-login/choose/${id}`);return;}
-  if(partner)await this.direct.bindReferral(r.sessionContext!,receipt);
+  const binding=partner?await this.direct.bindReferral(r.sessionContext!,receipt):undefined;
   await this.service.issue(r.sessionContext!,id).catch(trafficError);
-  response.redirect(302,partner?(partner.kind==='reference'?`/reference-provider/${partner.providerId}?referral=${id}`:new URL(partner.loginStartUrl).origin):OUTBOUND_PROVIDER_DESTINATION);
+  const example=partner&&this.direct.exampleSiteUrl(partner);
+  response.redirect(302,example&&binding?`${example}?ref=${binding.handle}`:partner?(partner.kind==='reference'?`/reference-provider/${partner.providerId}?referral=${id}`:new URL(partner.loginStartUrl).origin):OUTBOUND_PROVIDER_DESTINATION);
  }
 }

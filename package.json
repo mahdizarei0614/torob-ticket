@@ -8,10 +8,10 @@
     "pnpm": "11.9.0"
   },
   "scripts": {
-    "start": "nx run-many -t serve --projects=web,admin,api --parallel=3",
+    "start": "nx run-many -t serve --projects=web,admin,api,example-provider --parallel=4",
     "lint": "nx run-many -t lint",
     "typecheck": "nx run-many -t typecheck",
-    "build": "pnpm brand:verify && nx run-many -t build --projects=web,admin,api",
+    "build": "pnpm brand:verify && nx run-many -t build --projects=web,admin,api,example-provider",
     "test": "pnpm test:tools && nx run-many -t test",
     "verify": "nx run-many -t lint,typecheck,test,build",
     "verify:release": "node tools/verify-release.mjs",

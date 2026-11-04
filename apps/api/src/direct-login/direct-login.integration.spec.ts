@@ -6,7 +6,7 @@ import {z} from 'zod';
 import { Test } from '@nestjs/testing';
 import type { INestApplication } from '@nestjs/common';
 import { createHash, randomUUID } from 'node:crypto';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { AuthorizeSchema, PartnerSchema, ProviderTrafficSchema, ReferencePageSchema, DirectAdminSchema, DirectFlowSchema, ReferralReceiptSchema, RecheckResultSchema, SearchRecoverySchema, type PartnerInput, type ReferralReceipt, type TransportSearchQuery } from '@torob-ticket/contracts';
 import { accountTree, createProviderSdk, randomToken } from '@torob-ticket/provider-sdk';
 import { AppModule } from '../app.module';
@@ -287,4 +287,54 @@ describe('Direct Login over real HTTP and PostgreSQL', () => {
     const db = app.get(SessionService).database; expect(await db.directLoginClient.count({ where: { clientId: reg.partner.clientId } })).toBe(0);
     const hash = createHash('sha256').update(b.cookies.get('torob_demo')!).digest('hex'); owned.push((await db.demoSession.findUniqueOrThrow({ where: { credentialHash: hash } })).id);
   });
+  it('requires traveler scope completion, snapshots approved domestic fields, and keeps phone-only grants minimal', async () => {
+    const b = await setup(), reg = await register(b, 'demo-provider-04', null, 'external'); await phone(b);
+    const selected = await receipt(b), redirected = await b.call(`/api/v1/direct-login/start/${selected.referralId}`), handle = new URL(redirected.headers.get('location')!).searchParams.get('ref')!;
+    const sdk = createProviderSdk({ issuer: reg.partner.issuer, clientId: reg.partner.clientId, clientSecret: reg.clientSecret, callbackUrl: reg.input.callbackUrl, scope: 'openid phone traveler' });
+    await sdk.acceptReferral(handle);
+    const pending = sdk.begin(handle), created = await b.call('/api/v1/direct-login/authorizations', AuthorizeSchema.parse(Object.fromEntries(new URL(pending.url).searchParams)));
+    const id = z.object({redirect:z.string()}).parse(await created.json()).redirect.split('/').at(-1)!;
+    const details=DirectFlowSchema.parse(await(await b.call(`/api/v1/direct-login/flows/${id}`)).json());
+    expect(details).toMatchObject({profileRequired:true,travelContext:{international:false,travelDate:'2026-10-25'}});
+    expect((await b.call(`/api/v1/direct-login/flows/${id}/consent`,{approved:true})).status).toBe(400);
+    const profile={givenName:'مسافر',familyName:'ایرانی',birthDate:'1992-03-04',gender:'female',nationality:'IR',nationalId:'0012345678',latinGivenName:'Mosafer',latinFamilyName:'Irani',passport:{number:'A12345678',issuingCountry:'IR',expiresOn:'2028-01-01'}};
+    expect((await b.call('/api/v1/direct-login/profile',profile)).status).toBe(201);
+    const callback=new URL(await consent(b,id));
+    await b.call('/api/v1/direct-login/profile',{...profile,givenName:'تغییر'});
+    const exchange=await fetch(base+'/api/v1/direct-login/token',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({grant_type:'authorization_code',client_id:reg.partner.clientId,client_secret:reg.clientSecret,redirect_uri:reg.input.callbackUrl,code_verifier:pending.transaction.verifier,code:callback.searchParams.get('code')})});
+    expect(exchange.status).toBe(200);const tokens=await exchange.json() as {id_token:string;access_token:string};
+    const claims=JSON.parse(Buffer.from(tokens.id_token.split('.')[1]!,'base64url').toString());
+    expect(claims.traveler_profile.givenName).toBe('مسافر');expect(claims.traveler_profile).not.toHaveProperty('passport');expect(claims.traveler_profile).not.toHaveProperty('latinGivenName');
+    const userinfo=z.object({traveler_profile:z.unknown()}).parse(await(await fetch(reg.partner.issuer+'/userinfo',{headers:{authorization:'Bearer '+tokens.access_token}})).json());expect(userinfo.traveler_profile).toEqual(claims.traveler_profile);
+    const phoneSdk=createProviderSdk({issuer:reg.partner.issuer,clientId:reg.partner.clientId,clientSecret:reg.clientSecret,callbackUrl:reg.input.callbackUrl});
+    const next=phoneSdk.begin(handle),auth=await b.call('/api/v1/direct-login/authorizations',AuthorizeSchema.parse(Object.fromEntries(new URL(next.url).searchParams)));
+    const nextId=z.object({redirect:z.string()}).parse(await auth.json()).redirect.split('/').at(-1)!;
+    expect(await phoneSdk.finish(new URL(await consent(b,nextId)),next.transaction)).not.toHaveProperty('traveler_profile');
+    const peer=await setup();expect((await peer.call('/api/v1/direct-login/profile',profile)).status).toBe(401);
+    expect((await b.call('/api/v1/direct-login/profile',{...profile,passport:{...profile.passport,verified:true}})).status).toBe(400);
+  });
+
+  it('installs through a one-use code and refuses activation after an intervening revision', async () => {
+    const b=await setup(),original=globalThis.fetch;
+    const clientIds:string[]=[];let race=false;
+    process.env.TOROBTICKET_EXAMPLE_PROVIDER_INTERNAL_ORIGIN='http://127.0.0.1:59998';
+    const intercepted=vi.spyOn(globalThis,'fetch').mockImplementation(async(input,init)=>{
+      const url=new URL(typeof input==='string'?input:input instanceof URL?input.href:input.url);
+      if(url.origin!=='http://127.0.0.1:59998')return original(input,init);
+      const body=JSON.parse(String(init?.body)) as {clientId:string;code:string};clientIds.push(body.clientId);
+      const row=await app.get(SessionService).database.directLoginClient.findUniqueOrThrow({where:{clientId:body.clientId}});expect(row.enabled).toBe(false);
+      const exchange=()=>original(base+'/api/v1/direct-login/example-registration',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({client_id:body.clientId,code:body.code})});
+      const installed=await exchange();expect(installed.status).toBe(201);const configuration=z.object({revision:z.number(),callbackUrl:z.string()}).parse(await installed.json());expect(configuration.revision).toBe(row.revision);expect(configuration.callbackUrl).toBe('http://localhost:4310/callback');
+      expect((await exchange()).status).toBe(400);
+      if(race)await app.get(SessionService).database.directLoginClient.update({where:{clientId:body.clientId},data:{revision:{increment:1}}});
+      return new Response(JSON.stringify({installed:true,clientId:body.clientId}),{headers:{'content-type':'application/json'}});
+    });
+    try {
+      const connected=await b.call('/api/v1/admin/direct-login/example-provider',{providerId:'demo-provider-04',name:'سپهر سفر'});expect(connected.status).toBe(201);
+      const result=z.object({partner:PartnerSchema}).parse(await connected.json());expect(result.partner.enabled).toBe(true);expect(result.partner.exampleSiteUrl).toBe('http://localhost:4310/providers/'+clientIds[0]);expect(result).not.toHaveProperty('clientSecret');
+      race=true;expect((await b.call('/api/v1/admin/direct-login/example-provider',{providerId:'demo-provider-04',name:'سپهر سفر'})).status).toBe(400);
+      expect((await app.get(SessionService).database.directLoginClient.findUniqueOrThrow({where:{clientId:clientIds[0]}})).enabled).toBe(false);
+    } finally {intercepted.mockRestore();delete process.env.TOROBTICKET_EXAMPLE_PROVIDER_INTERNAL_ORIGIN;}
+  });
+
 });
