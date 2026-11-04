@@ -2828,3 +2828,24 @@ Owner locks referral earnings regardless of purchase: once per browser visitor/p
 | Evidence, exports and scoped closure | COMPLETE | Accepted source `d1c26a6749ab69735e4338d813e5b169dd9ed4c9`; exact43source bindings, independent source/evidence/stage reviews, [verification](../../evidence/adjustments/provider-traffic-revenue/verification.json), [tracker transaction](../../evidence/adjustments/provider-traffic-revenue/tracker-update.json). Preserve opening master body and35-task baseline; synchronized spec/master exports, no push/publication/deployment. |
 
 Visitor metrics are browser sessions, not verified people. Redirect-issued counts do not establish external page load, purchase or settled fees. No commercial rates invented for the normal reviewer session. Fresh owned browser contexts/test database isolate all checks; earlier failed attempts and immutable migration history are retained. Final documentation commit is recorded separately from source acceptance.
+
+
+## Direct Login follow-up — 2026-11-04
+
+Owner implementation request and decision0087 extend the finished baseline with a
+local OIDC issuer, provider SDK, reference provider, enrollment/consent UI, prior
+account proofs and a separate acquisition ledger. The task brief is
+`docs/evidence/adjustments/direct-login/task-brief.md`. Existing uncommitted traffic
+history work is preserved. Source review and test/browser evidence are recorded in
+`docs/evidence/adjustments/direct-login/verification.md` on completion. Commercial
+provider verification, SMS delivery and actual Torob federation remain external
+connection requirements. No deployment or package publication is authorized.
+
+Direct Login follow-up COMPLETE. Implementation commit `8028ceff` contains the
+issuer/SDK/reference-provider source, migration, admin and consumer flows, proof
+transport, independent verifier contract, source review and actual evidence.
+Final verification passed13owning HTTP/PostgreSQL cases,31existing integration
+regressions,211unit/component cases, one complete Chrome journey with desktop/mobile
+captures, API/consumer/admin/e2e types, targeted lint, API/frontend builds and SDK
+build/runtime packaging. See the owning verification record for local delivery,
+trust boundaries, bundle warnings and external integration requirements.
