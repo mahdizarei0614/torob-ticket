@@ -2860,3 +2860,24 @@ random codes remain valid under their recorded rules. Eight unit guards and all1
 Direct Login HTTP/PostgreSQL cases passed, along with types/lint/API build and live
 verification on both login endpoints in a temporary isolated workspace. Independent
 review approved the source. See the Direct Login verification record for evidence.
+
+
+## External provider website and traveler profile — 2026-11-04
+
+COMPLETE in source/evidence commit `71efd871662bdf108269adfb996d2170b0bad8c9`. Decision0088 and
+[verification](../../evidence/adjustments/external-provider/verification.md) record
+the owner extension: separate Node provider hostname/backend/store, actual SDK
+SSO and escaped JSON pre response; scoped admin installation; primary-traveler
+fields, explicit scope/consent and immutable trip-relevant document snapshots.
+Old phone-only clients remain compatible. Independent source/stage review
+approved after installation-race, consent-route and logout-CSRF regressions.
+
+Final checks:1323unit/component cases in142files;39PostgreSQL cases in3files
+(17SSOplus22referral/traffic);16Docker/dev-watcher cases; one actual Chrome
+cross-host new/existing/logout/denial journey with desktop/mobile evidence.
+Normal uncached project types/build/lint plus E2E types and SDK package passed.
+Current user workspace connects راه‌آرا to localhost:4310 while the canonical
+platform is127.0.0.1:4300. Prior reference data and unrelated traffic-history edits
+remain intact. The owned test database was stopped; local app/provider stay up.
+External acquisition reports remain pending/unbilled until independently verified.
+No production deployment, publication or ticket issuance;35-task baseline unchanged.
