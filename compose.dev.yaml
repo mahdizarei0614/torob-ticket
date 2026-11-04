@@ -30,6 +30,7 @@ services:
     command: [node, tools/dev-api.mjs]
     environment:
       NODE_ENV: development
+      TOROBTICKET_SSO_TEST_SMS_CODE: '123456'
       TOROBTICKET_DEV_POLLING: ${TOROBTICKET_DEV_POLLING:-false}
     volumes:
       - ./apps:/app/apps:ro

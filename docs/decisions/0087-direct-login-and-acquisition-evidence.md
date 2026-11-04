@@ -25,3 +25,8 @@ or credit is invented. No invoices, payments or booking claims are generated.
 
 The pilot uses one-time existing-provider sign-in for logged-out users. Automatic
 private matching against a committed roster is a future protocol extension.
+
+Owner follow-up on 2026-11-04 adds the fixed local SMS code `123456`. Explicit
+development configuration, development/test NODE_ENV and loopback issuer origin
+gate both issuance and redemption of stamped test challenges. Original challenge
+expiry, browser, purpose, scope, attempts and one-use controls govern redemption.

@@ -3,6 +3,13 @@
 ## Local walkthrough
 
 Open the configured TorobTicket origin, normally http://localhost:4300.
+The Docker development stack issues `123456` for newly requested phone verification
+codes on TorobTicket and its reference providers. Manual API startup can opt in
+with `TOROBTICKET_SSO_TEST_SMS_CODE=123456`, a development/test `NODE_ENV` and a
+loopback SSO origin. A test challenge is redeemable only while those conditions
+hold. Codes issued before enabling this setting retain their originally issued
+value, so request a fresh code to use `123456`.
+
 Open `/admin/direct-login` in the same browser and reviewer workspace. Choose
 Connect provider, retain the reference integration URLs, set an optional acquisition
 rate in IRR and save. Empty rates are unpriced. Zero is a valid rate. The secret is

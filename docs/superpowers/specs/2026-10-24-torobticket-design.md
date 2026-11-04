@@ -15,6 +15,11 @@ Torob federation, SMS delivery and external acquisition verification require
 independent connections. Preserve existing anonymous/referral behavior. New-account
 fees remain separate from hourly outbound fees, with unset rates explicitly unpriced.
 
+**Owner SMS testing follow-up, 2026-11-04:** local development can issue `123456`
+for TorobTicket and reference-provider verification challenges. Explicit opt-in,
+development/test runtime and loopback origin gate issuance and stamped challenge
+redemption. Scope, browser, purpose, expiry, attempts and one-use checks govern it.
+
 **Owner presentation ruling, 2026-10-26:** All current and future visible consumer/admin surfaces use ordinary production-style copy, names, status messages, accessible labels and tooltips. Remove demo/test/simulated/fictional indicators, disclaimers and entity-name suffixes. Do not expose fixture/scenario/reset tooling in the traveler journey; useful route presets may appear as ordinary travel suggestions. Technical documentation, source contracts, fixture identities, internal routes, tests and verification evidence continue to describe the mocked implementation honestly. This replaces earlier requirements to label the visible product or entities as fictional/simulated. It does not authorize real OAuth/provider integrations, fabricated live data/conversions, payments or booking-success claims. Meaningful unknown conditions, approximate route facts and actual referral status remain clear.
 
 TorobTicket is an independent, demo-only travel comparison product inspired by Torob. It helps a traveler compare equivalent journeys and their provider offers, discover suitable hotels, and continue with a provider. It never sells tickets, takes payment, issues bookings, or asserts that a referral completed a purchase.

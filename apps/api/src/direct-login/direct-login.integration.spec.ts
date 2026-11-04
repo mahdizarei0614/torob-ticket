@@ -1,4 +1,5 @@
-import type {ReferenceState} from './direct-login.state';
+import type {IssuerState,ReferenceState} from './direct-login.state';
+import type {Prisma} from '@torob-ticket/data-access';
 import 'reflect-metadata';
 import {ENROLLMENT_VERIFIER} from './enrollment-verifier';
 import {z} from 'zod';
@@ -232,6 +233,50 @@ describe('Direct Login over real HTTP and PostgreSQL', () => {
     const confirmed=await admin(b); expect(confirmed.totals).toMatchObject({newAccounts:1,amountRial:'70000',pending:0}); expect(confirmed.acquisitions[0]?.evidence).toBe('verified-enrollment');
     await sdk.reportAccount(selected.referralId,claims.sub,evidence.accountId,attestation);
     expect((await admin(b)).totals.newAccounts).toBe(1);
+  });
+  it('uses the opted-in local SMS code for TorobTicket and provider challenges with browser, purpose and one-use checks', async () => {
+    const previous=process.env.TOROBTICKET_SSO_TEST_SMS_CODE;
+    process.env.TOROBTICKET_SSO_TEST_SMS_CODE='123456';
+    try {
+      const b=await setup(); await register(b);
+      for(const provider of [undefined,'demo-provider-04']) {
+        const prefix=provider?`/api/v1/reference-provider/${provider}`:'/api/v1/direct-login';
+        const issued=await b.call(prefix+'/phone/code',{phone:'+989000000011'});
+        expect(issued.status).toBe(201);
+        const challenge=z.object({id:z.string()}).parse(await issued.json());
+        expect((await admin(b)).messages.find(m=>m.id===challenge.id)?.code).toBe('123456');
+        const foreign=new Browser(base); foreign.cookies.set('torob_demo',b.cookies.get('torob_demo')!);
+        expect((await foreign.call(prefix+'/phone/verify',{id:challenge.id,code:'123456'})).status).toBe(400);
+        const wrongPurpose=provider?'/api/v1/direct-login':'/api/v1/reference-provider/demo-provider-04';
+        expect((await b.call(wrongPurpose+'/phone/verify',{id:challenge.id,code:'123456'})).status).toBe(400);
+        expect((await b.call(prefix+'/phone/verify',{id:challenge.id,code:'123456'})).status).toBe(201);
+        expect((await b.call(prefix+'/phone/verify',{id:challenge.id,code:'123456'})).status).toBe(400);
+      }
+    } finally {if(previous===undefined)delete process.env.TOROBTICKET_SSO_TEST_SMS_CODE;else process.env.TOROBTICKET_SSO_TEST_SMS_CODE=previous;}
+  });
+  it('revokes test-code redemption when the mode is disabled, enforces expiry and preserves older random challenges', async () => {
+    const previous=process.env.TOROBTICKET_SSO_TEST_SMS_CODE, previousMode=process.env.NODE_ENV;
+    try {
+      const b=await setup();
+      delete process.env.TOROBTICKET_SSO_TEST_SMS_CODE;
+      const legacy=z.object({id:z.string()}).parse(await (await b.call('/api/v1/direct-login/phone/code',{phone:'+989000000012'})).json());
+      const legacyCode=(await admin(b)).messages.find(m=>m.id===legacy.id)!.code;
+      process.env.TOROBTICKET_SSO_TEST_SMS_CODE='123456';
+      expect((await b.call('/api/v1/direct-login/phone/verify',{id:legacy.id,code:legacyCode})).status).toBe(201);
+      const issued=z.object({id:z.string()}).parse(await (await b.call('/api/v1/direct-login/phone/code',{phone:'+989000000013'})).json());
+      process.env.NODE_ENV='production';
+      expect((await b.call('/api/v1/direct-login/phone/verify',{id:issued.id,code:'123456'})).status).toBe(400);
+      process.env.NODE_ENV='test'; delete process.env.TOROBTICKET_SSO_TEST_SMS_CODE;
+      expect((await b.call('/api/v1/direct-login/phone/verify',{id:issued.id,code:'123456'})).status).toBe(400);
+      process.env.TOROBTICKET_SSO_TEST_SMS_CODE='123456';
+      const db=app.get(SessionService).database, stored=await db.directLoginWorkspace.findUniqueOrThrow({where:{sessionId:owned.at(-1)!}}), state=stored.payload as unknown as IssuerState;
+      state.challenges.find(c=>c.id===issued.id)!.expires=Date.now()-1;
+      await db.directLoginWorkspace.update({where:{sessionId:owned.at(-1)!},data:{payload:state as unknown as Prisma.InputJsonValue}});
+      expect((await b.call('/api/v1/direct-login/phone/verify',{id:issued.id,code:'123456'})).status).toBe(400);
+    } finally {
+      if(previous===undefined)delete process.env.TOROBTICKET_SSO_TEST_SMS_CODE;else process.env.TOROBTICKET_SSO_TEST_SMS_CODE=previous;
+      if(previousMode===undefined)delete process.env.NODE_ENV;else process.env.NODE_ENV=previousMode;
+    }
   });
   it('revokes grants and provider browser sessions on scoped reset without affecting a peer', async () => {
     const b = await setup(), peer = await setup(), reg = await register(b); await register(peer); await phone(b);

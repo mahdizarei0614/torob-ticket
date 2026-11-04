@@ -1,4 +1,5 @@
 import {ENROLLMENT_VERIFIER,type EnrollmentVerifier} from './enrollment-verifier';
+import { localSmsTestCode } from './sms-test-code';
 import { BadRequestException, ConflictException, ForbiddenException, Inject, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { createHmac, generateKeyPairSync, randomInt, randomUUID, sign } from 'node:crypto';
 import { type AuthorizeInput, type CommitmentProof, type PartnerInput, type ReferralReceipt } from '@torob-ticket/contracts';
@@ -85,10 +86,11 @@ export class DirectLoginService {
       if (purpose !== 'torob' && !await tx.directLoginClient.findFirst({ where: { sessionId: scope.sessionId, providerId: purpose, enabled: true, kind: 'reference' } })) throw new NotFoundException();
       const now = Date.now();
       if (state.challenges.some(c => c.phone === phone && c.purpose === purpose && c.created + 60000 > now)) throw new ConflictException('برای دریافت دوباره کد، یک دقیقه صبر کنید');
-      const id = randomToken(), code = String(randomInt(100000, 1000000));
+      const testCode = localSmsTestCode(configuredOrigin());
+      const id = randomToken(), code = testCode ?? String(randomInt(100000, 1000000));
       for (const c of state.challenges) if (c.phone === phone && c.purpose === purpose) c.used = true;
       if (state.challenges.length >= 100) throw new ConflictException('Verification capacity reached');
-      state.challenges.push({ id, phone, purpose, codeHash: sha256(`${id}:${code}`), deliveryCode: code, browser, expires: now + 300000, created: now, attempts: 0, used: false });
+      state.challenges.push({ id, phone, purpose, codeHash: sha256(`${id}:${code}`), deliveryCode: code, browser, expires: now + 300000, created: now, attempts: 0, used: false, testCode: testCode !== undefined });
       return { id, expiresAt: new Date(now + 300000).toISOString() };
     });
   }
@@ -106,7 +108,7 @@ export class DirectLoginService {
     const result = await this.mutate(scope, async (state, reference, tx) => {
       if (purpose !== 'torob' && !await tx.directLoginClient.findFirst({ where: { sessionId: scope.sessionId, providerId: purpose, enabled: true, kind: 'reference' } })) throw new NotFoundException();
       const challenge = state.challenges.find(c => c.id === id && c.browser === browser && c.purpose === purpose && !c.used && c.expires > Date.now() && c.attempts < 5);
-      if (!challenge) return { error: true as const };
+      if (!challenge || (challenge.testCode && !localSmsTestCode(configuredOrigin()))) return { error: true as const };
       challenge.attempts++;
       if (!constantEqual(challenge.codeHash, sha256(`${id}:${code}`))) return { error: true as const };
       challenge.used = true; challenge.deliveryCode = '';
