@@ -211,3 +211,14 @@ identified installation revision and consent-route races; both were fixed with
 regressions. Chrome exposed null-Origin logout forms under no-referrer; a
 session-bound CSRF token fixed them. See decision0088 and the owning verification
 record for tests, local runtime evidence and external verification limits.
+
+
+## 2026-11-05 — Separate application containers and ports
+
+Split the main and admin serving images and ports in both Compose modes while
+retaining the provider's own container and hostname. Separate frontend builds no
+longer depend on API/Prisma/Debian downloads. Exact admin origin checks, canonical
+reference defaults and cross-app redirects preserve scoped reviewer/SSO behavior.
+Only the old owned gateway is retired; permanent frontends and data volumes are
+retained across lifecycle operations. Independent review and actual development/
+packaged browser checks are recorded with decision0089 and the owning evidence.

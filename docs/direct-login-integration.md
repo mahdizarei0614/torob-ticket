@@ -10,7 +10,9 @@ loopback SSO origin. A test challenge is redeemable only while those conditions
 hold. Codes issued before enabling this setting retain their originally issued
 value, so request a fresh code to use `123456`.
 
-Open `/admin/direct-login` in the same browser and reviewer workspace. Choose
+Open the separate admin port, normally `http://localhost:4301/admin/direct-login`,
+in the same browser and canonical hostname as the consumer. Legacy main-site
+admin URLs redirect there, retaining the host-only reviewer workspace cookie. Choose
 Connect provider, retain the reference integration URLs, set an optional acquisition
 rate in IRR and save. Empty rates are unpriced. Zero is a valid rate. The secret is
 shown only in the save response. Saving again rotates credentials and revokes old

@@ -21,7 +21,7 @@ export function parseArguments(argv, env = process.env) {
   const args = [...argv]; if (args[0] === '--') args.shift();
   const options = { profile: 'smoke', postgres: false, browserChannel: undefined };
   const seen = new Set();
-  const keys = { '--base-url': 'baseUrl', '--report-dir': 'reportDir', '--profile': 'profile', '--browser-channel': 'browserChannel' };
+  const keys = { '--base-url': 'baseUrl', '--admin-url': 'adminBaseUrl', '--report-dir': 'reportDir', '--profile': 'profile', '--browser-channel': 'browserChannel' };
   for (let i = 0; i < args.length; i++) {
     const [flag, ...inline] = args[i].split('=');
     if (flag === '--help' || flag === '-h') { options.help = true; continue; }
@@ -43,6 +43,11 @@ function validateOptions(options, env) {
   try { url = new URL(options.baseUrl); } catch { throw problem('invalid-target', 'The verification target must be an explicit loopback HTTP origin.'); }
   if (url.protocol !== 'http:' || !['localhost', '127.0.0.1', '[::1]'].includes(url.hostname) || url.username || url.password || url.pathname !== '/' || url.search || url.hash || !url.port || Number(url.port) < 1024 || Number(url.port) > 65535) throw problem('invalid-target', 'The verification target must be an explicit loopback HTTP origin with a nonprivileged port and no credentials, path, query or fragment.');
   options.baseUrl = url.origin;
+  const defaultAdmin = new URL(url); defaultAdmin.port = '4301';
+  let admin;
+  try { admin = new URL(options.adminBaseUrl || defaultAdmin.origin); } catch { throw problem('invalid-admin-target', 'Supply an explicit loopback admin origin.'); }
+  if (admin.protocol !== url.protocol || admin.hostname !== url.hostname || !admin.port || Number(admin.port) < 1024 || Number(admin.port) > 65535 || admin.username || admin.password || admin.pathname !== '/' || admin.search || admin.hash || admin.origin === url.origin) throw problem('invalid-admin-target', 'Admin requires a distinct loopback origin with the same hostname and scheme.');
+  options.adminBaseUrl = admin.origin;
   if (!['smoke', 'quality'].includes(options.profile)) throw problem('invalid-profile', 'The verification profile must be smoke or quality.');
   if (options.browserChannel && !['chrome', 'chromium', 'msedge'].includes(options.browserChannel)) throw problem('invalid-channel', 'The browser channel must be chrome, chromium or msedge. Omit it to use bundled Chromium.');
   if (typeof options.postgres !== 'boolean') throw problem('invalid-postgres', 'The PostgreSQL gate must be selected explicitly.');
@@ -70,7 +75,9 @@ export function childEnvironment(options, env = process.env, gate = '') {
   Object.assign(clean, { NX_DAEMON: 'false', NX_NO_CLOUD: 'true', NX_SKIP_NX_CACHE: 'true', NX_ISOLATE_PLUGINS: 'false', NX_TUI: 'false', NO_COLOR: '1', pnpm_config_verify_deps_before_run: 'error' });
   if (gate === 'postgres') Object.assign(clean, { TEST_DATABASE_URL: options.testDatabaseUrl, DATABASE_URL: options.testDatabaseUrl });
   if (gate === 'browser-critical') {
-    Object.assign(clean, { E2E_BROWSER: 'chromium', E2E_BASE_URL: options.baseUrl, ADMIN_E2E_URL: options.baseUrl, E2E_EVIDENCE_DIR: resolve(options.reportDir, 'browser'), T33_REHEARSAL_ORIGIN: options.baseUrl });
+    const admin = new URL(options.baseUrl); admin.port = '4301';
+    const adminOrigin = options.adminBaseUrl || admin.origin;
+    Object.assign(clean, { E2E_BROWSER: 'chromium', E2E_BASE_URL: options.baseUrl, ADMIN_E2E_URL: adminOrigin, TOROBTICKET_ADMIN_ORIGIN: adminOrigin, TOROBTICKET_ADMIN_PORT: new URL(adminOrigin).port, E2E_EVIDENCE_DIR: resolve(options.reportDir, 'browser'), T33_REHEARSAL_ORIGIN: options.baseUrl });
     if (options.browserChannel) clean.PLAYWRIGHT_CHANNEL = options.browserChannel;
   }
   return clean;
@@ -181,7 +188,7 @@ export async function verifyRelease(options, { root = workspace, env = process.e
   const reportDir = await createReportDirectory(options.reportDir, root); options = { ...options, reportDir };
   const controller = new AbortController(); const overall = setTimeout(() => controller.abort('deadline'), options.profile === 'quality' ? limits.qualityMs : limits.smokeMs);
   const abort = () => controller.abort('interrupted'); externalSignal?.addEventListener('abort', abort, { once: true }); if (externalSignal?.aborted) abort();
-  const report = { schemaVersion: 1, runId: randomUUID(), startedAt: new Date().toISOString(), finishedAt: null, status: 'running', profile: options.profile, baseUrl: options.baseUrl, source: provenance, node: process.version, platform: process.platform, browser: { engine: 'chromium', requestedChannel: options.browserChannel ?? 'bundled' }, coverage: { completeReleaseProof: false, sourceQualitySelected: options.profile === 'quality', postgresSelected: options.postgres, excluded: ['Docker provisioning and fresh-start proof', 'API/stack restart and failed-initializer rehearsal', 'physical devices and assistive-technology speech', 'full visual/performance matrix unless separately run'] }, output: { directory: reportDir, commandLogs: 'sanitized, bounded UTF-8 lines' }, gates: gateNames.map(id => ({ id, status: id === 'postgres' && !options.postgres || ['source-quality', 'tool-contracts'].includes(id) && options.profile !== 'quality' ? 'skipped' : 'not_run', reason: id === 'postgres' && !options.postgres ? 'Not selected. --postgres requires an existing explicit validated TEST_DATABASE_URL; no database was created or reset.' : ['source-quality', 'tool-contracts'].includes(id) && options.profile !== 'quality' ? 'Smoke does not run source-quality/tool gates; select quality explicitly.' : 'Not reached.' })) };
+  const report = { schemaVersion: 1, runId: randomUUID(), startedAt: new Date().toISOString(), finishedAt: null, status: 'running', profile: options.profile, baseUrl: options.baseUrl, adminBaseUrl: options.adminBaseUrl, source: provenance, node: process.version, platform: process.platform, browser: { engine: 'chromium', requestedChannel: options.browserChannel ?? 'bundled' }, coverage: { completeReleaseProof: false, sourceQualitySelected: options.profile === 'quality', postgresSelected: options.postgres, excluded: ['Docker provisioning and fresh-start proof', 'API/stack restart and failed-initializer rehearsal', 'physical devices and assistive-technology speech', 'full visual/performance matrix unless separately run'] }, output: { directory: reportDir, commandLogs: 'sanitized, bounded UTF-8 lines' }, gates: gateNames.map(id => ({ id, status: id === 'postgres' && !options.postgres || ['source-quality', 'tool-contracts'].includes(id) && options.profile !== 'quality' ? 'skipped' : 'not_run', reason: id === 'postgres' && !options.postgres ? 'Not selected. --postgres requires an existing explicit validated TEST_DATABASE_URL; no database was created or reset.' : ['source-quality', 'tool-contracts'].includes(id) && options.profile !== 'quality' ? 'Smoke does not run source-quality/tool gates; select quality explicitly.' : 'Not reached.' })) };
   const persist = () => writeFile(resolve(reportDir, 'report.json'), JSON.stringify(report, null, 2) + '\n');
   const child = async (gate, script, args, timeoutMs, command = process.execPath) => {
     const argv = [script, ...args];
@@ -207,15 +214,15 @@ export async function verifyRelease(options, { root = workspace, env = process.e
           Object.assign(gate, { status: 'passed', results });
         } else if (gate.id === 'packaged-assets') {
           const results = [], scripts = new Set();
-          for (const [path, language] of [['/', 'fa'], ['/admin/', 'en']]) {
-            const bytes = await request(options, path, 'text/html', gateSignal, fetchImpl, limits), html = bytes.toString();
+          for (const [path, language, origin] of [['/', 'fa', options.baseUrl], ['/admin/', 'en', options.adminBaseUrl]]) {
+            const bytes = await request({ ...options, baseUrl: origin }, path, 'text/html', gateSignal, fetchImpl, limits), html = bytes.toString();
             if (!new RegExp(`lang=["']${language}["']`).test(html) || html.includes('@vite/client')) throw problem('frontend-mode', 'Expected packaged Persian consumer and English admin frontends, not a development shell.');
-            const entries = [...html.matchAll(/<script\b[^>]*\bsrc=["']([^"']+)["'][^>]*>/gi)].map(match => new URL(match[1], options.baseUrl));
+            const entries = [...html.matchAll(/<script\b[^>]*\bsrc=["']([^"']+)["'][^>]*>/gi)].map(match => new URL(match[1], origin));
             if (!entries.some(url => /\/assets\/[^/]+\.js$/.test(url.pathname))) throw problem('frontend-entry', 'A packaged frontend JavaScript entry is missing.');
-            for (const url of entries) { if (url.origin !== options.baseUrl || url.search || url.hash || !/^(?:\/admin)?\/(?:assets\/[^/]+\.js|theme-init\.js)$/.test(url.pathname)) throw problem('remote-startup', 'Startup scripts must be local packaged assets.'); scripts.add(url.pathname); }
+            for (const url of entries) { if (url.origin !== origin || url.search || url.hash || !/^(?:\/admin)?\/(?:assets\/[^/]+\.js|theme-init\.js)$/.test(url.pathname)) throw problem('remote-startup', 'Startup scripts must be local packaged assets.'); scripts.add(url.href); }
             results.push({ path, language, sha256: sha256(bytes) });
           }
-          for (const path of scripts) { const bytes = await request(options, path, 'javascript', gateSignal, fetchImpl, limits); if (!bytes.length) throw problem('empty-script', 'A packaged startup script is empty.'); results.push({ path, bytes: bytes.length, sha256: sha256(bytes) }); }
+          for (const href of scripts) { const url = new URL(href), path = url.pathname; const bytes = await request({ ...options, baseUrl: url.origin }, path, 'javascript', gateSignal, fetchImpl, limits); if (!bytes.length) throw problem('empty-script', 'A packaged startup script is empty.'); results.push({ path, bytes: bytes.length, sha256: sha256(bytes) }); }
           for (const path of ['/theme-init.js', '/fonts/Vazirmatn-wght.woff2', '/fonts/InterVariable.woff2', '/geography/consumer-geography.json', '/geography/route-geometry.json']) {
             const response = await fetchImpl(options.baseUrl + path, { redirect: 'manual', signal: AbortSignal.any([gateSignal, AbortSignal.timeout(limits.httpMs)]) });
             if (response.status !== 200) throw problem('local-asset', 'A required local startup asset is unavailable.'); const bytes = await readResponse(response, limits.responseBytes), expected = await readFile(resolve(root, 'assets', path.slice(1)));
@@ -254,7 +261,7 @@ export async function verifyRelease(options, { root = workspace, env = process.e
 async function main() {
   try {
     const options = parseArguments(process.argv.slice(2));
-    if (options.help) { console.log('Usage: pnpm verify:release --base-url http://127.0.0.1:PORT --report-dir NEW_RUN_FOLDER [--profile smoke|quality] [--browser-channel chrome|chromium|msedge] [--postgres]\nSmoke checks packaged readiness/assets and seven safe critical/core browser cases. Quality also runs fixed sequential source/tool checks. --postgres uses only an explicitly configured existing TEST_DATABASE_URL. No Docker provisioning, restart, shutdown or reset is performed.'); return; }
+    if (options.help) { console.log('Usage: pnpm verify:release --base-url http://127.0.0.1:PORT --report-dir NEW_RUN_FOLDER [--admin-url http://127.0.0.1:ADMIN_PORT] [--profile smoke|quality] [--browser-channel chrome|chromium|msedge] [--postgres]\nSmoke checks packaged readiness/assets and seven safe critical/core browser cases. Quality also runs fixed sequential source/tool checks. --postgres uses only an explicitly configured existing TEST_DATABASE_URL. No Docker provisioning, restart, shutdown or reset is performed.'); return; }
     const controller = new AbortController(); const stop = () => controller.abort(); process.once('SIGINT', stop); process.once('SIGTERM', stop);
     let report;
     try { report = await verifyRelease(options, { signal: controller.signal }); }

@@ -14,7 +14,7 @@ With Docker Engine/Desktop and Compose running, from the repository root:
 pnpm docker:up
 ```
 
-**Traveler:** <http://localhost:4300/> · **Admin:** <http://localhost:4300/admin/>
+**Traveler:** <http://localhost:4300/> · **Admin:** <http://localhost:4301/admin/> · **Provider:** <http://127.0.0.1:4310/>
 
 The command builds and serves both frontends, the API and PostgreSQL, applies
 migrations/seeds and waits for readiness. No host `node_modules`, `.env` copy,
@@ -141,7 +141,7 @@ packaged mode; `pnpm docker:down` preserves data. [Development details](docs/run
 cover dependency/schema changes, polling fallback and explicit destructive reset.
 
 For direct host development use the pinned tools, `pnpm install --frozen-lockfile`
-and `pnpm start`; database setup and the three development ports are documented
+and `pnpm start`; database setup and the separate application ports are documented
 in [Run locally](docs/run-locally.md). `pnpm test` runs the common tool checks and
 Nx unit suites; `pnpm verify` runs lint/type/unit/build. The strict release runner
 checks installed dependency state explicitly. Real database tests require an

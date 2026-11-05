@@ -40,6 +40,8 @@ services:
     environment:
       DATABASE_URL: postgresql://torobticket:local-demo-only@database:5432/torobticket
       TOROBTICKET_SSO_ORIGIN: ${TOROBTICKET_SSO_ORIGIN:-http://localhost:${TOROBTICKET_PORT:-4300}}
+      TOROBTICKET_ADMIN_ORIGIN: ${TOROBTICKET_ADMIN_ORIGIN:-}
+      TOROBTICKET_ADMIN_PORT: ${TOROBTICKET_ADMIN_PORT:-4301}
       TOROBTICKET_EXAMPLE_PROVIDER_ORIGIN: ${TOROBTICKET_EXAMPLE_PROVIDER_ORIGIN:-}
       TOROBTICKET_EXAMPLE_PROVIDER_PORT: ${TOROBTICKET_EXAMPLE_PROVIDER_PORT:-4310}
       TOROBTICKET_EXAMPLE_PROVIDER_INTERNAL_ORIGIN: http://example-provider:4310
@@ -83,25 +85,54 @@ services:
       timeout: 5s
       retries: 30
       start_period: 30s
-  gateway:
+  web:
+    image: ${COMPOSE_PROJECT_NAME:-torobticket}-web:packaged
     build:
       context: .
-      dockerfile: infra/Dockerfile
+      dockerfile: infra/Dockerfile.frontends
+      target: web
       args:
         NPM_REGISTRY: ${TOROBTICKET_NPM_REGISTRY:-https://registry.npmjs.org}
         PRISMA_ENGINES_MIRROR: ${TOROBTICKET_PRISMA_ENGINES_MIRROR:-https://binaries.prisma.sh}
         TOROBTICKET_PUBLIC_ORIGIN: ${TOROBTICKET_PUBLIC_ORIGIN:-}
-      target: gateway
+    environment:
+      TOROBTICKET_SSO_ORIGIN: ${TOROBTICKET_SSO_ORIGIN:-http://localhost:${TOROBTICKET_PORT:-4300}}
+      TOROBTICKET_ADMIN_ORIGIN: ${TOROBTICKET_ADMIN_ORIGIN:-}
+      TOROBTICKET_ADMIN_PORT: ${TOROBTICKET_ADMIN_PORT:-4301}
     ports:
-      - '127.0.0.1:${TOROBTICKET_PORT:-4300}:80'
+      - '127.0.0.1:${TOROBTICKET_PORT:-4300}:4300'
     depends_on:
       api:
         condition: service_healthy
     healthcheck:
-      test: [CMD, wget, -q, --spider, 'http://127.0.0.1/api/health/ready']
+      test: [CMD, wget, -q, --spider, 'http://127.0.0.1:4300/api/health/ready']
       interval: 2s
       timeout: 5s
       retries: 30
+  admin:
+    image: ${COMPOSE_PROJECT_NAME:-torobticket}-admin:packaged
+    build:
+      context: .
+      dockerfile: infra/Dockerfile.frontends
+      target: admin
+      args:
+        NPM_REGISTRY: ${TOROBTICKET_NPM_REGISTRY:-https://registry.npmjs.org}
+        PRISMA_ENGINES_MIRROR: ${TOROBTICKET_PRISMA_ENGINES_MIRROR:-https://binaries.prisma.sh}
+    environment:
+      TOROBTICKET_SSO_ORIGIN: ${TOROBTICKET_SSO_ORIGIN:-http://localhost:${TOROBTICKET_PORT:-4300}}
+      TOROBTICKET_ADMIN_ORIGIN: ${TOROBTICKET_ADMIN_ORIGIN:-}
+      TOROBTICKET_ADMIN_PORT: ${TOROBTICKET_ADMIN_PORT:-4301}
+    ports:
+      - '127.0.0.1:${TOROBTICKET_ADMIN_PORT:-4301}:4301'
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: [CMD, wget, -q, --spider, 'http://127.0.0.1:4301/admin/']
+      interval: 2s
+      timeout: 5s
+      retries: 30
+
 volumes:
   database:
   example_provider:

@@ -8,10 +8,11 @@ From the repository root, run:
 pnpm docker:up
 ```
 
-This builds all three applications inside Docker, waits for PostgreSQL, runs
+This builds the applications inside Docker, waits for PostgreSQL, runs
 migrations and the idempotent versioned seed, starts the API, waits for readiness,
 and serves the consumer at <http://localhost:4300/> and admin at
-<http://localhost:4300/admin/>. No `.env` copy, local database, manual migration,
+<http://localhost:4301/admin/> (separate container), plus the provider on the other
+loopback hostname at port4310. No `.env` copy, local database, manual migration,
 seed, login, or local compilation is required. The runner needs Node 24.17.0
 and pnpm 11.9.0, but does not need host `node_modules` or a host install.
 First build downloads images, Debian packages and dependencies;
@@ -23,18 +24,22 @@ Without local Node/pnpm, the equivalent is:
 docker compose up --build --wait --wait-timeout 120
 ```
 
-Use the URLs above after this command succeeds. Logs and exit status report
+Use the Node runner once when upgrading from the previous combined gateway;
+it retires only that owned legacy container before taking its port. Fresh
+Node-free startup can use the command above. Use the URLs after it succeeds. Logs and exit status report
 initialization/readiness failure; inspect `docker compose ps --all` and
 `docker compose logs --tail 80`. The Node runner also prints those diagnostics
-and checks readiness through the gateway before printing the effective URLs.
+and checks API/frontend readiness through both frontend ports before printing the effective URLs.
 
 Optional shell overrides (or `.env`, see `.env.example`):
 
 ```sh
-TOROBTICKET_PORT=4399 COMPOSE_PROJECT_NAME=torobticket-review pnpm docker:up
+TOROBTICKET_PORT=4399 TOROBTICKET_ADMIN_PORT=4401 TOROBTICKET_EXAMPLE_PROVIDER_PORT=4410 COMPOSE_PROJECT_NAME=torobticket-review pnpm docker:up
 ```
 
-The only published port binds `127.0.0.1`. API port 4302 and PostgreSQL port
+All three published ports bind `127.0.0.1`; web4300, admin4301 and provider4310
+run in separate containers. Web/admin use the same canonical hostname to share
+the reviewer workspace across ports; the provider uses a different hostname. API port 4302 and PostgreSQL port
 5432 remain internal to Compose. Database credentials are fixed local demo
 credentials in `compose.yaml`; this stack is for local review. A different
 Compose project name creates an independent named database volume. Use the
@@ -60,14 +65,12 @@ pnpm docker:dev
 
 This uses `compose.yaml` plus `compose.dev.yaml`. It starts Vite for the consumer
 and admin and a TypeScript source watcher for Nest, all inside Docker. The command
-returns after readiness; the container watchers continue running. The consumer,
-admin and API share <http://localhost:4300/> with the same database volume and
-session cookies as packaged mode. Alternate `TOROBTICKET_PORT` and
-`COMPOSE_PROJECT_NAME` overrides work in both modes.
+returns after readiness; the container watchers continue running. The consumer uses port4300, admin4301 and provider4310, with the same database
+and provider volumes as packaged mode. Each frontend proxies its own `/api` path.
+The published port overrides and `COMPOSE_PROJECT_NAME` work in both modes.
 
 Save files under `apps/` or `libs/` to refresh the relevant frontend or recompile
-and restart the API. Both frontend WebSockets pass through Caddy on the published
-port, with separate root/admin paths. Shared library directories are watched for
+and restart the API. Each frontend WebSocket connects directly to its own published port. Shared library directories are watched for
 replacement saves and newly added modules. The API watches its actual TypeScript
 dependency graph, emits and resolves aliases inside the container, and restarts
 after a successful compilation. A type error leaves the last working process
@@ -87,7 +90,7 @@ docker compose -f compose.yaml -f compose.dev.yaml up --build --wait --wait-time
 ```
 
 For Node-free development shutdown, use `docker compose -f compose.yaml -f
-compose.dev.yaml down` so its two extra frontend services are also stopped.
+compose.dev.yaml down`. The frontend services now exist in both Compose modes.
 
 The first development build installs the pinned dependencies. Ordinary source
 saves do not build images or recreate containers. After changing dependencies,
@@ -108,8 +111,9 @@ default. Inspect both frontend and compiler logs with:
 docker compose -f compose.yaml -f compose.dev.yaml logs --follow web admin api
 ```
 
-Switch back with `pnpm docker:up`; its healthy packaged gateway replaces the dev
-gateway before the runner removes only its labelled web/admin dev containers.
+Switch back with `pnpm docker:up`; Compose replaces the same web/admin services
+with their independent packaged images. The runner retires only a labelled,
+same-project legacy gateway after builds succeed and before binding its old port.
 `pnpm docker:down` stops either mode and preserves volumes. The explicit
 `pnpm docker:reset` also removes only the labelled generated-client cache along
 with its already-documented project database reset. These lifecycle commands
@@ -117,7 +121,9 @@ honor the selected project; there is no global container or volume prune.
 
 ## Packaging and architecture
 
-`infra/Dockerfile` has initializer, API and Caddy gateway targets. App builds
+`infra/Dockerfile` has initializer, API and provider targets.
+`infra/Dockerfile.frontends` builds web/admin independently of Prisma and Debian
+packages, with separate Caddy images containing only their own assets. App builds
 and Prisma generation/seed compilation run inside the build stage. The API
 runs as the Node user with production dependencies and explicit OpenSSL runtime
 support. Immutable multi-platform Node 24.17.0, PostgreSQL 17.11 and Caddy 2.11.7
@@ -136,7 +142,7 @@ For explicit arm64 builds substitute `linux/arm64`. An amd64 host can run its
 native build; other hosts need configured emulation. amd64 build/runtime and
 cross-platform parity have not been verified by the arm64 foundation run.
 
-Caddy serves independent `/` and `/admin/` SPA fallbacks and consumer
+Separate Caddy containers serve `/` on4300 and `/admin/` on4301, including consumer
 `/provider-demo/*` routes; API paths always proxy to Nest and retain JSON errors.
 Hashed Vite assets are immutable for a year. HTML, theme bootstrap and currently
 unhashed local fonts require revalidation. Missing font/script assets return
@@ -237,3 +243,20 @@ hostname from the canonical `TOROBTICKET_SSO_ORIGIN`. It is included in normal
 build/start and both Compose modes. Setup, environment settings, persistent local
 store and the traveler consent walkthrough are in
 [Direct Login integration](direct-login-integration.md#separate-provider-website-and-traveler-profile).
+
+
+## Separate frontend navigation
+
+Legacy main-site `/admin/*` links redirect to the admin port. Admin `/` redirects
+to `/admin/`, and its **Open travel search** links use `/travel` to return to the
+configured canonical web origin. Stored consumer handoff/reference links also
+redirect to that origin. Admin does not serve the consumer app, and the consumer
+container has no admin assets. For public custom origins use
+`TOROBTICKET_SSO_ORIGIN` and optional `TOROBTICKET_ADMIN_ORIGIN`; admin must retain
+the web hostname and scheme, with its own port. The provider still requires a
+different hostname. API Direct Login admin writes allow only those exact admin/web
+origins; phone/profile/consent remain restricted to the web origin.
+
+Release verification accepts `--admin-url http://127.0.0.1:4301` (default4301 on
+the selected web hostname). For isolated stacks set that argument to the actual
+admin port; startup scripts/assets are verified at their respective origins.

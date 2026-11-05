@@ -7,6 +7,11 @@
 
 ## 1. Intent and success
 
+**Owner container separation, 2026-11-05 (decision0089):** web, admin and provider
+use independent Docker services and published ports4300,4301,4310 in both modes.
+Admin retains /admin/ on its own port; legacy web admin paths redirect. Preserve
+reviewer data, exact origin checks and provider hostname/cookie separation.
+
 **Owner external-provider extension, 2026-11-04 (decision0088):** add a standalone
 provider website with its own backend/origin/session store, actual SDK SSO and an
 escaped JSON response. Support an explicitly consented primary-traveler profile

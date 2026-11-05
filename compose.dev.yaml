@@ -55,6 +55,7 @@ services:
     volumes: [./apps:/app/apps:ro, ./libs:/app/libs:ro, ./assets:/app/assets:ro, ./tools:/app/tools:ro, ./tsconfig.base.json:/app/tsconfig.base.json:ro, example_provider:/data]
 
   web:
+    image: ${COMPOSE_PROJECT_NAME:-torobticket}-web:development
     labels:
       org.torobticket.runtime: development
     build:
@@ -71,7 +72,6 @@ services:
       TOROBTICKET_DEV_PORT: ${TOROBTICKET_PORT:-4300}
       TOROBTICKET_DEV_POLLING: ${TOROBTICKET_DEV_POLLING:-false}
       TOROBTICKET_WEB_API_PROXY: http://api:4302
-      TOROBTICKET_WEB_ADMIN_PROXY: http://admin:4301
     volumes: *dev-source
     healthcheck:
       test: [CMD, node, -e, "fetch('http://127.0.0.1:4300/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
@@ -80,6 +80,7 @@ services:
       retries: 30
 
   admin:
+    image: ${COMPOSE_PROJECT_NAME:-torobticket}-admin:development
     labels:
       org.torobticket.runtime: development
     build:
@@ -93,7 +94,7 @@ services:
     environment:
       NODE_ENV: development
       TOROBTICKET_DEV_HOST: 0.0.0.0
-      TOROBTICKET_DEV_PORT: ${TOROBTICKET_PORT:-4300}
+      TOROBTICKET_DEV_PORT: ${TOROBTICKET_ADMIN_PORT:-4301}
       TOROBTICKET_DEV_POLLING: ${TOROBTICKET_DEV_POLLING:-false}
       TOROBTICKET_ADMIN_API_PROXY: http://api:4302
     volumes: *dev-source
@@ -103,16 +104,6 @@ services:
       timeout: 5s
       retries: 30
 
-  gateway:
-    build:
-      target: development-gateway
-    depends_on:
-      web:
-        condition: service_healthy
-      admin:
-        condition: service_healthy
-    volumes:
-      - ./infra/Caddyfile.dev:/etc/caddy/Caddyfile:ro
 
 volumes:
   dev_prisma:

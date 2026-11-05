@@ -19,7 +19,7 @@ async function fixture(t, { ready = true, development = false, remote = false, n
   const assets = Object.fromEntries(['/theme-init.js', '/fonts/Vazirmatn-wght.woff2', '/fonts/InterVariable.woff2', '/geography/consumer-geography.json', '/geography/route-geometry.json'].map(path => [path, Buffer.from('fixture-asset:' + path)]));
   for (const [path, bytes] of Object.entries(assets)) { await mkdir(dirname(join(root, 'assets', path)), { recursive: true }); await writeFile(join(root, 'assets', path), bytes); }
   const requests = [];
-  const server = createServer((request, response) => {
+  const handler = (request, response) => {
     requests.push({ path: request.url, method: request.method });
     if (neverRespond) return;
     if (request.url.startsWith('/api/health/')) {
@@ -34,10 +34,12 @@ async function fixture(t, { ready = true, development = false, remote = false, n
     const path = request.url.replace(/^\/admin(?=\/)/, '');
     if (assets[path]) { response.writeHead(200, { 'content-type': path.endsWith('.js') ? 'text/javascript' : 'application/octet-stream' }); response.end(assets[path]); return; }
     response.writeHead(404); response.end();
-  });
+  };
+  const server = createServer(handler), adminServer = createServer(handler);
   await new Promise(done => server.listen(0, '127.0.0.1', done));
-  t.after(async () => { server.closeAllConnections(); await new Promise(done => server.close(done)); await rm(root, { recursive: true, force: true }); });
-  const options = { baseUrl: `http://127.0.0.1:${server.address().port}`, reportDir: join(root, 'run'), profile: 'smoke', postgres: false, browserChannel: 'chrome' };
+  await new Promise(done => adminServer.listen(0, '127.0.0.1', done));
+  t.after(async () => { server.closeAllConnections(); adminServer.closeAllConnections(); await Promise.all([new Promise(done => server.close(done)),new Promise(done => adminServer.close(done))]); await rm(root, { recursive: true, force: true }); });
+  const options = { adminBaseUrl: `http://127.0.0.1:${adminServer.address().port}`, baseUrl: `http://127.0.0.1:${server.address().port}`, reportDir: join(root, 'run'), profile: 'smoke', postgres: false, browserChannel: 'chrome' };
   const calls = [];
   const runCommand = async (command, args, settings) => {
     calls.push({ command, args, ...settings }); await writeFile(settings.logPath, 'Sanitized contract-fixture command output\n');
@@ -53,6 +55,12 @@ test('CLI requires an explicit loopback target and a unique report folder', () =
   assert.throws(() => parseArguments(['--base-url', 'http://127.0.0.1:4300']), /report-dir/);
   assert.throws(() => parseArguments(['--base-url', 'http://127.0.0.1:4300', '--report-dir', 'run', '--profile', 'smoke', '--profile', 'quality']), /only once/);
   const value = parseArguments(['--', '--base-url=http://localhost:4300', '--report-dir', 'new-run']); assert.equal(value.profile, 'smoke'); assert.equal(value.baseUrl, 'http://localhost:4300');
+});
+
+test('admin verification uses a distinct matching loopback origin and rejects alternate hosts or credentials', () => {
+  const args=['--base-url','http://127.0.0.1:4300','--report-dir','new-run'];
+  assert.equal(parseArguments([...args,'--admin-url','http://127.0.0.1:4401']).adminBaseUrl,'http://127.0.0.1:4401');
+  for(const value of ['http://localhost:4301','http://127.0.0.1:4300','http://user:private@127.0.0.1:4301','http://127.0.0.1:4301/path']) assert.throws(()=>parseArguments([...args,'--admin-url',value]),error=>error.code==='invalid-admin-target'&&!error.message.includes('private'));
 });
 
 test('PostgreSQL is explicit and never falls back to a general database URL', () => {
@@ -174,7 +182,7 @@ test('actual CLI runs its safe plan and refuses to overwrite a completed report'
   await writeFile(join(bin, 'pnpm'), '#!/usr/bin/env node\nif(process.env.pnpm_config_verify_deps_before_run!=="error")process.exit(49);else console.log(process.version);\n', { mode: 0o755 });
   const cli = join(f.root, 'node_modules/@playwright/test/cli.js');
   await writeFile(cli, `const fs=require('node:fs');const path=require('node:path');const root=path.join(process.env.E2E_EVIDENCE_DIR,'artifacts');fs.mkdirSync(root,{recursive:true});fs.writeFileSync(path.join(root,'run-summary.json'),JSON.stringify(${JSON.stringify(summaryFixture())}));`);
-  const invoke = () => new Promise((done, reject) => { const child = spawn(process.execPath, [join(f.root, 'tools/verify-release.mjs'), '--base-url', f.options.baseUrl, '--report-dir', f.options.reportDir], { cwd: f.root, env: { ...process.env, PATH: `${bin}:${dirname(process.execPath)}:${process.env.PATH}`, pnpm_config_verify_deps_before_run: 'false' }, stdio: ['ignore', 'pipe', 'pipe'] }); let output = ''; child.stdout.on('data', b => output += b); child.stderr.on('data', b => output += b); child.once('error', reject); child.once('close', code => done({ code, output })); });
+  const invoke = () => new Promise((done, reject) => { const child = spawn(process.execPath, [join(f.root, 'tools/verify-release.mjs'), '--base-url', f.options.baseUrl, '--admin-url', f.options.adminBaseUrl, '--report-dir', f.options.reportDir], { cwd: f.root, env: { ...process.env, PATH: `${bin}:${dirname(process.execPath)}:${process.env.PATH}`, pnpm_config_verify_deps_before_run: 'false' }, stdio: ['ignore', 'pipe', 'pipe'] }); let output = ''; child.stdout.on('data', b => output += b); child.stderr.on('data', b => output += b); child.once('error', reject); child.once('close', code => done({ code, output })); });
   const first = await invoke(); assert.equal(first.code, 0, first.output); assert.match(first.output, /Selected smoke verification: passed/); const before = await readFile(join(f.options.reportDir, 'report.json')); const requests = f.requests.length;
   const second = await invoke(); assert.equal(second.code, 2); assert.match(second.output, /already exist/); assert.deepEqual(await readFile(join(f.options.reportDir, 'report.json')), before); assert.equal(f.requests.length, requests);
 });

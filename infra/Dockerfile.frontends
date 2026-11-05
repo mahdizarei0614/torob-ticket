@@ -1,0 +1,33 @@
+# Frontends compile independently from Prisma, the API and Debian packages.
+FROM node:24.17.0-bookworm-slim@sha256:862263c612aa437e3037674b85419622a9d93bff80aa1eee5398dfe686375532 AS dependencies
+WORKDIR /app
+ARG NPM_REGISTRY=https://registry.npmjs.org
+RUN npm install --global pnpm@11.9.0 --registry="$NPM_REGISTRY"
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+# The frontend build needs no Prisma engines or dependency lifecycle scripts.
+RUN pnpm install --frozen-lockfile --ignore-scripts --fetch-timeout=300000 --registry="$NPM_REGISTRY"
+
+FROM dependencies AS source
+COPY . .
+ARG TOROBTICKET_PUBLIC_ORIGIN=""
+ENV NX_DAEMON=false NX_ISOLATE_PLUGINS=false NX_TUI=false
+RUN node tools/verify-brand-assets.mjs
+
+FROM source AS web-build
+RUN pnpm exec vite build --config apps/web/vite.config.mts
+
+FROM source AS admin-build
+RUN pnpm exec vite build --config apps/admin/vite.config.mts
+
+FROM caddy:2.11.7-alpine@sha256:eb4d35b7452d1ab6171fbdbe8d9275b2301dad6dad92115d91e19fb9b24d510f AS frontend-base
+COPY infra/static-serving.caddy /etc/caddy/static-serving.caddy
+COPY infra/frontend-entrypoint.sh /usr/local/bin/frontend-entrypoint.sh
+ENTRYPOINT ["sh", "/usr/local/bin/frontend-entrypoint.sh"]
+
+FROM frontend-base AS web
+COPY infra/Caddyfile /etc/caddy/Caddyfile
+COPY --from=web-build /app/dist/apps/web /srv/web
+
+FROM frontend-base AS admin
+COPY infra/Caddyfile.admin /etc/caddy/Caddyfile
+COPY --from=admin-build /app/dist/apps/admin /srv/admin

@@ -22,7 +22,8 @@
       "inputs": [
         "default",
         "^production",
-        "{workspaceRoot}/tools/vite-brand-metadata.mts"
+        "{workspaceRoot}/tools/vite-brand-metadata.mts",
+        "{workspaceRoot}/tools/vite-separated-sites.mts"
       ]
     },
     "build": {
@@ -39,7 +40,8 @@
         "{workspaceRoot}/tools/vite-brand-metadata.mts",
         {
           "env": "TOROBTICKET_PUBLIC_ORIGIN"
-        }
+        },
+        "{workspaceRoot}/tools/vite-separated-sites.mts"
       ]
     },
     "serve": {

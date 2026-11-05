@@ -1,6 +1,6 @@
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { knownDevelopmentFrontendIds } from './docker-dev-services.mjs';
+import { knownLegacyGatewayIds } from './docker-dev-services.mjs';
 import { prepareDevelopmentMountpoint } from './prepare-development.mjs';
 const cwd = fileURLToPath(new URL('../', import.meta.url));
 const development = process.argv.includes('--dev');
@@ -18,27 +18,30 @@ const compose = (args, capture = false) => docker(['compose', ...composeFiles, .
 try {
   // Compose resolves .env and shell overrides once; print the actual published port.
   const config = JSON.parse(await compose(['config', '--format', 'json'], true));
-  const port = config.services.gateway.ports.find(port => port.target === 80 && port.host_ip === '127.0.0.1')?.published;
-  if (!port) throw new Error('Gateway requires a loopback-only published port. Check compose.yaml and TOROBTICKET_PORT.');
+  const binding = (service, target) => config.services[service]?.ports?.find(port => port.target === target && port.host_ip === '127.0.0.1')?.published;
+  const port = binding('web', 4300), adminPort = binding('admin', 4301), providerPort = binding('example-provider', 4310);
+  if (!port || !adminPort || !providerPort || new Set([port, adminPort, providerPort]).size !== 3) throw new Error('Web, admin and provider require distinct loopback-only published ports.');
   if (development) await prepareDevelopmentMountpoint(cwd);
-  await compose(['up', '--build', '--wait', '--wait-timeout', '120']);
-  if (!development) {
-    const containers = await compose(['ps', '--all', '--format', 'json'], true);
-    for (const id of knownDevelopmentFrontendIds(containers, config.name)) await docker(['rm', '--force', id]);
+  // Build before retiring the old gateway so a failed build preserves serving.
+  await compose(['build']);
+  const containers = await compose(['ps', '--all', '--format', 'json'], true);
+  for (const id of knownLegacyGatewayIds(containers, config.name)) await docker(['rm', '--force', id]);
+  await compose(['up', '--wait', '--wait-timeout', '120']);
+  for (const [service, published, path] of [['web', port, '/'], ['admin', adminPort, '/admin/']]) {
+    const ready = await fetch(`http://127.0.0.1:${published}/api/health/ready`, { signal: AbortSignal.timeout(5000) });
+    if (!ready.ok || (await ready.json()).status !== 'ready') throw new Error(`${service} API readiness failed: HTTP ${ready.status}`);
+    const frontend = await fetch(`http://127.0.0.1:${published}${path}`, { signal: AbortSignal.timeout(5000) });
+    const html = await frontend.text();
+    if (!frontend.ok || !html.includes('<html') || (development && !html.includes('@vite/client'))) throw new Error(`${development ? 'Development' : 'Packaged'} frontend unavailable: ${service}`);
   }
-  const response = await fetch(`http://127.0.0.1:${port}/api/health/ready`, { signal: AbortSignal.timeout(5000) });
-  if (!response.ok || (await response.json()).status !== 'ready') throw new Error(`Gateway readiness failed: HTTP ${response.status}`);
-  if (development) {
-    for (const path of ['/', '/admin/']) {
-      const frontend = await fetch(`http://127.0.0.1:${port}${path}`, { signal: AbortSignal.timeout(5000) });
-      if (!frontend.ok || !(await frontend.text()).includes('@vite/client')) throw new Error(`Development frontend unavailable: ${path}`);
-    }
-    console.log('Hot reload: source edits update web/admin automatically; successful API TypeScript compilations restart the server.');
-  }
+  const providerReady = await fetch(`http://127.0.0.1:${providerPort}/health/ready`, { signal: AbortSignal.timeout(5000) });
+  if (!providerReady.ok) throw new Error(`Provider readiness failed: HTTP ${providerReady.status}`);
+  if (development) console.log('Hot reload: source edits update web/admin automatically; successful API/provider TypeScript compilations restart their server.');
   const issuer = new URL(config.services.api.environment.TOROBTICKET_SSO_ORIGIN);
   const provider = config.services['example-provider'];
   const providerOrigin = provider.environment.TOROBTICKET_EXAMPLE_PROVIDER_ORIGIN || `http://${issuer.hostname === 'localhost' ? '127.0.0.1' : 'localhost'}:${provider.environment.TOROBTICKET_EXAMPLE_PROVIDER_PORT}`;
-  console.log(`Web: ${issuer.origin}/\nAdmin: ${issuer.origin}/admin/\nProvider: ${providerOrigin}/`);
+  const adminOrigin = new URL(config.services.api.environment.TOROBTICKET_ADMIN_ORIGIN || issuer.origin); if (!config.services.api.environment.TOROBTICKET_ADMIN_ORIGIN) adminOrigin.port = String(adminPort);
+  console.log(`Web: ${issuer.origin}/\nAdmin: ${adminOrigin.origin}/admin/\nProvider: ${providerOrigin}/`);
 } catch (error) {
   const command = development ? 'pnpm docker:dev' : 'pnpm docker:up';
   const inspection = `docker compose ${composeFiles.length ? composeFiles.join(' ') + ' ' : ''}`;

@@ -48,11 +48,3 @@ COPY assets/fonts/Vazirmatn-wght.woff2 ./assets/fonts/Vazirmatn-wght.woff2
 RUN mkdir -p /data && chown node:node /data
 USER node
 CMD ["node", "dist/apps/example-provider/apps/example-provider/src/main.js"]
-
-FROM caddy:2.11.7-alpine@sha256:eb4d35b7452d1ab6171fbdbe8d9275b2301dad6dad92115d91e19fb9b24d510f AS gateway
-COPY infra/Caddyfile /etc/caddy/Caddyfile
-COPY --from=build /app/dist/apps/web /srv/web
-COPY --from=build /app/dist/apps/admin /srv/admin
-
-FROM caddy:2.11.7-alpine@sha256:eb4d35b7452d1ab6171fbdbe8d9275b2301dad6dad92115d91e19fb9b24d510f AS development-gateway
-COPY infra/Caddyfile.dev /etc/caddy/Caddyfile

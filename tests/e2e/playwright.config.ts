@@ -38,7 +38,10 @@ if (evidence) {
   }
   process.env.E2E_BASE_URL = webUrl;
   process.env.E2E_EVIDENCE_DIR = evidence;
-  process.env.ADMIN_E2E_URL = webUrl;
+  const admin = new URL(webUrl); admin.port = process.env.TOROBTICKET_ADMIN_PORT || '4301';
+  const configuredAdmin = new URL(process.env.TOROBTICKET_ADMIN_ORIGIN || admin.origin);
+  if (configuredAdmin.hostname !== new URL(webUrl).hostname || configuredAdmin.protocol !== 'http:' || !configuredAdmin.port || Number(configuredAdmin.port) < 1024 || Number(configuredAdmin.port) > 65535 || configuredAdmin.origin === webUrl || configuredAdmin.username || configuredAdmin.password || configuredAdmin.pathname !== '/' || configuredAdmin.search || configuredAdmin.hash) throw new Error('Admin E2E origin must use the web hostname and scheme with a distinct loopback port');
+  process.env.ADMIN_E2E_URL = configuredAdmin.origin;
 }
 export default defineConfig({
   testDir: './src',

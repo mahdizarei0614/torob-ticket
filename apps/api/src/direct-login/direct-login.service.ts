@@ -1,4 +1,4 @@
-import { configuredOrigin } from './issuer-origin';
+import { configuredOrigin, configuredAdminOrigin } from './issuer-origin';
 export { configuredOrigin } from './issuer-origin';
 import {exampleProviderOrigin,exampleProviderInternalOrigin} from './example-provider-config';
 import {travelerProfileForTrip,localDateAt} from '@torob-ticket/domain';
@@ -53,8 +53,9 @@ export class DirectLoginService {
       return result;
     });
   }
-  assertBrowserMutation(request: WebRequest) {
-    if (request.headers['sec-fetch-site'] === 'cross-site' || (request.headers.origin && request.headers.origin !== configuredOrigin())) throw new ForbiddenException('Unrecognized request origin');
+  assertBrowserMutation(request: WebRequest, surface: 'web' | 'admin' = 'web') {
+    const allowed = surface === 'admin' ? [configuredOrigin(), configuredAdminOrigin()] : [configuredOrigin()];
+    if (request.headers['sec-fetch-site'] === 'cross-site' || (request.headers.origin && !allowed.includes(request.headers.origin))) throw new ForbiddenException('Unrecognized request origin');
   }
   private cookieName(scope: DataScope, kind: string) { return `tt_${kind}_${sha256(scope.sessionId).slice(0, 12)}`; }
   cookie(scope: DataScope, kind: string, request: WebRequest) {
@@ -546,7 +547,7 @@ export class DirectLoginService {
       const partners = await tx.directLoginClient.findMany({ where: { sessionId: scope.sessionId } });
       const acquisitions = state.acquisitions.filter(a => a.identityId).map(({ identityId, integration, ...row }) => { void identityId; void integration; return row; }).reverse();
       const confirmed = acquisitions.filter(a => a.status === 'new');
-      return { partners: partners.map(p => this.publicPartner(p)), acquisitions, messages: state.challenges.filter(c => !c.used && c.attempts < 5 && c.expires > Date.now()).map(c => ({ id: c.id, destination: c.phone, code: c.deliveryCode, purpose: c.purpose === 'torob' ? 'TorobTicket sign-in' : `Provider sign-in · ${c.purpose}`, expiresAt: new Date(c.expires).toISOString() })), totals: { newAccounts: confirmed.length, existingAccounts: acquisitions.filter(a => a.status === 'existing').length, pending: acquisitions.filter(a => a.status === 'pending' || a.status === 'disputed').length, amountRial: confirmed.reduce((sum, a) => sum + BigInt(a.rateRial ?? 0), 0n).toString(), unpriced: confirmed.filter(a => a.rateRial === null).length } };
+      return { webOrigin: configuredOrigin(), partners: partners.map(p => this.publicPartner(p)), acquisitions, messages: state.challenges.filter(c => !c.used && c.attempts < 5 && c.expires > Date.now()).map(c => ({ id: c.id, destination: c.phone, code: c.deliveryCode, purpose: c.purpose === 'torob' ? 'TorobTicket sign-in' : `Provider sign-in · ${c.purpose}`, expiresAt: new Date(c.expires).toISOString() })), totals: { newAccounts: confirmed.length, existingAccounts: acquisitions.filter(a => a.status === 'existing').length, pending: acquisitions.filter(a => a.status === 'pending' || a.status === 'disputed').length, amountRial: confirmed.reduce((sum, a) => sum + BigInt(a.rateRial ?? 0), 0n).toString(), unpriced: confirmed.filter(a => a.rateRial === null).length } };
     });
   }
 }

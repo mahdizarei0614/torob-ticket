@@ -1,0 +1,23 @@
+{
+	auto_https off
+	admin off
+}
+import /etc/caddy/static-serving.caddy
+:4301 {
+	@api path /api /api/*
+	handle @api {
+		reverse_proxy api:4302 {
+			flush_interval -1
+		}
+	}
+	redir / /admin/ 308
+	redir /admin /admin/ 308
+	redir /travel {$TOROBTICKET_WEB_ORIGIN}/ 302
+	@consumer path /reference-provider/* /provider-demo/* /direct-login/*
+	redir @consumer {$TOROBTICKET_WEB_ORIGIN}{uri} 302
+	handle_path /admin/* {
+		root * /srv/admin
+		import static-serving hashed_admin
+	}
+	respond 404
+}

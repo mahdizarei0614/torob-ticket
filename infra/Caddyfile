@@ -2,62 +2,16 @@
 	auto_https off
 	admin off
 }
-# Shared policy; the caller selects its root and a distinct regexp matcher name.
-(static-serving) {
-	@hashed path_regexp {args[0]} ^/assets/.+-[A-Za-z0-9_-]{8,}\.[^/]+$
-	header ?Cache-Control "no-cache"
-	header @hashed Cache-Control "public, max-age=31536000, immutable"
-	# Missing asset URLs must not receive an HTML document.
-	handle /brand/* {
-		file_server
-	}
-	@brandFiles path /favicon* /apple-touch-icon.png /safari-pinned-tab.svg /site.webmanifest /admin.webmanifest
-	handle @brandFiles {
-		file_server
-	}
-	handle /assets/* {
-		file_server
-	}
-	handle /fonts/* {
-		file_server
-	}
-	handle /airlines/* {
-		file_server
-	}
-	handle /ground-operators/* {
-		file_server
-	}
-	handle /geography/* {
-		file_server
-	}
-	handle /licenses/* {
-		file_server
-	}
-	handle /provenance.json {
-		file_server
-	}
-	handle /theme-init.js {
-		file_server
-	}
-	handle {
-		try_files {path} /index.html
-		file_server
-	}
-}
-:80 {
-	# API errors remain JSON. No SPA fallback or response buffering here.
+import /etc/caddy/static-serving.caddy
+:4300 {
 	@api path /api /api/*
 	handle @api {
 		reverse_proxy api:4302 {
 			flush_interval -1
 		}
 	}
-	redir /admin /admin/ 308
-	handle_path /admin/* {
-		root * /srv/admin
-		import static-serving hashed
-	}
-	# Provider handoff routes use the consumer SPA and read their scoped receipt.
+	@admin path /admin /admin/*
+	redir @admin {$TOROBTICKET_ADMIN_ORIGIN}{uri} 308
 	handle {
 		root * /srv/web
 		import static-serving hashed_web

@@ -97,8 +97,8 @@ class DirectBackchannelController {
 class DirectAdminController {
   constructor(@Inject(DirectLoginService) private readonly service: DirectLoginService) {}
   @Get() list(@Req() r: Request) { return this.service.admin(r.sessionContext!.scope); }
-  @Post('example-provider') example(@Req() r:Request,@Body(new ZodValidationPipe(z.strictObject({providerId:IdSchema,name:z.string().trim().min(1).max(100)}))) input:{providerId:string;name:string}){this.service.assertBrowserMutation(r);return this.service.installExampleProvider(r.sessionContext!,input.providerId,input.name);}
-  @Post('partners') partner(@Req() r: Request, @Body(new ZodValidationPipe(PartnerInputSchema)) input: PartnerInput) { this.service.assertBrowserMutation(r); return this.service.savePartner(r.sessionContext!, input); }
+  @Post('example-provider') example(@Req() r:Request,@Body(new ZodValidationPipe(z.strictObject({providerId:IdSchema,name:z.string().trim().min(1).max(100)}))) input:{providerId:string;name:string}){this.service.assertBrowserMutation(r, 'admin');return this.service.installExampleProvider(r.sessionContext!,input.providerId,input.name);}
+  @Post('partners') partner(@Req() r: Request, @Body(new ZodValidationPipe(PartnerInputSchema)) input: PartnerInput) { this.service.assertBrowserMutation(r, 'admin'); return this.service.savePartner(r.sessionContext!, input); }
 }
 @Controller('v1/reference-provider/:providerId')
 @UseGuards(SessionGuard)

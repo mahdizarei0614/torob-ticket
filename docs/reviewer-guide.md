@@ -164,3 +164,12 @@ local development verification code is123456 when the documented gates are enabl
 See [integration instructions](direct-login-integration.md#separate-provider-website-and-traveler-profile).
 The separate website is an owned local integration, with self-reported documents
 and pending external attribution; no commercial provider or ticket is involved.
+
+
+## Separate application ports
+
+Main website, admin and provider now use independent Docker containers on4300,
+4301 and4310. Admin is `/admin/` on4301; old main-site admin links redirect there.
+Keep the same canonical hostname for main/admin to inspect one reviewer workspace.
+The provider uses the other loopback hostname. Existing records and volumes are
+retained. See [Run locally](run-locally.md) for port overrides and mode switching.

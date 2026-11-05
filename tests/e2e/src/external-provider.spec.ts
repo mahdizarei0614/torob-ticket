@@ -8,7 +8,13 @@ test('external provider exchanges SSO across hosts, displays consented traveler 
   const root = process.env.EXTERNAL_PROVIDER_EVIDENCE_DIR ?? info.outputPath('captures'); mkdirSync(root, { recursive: true });
   await context.request.post('/api/v1/demo/session', { data: { seed: 8817, anchorInstant: '2026-10-25T06:00:00Z' } });
   await page.goto('/admin/direct-login');
+  const adminOrigin = new URL(page.url()).origin; expect(adminOrigin).not.toBe(new URL(process.env.E2E_BASE_URL!).origin);
+  expect(new URL(page.url()).port).toBe(process.env.TOROBTICKET_ADMIN_PORT || '4301');
+  await expect(page.getByRole('link', { name: 'Open travel search ↗' })).toHaveAttribute('href', '/travel');
+  const rejected = await context.request.post('/api/v1/direct-login/phone/code', { headers: { Origin: adminOrigin }, data: { phone: '09000000001' } }); expect(rejected.status()).toBe(403);
+  const installing = page.waitForResponse(r => new URL(r.url()).pathname === '/api/v1/admin/direct-login/example-provider');
   await page.getByRole('button', { name: 'Connect separate site', exact: true }).first().click();
+  const installed = await installing; expect(installed.status()).toBe(201); expect(new URL(installed.url()).origin).toBe(adminOrigin); expect((await installed.request().allHeaders()).origin).toBe(adminOrigin);
   const providerLink = page.getByRole('link', { name: 'Open provider website ↗', exact: true });
   await expect(providerLink).toBeVisible(); const providerUrl = (await providerLink.getAttribute('href'))!;
   expect(new URL(providerUrl).hostname).toBe('localhost');
