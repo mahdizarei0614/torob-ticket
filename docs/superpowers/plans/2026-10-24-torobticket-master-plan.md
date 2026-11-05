@@ -2881,3 +2881,23 @@ platform is127.0.0.1:4300. Prior reference data and unrelated traffic-history ed
 remain intact. The owned test database was stopped; local app/provider stay up.
 External acquisition reports remain pending/unbilled until independently verified.
 No production deployment, publication or ticket issuance;35-task baseline unchanged.
+
+
+## Separate Docker applications and ports — 2026-11-05
+
+COMPLETE in `02e85f4daaae4e1c2cd06e08577fb964a92c7d95`. Decision0089 and the
+[verification record](../../evidence/adjustments/separate-docker-ports/verification.md)
+cover permanent web/admin/provider services on4300/4301/4310 in both Compose modes,
+independent frontend source builds/images, exact first-party origins and canonical
+cross-app navigation. Retire only the observed owned legacy gateway; preserve
+permanent frontends, reviewer data and database/provider volumes.
+
+Final evidence:45Node tool/config contracts,24API/admin cases, uncached
+roots/dependency types/lint/build and E2E types passed. Actual Chrome2/2dev and
+2/2packaged reference/external journeys passed, plus1/1restored-dev. Packaged
+HTTP/assets/cache/404/JSON/redirect and per-image asset isolation probes passed.
+Independent source/config/staged-scope and credential-scan reviews approved.
+Earlier stale-image, generated-file race and backend Debian download failures
+remain recorded with scope limits. Final runtime is healthy development with
+separate image tags and unchanged database/provider instances. No fresh whole
+production-stack certification, publication or deployment;35-task baseline retained.
