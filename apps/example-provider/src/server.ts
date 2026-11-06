@@ -68,7 +68,7 @@ export function createProviderSite(config: SiteConfiguration) {
     response.setHeader('Cache-Control', 'no-store, private'); response.setHeader('Referrer-Policy', 'no-referrer'); response.setHeader('X-Content-Type-Options', 'nosniff');
     response.setHeader('Content-Security-Policy', "default-src 'none'; style-src 'self'; font-src 'self'; img-src 'self'; form-action 'self'; frame-ancestors 'none'; base-uri 'none'");
     const url = new URL(request.url ?? '/', config.origin);
-    if (url.pathname === '/health/ready' && request.method === 'GET') { response.end('ready'); return; }
+    if (url.pathname === '/health/ready' && request.method === 'GET') { await store.update(() => undefined); response.end('ready'); return; }
     if (url.pathname === '/internal/registrations' && request.method === 'POST') {
       const body = await jsonBody(request);
       if (Object.keys(body).sort().join(',') !== 'clientId,code' || typeof body.clientId !== 'string' || !clientPattern.test(body.clientId) || typeof body.code !== 'string' || !tokenPattern.test(body.code)) throw new Error('Invalid installation');

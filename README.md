@@ -31,6 +31,42 @@ content and retains local hotel/coordinate controls if that service is unavailab
 Ports, registry mirrors, architecture support and startup diagnostics are in
 [Run locally](docs/run-locally.md).
 
+## Test provider SSO — no admin setup
+
+**راه‌آرا is connected automatically** when each reviewer first opens the app.
+This works with `pnpm docker:up`, including a fresh database and browser profile.
+Keep the traveler and admin tabs in the same browser, using the URLs printed by
+startup. The provider deliberately uses the other loopback hostname.
+
+1. Open the traveler app. Search a domestic Tehran → Mashhad flight on a date with
+   results, and select an offer from **راه‌آرا**.
+2. Choose **رفتن به سایت فروشنده**, then **ادامه با ترب‌تیکت** on the provider page.
+   Start from the selected offer; opening the provider homepage alone has no referral.
+3. Enter a phone such as **09000000991** and verification code **123456**.
+   No SMS service, API key or manual client-secret setup is needed.
+4. Complete the primary-traveler form and choose **ذخیره مشخصات مسافر**, then
+   **اجازه و ادامه**. For a domestic test you can use سارا احمدی, Gregorian birth
+   date `1992-03-04`, gender زن, nationality `IR`, national ID `0012345678`;
+   email is optional. These are authored test inputs, not verified documents.
+5. The separate provider displays the approved claims in a JSON `<pre>`.
+   First sign-in returns `provider_account.status: "created"`. Log out of the
+   provider and repeat with the **same phone in the same reviewer workspace**:
+   expect `"existing"` and the same account ID. A new browser profile has its own
+   isolated provider connection, so it is a separate reviewer.
+
+To test denial, log out of the provider, start another flow and choose **انصراف**.
+No new profile JSON is disclosed. Admin **Direct Login** shows the connection and
+actual acquisition evidence; manual enrollment is optional for other providers.
+The provider's local existing-account status does not waive billing: external
+`identity.attribution` remains `pending` until independently verified.
+
+Compose explicitly enables `TOROBTICKET_LOCAL_REVIEW=true` and local code `123456`.
+Automatic setup and packaged-runtime test codes require configured HTTP-loopback
+web/admin/provider origins; the provider must retain a different hostname.
+Set the flag to `false` to disable automatic setup and packaged test codes.
+Existing manual/custom/disabled connections are preserved. First-time automatic
+setup can retry after a service interruption without replacing those connections.
+
 ## Try the reviewer path
 
 1. Open the traveler app and choose **سفرهای پیشنهادی** for a supported route.
@@ -171,8 +207,8 @@ account verification require their respective connections.
 
 ### Separate provider website
 
-The standalone provider runs on a different hostname at port4310. In admin Direct
-Login, choose **Connect separate site** for a provider, then **Open provider
-website**. Start from a selected TorobTicket offer to obtain its current referral.
+The standalone provider runs on a different hostname at port4310. Open admin Direct
+Login to inspect the automatically connected **راه‌آرا**. For another provider,
+choose **Connect separate site**, then **Open provider website**. Start from a selected TorobTicket offer to obtain its current referral.
 The provider performs the backend SDK code exchange and displays the consented
 traveler claims in a JSON pre block. See [setup and traveler fields](docs/direct-login-integration.md#separate-provider-website-and-traveler-profile).

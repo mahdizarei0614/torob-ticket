@@ -337,4 +337,62 @@ describe('Direct Login over real HTTP and PostgreSQL', () => {
     } finally {intercepted.mockRestore();delete process.env.TOROBTICKET_EXAMPLE_PROVIDER_INTERNAL_ORIGIN;}
   });
 
+  async function reviewerInstall<T>(work:(control:{calls:string[];fail:boolean;pause?:()=>Promise<void>})=>Promise<T>) {
+    const original=globalThis.fetch, control:{calls:string[];fail:boolean;pause?:()=>Promise<void>}={calls:[],fail:false};
+    vi.stubEnv('TOROBTICKET_LOCAL_REVIEW','true');vi.stubEnv('TOROBTICKET_EXAMPLE_PROVIDER_INTERNAL_ORIGIN','http://127.0.0.1:59997');
+    const intercepted=vi.spyOn(globalThis,'fetch').mockImplementation(async(input,init)=>{
+      const url=new URL(typeof input==='string'?input:input instanceof URL?input.href:input.url);
+      if(url.origin!=='http://127.0.0.1:59997')return original(input,init);
+      const body=JSON.parse(String(init?.body)) as {clientId:string;code:string};control.calls.push(body.clientId);
+      if(control.fail)return new Response('{}',{status:503});
+      const exchange=await original(base+'/api/v1/direct-login/example-registration',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({client_id:body.clientId,code:body.code})});expect(exchange.status).toBe(201);
+      if(control.pause)await control.pause();
+      return new Response(JSON.stringify({installed:true,clientId:body.clientId}),{headers:{'content-type':'application/json'}});
+    });
+    try{return await work(control);}finally{intercepted.mockRestore();vi.unstubAllEnvs();}
+  }
+  it('reviewer bootstrap installs once per workspace, remains idempotent and respects manual disabled connections',async()=>{
+    await reviewerInstall(async control=>{
+      const b=await setup();let state=await admin(b);const partner=state.partners.find(p=>p.providerId==='demo-provider-01')!;
+      expect(partner).toMatchObject({kind:'external',enabled:true,acquisitionRateRial:null});expect(state.acquisitions).toHaveLength(0);expect(state.messages).toHaveLength(0);expect(control.calls).toHaveLength(1);
+      await Promise.all([b.call('/api/v1/demo/session',{}),b.call('/api/v1/demo/session',{})]);expect(control.calls).toHaveLength(1);expect((await admin(b)).partners[0]?.revision).toBe(partner.revision);
+      const peer=await setup();expect((await admin(peer)).partners[0]?.clientId).not.toBe(partner.clientId);expect(control.calls).toHaveLength(2);
+      const {providerId,name,callbackUrl,loginStartUrl,acquisitionRateRial,kind}=partner;
+      expect((await b.call('/api/v1/admin/direct-login/partners',{providerId,name,callbackUrl,loginStartUrl,acquisitionRateRial,kind,enabled:false})).status).toBe(201);
+      await b.call('/api/v1/demo/session',{});state=await admin(b);expect(state.partners[0]?.enabled).toBe(false);expect(control.calls).toHaveLength(2);
+      const reset=await b.call('/api/v1/demo/reset',{});expect(reset.status).toBe(201);expect((await admin(b)).partners[0]?.clientId).not.toBe(partner.clientId);expect((await admin(b)).partners[0]?.enabled).toBe(true);expect(control.calls).toHaveLength(3);
+      const hash=createHash('sha256').update(b.cookies.get('torob_demo')!).digest('hex');owned.push((await app.get(SessionService).database.demoSession.findUniqueOrThrow({where:{credentialHash:hash}})).id);
+    });
+  });
+  it('reviewer bootstrap retries only a failed owned installation after its retry window',async()=>{
+    await reviewerInstall(async control=>{
+      control.fail=true;const b=await setup();expect((await admin(b)).partners[0]?.enabled).toBe(false);expect(control.calls).toHaveLength(1);
+      await b.call('/api/v1/demo/session',{});expect(control.calls).toHaveLength(1);
+      const id=owned.at(-1)!,database=app.get(SessionService).database;
+      const row=await database.directLoginWorkspace.findUniqueOrThrow({where:{sessionId:id}});const state=row.payload as unknown as IssuerState;state.reviewerSetup!.retryAfter=0;
+      await database.directLoginWorkspace.update({where:{sessionId:id},data:{payload:state as unknown as Prisma.InputJsonValue}});
+      control.fail=false;expect((await b.call('/api/v1/demo/session',{})).status).toBe(201);expect((await admin(b)).partners[0]?.enabled).toBe(true);expect(control.calls).toHaveLength(2);
+    });
+  });
+  it('reviewer bootstrap cannot overwrite a manual connection made during the installation handshake',async()=>{
+    const b=await setup();
+    await reviewerInstall(async control=>{
+      let release!:()=>void,entered!:()=>void;const waiting=new Promise<void>(resolve=>{release=resolve;}),started=new Promise<void>(resolve=>{entered=resolve;});
+      control.pause=async()=>{entered();await waiting;};
+      const boot=b.call('/api/v1/demo/session',{});await started;
+      try {expect((await b.call('/api/v1/admin/direct-login/partners',{providerId:'demo-provider-01',name:'راه‌آرا',callbackUrl:'https://seller.example/callback',loginStartUrl:'https://seller.example/start',kind:'external',enabled:false,acquisitionRateRial:null})).status).toBe(201);} finally {release();}
+      expect((await boot).status).toBe(201);const partner=(await admin(b)).partners[0]!;expect(partner).toMatchObject({enabled:false,callbackUrl:'https://seller.example/callback'});
+      await b.call('/api/v1/demo/session',{});expect(control.calls).toHaveLength(1);
+    });
+  });
+  it('reviewer bootstrap does not run when disabled and packaged test challenges recheck local-review permission',async()=>{
+    const plain=await setup();expect((await admin(plain)).partners).toHaveLength(0);
+    await reviewerInstall(async()=>{
+      vi.stubEnv('NODE_ENV','production');vi.stubEnv('TOROBTICKET_SSO_TEST_SMS_CODE','123456');
+      const b=await setup(),issued=await b.call('/api/v1/direct-login/phone/code',{phone:'09000000991'});expect(issued.status).toBe(201);const challenge=z.object({id:z.string()}).parse(await issued.json());expect((await admin(b)).messages.find(m=>m.id===challenge.id)?.code).toBe('123456');
+      vi.stubEnv('TOROBTICKET_LOCAL_REVIEW','false');expect((await b.call('/api/v1/direct-login/phone/verify',{id:challenge.id,code:'123456'})).status).toBe(400);
+      vi.stubEnv('TOROBTICKET_LOCAL_REVIEW','true');expect((await b.call('/api/v1/direct-login/phone/verify',{id:challenge.id,code:'123456'})).status).toBe(201);
+    });
+  });
+
 });

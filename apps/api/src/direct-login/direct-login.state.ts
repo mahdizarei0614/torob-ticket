@@ -7,6 +7,7 @@ export interface Flow { id: string; request: AuthorizeInput; browser: string; ex
 export interface Acquisition { integration?: string; id: string; providerId: string; referralId: string; identityId: string; accountId: string | null; status: 'pending' | 'existing' | 'new' | 'repeat' | 'denied' | 'disputed'; reason: string; createdAt: string; confirmedAt: string | null; rateRial: number | null; tariffRevision: number; evidence: 'none' | 'prior-commitment' | 'local-enrollment' | 'provider-report' | 'verified-enrollment' }
 export interface IssuerState {
   version: 1; sequence: number; privateKey: string; publicKey: Record<string, string>; kid: string; subjectSecret: string;
+  reviewerSetup?: { clientId: string; revision: number; status: 'pending' | 'ready'; retryAfter: number };
   installations?: { hash: string; clientId: string; secret: string; revision: number; origin: string; expires: number; consumed: boolean }[];
   identities: PhoneIdentity[]; challenges: Challenge[];
   sessions: { hash: string; identityId: string; expires: number }[];

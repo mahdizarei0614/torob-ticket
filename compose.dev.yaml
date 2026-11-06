@@ -11,6 +11,7 @@ x-dev-source: &dev-source
 
 services:
   initializer:
+    image: ${COMPOSE_PROJECT_NAME:-torobticket}-initializer:development
     build:
       target: development
     entrypoint: [sh, infra/init-dev.sh]
@@ -25,6 +26,7 @@ services:
       - dev_prisma:/app/libs/data-access/src/generated
 
   api:
+    image: ${COMPOSE_PROJECT_NAME:-torobticket}-api:development
     build:
       target: development
     command: [node, tools/dev-api.mjs]
@@ -46,13 +48,14 @@ services:
       start_period: 30s
 
   example-provider:
+    image: ${COMPOSE_PROJECT_NAME:-torobticket}-example-provider:development
     build:
       target: development
-    command: [node, tools/dev-api.mjs, apps/example-provider/tsconfig.build.json, .dev/example-provider, apps/example-provider/src/main.js]
+    command: [node, infra/provider-entrypoint.mjs, development]
     environment:
       NODE_ENV: development
       TOROBTICKET_DEV_POLLING: ${TOROBTICKET_DEV_POLLING:-false}
-    volumes: [./apps:/app/apps:ro, ./libs:/app/libs:ro, ./assets:/app/assets:ro, ./tools:/app/tools:ro, ./tsconfig.base.json:/app/tsconfig.base.json:ro, example_provider:/data]
+    volumes: [./apps:/app/apps:ro, ./libs:/app/libs:ro, ./assets:/app/assets:ro, ./tools:/app/tools:ro, ./infra/provider-entrypoint.mjs:/app/infra/provider-entrypoint.mjs:ro, ./infra/provider-store-permissions.mjs:/app/infra/provider-store-permissions.mjs:ro, ./tsconfig.base.json:/app/tsconfig.base.json:ro, example_provider:/data]
 
   web:
     image: ${COMPOSE_PROJECT_NAME:-torobticket}-web:development

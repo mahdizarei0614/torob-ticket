@@ -14,6 +14,7 @@ services:
       timeout: 3s
       retries: 30
   initializer:
+    image: ${COMPOSE_PROJECT_NAME:-torobticket}-initializer:packaged
     build:
       context: .
       dockerfile: infra/Dockerfile
@@ -29,6 +30,7 @@ services:
         condition: service_healthy
     restart: 'no'
   api:
+    image: ${COMPOSE_PROJECT_NAME:-torobticket}-api:packaged
     build:
       context: .
       dockerfile: infra/Dockerfile
@@ -39,6 +41,8 @@ services:
       target: api
     environment:
       DATABASE_URL: postgresql://torobticket:local-demo-only@database:5432/torobticket
+      TOROBTICKET_LOCAL_REVIEW: ${TOROBTICKET_LOCAL_REVIEW:-true}
+      TOROBTICKET_SSO_TEST_SMS_CODE: ${TOROBTICKET_SSO_TEST_SMS_CODE:-123456}
       TOROBTICKET_SSO_ORIGIN: ${TOROBTICKET_SSO_ORIGIN:-http://localhost:${TOROBTICKET_PORT:-4300}}
       TOROBTICKET_ADMIN_ORIGIN: ${TOROBTICKET_ADMIN_ORIGIN:-}
       TOROBTICKET_ADMIN_PORT: ${TOROBTICKET_ADMIN_PORT:-4301}
@@ -57,6 +61,7 @@ services:
       retries: 30
       start_period: 5s
   example-provider:
+    image: ${COMPOSE_PROJECT_NAME:-torobticket}-example-provider:packaged
     build:
       context: .
       dockerfile: infra/Dockerfile

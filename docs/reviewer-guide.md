@@ -155,15 +155,22 @@ recording is a separately requested follow-up.
 
 ## Separate provider SSO
 
-Open the canonical platform origin, then admin **Direct Login → Connect separate
-site** for a provider. Its standalone website uses the other loopback hostname on
-port4310. Choose that provider's offer and continue with TorobTicket, verify the
-phone, complete primary-traveler details and approve sharing. The provider shows
-the verified claims in a JSON pre block and creates/reuses its own account. The
-local development verification code is123456 when the documented gates are enabled.
-See [integration instructions](direct-login-integration.md#separate-provider-website-and-traveler-profile).
-The separate website is an owned local integration, with self-reported documents
-and pending external attribution; no commercial provider or ticket is involved.
+After `pnpm docker:up`, **راه‌آرا** connects automatically when the reviewer first
+opens the platform. No admin enrollment is required. Follow the [README SSO
+walkthrough](../README.md#test-provider-sso--no-admin-setup): select a راه‌آرا offer,
+continue to its standalone website, choose **ادامه با ترب‌تیکت**, enter a phone and
+code **123456**, complete the primary-traveler details and approve sharing.
+The provider shows approved claims in a JSON pre block. First sign-in creates an
+account; log out and repeat with the same phone in the same workspace to reuse it.
+
+Use the startup URLs and keep the main/admin hostname identical. The provider uses
+the other loopback hostname on port4310. Each browser workspace has its own client;
+manual/custom/disabled registrations are preserved. Other providers can still be
+connected through **Direct Login → Connect separate site**. See the [integration
+instructions](direct-login-integration.md#automatic-reviewer-connection) for local
+review gates and retry behavior. The separate website is an owned local integration,
+with self-reported documents and pending external attribution; no commercial
+provider or ticket is involved.
 
 
 ## Separate application ports

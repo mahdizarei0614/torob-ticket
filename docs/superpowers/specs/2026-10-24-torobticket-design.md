@@ -7,6 +7,13 @@
 
 ## 1. Intent and success
 
+**Owner reviewer setup, 2026-11-06 (decision0090):** the local Docker reviewer
+runtime automatically connects RoadAra independently for each workspace. No
+manual admin enrollment or exported credentials/user data is needed. Explicit
+HTTP-loopback review mode also enables the requested123456code in packaged builds;
+production/nonloopback defaults stay closed. Preserve manual client choices and
+all consent, isolation, challenge and independent-attribution requirements.
+
 **Owner container separation, 2026-11-05 (decision0089):** web, admin and provider
 use independent Docker services and published ports4300,4301,4310 in both modes.
 Admin retains /admin/ on its own port; legacy web admin paths redirect. Preserve

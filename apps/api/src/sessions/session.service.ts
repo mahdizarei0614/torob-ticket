@@ -23,6 +23,7 @@ export class SessionService implements OnApplicationBootstrap, OnModuleDestroy {
   private recoveryReady = false;
   private initializing?: Promise<void>;
   private timer?: ReturnType<typeof setInterval>;
+  private readonly workspaceInitializers = new Set<(context: SessionContext) => Promise<void>>();
   private readonly recoveries = new Set<() => Promise<void>>();
   private readonly pendingWork = new Set<Promise<void>>();
   private readonly controllers = new Map<string, Set<AbortController>>();
@@ -61,6 +62,12 @@ export class SessionService implements OnApplicationBootstrap, OnModuleDestroy {
   }
   async maintenance() { await this.ensureReady(); await this.cleanup(); }
   private async cleanup() { for (const id of await this.repository.cleanup(this.realClock.now())) this.cancelSession(id); }
+  registerWorkspaceInitializer(initialize: (context: SessionContext) => Promise<void>): () => void {
+    this.workspaceInitializers.add(initialize); return () => { this.workspaceInitializers.delete(initialize); };
+  }
+  private async initializeWorkspace(context: SessionContext) {
+    for (const initialize of this.workspaceInitializers) await initialize(context);
+  }
   registerRecovery(recovery: () => Promise<void>): () => void {
     this.recoveries.add(recovery);
     this.recoveryReady = false;
@@ -150,6 +157,7 @@ export class SessionService implements OnApplicationBootstrap, OnModuleDestroy {
         if (input.seed !== undefined && input.seed !== context.info.seed || input.anchorInstant !== undefined && Date.parse(input.anchorInstant) !== Date.parse(context.info.anchorInstant) || input.scenario !== undefined && input.scenario !== context.info.scenario) throw sessionError('INVALID_QUERY', 409);
         const visitor=await this.bootstrapVisitor(context,request);
         if(visitor.cookie)appendTrafficVisitorCookie(response,visitor.cookie);
+        await this.initializeWorkspace(context);
         return context.info;
       }
     }
@@ -158,6 +166,7 @@ export class SessionService implements OnApplicationBootstrap, OnModuleDestroy {
     const row = await this.repository.create(this.hash(token), input, this.realClock.now());
     const visitor=await this.bootstrapVisitor({sessionId:row.id,scope:{sessionId:row.id}},request);
     this.cookie(response, token, !!request.secure,visitor.cookie);
+    await this.initializeWorkspace(this.context(row, request));
     return sessionInfo(row);
   }
   async reset(context: SessionContext, input: CreateDemoSessionInput, request: SessionRequest, response: CookieResponse, options?:SessionResetOptions) {
@@ -168,6 +177,7 @@ export class SessionService implements OnApplicationBootstrap, OnModuleDestroy {
       this.cancelSession(context.sessionId);
       const visitor=await this.bootstrapVisitor({sessionId:row.id,scope:{sessionId:row.id}},request);
       this.cookie(response, token, !!request.secure,visitor.cookie);
+      await this.initializeWorkspace(this.context(row, request));
       return sessionInfo(row);
     } catch (error) { return repositoryHttpError(error); }
   }

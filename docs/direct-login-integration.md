@@ -3,10 +3,11 @@
 ## Local walkthrough
 
 Open the configured TorobTicket origin, normally http://localhost:4300.
-The Docker development stack issues `123456` for newly requested phone verification
+The Docker local-review stack (packaged and development) issues `123456` for newly requested phone verification
 codes on TorobTicket and its reference providers. Manual API startup can opt in
 with `TOROBTICKET_SSO_TEST_SMS_CODE=123456`, a development/test `NODE_ENV` and a
-loopback SSO origin. A test challenge is redeemable only while those conditions
+loopback SSO origin. Packaged production-build code uses the explicit
+`TOROBTICKET_LOCAL_REVIEW=true` gate with all public origins on HTTP loopback. A test challenge is redeemable only while those conditions
 hold. Codes issued before enabling this setting retain their originally issued
 value, so request a fresh code to use `123456`.
 
@@ -141,8 +142,10 @@ origin and must use a different hostname; outside loopback use HTTPS. The option
 `TOROBTICKET_EXAMPLE_PROVIDER_PORT` changes the published/default public port.
 Internal Docker traffic uses the fixed operator-configured service origins.
 
-1. Open the canonical platform `/admin/direct-login` in the browser used for search.
-2. Choose **Connect separate site** on the desired provider row. The API stages a
+1. Open the canonical traveler app. Docker local-review mode automatically connects
+   راه‌آرا for this reviewer. No admin configuration is required.
+2. For additional providers, open admin on its separate port and choose
+   **Connect separate site** on the desired provider row. The API stages a
    disabled client, sends a one-use60-second installation code server-to-server,
    and activates only the unchanged successfully installed registration. No secret
    is copied through the browser. Failed installation stays disabled; retry it.
@@ -185,3 +188,21 @@ verified. The local site's `existing` result is not an existing-customer billing
 exemption. Merkle proofs still require a trusted commitment from before referral;
 provider assertions alone cannot waive referral attribution. See decision0088 and
 `docs/evidence/adjustments/external-provider/verification.md` for actual evidence.
+
+
+## Automatic reviewer connection
+
+The explicit local-review flag initializes only missing or incomplete automatically
+owned RoadAra connections after workspace bootstrap/resume/reset commits. It uses
+singleflight and transactional ownership/revision checks. Existing manual/custom
+or disabled clients are never replaced. A failed automatic connection stays
+retryable/disabled and does not break guest comparison. Refreshing after services
+recover retries initialization. No traveler identity/profile/account is prefilled.
+Rates remain unset; independent external evidence remains required for billing.
+
+API and provider/initializer images now have separate packaged/development tags.
+OpenSSL runtime libraries and trust/license files come from the matching pinned
+official Node Debian image, so backend builds do not depend on apt mirrors. The
+provider entrypoint preserves and normalizes only its dedicated volume file's
+ownership, refuses symlink/hardlink stores, then drops to UID/GID1000 before
+serving. Readiness checks that the private store is writable in both modes.

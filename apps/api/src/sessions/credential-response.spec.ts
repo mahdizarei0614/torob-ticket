@@ -43,4 +43,13 @@ describe('credential response ownership', () => {
     const value = String(response.setHeader.mock.calls[0]![1]);
     expect(value.includes('HttpOnly')).toBe(true); expect(value.includes('SameSite=Strict')).toBe(true); expect(value.includes('Max-Age=')).toBe(false);
   });
+  it('runs registered workspace initialization only on explicit bootstrap, after resolving the session', async () => {
+    const {service,response,repository}=setup();
+    const initialize=vi.fn(async(context:{sessionId:string})=>{expect(repository.resolveAndTouch).toHaveBeenCalled();expect(context.sessionId).toBe('owner');});
+    const remove=service.registerWorkspaceInitializer(initialize);
+    await service.authenticate({headers:{cookie:browserCookie}},response);expect(initialize).not.toHaveBeenCalled();
+    await service.createOrResume({},{headers:{cookie:browserCookie}},response);expect(initialize).toHaveBeenCalledTimes(1);expect(response.setHeader).not.toHaveBeenCalled();
+    remove();await service.createOrResume({},{headers:{cookie:browserCookie}},response);expect(initialize).toHaveBeenCalledTimes(1);
+  });
+
 });

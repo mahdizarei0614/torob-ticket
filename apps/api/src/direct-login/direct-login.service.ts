@@ -1,10 +1,11 @@
+import { localReviewEnabled, REVIEW_PROVIDER } from './local-review';
 import { configuredOrigin, configuredAdminOrigin } from './issuer-origin';
 export { configuredOrigin } from './issuer-origin';
 import {exampleProviderOrigin,exampleProviderInternalOrigin} from './example-provider-config';
 import {travelerProfileForTrip,localDateAt} from '@torob-ticket/domain';
 import {ENROLLMENT_VERIFIER,type EnrollmentVerifier} from './enrollment-verifier';
 import { localSmsTestCode } from './sms-test-code';
-import { BadRequestException, ConflictException, ForbiddenException, Inject, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, ConflictException, ForbiddenException, Inject, Injectable, Logger, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { createHmac, generateKeyPairSync, randomInt, randomUUID, sign } from 'node:crypto';
 import { ReferralReceiptSchema, type TravelerProfile, type TravelContext, type AuthorizeInput, type CommitmentProof, type PartnerInput, type ReferralReceipt } from '@torob-ticket/contracts';
 import { scopedTransaction, type DataScope, type Prisma } from '@torob-ticket/data-access';
@@ -23,6 +24,30 @@ function newIssuer(): IssuerState {
 interface WebRequest extends SessionRequest { method?: string; headers: SessionRequest['headers'] & { origin?: string; 'sec-fetch-site'?: string; authorization?: string } }
 @Injectable()
 export class DirectLoginService {
+  private readonly setupFlights = new Map<string, Promise<void>>();
+  private releaseInitializer?: () => void;
+  private readonly logger = new Logger(DirectLoginService.name);
+  onModuleInit() { this.releaseInitializer = this.sessions.registerWorkspaceInitializer(context => this.initializeReviewer(context)); }
+  async onModuleDestroy() { this.releaseInitializer?.(); await Promise.allSettled(this.setupFlights.values()); }
+  async initializeReviewer(context: SessionContext): Promise<void> {
+    if (!localReviewEnabled()) return;
+    const current = this.setupFlights.get(context.sessionId); if (current) return current;
+    const work = (async () => {
+      try {
+        const candidate = await this.mutate(context.scope, async (state, reference, tx) => {
+          void reference;
+          const row = await tx.directLoginClient.findUnique({ where: { sessionId_providerId: { sessionId: context.sessionId, providerId: REVIEW_PROVIDER.providerId } } });
+          if (!row) return { expectedRevision: null };
+          const owned = state.reviewerSetup;
+          if (row.enabled || !owned || owned.clientId !== row.clientId || owned.revision !== row.revision || owned.status === 'ready' || owned.retryAfter > Date.now()) return undefined;
+          return { expectedRevision: row.revision };
+        });
+        if (candidate) await this.installExampleProvider(context, REVIEW_PROVIDER.providerId, REVIEW_PROVIDER.name, candidate);
+      } catch { this.logger.warn('Local provider connection is pending; session initialization can retry after services are ready.'); }
+    })();
+    this.setupFlights.set(context.sessionId, work);
+    try { await work; } finally { if (this.setupFlights.get(context.sessionId) === work) this.setupFlights.delete(context.sessionId); }
+  }
   constructor(@Inject(SessionService) private readonly sessions: SessionService, @Inject(ENROLLMENT_VERIFIER) private readonly verifier: EnrollmentVerifier) {}
   get database() { return this.sessions.database; }
   issuer(clientId: string) { return `${configuredOrigin()}/api/v1/direct-login/issuer/${clientId}`; }
@@ -190,7 +215,7 @@ export class DirectLoginService {
   }
   async clientStatus(clientId:string,secret:string) { const client=await this.credentials(clientId,secret); return this.clientMutation(client,()=>({active:true})); }
   async partner(scope: DataScope, providerId: string) { return this.database.directLoginClient.findFirst({ where: { sessionId: scope.sessionId, providerId, enabled: true } }); }
-  async savePartner(context: SessionContext, input: PartnerInput) {
+  async savePartner(context: SessionContext, input: PartnerInput, automatic?: { expectedRevision: number | null }) {
     if (!catalogForIdentity(context.info.fixtureVersion, context.info.catalogRevision).providerCapabilities.some(p => p.providerId === input.providerId)) throw new NotFoundException();
     const callback = new URL(input.callbackUrl), start = new URL(input.loginStartUrl);
     if (start.origin !== callback.origin || start.search || start.hash || start.username || start.password) throw invalid('Login start and callback must share an origin');
@@ -199,8 +224,14 @@ export class DirectLoginService {
     return this.mutate(context.scope, async (state, reference, tx) => {
       void state;
       const old = await tx.directLoginClient.findUnique({ where: { sessionId_providerId: { sessionId: context.sessionId, providerId: input.providerId } } });
+      if (automatic) {
+        if (!localReviewEnabled()) throw new ConflictException('Local review setup changed');
+        const owned = state.reviewerSetup;
+        if (automatic.expectedRevision === null ? Boolean(old) : !old || old.enabled || old.revision !== automatic.expectedRevision || owned?.clientId !== old.clientId || owned.revision !== old.revision || owned.status === 'ready') throw new ConflictException('Connection already configured');
+      } else if (state.reviewerSetup?.clientId === old?.clientId) delete state.reviewerSetup;
       const secret = randomToken(), clientId = old?.clientId ?? randomUUID();
       const partner = await tx.directLoginClient.upsert({ where: { clientId }, create: { ...input, clientId, sessionId: context.sessionId, secretHash: sha256(secret), revision: 1 }, update: { ...input, secretHash: sha256(secret), revision: { increment: 1 } } });
+      if (automatic) state.reviewerSetup = { clientId, revision: partner.revision, status: 'pending', retryAfter: Date.now() + 15000 };
       for (const flow of state.flows) if (flow.request.client_id === clientId) { flow.consumed = true; flow.expires = 0; }
       state.access = state.access.filter(a => a.clientId !== clientId);
       for (const ref of state.references) if (ref.clientId === clientId) ref.expires = 0;
@@ -210,10 +241,10 @@ export class DirectLoginService {
       return { partner: this.publicPartner(partner), clientSecret: secret };
     });
   }
-  async installExampleProvider(context:SessionContext,providerId:string,name:string) {
+  async installExampleProvider(context:SessionContext,providerId:string,name:string,automatic?:{expectedRevision:number|null}) {
     const site=exampleProviderOrigin();
     const previous=await this.database.directLoginClient.findUnique({where:{sessionId_providerId:{sessionId:context.sessionId,providerId}}});
-    const saved=await this.savePartner(context,{providerId,name,callbackUrl:site+'/callback',loginStartUrl:site+'/login',kind:'external',enabled:false,acquisitionRateRial:previous?.acquisitionRateRial===null||previous?.acquisitionRateRial===undefined?null:Number(previous.acquisitionRateRial)});
+    const saved=await this.savePartner(context,{providerId,name,callbackUrl:site+'/callback',loginStartUrl:site+'/login',kind:'external',enabled:false,acquisitionRateRial:previous?.acquisitionRateRial===null||previous?.acquisitionRateRial===undefined?null:Number(previous.acquisitionRateRial)},automatic);
     const code=randomToken(),clientId=saved.partner.clientId;
     await this.mutate(context.scope,async(state,reference,tx)=>{
       void reference;
@@ -228,13 +259,18 @@ export class DirectLoginService {
       if(!response.ok)throw Error('Installation failed');
       const result=await response.json() as {installed?:boolean;clientId?:string};
       if(!result.installed||result.clientId!==clientId)throw Error('Invalid installation response');
-    } catch {throw new ConflictException('Example provider is unavailable. Start its service and connect again.');}
+    } catch {
+      if (automatic) await this.mutate(context.scope, state => { const owned=state.reviewerSetup; if(owned?.clientId===clientId && owned.revision===saved.partner.revision) owned.retryAfter=Date.now()+3000; }).catch(()=>undefined);
+      throw new ConflictException('Example provider is unavailable. Start its service and connect again.');
+    }
     return this.mutate(context.scope,async(state,reference,tx)=>{
       void reference;
       const client=await tx.directLoginClient.findUniqueOrThrow({where:{clientId}});
       const installation=state.installations!.find(i=>i.clientId===clientId&&i.hash===sha256(code));
       if(!installation?.consumed||installation.expires<=Date.now()||client.revision!==saved.partner.revision||!constantEqual(client.secretHash,sha256(saved.clientSecret)))throw invalid('Connection changed during installation');
+      if (automatic && (!localReviewEnabled() || state.reviewerSetup?.clientId!==clientId || state.reviewerSetup.revision!==client.revision || state.reviewerSetup.status!=='pending')) throw invalid('Local review setup changed during installation');
       const active=await tx.directLoginClient.update({where:{clientId},data:{enabled:true}});
+      if (automatic && state.reviewerSetup?.clientId===clientId && state.reviewerSetup.revision===active.revision) state.reviewerSetup.status='ready';
       return {partner:this.publicPartner(active)};
     });
   }

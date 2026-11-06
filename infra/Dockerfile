@@ -1,7 +1,16 @@
 # Both immutable indexes contain linux/arm64 and linux/amd64 variants.
+# Copy OpenSSL from the matching pinned official Debian image. No apt mirror is
+# needed at build time; both source/runtime images support arm64 and amd64.
+FROM node:24.17.0-bookworm@sha256:733e1c06ada118ed9f6133a31aa1290be6929664026fb28821500437c61f2c6f AS openssl-runtime
+RUN mkdir -p /openssl/lib && cp /usr/lib/*-linux-gnu/libssl.so.3 /usr/lib/*-linux-gnu/libcrypto.so.3 /openssl/lib/
+
 FROM node:24.17.0-bookworm-slim@sha256:862263c612aa437e3037674b85419622a9d93bff80aa1eee5398dfe686375532 AS node-base
-# Prisma requires explicit OpenSSL support (decision 0001).
-RUN apt-get update && apt-get install -y --no-install-recommends openssl ca-certificates && rm -rf /var/lib/apt/lists/*
+COPY --from=openssl-runtime /openssl/lib/ /usr/local/lib/
+COPY --from=openssl-runtime /usr/bin/openssl /usr/local/bin/openssl
+COPY --from=openssl-runtime /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
+COPY --from=openssl-runtime /etc/ssl/openssl.cnf /etc/ssl/openssl.cnf
+COPY --from=openssl-runtime /usr/share/doc/libssl3/copyright /usr/share/doc/libssl3/copyright
+RUN mkdir -p /usr/lib/ssl && ln -s /etc/ssl/openssl.cnf /usr/lib/ssl/openssl.cnf && ln -s /etc/ssl/certs /usr/lib/ssl/certs && ln -s /etc/ssl/certs/ca-certificates.crt /usr/lib/ssl/cert.pem && ldconfig && openssl version
 WORKDIR /app
 
 FROM node-base AS dependencies
@@ -46,5 +55,5 @@ COPY apps/example-provider/public ./apps/example-provider/public
 COPY libs/ui/src/styles/tokens.css ./libs/ui/src/styles/tokens.css
 COPY assets/fonts/Vazirmatn-wght.woff2 ./assets/fonts/Vazirmatn-wght.woff2
 RUN mkdir -p /data && chown node:node /data
-USER node
-CMD ["node", "dist/apps/example-provider/apps/example-provider/src/main.js"]
+COPY infra/provider-entrypoint.mjs infra/provider-store-permissions.mjs ./infra/
+CMD ["node", "infra/provider-entrypoint.mjs"]
