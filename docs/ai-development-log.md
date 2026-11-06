@@ -244,3 +244,21 @@ browser regressions pass after a test-selector correction. Actual logs, initial
 failed checks, cleanup and scope review are kept in the [verification record](evidence/adjustments/reviewer-sso/verification.md). Current provider data survived
 its entrypoint update byte-for-byte. No deployment or commercial verification is
 claimed.
+
+
+## Provider presentation and local discovery — 2026-11-06
+
+The owner requested a more complete example provider site. The final local design
+has provider-owned flight/destination browsing, authored one-adult sample fares,
+native details/help and a readable profile from actual approved SSO claims. The
+owner corrected the initial outbound-discovery assumption: TorobTicket sends users
+to the provider. Rendering now accepts no issuer-origin parameter, discovery stays
+local, and only an incoming-referral SDK sign-in uses TorobTicket authentication.
+No prices or histories are inserted into accepted referrals or user records.
+
+Independent review corrected greeting wrapping and self-reported-document wording.
+Final source `2c311c835a5998d72250baa76d3dec621e884153` follows first layout5160beca.9provider cases, build/types/
+lint/E2E types and actual cross-host browser0022/2 plus targeted0031/1 pass. The
+latter verifies same-origin links and retained ref before SSO. Native320 layout,
+48px details, local disclosures and viewport restoration were checked. Initial
+navigation captures and lint correction are retained in the [verification record](evidence/adjustments/provider-presentation/verification.md). No deployment.

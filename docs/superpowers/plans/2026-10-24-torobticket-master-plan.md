@@ -2919,3 +2919,20 @@ receipts. Final evidence/scope review and cleanup are recorded in the owning
 verification record. External account attribution remains pending/unbilled until
 trusted verification. Original user services/data and unrelated activity-history
 work are preserved.35-task baseline unchanged; no publication or deployment.
+
+
+## Provider presentation and local discovery — 2026-11-06
+
+Final source `2c311c835a5998d72250baa76d3dec621e884153`; first layout5160beca. [Decision0091](../../decisions/0091-provider-presentation.md), [brief](../../evidence/adjustments/provider-presentation/task-brief.md) and [verification](../../evidence/adjustments/provider-presentation/verification.md). Owner correction: discovery stays on the provider; TorobTicket sends users there and is only the referral authentication option.
+
+| Step | Status | Evidence |
+| --- | --- | --- |
+| Provider presentation and authored data | DONE | Persian/RTL token-based hero/SVG,3destination and3flight examples, explicit one-adult totals/unknown conditions, native details/help, approved-only profile and original JSON |
+| Direction and referral preservation | DONE | No issuerOrigin in rendering; public/recovery links provider-local; actual browser003 same-origin links and retained incoming ref after browsing; SSO states unchanged |
+| Verification and independent review | DONE |9provider cases/2files, source build/types/lint and E2E types pass; browser0022/2 and targeted0031/1; native320 no overflow/48px detail targets; independent source/index approved |
+
+Earlier navigation captures are superseded and retained separately. Source and
+review evidence preserve unknown conditions, pending external attribution, the
+original services/data and unrelated activity-history edits.35-task baseline
+unchanged; no deployment/publication or booking. Final evidence review recorded
+in the owning verification folder.
