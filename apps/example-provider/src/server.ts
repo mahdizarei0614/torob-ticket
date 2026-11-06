@@ -4,11 +4,12 @@ import { resolve } from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { constantEqual, createProviderSdk, randomToken, sha256 } from '@torob-ticket/provider-sdk';
 import { ProviderStore, type Registration } from './store';
+import { accountContent, landingContent, siteDocument } from './presentation';
+export { escapeHtml } from './presentation';
 
 export interface SiteConfiguration { origin: string; issuerOrigin: string; issuerInternalOrigin: string; storeFile: string; publicDirectory: string; assetsDirectory: string; transport?: typeof fetch }
 const tokenPattern = /^[A-Za-z0-9_-]{43}$/;
 const clientPattern = /^[0-9a-f-]{36}$/;
-export const escapeHtml = (value: string) => value.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
 function cookie(request: IncomingMessage, name: string) {
   const values = (request.headers.cookie ?? '').split(';').map(c => c.trim()).filter(c => c.startsWith(`${name}=`));
   return values.length === 1 && tokenPattern.test(values[0]!.slice(name.length + 1)) ? values[0]!.slice(name.length + 1) : undefined;
@@ -18,10 +19,7 @@ function setCookie(response: ServerResponse, config: SiteConfiguration, name: st
   response.setHeader('Set-Cookie', [...(Array.isArray(previous) ? previous.map(String) : previous ? [String(previous)] : []), `${name}=${value}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${seconds}${config.origin.startsWith('https:') ? '; Secure' : ''}`]);
 }
 function redirect(response: ServerResponse, location: string) { response.writeHead(303, { Location: location }); response.end(); }
-function document(title: string, body: string, issuerOrigin: string) {
-  return `<!doctype html><html lang="fa" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escapeHtml(title)}</title><link rel="stylesheet" href="/tokens.css"><link rel="stylesheet" href="/styles.css"></head><body><header class="masthead"><a class="wordmark" href="/">راه‌آرا<span>همراه مسیرهای شما</span></a><a href="${escapeHtml(issuerOrigin)}">جست‌وجو در ترب‌تیکت ↗</a></header><main>${body}</main><footer>اطلاعات سفر و حساب کاربری شما</footer></body></html>`;
-}
-function page(response: ServerResponse, config: SiteConfiguration, title: string, body: string, status = 200) { response.writeHead(status, { 'content-type': 'text/html; charset=utf-8' }); response.end(document(title, body, config.issuerOrigin)); }
+function page(response: ServerResponse, config: SiteConfiguration, title: string, body: string, status = 200) { response.writeHead(status, { 'content-type': 'text/html; charset=utf-8' }); response.end(siteDocument(title, body, config.issuerOrigin)); }
 async function jsonBody(request: IncomingMessage): Promise<Record<string, unknown>> {
   if (!request.headers['content-type']?.startsWith('application/json')) throw new Error('JSON required');
   const chunks: Buffer[] = []; let length = 0;
@@ -90,7 +88,7 @@ export function createProviderSite(config: SiteConfiguration) {
       const file = url.pathname === '/styles.css' ? resolve(config.publicDirectory, 'styles.css') : url.pathname === '/tokens.css' ? resolve(config.assetsDirectory, '../libs/ui/src/styles/tokens.css') : resolve(config.assetsDirectory, 'fonts/Vazirmatn-wght.woff2');
       response.writeHead(200, { 'content-type': url.pathname.endsWith('.css') ? 'text/css; charset=utf-8' : 'font/woff2' }); response.end(await readFile(file)); return;
     }
-    if (url.pathname === '/' && request.method === 'GET') { page(response, config, 'راه‌آرا | سفر از همین‌جا شروع می‌شود', '<section class="hero"><span class="eyebrow">راه‌آرا · خدمات سفر</span><h1>قدم بعدی،<br>سفر شماست.</h1><p>پیشنهاد سفر خود را در ترب‌تیکت انتخاب کنید و با مشخصات مسافر خود ادامه دهید.</p><a class="button" href="'+escapeHtml(config.issuerOrigin)+'">پیدا کردن مسیر سفر ↗</a></section><section class="panel"><h2>یک حساب برای ادامه مسیر</h2><p>با «ادامه با ترب‌تیکت»، پس از تأیید شما اطلاعات مسافر در حساب راه‌آرا قرار می‌گیرد.</p></section>'); return; }
+    if (url.pathname === '/' && request.method === 'GET') { page(response, config, 'راه‌آرا | سفر از همین‌جا شروع می‌شود', landingContent({ issuerOrigin: config.issuerOrigin })); return; }
     if (url.pathname === '/callback' && request.method === 'GET') {
       const binding = cookie(request, 'ep_flow');
       if (!binding || url.searchParams.getAll('state').length !== 1 || (url.searchParams.getAll('code').length !== 1 && url.searchParams.getAll('error').length !== 1)) throw new Error('Invalid callback');
@@ -158,11 +156,9 @@ export function createProviderSite(config: SiteConfiguration) {
     if (match[2] || request.method !== 'GET') throw new Error('Method unavailable');
     const result = await store.update(s => { const session = sessionToken && s.sessions.find(session => session.clientId === clientId && session.hash === sha256(sessionToken)); const account = session && s.accounts.find(a => a.id === session.accountId && a.clientId === clientId); return session && account ? { session, account } : undefined; });
     const banner = url.searchParams.has('cancelled') ? '<p class="notice" role="status">اجازه دسترسی داده نشد. اطلاعات جدیدی دریافت نشد.</p>' : url.searchParams.has('interrupted') ? '<p class="notice" role="status">ورود کامل نشد. از پیشنهاد ترب‌تیکت دوباره ادامه دهید.</p>' : '';
-    const continueLink = referral ? `<a class="button" href="/providers/${clientId}/login?ref=${referral}">ادامه با ترب‌تیکت</a>` : `<a class="button" href="${escapeHtml(config.issuerOrigin)}">انتخاب پیشنهاد در ترب‌تیکت ↗</a>`;
-    const body = `<section class="intro"><span class="eyebrow">${escapeHtml(registration.providerName)}</span><h1>${result ? 'خوش آمدید، '+escapeHtml(result.session.claims.traveler_profile!.givenName) : 'سفر شما، یک قدم نزدیک‌تر'}</h1><p>${result ? 'مشخصات مسافر با اجازه شما دریافت شد.' : 'برای ورود و تکمیل مشخصات مسافر، با حساب ترب‌تیکت ادامه دهید.'}</p></section>${banner}`;
-    if (!result) { page(response, config, registration.providerName, body + `<section class="panel">${continueLink}</section>`); return; }
-    const payload = { provider_account: { id: result.account.id, status: result.session.accountStatus, created_at: result.account.createdAt }, identity: result.session.claims };
-    page(response, config, registration.providerName, body + `<section class="panel"><div class="panel-heading"><h2>${result.session.accountStatus === 'created' ? 'حساب شما ایجاد شد' : 'وارد حساب قبلی شدید'}</h2><form action="/providers/${clientId}/logout" method="post"><input type="hidden" name="csrf" value="${sha256(`${sessionToken}:logout`)}"><button class="quiet">خروج از حساب</button></form></div><p>اطلاعات دریافت‌شده از ترب‌تیکت</p><pre id="sso-response" dir="ltr" tabindex="0" aria-label="SSO response JSON">${escapeHtml(JSON.stringify(payload, null, 2))}</pre>${referral ? continueLink : ''}</section>`);
+    const continueUrl = referral ? `/providers/${clientId}/login?ref=${referral}` : undefined;
+    if (!result) { page(response, config, registration.providerName, landingContent({ issuerOrigin: config.issuerOrigin, providerName: registration.providerName, continueUrl, banner })); return; }
+    page(response, config, registration.providerName, accountContent({ claims: result.session.claims, account: result.account, accountStatus: result.session.accountStatus, clientId, logoutCsrf: sha256(`${sessionToken}:logout`), issuerOrigin: config.issuerOrigin, banner, continueUrl }));
   }
   return { server, store, retryReports };
 }

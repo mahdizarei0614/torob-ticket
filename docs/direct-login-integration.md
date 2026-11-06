@@ -206,3 +206,15 @@ official Node Debian image, so backend builds do not depend on apt mirrors. The
 provider entrypoint preserves and normalizes only its dedicated volume file's
 ownership, refuses symlink/hardlink stores, then drops to UID/GID1000 before
 serving. Readiness checks that the private store is writable in both modes.
+
+
+## Provider presentation
+
+The separate website includes three authored destination ideas and a local SVG
+travel illustration. These are presentation fixtures; they do not assert live
+fares, availability or a booked journey. The accepted referral and its price are
+unchanged. After SSO, the readable traveler profile uses only the approved claim
+snapshot, including only the document fields supplied for that trip. Phone-only
+identities remain supported. The original escaped JSON response stays visible
+below the profile, with created/existing account status and session-bound logout.
+No sample identity, travel history or acquisition metric is inserted.

@@ -7,6 +7,12 @@
 
 ## 1. Intent and success
 
+**Owner provider presentation, 2026-11-06 (decision0091):** improve the separate
+RoadAra website with authored destination ideas and a readable approved-traveler
+profile. Keep Persian/RTL, existing semantic tokens/font, the original JSON pre,
+SSO/logout/consent/isolation and pending-attribution behavior. Presentation data
+never creates a booking, price/availability claim, fabricated user or billable event.
+
 **Owner reviewer setup, 2026-11-06 (decision0090):** the local Docker reviewer
 runtime automatically connects RoadAra independently for each workspace. No
 manual admin enrollment or exported credentials/user data is needed. Explicit

@@ -43,6 +43,11 @@ test('external provider exchanges SSO across hosts, displays consented traveler 
   await page.getByRole('button', { name: 'ذخیره مشخصات مسافر', exact: true }).click();
   await page.getByRole('button', { name: 'اجازه و ادامه', exact: true }).click();
   await expect(page).toHaveURL(providerUrl);
+  const profile = page.locator('.traveler-panel');
+  await expect(profile.getByRole('heading', { name: 'مشخصات مسافر', exact: true })).toBeVisible();
+  await expect(profile.getByText('سارا احمدی', { exact: true })).toBeVisible();
+  await expect(profile.getByText('0012345678', { exact: true })).toBeVisible();
+  await expect(profile.getByText('sara@example.com', { exact: true })).toBeVisible();
   const result = page.locator('pre#sso-response'); await expect(result).toBeVisible();
   const first = JSON.parse(await result.innerText()); expect(first.provider_account.status).toBe('created'); expect(first.identity.traveler_profile).toMatchObject({ givenName: 'سارا', familyName: 'احمدی', nationalId: '0012345678' }); expect(first.identity.traveler_profile).not.toHaveProperty('passport'); expect(first.identity.attribution).toBe('pending');
   const issuerCookies = await context.cookies(new URL('/api/v1/direct-login/account', process.env.E2E_BASE_URL).href), providerCookies = await context.cookies(providerUrl);
@@ -54,6 +59,7 @@ test('external provider exchanges SSO across hosts, displays consented traveler 
   const logoutResponse = page.waitForResponse(r => new URL(r.url()).pathname.endsWith('/logout'));
   await page.getByRole('button', { name: 'خروج از حساب', exact: true }).click(); const loggedOut = await logoutResponse; expect(loggedOut.status(), JSON.stringify({ origin: loggedOut.request().headers()['origin'], site: loggedOut.request().headers()['sec-fetch-site'] })).toBe(303); await expect(page).toHaveURL(providerUrl); await expect(result).toHaveCount(0);
   expect((await context.cookies(providerUrl)).some(c => c.name.startsWith('ep_session_'))).toBe(false);
+  await expect(profile).toHaveCount(0);
   await page.goto(`/api/v1/direct-login/start/${receipt.referralId}`); await page.getByRole('button', { name: 'انصراف', exact: true }).click(); await expect(page.getByText('اجازه دسترسی داده نشد. اطلاعات جدیدی دریافت نشد.')).toBeVisible(); await expect(result).toHaveCount(0);
   const evidence = await (await context.request.get('/api/v1/admin/direct-login')).json(); expect(evidence.totals.newAccounts).toBe(0); expect(evidence.totals.pending).toBeGreaterThan(0);
 });

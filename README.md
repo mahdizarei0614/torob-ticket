@@ -48,7 +48,8 @@ startup. The provider deliberately uses the other loopback hostname.
    **اجازه و ادامه**. For a domestic test you can use سارا احمدی, Gregorian birth
    date `1992-03-04`, gender زن, nationality `IR`, national ID `0012345678`;
    email is optional. These are authored test inputs, not verified documents.
-5. The separate provider displays the approved claims in a JSON `<pre>`.
+5. The separate provider displays a readable traveler profile and the approved
+   claims in a JSON `<pre>`, alongside destination ideas for the walkthrough.
    First sign-in returns `provider_account.status: "created"`. Log out of the
    provider and repeat with the **same phone in the same reviewer workspace**:
    expect `"existing"` and the same account ID. A new browser profile has its own
