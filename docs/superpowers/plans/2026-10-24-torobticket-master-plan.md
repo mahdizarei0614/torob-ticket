@@ -2936,3 +2936,26 @@ review evidence preserve unknown conditions, pending external attribution, the
 original services/data and unrelated activity-history edits.35-task baseline
 unchanged; no deployment/publication or booking. Final evidence review recorded
 in the owning verification folder.
+
+
+## Fresh reviewer passport SSO — 2026-11-06
+
+Source `ad14a10b`; [decision0092](../../decisions/0092-trip-aware-sso-profile.md),
+[brief](../../evidence/adjustments/sso-passport-review/task-brief.md) and
+[verification](../../evidence/adjustments/sso-passport-review/verification.md).
+Owner requested actual Docker startup/new-existing SSO and reported missing
+passport/English-name collection.
+
+| Step | Status | Evidence |
+| --- | --- | --- |
+| Reproduce the reported flow | DONE | Packaged baseline international created/existing passes; saved domestic → international fails because the missing-field form is hidden |
+| Trip-aware form and consent | DONE | Shared minimized projection; prefilled missing/expired fields; exact passport/Latin preview; approval guards; denial and phone-only compatibility retained |
+| Actual packaged and source verification | DONE | Normal Docker startup exit0/5healthy/initializer0;5browser journeys pass without retries;20source cases/4files and owning web/E2E types/lint pass |
+| Documentation, review and scope | DONE | International README walkthrough; baseline/final captures and logs; independent10-path source approval; existing data and unrelated activity-history/earlier tracker edits preserved |
+
+Fresh browser contexts had no cookies. The new passport cases use visible UI for
+all mutations, with only a read-only search lookup to choose the exact price card.
+The existing database/volumes were retained; this run is not a cold-device/archive
+certification. Provider external attribution stays pending/unbilled; documents
+are self-reported sample data. Original35-task baseline unchanged. Local services
+remain running; no publication/deployment.

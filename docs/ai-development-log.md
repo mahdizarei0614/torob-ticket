@@ -262,3 +262,25 @@ lint/E2E types and actual cross-host browser0022/2 plus targeted0031/1 pass. The
 latter verifies same-origin links and retained ref before SSO. Native320 layout,
 48px details, local disclosures and viewport restoration were checked. Initial
 navigation captures and lint correction are retained in the [verification record](evidence/adjustments/provider-presentation/verification.md). No deployment.
+
+
+## Fresh reviewer passport SSO — 2026-11-06
+
+The owner reported missing passport and English names and requested the normal
+Docker startup plus new/existing provider SSO as a fresh reviewer. Source
+`ad14a10b` fixes a reproduced saved-domestic-profile → international-trip bug:
+profile presence no longer implies current-trip completeness. The shared domain
+projection reopens the prefilled form for missing/expired fields, and consent now
+shows the exact approved documents/Latin names. Domestic Iranian travel still
+uses national ID; disclosure rules and legacy phone-only clients remain intact.
+
+Actual packaged baseline had1passing international journey and1failing returning
+journey. Final normal `pnpm docker:up` passed with5healthy services/initializer0;
+5packaged browser cases and20scoped source cases passed, with owning types/lint.
+The new passport cases perform all mutations through search/provider/form UI,
+cover created/existing same-account reuse and saved domestic profile completion,
+and assert actual provider JSON. Independent review corrected an intermediate
+phone-only editing guard before final approval. README now starts with the
+international walkthrough. [Verification](evidence/adjustments/sso-passport-review/verification.md)
+retains initial failures, actual logs and screenshots. Fresh browser contexts
+used existing preserved Docker data; no cold-device/deployment claim.
