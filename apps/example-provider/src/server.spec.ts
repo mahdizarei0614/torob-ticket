@@ -66,7 +66,7 @@ describe('independent provider HTTP backend', () => {
     expect((await call(callback, undefined, new Map())).status).toBe(400);
     expect((await call(callback.replace(/state=[^&]+/, `state=${randomToken()}`))).status).toBe(400); expect(tokenCalls).toBe(0);
     await call(callback); expect((await (await call(`/providers/${clientId}`, undefined, new Map())).text())).not.toContain('id="sso-response"');
-    status = false; const unavailable = await call(`/providers/${clientId}`); expect(unavailable.status).toBe(400); expect(await unavailable.text()).not.toContain('nationalId');
+    status = false; const unavailable = await call(`/providers/${clientId}`); expect(unavailable.status).toBe(400); const failure = await unavailable.text(); expect(failure).not.toContain('nationalId'); expect(failure).not.toContain('ترب‌تیکت'); expect(failure).toContain('href="/">بازگشت به راه‌آرا');
   });
   it('handles denial without exchanging a code and excludes issuer cookies and credentials from the landing', async () => {
     const callback = new URL(await login(), origin); callback.searchParams.delete('code'); callback.searchParams.set('error', 'access_denied');

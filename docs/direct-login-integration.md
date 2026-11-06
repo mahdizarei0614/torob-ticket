@@ -210,10 +210,12 @@ serving. Readiness checks that the private store is writable in both modes.
 
 ## Provider presentation
 
-The separate website includes three authored destination ideas and a local SVG
-travel illustration. These are presentation fixtures; they do not assert live
-fares, availability or a booked journey. The accepted referral and its price are
-unchanged. After SSO, the readable traveler profile uses only the approved claim
+The separate website includes three authored destination/flight ideas, local SVG
+illustrations and expandable flight details. Their schedules and one-adult totals
+are fixed presentation fixtures (integer rials, displayed as toman); they do not
+assert live availability or a booked journey. Browsing stays on the provider.
+TorobTicket appears only in the explicit SDK sign-in option for an incoming referral
+and approved-claim provenance. The accepted referral and its price are unchanged. After SSO, the readable traveler profile uses only the approved claim
 snapshot, including only the document fields supplied for that trip. Phone-only
 identities remain supported. The original escaped JSON response stays visible
 below the profile, with created/existing account status and session-bound logout.

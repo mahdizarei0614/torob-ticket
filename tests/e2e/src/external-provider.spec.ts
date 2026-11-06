@@ -28,6 +28,10 @@ test('external provider exchanges SSO across hosts, displays consented traveler 
   await page.goto(`/api/v1/referrals/${receipt.referralId}/outbound`);
   await page.getByRole('link', { name: 'رفتن به سایت فروشنده', exact: true }).click();
   await expect(page).toHaveURL(new RegExp(providerUrl.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+  expect(await page.locator('a[href]').evaluateAll(links => links.every(link => new URL(link.getAttribute('href')!, location.href).origin === location.origin))).toBe(true);
+  const incomingRef = new URL(page.url()).searchParams.get('ref'); expect(incomingRef).toBeTruthy();
+  await page.locator('.hero-action').click();
+  expect(new URL(page.url()).searchParams.get('ref')).toBe(incomingRef); expect(new URL(page.url()).hash).toBe('#flights');
   await page.screenshot({ path: resolve(root, 'external-landing.png'), fullPage: true });
   await page.getByRole('link', { name: 'ادامه با ترب‌تیکت', exact: true }).click();
   await page.getByLabel('شماره همراه', { exact: true }).fill('09000000001');

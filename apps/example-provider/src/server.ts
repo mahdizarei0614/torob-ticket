@@ -19,7 +19,7 @@ function setCookie(response: ServerResponse, config: SiteConfiguration, name: st
   response.setHeader('Set-Cookie', [...(Array.isArray(previous) ? previous.map(String) : previous ? [String(previous)] : []), `${name}=${value}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${seconds}${config.origin.startsWith('https:') ? '; Secure' : ''}`]);
 }
 function redirect(response: ServerResponse, location: string) { response.writeHead(303, { Location: location }); response.end(); }
-function page(response: ServerResponse, config: SiteConfiguration, title: string, body: string, status = 200) { response.writeHead(status, { 'content-type': 'text/html; charset=utf-8' }); response.end(siteDocument(title, body, config.issuerOrigin)); }
+function page(response: ServerResponse, title: string, body: string, status = 200) { response.writeHead(status, { 'content-type': 'text/html; charset=utf-8' }); response.end(siteDocument(title, body)); }
 async function jsonBody(request: IncomingMessage): Promise<Record<string, unknown>> {
   if (!request.headers['content-type']?.startsWith('application/json')) throw new Error('JSON required');
   const chunks: Buffer[] = []; let length = 0;
@@ -60,7 +60,7 @@ export function createProviderSite(config: SiteConfiguration) {
     finally { delivering = false; }
   }
   const retry = setInterval(() => { void retryReports().catch(() => undefined); }, 30000); retry.unref();
-  const server = createServer((request, response) => { void handle(request, response).catch(() => { if (!response.headersSent) page(response, config, 'ورود کامل نشد', '<section class="panel"><h1>ورود کامل نشد</h1><p>برای ادامه از پیشنهاد انتخاب‌شده در ترب‌تیکت دوباره وارد شوید.</p></section>', 400); else response.end(); }); });
+  const server = createServer((request, response) => { void handle(request, response).catch(() => { if (!response.headersSent) page(response, 'ورود کامل نشد', '<section class="panel"><h1>ورود کامل نشد</h1><p>برای ورود دوباره تلاش کنید، یا پروازهای راه‌آرا را ببینید.</p><a class="button" href="/">بازگشت به راه‌آرا</a></section>', 400); else response.end(); }); });
   server.on('close', () => clearInterval(retry));
   async function handle(request: IncomingMessage, response: ServerResponse) {
     response.setHeader('Cache-Control', 'no-store, private'); response.setHeader('Referrer-Policy', 'no-referrer'); response.setHeader('X-Content-Type-Options', 'nosniff');
@@ -88,7 +88,7 @@ export function createProviderSite(config: SiteConfiguration) {
       const file = url.pathname === '/styles.css' ? resolve(config.publicDirectory, 'styles.css') : url.pathname === '/tokens.css' ? resolve(config.assetsDirectory, '../libs/ui/src/styles/tokens.css') : resolve(config.assetsDirectory, 'fonts/Vazirmatn-wght.woff2');
       response.writeHead(200, { 'content-type': url.pathname.endsWith('.css') ? 'text/css; charset=utf-8' : 'font/woff2' }); response.end(await readFile(file)); return;
     }
-    if (url.pathname === '/' && request.method === 'GET') { page(response, config, 'راه‌آرا | سفر از همین‌جا شروع می‌شود', landingContent({ issuerOrigin: config.issuerOrigin })); return; }
+    if (url.pathname === '/' && request.method === 'GET') { page(response, 'راه‌آرا | سفر از همین‌جا شروع می‌شود', landingContent({})); return; }
     if (url.pathname === '/callback' && request.method === 'GET') {
       const binding = cookie(request, 'ep_flow');
       if (!binding || url.searchParams.getAll('state').length !== 1 || (url.searchParams.getAll('code').length !== 1 && url.searchParams.getAll('error').length !== 1)) throw new Error('Invalid callback');
@@ -130,7 +130,7 @@ export function createProviderSite(config: SiteConfiguration) {
       }
     }
     const match = /^\/providers\/([0-9a-f-]{36})(\/login|\/logout)?$/.exec(url.pathname);
-    if (!match) { page(response, config, 'صفحه پیدا نشد', '<section class="panel"><h1>صفحه پیدا نشد</h1></section>', 404); return; }
+    if (!match) { page(response, 'صفحه پیدا نشد', '<section class="panel"><h1>صفحه پیدا نشد</h1></section>', 404); return; }
     const clientId = match[1]!, registration = await store.update(s => s.registrations.find(r => r.clientId === clientId));
     if (!registration) throw new Error('Connection missing');
     await active(registration);
@@ -155,10 +155,10 @@ export function createProviderSite(config: SiteConfiguration) {
     }
     if (match[2] || request.method !== 'GET') throw new Error('Method unavailable');
     const result = await store.update(s => { const session = sessionToken && s.sessions.find(session => session.clientId === clientId && session.hash === sha256(sessionToken)); const account = session && s.accounts.find(a => a.id === session.accountId && a.clientId === clientId); return session && account ? { session, account } : undefined; });
-    const banner = url.searchParams.has('cancelled') ? '<p class="notice" role="status">اجازه دسترسی داده نشد. اطلاعات جدیدی دریافت نشد.</p>' : url.searchParams.has('interrupted') ? '<p class="notice" role="status">ورود کامل نشد. از پیشنهاد ترب‌تیکت دوباره ادامه دهید.</p>' : '';
+    const banner = url.searchParams.has('cancelled') ? '<p class="notice" role="status">اجازه دسترسی داده نشد. اطلاعات جدیدی دریافت نشد.</p>' : url.searchParams.has('interrupted') ? '<p class="notice" role="status">ورود کامل نشد. برای ورود به حساب دوباره تلاش کنید.</p>' : '';
     const continueUrl = referral ? `/providers/${clientId}/login?ref=${referral}` : undefined;
-    if (!result) { page(response, config, registration.providerName, landingContent({ issuerOrigin: config.issuerOrigin, providerName: registration.providerName, continueUrl, banner })); return; }
-    page(response, config, registration.providerName, accountContent({ claims: result.session.claims, account: result.account, accountStatus: result.session.accountStatus, clientId, logoutCsrf: sha256(`${sessionToken}:logout`), issuerOrigin: config.issuerOrigin, banner, continueUrl }));
+    if (!result) { page(response, registration.providerName, landingContent({ providerName: registration.providerName, continueUrl, banner })); return; }
+    page(response, registration.providerName, accountContent({ claims: result.session.claims, account: result.account, accountStatus: result.session.accountStatus, clientId, logoutCsrf: sha256(`${sessionToken}:logout`), banner, continueUrl }));
   }
   return { server, store, retryReports };
 }

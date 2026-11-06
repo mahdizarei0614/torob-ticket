@@ -10,8 +10,9 @@
 **Owner provider presentation, 2026-11-06 (decision0091):** improve the separate
 RoadAra website with authored destination ideas and a readable approved-traveler
 profile. Keep Persian/RTL, existing semantic tokens/font, the original JSON pre,
-SSO/logout/consent/isolation and pending-attribution behavior. Presentation data
-never creates a booking, price/availability claim, fabricated user or billable event.
+SSO/logout/consent/isolation and pending-attribution behavior. All discovery stays on the provider; TorobTicket appears only in referral SSO.
+Authored schedules and whole-adult prices are independent presentation fixtures,
+without live availability, bookings, fabricated users or billable browsing events.
 
 **Owner reviewer setup, 2026-11-06 (decision0090):** the local Docker reviewer
 runtime automatically connects RoadAra independently for each workspace. No
