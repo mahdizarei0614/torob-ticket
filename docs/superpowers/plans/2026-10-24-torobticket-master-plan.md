@@ -2901,3 +2901,21 @@ Earlier stale-image, generated-file race and backend Debian download failures
 remain recorded with scope limits. Final runtime is healthy development with
 separate image tags and unchanged database/provider instances. No fresh whole
 production-stack certification, publication or deployment;35-task baseline retained.
+
+
+## Ready-to-use reviewer SSO — 2026-11-06
+
+Runtime source `81c131c23acdc1c9242f4c8a6209aecb1f48fb8c`. [Decision0090](../../decisions/0090-reviewer-sso-bootstrap.md), [brief](../../evidence/adjustments/reviewer-sso/task-brief.md) and [verification](../../evidence/adjustments/reviewer-sso/verification.md). Owner asks for a connected provider and Docker-ready reviewer testing.
+
+| Step | Status | Evidence |
+| --- | --- | --- |
+| Scoped automatic provider installation | DONE | Per-reviewer RoadAra client; actual one-use handshake; post-commit lifecycle; owned retry/revision guards; manual/custom/disabled preservation; unset rates |
+| Packaged local verification and documentation | DONE | Explicit HTTP-loopback review gate plus exact123456opt-in, rechecked at redemption; README/reviewer guide include profile/consent/created/existing/denial |
+| Actual fresh distributable run | DONE | Committed git archive without `.env`/host dependencies, fresh volumes; actual `pnpm docker:up` builds5images and reaches all readiness checks; production-build Chrome1/1 with created/existing/sameID and independent reviewer client |
+| Source review, regressions and local connection | DONE | Independent source/index approved;49PG/6files,29units/7files,38tools; dev fresh1/1, external1/1 and final reference1/1; types/lint pass; current provider enabled, its store hash unchanged |
+
+The initial sandbox tool and selector failures are retained with final successful
+receipts. Final evidence/scope review and cleanup are recorded in the owning
+verification record. External account attribution remains pending/unbilled until
+trusted verification. Original user services/data and unrelated activity-history
+work are preserved.35-task baseline unchanged; no publication or deployment.

@@ -11,7 +11,7 @@ test('Direct Login connects a provider, verifies consent and resumes the exact o
   await expect(page.getByRole('heading', { name: 'Direct Login', exact: true })).toBeVisible();
   const providerRow=page.getByRole('table').first().getByRole('row').filter({hasText:'راه‌آرا'});
   await providerRow.getByRole('button', {name:/^(Connect provider|Edit connection)$/}).click();
-  await page.getByLabel('Integration',{exact:true}).selectOption('reference');
+  await page.getByRole('combobox',{name:/^Integration/}).selectOption('reference');
   await page.getByLabel('Callback URL',{exact:true}).fill(`${process.env.E2E_BASE_URL}/api/v1/reference-provider/demo-provider-01/callback`);
   await page.getByLabel('Login initiation URL',{exact:true}).fill(`${process.env.E2E_BASE_URL}/api/v1/reference-provider/demo-provider-01/start`);
   await page.getByLabel('Acquisition rate · IRR').fill('70000');

@@ -222,3 +222,25 @@ reference defaults and cross-app redirects preserve scoped reviewer/SSO behavior
 Only the old owned gateway is retired; permanent frontends and data volumes are
 retained across lifecycle operations. Independent review and actual development/
 packaged browser checks are recorded with decision0089 and the owning evidence.
+
+
+## Ready-to-use reviewer SSO — 2026-11-06
+
+The owner requested a connected provider and a reviewer flow that works after
+`pnpm docker:up`. Decision0090 adds a generic post-commit workspace initializer
+and a local-review installer using the actual one-use backchannel handshake.
+Persisted ownership/revision guards allow retries and protect manual/disabled
+clients; each reviewer receives independent credentials. Prices and traveler
+identities are left for explicit input. Packaged123456 requires exact opt-in and
+HTTP-loopback gates at issuance and redemption. README/reviewer guide cover both
+account states, profile consent and pending independent attribution.
+
+Independent review caught descriptor-based permissions and OpenSSL trust-path
+requirements, both corrected. An archived committed source without `.env` or host
+dependencies passed the actual packaged Docker startup and fresh-reviewer Chrome
+SSO journey, including created/existing account reuse and reviewer isolation.
+49PostgreSQL cases,29source units and38tools pass; existing reference/external
+browser regressions pass after a test-selector correction. Actual logs, initial
+failed checks, cleanup and scope review are kept in the [verification record](evidence/adjustments/reviewer-sso/verification.md). Current provider data survived
+its entrypoint update byte-for-byte. No deployment or commercial verification is
+claimed.
