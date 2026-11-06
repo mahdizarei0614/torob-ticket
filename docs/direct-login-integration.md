@@ -169,6 +169,13 @@ not verified identity documents or a guarantee of every carrier's requirements.
 Other travelers must be completed at the provider; no party is fabricated from
 one profile. The issuer derives travel context from its stored referral receipt.
 
+A saved profile is checked against each current trip, rather than treated as
+complete merely because it exists. Domestic-to-international changes prompt for
+passport and Latin names; missing domestic ID or insufficient passport validity
+also reopens the prefilled form. The consent preview lists exactly the projected
+fields. Approval stays unavailable until the current requirements are complete;
+denial and phone-only clients remain supported. See the [README walkthrough](../README.md#test-provider-sso--no-admin-setup) for example passport inputs.
+
 The additive SDK scope is `openid phone traveler`. Old `openid phone` integrations
 remain valid and do not receive profile/document claims. Consent freezes only the
 relevant document projection in both ID-token and UserInfo data. Later profile

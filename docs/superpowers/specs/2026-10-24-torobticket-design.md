@@ -7,6 +7,12 @@
 
 ## 1. Intent and success
 
+**Owner passport-flow verification, 2026-11-06 (decision0092):** validate a saved
+SSO traveler profile against the current recorded trip before offering consent.
+Missing/expired required documents reopen the prefilled form. Preview the actual
+trip-relevant passport/Latin or national-ID projection, retaining phone-only client
+compatibility and denial. Existing collection/disclosure rules remain unchanged.
+
 **Owner provider presentation, 2026-11-06 (decision0091):** improve the separate
 RoadAra website with authored destination ideas and a readable approved-traveler
 profile. Keep Persian/RTL, existing semantic tokens/font, the original JSON pre,

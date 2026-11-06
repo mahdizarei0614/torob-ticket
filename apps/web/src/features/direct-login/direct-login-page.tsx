@@ -2,13 +2,26 @@ import { TravelerForm } from './traveler-form';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router';
 import { apiClient, directLoginClient } from '@torob-ticket/client';
-import { AuthorizeSchema, type DirectFlowSchema, type DirectIdentitySchema, type ReferencePageSchema } from '@torob-ticket/contracts';
+import { AuthorizeSchema, type DirectFlowSchema, type DirectIdentitySchema, type ReferencePageSchema, type TravelerProfile } from '@torob-ticket/contracts';
+import { travelerProfileForTrip, localDateAt } from '@torob-ticket/domain';
 import type { z } from 'zod';
 import { BrandLogo, ProviderMark, ThemeProvider, Price } from '@torob-ticket/ui';
 import s from './direct-login.module.css';
 type Identity = z.infer<typeof DirectIdentitySchema>;
 function Frame({ children, providerId }: { children: ReactNode; providerId?: string }) { return <ThemeProvider language="fa"><main className={s.page} lang="fa" dir="rtl"><section className={s.card}><header className={s.brand}><a href="/" aria-label="ترب‌تیکت"><BrandLogo language="fa" decorative /></a>{providerId && <ProviderMark providerId={providerId} size={40} />}</header>{children}</section></main></ThemeProvider>; }
 function message(error: unknown) { return error instanceof Error ? error.message : 'درخواست انجام نشد'; }
+function TravelerSummary({ profile, onEdit }: { profile: TravelerProfile; onEdit: () => void }) {
+  const row = (label: string, value: string, ltr = false) => <div key={label}><dt>{label}</dt><dd><bdi dir={ltr ? 'ltr' : 'auto'}>{value}</bdi></dd></div>;
+  return <div className={s.details}><h2>{profile.givenName} {profile.familyName}</h2><dl className={s.profilePreview}>
+    {row('تاریخ تولد (میلادی)', profile.birthDate, true)}{row('تابعیت', profile.nationality, true)}
+    {row('جنسیت', { female: 'زن', male: 'مرد', unspecified: 'تعیین نشده' }[profile.gender])}
+    {profile.latinGivenName && row('نام لاتین', profile.latinGivenName, true)}
+    {profile.latinFamilyName && row('نام خانوادگی لاتین', profile.latinFamilyName, true)}
+    {profile.nationalId && row('کد ملی', profile.nationalId, true)}
+    {profile.passport && <>{row('شماره گذرنامه', profile.passport.number, true)}{row('کد کشور صادرکننده', profile.passport.issuingCountry, true)}{row('انقضای گذرنامه (میلادی)', profile.passport.expiresOn, true)}</>}
+    {profile.email && row('ایمیل', profile.email, true)}
+  </dl><p>این مشخصات ثبت‌شده برای همین سفر ارسال می‌شود.</p><button className={s.inline} onClick={onEdit}>ویرایش مشخصات مسافر</button></div>;
+}
 export function PhoneVerification({ providerId, onVerified }: { providerId?: string; onVerified: (identity: Identity) => void }) {
   const [phone, setPhone] = useState(''), [code, setCode] = useState(''), [challenge, setChallenge] = useState<{ id: string; expiresAt: string }>(), [busy, setBusy] = useState(false), [error, setError] = useState('');
   const live = useRef(true), lock = useRef(false);
@@ -33,6 +46,13 @@ export function DirectLoginPage() {
   const { id } = useParams(), location = useLocation(), navigate = useNavigate();
   const [flow, setFlow] = useState<z.infer<typeof DirectFlowSchema>>(), [identity, setIdentity] = useState<Identity | null>(), [error, setError] = useState(''), [busy, setBusy] = useState(false), [generation, reload] = useState(0), [editing, setEditing] = useState(false);
   const begin = location.pathname === '/direct-login/begin', alive = useRef(true), lock = useRef(false);
+  let consentProfile: TravelerProfile | undefined;
+  if (flow?.profileRequired && flow.travelContext && identity?.profile) {
+    try { consentProfile = travelerProfileForTrip(identity.profile, flow.travelContext, localDateAt(new Date().toISOString(), 'Asia/Tehran')); }
+    catch { /* A stored profile may need different or renewed documents for this trip. */ }
+  }
+  const profileReady = !flow?.profileRequired || Boolean(consentProfile);
+  const profileEditing = Boolean(flow?.profileRequired && editing);
   useEffect(() => { alive.current = true; const controller = new AbortController();
     void (async () => {
       await apiClient.session();
@@ -44,7 +64,7 @@ export function DirectLoginPage() {
     return () => { alive.current = false; controller.abort(); };
   }, [id, begin, location.search, navigate, generation]);
   async function action(approved: boolean) {
-    if (!id || flow?.id !== id || lock.current) return; lock.current = true; setBusy(true); setError('');
+    if (!id || flow?.id !== id || lock.current || (approved && (!profileReady || profileEditing))) return; lock.current = true; setBusy(true); setError('');
     try { const result = await directLoginClient.consent(id, approved); if (alive.current) window.location.assign(result.redirect); }
     catch (e) { if (alive.current) setError(message(e)); }
     finally { lock.current = false; if (alive.current) setBusy(false); }
@@ -54,7 +74,7 @@ export function DirectLoginPage() {
   return <Frame providerId={flow?.providerId}><h1>{flow ? `ادامه در ${flow.providerName}` : 'ورود به ترب‌تیکت'}</h1>{error && <div className={s.error} role="alert">{error}</div>}
     {identity === undefined ? <p role="status">در حال آماده‌سازی ورود…</p> : !identity ? <><p>با شماره همراه خود وارد شوید</p><PhoneVerification onVerified={value => { setIdentity(value); reload(n => n + 1); }} /></> : <>
       <div className={s.details}>شماره همراه شما <bdi dir="ltr">{identity.phone}</bdi></div>
-      {flow ? flow.status === 'pending' ? <><p>با ادامه، شماره همراه تأییدشده{flow.profileRequired ? ' و مشخصات مسافر شامل نام، تاریخ تولد، جنسیت، تابعیت، مدرک هویتی مرتبط با سفر و ایمیل اختیاری' : ''} شما در اختیار {flow.providerName} قرار می‌گیرد تا وارد حساب خود شوید یا حساب بسازید.</p>{flow.profileRequired && flow.travelContext && ((!identity.profile || editing) ? <TravelerForm key={`${id}:${identity.phone}`} profile={identity.profile} context={flow.travelContext} onSaved={profile => { setIdentity(current => current?.phone === identity.phone ? { ...current, profile } : current); setEditing(false); }} /> : <div className={s.details}><h2>{identity.profile.givenName} {identity.profile.familyName}</h2><p>تولد {identity.profile.birthDate} · تابعیت {identity.profile.nationality}</p><p>مشخصات ثبت‌شده توسط شما برای ادامه سفر ارسال می‌شود.</p><button className={s.inline} onClick={() => setEditing(true)}>ویرایش مشخصات مسافر</button></div>)}{flow.existingProof && <p>حساب قبلی شما در این فروشنده پیدا شد</p>}<div className={s.actions}><button className={s.button} disabled={busy || Boolean(flow.profileRequired && (!identity.profile || editing))} onClick={() => void action(true)}>اجازه و ادامه</button><button className={s.quiet} disabled={busy} onClick={() => void action(false)}>انصراف</button></div></> : <><p>این درخواست ورود پایان یافته است. برای ورود دوباره از صفحه فروشنده ادامه دهید.</p><a href={`/api/v1/direct-login/start/${flow.referralId}`} className={s.quiet}>ادامه از همین پیشنهاد</a></> : <a href="/" className={s.button}>جست‌وجوی سفر</a>}
+      {flow ? flow.status === 'pending' ? <><p>با ادامه، شماره همراه تأییدشده{flow.profileRequired ? ` و مشخصات مسافر شامل نام، ${flow.travelContext?.international ? 'نام و نام خانوادگی لاتین، ' : ''}تاریخ تولد، جنسیت، تابعیت، مدرک هویتی مرتبط با سفر و ایمیل اختیاری` : ''} شما در اختیار {flow.providerName} قرار می‌گیرد تا وارد حساب خود شوید یا حساب بسازید.</p>{flow.profileRequired && !flow.travelContext && <p role="alert" className={s.error}>اطلاعات سفر برای تأیید مشخصات مسافر در دسترس نیست.</p>}{flow.profileRequired && flow.travelContext && ((!profileReady || editing) ? <TravelerForm key={`${id}:${identity.phone}`} profile={identity.profile} context={flow.travelContext} onSaved={profile => { setIdentity(current => current?.phone === identity.phone ? { ...current, profile } : current); setEditing(false); }} /> : <TravelerSummary profile={consentProfile!} onEdit={() => setEditing(true)} />)}{flow.existingProof && <p>حساب قبلی شما در این فروشنده پیدا شد</p>}<div className={s.actions}><button className={s.button} disabled={busy || !profileReady || profileEditing} onClick={() => void action(true)}>اجازه و ادامه</button><button className={s.quiet} disabled={busy} onClick={() => void action(false)}>انصراف</button></div></> : <><p>این درخواست ورود پایان یافته است. برای ورود دوباره از صفحه فروشنده ادامه دهید.</p><a href={`/api/v1/direct-login/start/${flow.referralId}`} className={s.quiet}>ادامه از همین پیشنهاد</a></> : <a href="/" className={s.button}>جست‌وجوی سفر</a>}
       <button className={s.inline} disabled={busy} onClick={() => void logout()}>ورود با شماره دیگر</button>
     </>}{flow && !identity && <button className={s.quiet} disabled={busy} onClick={() => void action(false)}>انصراف</button>}
   </Frame>;

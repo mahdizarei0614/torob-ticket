@@ -24,7 +24,7 @@ export function TravelerForm({ profile, context, onSaved }: { profile?: Traveler
     finally { lock.current = false; if (alive.current) setBusy(false); }
   }
   return <form className={s.form} onSubmit={e => { e.preventDefault(); void save(); }}>
-    <h2>مشخصات مسافر اصلی</h2><p>مشخصات را مطابق مدرک هویتی وارد کنید. اطلاعات سایر مسافران در سایت فروشنده تکمیل می‌شود.</p>
+    <h2>مشخصات مسافر اصلی</h2><p>{context.international ? 'برای سفر خارجی، نام لاتین و اطلاعات گذرنامه را مطابق مدرک وارد کنید.' : 'مشخصات را مطابق مدرک هویتی وارد کنید.'} اطلاعات سایر مسافران در سایت فروشنده تکمیل می‌شود.</p>
     <div className={s.fields}><label>نام<input autoComplete="given-name" required maxLength={100} {...field('givenName')} /></label><label>نام خانوادگی<input autoComplete="family-name" required maxLength={100} {...field('familyName')} /></label></div>
     <div className={s.fields}><label>تاریخ تولد (میلادی)<input type="date" autoComplete="bday" dir="ltr" required {...field('birthDate')} /></label><label>جنسیت<select required {...field('gender')}><option value="unspecified" disabled>انتخاب کنید</option><option value="female">زن</option><option value="male">مرد</option></select></label></div>
     <label>کد کشور تابعیت<input dir="ltr" autoCapitalize="characters" maxLength={2} pattern="[A-Za-z]{2}" required aria-describedby="country-help" {...field('nationality')} /><small id="country-help">دو حرف لاتین؛ برای ایران IR</small></label>

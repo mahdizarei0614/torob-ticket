@@ -38,22 +38,30 @@ This works with `pnpm docker:up`, including a fresh database and browser profile
 Keep the traveler and admin tabs in the same browser, using the URLs printed by
 startup. The provider deliberately uses the other loopback hostname.
 
-1. Open the traveler app. Search a domestic Tehran → Mashhad flight on a date with
-   results, and select an offer from **راه‌آرا**.
+1. Open the traveler app. For the complete passport/English-name walkthrough,
+   choose an **international Tehran → Istanbul flight** and select **راه‌آرا**.
 2. Choose **رفتن به سایت فروشنده**, then **ادامه با ترب‌تیکت** on the provider page.
    Start from the selected offer; opening the provider homepage alone has no referral.
 3. Enter a phone such as **09000000991** and verification code **123456**.
    No SMS service, API key or manual client-secret setup is needed.
-4. Complete the primary-traveler form and choose **ذخیره مشخصات مسافر**, then
-   **اجازه و ادامه**. For a domestic test you can use سارا احمدی, Gregorian birth
-   date `1992-03-04`, gender زن, nationality `IR`, national ID `0012345678`;
-   email is optional. These are authored test inputs, not verified documents.
+4. Complete the primary-traveler form. Example inputs: سارا احمدی, Gregorian birth
+   date `1992-03-04`, gender زن, nationality `IR`, English/Latin names **Sara Ahmadi**,
+   passport **A12345678**, issuing country `IR`, and expiry `2030-01-01` (it must
+   cover the end of your trip). Email is optional. Choose **ذخیره مشخصات مسافر**,
+   review the passport and Latin names, then **اجازه و ادامه**. These are authored
+   test inputs, not verified documents.
 5. The separate provider displays a readable traveler profile and the approved
-   claims in a JSON `<pre>`, alongside destination ideas for the walkthrough.
-   First sign-in returns `provider_account.status: "created"`. Log out of the
-   provider and repeat with the **same phone in the same reviewer workspace**:
-   expect `"existing"` and the same account ID. A new browser profile has its own
-   isolated provider connection, so it is a separate reviewer.
+   claims in a JSON `<pre>`, including `traveler_profile.passport`, `latinGivenName`
+   and `latinFamilyName`. First sign-in returns `provider_account.status: "created"`.
+   Log out of the provider and repeat with the **same phone in the same reviewer
+   workspace**: expect `"existing"`, the same account ID and the approved passport/
+   Latin fields. A new browser profile is a separate, isolated reviewer.
+
+For the domestic check, use Tehran → Mashhad and national ID `0012345678`.
+Domestic Iranian travel shares national ID instead of passport/Latin names.
+Switching that customer to an international trip automatically reopens the
+prefilled form for the additional required fields. A complete valid profile can
+be reused; missing/expired documents must be completed before approval.
 
 To test denial, log out of the provider, start another flow and choose **انصراف**.
 No new profile JSON is disclosed. Admin **Direct Login** shows the connection and
