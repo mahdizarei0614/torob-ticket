@@ -125,3 +125,5 @@ The original local search-control working ID 0057 is canonically
 row decision 0057. Its original untracked working file remains local.
 [0080](0080-final-review-and-canonical-release-scope.md) records final review,
 source reconciliation and the faster-only automatic advice limitation.
+
+[Decision0093](0093-referral-activity-history.md) completes the explicit reviewer activity-history import, including atomic/idempotent source records, preserved scopes and billing evidence, historical hotel reads and the authorized reviewer handoff.

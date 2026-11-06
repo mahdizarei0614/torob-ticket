@@ -91,6 +91,15 @@ setup can retry after a service interruption without replacing those connections
    visitor sessions, billable/repeat counts and provider fees. Open a referral
    record for **Referrals** evidence, then follow its source into **Searches**.
 
+For a populated monthly activity review, use **Configuration → Load activity
+history** in an unused workspace before sending a referral or setting pricing.
+It imports authored history for the current Persian month and two prior months,
+with varied provider volumes, repeat visits and example graduated rates. The
+history is stored in that workspace; reading Traffic does not generate activity.
+Repeating the import is idempotent. Existing outbound activity or custom pricing
+is preserved rather than replaced. The imported records describe local review
+fixtures, not observed external provider visits or contracted commercial rates.
+
 [Reviewer guide](docs/reviewer-guide.md) gives the exact labels and optional
 scenario controls. [Walkthrough](docs/walkthrough.md) contains the 4:30 script,
 reproducible preparation and passed **4:30.006 paced operator rehearsal**. Startup

@@ -190,6 +190,25 @@ verification. [Decision0086](decisions/0086-provider-traffic-and-graduated-refer
 and its task evidence record actual source/check outcomes separately from this
 implementation account and the older T35 release results.
 
+## Referral activity history — 2026-11-04
+
+The owner requested enough realistic activity to inspect provider totals, daily
+charts, excluded repeat visits and monthly pricing tiers. The implementation uses
+an explicit **Configuration → Load activity history** operation for the current
+reviewer workspace. It does not turn ordinary traffic reads or session bootstrap
+into fixture writes. The authored history covers three Persian months and
+includes example rates; it is technical fixture data rather than evidence of
+real provider visits or contracted commercial prices.
+
+Independent architecture review recommended an atomic, idempotent import with a
+batch marker and protection for existing outbound activity and configured rates.
+Shared visitor identities, chronological activity and the existing billing helpers
+keep cross-provider unique counts, hourly exclusions and monthly graduated fees
+coherent. Source/quote/receipt links remain inspectable. UI behavior checks cover
+explicit invocation, the pending mutation guard, successful overview refresh and
+retained configuration on a protected-history conflict. Runtime results and
+browser population are recorded separately by the root agent in the task evidence.
+
 ## 2026-11-04 — Direct Login
 
 Implemented the owner-requested local issuer, provider SDK, reference provider,
@@ -284,3 +303,21 @@ phone-only editing guard before final approval. README now starts with the
 international walkthrough. [Verification](evidence/adjustments/sso-passport-review/verification.md)
 retains initial failures, actual logs and screenshots. Fresh browser contexts
 used existing preserved Docker data; no cold-device/deployment claim.
+
+
+## Activity-history completion and reviewer release — 2026-11-07
+
+The owner resumed the interrupted import and authorized commits, main integration,
+a clean-checkout Docker test and a reviewer push. Decision0093 records the explicit
+scoped import. Independent review found strict provider-status, historical hotel
+read, legacy-source and intent-timestamp defects; all were corrected. Actual
+concurrency and full-history tests also exposed blocking source preparation and
+a slow correlated raw-evidence lookup. Bounded asynchronous preparation and
+exact scoped provider-run resolution corrected them without changing live
+selection, normalization rules or immutable billing semantics.
+
+Seven owning PostgreSQL cases and50existing billing/referral/hotel/SSO regressions
+pass. Full source generation now covers all three fixture roots, including
+intentionally rejected legacy aliases through eligible source alternatives.
+Uncached owning types/lint pass. Packaged clean-checkout/browser evidence and
+actual push are recorded separately in the owning verification record.

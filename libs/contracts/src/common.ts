@@ -49,7 +49,7 @@ export const ProvenanceSchema = z.strictObject({
   sourceRevision: IdSchema, mappingRevision: IdSchema, fixtureVersion: IdSchema,
 });
 export type Provenance = z.infer<typeof ProvenanceSchema>;
-export const ApiErrorCodeSchema = z.enum(['INVALID_QUERY', 'UNSUPPORTED_ROUTE', 'AGE_REQUIRED', 'SESSION_EXPIRED', 'NOT_FOUND', 'SEARCH_LIMIT', 'QUOTE_EXPIRED', 'QUOTE_CHANGED', 'OFFER_UNAVAILABLE', 'INCOMPLETE_PRICE', 'INTENT_EXPIRED', 'IDEMPOTENCY_CONFLICT', 'MAPPING_COLLISION', 'IDENTITY_REQUIRED', 'SAVED_SEARCH_LIMIT']);
+export const ApiErrorCodeSchema = z.enum(['INVALID_QUERY', 'UNSUPPORTED_ROUTE', 'AGE_REQUIRED', 'SESSION_EXPIRED', 'NOT_FOUND', 'SEARCH_LIMIT', 'QUOTE_EXPIRED', 'QUOTE_CHANGED', 'OFFER_UNAVAILABLE', 'INCOMPLETE_PRICE', 'INTENT_EXPIRED', 'IDEMPOTENCY_CONFLICT', 'MAPPING_COLLISION', 'IDENTITY_REQUIRED', 'SAVED_SEARCH_LIMIT', 'TRAFFIC_HISTORY_CONFLICT']);
 export type ApiErrorCode = z.infer<typeof ApiErrorCodeSchema>;
 export const ApiErrorSchema = z.strictObject({
   code: ApiErrorCodeSchema, fieldPaths: z.array(z.array(z.union([z.string(), NonnegativeIntegerSchema]))), retryable: z.boolean(), requestId: IdSchema,

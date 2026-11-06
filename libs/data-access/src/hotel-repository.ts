@@ -197,8 +197,11 @@ export class HotelRepository {
     }
     get(scope: DataScope, id: string) {
         return scopedTransaction(this.db, scope, async (tx) => {
-            const row = await tx.hotelSearchRun.findUnique({ where: { sessionId_id: { sessionId: scope.sessionId, id } } }), run = row?.payload as unknown as HotelRun;
-            if (!row || run.kind !== 'hotel-search' || !run.snapshot)
+            const row = await tx.hotelSearchRun.findUnique({ where: { sessionId_id: { sessionId: scope.sessionId, id } } });
+            const run = row?.payload as { kind?: unknown; snapshot?: unknown } | undefined;
+            // Imported history is readable evidence, never an active search or
+            // recheck source. The live selection path still requires HotelRun.
+            if (!run || (run.kind !== 'hotel-search' && run.kind !== 'hotel-activity-history') || !run.snapshot)
                 throw new RepositoryError('NOT_FOUND');
             return HotelSearchSnapshotSchema.parse(run.snapshot);
         });

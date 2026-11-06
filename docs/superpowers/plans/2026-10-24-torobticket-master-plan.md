@@ -2830,6 +2830,24 @@ Owner locks referral earnings regardless of purchase: once per browser visitor/p
 Visitor metrics are browser sessions, not verified people. Redirect-issued counts do not establish external page load, purchase or settled fees. No commercial rates invented for the normal reviewer session. Fresh owned browser contexts/test database isolate all checks; earlier failed attempts and immutable migration history are retained. Final documentation commit is recorded separately from source acceptance.
 
 
+## Referral activity-history follow-up — 2026-11-07
+
+Owner resumed completion and authorized updating/pushing main after a clean
+Docker reviewer test. [Decision0093](../../decisions/0093-referral-activity-history.md),
+[brief](../../evidence/adjustments/referral-activity-history/task-brief.md).
+
+| Step | Status | Evidence |
+| --- | --- | --- |
+| Atomic scoped activity import and sources | DONE | Three Persian months/six providers, genuine persisted authored source/quote/receipt lineage, unknown historical rates and immutable graduated fees; explicit action only |
+| Correctness and independent source review | DONE |7owning PostgreSQL cases and50existing billing/referral/hotel/SSO cases pass; full source generation passes all3fixture roots; independent source approved |
+| Static and source regressions | DONE |18uncached Nx tasks;1757broad source cases plus12HTTP cases with loopback permissions; full compatibility cases supersede small legacy samples; final API types/lint pass |
+| Clean reviewer release and handoff | ACTIVE | Source commit/index review; clean main checkout/default Docker startup, fresh database/browser admin and new/existing passport SSO verification, evidence closure and authorized push pending |
+
+Existing user data/services and unrelated tracker/media work are preserved.
+Authored visits do not establish external delivery, purchase, revenue or agreed
+commercial rates. Baseline35-task completion remains unchanged.
+
+
 ## Direct Login follow-up — 2026-11-04
 
 Owner implementation request and decision0087 extend the finished baseline with a

@@ -2,7 +2,7 @@ import {useContext,useRef,useState,type ReactNode} from 'react';
 import {useQuery,useQueryClient} from '@tanstack/react-query';
 import {adminClient,apiClient,ClientError} from '@torob-ticket/client';
 import {AdminContext as Context} from './admin-context';
-export const errorText=(e:unknown)=>e instanceof ClientError?e.api?.code==='MAPPING_COLLISION'?'Configuration changed. Refresh before applying your change.':e.api?.code==='SESSION_EXPIRED'?'Your session has ended. Reload to start a new session.':e.message:e instanceof Error?e.message:'Unable to complete the request.';
+export const errorText=(e:unknown)=>e instanceof ClientError?e.api?.code==='MAPPING_COLLISION'?'Configuration changed. Refresh before applying your change.':e.api?.code==='TRAFFIC_HISTORY_CONFLICT'?'Activity history can only be loaded before outbound activity or custom pricing is recorded.':e.api?.code==='SESSION_EXPIRED'?'Your session has ended. Reload to start a new session.':e.message:e instanceof Error?e.message:'Unable to complete the request.';
 export function AdminState({children}:{children:ReactNode}){
  const qc=useQueryClient();const[epoch,setEpoch]=useState(0),[busy,setBusy]=useState(false),[feedback,setFeedback]=useState(''),[error,setError]=useState('');const lock=useRef(false),bootstrapped=useRef(false);const[problem,setProblem]=useState<unknown>();
  const config=useQuery({queryKey:['admin',epoch,'config'],queryFn:async({signal})=>{if(!bootstrapped.current){await apiClient.session();bootstrapped.current=true;}return adminClient.config(signal);},retry:false,refetchOnWindowFocus:true});

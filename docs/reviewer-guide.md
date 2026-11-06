@@ -55,6 +55,18 @@ Distances are straight-line distances, not a navigation/driving-time service.
 
 ## Inspect traffic and referral fees in admin
 
+For a populated review, open an unused workspace and choose **Configuration →
+Load activity history** before recording outbound activity or setting provider
+pricing. This explicitly imports authored activity for the current Persian month
+and two previous months, including shared visitors, repeat visits and provider
+volumes across the monthly pricing checkpoints. Select **Previous month** to
+compare the reset counts and recorded fees, then return to **Current month**.
+The example rates and historical records are local fixtures; they do not claim
+observed provider visits, payments or commercial agreements. Reads remain
+read-only, repeated imports do not duplicate records, and an import cannot
+replace existing outbound activity or custom pricing. Other reviewer workspaces
+remain isolated.
+
 Admin opens on **Traffic**. Select a Persian billing month and, if useful, provider
 and referral type. **Custom dates** narrows dates within that month in Tehran
 time. The totals, provider table, daily trend/count disclosure and outbound
@@ -73,8 +85,9 @@ the visible retry uses that same receipt. A redirect record means the server
 issued the redirect, not that the external page loaded.
 
 Use a provider’s **Referral pricing** action to inspect or edit its graduated
-checkpoints and optional toman rates. Defaults cover referrals 1–100, 101–1,000
-and 1,001 onward, with every rate unset. Only later referrals receive later rates.
+checkpoints and optional toman rates. An untouched workspace defaults to referrals
+1–100, 101–1,000 and 1,001 onward, with every rate unset; explicitly loaded activity
+history includes example provider pricing. Only later referrals receive later rates.
 The count restarts at Persian month midnight in Tehran, while the ledger and
 rolling-hour exclusion persist. Empty rates differ from explicit zero. Saving
 changes future billable referrals only: old **Unpriced** / **No rate at referral**

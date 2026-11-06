@@ -15,3 +15,7 @@ export * from './admin-search-repository';
 export * from './admin-mapping-repository';
 export * from './provider-traffic-repository';
 export * from './provider-billing';
+
+export * from './traffic-activity-plan';
+export * from './traffic-activity-repository';
+export {materializeStoredHotelRate} from './hotel-source';

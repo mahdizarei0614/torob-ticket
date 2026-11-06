@@ -39,7 +39,10 @@ export class AdminReferralRepository{
   const ids=[originSearchId,recheckRunId].filter((x):x is string=>!!x);const intentId=intent?.intentId??receipt?.intentId;
   const ew:Prisma.AuditEventWhereInput={sessionId:scope.sessionId};
   ew.OR=[...ids.flatMap(x=>[{payload:{path:['searchId'],equals:x}},{payload:{path:['hotelSearchId'],equals:x}}]),...(intentId?[{payload:{path:['result','intent','intentId'],equals:intentId}},{payload:{path:['intentId'],equals:intentId}}]:[]),...(directAudit?[{id:directAudit.id}]:[])];
-  const rw:Prisma.RawRecordWhereInput={sessionId:scope.sessionId,providerRun:{searchId:{in:ids}}};
+  // Resolve the bounded source runs first. A correlated relation filter over a
+  // large imported history can repeatedly scan ProviderRun for every raw row.
+  const runs=ids.length?await tx.providerRun.findMany({where:{sessionId:scope.sessionId,searchId:{in:ids}},select:{id:true}}):[];
+  const rw:Prisma.RawRecordWhereInput={sessionId:scope.sessionId,providerRunId:{in:runs.map(run=>run.id)}};
   const [rawRecords,rawTotal,events,eventTotal]=await Promise.all([tx.rawRecord.findMany({where:rw,orderBy:{id:'asc'},take:100}),tx.rawRecord.count({where:rw}),tx.auditEvent.findMany({where:ew,orderBy:[{createdAt:'asc'},{id:'asc'}],take:100}),tx.auditEvent.count({where:ew})]);
   return AdminReferralDetailSchema.parse({receipt,intent,originSearchId,recheckRunId,sourceSearch:sourceSearch.success?sourceSearch.data:null,sourceQuote,rawRecords:rawRecords.map(x=>({rawRecordId:x.id,sourceNamespace:x.sourceNamespace,payload:x.payload})),rawTotal,events:events.map(audit),eventTotal});
  });}

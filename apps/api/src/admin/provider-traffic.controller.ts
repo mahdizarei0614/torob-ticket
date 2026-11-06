@@ -1,6 +1,6 @@
 import {DirectLoginService} from '../direct-login/direct-login.service';
 import {ReferralService} from '../referrals/referral.service';
-import {BadRequestException,Controller,Get,Head,Inject,MethodNotAllowedException,Param,Patch,Query,Req,Res,Body,UseGuards} from '@nestjs/common';
+import {BadRequestException,Controller,Get,Head,Inject,MethodNotAllowedException,Param,Patch,Post,Query,Req,Res,Body,UseGuards} from '@nestjs/common';
 import {randomUUID} from 'node:crypto';
 import {TrafficQuerySchema,UpdateProviderTariffSchema,type TrafficQuery,type UpdateProviderTariff} from '@torob-ticket/contracts';
 import {RepositoryError} from '@torob-ticket/data-access';
@@ -15,6 +15,7 @@ const trafficError=(error:unknown):never=>{if(error instanceof RepositoryError&&
 @UseGuards(SessionGuard)
 export class ProviderTrafficController {
  constructor(@Inject(ProviderTrafficService)private readonly service:ProviderTrafficService){}
+ @Post('traffic/populate')populate(@Req()r:SessionRequest){return this.service.populate(r.sessionContext!).catch(trafficError);}
  @Get('traffic')list(@Req()r:SessionRequest,@Query(new ZodValidationPipe(TrafficQuerySchema))q:TrafficQuery){return this.service.list(r.sessionContext!,q).catch(trafficError);}
  @Patch('providers/:id/tariff')setTariff(@Req()r:SessionRequest,@Param('id')id:string,@Body(new ZodValidationPipe(UpdateProviderTariffSchema))input:UpdateProviderTariff){return this.service.setTariff(r.sessionContext!,id,input).catch(trafficError);}
 }

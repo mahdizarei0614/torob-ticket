@@ -7,7 +7,7 @@ export interface ErrorPolicy { kind: RecoveryKind; retryRead: boolean; requiresF
 export function errorPolicy(error: unknown, operation: RecoveryOperation = 'read'): ErrorPolicy {
   const value = error instanceof ClientError ? error : undefined;
   const code = value?.api?.code;
-  const codes:Record<ApiErrorCode,RecoveryKind>={INVALID_QUERY:'invalid',UNSUPPORTED_ROUTE:'unsupported',AGE_REQUIRED:'invalid',SESSION_EXPIRED:'expired',NOT_FOUND:'missing',SEARCH_LIMIT:'capacity',QUOTE_EXPIRED:'unavailable',QUOTE_CHANGED:'changed',OFFER_UNAVAILABLE:'unavailable',INCOMPLETE_PRICE:'unavailable',INTENT_EXPIRED:'unavailable',IDEMPOTENCY_CONFLICT:'invalid',MAPPING_COLLISION:'changed',IDENTITY_REQUIRED:'invalid',SAVED_SEARCH_LIMIT:'capacity'};
+  const codes:Record<ApiErrorCode,RecoveryKind>={INVALID_QUERY:'invalid',UNSUPPORTED_ROUTE:'unsupported',AGE_REQUIRED:'invalid',SESSION_EXPIRED:'expired',NOT_FOUND:'missing',SEARCH_LIMIT:'capacity',QUOTE_EXPIRED:'unavailable',QUOTE_CHANGED:'changed',OFFER_UNAVAILABLE:'unavailable',INCOMPLETE_PRICE:'unavailable',INTENT_EXPIRED:'unavailable',IDEMPOTENCY_CONFLICT:'invalid',MAPPING_COLLISION:'changed',IDENTITY_REQUIRED:'invalid',SAVED_SEARCH_LIMIT:'capacity',TRAFFIC_HISTORY_CONFLICT:'changed'};
   const aborted=!!error&&typeof error==='object'&&'name' in error&&error.name==='AbortError';
   const kind: RecoveryKind = aborted?'aborted':code?codes[code]:value?.kind==='request'?'invalid':value?.kind==='network'?'network':'server';
   const copy: Record<RecoveryKind, [string, string, string, string]> = {

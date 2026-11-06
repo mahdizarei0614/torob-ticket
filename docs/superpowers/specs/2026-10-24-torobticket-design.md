@@ -7,6 +7,13 @@
 
 ## 1. Intent and success
 
+**Owner activity-history completion,2026-11-07 (decision0093):** provide an
+explicit, authenticated three-Persian-month activity import for one reviewer
+workspace, with authored source/referral records and example graduated rates.
+Never populate ordinary reads/bootstrap. Atomic/idempotent import must preserve
+existing activity, tariffs, unrelated searches/receipts and SSO installations;
+retain truthful fixture provenance and immutable billing evidence.
+
 **Owner passport-flow verification, 2026-11-06 (decision0092):** validate a saved
 SSO traveler profile against the current recorded trip before offering consent.
 Missing/expired required documents reopen the prefilled form. Preview the actual

@@ -1,15 +1,48 @@
-import {render,screen,fireEvent,waitFor} from '@testing-library/react';
+import {render,screen,fireEvent,waitFor,within} from '@testing-library/react';
 import {describe,expect,it,vi,beforeEach} from 'vitest';
 import {MemoryRouter} from 'react-router';
 import {QueryClient,QueryClientProvider} from '@tanstack/react-query';
 import {ThemeProvider} from '@torob-ticket/ui';
+import {ClientError} from '@torob-ticket/client';
 import {App} from './app';
-const mocks=vi.hoisted(()=>({session:vi.fn(),catalogReadonly:vi.fn(),config:vi.fn(),providers:vi.fn(),setScenario:vi.fn(),setProvider:vi.fn(),reset:vi.fn(),searches:vi.fn(),mappings:vi.fn(),preview:vi.fn(),apply:vi.fn(),referrals:vi.fn(),traffic:vi.fn()}));
+const mocks=vi.hoisted(()=>({session:vi.fn(),catalogReadonly:vi.fn(),config:vi.fn(),providers:vi.fn(),setScenario:vi.fn(),setProvider:vi.fn(),reset:vi.fn(),searches:vi.fn(),mappings:vi.fn(),preview:vi.fn(),apply:vi.fn(),referrals:vi.fn(),traffic:vi.fn(),populateTraffic:vi.fn()}));
 vi.mock('@torob-ticket/client',async()=>{const actual=await vi.importActual<typeof import('@torob-ticket/client')>('@torob-ticket/client');return {...actual,apiClient:{...actual.apiClient,session:mocks.session,catalogReadonly:mocks.catalogReadonly},adminClient:{...actual.adminClient,...mocks}};});
 const config={session:{seed:1,anchorInstant:'2026-10-25T00:00:00Z',scenario:'normal',fixtureVersion:'showcase-v1',catalogRevision:'catalog-v1',mappingRevision:'mapping-v1',scenarioRevision:'revision-one',expiresAt:'2026-11-25T00:00:00Z',identity:null},revision:'revision-one',providers:[{providerId:'demo-provider-01',override:null}]};
 function mount(path='/providers'){return render(<QueryClientProvider client={new QueryClient({defaultOptions:{queries:{retry:false,gcTime:0}}})}><ThemeProvider language="en" variant="admin"><MemoryRouter initialEntries={[path]}><App/></MemoryRouter></ThemeProvider></QueryClientProvider>);}
 beforeEach(()=>{vi.resetAllMocks();mocks.session.mockResolvedValue(config.session);mocks.catalogReadonly.mockResolvedValue({providerCapabilities:[]});mocks.config.mockResolvedValue(config);mocks.providers.mockResolvedValue({providers:[{providerId:'demo-provider-01',totalRuns:0,statusCounts:[],recent:[]}],recentLimit:50});mocks.setProvider.mockResolvedValue({...config,revision:'revision-two'});mocks.searches.mockResolvedValue({offset:0,limit:25,total:0,items:[]});mocks.mappings.mockResolvedValue({mappingRevision:'mapping-v1',supportedEntityTypes:['city'],namespaces:['demo-provider-04/v1'],targets:[{entityType:'city',id:'tehran',name:'Tehran'}],records:[],revisions:[],totalRecords:0,offset:0,limit:25,hasMore:false,revisionsTotal:0,revisionsOffset:0,revisionsLimit:25,revisionsHasMore:false});mocks.traffic.mockResolvedValue({period:{monthKey:'1405-08',currentMonthKey:'1405-08',from:'2026-10-22T20:30:00.000Z',to:'2026-11-03T12:00:00.000Z',calendar:'persian',timeZone:'Asia/Tehran'},policy:{windowMinutes:60,pricing:'graduated',uniqueVisitorBasis:'visitor-session',eventBasis:'redirect-issued'},totals:{outbound:0,uniqueVisitorSessions:0,billable:0,repeats:0,knownFeeRial:0,unpricedBillable:0,transport:0,hotel:0},providers:[],daily:[],events:{offset:0,limit:25,total:0,items:[]},availableMonths:['1405-08']});mocks.referrals.mockResolvedValue({metrics:{prepared:0,changed:0,unavailable:0,confirmed:0,cancelled:0,byProvider:[],scope:'all-session-events',conversionReporting:'not-reported'},referrals:{offset:0,limit:25,total:0,items:[]},rechecks:{offset:0,limit:25,total:0,items:[]}});});
 describe('English operations workspace',()=>{
+ it('loads activity only through explicit configuration and refreshes the overview after completion',async()=>{
+  let finish!:()=>void;
+  mocks.populateTraffic.mockReturnValue(new Promise<void>(resolve=>{finish=resolve;}));
+  mount('/');
+  await screen.findByRole('heading',{name:'Provider traffic'});
+  await screen.findByText('No outbound referrals in this period');
+  expect(mocks.populateTraffic).not.toHaveBeenCalled();
+  fireEvent.click(screen.getByRole('button',{name:'Configuration'}));
+  const dialog=await screen.findByRole('dialog');
+  const load=within(dialog).getByRole('button',{name:'Load activity history'});
+  expect(mocks.populateTraffic).not.toHaveBeenCalled();
+  const reads=mocks.traffic.mock.calls.length;
+  fireEvent.click(load);fireEvent.click(load);
+  expect(mocks.populateTraffic).toHaveBeenCalledTimes(1);
+  expect(within(dialog).getByRole('button',{name:'Loading activity…'})).toBeDisabled();
+  expect(dialog).toBeInTheDocument();
+  finish();
+  await waitFor(()=>expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+  await waitFor(()=>expect(mocks.traffic.mock.calls.length).toBeGreaterThan(reads));
+  expect(mocks.reset).not.toHaveBeenCalled();
+ });
+ it('keeps configuration and existing activity available when history cannot be imported',async()=>{
+  mocks.populateTraffic.mockRejectedValue(new ClientError('api','TRAFFIC_HISTORY_CONFLICT',{code:'TRAFFIC_HISTORY_CONFLICT',fieldPaths:[],retryable:false,requestId:'history-conflict'},409));
+  mount('/');
+  await screen.findByRole('heading',{name:'Provider traffic'});
+  fireEvent.click(screen.getByRole('button',{name:'Configuration'}));
+  const dialog=await screen.findByRole('dialog');
+  fireEvent.click(within(dialog).getByRole('button',{name:'Load activity history'}));
+  expect(await within(dialog).findByRole('alert')).toHaveTextContent('Activity history can only be loaded before outbound activity or custom pricing is recorded.');
+  expect(within(dialog).getByRole('button',{name:'Load activity history'})).toBeEnabled();
+  expect(mocks.reset).not.toHaveBeenCalled();
+ });
  it('opens provider traffic as the admin home without hiding technical operations',async()=>{mount('/');expect(await screen.findByRole('heading',{name:'Provider traffic'})).toBeInTheDocument();expect(await screen.findByText('No outbound referrals in this period')).toBeInTheDocument();expect(screen.getByRole('link',{name:/Traffic/})).toHaveAttribute('aria-current','page');});
  it('shows five accessible areas and real empty observations without chart inventions',async()=>{mount();expect(await screen.findByRole('heading',{name:'Providers'})).toBeInTheDocument();expect(screen.getByRole('main')).toHaveAttribute('dir','ltr');expect(screen.getByRole('link',{name:'Open travel search ↗'})).toHaveAttribute('href','/travel');expect(screen.getAllByRole('link').filter(x=>x.getAttribute('href')?.startsWith('/traffic')||x.getAttribute('href')?.startsWith('/providers')||x.getAttribute('href')?.startsWith('/searches')||x.getAttribute('href')?.startsWith('/quality')||x.getAttribute('href')?.startsWith('/referrals'))).toHaveLength(5);expect(await screen.findByText('No observations recorded.')).toBeInTheDocument();});
  it('uses current revision for pause and prevents a duplicate in-flight mutation',async()=>{let finish!:(v:typeof config)=>void;mocks.setProvider.mockReturnValue(new Promise(r=>{finish=r;}));mount();const button=await screen.findByRole('button',{name:'Pause provider'});fireEvent.click(button);fireEvent.click(button);expect(mocks.setProvider).toHaveBeenCalledTimes(1);expect(mocks.setProvider).toHaveBeenCalledWith('demo-provider-01',{baseRevision:'revision-one',patch:{paused:true}});finish(config);await waitFor(()=>expect(button).not.toBeDisabled());});
