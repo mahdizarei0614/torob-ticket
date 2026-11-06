@@ -52,10 +52,12 @@ describe('scoped paginated admin evidence reads', () => {
   it('preserves exact raw HTML-like data and source IDs with search-scoped joins', async () => {
     const { tx, repository } = fixture(); tx.searchRun.findFirst.mockResolvedValue(run);
     const raw = { rawRecordId: 'raw', providerId: 'p', sourceNamespace: 'p/v1', observedAt: now.toISOString(), fixtureVersion: 'fixture', payload: '<img src=x onerror=steal()>' };
+    tx.providerRun.findMany.mockResolvedValue([{ id: 'provider-run' }]);
     tx.rawRecord.count.mockResolvedValue(1); tx.rawRecord.findMany.mockResolvedValue([{ id: 'raw', providerRunId: 'provider-run', observedAt: now, payload: { sourceRawRecordId: 'source-record', raw } }]);
     const result = await repository.inspect(scope, 'run', { offset: 0, limit: 1, section: 'raw' });
     expect(result.evidence).toEqual({ offset: 0, limit: 1, section: 'raw', total: 1, items: [{ providerRunId: 'provider-run', sourceRawRecordId: 'source-record', record: raw }] });
-    expect(tx.rawRecord.count).toHaveBeenCalledWith({ where: { sessionId: 'owner', providerRun: { sessionId: 'owner', searchId: 'run' } } });
+    expect(tx.providerRun.findMany).toHaveBeenCalledWith({ where: { sessionId: 'owner', searchId: 'run' }, select: { id: true } });
+    expect(tx.rawRecord.count).toHaveBeenCalledWith({ where: { sessionId: 'owner', providerRunId: { in: ['provider-run'] } } });
     expect(tx.rawRecord.findMany.mock.calls[0]![0]).toMatchObject({ skip: 0, take: 1 });
   });
   it('returns exact stored ranking/exclusion audit and timestamps instead of recomputing decisions', async () => {

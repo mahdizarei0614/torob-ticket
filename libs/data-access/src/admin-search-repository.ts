@@ -52,13 +52,16 @@ export class AdminSearchRepository {
         return { ...page, total, items: rows.map(row => ({ recordedAt: row.createdAt.toISOString(), event: SearchEventSchema.parse(row.payload) })) };
       }
       case 'raw': {
-        const where = { sessionId: scope.sessionId, providerRun: { sessionId: scope.sessionId, searchId: id } };
+        const runs = await tx.providerRun.findMany({ where: { sessionId: scope.sessionId, searchId: id }, select: { id: true } });
+        const where = { sessionId: scope.sessionId, providerRunId: { in: runs.map(run => run.id) } };
         const total = await tx.rawRecord.count({ where });
         const rows = await tx.rawRecord.findMany({ where, orderBy: [{ observedAt: 'asc' }, { id: 'asc' }], ...pagination });
         return { ...page, total, items: rows.map(row => { const payload = row.payload as { raw: unknown; sourceRawRecordId: string }; return { providerRunId: row.providerRunId, sourceRawRecordId: payload.sourceRawRecordId, record: RawProviderRecordSchema.parse(payload.raw) }; }) };
       }
       case 'normalizations': {
-        const where = { sessionId: scope.sessionId, rawRecord: { sessionId: scope.sessionId, providerRun: { sessionId: scope.sessionId, searchId: id } } };
+        const runs = await tx.providerRun.findMany({ where: { sessionId: scope.sessionId, searchId: id }, select: { id: true } });
+        const raw = await tx.rawRecord.findMany({ where: { sessionId: scope.sessionId, providerRunId: { in: runs.map(run => run.id) } }, select: { id: true } });
+        const where = { sessionId: scope.sessionId, rawRecordId: { in: raw.map(row => row.id) } };
         const total = await tx.normalizationDecision.count({ where });
         const rows = await tx.normalizationDecision.findMany({ where, orderBy: [{ createdAt: 'asc' }, { id: 'asc' }], ...pagination });
         return { ...page, total, items: rows.map(row => NormalizationTraceSchema.parse(row.payload)) };
@@ -70,7 +73,8 @@ export class AdminSearchRepository {
         return { ...page, total, items: rows.map(row => { const payload = row.payload as { offer: unknown; source?: unknown }; return { offerId: row.id, recordedAt: row.createdAt.toISOString(), offer: NormalizedOfferSchema.parse(payload.offer), ...(payload.source === undefined ? {} : { source: payload.source }) }; }) };
       }
       case 'quotes': {
-        const where = { sessionId: scope.sessionId, offer: { sessionId: scope.sessionId, searchId: id } };
+        const offers = await tx.offerSnapshot.findMany({ where: { sessionId: scope.sessionId, searchId: id }, select: { id: true } });
+        const where = { sessionId: scope.sessionId, offerId: { in: offers.map(offer => offer.id) } };
         const total = await tx.quote.count({ where });
         const rows = await tx.quote.findMany({ where, orderBy: [{ id: 'asc' }, { version: 'asc' }], ...pagination });
         return { ...page, total, items: rows.map(row => ({ offerId: row.offerId!, quote: QuoteSnapshotSchema.parse(row.payload) })) };

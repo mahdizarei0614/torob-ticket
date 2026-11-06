@@ -92,6 +92,11 @@ describe('explicit scoped referral activity import',()=>{
   expect(rows.some(r=>r.monthOrdinal!>1000n&&r.tierIndex===2)).toBe(true);
   const before=await read(a.cookie),again=await request('admin/traffic/populate',a.cookie,'POST',{});expect(PopulateTrafficSchema.parse(await again.json()).status).toBe('already-loaded');expect(await read(a.cookie)).toEqual(before);
   const inspection=await request('admin/referrals/'+preserved.receipt.referralId,a.cookie);expect(inspection.status).toBe(200);const kept=AdminReferralDetailSchema.parse(await inspection.json());expect(kept.receipt).toEqual(preserved.receipt);
+  const imported=before.events.items.find(e=>e.kind==='transport')!;const trail=AdminReferralDetailSchema.parse(await(await request('admin/referrals/'+imported.referralId,a.cookie)).json());
+  for(const id of [preserved.snapshot.searchId,trail.originSearchId!])for(const section of ['raw','normalizations','offers','quotes']){
+   const response=await request(`admin/searches/${id}?section=${section}`,a.cookie);expect(response.status).toBe(200);expect(AdminSearchInspectionSchema.parse(await response.json()).evidence.total).toBeGreaterThan(0);
+  }
+  const health=await request('admin/providers',a.cookie);expect(health.status).toBe(200);expect(AdminProviderHealthSchema.parse(await health.json()).providers.reduce((n,p)=>n+p.totalRuns,0)).toBeGreaterThan(1000);
   const search=SearchRecoverySchema.parse(await(await request('searches/'+preserved.snapshot.searchId,a.cookie)).json());expect(search.snapshot).toEqual(preserved.snapshot);
   const source=before.providers.find(p=>p.providerId===preserved.receipt.payload.quote.providerId)!,outbound=await request('referrals/'+preserved.receipt.referralId+'/outbound',a.cookie);expect(outbound.status).toBe(302);
   const after=await read(a.cookie),event=after.events.items.find(e=>e.referralId===preserved.receipt.referralId)!;expect(event.billable).toBe(true);expect(event.monthOrdinal).toBe(source.billingMonthBillable+1);expect(after.totals.outbound).toBe(before.totals.outbound+1);

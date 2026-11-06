@@ -32,7 +32,7 @@ test('fresh reviewer explicitly loads coherent activity history while retaining 
  const chart=page.getByRole('img',{name:/Daily outbound and billable referrals/});await expect(chart).toBeVisible();await chart.screenshot({path:resolve(root,'daily-chart.png')});
  async function filter(label:string,value:string,param:string){
   const changed=page.waitForResponse(r=>new URL(r.url()).pathname==='/api/v1/admin/traffic'&&(new URL(r.url()).searchParams.get(param)??'')===value&&r.status()===200);
-  await page.getByLabel(label,{exact:true}).selectOption(value);const result=ProviderTrafficSchema.parse(await(await changed).json());await expect(totals(page)).toHaveText(result.totals.outbound.toLocaleString('en-GB'));return result;
+  await page.getByRole('combobox',{name:new RegExp('^'+label+'(?:\\s|$)')}).selectOption(value);const result=ProviderTrafficSchema.parse(await(await changed).json());await expect(totals(page)).toHaveText(result.totals.outbound.toLocaleString('en-GB'));return result;
  }
  const historical=await filter('Billing month',summary.monthKeys[0]!,'month');expect(historical.totals.unpricedBillable).toBeGreaterThan(0);await expect(page.getByText('Closed month · fees use recorded rates').first()).toBeVisible();await capture('historical-month');
  const selected=await filter('Provider','demo-provider-02','providerId');expect(selected.providers).toHaveLength(1);
@@ -40,8 +40,11 @@ test('fresh reviewer explicitly loads coherent activity history while retaining 
  await filter('Referral type','transport','kind');
  await page.getByRole('table',{name:'Outbound referral records'}).getByRole('link',{name:'View referral',exact:true}).first().click();
  await expect(page.getByRole('heading',{name:'Referral trail',exact:true})).toBeVisible();await expect(page.getByRole('heading',{name:'Search-to-source lineage',exact:true})).toBeVisible();await capture('referral-trail');
- const source=page.locator('a[href*="/searches/activity-"]').first();await expect(source).toBeVisible();await source.click();await expect(page).toHaveURL(/\/admin\/searches\/activity-/);await expect(page.getByText('Unable to complete the request.',{exact:true})).toHaveCount(0);await capture('source-inspection');
- await page.getByRole('link',{name:'Providers',exact:true}).click();await expect(page.getByRole('heading',{name:'Providers',exact:true})).toBeVisible();await expect(page.getByText('No observations recorded.',{exact:true})).toHaveCount(0);await capture('provider-health');
+ const source=page.locator('a[href*="/searches/activity-"]').first();await expect(source).toBeVisible();await source.click();await expect(page).toHaveURL(/\/admin\/searches\/activity-/);await expect(page.getByRole('heading',{name:'Processing evidence',exact:true})).toBeVisible();
+ for(const section of ['raw','normalizations','quotes']){
+  await page.getByRole('button',{name:section,exact:true}).click();await expect(page.getByText(section+' record 1',{exact:true})).toBeVisible();await page.getByText(section+' record 1',{exact:true}).click();await capture('source-inspection-'+section);
+ }
+ await page.getByRole('link',{name:'Providers',exact:true}).click();await expect(page.getByRole('heading',{name:'Providers',exact:true})).toBeVisible();await expect(page.locator('a[href*="/searches/activity-"]').first()).toBeVisible();await capture('provider-health');
  await page.getByRole('link',{name:'Traffic',exact:true}).click();await expect(page.getByRole('heading',{name:'Provider traffic',exact:true})).toBeVisible();
  overview=await read(context);await expect(totals(page)).toHaveText(overview.totals.outbound.toLocaleString('en-GB'));
  await page.getByRole('button',{name:'Configuration',exact:true}).click();

@@ -36,9 +36,10 @@ room templates. Intentionally unresolved source aliases remain rejected; choose
 another deterministic eligible authored record/route. Do not invent mappings,
 migrate or relabel legacy provenance. Verify the full plan for every fixture root.
 
-Resolve the small set of source provider-run IDs before reading raw referral
-evidence. This avoids a correlated source scan timing out after a large import,
-while retaining session scoping, exact counts and bounded detail pages.
+Resolve exact source provider-run/raw/offer IDs before reading referral and search
+evidence. This avoids correlated source scans timing out after a large import,
+while retaining session scoping, exact counts and bounded detail pages. Check the
+raw, normalization and quote tabs on a full imported dataset in the packaged UI.
 
 Admin locks duplicate actions, retains the configuration/error on conflict, and
 refreshes the overview only after success. Verification must cover source reads,

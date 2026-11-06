@@ -17,7 +17,7 @@ test('external provider exchanges SSO across hosts, displays consented traveler 
   const installed = await installing; expect(installed.status()).toBe(201); expect(new URL(installed.url()).origin).toBe(adminOrigin); expect((await installed.request().allHeaders()).origin).toBe(adminOrigin);
   const providerLink = page.getByRole('link', { name: 'Open provider website ↗', exact: true });
   await expect(providerLink).toBeVisible(); const providerUrl = (await providerLink.getAttribute('href'))!;
-  expect(new URL(providerUrl).hostname).toBe('localhost');
+  expect(new URL(providerUrl).hostname).not.toBe(new URL(process.env.E2E_BASE_URL!).hostname);
   const start = SearchRecoverySchema.parse(await (await context.request.post('/api/v1/searches', { data: { query: { mode: 'flight', scope: 'domestic', tripType: 'one-way', originCityId: 'tehran', destinationCityId: 'mashhad', departureDate: '2026-10-25', party: { adults: 1, children: 0, infants: 0 }, classCode: 'economy', filters: {}, sort: 'cheapest' }, clientGeneration: randomUUID() } })).json());
   let snapshot = start.snapshot;
   await expect.poll(async () => { snapshot = SearchRecoverySchema.parse(await (await context.request.get(`/api/v1/searches/${snapshot.searchId}`)).json()).snapshot; return snapshot.status; }, { timeout: 15000 }).toBe('complete');
