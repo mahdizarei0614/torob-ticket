@@ -4,6 +4,7 @@ The current tree keeps concise release summaries, selected final startup/SSO/
 activity receipts and six representative captures. This is a curated index;
 individual counts belong to their named runs, with their original limitations.
 
+- [Direct Login hostname correction and new/existing passport SSO](direct-login-origin.md).
 - [Current reviewer startup, activity and SSO](adjustments/referral-activity-history/checkpoint.md).
 - [Final independent source/evidence review](adjustments/referral-activity-history/resume-20261107/automatic/final-evidence-review.md).
 - [Six accepted reviewer journeys across two runs](adjustments/referral-activity-history/resume-20261107/automatic/browser-acceptance.json).

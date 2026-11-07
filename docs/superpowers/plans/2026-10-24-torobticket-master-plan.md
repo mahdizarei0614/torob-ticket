@@ -3021,3 +3021,24 @@ remain byte-identical. Publication uses an exact-old-SHA main-only lease, follow
 by fresh-clone and local object cleanup. No Docker/private data is modified.
 Actual receipts are in docs/evidence/history-rewrite.md; original test IDs retain
 their historical meaning through the commit map.
+
+
+## Direct Login canonical hostname — 2026-11-07
+
+Source `4edae73991408185f952f863711a0294b7274941`.
+[Decision0097](../../decisions/0097-canonical-frontend-origin.md),
+[brief](../../tasks/2026-11-07-direct-login-origin.md) and
+[actual verification](../../evidence/direct-login-origin.md).
+Owner's invalid request reproduced as an alternate-host reviewer/issuer mismatch.
+
+| Step | Status | Evidence |
+| --- | --- | --- |
+| Canonicalize before bootstrap | DONE | Packaged Caddy/Vite GET/HEAD frontend redirects, fixed origins/raw URI; API/mutation exclusions, custom/default ports and IPv6; graphics isolation |
+| Preserve SSO boundaries and data | DONE | Strict client/workspace, cookies, SDK/PKCE/consent unchanged; only frontends replaced, API/database/provider IDs and volume mounts preserved |
+| Focused source and browser verification | DONE |31checks, E2Etypes/lint,2frontend builds,9final HTTP probes; Chrome direct-created/existing same-account passport/Latin JSON |
+| Independent review and handoff | DONE | Source/docs/evidence approved after3configuration/doc findings fixed; canonical restart instructions; raw captures/logs ignored; local commit, no push |
+
+Existing alias cookies/workspace records are not migrated or deleted. An older
+invalid authorization restarts from the canonical comparison page. Browser work
+used an existing profile with authored inputs; no fresh-device/full-regression
+certification or external attribution/billing claim. Baseline35tasks unchanged.
