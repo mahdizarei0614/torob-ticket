@@ -89,11 +89,17 @@ export class AdminSearchRepository {
   }
   providerHealth(scope: DataScope, providerIds: readonly string[]) {
     return scopedTransaction(this.db, scope, async tx => {
+      // Resolve comparison membership once. Repeating a JSON-snapshot join for
+      // every provider lets PostgreSQL choose quadratic plans on fresh clones.
+      // Read only scoped metadata here; detail payloads stay bounded to50/provider.
+      const publicIds = new Set((await tx.$queryRaw<{id:string}[]>(Prisma.sql`SELECT s.id FROM "SearchRun" s WHERE ${publicRunSql(scope)}`)).map(row=>row.id));
+      const metadata = publicIds.size ? await tx.providerRun.findMany({where:{sessionId:scope.sessionId,providerId:{in:[...providerIds]}},select:{id:true,searchId:true,providerId:true,status:true},orderBy:[{search:{updatedAt:'desc'}},{id:'desc'}]}) : [];
       const providers = [];
       for (const providerId of providerIds) {
-        const predicate = Prisma.sql`${publicRunSql(scope)} AND p."sessionId" = ${scope.sessionId} AND p."providerId" = ${providerId}`;
-        const counts = await tx.$queryRaw<{ status: string; count: number }[]>(Prisma.sql`SELECT p.status, count(*)::int AS count FROM "ProviderRun" p JOIN "SearchRun" s ON s."sessionId" = p."sessionId" AND s.id = p."searchId" WHERE ${predicate} GROUP BY p.status ORDER BY p.status`);
-        const ids = await tx.$queryRaw<{ id: string }[]>(Prisma.sql`SELECT p.id FROM "ProviderRun" p JOIN "SearchRun" s ON s."sessionId" = p."sessionId" AND s.id = p."searchId" WHERE ${predicate} ORDER BY s."updatedAt" DESC, p.id DESC LIMIT 50`);
+        const recorded = metadata.filter(row=>row.providerId===providerId&&publicIds.has(row.searchId));
+        const statuses = new Map<string,number>();for(const row of recorded)statuses.set(row.status,(statuses.get(row.status)??0)+1);
+        const counts = [...statuses].map(([status,count])=>({status,count})).sort((a,b)=>a.status<b.status?-1:a.status>b.status?1:0);
+        const ids = recorded.slice(0,50);
         const rows = ids.length ? await tx.providerRun.findMany({ where: { sessionId: scope.sessionId, providerId, id: { in: ids.map(row => row.id) } }, orderBy: [{ search: { updatedAt: 'desc' } }, { id: 'desc' }], take: 50, include: { _count: { select: { records: true } }, records: { orderBy: [{ observedAt: 'desc' }, { id: 'desc' }], take: 1, select: { observedAt: true } } } }) : [];
         const events = rows.length ? await tx.searchEventRecord.findMany({ where: { sessionId: scope.sessionId, searchId: { in: rows.map(row => row.searchId) }, OR: [{ payload: { path: ['payload', 'providerId'], equals: providerId } }, { payload: { path: ['type'], equals: 'terminal' } }] }, orderBy: [{ createdAt: 'desc' }, { sequence: 'desc' }], take: 1000 }) : [];
         const recent = rows.map(row => {

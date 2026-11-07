@@ -41,3 +41,13 @@ drilldowns and a separate independently enrolled reviewer.
 The records/rates remain authored local fixtures, not external visits, purchases,
 revenue, invoices or contracted rates. Existing SSO consent, identity disclosure,
 acquisition evidence and pending external attribution remain authoritative.
+
+
+Provider health must remain usable after several full reviewer clones. Resolve
+public comparison membership once, read scoped provider metadata once, then
+calculate exact status counts and retain the first50rows per provider in the
+existing database timestamp/ID order. Read detail payloads only for those bounded
+IDs. This avoids repeated snapshot-JSON joins whose measured packaged plan took
+50.9s and failed the5s transaction deadline. Date inventory/private rechecks stay
+excluded; source timestamps remain unknown when no actual event was recorded.
+Verify this on full concurrent copies and in the clean packaged Providers UI.

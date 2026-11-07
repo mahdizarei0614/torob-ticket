@@ -3,7 +3,7 @@ import {randomUUID} from 'node:crypto';
 import {Test} from '@nestjs/testing';
 import type {INestApplication} from '@nestjs/common';
 import {afterAll,beforeAll,describe,expect,it,vi} from 'vitest';
-import {ProviderTrafficSchema,SessionInfoSchema} from '@torob-ticket/contracts';
+import {AdminProviderHealthSchema,ProviderTrafficSchema,SessionInfoSchema} from '@torob-ticket/contracts';
 import {ReviewerActivityRepository,TRAFFIC_ACTIVITY_MARKER,REVIEWER_ACTIVITY_SETUP,type Prisma,type PrismaClient} from '@torob-ticket/data-access';
 import {AppModule} from '../app.module';
 import {DirectLoginService} from '../direct-login/direct-login.service';
@@ -29,6 +29,7 @@ describe('Docker reviewer data initialization',()=>{
   const privateAudit=randomUUID();await sessions.database.auditEvent.create({data:{sessionId:templateId,id:privateAudit,kind:'template-internal-only',payload:{private:true},createdAt:new Date()}});
   const started=Date.now(),[a,b]=await Promise.all([create(),create()]);expect(a.sessionId).not.toBe(b.sessionId);
   const [one,two]=await Promise.all([traffic(a.cookie),traffic(b.cookie)]);expect(one.totals.outbound).toBeGreaterThan(1000);expect(one.totals).toEqual(two.totals);expect(one.availableMonths).toHaveLength(3);
+  const health=await request('admin/providers',a.cookie);expect(health.status).toBe(200);expect(AdminProviderHealthSchema.parse(await health.json()).providers.reduce((n,p)=>n+p.totalRuns,0)).toBe(await sessions.database.providerRun.count({where:{sessionId:a.sessionId}}));
   for(const viewer of [a,b]){expect(await sessions.database.auditEvent.count({where:{sessionId:viewer.sessionId,id:privateAudit}})).toBe(0);expect(await sessions.database.directLoginClient.count({where:{sessionId:viewer.sessionId}})).toBe(0);expect(await sessions.database.demoIdentity.count({where:{sessionId:viewer.sessionId}})).toBe(0);}
   const tariff=one.providers[0]!.tariff;expect((await request('admin/providers/'+tariff.providerId+'/tariff',a.cookie,'PATCH',{baseRevision:tariff.revision,tiers:[{upTo:null,rateRial:777}]})).status).toBe(200);
   expect((await traffic(b.cookie)).providers.find(p=>p.providerId===tariff.providerId)?.tariff).toEqual(tariff);

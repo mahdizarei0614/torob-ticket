@@ -78,11 +78,12 @@ describe('scoped paginated admin evidence reads', () => {
     const { tx, repository } = fixture();
     const timeout = { providerId: 'p', status: 'timeout', offerCount: 1, elapsedMs: 3501, reason: 'DEADLINE' };
     const pending = { providerId: 'p', status: 'pending', offerCount: 0 };
-    tx.$queryRaw.mockResolvedValueOnce([{ id: 'owner' }]).mockResolvedValueOnce([{ status: 'timeout', count: 1 }, { status: 'pending', count: 1 }]).mockResolvedValueOnce([{ id: 'provider-run' }, { id: 'pending-run' }]);
-    tx.providerRun.findMany.mockResolvedValue([{ id: 'provider-run', searchId: 'run', payload: timeout, _count: { records: 2 }, records: [{ observedAt: now }] }, { id: 'pending-run', searchId: 'new', payload: pending, _count: { records: 0 }, records: [] }]);
+    tx.$queryRaw.mockResolvedValueOnce([{ id: 'owner' }]).mockResolvedValueOnce([{id:'run'},{id:'new'}]);
+    tx.providerRun.findMany.mockResolvedValueOnce([{id:'private-run',searchId:'private-date-run',providerId:'p',status:'complete'},{id:'provider-run',searchId:'run',providerId:'p',status:'timeout'},{id:'pending-run',searchId:'new',providerId:'p',status:'pending'}]);
+    tx.providerRun.findMany.mockResolvedValueOnce([{ id: 'provider-run', searchId: 'run', payload: timeout, _count: { records: 2 }, records: [{ observedAt: now }] }, { id: 'pending-run', searchId: 'new', payload: pending, _count: { records: 0 }, records: [] }]);
     tx.searchEventRecord.findMany.mockResolvedValue([{ searchId: 'run', createdAt: now, payload: { searchId: 'run', clientGeneration: 'generation', sequence: 3, type: 'provider-status', payload: timeout } }]);
     const result = await repository.providerHealth(scope, ['p']);
-    expect(result.providers[0]).toEqual({ providerId: 'p', totalRuns: 2, statusCounts: [{ status: 'timeout', count: 1 }, { status: 'pending', count: 1 }], recent: [{ searchId: 'run', providerRunId: 'provider-run', recordedAt: now.toISOString(), observedAt: now.toISOString(), status: timeout, rawRecordCount: 2 }, { searchId: 'new', providerRunId: 'pending-run', recordedAt: null, observedAt: null, status: pending, rawRecordCount: 0 }] });
-    expect(tx.providerRun.findMany.mock.calls[0]![0]).toMatchObject({ take: 50, where: { sessionId: 'owner', providerId: 'p', id: { in: ['provider-run', 'pending-run'] } } });
+    expect(result.providers[0]).toEqual({ providerId: 'p', totalRuns: 2, statusCounts: [{ status: 'pending', count: 1 }, { status: 'timeout', count: 1 }], recent: [{ searchId: 'run', providerRunId: 'provider-run', recordedAt: now.toISOString(), observedAt: now.toISOString(), status: timeout, rawRecordCount: 2 }, { searchId: 'new', providerRunId: 'pending-run', recordedAt: null, observedAt: null, status: pending, rawRecordCount: 0 }] });
+    expect(tx.providerRun.findMany.mock.calls[1]![0]).toMatchObject({ take: 50, where: { sessionId: 'owner', providerId: 'p', id: { in: ['provider-run', 'pending-run'] } } });
   });
 });
