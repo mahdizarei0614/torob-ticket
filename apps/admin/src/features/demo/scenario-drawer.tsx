@@ -23,7 +23,7 @@ export function ScenarioDrawer(){
     {error&&<p role="alert">{error}</p>}
    </section>
    <hr/>
-   {confirm?<div role="group" aria-label="Confirm session reset"><p>Clear this session’s searches, referrals, saved searches, account and overrides? Other sessions and base inventory are preserved.</p><div className={s.actions}><button className={s.danger} disabled={busy} onClick={()=>{void reset().then(()=>setConfirm(false));}}>Reset this session</button><button disabled={busy} onClick={()=>setConfirm(false)}>Keep session</button></div></div>:<button disabled={busy||!config} onClick={()=>setConfirm(true)}>Reset session…</button>}
+   {confirm?<div role="group" aria-label="Confirm session reset"><p>Restore this workspace’s initial activity and settings? Your account, saved searches and changes will be cleared.</p><div className={s.actions}><button className={s.danger} disabled={busy} onClick={()=>{void reset().then(()=>setConfirm(false));}}>Reset this session</button><button disabled={busy} onClick={()=>setConfirm(false)}>Keep session</button></div></div>:<button disabled={busy||!config} onClick={()=>setConfirm(true)}>Reset session…</button>}
   </Dialog>
  </>;
 }

@@ -91,14 +91,20 @@ setup can retry after a service interruption without replacing those connections
    visitor sessions, billable/repeat counts and provider fees. Open a referral
    record for **Referrals** evidence, then follow its source into **Searches**.
 
-For a populated monthly activity review, use **Configuration → Load activity
-history** in an unused workspace before sending a referral or setting pricing.
-It imports authored history for the current Persian month and two prior months,
-with varied provider volumes, repeat visits and example graduated rates. The
-history is stored in that workspace; reading Traffic does not generate activity.
-Repeating the import is idempotent. Existing outbound activity or custom pricing
-is preserved rather than replaced. The imported records describe local review
-fixtures, not observed external provider visits or contracted commercial rates.
+After `docker:up`, every new reviewer workspace starts with populated admin
+activity for the current Persian month and two prior months: six providers,
+daily charts, repeat visits, referral drilldowns and example graduated rates.
+No seeding command or Configuration action is required. Each browser workspace
+gets its own server-side copy; changing pricing or resetting one leaves the
+others alone. Existing workspaces retain their data and settings.
+
+The history and rates are authored local review fixtures, not observed external
+provider visits or contracted commercial prices. Ordinary reads do not create
+activity. **Configuration → Load activity history** remains available for an
+unused workspace created with automatic history disabled; repeated loads are
+idempotent and cannot replace existing outbound activity or custom pricing.
+Set `TOROBTICKET_REVIEWER_ACTIVITY=false` before startup for an empty workspace.
+Automatic history also requires the HTTP-loopback local-review gate above.
 
 [Reviewer guide](docs/reviewer-guide.md) gives the exact labels and optional
 scenario controls. [Walkthrough](docs/walkthrough.md) contains the 4:30 script,

@@ -113,6 +113,7 @@ model SearchRun {
   offers OfferSnapshot[]
   @@id([sessionId, id])
   @@index([sessionId, status, createdAt])
+  @@index([sessionId, predecessorId])
 }
 model ProviderRun {
   sessionId String
@@ -177,6 +178,8 @@ model Quote {
   intents ReferralIntent[]
   @@id([sessionId, id, version])
   @@index([sessionId, expiresAt])
+  @@index([sessionId, offerId])
+  @@index([sessionId, hotelSearchId])
 }
 model SearchEventRecord {
   sessionId String
@@ -221,6 +224,7 @@ model ReferralIntent {
   events ReferralEvent[]
   @@id([sessionId, id])
   @@index([sessionId, expiresAt])
+  @@index([sessionId, quoteId, quoteVersion])
 }
 model ReferralEvent {
   outbound OutboundReferral?
@@ -236,6 +240,7 @@ model ReferralEvent {
   @@id([sessionId, id])
   @@unique([sessionId, idempotencyKey])
   @@index([sessionId, createdAt])
+  @@index([sessionId, intentId])
 }
 model DemoIdentity {
   sessionId String @id

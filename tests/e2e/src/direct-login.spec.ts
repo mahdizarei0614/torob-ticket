@@ -7,6 +7,7 @@ import { ReferralReceiptSchema, RecheckResultSchema, SearchRecoverySchema } from
 test('Direct Login connects a provider, verifies consent and resumes the exact offer with one acquisition', async ({ page, context }, info) => {
   const root = process.env.DIRECT_LOGIN_EVIDENCE_DIR ?? info.outputPath('captures'); mkdirSync(root, { recursive: true });
   await context.request.post('/api/v1/demo/session', { data: { seed: 8887, anchorInstant: '2026-10-25T06:00:00Z' } });
+  const startingOutbound=(await(await context.request.get('/api/v1/admin/traffic')).json()).totals.outbound;
   await page.goto('/admin/direct-login');
   await expect(page.getByRole('heading', { name: 'Direct Login', exact: true })).toBeVisible();
   const providerRow=page.getByRole('table').first().getByRole('row').filter({hasText:'راه‌آرا'});
@@ -52,6 +53,6 @@ test('Direct Login connects a provider, verifies consent and resumes the exact o
   await admin.screenshot({ path: resolve(root, 'admin-evidence.png'), fullPage: true });
   const evidence = await (await context.request.get('/api/v1/admin/direct-login')).json();
   expect(evidence.totals.newAccounts).toBe(1); expect(evidence.totals.amountRial).toBe('70000'); expect(evidence.acquisitions[0].referralId).toBe(receipt.referralId);
-  expect((await (await context.request.get('/api/v1/admin/traffic')).json()).totals.outbound).toBe(1);
+  expect((await (await context.request.get('/api/v1/admin/traffic')).json()).totals.outbound).toBe(startingOutbound+1);
   await admin.close();
 });

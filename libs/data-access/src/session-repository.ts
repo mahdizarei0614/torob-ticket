@@ -30,12 +30,16 @@ export class SessionRepository {
   }
   reset(scope: DataScope, credentialHash: string, input: CreateDemoSessionInput, now: Date, options?:SessionResetOptions) {
     return scopedTransaction(this.db, scope, async tx => {
+      // A populated review includes thousands of immutable linked records.
+      // Bound its cascade explicitly, as with expiry collection, while keeping
+      // the default five-second limit for ordinary scoped mutations.
+      await tx.$executeRaw`SET LOCAL statement_timeout = '25000ms'`;
       const previous = options?.auditReason ? await tx.demoSession.findUniqueOrThrow({where:{id:scope.sessionId}}) : undefined;
       await tx.demoSession.delete({ where: { id: scope.sessionId } });
       const row = await this.insert(tx, credentialHash, input, now, options?.scenarioRevision);
       if(options?.auditReason) await tx.auditEvent.create({data:{sessionId:row.id,id:randomUUID(),kind:'admin-session-reset',payload:{reason:options.auditReason,previousRevision:previous!.scenarioRevision,revision:row.scenarioRevision},createdAt:now}});
       return row;
-    });
+    }, {maxWait:10000,timeout:30000});
   }
   async cleanup(now: Date): Promise<string[]> {
     return this.db.$transaction(async tx => {

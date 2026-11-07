@@ -18,4 +18,5 @@ export * from './provider-billing';
 
 export * from './traffic-activity-plan';
 export * from './traffic-activity-repository';
+export * from './reviewer-activity-repository';
 export {materializeStoredHotelRate} from './hotel-source';

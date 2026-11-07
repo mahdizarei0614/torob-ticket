@@ -23,7 +23,7 @@ export class SessionService implements OnApplicationBootstrap, OnModuleDestroy {
   private recoveryReady = false;
   private initializing?: Promise<void>;
   private timer?: ReturnType<typeof setInterval>;
-  private readonly workspaceInitializers = new Set<(context: SessionContext) => Promise<void>>();
+  private readonly workspaceInitializers = new Set<(context: SessionContext, options: { fresh: boolean }) => Promise<void>>();
   private readonly recoveries = new Set<() => Promise<void>>();
   private readonly pendingWork = new Set<Promise<void>>();
   private readonly controllers = new Map<string, Set<AbortController>>();
@@ -62,11 +62,11 @@ export class SessionService implements OnApplicationBootstrap, OnModuleDestroy {
   }
   async maintenance() { await this.ensureReady(); await this.cleanup(); }
   private async cleanup() { for (const id of await this.repository.cleanup(this.realClock.now())) this.cancelSession(id); }
-  registerWorkspaceInitializer(initialize: (context: SessionContext) => Promise<void>): () => void {
+  registerWorkspaceInitializer(initialize: (context: SessionContext, options: { fresh: boolean }) => Promise<void>): () => void {
     this.workspaceInitializers.add(initialize); return () => { this.workspaceInitializers.delete(initialize); };
   }
-  private async initializeWorkspace(context: SessionContext) {
-    for (const initialize of this.workspaceInitializers) await initialize(context);
+  private async initializeWorkspace(context: SessionContext, fresh = false) {
+    for (const initialize of this.workspaceInitializers) await initialize(context, { fresh });
   }
   registerRecovery(recovery: () => Promise<void>): () => void {
     this.recoveries.add(recovery);
@@ -165,8 +165,10 @@ export class SessionService implements OnApplicationBootstrap, OnModuleDestroy {
     const token = randomBytes(32).toString('base64url');
     const row = await this.repository.create(this.hash(token), input, this.realClock.now());
     const visitor=await this.bootstrapVisitor({sessionId:row.id,scope:{sessionId:row.id}},request);
+    await this.initializeWorkspace(this.context(row, request), true);
+    // Publish credentials only after initialization is durable. A failure before
+    // its setup marker must not leave a resumable, silently empty workspace.
     this.cookie(response, token, !!request.secure,visitor.cookie);
-    await this.initializeWorkspace(this.context(row, request));
     return sessionInfo(row);
   }
   async reset(context: SessionContext, input: CreateDemoSessionInput, request: SessionRequest, response: CookieResponse, options?:SessionResetOptions) {
@@ -176,8 +178,8 @@ export class SessionService implements OnApplicationBootstrap, OnModuleDestroy {
       const row = await this.repository.reset(context.scope, this.hash(token), { seed: input.seed ?? context.info.seed, anchorInstant: input.anchorInstant ?? context.info.anchorInstant, scenario: input.scenario ?? context.info.scenario }, this.realClock.now(), options);
       this.cancelSession(context.sessionId);
       const visitor=await this.bootstrapVisitor({sessionId:row.id,scope:{sessionId:row.id}},request);
+      await this.initializeWorkspace(this.context(row, request), true);
       this.cookie(response, token, !!request.secure,visitor.cookie);
-      await this.initializeWorkspace(this.context(row, request));
       return sessionInfo(row);
     } catch (error) { return repositoryHttpError(error); }
   }

@@ -7,6 +7,14 @@
 
 ## 1. Intent and success
 
+**Owner reviewer-data follow-up,2026-11-07 (decision0094):** ordinary local
+Docker startup prepares three months of activity and independent copies for each
+fresh reviewer workspace; no manual import is needed. Gate automatic setup on
+explicit loopback review mode, preserve existing workspaces, and keep reads
+read-only. Sealed versioned daily templates contain authored history only;
+identity/credentials/SSO/configuration are never shared. This overrides the
+explicit-only bootstrap requirement below for this gated runtime.
+
 **Owner activity-history completion,2026-11-07 (decision0093):** provide an
 explicit, authenticated three-Persian-month activity import for one reviewer
 workspace, with authored source/referral records and example graduated rates.

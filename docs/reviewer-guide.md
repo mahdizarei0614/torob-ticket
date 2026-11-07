@@ -10,7 +10,7 @@ is required.
 Run `pnpm docker:up` from the repository root with Docker/Compose running. The
 shortcut uses Node 24.17.0/pnpm 11.9.0, without requiring a host dependency install.
 Without those host tools, run `docker compose up --build --wait --wait-timeout 120`.
-Open <http://localhost:4300/> and <http://localhost:4300/admin/>. Keep the same
+Open <http://localhost:4300/> and <http://localhost:4301/admin/>. Keep the same
 hostname and browser context for both: a different browser/private context owns
 a separate reviewer namespace. [Run locally](run-locally.md) has custom-port,
 network/registry, shutdown and hot-reload details.
@@ -31,7 +31,7 @@ not a cold-download promise.
 | Open **جزئیات سفر** | Ordered legs, local times/zones and stops retain the actual supplied outbound/return data. Airport-code hover/focus reveals the place name. |
 | Open the destination hotel entry below the desktop map | One night starts on the selected trip's local arrival date. Capacity and four ordering choices update actual local quotes; map/card selection remains linked. |
 | Choose a seller from the selected fare | The exact quote is rechecked. Changed terms require acceptance; unavailable or expired offers do not quietly hand off the original amount. |
-| Open **Traffic** in admin | Compare outbound referrals, unique browser visitor sessions, billable/repeat counts and recorded fees by provider. Empty activity stays empty; missing rates stay unpriced. |
+| Open **Traffic** in admin | Compare outbound referrals, unique browser visitor sessions, billable/repeat counts and recorded fees by provider. Fresh Docker workspaces include three months of authored history; missing historical rates stay unpriced. |
 | Follow a **View referral** link, then inspect **Searches** | Trace the accepted receipt, exact quote version and original source. Confirmation and the later outbound redirect are separate records. |
 
 The large route map is a display, not an alternative origin/destination form.
@@ -55,17 +55,19 @@ Distances are straight-line distances, not a navigation/driving-time service.
 
 ## Inspect traffic and referral fees in admin
 
-For a populated review, open an unused workspace and choose **Configuration →
-Load activity history** before recording outbound activity or setting provider
-pricing. This explicitly imports authored activity for the current Persian month
-and two previous months, including shared visitors, repeat visits and provider
-volumes across the monthly pricing checkpoints. Select **Previous month** to
-compare the reset counts and recorded fees, then return to **Current month**.
-The example rates and historical records are local fixtures; they do not claim
-observed provider visits, payments or commercial agreements. Reads remain
-read-only, repeated imports do not duplicate records, and an import cannot
-replace existing outbound activity or custom pricing. Other reviewer workspaces
-remain isolated.
+The default `docker:up` automatically prepares three Persian months of authored
+activity before the API is ready and gives each fresh reviewer a private copy.
+Open Traffic to inspect six providers, shared visitors, repeats, daily charts and
+volumes across the monthly pricing checkpoints. No manual setup is required.
+Select a prior billing month to inspect its recorded fees and return to the
+current month for tier progress. Example rates and records are local fixtures;
+they do not establish observed provider visits, payments or commercial agreements.
+
+Existing workspaces remain unchanged. Reads stay read-only and repeat imports do
+not duplicate records. **Configuration → Load activity history** is an optional
+idempotent action; it refuses to replace existing outbound activity or pricing.
+For an empty workspace, start with `TOROBTICKET_REVIEWER_ACTIVITY=false` and use a
+new browser profile. Each reviewer owns independent activity, pricing and SSO.
 
 Admin opens on **Traffic**. Select a Persian billing month and, if useful, provider
 and referral type. **Custom dates** narrows dates within that month in Tehran
@@ -85,9 +87,8 @@ the visible retry uses that same receipt. A redirect record means the server
 issued the redirect, not that the external page loaded.
 
 Use a provider’s **Referral pricing** action to inspect or edit its graduated
-checkpoints and optional toman rates. An untouched workspace defaults to referrals
-1–100, 101–1,000 and 1,001 onward, with every rate unset; explicitly loaded activity
-history includes example provider pricing. Only later referrals receive later rates.
+checkpoints and optional toman rates. Default Docker history includes example provider pricing at referrals 1–100,
+101–1,000 and 1,001 onward. Opted-out empty workspaces keep every rate unset. Only later referrals receive later rates.
 The count restarts at Persian month midnight in Tehran, while the ledger and
 rolling-hour exclusion persist. Empty rates differ from explicit zero. Saving
 changes future billable referrals only: old **Unpriced** / **No rate at referral**

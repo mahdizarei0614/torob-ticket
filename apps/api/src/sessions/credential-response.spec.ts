@@ -52,4 +52,16 @@ describe('credential response ownership', () => {
     remove();await service.createOrResume({},{headers:{cookie:browserCookie}},response);expect(initialize).toHaveBeenCalledTimes(1);
   });
 
+  it.each(['create','reset'])('publishes no new credential or visitor when %s initialization fails',async operation=>{
+    const {service,response,repository}=setup();
+    const replacement={...row,id:'replacement'};Object.assign(repository,{reset:vi.fn().mockResolvedValue(replacement)});
+    const initialize=vi.fn(async()=>{expect(response.setHeader).not.toHaveBeenCalled();throw new Error('setup-marker-unavailable');});
+    const remove=service.registerWorkspaceInitializer(initialize),request={headers:{cookie:browserCookie}};
+    const call=operation==='reset'?service.reset(await service.authenticate(request,response),{},request,response):service.createOrResume({},{headers:{}},response);
+    await expect(call).rejects.toThrow('setup-marker-unavailable');expect(response.setHeader).not.toHaveBeenCalled();
+    remove();const completed=vi.fn(async()=>{expect(response.setHeader).not.toHaveBeenCalled();});service.registerWorkspaceInitializer(completed);
+    await service.createOrResume({},{headers:{}},response);expect(completed).toHaveBeenCalledOnce();
+    const cookies=response.setHeader.mock.calls[0]![1] as string[];expect(cookies.some(value=>value.startsWith('torob_demo='))).toBe(true);expect(cookies.some(value=>value.startsWith(trafficVisitorCookieName('replacement')+'='))).toBe(true);
+  });
+
 });
