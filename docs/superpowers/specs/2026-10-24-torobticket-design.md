@@ -7,6 +7,13 @@
 
 ## 1. Intent and success
 
+**Owner Direct Login correction,2026-11-07 (decision0097):** canonicalize consumer
+and admin frontend GET/HEAD navigation before reviewer bootstrap so aliases cannot
+mint a workspace on a different hostname from the issuer. Preserve URI/query,
+custom ports, separate provider hostname, strict client/workspace ownership and
+all stored data. Exclude API/mutations and standalone graphics rigs. Existing
+invalid alias flows restart from a new canonical offer; no cookie/data migration.
+
 **Owner history cleanup,2026-11-07 (decision0096):** remove bulky retired evidence
 from main history, superseding0095's preservation-only rule. Keep current product,
 selected proof and source code history. Verify isolated rewrite integrity/tree

@@ -127,3 +127,6 @@ row decision 0057. Its original untracked working file remains local.
 source reconciliation and the faster-only automatic advice limitation.
 
 [Decision0093](0093-referral-activity-history.md) completes the explicit reviewer activity-history import, including atomic/idempotent source records, preserved scopes and billing evidence, historical hotel reads and the authorized reviewer handoff.
+
+[Decision0097](0097-canonical-frontend-origin.md) prevents alternate frontend
+hostnames from splitting the comparison and Direct Login reviewer workspaces.

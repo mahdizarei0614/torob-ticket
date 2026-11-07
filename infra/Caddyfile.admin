@@ -4,6 +4,14 @@
 }
 import /etc/caddy/static-serving.caddy
 :4301 {
+	@noncanonical {
+		method GET HEAD
+		not path /api /api/*
+		expression {http.request.hostport} != "{$TOROBTICKET_ADMIN_AUTHORITY}"
+	}
+	header @noncanonical Cache-Control no-store
+	header @noncanonical Referrer-Policy no-referrer
+	redir @noncanonical {$TOROBTICKET_ADMIN_ORIGIN}{uri} 302
 	@api path /api /api/*
 	handle @api {
 		reverse_proxy api:4302 {

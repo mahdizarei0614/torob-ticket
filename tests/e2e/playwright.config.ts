@@ -8,13 +8,13 @@ if (!['chromium', 'firefox', 'webkit'].includes(engine)) throw new Error('E2E_BR
 if (graphicsPort && (!/^\d+$/.test(graphicsPort) || Number(graphicsPort) < 1024 || Number(graphicsPort) > 65535 || ['4300', '4301', '4302'].includes(graphicsPort))) throw new Error('GRAPHICS_E2E_PORT must be an isolated port between 1024 and 65535');
 const devServers = process.env.E2E_DEV_SERVERS === '1';
 if (devServers && (process.env.E2E_BASE_URL || graphicsPort)) throw new Error('Choose E2E_DEV_SERVERS, external Compose or the isolated graphics server');
-const external = process.env.E2E_BASE_URL || (!graphicsPort && !devServers ? `http://127.0.0.1:${process.env.TOROBTICKET_PORT ?? '4300'}` : undefined);
+const external = process.env.E2E_BASE_URL || (!graphicsPort && !devServers ? process.env.TOROBTICKET_SSO_ORIGIN || `http://localhost:${process.env.TOROBTICKET_PORT ?? '4300'}` : undefined);
 if (external) {
   const url = new URL(external);
   if (url.protocol !== 'http:' || !['localhost', '127.0.0.1', '[::1]'].includes(url.hostname) || url.username || url.password || url.search || url.hash || url.pathname !== '/' || !url.port || Number(url.port) < 1024 || Number(url.port) > 65535) throw new Error('E2E_BASE_URL must be an explicit loopback HTTP origin with a nonprivileged port');
   if (graphicsPort) throw new Error('Choose external Compose or the isolated graphics dev server, not both');
 }
-const webUrl = external ? new URL(external).origin : `http://127.0.0.1:${graphicsPort ?? '4300'}`;
+const webUrl = external ? new URL(external).origin : graphicsPort ? `http://127.0.0.1:${graphicsPort}` : 'http://localhost:4300';
 const workspace = resolve(typeof __dirname === 'string' ? __dirname : 'tests/e2e', '../..');
 const evidence = external ? evidenceRoots.evidenceRootPath(process.env.E2E_EVIDENCE_DIR ?? '.local/evidence/T30/acceptance-current', workspace) : undefined;
 if (evidence) {

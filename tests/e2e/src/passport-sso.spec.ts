@@ -8,7 +8,7 @@ type Scope = 'domestic' | 'international';
 
 // All mutations are made through the visible reviewer UI. The GET only reads the
 // search the reviewer just submitted so the test can choose RoadAra's exact card.
-async function openProvider(page: Page, context: BrowserContext, scope: Scope) {
+async function openProvider(page: Page, context: BrowserContext, scope: Scope, direct = false) {
   await page.getByRole('button', { name: 'سفرهای پیشنهادی', exact: true }).click();
   await page.getByRole('button', { name: scope === 'international' ? /^پرواز بین‌المللی ·/ : /^پرواز داخلی ·/ }).click();
   await expect(page.locator('[data-date-price-status]').first()).toHaveAttribute('data-date-price-status', 'complete', { timeout: 30000 });
@@ -26,9 +26,11 @@ async function openProvider(page: Page, context: BrowserContext, scope: Scope) {
   const opening = page.waitForEvent('popup');
   await card.locator('[data-seller-link-quote-id][data-provider-id="demo-provider-01"]').first().click();
   const provider = await opening;
-  await provider.getByRole('link', { name: 'رفتن به سایت فروشنده', exact: true }).click();
-  expect(new URL(provider.url()).hostname).not.toBe(new URL(page.url()).hostname);
-  expect(await provider.locator('a[href]').evaluateAll(links => links.every(link => new URL(link.getAttribute('href')!, location.href).origin === location.origin))).toBe(true);
+  if (!direct) {
+    await provider.getByRole('link', { name: 'رفتن به سایت فروشنده', exact: true }).click();
+    expect(new URL(provider.url()).hostname).not.toBe(new URL(page.url()).hostname);
+    expect(await provider.locator('a[href]').evaluateAll(links => links.every(link => new URL(link.getAttribute('href')!, location.href).origin === location.origin))).toBe(true);
+  }
   await provider.getByRole('link', { name: 'ادامه با ترب‌تیکت', exact: true }).click();
   return provider;
 }
@@ -71,8 +73,11 @@ test('fresh international reviewer shares passport and English names with new an
   test.setTimeout(120000);
   const root = process.env.PASSPORT_SSO_EVIDENCE_DIR ?? info.outputPath('captures'); mkdirSync(root, { recursive: true });
   expect(await context.cookies()).toHaveLength(0);
-  await page.goto('/');
-  const first = await openProvider(page, context, 'international');
+  const canonical = new URL(info.project.use.baseURL!);
+  const alias = new URL(canonical); alias.hostname = canonical.hostname === 'localhost' ? '127.0.0.1' : 'localhost';
+  await page.goto(alias.href);
+  expect(new URL(page.url()).origin).toBe(canonical.origin);
+  const first = await openProvider(page, context, 'international', true);
   await verifyPhone(first, '09000000891');
   await expect(first.getByLabel('نام لاتین', { exact: true })).toBeVisible();
   await expect(first.getByLabel('شماره گذرنامه', { exact: true })).toBeVisible();
@@ -88,7 +93,7 @@ test('fresh international reviewer shares passport and English names with new an
   await first.locator('.traveler-panel').screenshot({ path: resolve(root, 'international-approved-profile.png') });
   await first.screenshot({ path: resolve(root, 'international-created.png'), fullPage: true });
   await first.getByRole('button', { name: 'خروج از حساب', exact: true }).click(); await first.close();
-  const repeat = await openProvider(page, context, 'international');
+  const repeat = await openProvider(page, context, 'international', true);
   await expect(repeat.getByRole('button', { name: 'اجازه و ادامه', exact: true })).toBeEnabled();
   await expect(repeat.getByText(sample.passport.number, { exact: true })).toBeVisible();
   await repeat.screenshot({ path: resolve(root, 'international-repeat-consent.png'), fullPage: true });

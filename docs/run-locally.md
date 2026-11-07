@@ -186,12 +186,16 @@ With the packaged stack already ready, install the pinned host verification
 dependencies once using `pnpm install --frozen-lockfile`, then run:
 
 ```sh
-pnpm verify:release --base-url http://127.0.0.1:4300 --report-dir .local/evidence/release/local-smoke-001 --browser-channel chrome
-pnpm verify:release --base-url http://127.0.0.1:4300 --report-dir .local/evidence/release/local-quality-001 --profile quality --browser-channel chrome
+pnpm verify:release --base-url http://localhost:4300 --report-dir .local/evidence/release/local-smoke-001 --browser-channel chrome
+pnpm verify:release --base-url http://localhost:4300 --report-dir .local/evidence/release/local-quality-001 --profile quality --browser-channel chrome
 ```
 
 Each report directory must be new. Omit `--browser-channel` to use installed
-Playwright Chromium. Smoke checks readiness, exact packaged local assets, strict
+Playwright Chromium. For custom origins use the canonical traveler URL printed by
+startup (`TOROBTICKET_SSO_ORIGIN`), with the matching admin origin. Frontend page
+navigation redirects aliases before bootstrap; direct API verification requires
+the canonical origin so its cookies match the browser's workspace.
+Smoke checks readiness, exact packaged local assets, strict
 host dependency state and seven real browser journeys. Quality also runs serial
 lint/type/unit/build and fixed tooling checks. Both create fresh reviewer
 namespaces and clean up those namespaces; they do not restart Docker, reset

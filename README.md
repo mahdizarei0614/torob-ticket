@@ -37,6 +37,10 @@ Ports, registry mirrors, architecture support and startup diagnostics are in
 This works with `pnpm docker:up`, including a fresh database and browser profile.
 Keep the traveler and admin tabs in the same browser, using the URLs printed by
 startup. The provider deliberately uses the other loopback hostname.
+Traveler/admin page requests using the alternate hostname automatically redirect
+to the configured canonical origin before session setup. If an older sign-in tab
+already shows an invalid request, reopen the traveler URL and select the offer
+again; existing host-specific workspace records remain stored separately.
 
 1. Open the traveler app. For the complete passport/English-name walkthrough,
    choose an **international Tehran → Istanbul flight** and select **راه‌آرا**.

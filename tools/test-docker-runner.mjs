@@ -7,6 +7,7 @@ import { join, resolve } from 'node:path';
 import { createServer } from 'node:http';
 import { knownLegacyGatewayIds, knownDevelopmentVolumeNames } from './docker-dev-services.mjs';
 import { prepareDevelopmentMountpoint } from './prepare-development.mjs';
+import './test-separated-sites.mjs';
 
 test('prepares a fresh generated mountpoint and preserves existing source/generated contents', async t => {
   const root = await mkdtemp(join(tmpdir(), 'torobticket-dev-mount-'));
@@ -164,9 +165,9 @@ test('generated-client cache cleanup refuses mismatched, unmarked and custom-nam
 
 test('packaged frontend entrypoint derives canonical cross-app URLs including custom ports and IPv6', async t => {
   const directory = await mkdtemp(join(tmpdir(), 'torobticket-frontend-env-')); t.after(() => rm(directory, { recursive: true, force: true }));
-  await writeFile(join(directory, 'caddy'), '#!/usr/bin/env node\nconsole.log(JSON.stringify({web:process.env.TOROBTICKET_WEB_ORIGIN,admin:process.env.TOROBTICKET_ADMIN_ORIGIN,args:process.argv.slice(2)}));\n', { mode: 0o755 });
-  for (const [web, port, explicit, expected] of [['http://127.0.0.1:4400', '4401', '', 'http://127.0.0.1:4401'], ['http://localhost:4300/', '4301', 'http://localhost:4301/', 'http://localhost:4301'], ['http://[::1]:4400', '4401', '', 'http://[::1]:4401'], ['https://ticket.example', '443', 'https://ticket.example:8443', 'https://ticket.example:8443']]) {
+  await writeFile(join(directory, 'caddy'), '#!/usr/bin/env node\nconsole.log(JSON.stringify({web:process.env.TOROBTICKET_WEB_ORIGIN,admin:process.env.TOROBTICKET_ADMIN_ORIGIN,webAuthority:process.env.TOROBTICKET_WEB_AUTHORITY,adminAuthority:process.env.TOROBTICKET_ADMIN_AUTHORITY,args:process.argv.slice(2)}));\n', { mode: 0o755 });
+  for (const [web, port, explicit, expected] of [['http://127.0.0.1:4400', '4401', '', 'http://127.0.0.1:4401'], ['http://localhost:4300/', '4301', 'http://localhost:4301/', 'http://localhost:4301'], ['http://[::1]:4400', '4401', '', 'http://[::1]:4401'], ['https://ticket.example', '443', 'https://ticket.example:8443', 'https://ticket.example:8443'], ['HTTP://LOCALHOST:80/', '4301', '', 'http://localhost:4301'], ['HTTPS://TICKET.EXAMPLE:443', '8443', 'HTTPS://TICKET.EXAMPLE:8443/', 'https://ticket.example:8443'], ['http://localhost:4300', '4301', 'http://localhost:80', 'http://localhost']]) {
     const child = spawn('sh', [resolve('infra/frontend-entrypoint.sh')], { env: { ...process.env, PATH: `${directory}:${process.env.PATH}`, TOROBTICKET_SSO_ORIGIN: web, TOROBTICKET_ADMIN_PORT: port, TOROBTICKET_ADMIN_ORIGIN: explicit }, stdio: ['ignore','pipe','pipe'] });
-    let output=''; child.stdout.on('data', c => output += c); const code=await new Promise(done=>child.once('close',done)); assert.equal(code,0); const actual=JSON.parse(output); assert.equal(actual.web,web.replace(/\/$/,'')); assert.equal(actual.admin,expected); assert.deepEqual(actual.args,['run','--config','/etc/caddy/Caddyfile','--adapter','caddyfile']);
+    let output=''; child.stdout.on('data', c => output += c); const code=await new Promise(done=>child.once('close',done)); assert.equal(code,0); const actual=JSON.parse(output); assert.equal(actual.web,new URL(web).origin); assert.equal(actual.admin,expected); assert.equal(actual.webAuthority,new URL(web).host); assert.equal(actual.adminAuthority,new URL(expected).host); assert.deepEqual(actual.args,['run','--config','/etc/caddy/Caddyfile','--adapter','caddyfile']);
   }
 });

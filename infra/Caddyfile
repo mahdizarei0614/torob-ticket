@@ -4,6 +4,15 @@
 }
 import /etc/caddy/static-serving.caddy
 :4300 {
+	# Establish host-only reviewer cookies on the issuer hostname before bootstrap.
+	@noncanonical {
+		method GET HEAD
+		not path /api /api/*
+		expression {http.request.hostport} != "{$TOROBTICKET_WEB_AUTHORITY}"
+	}
+	header @noncanonical Cache-Control no-store
+	header @noncanonical Referrer-Policy no-referrer
+	redir @noncanonical {$TOROBTICKET_WEB_ORIGIN}{uri} 302
 	@api path /api /api/*
 	handle @api {
 		reverse_proxy api:4302 {
