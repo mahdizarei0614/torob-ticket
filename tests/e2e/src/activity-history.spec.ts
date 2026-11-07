@@ -15,7 +15,7 @@ test('fresh Docker reviewers start with private activity history and retain thei
  await page.goto(new URL('/admin/',process.env.ADMIN_E2E_URL).href);
  await expect(page.getByRole('heading',{name:'Provider traffic',exact:true})).toBeVisible();
  const direct=async()=>{const r=await context.request.get(new URL('/api/v1/admin/direct-login',process.env.E2E_BASE_URL).href);expect(r.status()).toBe(200);return DirectAdminSchema.parse(await r.json());};
- await expect.poll(async()=>(await direct()).partners.find(p=>p.providerId==='demo-provider-01')?.enabled,{timeout:20000}).toBe(true);
+ await expect.poll(async()=>{const r=await context.request.get(new URL('/api/v1/admin/direct-login',process.env.E2E_BASE_URL).href);if(!r.ok())return false;return DirectAdminSchema.parse(await r.json()).partners.find(p=>p.providerId==='demo-provider-01')?.enabled;},{timeout:20000}).toBe(true);
  const connection=await direct();let overview=await read(context);const monthKeys=[...overview.availableMonths].sort();expect(monthKeys).toHaveLength(3);
  expect(populateRequests).toBe(0);expect(overview.totals.outbound).toBeGreaterThan(1000);await expect(totals(page)).toHaveText(overview.totals.outbound.toLocaleString('en-GB'));
  await expect(page.getByRole('table',{name:'Provider referral traffic'}).locator('tbody tr')).toHaveCount(6);
