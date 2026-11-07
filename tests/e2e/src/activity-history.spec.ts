@@ -37,7 +37,7 @@ test('fresh Docker reviewers start with private activity history and retain thei
  for(const section of ['raw','normalizations','quotes']){
   await page.getByRole('button',{name:section,exact:true}).click();await expect(page.getByText(section+' record 1',{exact:true})).toBeVisible();await page.getByText(section+' record 1',{exact:true}).click();await capture('source-inspection-'+section);
  }
- const health=page.waitForResponse(r=>new URL(r.url()).pathname==='/api/v1/admin/providers');await page.getByRole('navigation',{name:'Operations'}).getByRole('link',{name:/Providers$/}).click();expect((await health).status()).toBe(200);await expect(page.getByRole('heading',{name:'Providers',exact:true})).toBeVisible();await expect(page.locator('a[href*="/searches/activity-"]').first()).toBeVisible();await capture('provider-health');
+ const health=page.waitForResponse(r=>new URL(r.url()).pathname==='/api/v1/admin/providers');await page.getByRole('navigation',{name:'Operations'}).getByRole('link',{name:/Providers$/}).click();expect((await health).status()).toBe(200);await expect(page.getByRole('heading',{name:'Providers',exact:true})).toBeVisible();await page.getByText(/^Recorded status history /).first().click();await expect(page.locator('a[href*="/searches/activity-"]').first()).toBeVisible();await capture('provider-health');
  await page.getByRole('navigation',{name:'Operations'}).getByRole('link',{name:/Traffic$/}).click();await expect(page.getByRole('heading',{name:'Provider traffic',exact:true})).toBeVisible();
  overview=await read(context);await expect(totals(page)).toHaveText(overview.totals.outbound.toLocaleString('en-GB'));
  await page.getByRole('button',{name:'Configuration',exact:true}).click();

@@ -2832,20 +2832,28 @@ Visitor metrics are browser sessions, not verified people. Redirect-issued count
 
 ## Referral activity-history follow-up — 2026-11-07
 
-Owner resumed completion and authorized updating/pushing main after a clean
-Docker reviewer test. [Decision0093](../../decisions/0093-referral-activity-history.md),
-[brief](../../evidence/adjustments/referral-activity-history/task-brief.md).
+Owner authorized completion, main preparation, clean Docker verification and push;
+later steering requires populated data on reviewer docker:up. Decisions
+[0093](../../decisions/0093-referral-activity-history.md) and
+[0094](../../decisions/0094-automatic-reviewer-activity.md),
+[checkpoint](../../evidence/adjustments/referral-activity-history/checkpoint.md).
 
 | Step | Status | Evidence |
 | --- | --- | --- |
-| Atomic scoped activity import and sources | DONE | Three Persian months/six providers, genuine persisted authored source/quote/receipt lineage, unknown historical rates and immutable graduated fees; explicit action only |
-| Correctness and independent source review | DONE |7owning PostgreSQL cases and50existing billing/referral/hotel/SSO cases pass; full source generation passes all3fixture roots; independent source approved |
-| Static and source regressions | DONE |18uncached Nx tasks;1757broad source cases plus12HTTP cases with loopback permissions; full compatibility cases supersede small legacy samples; final API types/lint pass |
-| Clean reviewer release and handoff | ACTIVE | Source commit/index review; clean main checkout/default Docker startup, fresh database/browser admin and new/existing passport SSO verification, evidence closure and authorized push pending |
+| Scoped activity/source import | DONE | Three Persian months, six providers, 7,908 authored outbound records, immutable fees and inspectable raw/normalization/quote/receipt lineage; idempotent manual action |
+| Automatic private reviewer data | DONE | Gated loopback startup prewarms sealed daily history; fresh reviewers get isolated copies and SSO; existing workspaces preserved; opt-out, retries, reset and source cleanup tested |
+| Correctness and source review | DONE | Earlier import/source regressions retained; latest 13 PostgreSQL cases include six full-copy cases, seven search-inspection cases; 22 session regressions, 17 service/credential and eight repository units; independent reviews approved |
+| Static checks | DONE | 18 earlier and 16 latest uncached Nx tasks; final API/E2E types and owning lint pass; original source checks and failed observations retained |
+| Clean main reviewer acceptance | VERIFIED | f1f207ef clean main, no .env/host dependencies, fresh isolated volumes, default ports, ordinary pnpm docker:up; six unique Chrome cases accepted across final SSO/history runs; provider reads 2.576s/2.669s after multiple copies |
 
-Existing user data/services and unrelated tracker/media work are preserved.
-Authored visits do not establish external delivery, purchase, revenue or agreed
-commercial rates. Baseline35-task completion remains unchanged.
+The original local database/provider volumes were accidentally deleted during an
+unguarded reset, disclosed, and investigated without a trustworthy recovery.
+Owner authorized a fresh rebuild and release. A private protected forensic copy
+is retained; no restored/preserved-original-data claim is made. Subsequent
+lifecycle mutations validate exact project ownership and fail closed. Unrelated
+tracker/media and other projects remain outside this change. Authored visits do
+not establish external delivery, purchase, revenue or agreed commercial rates.
+Baseline35-task completion is unchanged. Main push is explicitly authorized.
 
 
 ## Direct Login follow-up — 2026-11-04
