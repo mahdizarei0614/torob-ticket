@@ -1,0 +1,50 @@
+{
+  "initialCookies": 0,
+  "summary": {
+    "status": "already-loaded",
+    "outbound": 7908,
+    "billable": 6702,
+    "repeats": 1206,
+    "monthKeys": [
+      "1405-06",
+      "1405-07",
+      "1405-08"
+    ],
+    "providerCount": 6
+  },
+  "currentMonth": {
+    "outbound": 2729,
+    "uniqueVisitorSessions": 898,
+    "billable": 2311,
+    "repeats": 418,
+    "knownFeeRial": 9794300,
+    "unpricedBillable": 0,
+    "transport": 2175,
+    "hotel": 554
+  },
+  "historicalMonth": {
+    "outbound": 2100,
+    "uniqueVisitorSessions": 691,
+    "billable": 1779,
+    "repeats": 321,
+    "knownFeeRial": 6444100,
+    "unpricedBillable": 174,
+    "transport": 1671,
+    "hotel": 429
+  },
+  "filteredHotel": {
+    "outbound": 113,
+    "uniqueVisitorSessions": 67,
+    "billable": 95,
+    "repeats": 18,
+    "knownFeeRial": 358000,
+    "unpricedBillable": 10,
+    "transport": 0,
+    "hotel": 113
+  },
+  "idempotent": true,
+  "separateReviewerPopulated": true,
+  "automaticBeforeAnyPopulatePost": true,
+  "ssoConnectionUnchanged": true,
+  "allMutationsThroughUI": true
+}

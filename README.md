@@ -112,8 +112,9 @@ reproducible preparation and passed **4:30.006 paced operator rehearsal**. Start
 is separate from the presentation; no video was recorded by that rehearsal.
 
 Detailed guides and selected proof are indexed in [Documentation](docs/README.md).
-Historical captures remain available through immutable archive links; new raw
-verification output is written to ignored `.local/evidence`.
+Selected verification proof remains in the checkout. Bulky historical captures
+were removed from Git history; [history cleanup](docs/history-rewrite.md) records
+that change. New raw verification output belongs in ignored `.local/evidence`.
 
 ## What is implemented
 

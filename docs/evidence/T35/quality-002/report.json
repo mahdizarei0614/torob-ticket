@@ -1,0 +1,297 @@
+{
+  "schemaVersion": 1,
+  "runId": "dc926259-caec-4719-9a7c-682197a29552",
+  "startedAt": "2026-11-02T07:46:46.197Z",
+  "finishedAt": "2026-11-02T07:53:13.797Z",
+  "status": "passed",
+  "profile": "quality",
+  "baseUrl": "http://127.0.0.1:4337",
+  "source": {
+    "head": "d1e052baec317a8b26085100920cd0a10553221b",
+    "cleanAtStart": false,
+    "trackedChanges": 3,
+    "untrackedEntries": 1136,
+    "note": "Captured before creating this report directory; a working tree is not automatically a clean-checkout proof."
+  },
+  "node": "v24.17.0",
+  "platform": "darwin",
+  "browser": {
+    "engine": "chromium",
+    "requestedChannel": "chrome"
+  },
+  "coverage": {
+    "completeReleaseProof": false,
+    "sourceQualitySelected": true,
+    "postgresSelected": true,
+    "excluded": [
+      "Docker provisioning and fresh-start proof",
+      "API/stack restart and failed-initializer rehearsal",
+      "physical devices and assistive-technology speech",
+      "full visual/performance matrix unless separately run"
+    ]
+  },
+  "output": {
+    "directory": "/Users/mahdizarei/WebstormProjects/torob-ticket/docs/evidence/T35/quality-002",
+    "commandLogs": "sanitized, bounded UTF-8 lines"
+  },
+  "gates": [
+    {
+      "id": "health",
+      "status": "passed",
+      "startedAt": "2026-11-02T07:46:46.199Z",
+      "results": [
+        {
+          "path": "/api/health/live",
+          "status": "ok"
+        },
+        {
+          "path": "/api/health/ready",
+          "status": "ready"
+        }
+      ],
+      "durationMs": 27.068083,
+      "finishedAt": "2026-11-02T07:46:46.227Z"
+    },
+    {
+      "id": "packaged-assets",
+      "status": "passed",
+      "startedAt": "2026-11-02T07:46:46.227Z",
+      "results": [
+        {
+          "path": "/",
+          "language": "fa",
+          "sha256": "17377d5a3ebfbe785a960c97f7a66280d4ad6a9774f208b2dd550d83648db7bc"
+        },
+        {
+          "path": "/admin/",
+          "language": "en",
+          "sha256": "1dad50576b37ce49b034f5e4a68ea278a81f0eb58ee79c94e97e7918f83a86e6"
+        },
+        {
+          "path": "/theme-init.js",
+          "bytes": 1533,
+          "sha256": "0c7dcde8d85f51ed8f86caab70cf61271d237c71e7f6bc4c3c75dbce56655b0f"
+        },
+        {
+          "path": "/assets/index-DWI-jUyd.js",
+          "bytes": 1152958,
+          "sha256": "e757f2b40bfe826810eb194186e2f758f91880b5ea551051d555a3100d5ffd30"
+        },
+        {
+          "path": "/admin/theme-init.js",
+          "bytes": 1533,
+          "sha256": "0c7dcde8d85f51ed8f86caab70cf61271d237c71e7f6bc4c3c75dbce56655b0f"
+        },
+        {
+          "path": "/admin/assets/index-cEhYwle7.js",
+          "bytes": 729382,
+          "sha256": "f34b610dd7b15e6b218673b65d946c017cc6a6656a5f2feb00f3faea7eeb3874"
+        },
+        {
+          "path": "/theme-init.js",
+          "bytes": 1533,
+          "sha256": "0c7dcde8d85f51ed8f86caab70cf61271d237c71e7f6bc4c3c75dbce56655b0f",
+          "matchesCheckout": true
+        },
+        {
+          "path": "/fonts/Vazirmatn-wght.woff2",
+          "bytes": 111152,
+          "sha256": "4e3fa217d38fdafc1fea4414ceb58ca5e662cf0ab5fa735a8c8c20e8b42cad92",
+          "matchesCheckout": true
+        },
+        {
+          "path": "/fonts/InterVariable.woff2",
+          "bytes": 352240,
+          "sha256": "693b77d4f32ee9b8bfc995589b5fad5e99adf2832738661f5402f9978429a8e3",
+          "matchesCheckout": true
+        },
+        {
+          "path": "/geography/consumer-geography.json",
+          "bytes": 243153,
+          "sha256": "3d01a9ee74b4e97c990e047dcd6d7b3efcd5cb2e292c66c9653132113eb205df",
+          "matchesCheckout": true
+        },
+        {
+          "path": "/geography/route-geometry.json",
+          "bytes": 97343,
+          "sha256": "a3d6b613c2ed128384fba1b0988d48901c70771fee9dd735ea86a5f03bf8cde3",
+          "matchesCheckout": true
+        }
+      ],
+      "durationMs": 53.421167000000025,
+      "finishedAt": "2026-11-02T07:46:46.280Z"
+    },
+    {
+      "id": "dependencies",
+      "status": "passed",
+      "startedAt": "2026-11-02T07:46:46.281Z",
+      "command": [
+        "pnpm",
+        "--config.verify-deps-before-run=error",
+        "exec",
+        "node",
+        "--version"
+      ],
+      "code": 0,
+      "signal": null,
+      "errorCode": null,
+      "timedOut": false,
+      "interrupted": false,
+      "cleanupConfirmed": true,
+      "durationMs": 313.110667,
+      "log": "dependencies.log",
+      "logSanitized": true,
+      "logTruncated": false,
+      "logBytes": 11,
+      "note": "Strict pnpm builtins guard passed and required host verification files are present; quality additionally verifies the actual source script with strict installed-state policy.",
+      "finishedAt": "2026-11-02T07:46:46.594Z"
+    },
+    {
+      "id": "source-quality",
+      "status": "passed",
+      "startedAt": "2026-11-02T07:46:46.594Z",
+      "command": [
+        "pnpm",
+        "--config.verify-deps-before-run=error",
+        "verify",
+        "--parallel=1",
+        "--output-style=static"
+      ],
+      "code": 0,
+      "signal": null,
+      "errorCode": null,
+      "timedOut": false,
+      "interrupted": false,
+      "cleanupConfirmed": true,
+      "durationMs": 91470.054416,
+      "log": "source-quality.log",
+      "logSanitized": true,
+      "logTruncated": false,
+      "logBytes": 49985,
+      "finishedAt": "2026-11-02T07:48:18.064Z"
+    },
+    {
+      "id": "tool-contracts",
+      "status": "passed",
+      "startedAt": "2026-11-02T07:48:18.065Z",
+      "command": [
+        "node",
+        "--test",
+        "--test-concurrency=1",
+        "tools/test-docker-runner.mjs",
+        "tools/test-dev-api.mjs",
+        "tools/test-test-database.mjs",
+        "tools/test-performance-audit.mjs",
+        "tools/test-admin-schema-bundling.mjs",
+        "tools/test-verify-release.mjs"
+      ],
+      "code": 0,
+      "signal": null,
+      "errorCode": null,
+      "timedOut": false,
+      "interrupted": false,
+      "cleanupConfirmed": true,
+      "durationMs": 20736.948208999995,
+      "log": "tool-contracts.log",
+      "logSanitized": true,
+      "logTruncated": false,
+      "logBytes": 6156,
+      "finishedAt": "2026-11-02T07:48:38.802Z"
+    },
+    {
+      "id": "postgres",
+      "status": "passed",
+      "startedAt": "2026-11-02T07:48:38.802Z",
+      "command": [
+        "node",
+        "node_modules/nx/dist/bin/nx.js",
+        "run",
+        "api:test-integration",
+        "--skip-nx-cache",
+        "--output-style=stream"
+      ],
+      "code": 0,
+      "signal": null,
+      "errorCode": null,
+      "timedOut": false,
+      "interrupted": false,
+      "cleanupConfirmed": true,
+      "durationMs": 205242.867708,
+      "log": "postgres.log",
+      "logSanitized": true,
+      "logTruncated": false,
+      "logBytes": 8245,
+      "finishedAt": "2026-11-02T07:52:04.045Z"
+    },
+    {
+      "id": "browser-critical",
+      "status": "passed",
+      "startedAt": "2026-11-02T07:52:04.046Z",
+      "command": [
+        "node",
+        "node_modules/@playwright/test/cli.js",
+        "test",
+        "--config",
+        "tests/e2e/playwright.config.ts",
+        "--grep",
+        "@release-core|priced provisional Jalali calendar|arrival hotels, room capacity|real keyboard traversal|seeded legacy round-trip checkpoint|mobile seeded legacy hotel checkpoint",
+        "--workers=1",
+        "--retries=0",
+        "--trace=off"
+      ],
+      "code": 0,
+      "signal": null,
+      "errorCode": null,
+      "timedOut": false,
+      "interrupted": false,
+      "cleanupConfirmed": true,
+      "durationMs": 69750.15216600004,
+      "log": "browser-critical.log",
+      "logSanitized": true,
+      "logTruncated": false,
+      "logBytes": 1859,
+      "executed": {
+        "counts": {
+          "passed": 7,
+          "failed": 0,
+          "flaky": 0,
+          "skipped": 0,
+          "notRun": 0,
+          "interrupted": 0
+        },
+        "cases": [
+          {
+            "title": "chromium › accessibility.spec.ts › @a11y representative current tasks › priced provisional Jalali calendar restores its trigger and leaves committed dates unchanged",
+            "outcome": "passed"
+          },
+          {
+            "title": "chromium › accessibility.spec.ts › @a11y representative current tasks › arrival hotels, room capacity and custom-point cancellation keep one accessible foreground owner",
+            "outcome": "passed"
+          },
+          {
+            "title": "chromium › accessibility.spec.ts › @a11y representative current tasks › real keyboard traversal completes cities, calendar, overlays, card and provider handoff",
+            "outcome": "passed"
+          },
+          {
+            "title": "chromium › referral.spec.ts › @referral guest consent and immutable provider handoff › seeded legacy round-trip checkpoint survives GET-only receipt refresh and exact return context",
+            "outcome": "passed"
+          },
+          {
+            "title": "chromium › referral.spec.ts › @referral guest consent and immutable provider handoff › mobile seeded legacy hotel checkpoint survives read-only receipt refresh and exact return",
+            "outcome": "passed"
+          },
+          {
+            "title": "chromium › release-rehearsal.spec.ts › @release-rehearsal current packaged application › @release-core cold external-network block preserves comparison, hotel coordinates and confirmed handoff",
+            "outcome": "passed"
+          },
+          {
+            "title": "chromium › release-rehearsal.spec.ts › @release-rehearsal current packaged application › @release-core resetting one newly owned reviewer preserves the other exact evidence",
+            "outcome": "passed"
+          }
+        ],
+        "durationMs": 69216.106
+      },
+      "finishedAt": "2026-11-02T07:53:13.796Z"
+    }
+  ]
+}

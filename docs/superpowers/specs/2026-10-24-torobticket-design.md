@@ -7,6 +7,14 @@
 
 ## 1. Intent and success
 
+**Owner history cleanup,2026-11-07 (decision0096):** remove bulky retired evidence
+from main history, superseding0095's preservation-only rule. Keep current product,
+selected proof and source code history. Verify isolated rewrite integrity/tree
+identity, update main with an exact-old-SHA lease and shrink the local clone while
+preserving ignored private files and all Docker data. Older proof IDs remain
+historical identifiers with an explicit old/new map; unavailable archive links
+must no longer promise retained artifacts.
+
 **Owner documentation cleanup, 2026-11-07 (decision0095):** keep concise reviewer
 and engineering guides plus selected proof. Archive bulky historical evidence by
 immutable Git links; relocate executable test/curation inputs into their owning

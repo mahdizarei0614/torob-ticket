@@ -20,8 +20,8 @@ manual date inputs without a composed explorer remain separately available.
 Source/static checks, independent review and native geometry/interaction passed.
 Flight one-way/round-trip at1366px fit the630px row; train's longer class choices
 use807px intrinsic content in the same630px scroller. No universal desktop-fit
-claim is made. See the [checkpoint](https://github.com/mahdizarei0614/torob-ticket/blob/226bd9d929a023d4060ba102602faad9fde97914/docs/evidence/adjustments/search-four-controls-row/checkpoint.md)
-and [independent approval](https://github.com/mahdizarei0614/torob-ticket/blob/226bd9d929a023d4060ba102602faad9fde97914/docs/evidence/adjustments/search-four-controls-row/independent-review.md).
+claim is made. See the checkpoint
+and independent approval.
 M7 remains partial29/35 with T30 active. No remote action or image rebuild.
 
 Owner copy correction,2026-10-30: the final visible and accessible label is

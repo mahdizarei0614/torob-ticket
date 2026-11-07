@@ -1,0 +1,72 @@
+{
+  "baseCommit": "226bd9d929a023d4060ba102602faad9fde97914",
+  "candidate": "documentation/tooling cleanup working tree before release commit",
+  "size": {
+    "beforeTrackedDocsBytes": 760385489,
+    "afterDocsBytes": 3005406,
+    "reductionPercent": 99.6
+  },
+  "removedHistoricalFiles": 9373,
+  "trackedHistoricalDeletions": 9335,
+  "discardedUntrackedFiles": "38 macOS .DS_Store files only; tracked historical artifacts remain in immutable Git snapshot",
+  "retainedOriginalEvidenceFiles": 38,
+  "relocatedInputs": 15,
+  "links": {
+    "markdownFiles": 138,
+    "relativeLinks": 533,
+    "archiveLinks": 671,
+    "missing": [],
+    "archiveCommit": "226bd9d929a023d4060ba102602faad9fde97914"
+  },
+  "checks": [
+    {
+      "command": "node --test tools/test-docker-runner.mjs tools/test-verify-release.mjs tests/e2e/evidence-privacy.spec.mjs",
+      "passed": 40,
+      "failed": 0,
+      "exit": 0
+    },
+    {
+      "command": "node --test tests/e2e/playwright-config.spec.mjs",
+      "environment": "built initializer image, no network",
+      "passed": 8,
+      "failed": 0,
+      "exit": 0
+    },
+    {
+      "command": "pnpm exec tsc --noEmit -p tests/e2e/tsconfig.json",
+      "environment": "built initializer image, no network",
+      "exit": 0
+    },
+    {
+      "command": "pnpm exec eslint tools tests/e2e libs/provider-adapters/src/ranking-tradeoffs.spec.ts",
+      "environment": "built initializer image, no network",
+      "exit": 0
+    },
+    {
+      "command": "python3 tools/hotel-directory/verify-coordinates.py",
+      "checked": 301,
+      "errors": 0,
+      "exit": 0
+    },
+    {
+      "command": "python3 tools/hotel-directory/curate-directory.py --complete",
+      "environment": "temporary isolated source tree, retained local inputs",
+      "reproducesRuntimeBytes": true,
+      "hotelCount": 301,
+      "runtimeSha256": "6d67dfa88633e9c4882783b6a28d99c5d2c4cb0c15ad06836d9f3cb1b9e93bd0",
+      "exit": 0
+    },
+    {
+      "command": "docker compose -p torobticket-m6 -f compose.yaml -f tests/e2e/fixtures/compose.m6-owned.yaml config --format json",
+      "ownedServices": 6,
+      "ownedVolumes": 2,
+      "exit": 0
+    },
+    {
+      "command": "pnpm docker:up",
+      "environment": "new isolated project,4380/4381/4382,no.env/no host node_modules",
+      "exit": 0
+    }
+  ],
+  "limits": "No new full-browser or PostgreSQL regression claim. Retained earlier SSO/browser evidence remains bound to its named application source. No Git history rewrite or existing Docker volume deletion."
+}

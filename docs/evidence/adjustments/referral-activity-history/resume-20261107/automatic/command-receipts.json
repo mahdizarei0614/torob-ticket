@@ -1,0 +1,58 @@
+{
+  "commands": [
+    {
+      "command": "vitest run --project api reviewer-activity.service.spec.ts credential-response.spec.ts",
+      "exitCode": 0,
+      "passed": 17,
+      "log": "torob-reviewer-auto-unit-final.log"
+    },
+    {
+      "command": "vitest run --project api-integration reviewer-activity.integration.spec.ts",
+      "exitCode": 0,
+      "passed": 6,
+      "log": "torob-reviewer-auto-postgres-final.log"
+    },
+    {
+      "command": "vitest run --project api-integration credential-response.integration.spec.ts session.integration.spec.ts session-cleanup.integration.spec.ts lifecycle.integration.spec.ts",
+      "exitCode": 0,
+      "passed": 22,
+      "log": "torob-reviewer-auto-session-regression.log"
+    },
+    {
+      "command": "nx run-many -t lint,typecheck --projects=api,admin,data-access,e2e --parallel=3 --skip-nx-cache",
+      "exitCode": 0,
+      "tasksSucceeded": 16,
+      "log": "torob-reviewer-auto-static-final.log"
+    },
+    {
+      "command": "vitest run --project server-libs admin-search-repository.spec.ts",
+      "exitCode": 0,
+      "passed": 8,
+      "log": "torob-reviewer-health-unit.log"
+    },
+    {
+      "command": "vitest run --project api-integration reviewer-activity.integration.spec.ts search-inspection.integration.spec.ts",
+      "exitCode": 0,
+      "passed": 13,
+      "log": "torob-reviewer-health-postgres.log"
+    },
+    {
+      "command": "tsc --noEmit -p apps/api/tsconfig.json",
+      "exitCode": 0,
+      "log": "torob-reviewer-health-types.log"
+    },
+    {
+      "command": "eslint admin-search-repository.ts admin-search-repository.spec.ts reviewer-activity.integration.spec.ts activity-history.spec.ts",
+      "exitCode": 0,
+      "log": "torob-reviewer-health-lint.log"
+    },
+    {
+      "command": "pnpm docker:up",
+      "cwd": "/private/tmp/torobticket-reviewer-main-20261107",
+      "sourceCommit": "f1f207ef",
+      "exitCode": 0,
+      "log": "torob-reviewer-release-clean-docker-up.log"
+    }
+  ],
+  "note": "The thirteen-case batch includes the six owning automatic cases. Empty successful types/lint logs are paired with explicit exit receipts. Retained failed runs are superseded only by their matching passing checks."
+}

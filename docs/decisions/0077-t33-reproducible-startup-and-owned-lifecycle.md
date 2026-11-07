@@ -110,4 +110,4 @@ interruption/retry/recreation, initializer failure/repair and Node-free restorat
 are recorded. Optional PostgreSQL integration remains explicitly unperformed in
 this run. After scoped cleanup, all6 original containers and5full immutable data
 fingerprints match baseline; master/export are33/35,M7complete. See
-[checkpoint](https://github.com/mahdizarei0614/torob-ticket/blob/226bd9d929a023d4060ba102602faad9fde97914/docs/evidence/T33/checkpoint.md) and its independent review links.
+checkpoint and its independent review links.

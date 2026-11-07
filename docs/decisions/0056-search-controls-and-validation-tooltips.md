@@ -33,6 +33,6 @@ overlay anchors above the complete city field, including its label.
 Four unique native desktop/mobile scenarios passed, including320px layout,
 with zero field/form-height changes and page errors. Source checks, independent
 review and focused final-anchor checks passed. See the
-[checkpoint](https://github.com/mahdizarei0614/torob-ticket/blob/226bd9d929a023d4060ba102602faad9fde97914/docs/evidence/adjustments/search-controls-tooltips/checkpoint.md) and
-[independent approval](https://github.com/mahdizarei0614/torob-ticket/blob/226bd9d929a023d4060ba102602faad9fde97914/docs/evidence/adjustments/search-controls-tooltips/independent-review.md).
+checkpoint and
+independent approval.
 M7 remains partial29/35, T30 active; no release or remote action occurred.

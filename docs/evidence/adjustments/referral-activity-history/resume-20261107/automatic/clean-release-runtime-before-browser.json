@@ -1,0 +1,54 @@
+{
+  "sourceCommit": "f1f207ef1274cdd784d073ca435d4a925f60757c",
+  "databaseBeforeFirstBrowser": {
+    "sealedTemplates": 1,
+    "publicReviewers": 0,
+    "outbound": 7908,
+    "tariffs": 6,
+    "readyHistory": 1
+  },
+  "containers": [
+    {
+      "service": "admin",
+      "image": "sha256:0615500db51a4638c4820638ea506e2f805248e7b19c2ee99044222bb3883e42",
+      "state": "running",
+      "health": "healthy",
+      "exit": 0
+    },
+    {
+      "service": "api",
+      "image": "sha256:ecd279b404e4ac9d8928e8e1a0b13bfdd20612776e464d9c7e3cce1b4ab12fac",
+      "state": "running",
+      "health": "healthy",
+      "exit": 0
+    },
+    {
+      "service": "database",
+      "image": "sha256:8942ba4a60918c2b98bcad5c842453a765898854a9fec87f64ec816bf44559be",
+      "state": "running",
+      "health": "healthy",
+      "exit": 0
+    },
+    {
+      "service": "example-provider",
+      "image": "sha256:4f5ce9ae191b069aecbe504626b488b784ecabb875df87cbd087e084fcab3ea0",
+      "state": "running",
+      "health": "healthy",
+      "exit": 0
+    },
+    {
+      "service": "initializer",
+      "image": "sha256:578c96d91c4e13035c169b91f691d3e791922d466879ce25c55dd0b505ed09bd",
+      "state": "exited",
+      "health": null,
+      "exit": 0
+    },
+    {
+      "service": "web",
+      "image": "sha256:fe6e42c08ee1a1367032c6706533e405487b650ff60cd812e08961e62489eac9",
+      "state": "running",
+      "health": "healthy",
+      "exit": 0
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "applicationCommit": "a070c68dbd0294faaa22e67bf24f168cc257198e",
+  "automaticPostgres": {
+    "passed": 6,
+    "files": 1,
+    "durationSeconds": 62.47,
+    "coverage": [
+      "startup readiness",
+      "concurrent private copies and pricing",
+      "begin failure without cookies and fresh retry",
+      "existing/opt-out/nonloopback preservation and read-only GETs",
+      "transaction interruption rollback and idempotence",
+      "populated reset and peer preservation",
+      "copy source lock and later bounded collection"
+    ]
+  },
+  "sessionPostgresRegression": {
+    "passed": 22,
+    "files": 4,
+    "durationSeconds": 4.19
+  },
+  "unitAndCredentialRegression": {
+    "passed": 17,
+    "files": 2
+  },
+  "uncachedNxTasks": 16,
+  "earlierImportAndInspection": "See parent source-checks.json and retained logs; earlier suites overlap and are not summed into these new results.",
+  "retainedFailures": "append-only audit violation, test syntax correction, reset default5s, cascade indexes missing, first browser bootstrap-read timing"
+}

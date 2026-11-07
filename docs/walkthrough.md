@@ -63,8 +63,8 @@ remain unchanged historical evidence.
 | Filters / initial ordering | None / cheapest |
 | Changed-fare target | **هم‌مسیر**, `demo-provider-04`, authored source service slot 0 |
 
-The [operator](https://github.com/mahdizarei0614/torob-ticket/blob/226bd9d929a023d4060ba102602faad9fde97914/docs/evidence/T34/reviewer-walkthrough.spec.ts) and its
-[guarded runner](https://github.com/mahdizarei0614/torob-ticket/blob/226bd9d929a023d4060ba102602faad9fde97914/docs/evidence/T34/run-rehearsal.mjs) record actual quote/version,
+The operator and its
+guarded runner record actual quote/version,
 visible service, applied dates, map availability and stage timings. Preparation
 uses the session API in a new owned browser context; presentation clicks the real
 interface and observes real responses without replacing them. These dated
@@ -114,14 +114,14 @@ Do not rush through a changed-price warning to meet the target.
 
 **PASS — automated paced operator rehearsal, 2026-11-02.** The final run executed
 one case once in Chrome 156.0.8078.76 with no retries, skips or global errors.
-The [measurement receipt](https://github.com/mahdizarei0614/torob-ticket/blob/226bd9d929a023d4060ba102602faad9fde97914/docs/evidence/T34/rehearsal-paced-002/artifacts/reviewer-walkthrough-T34-r-4c10b-handoff-and-source-evidence/walkthrough-measurement.json)
-and [run summary](https://github.com/mahdizarei0614/torob-ticket/blob/226bd9d929a023d4060ba102602faad9fde97914/docs/evidence/T34/rehearsal-paced-002/artifacts/run-summary.json)
+The measurement receipt
+and run summary
 retain actual inputs, stage timestamps, assertions and screenshots.
 
 | Measured item | Result |
 | --- | --- |
-| Packaged startup, outside presentation | [PASS](https://github.com/mahdizarei0614/torob-ticket/blob/226bd9d929a023d4060ba102602faad9fde97914/docs/evidence/T34/startup-001.json), 37.741s with existing image/dependency caches; not a cold-download claim |
-| Fresh README/browser path | [PASS, one case](https://github.com/mahdizarei0614/torob-ticket/blob/226bd9d929a023d4060ba102602faad9fde97914/docs/evidence/T34/rehearsal-fresh-001/artifacts/run-summary.json), separate from the paced run |
+| Packaged startup, outside presentation | PASS, 37.741s with existing image/dependency caches; not a cold-download claim |
+| Fresh README/browser path | PASS, one case, separate from the paced run |
 | Presentation clock | **270.006s (4:30.006)** against a 270s target |
 | Setup outside that clock | 3.604s |
 | Requested intentional narration/inspection holds | 254.532s |
@@ -168,8 +168,8 @@ separate from the automated, intentionally paced T34 rehearsal above.
 
 | Attempt | Actual time and outcome |
 | --- | --- |
-| [Exploratory manual001](https://github.com/mahdizarei0614/torob-ticket/blob/226bd9d929a023d4060ba102602faad9fde97914/docs/evidence/T35/manual-001.json) | 9:22.528; functional journey completed, five-minute target missed. Includes observation/tool-selector corrections and context compaction. Retained as measured. |
-| [Concise manual002](https://github.com/mahdizarei0614/torob-ticket/blob/226bd9d929a023d4060ba102602faad9fde97914/docs/evidence/T35/manual-002.json) | **2:16.058, under five minutes**, 08:12:01.506–08:14:17.562 UTC on2026-11-02. Ordinary isolated session, no scripted holds, response injection, recording or session-seed override. Preparation is outside this clock. |
+| Exploratory manual001 | 9:22.528; functional journey completed, five-minute target missed. Includes observation/tool-selector corrections and context compaction. Retained as measured. |
+| Concise manual002 | **2:16.058, under five minutes**, 08:12:01.506–08:14:17.562 UTC on2026-11-02. Ordinary isolated session, no scripted holds, response injection, recording or session-seed override. Preparation is outside this clock. |
 
 The concise pass used calendar Apply for Tehran/Mashhad, departure7November and
 return10November; viewed four completed sellers and all three rankings; selected

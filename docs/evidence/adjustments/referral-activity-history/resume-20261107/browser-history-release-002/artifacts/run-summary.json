@@ -1,0 +1,37 @@
+{
+  "status": "passed",
+  "discoveryOnly": false,
+  "duration": 19576.643,
+  "counts": {
+    "passed": 1,
+    "failed": 0,
+    "flaky": 0,
+    "skipped": 0,
+    "notRun": 0,
+    "interrupted": 0
+  },
+  "globalErrors": [],
+  "sanitizedOwnedArtifacts": [],
+  "tests": [
+    {
+      "id": "e7e24c0bd5eab82a6fe7-aba23c37a82f5eeff871",
+      "title": "chromium › activity-history.spec.ts › fresh Docker reviewers start with private activity history and retain their SSO connection",
+      "location": {
+        "file": "/Users/mahdizarei/WebstormProjects/torob-ticket/tests/e2e/src/activity-history.spec.ts",
+        "line": 9,
+        "column": 5
+      },
+      "outcome": "passed",
+      "expectedStatus": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "duration": 17513,
+          "retry": 0,
+          "errors": [],
+          "errorDetails": []
+        }
+      ]
+    }
+  ]
+}

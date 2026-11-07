@@ -1,0 +1,17 @@
+{
+  "bootstrapMs": 5703,
+  "health": [
+    {
+      "status": 200,
+      "elapsedMs": 2576,
+      "providers": 6,
+      "runs": 5558
+    },
+    {
+      "status": 200,
+      "elapsedMs": 2669,
+      "providers": 6,
+      "runs": 5558
+    }
+  ]
+}

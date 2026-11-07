@@ -52,4 +52,4 @@ claim or external publication. Test databases must pass the existing explicit
 _test connection guard; actual browser checks use fresh isolated sessions without
 resetting/deleting the normal application's data.
 
-[Task and evidence](https://github.com/mahdizarei0614/torob-ticket/blob/226bd9d929a023d4060ba102602faad9fde97914/docs/evidence/adjustments/roundtrip-pricing-and-filter/task-brief.md).
+Task and evidence.

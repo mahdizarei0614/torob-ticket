@@ -1,5 +1,9 @@
 # 0095 — Compact reviewer documentation
 
+The later owner request in [decision0096](0096-remove-bulky-evidence-history.md)
+supersedes this decision’s history-preservation policy. The remaining scope below
+records the earlier checkout-only cleanup.
+
 Owner instruction, 2026-11-07: accept the proposed safe documentation cleanup.
 Keep setup/reviewer/SSO/architecture guides, specification/decisions and selected
 final verification evidence. Remove bulky historical evidence from the current

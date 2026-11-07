@@ -7,7 +7,7 @@ and actual sort selection demonstrate the distinction.
 Primary research disproves universal equality. Deutsche Bahn explicitly offers
 fewer-transfer journeys taking longer than the fastest alternative; Google Matrix
 documents separate Duration and Stops sorts and long-layover advisories. See the
-[research record](https://github.com/mahdizarei0614/torob-ticket/blob/226bd9d929a023d4060ba102602faad9fde97914/docs/evidence/adjustments/ranking-tradeoffs/research.md).
+research record.
 
 Keep the existing honest ranking rules. Fastest compares full journey elapsed
 minutes including waits, then price/connections. Fewest compares flight stops or
@@ -48,4 +48,4 @@ and unchanged immutable source query. Actual browser evidence must verify the
 different complete orders and truthful equal-count case. Record independent
 reviews, exact local commits and master/SDD/exports; no external publication.
 
-[Task and evidence](https://github.com/mahdizarei0614/torob-ticket/blob/226bd9d929a023d4060ba102602faad9fde97914/docs/evidence/adjustments/ranking-tradeoffs/task-brief.md).
+Task and evidence.

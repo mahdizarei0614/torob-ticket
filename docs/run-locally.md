@@ -176,7 +176,7 @@ resetting or replacing that stack's data.
 
 The older `tools/verify-docker-foundation.mjs` and T29 ownership override belong
 to the historical gateway-layout rehearsal. Its original commands and override
-are available in the [archived T29 snapshot](https://github.com/mahdizarei0614/torob-ticket/tree/226bd9d929a023d4060ba102602faad9fde97914/docs/evidence/T29).
+are available in the archived T29 snapshot.
 They are not the startup instructions for the current separate web/admin/provider
 layout. Use `pnpm docker:down` to stop current services while retaining data.
 

@@ -1,0 +1,42 @@
+{
+  "applicationSource": "f1f207ef",
+  "uniqueAccepted": 6,
+  "acceptedTitles": [
+    "chromium \u203a activity-history.spec.ts \u203a fresh Docker reviewers start with private activity history and retain their SSO connection",
+    "chromium \u203a direct-login.spec.ts \u203a Direct Login connects a provider, verifies consent and resumes the exact offer with one acquisition",
+    "chromium \u203a external-provider.spec.ts \u203a external provider exchanges SSO across hosts, displays consented traveler JSON, and reuses its account",
+    "chromium \u203a passport-sso.spec.ts \u203a fresh international reviewer shares passport and English names with new and existing provider accounts",
+    "chromium \u203a passport-sso.spec.ts \u203a existing domestic profile requests missing passport and English names for an international trip",
+    "chromium \u203a reviewer-sso.spec.ts \u203a fresh reviewer can use external SSO without configuring a provider"
+  ],
+  "batches": [
+    {
+      "run": "browser-release-001",
+      "counts": {
+        "passed": 5,
+        "failed": 1,
+        "flaky": 0,
+        "skipped": 0,
+        "notRun": 0,
+        "interrupted": 0
+      },
+      "overall": "failed;5SSOjourneys passed;history disclosure assertion fixed"
+    },
+    {
+      "run": "browser-history-release-002",
+      "counts": {
+        "passed": 1,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0,
+        "notRun": 0,
+        "interrupted": 0
+      },
+      "overall": "passed"
+    }
+  ],
+  "activityTestSha256": "aa6532a944107462ea7cf15c32611994eee507f0666e9229f9e3d0099aeb970c",
+  "globalErrors": 0,
+  "testOnlyFinalCorrection": "Open the provider-history details disclosure before expecting its source link visible. Application source unchanged.",
+  "limits": "Local packaged mocks and consented authored profiles; no external SMS/provider delivery, independent acquisition verification, purchase or billing settlement."
+}

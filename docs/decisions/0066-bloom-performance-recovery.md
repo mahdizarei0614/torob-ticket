@@ -73,4 +73,4 @@ Record device/browser/DPR, controlled tests and independent review. Profile
 sampling and CPU throttling are evidence tools, not production settings or FPS
 claims. No rebuild/push/deploy/market build or plugin is authorized by this work.
 
-[Task brief](https://github.com/mahdizarei0614/torob-ticket/blob/226bd9d929a023d4060ba102602faad9fde97914/docs/evidence/adjustments/bloom-performance/task-brief.md).
+Task brief.

@@ -1,0 +1,59 @@
+{
+  "capturedAt": "2026-11-02T07:53:13.834Z",
+  "status": "passed",
+  "result": {
+    "code": 0,
+    "signal": null,
+    "errorCode": null,
+    "timedOut": false,
+    "interrupted": false,
+    "cleanupConfirmed": true,
+    "durationMs": 389412.282041,
+    "log": "quality-002-driver.log",
+    "logSanitized": true,
+    "logTruncated": false,
+    "logBytes": 553
+  },
+  "canonicalCommit": "d1e052baec317a8b26085100920cd0a10553221b",
+  "canonicalTree": "72ed80841c2ccbebc865cdf2d86c1a0a88732e90",
+  "applicationInputCount": 1050,
+  "allHostApplicationInputHashesMatchCanonical": true,
+  "appContainers": [
+    {
+      "id": "c8a98e30b2a6877fafd3cba3ed484d1120848782ccb78aaeb34f0a60e3d13308",
+      "service": "gateway",
+      "image": "sha256:d41784c829a1bf72c54a89aff8a5cae6a1d5639355ce4a54be667eb85fbe1ced",
+      "status": "running",
+      "health": "healthy",
+      "exitCode": 0
+    },
+    {
+      "id": "010d4858a6741441ce1541ab96f491a091adea092b30f45a57a6e01fcfc5e9ab",
+      "service": "api",
+      "image": "sha256:4e85de929e30a458bced2af15463ea74942230f5b07bd6cc18cdd6bfd5bb7d71",
+      "status": "running",
+      "health": "healthy",
+      "exitCode": 0
+    },
+    {
+      "id": "af13102e461835aa22d4526d037585bdc442cd4d5b644bc2503c271cff1cb246",
+      "service": "initializer",
+      "image": "sha256:f147f82988337a794bb196999d5e6cfde766715ac9224ea082d199bc060b9087",
+      "status": "exited",
+      "exitCode": 0
+    },
+    {
+      "id": "e9c0348841fcd8909950ff90151e05a229380053dac89a8615e239c4638c0ec8",
+      "service": "database",
+      "image": "sha256:8942ba4a60918c2b98bcad5c842453a765898854a9fec87f64ec816bf44559be",
+      "status": "running",
+      "health": "healthy",
+      "exitCode": 0
+    }
+  ],
+  "ownedIntegrationContainerId": "bbad0e58f105a6081b55b99d2490068ace5f07bc7875176c88e9cc45b73066da",
+  "ownedIntegrationImageId": "sha256:8942ba4a60918c2b98bcad5c842453a765898854a9fec87f64ec816bf44559be",
+  "report": "quality-002/report.json",
+  "selectedPostgres": true,
+  "scope": "Actual canonical app images, host source/tooling checks and fresh reviewer browser cases. The report accurately exposes the main workspace state; application inputs match the clean Docker checkout. No default project mutation or universal release/device claim."
+}

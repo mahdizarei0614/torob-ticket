@@ -1,0 +1,15 @@
+{
+  "commit": "f1f207ef1274cdd784d073ca435d4a925f60757c",
+  "branch": "main",
+  "clean": true,
+  "envFilePresent": false,
+  "hostNodeModulesPresent": false,
+  "command": "pnpm docker:up",
+  "composeProject": "torobticket-reviewer-20261107",
+  "freshOwnedVolumes": true,
+  "ports": [
+    4300,
+    4301,
+    4310
+  ]
+}

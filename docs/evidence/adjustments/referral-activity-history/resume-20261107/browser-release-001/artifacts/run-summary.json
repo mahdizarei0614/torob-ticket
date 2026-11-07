@@ -1,0 +1,150 @@
+{
+  "status": "failed",
+  "discoveryOnly": false,
+  "duration": 104184.14899999999,
+  "counts": {
+    "passed": 5,
+    "failed": 1,
+    "flaky": 0,
+    "skipped": 0,
+    "notRun": 0,
+    "interrupted": 0
+  },
+  "globalErrors": [],
+  "sanitizedOwnedArtifacts": [],
+  "tests": [
+    {
+      "id": "e7e24c0bd5eab82a6fe7-aba23c37a82f5eeff871",
+      "title": "chromium › activity-history.spec.ts › fresh Docker reviewers start with private activity history and retain their SSO connection",
+      "location": {
+        "file": "/Users/mahdizarei/WebstormProjects/torob-ticket/tests/e2e/src/activity-history.spec.ts",
+        "line": 9,
+        "column": 5
+      },
+      "outcome": "failed",
+      "expectedStatus": "passed",
+      "attempts": [
+        {
+          "status": "failed",
+          "duration": 15732,
+          "retry": 0,
+          "errors": [
+            "Error: expect(locator).toBeVisible() failed\n\nLocator:  locator('a[href*=\"/searches/activity-\"]').first()\nExpected: visible\nReceived: hidden\nTimeout:  5000ms\n\nCall log:\n  - Expect \"toBeVisible\" locator('a[href*=\"/searches/activity-\"]').first() with timeout 5000ms\n  - waiting for locator('a[href*=\"/searches/activity-\"]').first()\n    14 × locator resolved to <a href=\"/admin/searches/activity-search-438efe26eac27ae27e6297e666d70cbe\">complete</a>\n       - unexpected value \"hidden\"\n\n    at /Users/mahdizarei/WebstormProjects/torob-ticket/tests/e2e/src/activity-history.spec.ts:40:390"
+          ],
+          "errorDetails": [
+            {
+              "message": "Error: expect(locator).toBeVisible() failed\n\nLocator:  locator('a[href*=\"/searches/activity-\"]').first()\nExpected: visible\nReceived: hidden\nTimeout:  5000ms\n\nCall log:\n  - Expect \"toBeVisible\" locator('a[href*=\"/searches/activity-\"]').first() with timeout 5000ms\n  - waiting for locator('a[href*=\"/searches/activity-\"]').first()\n    14 × locator resolved to <a href=\"/admin/searches/activity-search-438efe26eac27ae27e6297e666d70cbe\">complete</a>\n       - unexpected value \"hidden\"\n",
+              "stack": "Error: expect(locator).toBeVisible() failed\n\nLocator:  locator('a[href*=\"/searches/activity-\"]').first()\nExpected: visible\nReceived: hidden\nTimeout:  5000ms\n\nCall log:\n  - Expect \"toBeVisible\" locator('a[href*=\"/searches/activity-\"]').first() with timeout 5000ms\n  - waiting for locator('a[href*=\"/searches/activity-\"]').first()\n    14 × locator resolved to <a href=\"/admin/searches/activity-search-438efe26eac27ae27e6297e666d70cbe\">complete</a>\n       - unexpected value \"hidden\"\n\n    at /Users/mahdizarei/WebstormProjects/torob-ticket/tests/e2e/src/activity-history.spec.ts:40:390",
+              "snippet": "  38 |   await page.getByRole('button',{name:section,exact:true}).click();await expect(page.getByText(section+' record 1',{exact:true})).toBeVisible();await page.getByText(section+' record 1',{exact:true}).click();await capture('source-inspection-'+section);\n  39 |  }\n> 40 |  const health=page.waitForResponse(r=>new URL(r.url()).pathname==='/api/v1/admin/providers');await page.getByRole('navigation',{name:'Operations'}).getByRole('link',{name:/Providers$/}).click();expect((await health).status()).toBe(200);await expect(page.getByRole('heading',{name:'Providers',exact:true})).toBeVisible();await expect(page.locator('a[href*=\"/searches/activity-\"]').first()).toBeVisible();await capture('provider-health');\n     |                                                                                                                                                                                                                                                                                                                                                                                                      ^\n  41 |  await page.getByRole('navigation',{name:'Operations'}).getByRole('link',{name:/Traffic$/}).click();await expect(page.getByRole('heading',{name:'Provider traffic',exact:true})).toBeVisible();\n  42 |  overview=await read(context);await expect(totals(page)).toHaveText(overview.totals.outbound.toLocaleString('en-GB'));\n  43 |  await page.getByRole('button',{name:'Configuration',exact:true}).click();",
+              "location": {
+                "file": "/Users/mahdizarei/WebstormProjects/torob-ticket/tests/e2e/src/activity-history.spec.ts",
+                "column": 390,
+                "line": 40
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "2deaa2ff62a6b9cf3640-0d90495850a1ed0c97a2",
+      "title": "chromium › direct-login.spec.ts › Direct Login connects a provider, verifies consent and resumes the exact offer with one acquisition",
+      "location": {
+        "file": "/Users/mahdizarei/WebstormProjects/torob-ticket/tests/e2e/src/direct-login.spec.ts",
+        "line": 7,
+        "column": 5
+      },
+      "outcome": "passed",
+      "expectedStatus": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "duration": 12485,
+          "retry": 0,
+          "errors": [],
+          "errorDetails": []
+        }
+      ]
+    },
+    {
+      "id": "6bf94abc51ca47fe14c7-857a3366faca1eef6b45",
+      "title": "chromium › external-provider.spec.ts › external provider exchanges SSO across hosts, displays consented traveler JSON, and reuses its account",
+      "location": {
+        "file": "/Users/mahdizarei/WebstormProjects/torob-ticket/tests/e2e/src/external-provider.spec.ts",
+        "line": 7,
+        "column": 5
+      },
+      "outcome": "passed",
+      "expectedStatus": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "duration": 13208,
+          "retry": 0,
+          "errors": [],
+          "errorDetails": []
+        }
+      ]
+    },
+    {
+      "id": "03ff5a8e528e3d53aff8-0dbcd2fb3a69fce3ff98",
+      "title": "chromium › passport-sso.spec.ts › fresh international reviewer shares passport and English names with new and existing provider accounts",
+      "location": {
+        "file": "/Users/mahdizarei/WebstormProjects/torob-ticket/tests/e2e/src/passport-sso.spec.ts",
+        "line": 70,
+        "column": 5
+      },
+      "outcome": "passed",
+      "expectedStatus": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "duration": 20404,
+          "retry": 0,
+          "errors": [],
+          "errorDetails": []
+        }
+      ]
+    },
+    {
+      "id": "03ff5a8e528e3d53aff8-d732bf466f678087b766",
+      "title": "chromium › passport-sso.spec.ts › existing domestic profile requests missing passport and English names for an international trip",
+      "location": {
+        "file": "/Users/mahdizarei/WebstormProjects/torob-ticket/tests/e2e/src/passport-sso.spec.ts",
+        "line": 102,
+        "column": 5
+      },
+      "outcome": "passed",
+      "expectedStatus": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "duration": 22321,
+          "retry": 0,
+          "errors": [],
+          "errorDetails": []
+        }
+      ]
+    },
+    {
+      "id": "f4e30b99d5530bf13ef1-c435bad637743861d4a8",
+      "title": "chromium › reviewer-sso.spec.ts › fresh reviewer can use external SSO without configuring a provider",
+      "location": {
+        "file": "/Users/mahdizarei/WebstormProjects/torob-ticket/tests/e2e/src/reviewer-sso.spec.ts",
+        "line": 9,
+        "column": 5
+      },
+      "outcome": "passed",
+      "expectedStatus": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "duration": 16236,
+          "retry": 0,
+          "errors": [],
+          "errorDetails": []
+        }
+      ]
+    }
+  ]
+}

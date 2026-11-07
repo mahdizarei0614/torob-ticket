@@ -18,11 +18,11 @@ Verification must distinguish React rendering from visible remount/replay:
 assert city DOM identity, uninterrupted effective opacity and stable geometry
 for unchanged form routes, actual arrow intermediate frames, loaded-ticket→draft
 behavior and reduced motion. Use fresh contexts without resetting reviewer data.
-See the [task brief](https://github.com/mahdizarei0614/torob-ticket/blob/226bd9d929a023d4060ba102602faad9fde97914/docs/evidence/adjustments/map-heading-arrows/task-brief.md).
+See the task brief.
 
 Source and native verification passed, with independent approval. Four actual
 form toggles preserved both city labels at full opacity with0px movement;
 only arrows had16–17 intermediate fade frames. A real cheapest three-city
 itinerary→draft retained its endpoint nodes and cleared obsolete stop/code/service
 facts; their removal legitimately changes spacing. Reduced motion settled with
-zero intermediate arrow frames. See [checkpoint](https://github.com/mahdizarei0614/torob-ticket/blob/226bd9d929a023d4060ba102602faad9fde97914/docs/evidence/adjustments/map-heading-arrows/checkpoint.md).
+zero intermediate arrow frames. See checkpoint.

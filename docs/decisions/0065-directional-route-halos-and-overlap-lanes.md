@@ -48,4 +48,4 @@ Record independent review, scoped local commits and master/SDD/exports; preserve
 unrelated branding/search/token/infra work. No reset, rebuild, market build,
 push/deploy or Superpowers plugin.
 
-[Task and evidence](https://github.com/mahdizarei0614/torob-ticket/blob/226bd9d929a023d4060ba102602faad9fde97914/docs/evidence/adjustments/route-direction-halo/task-brief.md).
+Task and evidence.

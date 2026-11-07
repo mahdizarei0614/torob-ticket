@@ -16,4 +16,4 @@ scramble effects are retained. This supersedes the owner’s previous permission
 for this implementation. No unrelated source, dependencies, runtime data or
 Docker configuration changes. No push or deployment.
 
-[Rollback checkpoint](https://github.com/mahdizarei0614/torob-ticket/blob/226bd9d929a023d4060ba102602faad9fde97914/docs/evidence/adjustments/undo-word-scramble/checkpoint.md).
+Rollback checkpoint.

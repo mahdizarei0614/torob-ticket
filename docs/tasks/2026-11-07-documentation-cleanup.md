@@ -15,3 +15,8 @@ report/config contracts and an isolated pnpm docker:up with fresh history/SSO.
 Do not stop or reset another Docker project, remove any existing data volumes,
 or change private configuration. Record actual evidence and independent review,
 update the main branch and the already-authorized reviewer handoff.
+
+
+Later owner follow-up: [Git history cleanup](2026-11-07-git-history-cleanup.md)
+supersedes the original no-rewrite condition; it does not relabel this step's
+verification or change application data.

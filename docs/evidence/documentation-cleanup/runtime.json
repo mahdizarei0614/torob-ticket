@@ -1,0 +1,26 @@
+{
+  "composeProject": "torobticket-docs-20261107",
+  "sourceBase": "226bd9d929a023d4060ba102602faad9fde97914",
+  "candidate": "documentation cleanup working tree; no application behavior changes",
+  "fiveServicesHealthy": true,
+  "initializerExit": 0,
+  "freshDatabaseBeforeBrowser": {
+    "sealedTemplates": 1,
+    "publicReviewers": 0,
+    "outbound": 7908,
+    "tariffs": 6
+  },
+  "freshReviewer": {
+    "months": [
+      "1405-08",
+      "1405-07",
+      "1405-06"
+    ],
+    "providers": 6,
+    "currentMonthOutbound": 2729
+  },
+  "roadAraConnected": true,
+  "providerHealthRuns": 5569,
+  "frontendsHttp200": true,
+  "noExistingVolumesRemoved": true
+}
