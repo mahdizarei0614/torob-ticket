@@ -3,7 +3,7 @@ import {mkdirSync,writeFileSync} from 'node:fs';
 import {join} from 'node:path';
 import type {SearchRecovery,TransportSearchQuery} from '@torob-ticket/contracts';
 
-const evidence=process.env.RANKING_TRADEOFF_EVIDENCE_DIR??'docs/evidence/adjustments/ranking-tradeoffs/native';
+const evidence=process.env.RANKING_TRADEOFF_EVIDENCE_DIR??'.local/evidence/adjustments/ranking-tradeoffs/native';
 const base:TransportSearchQuery={mode:'flight',scope:'international',tripType:'one-way',originCityId:'tehran',destinationCityId:'london',departureDate:'2026-11-02',party:{adults:1,children:0,infants:0},classCode:'economy',filters:{},sort:'cheapest'};
 const region=(page:Page)=>page.getByRole('region',{name:'نتایج مقایسه سفر',exact:true});
 function record(name:string,value:unknown){mkdirSync(evidence,{recursive:true});writeFileSync(join(evidence,name+'.json'),JSON.stringify(value,null,2)+'\n');}

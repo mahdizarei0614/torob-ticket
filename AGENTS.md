@@ -18,6 +18,9 @@ implementation rulings in the SDD ledger and docs/decisions.
 - Keep each reviewer's mutable data isolated on the server.
 - Use meaningful behavior tests, actual verification evidence, and independent
   task reviews. Record commits and evidence in the master tracker.
+- Generate raw verification output under ignored `.local/evidence/<named-run>/`.
+  Keep concise reviewed evidence in docs; historical paths are archived via
+  docs/evidence/README.md. Test/curation inputs belong with source tools/fixtures.
 - Do not push, publish, deploy, or submit an application without instruction.
 
 ## Automatic market-build versioning

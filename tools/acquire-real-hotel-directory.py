@@ -13,7 +13,7 @@ import time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-RESEARCH = ROOT / 'docs/evidence/adjustments/real-hotel-directory/research'
+RESEARCH = ROOT / 'tools/hotel-directory'
 UA = 'TorobTicketLocalHotelDirectory/1.0 offline-data-curation'
 
 def acquire(url, path, refresh=False):
@@ -49,7 +49,7 @@ def main():
         ids = [str(c['osmId']) for c in candidates if c['osmType'] == object_type]
         for index, batch in enumerate(batches(ids)):
             digest = hashlib.sha256(','.join(batch).encode()).hexdigest()[:12]
-            path = RESEARCH / 'osm' / f'{object_type}s-{digest}.json'
+            path = ROOT / '.local/evidence/hotel-directory-acquisition' / f'{object_type}s-{digest}.json'
             url = f'https://api.openstreetmap.org/api/0.6/{object_type}s.json?{object_type}s=' + ','.join(batch)
             payload = acquire(url, path, args.refresh)
             for element in payload['elements']:
@@ -59,14 +59,14 @@ def main():
                     if element['type'] == 'way' for node in element['nodes']]
     for index, batch in enumerate(batches(needed_nodes, 200)):
         digest = hashlib.sha256(','.join(batch).encode()).hexdigest()[:12]
-        path = RESEARCH / 'osm' / f'geometry-nodes-{digest}.json'
+        path = ROOT / '.local/evidence/hotel-directory-acquisition' / f'geometry-nodes-{digest}.json'
         url = 'https://api.openstreetmap.org/api/0.6/nodes.json?nodes=' + ','.join(batch)
         for element in acquire(url, path, args.refresh)['elements']:
             result[(element['type'], element['id'])] = element
         print(f'geometry batch {index}: {len(batch)} nodes', flush=True)
     relations = sorted({str(c['osmId']) for c in candidates if c['osmType'] == 'relation'}, key=int)
     for relation in relations:
-        path = RESEARCH / 'osm' / f'relation-{relation}.json'
+        path = ROOT / '.local/evidence/hotel-directory-acquisition' / f'relation-{relation}.json'
         url = f'https://api.openstreetmap.org/api/0.6/relation/{relation}/full.json'
         for element in acquire(url, path, args.refresh)['elements']:
             result[(element['type'], element['id'])] = element

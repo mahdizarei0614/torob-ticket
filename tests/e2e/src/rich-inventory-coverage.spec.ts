@@ -16,7 +16,7 @@ const test = ownedTest.extend({
   },
 });
 test.use({ trace: 'off' });
-const out = resolve(process.env.RICH_INVENTORY_EVIDENCE_DIR ?? 'docs/evidence/adjustments/rich-inventory-coverage/native/smoke');
+const out = resolve(process.env.RICH_INVENTORY_EVIDENCE_DIR ?? '.local/evidence/adjustments/rich-inventory-coverage/native/smoke');
 const sourceRevision = 'source-v5-schedule-tradeoffs-2026-10-30';
 const party = { adults: 1, children: 0, infants: 0 };
 const result = (page: Page) => page.getByRole('region', { name: 'نتایج مقایسه سفر', exact: true });

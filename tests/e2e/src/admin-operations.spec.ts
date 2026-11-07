@@ -1,7 +1,7 @@
 import {test,expect,type APIRequestContext,type BrowserContext} from '@playwright/test';
 import {writeFileSync,mkdirSync} from 'node:fs';
 import {resolve} from 'node:path';
-const dir=resolve(process.env.M5_EVIDENCE_DIR??'docs/evidence/M5/browser');mkdirSync(dir,{recursive:true});
+const dir=resolve(process.env.M5_EVIDENCE_DIR??'.local/evidence/M5/browser');mkdirSync(dir,{recursive:true});
 const query={mode:'flight',scope:'domestic',tripType:'one-way',originCityId:'tehran',destinationCityId:'mashhad',departureDate:'2026-10-25',party:{adults:1,children:0,infants:0},classCode:'economy',filters:{},sort:'cheapest'};
 const path=(x:string)=>'/api/v1/'+x;
 async function seed(api:APIRequestContext){const r=await api.post(path('demo/session'),{data:{seed:5326,anchorInstant:'2026-10-25T00:00:00Z'}});expect(r.status()).toBe(201);}

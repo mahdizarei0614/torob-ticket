@@ -17,7 +17,7 @@ Historical mock terminology is technical history, not current product UI copy.
 | Why do hotels follow arrival? | [0061 arrival discovery](0061-arrival-based-hotel-discovery.md), [0064 real geography](0064-real-hotel-geography-and-hover-pins.md) |
 | Why are fastest and fewest stops separate? | [0063 trade-offs](0063-independent-duration-and-connection-tradeoffs.md) |
 | What is measured versus assumed? | [0075 accessibility](0075-t31-accessibility-and-browser-audit.md), [0076 graphics](0076-t32-graphics-visual-and-resource-acceptance.md), [release evidence](../evidence/release/README.md) |
-| What are the reviewer-material boundaries? | [0078 reviewer materials](0078-reviewer-materials-and-evidence-scope.md), [T34 opening brief](../evidence/T34/task-brief.md), [limitations](../limitations.md) |
+| What are the reviewer-material boundaries? | [0078 reviewer materials](0078-reviewer-materials-and-evidence-scope.md), [T34 opening brief](https://github.com/mahdizarei0614/torob-ticket/blob/226bd9d929a023d4060ba102602faad9fde97914/docs/evidence/T34/task-brief.md), [limitations](../limitations.md) |
 
 ## Numbered records
 

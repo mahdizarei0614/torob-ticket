@@ -24,7 +24,7 @@ function evidencePathContains(root, path) {
 /** A run may own a named child folder, never a broad source/evidence/home/temp tree. */
 function evidenceRootPath(path, workspace = process.cwd()) {
   const root = canonicalEvidencePath(path);
-  const protectedPaths = [workspace, homedir(), tmpdir(), '/tmp', resolve(workspace, 'docs/evidence'), resolve(workspace, 'docs/evidence/T30')];
+  const protectedPaths = [workspace, homedir(), tmpdir(), '/tmp', resolve(workspace, '.local'), resolve(workspace, '.local/evidence'), resolve(workspace, '.local/evidence/T30'), resolve(workspace, 'docs/evidence'), resolve(workspace, 'docs/evidence/T30')];
   if (protectedPaths.some(anchor => evidencePathContains(root, canonicalEvidencePath(anchor)))) {
     throw new Error('E2E evidence must use a specific run folder, not a protected tree');
   }

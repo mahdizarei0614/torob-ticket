@@ -93,7 +93,7 @@ async function canonicalFuture(path) {
 const contains = (parent, child) => { const part = relative(parent, child); return part === '' || part !== '..' && !part.startsWith('..' + sep) && !isAbsolute(part); };
 export async function createReportDirectory(path, root = workspace) {
   const candidate = await canonicalFuture(resolve(root, path));
-  const anchors = [root, homedir(), tmpdir(), '/tmp', resolve(root, 'docs/evidence'), resolve(root, 'docs/evidence/release'), resolve(root, 'docs/evidence/T33')];
+  const anchors = [root, homedir(), tmpdir(), '/tmp', resolve(root, '.local'), resolve(root, '.local/evidence'), resolve(root, '.local/evidence/release'), resolve(root, '.local/evidence/T33'), resolve(root, 'docs/evidence'), resolve(root, 'docs/evidence/release'), resolve(root, 'docs/evidence/T33')];
   for (const anchor of anchors) if (contains(candidate, await canonicalFuture(anchor))) throw problem('unsafe-report', 'Use a new, specific child report directory, not a protected parent.');
   try { await lstat(candidate); throw problem('existing-report', 'The report directory must not already exist; prior evidence is preserved.'); } catch (error) { if (error.code !== 'ENOENT') throw error; }
   await mkdir(dirname(candidate), { recursive: true });

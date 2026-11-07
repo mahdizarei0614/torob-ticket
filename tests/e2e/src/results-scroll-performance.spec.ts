@@ -3,7 +3,7 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import type { SearchRecovery, TransportSearchQuery } from '@torob-ticket/contracts';
 
-const evidence = resolve(process.env.SCROLL_PERFORMANCE_EVIDENCE_DIR ?? 'docs/evidence/adjustments/results-scroll-performance/native/behavior');
+const evidence = resolve(process.env.SCROLL_PERFORMANCE_EVIDENCE_DIR ?? '.local/evidence/adjustments/results-scroll-performance/native/behavior');
 const query: TransportSearchQuery = { mode: 'flight', scope: 'domestic', tripType: 'one-way', originCityId: 'tehran', destinationCityId: 'mashhad', departureDate: '2026-11-02', party: { adults: 1, children: 0, infants: 0 }, classCode: 'economy', filters: {}, sort: 'cheapest' };
 
 for (const width of [1366, 390]) test(`@results-scroll ${width}px defers native rendering and preserves exact offscreen choice, details, keyboard and sorting`, async ({ context, page, browser }) => {

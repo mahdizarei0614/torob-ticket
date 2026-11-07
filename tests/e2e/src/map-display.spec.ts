@@ -2,7 +2,7 @@ import {test,expect,type Page} from '@playwright/test';
 import {mkdirSync,writeFileSync} from 'node:fs';
 import {resolve} from 'node:path';
 import {CatalogSnapshotSchema,SearchRecoverySchema,type TransportSearchQuery} from '@torob-ticket/contracts';
-const evidence=resolve(process.env.MAP_DISPLAY_EVIDENCE_DIR??'docs/evidence/adjustments/read-only-map/browser');
+const evidence=resolve(process.env.MAP_DISPLAY_EVIDENCE_DIR??'.local/evidence/adjustments/read-only-map/browser');
 const query:TransportSearchQuery={mode:'flight',scope:'domestic',tripType:'one-way',originCityId:'tehran',destinationCityId:'mashhad',departureDate:'2026-10-25',party:{adults:1,children:0,infants:0},classCode:'economy',filters:{},sort:'cheapest'};
 const map=(page:Page)=>page.getByRole('complementary',{name:'نقشه سفر',exact:true});
 async function open(page:Page){await page.setViewportSize({width:1440,height:1000});await page.goto('/?q='+encodeURIComponent(JSON.stringify(query)));await expect(page.getByRole('button',{name:'جست‌وجوی سفر',exact:true})).toBeEnabled();await expect(map(page).locator('[data-camera]')).toBeVisible();}

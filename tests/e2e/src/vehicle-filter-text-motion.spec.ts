@@ -2,7 +2,7 @@ import { test, expect, type Locator, type Page } from '@playwright/test';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
-const evidence = resolve(process.env.E2E_EVIDENCE_DIR ?? 'docs/evidence/adjustments/vehicle-filter-text-motion/native');
+const evidence = resolve(process.env.E2E_EVIDENCE_DIR ?? '.local/evidence/adjustments/vehicle-filter-text-motion/native');
 const query = { mode: 'flight', scope: 'domestic', tripType: 'one-way', originCityId: 'tehran', destinationCityId: 'mashhad', departureDate: '2026-11-02', party: { adults: 1, children: 0, infants: 0 }, classCode: 'economy', filters: {}, sort: 'cheapest' };
 interface Frame {
  time: number; width: number; slots: { id: string; present: string; opacity: number; width: number; retiredSafe: boolean }[];

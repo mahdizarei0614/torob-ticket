@@ -33,8 +33,8 @@ identities and zero browser errors passed through a custom4350 gateway. The
 original4300 database/container and exact48-quote snapshot survived switching to
 development mode. A separate4350 reverse-mode rehearsal retained its database,
 served packaged pages, and was then removed after ownership checks. The normal
-4300 stack remains in development mode. See the [checkpoint](../evidence/adjustments/docker-hot-reload/checkpoint.md)
-and [independent review](../evidence/adjustments/docker-hot-reload/review-independent.md).
+4300 stack remains in development mode. See the [checkpoint](https://github.com/mahdizarei0614/torob-ticket/blob/226bd9d929a023d4060ba102602faad9fde97914/docs/evidence/adjustments/docker-hot-reload/checkpoint.md)
+and [independent review](https://github.com/mahdizarei0614/torob-ticket/blob/226bd9d929a023d4060ba102602faad9fde97914/docs/evidence/adjustments/docker-hot-reload/review-independent.md).
 
 This closes the owner's development-runtime adjustment. It does not close the
 remaining M7 acceptance matrix or assert interruption-free in-flight API work.

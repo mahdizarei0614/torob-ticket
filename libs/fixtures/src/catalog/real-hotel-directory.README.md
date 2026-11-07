@@ -11,7 +11,7 @@ Each row has a stable `city-osm-type-id` identifier, original OSM identity and
 source URL, object version/timestamp, point derivation, source tags and discovery
 or corroboration URLs. Primary source objects and a per-city/exclusion report
 are retained under
-`docs/evidence/adjustments/real-hotel-directory/research/`.
+`tools/hotel-directory/`.
 
 ## Geography and admission rules
 
@@ -56,7 +56,7 @@ From the repository root:
 
 ```sh
 python3 tools/acquire-real-hotel-directory.py
-python3 docs/evidence/adjustments/real-hotel-directory/research/curate-directory.py
+python3 tools/hotel-directory/curate-directory.py
 ```
 
 The acquisition script reads the explicit discovery list plus all 56 selected

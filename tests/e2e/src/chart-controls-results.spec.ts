@@ -5,7 +5,7 @@ import {
   AdminControlConfigSchema, SearchRecoverySchema,
   type DatePriceCell, type DemoScenario, type SearchRecovery,
 } from '@torob-ticket/contracts';
-const out=resolve(process.env.REFINEMENTS_EVIDENCE_DIR??'docs/evidence/adjustments/chart-controls-results/native');
+const out=resolve(process.env.REFINEMENTS_EVIDENCE_DIR??'.local/evidence/adjustments/chart-controls-results/native');
 const query={mode:'flight',scope:'domestic',tripType:'one-way',originCityId:'tehran',destinationCityId:'mashhad',departureDate:'2026-11-01',party:{adults:1,children:0,infants:0},classCode:'economy',filters:{},sort:'fastest'};
 const results=(page:Page)=>page.getByRole('region',{name:'نتایج مقایسه سفر',exact:true});
 const record=(name:string,data:unknown)=>writeFileSync(resolve(out,name+'.json'),JSON.stringify(data,null,2));

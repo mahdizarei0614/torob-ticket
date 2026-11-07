@@ -7,6 +7,13 @@
 
 ## 1. Intent and success
 
+**Owner documentation cleanup, 2026-11-07 (decision0095):** keep concise reviewer
+and engineering guides plus selected proof. Archive bulky historical evidence by
+immutable Git links; relocate executable test/curation inputs into their owning
+source directories. Generate future reports under ignored `.local/evidence` with
+parent-path and privacy protections. Preserve runtime data, seeds, SSO and Git
+history. This is documentation/tooling cleanup, not a product behavior change.
+
 **Owner reviewer-data follow-up,2026-11-07 (decision0094):** ordinary local
 Docker startup prepares three months of activity and independent copies for each
 fresh reviewer workspace; no manual import is needed. Gate automatic setup on

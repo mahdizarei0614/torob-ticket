@@ -2,7 +2,7 @@ import { test, expect } from '../fixtures';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
-const evidence = resolve(process.env.SEARCH_CONTROLS_EVIDENCE_DIR ?? 'docs/evidence/adjustments/search-controls-tooltips/native');
+const evidence = resolve(process.env.SEARCH_CONTROLS_EVIDENCE_DIR ?? '.local/evidence/adjustments/search-controls-tooltips/native');
 const query = { mode: 'flight', scope: 'domestic', tripType: 'one-way', originCityId: 'tehran', destinationCityId: 'mashhad', departureDate: '2026-11-02', party: { adults: 1, children: 0, infants: 0 }, classCode: 'economy', filters: {}, sort: 'cheapest' };
 
 for (const width of [1366, 390]) {

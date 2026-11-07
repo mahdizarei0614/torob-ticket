@@ -146,7 +146,7 @@ export async function measureApp(directory, { base = '/', graphicsRoot = key => 
 }
 
 async function main() {
-  const args = process.argv.slice(2); const options = { web: 'dist/t32/web', admin: 'dist/t32/admin', output: 'docs/evidence/T32/bundles/bundle-report.json' };
+  const args = process.argv.slice(2); const options = { web: 'dist/t32/web', admin: 'dist/t32/admin', output: '.local/evidence/T32/bundles/bundle-report.json' };
   for (let index = 0; index < args.length; index += 2) {
     const key = args[index].replace(/^--/, '');
     if (!Object.hasOwn(options, key) || !args[index + 1]) throw new Error('Usage: measure-bundles.mjs [--web path] [--admin path] [--output report.json]');

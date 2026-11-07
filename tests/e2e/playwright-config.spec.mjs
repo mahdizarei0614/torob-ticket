@@ -36,7 +36,7 @@ test('explicit graphics and legacy development modes retain their own server own
  const dev=load({E2E_DEV_SERVERS:'1'});assert.equal(dev.status,0,dev.stderr);assert.equal(dev.value.servers.length,3);assert.equal(dev.value.origin,'http://127.0.0.1:4300');
 });
 test('evidence roots reject broad trees and canonical symlink aliases while allowing a new owned child',()=>{
- for(const path of ['/',repo,resolve(repo,'..'),homedir(),tmpdir(),'/tmp',resolve(repo,'docs/evidence'),resolve(repo,'docs/evidence/T30')])assert.notEqual(load({E2E_EVIDENCE_DIR:path}).status,0);
+ for(const path of ['/',repo,resolve(repo,'..'),homedir(),tmpdir(),'/tmp',resolve(repo,'.local'),resolve(repo,'.local/evidence'),resolve(repo,'.local/evidence/T30'),resolve(repo,'docs/evidence'),resolve(repo,'docs/evidence/T30')])assert.notEqual(load({E2E_EVIDENCE_DIR:path}).status,0);
  const alias=resolve(evidence,'repo-alias');symlinkSync(repo,alias,'dir');assert.notEqual(load({E2E_EVIDENCE_DIR:alias}).status,0);
  const child=resolve(evidence,'new-owned-run'),accepted=load({E2E_EVIDENCE_DIR:child});assert.equal(accepted.status,0,accepted.stderr);assert.equal(accepted.value.metadata.evidenceRoot,realpathSync(child));assert.equal(accepted.value.output,resolve(realpathSync(child),'artifacts'));
 });

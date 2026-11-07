@@ -2,7 +2,7 @@ import {test,expect,type Page,type Locator} from '@playwright/test';
 import {mkdirSync,writeFileSync} from 'node:fs';
 import {resolve} from 'node:path';
 import type {SearchRecovery,TransportSearchQuery} from '@torob-ticket/contracts';
-const evidence=resolve(process.env.MAP_ATMOSPHERE_EVIDENCE_DIR??'docs/evidence/adjustments/atmospheric-map/browser');
+const evidence=resolve(process.env.MAP_ATMOSPHERE_EVIDENCE_DIR??'.local/evidence/adjustments/atmospheric-map/browser');
 const query:TransportSearchQuery={mode:'flight',scope:'domestic',tripType:'one-way',originCityId:'tehran',destinationCityId:'mashhad',departureDate:'2026-10-25',party:{adults:1,children:0,infants:0},classCode:'economy',filters:{},sort:'cheapest'};
 const map=(page:Page)=>page.getByRole('complementary',{name:'نقشه سفر',exact:true});
 const presentation=(page:Page)=>page.locator('[data-route-presentation]');

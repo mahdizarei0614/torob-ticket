@@ -58,4 +58,4 @@ new one-night summary: refresh the automatic query without rewriting old facts.
 A compatible one-night return can retain verified higher-version quote lineage.
 No immutable fixtures, provider adapters or backend pricing changes are needed.
 
-[Task and evidence](../evidence/adjustments/arrival-hotel-discovery/task-brief.md).
+[Task and evidence](https://github.com/mahdizarei0614/torob-ticket/blob/226bd9d929a023d4060ba102602faad9fde97914/docs/evidence/adjustments/arrival-hotel-discovery/task-brief.md).

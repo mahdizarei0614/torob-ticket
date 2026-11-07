@@ -3,7 +3,7 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import type { TransportSearchQuery } from '@torob-ticket/contracts';
 
-const evidence = resolve(process.env.JOURNEY_MOTION_EVIDENCE_DIR ?? 'docs/evidence/adjustments/compact-journey/browser');
+const evidence = resolve(process.env.JOURNEY_MOTION_EVIDENCE_DIR ?? '.local/evidence/adjustments/compact-journey/browser');
 const base: TransportSearchQuery = { mode: 'flight', scope: 'domestic', tripType: 'one-way', originCityId: 'tehran', destinationCityId: 'mashhad', departureDate: '2026-10-25', party: { adults: 1, children: 0, infants: 0 }, classCode: 'economy', filters: {}, sort: 'cheapest' };
 interface Draw { mode: number; opacity: number; blur: number; angle: number; x: number; y: number; time: number }
 interface Observed { morphPrograms: {linked:boolean;perParticleFade:boolean;interpolatedPositions:boolean}[]; morphDraws:{count:number;progress:number;gate:number}[]; morph: number[]; opacity: number[]; particles: number[]; vehicles: Draw[]; failures: string[]; lost: number }

@@ -1,0 +1,484 @@
+{
+  "revision": "hotel-directory-osm-2026-10-30",
+  "status": "complete",
+  "hotelCount": 301,
+  "cityCount": 34,
+  "cityCoverage": {
+    "tehran": 14,
+    "mashhad": 14,
+    "isfahan": 14,
+    "shiraz": 14,
+    "tabriz": 5,
+    "rasht": 7,
+    "yazd": 8,
+    "ahvaz": 6,
+    "bandar-abbas": 6,
+    "kerman": 5,
+    "hamadan": 7,
+    "kermanshah": 3,
+    "istanbul": 12,
+    "van": 6,
+    "yerevan": 11,
+    "dubai": 10,
+    "tbilisi": 11,
+    "baku": 6,
+    "ankara": 4,
+    "doha": 8,
+    "muscat": 8,
+    "moscow": 5,
+    "london": 14,
+    "paris": 9,
+    "frankfurt": 10,
+    "new-york": 8,
+    "los-angeles": 8,
+    "toronto": 6,
+    "singapore": 11,
+    "bangkok": 11,
+    "tokyo": 14,
+    "sydney": 14,
+    "auckland": 7,
+    "tatvan": 5
+  },
+  "missingCities": [],
+  "excluded": [
+    {
+      "cityId": "rasht",
+      "osmType": "node",
+      "osmId": "12508233540",
+      "name": "اقامتگاه همنشین",
+      "reason": "Primary object is not tagged tourism=hotel.",
+      "cityDistanceKm": 5.549
+    },
+    {
+      "cityId": "rasht",
+      "osmType": "node",
+      "osmId": "4640134371",
+      "name": "خانه معلم رشت",
+      "reason": "Teacher-house access/ordinary public hotel eligibility is not established.",
+      "cityDistanceKm": 4.668
+    },
+    {
+      "cityId": "rasht",
+      "osmType": "way",
+      "osmId": "457504145",
+      "name": "مهمانسرای ملوان رشت",
+      "reason": "Club guesthouse; ordinary public hotel eligibility not established.",
+      "cityDistanceKm": 4.17
+    },
+    {
+      "cityId": "yazd",
+      "osmType": "node",
+      "osmId": "5078153121",
+      "name": "هتل هفت یازده",
+      "reason": "711 guesthouse lies 23m from Khansalar; possible alternate/hostel identity omitted conservatively.",
+      "cityDistanceKm": 2.098
+    },
+    {
+      "cityId": "yazd",
+      "osmType": "node",
+      "osmId": "4484099889",
+      "name": "هتل سنتی عقدا",
+      "reason": "Wrong city or distant regional property outside curated destination scope.",
+      "cityDistanceKm": 90.831
+    },
+    {
+      "cityId": "ahvaz",
+      "osmType": "way",
+      "osmId": "451016710",
+      "name": "مهمانسرای نفت",
+      "reason": "Primary object is not tagged tourism=hotel.",
+      "cityDistanceKm": 7.023
+    },
+    {
+      "cityId": "ahvaz",
+      "osmType": "node",
+      "osmId": "8512836517",
+      "name": "Awhaz - hotel na bazarze",
+      "reason": "Descriptive Polish label does not establish a specific property identity.",
+      "cityDistanceKm": 5.529
+    },
+    {
+      "cityId": "bandar-abbas",
+      "osmType": "node",
+      "osmId": "5820632657",
+      "name": "خانه مس بندرعباس",
+      "reason": "Primary object is not tagged tourism=hotel.",
+      "cityDistanceKm": 5.552
+    },
+    {
+      "cityId": "bandar-abbas",
+      "osmType": "way",
+      "osmId": "476873510",
+      "name": "هتل و رستوران گلشهر",
+      "reason": "Primary object is not tagged tourism=hotel.",
+      "cityDistanceKm": 7.027
+    },
+    {
+      "cityId": "kerman",
+      "osmType": "node",
+      "osmId": "4223131289",
+      "name": "هتل جهانگردی بم",
+      "reason": "Wrong city or distant regional property outside curated destination scope.",
+      "cityDistanceKm": 182.077
+    },
+    {
+      "cityId": "kerman",
+      "osmType": "node",
+      "osmId": "6515882886",
+      "name": "Kavir Guesthouse",
+      "reason": "Wrong city or distant regional property outside curated destination scope.",
+      "cityDistanceKm": 71.721
+    },
+    {
+      "cityId": "kerman",
+      "osmType": "node",
+      "osmId": "14197003502",
+      "name": "رستوران شاه عباسی",
+      "reason": "Wrong city or distant regional property outside curated destination scope.",
+      "cityDistanceKm": 164.569
+    },
+    {
+      "cityId": "kerman",
+      "osmType": "way",
+      "osmId": "854177389",
+      "name": "هتل ستاره لوت",
+      "reason": "Wrong city or distant regional property outside curated destination scope.",
+      "cityDistanceKm": 73.258
+    },
+    {
+      "cityId": "kerman",
+      "osmType": "node",
+      "osmId": "5030320423",
+      "name": "هزار",
+      "reason": "Duplicate Hezar Hotel property; retain richer primary OSM object 5016468221.",
+      "cityDistanceKm": 2.305
+    },
+    {
+      "cityId": "hamadan",
+      "osmType": "node",
+      "osmId": "6895883287",
+      "name": "هتل پردیس ناجا همدان",
+      "reason": "Primary object is not tagged tourism=hotel.",
+      "cityDistanceKm": 1.022
+    },
+    {
+      "cityId": "hamadan",
+      "osmType": "node",
+      "osmId": "5091293867",
+      "name": "هتل جهانگردی علیصدر",
+      "reason": "Wrong city or distant regional property outside curated destination scope.",
+      "cityDistanceKm": 59.717
+    },
+    {
+      "cityId": "kermanshah",
+      "osmType": "way",
+      "osmId": "535008664",
+      "name": "هتل ثامن الحجج",
+      "reason": "Wrong city or distant regional property outside curated destination scope.",
+      "cityDistanceKm": 145.448
+    },
+    {
+      "cityId": "kermanshah",
+      "osmType": "node",
+      "osmId": "12674297951",
+      "name": "هتل رستوران ژیار",
+      "reason": "Wrong city or distant regional property outside curated destination scope.",
+      "cityDistanceKm": 52.172
+    },
+    {
+      "cityId": "kermanshah",
+      "osmType": "way",
+      "osmId": "1087299467",
+      "name": "هتل امام رضا",
+      "reason": "Wrong city or distant regional property outside curated destination scope.",
+      "cityDistanceKm": 145.207
+    },
+    {
+      "cityId": "kermanshah",
+      "osmType": "way",
+      "osmId": "1549899334",
+      "name": "هتل بوتیک آریانا",
+      "reason": "Primary object is not tagged tourism=hotel.",
+      "cityDistanceKm": 7.237
+    },
+    {
+      "cityId": "kermanshah",
+      "osmType": "node",
+      "osmId": "4640340599",
+      "name": "خانه معلم کرمانشاه",
+      "reason": "Teacher-house access/ordinary public hotel eligibility is not established.",
+      "cityDistanceKm": 5.835
+    },
+    {
+      "cityId": "istanbul",
+      "osmType": "way",
+      "osmId": "522095111",
+      "name": "Gonen Hotel",
+      "reason": "Primary object is not tagged tourism=hotel.",
+      "cityDistanceKm": 13.188
+    },
+    {
+      "cityId": "yerevan",
+      "osmType": "node",
+      "osmId": "11181240422",
+      "name": "Հյուրանոց",
+      "reason": "Generic word hotel is not a verifiable property name.",
+      "cityDistanceKm": 0.844
+    },
+    {
+      "cityId": "doha",
+      "osmType": "node",
+      "osmId": "4417542190",
+      "name": "Sks 108 Bldg.",
+      "reason": "Generic building label does not establish a hotel property name.",
+      "cityDistanceKm": 2.257
+    },
+    {
+      "cityId": "muscat",
+      "osmType": "way",
+      "osmId": "1377090403",
+      "name": "معاني مسقط",
+      "reason": "Primary object is not tagged tourism=hotel.",
+      "cityDistanceKm": 21.603
+    },
+    {
+      "cityId": "frankfurt",
+      "osmType": "way",
+      "osmId": "173992029",
+      "name": "Le Méridien Parkhotel Frankfurt",
+      "reason": "Primary object is not tagged tourism=hotel.",
+      "cityDistanceKm": 1.244
+    },
+    {
+      "cityId": "new-york",
+      "osmType": "node",
+      "osmId": "3676888125",
+      "name": "Union Square Inn",
+      "reason": "Former Union Square Inn is current extended-stay apartments with rental application and lease requirements; official operator does not establish ordinary one-night hotel inventory.",
+      "cityDistanceKm": 1.508
+    },
+    {
+      "cityId": "new-york",
+      "osmType": "way",
+      "osmId": "265320185",
+      "name": "Ramada",
+      "reason": "Former Ramada343West44th repurposed as multi-year Project Renewal shelter; NYC official community-board corroboration recorded.",
+      "cityDistanceKm": 4.246
+    },
+    {
+      "cityId": "los-angeles",
+      "osmType": "way",
+      "osmId": "428021776",
+      "name": "Courtyard and Residence Inn",
+      "reason": "Primary object is not tagged tourism=hotel.",
+      "cityDistanceKm": 3.138
+    },
+    {
+      "cityId": "los-angeles",
+      "osmType": "way",
+      "osmId": "428017466",
+      "name": "Sanborn Hotel",
+      "reason": "Residential/SRO identity needs current public hotel corroboration.",
+      "cityDistanceKm": 1.602
+    },
+    {
+      "cityId": "toronto",
+      "osmType": "node",
+      "osmId": "5064277922",
+      "name": "Travelodge Toronto East",
+      "reason": "Historical Travelodge Toronto East identity needs current operator corroboration.",
+      "cityDistanceKm": 18.45
+    },
+    {
+      "cityId": "toronto",
+      "osmType": "way",
+      "osmId": "150512482",
+      "name": "The Strathcona Hotel",
+      "reason": "Primary object is not tagged tourism=hotel.",
+      "cityDistanceKm": 2.11
+    },
+    {
+      "cityId": "toronto",
+      "osmType": "way",
+      "osmId": "150506087",
+      "name": "Parkside Student Residence",
+      "reason": "Student residence; unrestricted hotel inventory not established.",
+      "cityDistanceKm": 1.038
+    },
+    {
+      "cityId": "singapore",
+      "osmType": "node",
+      "osmId": "4302905910",
+      "name": "Local",
+      "reason": "Generic Local hotel label does not establish a property identity.",
+      "cityDistanceKm": 0.552
+    },
+    {
+      "cityId": "singapore",
+      "osmType": "node",
+      "osmId": "4302906625",
+      "name": "iStay.inn",
+      "reason": "Hostel-style iStay.inn identity not suitable for the authored hotel room inventory.",
+      "cityDistanceKm": 1.6
+    },
+    {
+      "cityId": "singapore",
+      "osmType": "node",
+      "osmId": "4302906351",
+      "name": "The Club",
+      "reason": "Historical The Club identity needs current operator corroboration.",
+      "cityDistanceKm": 1.823
+    },
+    {
+      "cityId": "tokyo",
+      "osmType": "way",
+      "osmId": "573333754",
+      "name": "東京マリオットホテル",
+      "reason": "Primary object is not tagged tourism=hotel.",
+      "cityDistanceKm": 7.327
+    },
+    {
+      "cityId": "sydney",
+      "osmType": "way",
+      "osmId": "173175334",
+      "name": "Travelodge",
+      "reason": "Primary object is not tagged tourism=hotel.",
+      "cityDistanceKm": 0.777
+    },
+    {
+      "cityId": "bandar-abbas",
+      "osmType": "node",
+      "osmId": "12805955764",
+      "name": "مهمانپذیر ولی عصر",
+      "reason": "Primary object is not tagged tourism=hotel.",
+      "cityDistanceKm": 2.827
+    },
+    {
+      "cityId": "rasht",
+      "osmType": "node",
+      "osmId": "4557642336",
+      "name": "هتل کویستان",
+      "reason": "Wrong city or distant regional property outside curated destination scope.",
+      "cityDistanceKm": 351.084
+    },
+    {
+      "cityId": "doha",
+      "osmType": "node",
+      "osmId": "11626362759",
+      "name": "Oryx Garden Hotel",
+      "reason": "Airside transit-only Oryx Garden property; eligibility is outside the destination hotel flow.",
+      "cityDistanceKm": 8.145
+    },
+    {
+      "cityId": "doha",
+      "osmType": "node",
+      "osmId": "7161285151",
+      "name": "Oryx Airport Hotel",
+      "reason": "Airside transit-only property; eligibility is not part of this destination hotel flow.",
+      "cityDistanceKm": 8.561
+    },
+    {
+      "cityId": "muscat",
+      "osmType": "node",
+      "osmId": "1733186698",
+      "name": "Golden Tulip Seeb",
+      "reason": "Golden Tulip Seeb closed in 2019; historical OSM hotel tag is stale (closure corroboration recorded).",
+      "cityDistanceKm": 7.576
+    },
+    {
+      "cityId": "muscat",
+      "osmType": "node",
+      "osmId": "3700225356",
+      "name": "Muscat International Hotel",
+      "reason": "Wrong city or distant regional property outside curated destination scope.",
+      "cityDistanceKm": 856.333
+    },
+    {
+      "cityId": "singapore",
+      "osmType": "node",
+      "osmId": "1846569486",
+      "name": "Changi Village Hotel",
+      "reason": "Primary object is not tagged tourism=hotel.",
+      "cityDistanceKm": 18.167
+    },
+    {
+      "cityId": "bangkok",
+      "osmType": "node",
+      "osmId": "5655312739",
+      "name": "Novotel Bali Ngurah Rai Airport",
+      "reason": "Wrong city or distant regional property outside curated destination scope.",
+      "cityDistanceKm": 2978.487
+    },
+    {
+      "cityId": "bangkok",
+      "osmType": "way",
+      "osmId": "256942116",
+      "name": "Hyatt Regency",
+      "reason": "Wrong city or distant regional property outside curated destination scope.",
+      "cityDistanceKm": 2634.067
+    },
+    {
+      "cityId": "sydney",
+      "osmType": "way",
+      "osmId": "540509392",
+      "name": "Rydges City Central",
+      "reason": "Primary object is not tagged tourism=hotel.",
+      "cityDistanceKm": 1.2
+    },
+    {
+      "cityId": "sydney",
+      "osmType": "way",
+      "osmId": "182387059",
+      "name": "Rydges",
+      "reason": "Wrong city or distant regional property outside curated destination scope.",
+      "cityDistanceKm": 778.553
+    },
+    {
+      "cityId": "tatvan",
+      "osmType": "node",
+      "osmId": "9798206209",
+      "name": "Park Hotel",
+      "reason": "Park Hotel lies 49m from Crater; current independent identity not corroborated, omitted conservatively.",
+      "cityDistanceKm": 0.47
+    },
+    {
+      "cityId": "istanbul",
+      "osmType": "node",
+      "osmId": "6313204370",
+      "name": "Yotelair Istanbul Airport (Airside)",
+      "reason": "Airside transit-only property; official YOTEL guidance distinguishes it from landside.",
+      "cityDistanceKm": 33.421
+    }
+  ],
+  "curatedCapExclusions": [
+    {
+      "cityId": "london",
+      "hotelId": "london-osm-way-94758902",
+      "reason": "Curated 14-property city cap / airport-area balance."
+    },
+    {
+      "cityId": "london",
+      "hotelId": "london-osm-way-1170793039",
+      "reason": "Curated 14-property city cap / airport-area balance."
+    },
+    {
+      "cityId": "london",
+      "hotelId": "london-osm-way-187395726",
+      "reason": "Curated 14-property city cap / airport-area balance."
+    },
+    {
+      "cityId": "london",
+      "hotelId": "london-osm-way-1039003140",
+      "reason": "Curated 14-property city cap / airport-area balance."
+    },
+    {
+      "cityId": "sydney",
+      "hotelId": "sydney-osm-way-1062894322",
+      "reason": "Curated 14-property city cap / airport-area balance."
+    }
+  ],
+  "nearbyDuplicatePropertyPairs": [],
+  "nullStars": 245,
+  "nullAddresses": 137,
+  "directorySha256": "6d67dfa88633e9c4882783b6a28d99c5d2c4cb0c15ad06836d9f3cb1b9e93bd0"
+}

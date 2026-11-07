@@ -1,0 +1,2470 @@
+{
+  "candidates": [
+    {
+      "cityId": "tabriz",
+      "osmType": "way",
+      "osmId": "409984384",
+      "discoveryUrl": "https://mapcarta.com/32900144",
+      "discoveryTitle": "Tabriz International Hotel Map - East Azerbaijan Province, Iran"
+    },
+    {
+      "cityId": "tabriz",
+      "osmType": "node",
+      "osmId": "3820759409",
+      "discoveryUrl": "https://mapcarta.com/N3820759409",
+      "discoveryTitle": "هتل پتروشیمی تبریز Map - Hotel - East Azerbaijan Province, Iran"
+    },
+    {
+      "cityId": "tabriz",
+      "osmType": "node",
+      "osmId": "6784420787",
+      "discoveryUrl": "https://mapcarta.com/N6784420787",
+      "discoveryTitle": "Apadana Tabriz Map - Hotel - East Azerbaijan Province, Iran"
+    },
+    {
+      "cityId": "tabriz",
+      "osmType": "node",
+      "osmId": "11880824171",
+      "discoveryUrl": "https://mapcarta.com/N11880824171",
+      "discoveryTitle": "هتل آپارتمان کایرا Map - Hotel - East Azerbaijan Province, Iran"
+    },
+    {
+      "cityId": "tabriz",
+      "osmType": "node",
+      "osmId": "8491730154",
+      "discoveryUrl": "https://mapcarta.com/N8491730154",
+      "discoveryTitle": "هتل آپارتمان تبریز Map - Hotel - East Azerbaijan Province, Iran"
+    },
+    {
+      "cityId": "rasht",
+      "osmType": "node",
+      "osmId": "12508233540",
+      "discoveryUrl": "https://mapcarta.com/N12508233540",
+      "discoveryTitle": "اقامتگاه همنشین Map - Motel - Gilan Province, Iran"
+    },
+    {
+      "cityId": "rasht",
+      "osmType": "node",
+      "osmId": "4640134371",
+      "discoveryUrl": "https://mapcarta.com/N4640134371",
+      "discoveryTitle": "خانه معلم رشت Map - Hotel - Gilan Province, Iran"
+    },
+    {
+      "cityId": "rasht",
+      "osmType": "node",
+      "osmId": "12875561815",
+      "discoveryUrl": "https://mapcarta.com/N12875561815",
+      "discoveryTitle": "هتل آپارتمان قصر طلایی Map - Hotel - Gilan Province, Iran"
+    },
+    {
+      "cityId": "rasht",
+      "osmType": "way",
+      "osmId": "457504145",
+      "discoveryUrl": "https://mapcarta.com/W457504145",
+      "discoveryTitle": "مهمانسرای ملوان رشت Map - Hotel - Gilan Province, Iran"
+    },
+    {
+      "cityId": "yazd",
+      "osmType": "node",
+      "osmId": "10595930688",
+      "discoveryUrl": "https://mapcarta.com/N10595930688",
+      "discoveryTitle": "هتل خوان سالار Map - Hotel - Yazd, Iran"
+    },
+    {
+      "cityId": "yazd",
+      "osmType": "way",
+      "osmId": "383427770",
+      "discoveryUrl": "https://mapcarta.com/W383427770",
+      "discoveryTitle": "Yazd Traditional Hotel Map - Yazd, Iran"
+    },
+    {
+      "cityId": "yazd",
+      "osmType": "way",
+      "osmId": "532054131",
+      "discoveryUrl": "https://mapcarta.com/W532054131",
+      "discoveryTitle": "Yazd Tourist Hotel Map - Yazd, Iran"
+    },
+    {
+      "cityId": "yazd",
+      "osmType": "node",
+      "osmId": "5078153121",
+      "discoveryUrl": "https://mapcarta.com/N5078153121",
+      "discoveryTitle": "711 guesthouse Map - Hotel - Yazd, Iran"
+    },
+    {
+      "cityId": "yazd",
+      "osmType": "node",
+      "osmId": "10595870438",
+      "discoveryUrl": "https://mapcarta.com/N10595870438",
+      "discoveryTitle": "هتل آواسا یزد Map - Hotel - Yazd, Iran"
+    },
+    {
+      "cityId": "yazd",
+      "osmType": "node",
+      "osmId": "10595878365",
+      "discoveryUrl": "https://mapcarta.com/N10595878365",
+      "discoveryTitle": "هتل رستوران راه و ما Map - Hotel - Yazd, Iran"
+    },
+    {
+      "cityId": "yazd",
+      "osmType": "way",
+      "osmId": "384626648",
+      "discoveryUrl": "https://mapcarta.com/W384626648",
+      "discoveryTitle": "هتل ارگ جدید یزد Map - Hotel - Yazd, Iran"
+    },
+    {
+      "cityId": "yazd",
+      "osmType": "node",
+      "osmId": "10595713048",
+      "discoveryUrl": "https://mapcarta.com/N10595713048",
+      "discoveryTitle": "هتل رویای قدیم Map - Hotel - Yazd, Iran"
+    },
+    {
+      "cityId": "yazd",
+      "osmType": "way",
+      "osmId": "574755405",
+      "discoveryUrl": "https://mapcarta.com/W574755405",
+      "discoveryTitle": "هتل شیرکوه تفت Map - Hotel - Yazd, Iran"
+    },
+    {
+      "cityId": "yazd",
+      "osmType": "node",
+      "osmId": "4484099889",
+      "discoveryUrl": "https://mapcarta.com/N4484099889",
+      "discoveryTitle": "Traditional Hotel Aqda Map - Yazd, Iran"
+    },
+    {
+      "cityId": "ahvaz",
+      "osmType": "node",
+      "osmId": "12107613122",
+      "discoveryUrl": "https://mapcarta.com/N12107613122",
+      "discoveryTitle": "هتل صدف اهواز Map - Hotel - Khuzestan, Iran"
+    },
+    {
+      "cityId": "ahvaz",
+      "osmType": "node",
+      "osmId": "8641202141",
+      "discoveryUrl": "https://mapcarta.com/N8641202141",
+      "discoveryTitle": "هتل عمارت مرمر Map - Hotel - Khuzestan, Iran"
+    },
+    {
+      "cityId": "ahvaz",
+      "osmType": "way",
+      "osmId": "1360283901",
+      "discoveryUrl": "https://mapcarta.com/W1360283901",
+      "discoveryTitle": "Prestige Hotel Ahvaz Map - Khuzestan, Iran"
+    },
+    {
+      "cityId": "ahvaz",
+      "osmType": "way",
+      "osmId": "817579001",
+      "discoveryUrl": "https://mapcarta.com/W817579001",
+      "discoveryTitle": "هتل آرامش اهواز Map - Hotel - Khuzestan, Iran"
+    },
+    {
+      "cityId": "ahvaz",
+      "osmType": "node",
+      "osmId": "5752255423",
+      "discoveryUrl": "https://mapcarta.com/N5752255423",
+      "discoveryTitle": "Great Ahvaz Map - Hotel - Khuzestan, Iran"
+    },
+    {
+      "cityId": "ahvaz",
+      "osmType": "way",
+      "osmId": "1331402859",
+      "discoveryUrl": "https://mapcarta.com/W1331402859",
+      "discoveryTitle": "AMARANT آمارانت Map - Hotel - Khuzestan, Iran"
+    },
+    {
+      "cityId": "ahvaz",
+      "osmType": "way",
+      "osmId": "451016710",
+      "discoveryUrl": "https://mapcarta.com/W451016710",
+      "discoveryTitle": "Naft Hotel Map - Hotel building - Khuzestan, Iran"
+    },
+    {
+      "cityId": "ahvaz",
+      "osmType": "node",
+      "osmId": "8512836517",
+      "discoveryUrl": "https://mapcarta.com/N8512836517",
+      "discoveryTitle": "Awhaz - hotel na bazarze Map - Khuzestan, Iran"
+    },
+    {
+      "cityId": "bandar-abbas",
+      "osmType": "node",
+      "osmId": "5820632657",
+      "discoveryUrl": "https://mapcarta.com/N5820632657",
+      "discoveryTitle": "خانه مس بندرعباس Map - Motel - Hormozgan, Iran"
+    },
+    {
+      "cityId": "bandar-abbas",
+      "osmType": "way",
+      "osmId": "476873510",
+      "discoveryUrl": "https://mapcarta.com/W476873510",
+      "discoveryTitle": "هتل و رستوران گلشهر Map - Hotel building - Hormozgan, Iran"
+    },
+    {
+      "cityId": "kerman",
+      "osmType": "node",
+      "osmId": "5616308923",
+      "discoveryUrl": "https://mapcarta.com/N5616308923",
+      "discoveryTitle": "Kerman Tourist Hotel Map - Kerman, Iran"
+    },
+    {
+      "cityId": "kerman",
+      "osmType": "node",
+      "osmId": "9480981117",
+      "discoveryUrl": "https://mapcarta.com/N9480981117",
+      "discoveryTitle": "Kermania Hotel Map - Kerman, Iran"
+    },
+    {
+      "cityId": "kerman",
+      "osmType": "node",
+      "osmId": "14203024583",
+      "discoveryUrl": "https://mapcarta.com/N14203024583",
+      "discoveryTitle": "بومگردی کلیاس Map - Hotel - Kerman, Iran"
+    },
+    {
+      "cityId": "kerman",
+      "osmType": "node",
+      "osmId": "4223131289",
+      "discoveryUrl": "https://mapcarta.com/N4223131289",
+      "discoveryTitle": "Bam Tourist Hotel Map - Kerman, Iran"
+    },
+    {
+      "cityId": "kerman",
+      "osmType": "node",
+      "osmId": "6515882886",
+      "discoveryUrl": "https://mapcarta.com/N6515882886",
+      "discoveryTitle": "Kavir Guesthouse Map - Hotel - Kerman, Iran"
+    },
+    {
+      "cityId": "kerman",
+      "osmType": "node",
+      "osmId": "14197003502",
+      "discoveryUrl": "https://mapcarta.com/N14197003502",
+      "discoveryTitle": "Restaurant Shah Abasi Map - Hotel - Kerman, Iran"
+    },
+    {
+      "cityId": "kerman",
+      "osmType": "node",
+      "osmId": "5016468221",
+      "discoveryUrl": "https://mapcarta.com/N5016468221",
+      "discoveryTitle": "Hezar Hotel Map - Kerman, Iran"
+    },
+    {
+      "cityId": "kerman",
+      "osmType": "way",
+      "osmId": "854177389",
+      "discoveryUrl": "https://mapcarta.com/W854177389",
+      "discoveryTitle": "Lut Star Eco-Camp Map - Hotel - Kerman, Iran"
+    },
+    {
+      "cityId": "kerman",
+      "osmType": "node",
+      "osmId": "5030320423",
+      "discoveryUrl": "https://mapcarta.com/N5030320423",
+      "discoveryTitle": "Hezar Hotel Map - Kerman, Iran"
+    },
+    {
+      "cityId": "kerman",
+      "osmType": "way",
+      "osmId": "428766486",
+      "discoveryUrl": "https://mapcarta.com/W428766486",
+      "discoveryTitle": "Govashir Hotel Map - Kerman, Iran"
+    },
+    {
+      "cityId": "hamadan",
+      "osmType": "way",
+      "osmId": "1196370896",
+      "discoveryUrl": "https://mapcarta.com/W1196370896",
+      "discoveryTitle": "هتل کتیبه همدان Map - Hotel - Central Western Iran, Iran"
+    },
+    {
+      "cityId": "hamadan",
+      "osmType": "node",
+      "osmId": "6895883287",
+      "discoveryUrl": "https://mapcarta.com/N6895883287",
+      "discoveryTitle": "هتل پردیس ناجا همدان Map - Police station - Central Western Iran, Iran"
+    },
+    {
+      "cityId": "hamadan",
+      "osmType": "node",
+      "osmId": "10956806532",
+      "discoveryUrl": "https://mapcarta.com/N10956806532",
+      "discoveryTitle": "هتل هگمتانه Map - Hotel - Central Western Iran, Iran"
+    },
+    {
+      "cityId": "hamadan",
+      "osmType": "node",
+      "osmId": "5091293867",
+      "discoveryUrl": "https://mapcarta.com/N5091293867",
+      "discoveryTitle": "هتل جهانگردی علیصدر Map - Hotel - Central Western Iran, Iran"
+    },
+    {
+      "cityId": "hamadan",
+      "osmType": "node",
+      "osmId": "4400495391",
+      "discoveryUrl": "https://mapcarta.com/N4400495391",
+      "discoveryTitle": "hotel khatam Map - Central Western Iran, Iran"
+    },
+    {
+      "cityId": "kermanshah",
+      "osmType": "way",
+      "osmId": "535008664",
+      "discoveryUrl": "https://mapcarta.com/W535008664",
+      "discoveryTitle": "هتل ثامن الحجج Map - Hotel - Kermanshah Province, Iran"
+    },
+    {
+      "cityId": "kermanshah",
+      "osmType": "node",
+      "osmId": "12674297951",
+      "discoveryUrl": "https://mapcarta.com/N12674297951",
+      "discoveryTitle": "هتل رستوران ژیار Map - Hotel - Kermanshah Province, Iran"
+    },
+    {
+      "cityId": "kermanshah",
+      "osmType": "way",
+      "osmId": "1087299467",
+      "discoveryUrl": "https://mapcarta.com/W1087299467",
+      "discoveryTitle": "هتل امام رضا Map - Hotel - Kermanshah Province, Iran"
+    },
+    {
+      "cityId": "kermanshah",
+      "osmType": "way",
+      "osmId": "1549899334",
+      "discoveryUrl": "https://mapcarta.com/W1549899334",
+      "discoveryTitle": "هتل بوتیک آریانا Map - Hotel building - Kermanshah Province, Iran"
+    },
+    {
+      "cityId": "kermanshah",
+      "osmType": "node",
+      "osmId": "8191751419",
+      "discoveryUrl": "https://mapcarta.com/N8191751419",
+      "discoveryTitle": "هتل راه کربلا Map - Hotel - Kermanshah Province, Iran"
+    },
+    {
+      "cityId": "kermanshah",
+      "osmType": "node",
+      "osmId": "5218273624",
+      "discoveryUrl": "https://mapcarta.com/N5218273624",
+      "discoveryTitle": "Kourosh Hotel Map - Kermanshah Province, Iran"
+    },
+    {
+      "cityId": "kermanshah",
+      "osmType": "node",
+      "osmId": "4640340599",
+      "discoveryUrl": "https://mapcarta.com/N4640340599",
+      "discoveryTitle": "خانه معلم کرمانشاه Map - Hotel - Kermanshah Province, Iran"
+    },
+    {
+      "cityId": "kermanshah",
+      "osmType": "way",
+      "osmId": "327294956",
+      "discoveryUrl": "https://mapcarta.com/W327294956",
+      "discoveryTitle": "Hotel Jamshid Map - Kermanshah Province, Iran"
+    },
+    {
+      "cityId": "istanbul",
+      "osmType": "node",
+      "osmId": "5108838382",
+      "discoveryUrl": "https://mapcarta.com/32115300",
+      "discoveryTitle": "Istanbul Levni Hotel And Spa Map - Historical Peninsula, Turkey"
+    },
+    {
+      "cityId": "istanbul",
+      "osmType": "node",
+      "osmId": "5103810791",
+      "discoveryUrl": "https://mapcarta.com/32268598",
+      "discoveryTitle": "Topkapi Inter Istanbul Hotel Map - Historical Peninsula, Turkey"
+    },
+    {
+      "cityId": "istanbul",
+      "osmType": "way",
+      "osmId": "262201429",
+      "discoveryUrl": "https://mapcarta.com/32916768",
+      "discoveryTitle": "DoubleTree by Hilton Hotel Istanbul - Old Town Map - Historical Peninsula, Turkey"
+    },
+    {
+      "cityId": "istanbul",
+      "osmType": "node",
+      "osmId": "6903351875",
+      "discoveryUrl": "https://mapcarta.com/N6903351875",
+      "discoveryTitle": "İstasyon Hotel Map - Historical Peninsula, Turkey"
+    },
+    {
+      "cityId": "istanbul",
+      "osmType": "way",
+      "osmId": "522095111",
+      "discoveryUrl": "https://mapcarta.com/W522095111",
+      "discoveryTitle": "Istanbul Gonen Hotel Map - Hotel building - Bahçelievler, Turkey"
+    },
+    {
+      "cityId": "istanbul",
+      "osmType": "node",
+      "osmId": "5113487652",
+      "discoveryUrl": "https://mapcarta.com/32595430",
+      "discoveryTitle": "Stone Hotel Istanbul Map - Historical Peninsula, Turkey"
+    },
+    {
+      "cityId": "van",
+      "osmType": "node",
+      "osmId": "4924509823",
+      "discoveryUrl": "https://mapcarta.com/N4924509823",
+      "discoveryTitle": "Yakut Map - Hotel - Van Province, Turkey"
+    },
+    {
+      "cityId": "van",
+      "osmType": "node",
+      "osmId": "5973317289",
+      "discoveryUrl": "https://mapcarta.com/N5973317289",
+      "discoveryTitle": "caspian hotel Map - Van Province, Turkey"
+    },
+    {
+      "cityId": "van",
+      "osmType": "way",
+      "osmId": "1568432226",
+      "discoveryUrl": "https://mapcarta.com/39772000",
+      "discoveryTitle": "Spark by Hilton Van City Centre Map - Hotel - İpekyolu, Turkey"
+    },
+    {
+      "cityId": "van",
+      "osmType": "node",
+      "osmId": "9802939117",
+      "discoveryUrl": "https://mapcarta.com/N9802939117",
+      "discoveryTitle": "Haldi Hotel Map - Van Province, Turkey"
+    },
+    {
+      "cityId": "van",
+      "osmType": "way",
+      "osmId": "529361833",
+      "discoveryUrl": "https://mapcarta.com/W529361833",
+      "discoveryTitle": "Van Suit Hotel Map - Van Province, Turkey"
+    },
+    {
+      "cityId": "van",
+      "osmType": "way",
+      "osmId": "413876584",
+      "discoveryUrl": "https://mapcarta.com/35532974",
+      "discoveryTitle": "Doubletree by Hilton Van Map - Hotel - Edremit, Turkey"
+    },
+    {
+      "cityId": "yerevan",
+      "osmType": "node",
+      "osmId": "10914357685",
+      "discoveryUrl": "https://mapcarta.com/N10914357685",
+      "discoveryTitle": "Yerevan Boutique Hotel Map - Yerevan, Armenia"
+    },
+    {
+      "cityId": "yerevan",
+      "osmType": "node",
+      "osmId": "11181240422",
+      "discoveryUrl": "https://mapcarta.com/N11181240422",
+      "discoveryTitle": "Հյուրանոց Map - Hotel - Yerevan, Armenia"
+    },
+    {
+      "cityId": "yerevan",
+      "osmType": "node",
+      "osmId": "4802110688",
+      "discoveryUrl": "https://mapcarta.com/N4802110688",
+      "discoveryTitle": "Best Hotel Erevan Map - Yerevan, Armenia"
+    },
+    {
+      "cityId": "yerevan",
+      "osmType": "node",
+      "osmId": "9754907215",
+      "discoveryUrl": "https://mapcarta.com/N9754907215",
+      "discoveryTitle": "Comfort Map - Hotel - Yerevan, Armenia"
+    },
+    {
+      "cityId": "yerevan",
+      "osmType": "node",
+      "osmId": "12513253308",
+      "discoveryUrl": "https://mapcarta.com/N12513253308",
+      "discoveryTitle": "Good Hotel Map - Yerevan, Armenia"
+    },
+    {
+      "cityId": "yerevan",
+      "osmType": "node",
+      "osmId": "14142012491",
+      "discoveryUrl": "https://mapcarta.com/N14142012491",
+      "discoveryTitle": "Friendly Map - Hotel - Yerevan, Armenia"
+    },
+    {
+      "cityId": "yerevan",
+      "osmType": "way",
+      "osmId": "466041468",
+      "discoveryUrl": "https://mapcarta.com/W466041468",
+      "discoveryTitle": "My Hotel Yerevan Map - Yerevan, Armenia"
+    },
+    {
+      "cityId": "yerevan",
+      "osmType": "way",
+      "osmId": "1193227574",
+      "discoveryUrl": "https://mapcarta.com/W1193227574",
+      "discoveryTitle": "Old Yerevan Map - Hotel - Yerevan, Armenia"
+    },
+    {
+      "cityId": "yerevan",
+      "osmType": "node",
+      "osmId": "4430774289",
+      "discoveryUrl": "https://mapcarta.com/N4430774289",
+      "discoveryTitle": "Yerevan Place Map - Hotel - Armenia"
+    },
+    {
+      "cityId": "yerevan",
+      "osmType": "node",
+      "osmId": "5036058657",
+      "discoveryUrl": "https://mapcarta.com/N5036058657",
+      "discoveryTitle": "Princ Plaza Map - Hotel - Yerevan, Armenia"
+    },
+    {
+      "cityId": "yerevan",
+      "osmType": "way",
+      "osmId": "406731199",
+      "discoveryUrl": "https://mapcarta.com/W406731199",
+      "discoveryTitle": "AM Hotel Map - Yerevan, Armenia"
+    },
+    {
+      "cityId": "yerevan",
+      "osmType": "way",
+      "osmId": "1192072234",
+      "discoveryUrl": "https://mapcarta.com/W1192072234",
+      "discoveryTitle": "Maison hotel Map - Yerevan, Armenia"
+    },
+    {
+      "cityId": "dubai",
+      "osmType": "way",
+      "osmId": "532836513",
+      "discoveryUrl": "https://mapcarta.com/32567844",
+      "discoveryTitle": "The Address - Downtown Dubai Map - Hotel - Dubai, United Arab Emirates"
+    },
+    {
+      "cityId": "dubai",
+      "osmType": "node",
+      "osmId": "5369438921",
+      "discoveryUrl": "https://mapcarta.com/N5369438921",
+      "discoveryTitle": "فندق سمايا Map - Hotel - Dubai, United Arab Emirates"
+    },
+    {
+      "cityId": "dubai",
+      "osmType": "node",
+      "osmId": "3464842721",
+      "discoveryUrl": "https://mapcarta.com/32119276",
+      "discoveryTitle": "Middle East Hotel Map - Dubai, United Arab Emirates"
+    },
+    {
+      "cityId": "dubai",
+      "osmType": "way",
+      "osmId": "126601134",
+      "discoveryUrl": "https://mapcarta.com/32119468",
+      "discoveryTitle": "The Palace - Downtown Dubai Map - Hotel - Dubai, United Arab Emirates"
+    },
+    {
+      "cityId": "dubai",
+      "osmType": "way",
+      "osmId": "1076132569",
+      "discoveryUrl": "https://mapcarta.com/W1076132569",
+      "discoveryTitle": "The First Collection Business Bay, Dubai, a Tribute Portfolio Hotel Map - Business Bay, United Arab Emirates"
+    },
+    {
+      "cityId": "dubai",
+      "osmType": "way",
+      "osmId": "12700546",
+      "discoveryUrl": "https://mapcarta.com/W12700546",
+      "discoveryTitle": "Burj Al Arab Jumeirah Map - Hotel - Dubai, United Arab Emirates"
+    },
+    {
+      "cityId": "dubai",
+      "osmType": "node",
+      "osmId": "12201452948",
+      "discoveryUrl": "https://mapcarta.com/N12201452948",
+      "discoveryTitle": "The First Collection Waterfront, Dubai, a Tribute Portfolio Hotel Map - Dubai, United Arab Emirates"
+    },
+    {
+      "cityId": "dubai",
+      "osmType": "node",
+      "osmId": "4563913289",
+      "discoveryUrl": "https://mapcarta.com/N4563913289",
+      "discoveryTitle": "فندق وشقق مركز التجارة العالمي Map - Hotel - Dubai, United Arab Emirates"
+    },
+    {
+      "cityId": "dubai",
+      "osmType": "way",
+      "osmId": "1109599712",
+      "discoveryUrl": "https://mapcarta.com/W1109599712",
+      "discoveryTitle": "W Dubai - Mina Seyahi Map - Hotel - Dubai, United Arab Emirates"
+    },
+    {
+      "cityId": "tbilisi",
+      "osmType": "node",
+      "osmId": "11595023301",
+      "discoveryUrl": "https://mapcarta.com/N11595023301",
+      "discoveryTitle": "Tbilisi Chambers Map - Hotel - Georgia"
+    },
+    {
+      "cityId": "tbilisi",
+      "osmType": "way",
+      "osmId": "1126037581",
+      "discoveryUrl": "https://mapcarta.com/W1126037581",
+      "discoveryTitle": "City Map - Hotel - Georgia"
+    },
+    {
+      "cityId": "tbilisi",
+      "osmType": "node",
+      "osmId": "7274102685",
+      "discoveryUrl": "https://mapcarta.com/N7274102685",
+      "discoveryTitle": "წავკისი ჰაუსი Map - Hotel - Tbilisi, Georgia"
+    },
+    {
+      "cityId": "tbilisi",
+      "osmType": "node",
+      "osmId": "5358541930",
+      "discoveryUrl": "https://mapcarta.com/N5358541930",
+      "discoveryTitle": "Tbilisi Times Hotel Map - Georgia"
+    },
+    {
+      "cityId": "tbilisi",
+      "osmType": "node",
+      "osmId": "4499609113",
+      "discoveryUrl": "https://mapcarta.com/N4499609113",
+      "discoveryTitle": "Tbilisi View Hotel Map - Georgia"
+    },
+    {
+      "cityId": "tbilisi",
+      "osmType": "node",
+      "osmId": "12345833159",
+      "discoveryUrl": "https://mapcarta.com/N12345833159",
+      "discoveryTitle": "Tbilisi Tower Map - Hotel - Georgia"
+    },
+    {
+      "cityId": "tbilisi",
+      "osmType": "way",
+      "osmId": "1155911054",
+      "discoveryUrl": "https://mapcarta.com/W1155911054",
+      "discoveryTitle": "Holiday Georgia Map - Hotel - Georgia"
+    },
+    {
+      "cityId": "tbilisi",
+      "osmType": "node",
+      "osmId": "11460194941",
+      "discoveryUrl": "https://mapcarta.com/N11460194941",
+      "discoveryTitle": "Swissôtel Tbilisi Map - Hotel - Georgia"
+    },
+    {
+      "cityId": "tbilisi",
+      "osmType": "node",
+      "osmId": "9687568352",
+      "discoveryUrl": "https://mapcarta.com/N9687568352",
+      "discoveryTitle": "Tbilisi Inn Map - Hotel - Georgia"
+    },
+    {
+      "cityId": "tbilisi",
+      "osmType": "node",
+      "osmId": "3784376968",
+      "discoveryUrl": "https://mapcarta.com/N3784376968",
+      "discoveryTitle": "B&B Old Tbilisi Map - Hotel - Georgia"
+    },
+    {
+      "cityId": "tbilisi",
+      "osmType": "way",
+      "osmId": "1075191278",
+      "discoveryUrl": "https://mapcarta.com/W1075191278",
+      "discoveryTitle": "Graphica Tbilisi Map - Hotel - Georgia"
+    },
+    {
+      "cityId": "baku",
+      "osmType": "node",
+      "osmId": "14050689801",
+      "discoveryUrl": "https://mapcarta.com/N14050689801",
+      "discoveryTitle": "Central Baku Hotel Map - Azerbaijan"
+    },
+    {
+      "cityId": "baku",
+      "osmType": "node",
+      "osmId": "6320271773",
+      "discoveryUrl": "https://mapcarta.com/N6320271773",
+      "discoveryTitle": "La Casa Nizami Map - Hotel - Azerbaijan"
+    },
+    {
+      "cityId": "baku",
+      "osmType": "node",
+      "osmId": "11079147670",
+      "discoveryUrl": "https://mapcarta.com/N11079147670",
+      "discoveryTitle": "Mark Baku Hotel Map - Azerbaijan"
+    },
+    {
+      "cityId": "baku",
+      "osmType": "way",
+      "osmId": "149593007",
+      "discoveryUrl": "https://mapcarta.com/W149593007",
+      "discoveryTitle": "Deluxe Hotel Bakı, Əhməd Rəcəbli küç. Map - Azerbaijan"
+    },
+    {
+      "cityId": "baku",
+      "osmType": "node",
+      "osmId": "10295645632",
+      "discoveryUrl": "https://mapcarta.com/N10295645632",
+      "discoveryTitle": "Kristal Otel Map - Hotel - Baku Region, Azerbaijan"
+    },
+    {
+      "cityId": "baku",
+      "osmType": "node",
+      "osmId": "4207712592",
+      "discoveryUrl": "https://mapcarta.com/32899790",
+      "discoveryTitle": "Holiday Inn Baku Map - Hotel - Azerbaijan"
+    },
+    {
+      "cityId": "ankara",
+      "osmType": "node",
+      "osmId": "8849120395",
+      "discoveryUrl": "https://mapcarta.com/N8849120395",
+      "discoveryTitle": "The Ankara Hotel Map - Altındağ, Turkey"
+    },
+    {
+      "cityId": "ankara",
+      "osmType": "way",
+      "osmId": "467291875",
+      "discoveryUrl": "https://mapcarta.com/32583112",
+      "discoveryTitle": "Holiday Inn Ankara Kavaklidere Map - Hotel - Çankaya District, Turkey"
+    },
+    {
+      "cityId": "ankara",
+      "osmType": "way",
+      "osmId": "471137375",
+      "discoveryUrl": "https://mapcarta.com/W471137375",
+      "discoveryTitle": "Metropolitan Hotels Ankara Map - Çankaya District, Turkey"
+    },
+    {
+      "cityId": "ankara",
+      "osmType": "way",
+      "osmId": "404248628",
+      "discoveryUrl": "https://mapcarta.com/32582036",
+      "discoveryTitle": "City Hotel Ankara Map - Çankaya District, Turkey"
+    },
+    {
+      "cityId": "doha",
+      "osmType": "node",
+      "osmId": "4417542190",
+      "discoveryUrl": "https://mapcarta.com/N4417542190",
+      "discoveryTitle": "Sks 108 Bldg. Map - Hotel - Doha, Qatar"
+    },
+    {
+      "cityId": "doha",
+      "osmType": "way",
+      "osmId": "524256470",
+      "discoveryUrl": "https://mapcarta.com/39399842",
+      "discoveryTitle": "Park Hyatt Doha Map - Hotel - Doha, Qatar"
+    },
+    {
+      "cityId": "doha",
+      "osmType": "way",
+      "osmId": "1115399806",
+      "discoveryUrl": "https://mapcarta.com/37490402",
+      "discoveryTitle": "The Plaza Doha, LXR Hotels & Resorts Map - Doha, Qatar"
+    },
+    {
+      "cityId": "doha",
+      "osmType": "node",
+      "osmId": "3796931503",
+      "discoveryUrl": "https://mapcarta.com/32862658",
+      "discoveryTitle": "DoubleTree by Hilton Doha - Old Town Map - Hotel - Qatar"
+    },
+    {
+      "cityId": "doha",
+      "osmType": "node",
+      "osmId": "4232347396",
+      "discoveryUrl": "https://mapcarta.com/32604312",
+      "discoveryTitle": "Al Bustan Map - Hotel - Qatar"
+    },
+    {
+      "cityId": "doha",
+      "osmType": "node",
+      "osmId": "12299714101",
+      "discoveryUrl": "https://mapcarta.com/N12299714101",
+      "discoveryTitle": "C - Hotel and Suites Doha Map - Doha, Qatar"
+    },
+    {
+      "cityId": "doha",
+      "osmType": "way",
+      "osmId": "485153639",
+      "discoveryUrl": "https://mapcarta.com/W485153639",
+      "discoveryTitle": "Guest Palace Hotel Map - Doha, Qatar"
+    },
+    {
+      "cityId": "doha",
+      "osmType": "way",
+      "osmId": "156193169",
+      "discoveryUrl": "https://mapcarta.com/W156193169",
+      "discoveryTitle": "Sheraton Doha Map - Hotel - Qatar"
+    },
+    {
+      "cityId": "muscat",
+      "osmType": "node",
+      "osmId": "11721912759",
+      "discoveryUrl": "https://mapcarta.com/N11721912759",
+      "discoveryTitle": "فندق انتر سيتي مسقط Map - Hotel - Muscat Governorate, Oman"
+    },
+    {
+      "cityId": "muscat",
+      "osmType": "way",
+      "osmId": "262518106",
+      "discoveryUrl": "https://mapcarta.com/32272450",
+      "discoveryTitle": "Haffa House (Muscat) Map - Hotel - Oman"
+    },
+    {
+      "cityId": "muscat",
+      "osmType": "node",
+      "osmId": "5324960952",
+      "discoveryUrl": "https://mapcarta.com/N5324960952",
+      "discoveryTitle": "Centara Map - Hotel - Muscat Governorate, Oman"
+    },
+    {
+      "cityId": "muscat",
+      "osmType": "way",
+      "osmId": "691922676",
+      "discoveryUrl": "https://mapcarta.com/W691922676",
+      "discoveryTitle": "Grand Millennium Muscat Map - Hotel - Muscat Governorate, Oman"
+    },
+    {
+      "cityId": "muscat",
+      "osmType": "way",
+      "osmId": "507360671",
+      "discoveryUrl": "https://mapcarta.com/W507360671",
+      "discoveryTitle": "Al Hedayet Map - Hotel - Muscat Governorate, Oman"
+    },
+    {
+      "cityId": "muscat",
+      "osmType": "way",
+      "osmId": "656586197",
+      "discoveryUrl": "https://mapcarta.com/W656586197",
+      "discoveryTitle": "Muscat Inn Hotel Map - Muscat Governorate, Oman"
+    },
+    {
+      "cityId": "muscat",
+      "osmType": "way",
+      "osmId": "1377090403",
+      "discoveryUrl": "https://mapcarta.com/W1377090403",
+      "discoveryTitle": "Maani Muscat Map - Hotel building - Muscat Governorate, Oman"
+    },
+    {
+      "cityId": "moscow",
+      "osmType": "way",
+      "osmId": "42766205",
+      "discoveryUrl": "https://mapcarta.com/32287194",
+      "discoveryTitle": "President Hotel Map - Moscow Oblast, Russia"
+    },
+    {
+      "cityId": "london",
+      "osmType": "way",
+      "osmId": "161420212",
+      "discoveryUrl": "https://mapcarta.com/W161420212",
+      "discoveryTitle": "Z City Hotel Map - City of London, London, England, UK"
+    },
+    {
+      "cityId": "london",
+      "osmType": "way",
+      "osmId": "43132385",
+      "discoveryUrl": "https://mapcarta.com/W43132385",
+      "discoveryTitle": "YOTEL London City Map - Hotel - Islington, England, UK"
+    },
+    {
+      "cityId": "london",
+      "osmType": "way",
+      "osmId": "300868181",
+      "discoveryUrl": "https://mapcarta.com/32939732",
+      "discoveryTitle": "Hotel 82 London Map - Westminster, London, England, UK"
+    },
+    {
+      "cityId": "london",
+      "osmType": "way",
+      "osmId": "42321223",
+      "discoveryUrl": "https://mapcarta.com/W42321223",
+      "discoveryTitle": "Hotel Edward Map - Westminster, London, England, UK"
+    },
+    {
+      "cityId": "london",
+      "osmType": "way",
+      "osmId": "734710075",
+      "discoveryUrl": "https://mapcarta.com/W734710075",
+      "discoveryTitle": "Point A Hotel London - Paddington Map - Westminster, London, England, UK"
+    },
+    {
+      "cityId": "london",
+      "osmType": "node",
+      "osmId": "13753548086",
+      "discoveryUrl": "https://mapcarta.com/N13753548086",
+      "discoveryTitle": "Plaza London Hotel Map - Tower Hamlets, England, UK"
+    },
+    {
+      "cityId": "london",
+      "osmType": "way",
+      "osmId": "208300867",
+      "discoveryUrl": "https://mapcarta.com/W208300867",
+      "discoveryTitle": "The Pilgrm Hotel Map - Westminster, London, England, UK"
+    },
+    {
+      "cityId": "london",
+      "osmType": "way",
+      "osmId": "90350956",
+      "discoveryUrl": "https://mapcarta.com/W90350956",
+      "discoveryTitle": "CitizenM Tower of London Map - Hotel - City of London, London, England, UK"
+    },
+    {
+      "cityId": "london",
+      "osmType": "way",
+      "osmId": "1023575583",
+      "discoveryUrl": "https://mapcarta.com/W1023575583",
+      "discoveryTitle": "Voco Map - Hotel - Westminster, London, England, UK"
+    },
+    {
+      "cityId": "london",
+      "osmType": "way",
+      "osmId": "367258974",
+      "discoveryUrl": "https://mapcarta.com/32249462",
+      "discoveryTitle": "Conrad London St. James Map - Hotel - Westminster, London, England, UK"
+    },
+    {
+      "cityId": "london",
+      "osmType": "way",
+      "osmId": "621621998",
+      "discoveryUrl": "https://mapcarta.com/26233362",
+      "discoveryTitle": "New Linden Hotel Map - Westminster, London, England, UK"
+    },
+    {
+      "cityId": "london",
+      "osmType": "way",
+      "osmId": "94758902",
+      "discoveryUrl": "https://mapcarta.com/W94758902",
+      "discoveryTitle": "Dixon Hotel, Tooley Street Map - London Borough of Southwark, England, UK"
+    },
+    {
+      "cityId": "paris",
+      "osmType": "way",
+      "osmId": "1042444860",
+      "discoveryUrl": "https://mapcarta.com/30699180",
+      "discoveryTitle": "Home Latin Map - Hotel - Paris, Île-de-France, France"
+    },
+    {
+      "cityId": "frankfurt",
+      "osmType": "way",
+      "osmId": "174290402",
+      "discoveryUrl": "https://mapcarta.com/25324244",
+      "discoveryTitle": "Memphis Hotel Map - Frankfurt, Hesse, Germany"
+    },
+    {
+      "cityId": "frankfurt",
+      "osmType": "way",
+      "osmId": "201619214",
+      "discoveryUrl": "https://mapcarta.com/36119598",
+      "discoveryTitle": "Hampton by Hilton Frankfurt City Centre East Map - Hotel - Frankfurt, Hesse, Germany"
+    },
+    {
+      "cityId": "frankfurt",
+      "osmType": "way",
+      "osmId": "173992029",
+      "discoveryUrl": "https://mapcarta.com/W173992029",
+      "discoveryTitle": "Le Méridien Parkhotel Frankfurt Map - Hotel building - Frankfurt, Hesse, Germany"
+    },
+    {
+      "cityId": "frankfurt",
+      "osmType": "way",
+      "osmId": "85604713",
+      "discoveryUrl": "https://mapcarta.com/26239656",
+      "discoveryTitle": "Roomers Map - Hotel - Frankfurt, Hesse, Germany"
+    },
+    {
+      "cityId": "frankfurt",
+      "osmType": "node",
+      "osmId": "6641960149",
+      "discoveryUrl": "https://mapcarta.com/N6641960149",
+      "discoveryTitle": "Residence Inn Frankfurt City Center Map - Hotel - Frankfurt, Hesse, Germany"
+    },
+    {
+      "cityId": "frankfurt",
+      "osmType": "node",
+      "osmId": "1193916501",
+      "discoveryUrl": "https://mapcarta.com/25334666",
+      "discoveryTitle": "Colour Hotel Map - Frankfurt, Hesse, Germany"
+    },
+    {
+      "cityId": "frankfurt",
+      "osmType": "node",
+      "osmId": "251786600",
+      "discoveryUrl": "https://mapcarta.com/25311276",
+      "discoveryTitle": "Frankfurter Hof Map - Hotel - Frankfurt, Hesse, Germany"
+    },
+    {
+      "cityId": "frankfurt",
+      "osmType": "node",
+      "osmId": "1794347603",
+      "discoveryUrl": "https://mapcarta.com/25272908",
+      "discoveryTitle": "Hotel Victoria Map - Frankfurt, Hesse, Germany"
+    },
+    {
+      "cityId": "new-york",
+      "osmType": "node",
+      "osmId": "13012209901",
+      "discoveryUrl": "https://mapcarta.com/N13012209901",
+      "discoveryTitle": "Civilian Hotel Map - New York, United States"
+    },
+    {
+      "cityId": "new-york",
+      "osmType": "way",
+      "osmId": "248143642",
+      "discoveryUrl": "https://mapcarta.com/25031270",
+      "discoveryTitle": "The Evelyn Map - Hotel - Manhattan, New York, United States"
+    },
+    {
+      "cityId": "new-york",
+      "osmType": "way",
+      "osmId": "1192235640",
+      "discoveryUrl": "https://mapcarta.com/W1192235640",
+      "discoveryTitle": "Made Hotel Map - Manhattan, New York, United States"
+    },
+    {
+      "cityId": "new-york",
+      "osmType": "node",
+      "osmId": "3676888125",
+      "discoveryUrl": "https://mapcarta.com/25357032",
+      "discoveryTitle": "Union Square Inn Map - Hotel - New York, United States"
+    },
+    {
+      "cityId": "new-york",
+      "osmType": "way",
+      "osmId": "265875646",
+      "discoveryUrl": "https://mapcarta.com/W265875646",
+      "discoveryTitle": "NH Collection New York Madison Avenue Map - Hotel - Manhattan, New York, United States"
+    },
+    {
+      "cityId": "new-york",
+      "osmType": "node",
+      "osmId": "5124295521",
+      "discoveryUrl": "https://mapcarta.com/N5124295521",
+      "discoveryTitle": "U Hotel Fifth Avenue Map - New York, United States"
+    },
+    {
+      "cityId": "new-york",
+      "osmType": "way",
+      "osmId": "265320185",
+      "discoveryUrl": "https://mapcarta.com/W265320185",
+      "discoveryTitle": "Ramada Map - Hotel - Manhattan, New York, United States"
+    },
+    {
+      "cityId": "los-angeles",
+      "osmType": "way",
+      "osmId": "428128177",
+      "discoveryUrl": "https://mapcarta.com/W428128177",
+      "discoveryTitle": "Proper Hotel Map - Los Angeles, California, USA"
+    },
+    {
+      "cityId": "los-angeles",
+      "osmType": "way",
+      "osmId": "428021776",
+      "discoveryUrl": "https://mapcarta.com/W428021776",
+      "discoveryTitle": "Courtyard and Residence Inn Map - Hotel building - Los Angeles, California, USA"
+    },
+    {
+      "cityId": "los-angeles",
+      "osmType": "way",
+      "osmId": "428017466",
+      "discoveryUrl": "https://mapcarta.com/W428017466",
+      "discoveryTitle": "Sanborn Hotel Map - Los Angeles, California, USA"
+    },
+    {
+      "cityId": "los-angeles",
+      "osmType": "way",
+      "osmId": "1052359112",
+      "discoveryUrl": "https://mapcarta.com/W1052359112",
+      "discoveryTitle": "citizenM Los Angeles Downtown Map - Hotel - Los Angeles, California, USA"
+    },
+    {
+      "cityId": "los-angeles",
+      "osmType": "node",
+      "osmId": "9986845079",
+      "discoveryUrl": "https://mapcarta.com/25367588",
+      "discoveryTitle": "Los Angeles Athletic Club Map - Hotel - California, United States"
+    },
+    {
+      "cityId": "los-angeles",
+      "osmType": "way",
+      "osmId": "428021889",
+      "discoveryUrl": "https://mapcarta.com/32054728",
+      "discoveryTitle": "O Hotel Map - Los Angeles, California, USA"
+    },
+    {
+      "cityId": "los-angeles",
+      "osmType": "way",
+      "osmId": "419823551",
+      "discoveryUrl": "https://mapcarta.com/W419823551",
+      "discoveryTitle": "Avenue Hotel, Ascend Hotel Collection Map - Los Angeles, California, USA"
+    },
+    {
+      "cityId": "toronto",
+      "osmType": "way",
+      "osmId": "35155100",
+      "discoveryUrl": "https://mapcarta.com/W35155100",
+      "discoveryTitle": "TOOR Hotel - JDV by Hyatt Map - Old Toronto, Toronto, Ontario, Canada"
+    },
+    {
+      "cityId": "toronto",
+      "osmType": "node",
+      "osmId": "5064277922",
+      "discoveryUrl": "https://mapcarta.com/25288708",
+      "discoveryTitle": "Travelodge Toronto East Map - Hotel - Scarborough, Toronto, Ontario, Canada"
+    },
+    {
+      "cityId": "toronto",
+      "osmType": "way",
+      "osmId": "55896876",
+      "discoveryUrl": "https://mapcarta.com/25314486",
+      "discoveryTitle": "Town Inn Suites Map - Hotel - Old Toronto, Toronto, Ontario, Canada"
+    },
+    {
+      "cityId": "toronto",
+      "osmType": "way",
+      "osmId": "367653677",
+      "discoveryUrl": "https://mapcarta.com/25323716",
+      "discoveryTitle": "Sheraton Centre Toronto Hotel Map - Old Toronto, Toronto, Ontario, Canada"
+    },
+    {
+      "cityId": "toronto",
+      "osmType": "node",
+      "osmId": "11847572074",
+      "discoveryUrl": "https://mapcarta.com/N11847572074",
+      "discoveryTitle": "Neill-Wycik Hotel Map - Old Toronto, Toronto, Ontario, Canada"
+    },
+    {
+      "cityId": "toronto",
+      "osmType": "way",
+      "osmId": "55036397",
+      "discoveryUrl": "https://mapcarta.com/25298890",
+      "discoveryTitle": "The Anndore House, part of JDV by Hyatt Map - Hotel - Old Toronto, Toronto, Ontario, Canada"
+    },
+    {
+      "cityId": "toronto",
+      "osmType": "way",
+      "osmId": "150512482",
+      "discoveryUrl": "https://mapcarta.com/25297330",
+      "discoveryTitle": "Strathcona Hotel Map - Building - Old Toronto, Toronto, Ontario, Canada"
+    },
+    {
+      "cityId": "toronto",
+      "osmType": "way",
+      "osmId": "150506087",
+      "discoveryUrl": "https://mapcarta.com/W150506087",
+      "discoveryTitle": "Parkside Student Residence Map - Hotel - Old Toronto, Toronto, Ontario, Canada"
+    },
+    {
+      "cityId": "singapore",
+      "osmType": "node",
+      "osmId": "4302905910",
+      "discoveryUrl": "https://mapcarta.com/N4302905910",
+      "discoveryTitle": "Local Map - Hotel - Singapore"
+    },
+    {
+      "cityId": "singapore",
+      "osmType": "node",
+      "osmId": "6378160629",
+      "discoveryUrl": "https://mapcarta.com/N6378160629",
+      "discoveryTitle": "Hotel Telegraph Map - Singapore"
+    },
+    {
+      "cityId": "singapore",
+      "osmType": "node",
+      "osmId": "4302906625",
+      "discoveryUrl": "https://mapcarta.com/N4302906625",
+      "discoveryTitle": "iStay.inn Map - Hotel - Singapore"
+    },
+    {
+      "cityId": "singapore",
+      "osmType": "node",
+      "osmId": "4302906039",
+      "discoveryUrl": "https://mapcarta.com/N4302906039",
+      "discoveryTitle": "Hotel 81 (Joy) Map - Singapore"
+    },
+    {
+      "cityId": "singapore",
+      "osmType": "node",
+      "osmId": "4302906054",
+      "discoveryUrl": "https://mapcarta.com/N4302906054",
+      "discoveryTitle": "D’Nova Hotel@Kallang Map - Singapore"
+    },
+    {
+      "cityId": "singapore",
+      "osmType": "way",
+      "osmId": "190945745",
+      "discoveryUrl": "https://mapcarta.com/32472616",
+      "discoveryTitle": "The Sultan Map - Hotel - Singapore"
+    },
+    {
+      "cityId": "singapore",
+      "osmType": "node",
+      "osmId": "4302906351",
+      "discoveryUrl": "https://mapcarta.com/N4302906351",
+      "discoveryTitle": "The Club Map - Hotel - Singapore"
+    },
+    {
+      "cityId": "singapore",
+      "osmType": "node",
+      "osmId": "4302906059",
+      "discoveryUrl": "https://mapcarta.com/N4302906059",
+      "discoveryTitle": "Hotel By Wassies Map - Singapore"
+    },
+    {
+      "cityId": "singapore",
+      "osmType": "node",
+      "osmId": "9754627417",
+      "discoveryUrl": "https://mapcarta.com/N9754627417",
+      "discoveryTitle": "Mercure ICON Singapore City Centre Map - Hotel - Singapore"
+    },
+    {
+      "cityId": "singapore",
+      "osmType": "node",
+      "osmId": "4302906120",
+      "discoveryUrl": "https://mapcarta.com/32244998",
+      "discoveryTitle": "Porcelain Hotel Map - Singapore"
+    },
+    {
+      "cityId": "bangkok",
+      "osmType": "node",
+      "osmId": "4340260223",
+      "discoveryUrl": "https://mapcarta.com/N4340260223",
+      "discoveryTitle": "Bangkok City Inn Map - Hotel - Lumphini, Thailand"
+    },
+    {
+      "cityId": "bangkok",
+      "osmType": "way",
+      "osmId": "241883577",
+      "discoveryUrl": "https://mapcarta.com/26575950",
+      "discoveryTitle": "Holiday Inn Bangkok Map - Hotel - Lumphini, Thailand"
+    },
+    {
+      "cityId": "bangkok",
+      "osmType": "way",
+      "osmId": "208693096",
+      "discoveryUrl": "https://mapcarta.com/32246520",
+      "discoveryTitle": "Holiday Inn Bangkok Sukhumvit Map - Hotel - Khlong Tan, Thailand"
+    },
+    {
+      "cityId": "bangkok",
+      "osmType": "node",
+      "osmId": "2768111339",
+      "discoveryUrl": "https://mapcarta.com/26574952",
+      "discoveryTitle": "Citin Pratunam Map - Hotel - Thanon Phaya Thai, Thailand"
+    },
+    {
+      "cityId": "bangkok",
+      "osmType": "way",
+      "osmId": "332855045",
+      "discoveryUrl": "https://mapcarta.com/W332855045",
+      "discoveryTitle": "Ramada Plaza Bangkok Menam Riverside Map - Hotel - Wat Phraya Krai, Thailand"
+    },
+    {
+      "cityId": "bangkok",
+      "osmType": "node",
+      "osmId": "3744331157",
+      "discoveryUrl": "https://mapcarta.com/32594070",
+      "discoveryTitle": "Citichic Sukhumvit Map - Hotel - Khlong Toei Nuea, Thailand"
+    },
+    {
+      "cityId": "tokyo",
+      "osmType": "node",
+      "osmId": "3555300496",
+      "discoveryUrl": "https://mapcarta.com/32578142",
+      "discoveryTitle": "Tokyo Station Hotel Map - Chiyoda, Tokyo, Japan"
+    },
+    {
+      "cityId": "tokyo",
+      "osmType": "node",
+      "osmId": "4531034892",
+      "discoveryUrl": "https://mapcarta.com/27600084",
+      "discoveryTitle": "Remm Hibiya Map - Hotel - Chiyoda, Tokyo, Japan"
+    },
+    {
+      "cityId": "tokyo",
+      "osmType": "node",
+      "osmId": "3064973833",
+      "discoveryUrl": "https://mapcarta.com/32599100",
+      "discoveryTitle": "Toko Hotel Map - Shinagawa, Tokyo, Japan"
+    },
+    {
+      "cityId": "tokyo",
+      "osmType": "way",
+      "osmId": "573333754",
+      "discoveryUrl": "https://mapcarta.com/W573333754",
+      "discoveryTitle": "Tokyo Marriott Hotel Map - Hotel building - Tokyo, Japan"
+    },
+    {
+      "cityId": "tokyo",
+      "osmType": "node",
+      "osmId": "1661350663",
+      "discoveryUrl": "https://mapcarta.com/32565126",
+      "discoveryTitle": "Tokyo Business Hotel Map - Shinjuku, Tokyo, Japan"
+    },
+    {
+      "cityId": "tokyo",
+      "osmType": "way",
+      "osmId": "89002285",
+      "discoveryUrl": "https://mapcarta.com/W89002285",
+      "discoveryTitle": "APA Hotel Map - Chiyoda, Tokyo, Japan"
+    },
+    {
+      "cityId": "tokyo",
+      "osmType": "node",
+      "osmId": "2327217291",
+      "discoveryUrl": "https://mapcarta.com/N2327217291",
+      "discoveryTitle": "Park Hyatt Tokyo Map - Hotel - Shinjuku, Tokyo, Japan"
+    },
+    {
+      "cityId": "tokyo",
+      "osmType": "way",
+      "osmId": "153129248",
+      "discoveryUrl": "https://mapcarta.com/W153129248",
+      "discoveryTitle": "APA Hotel Map - Shinjuku, Tokyo, Japan"
+    },
+    {
+      "cityId": "tokyo",
+      "osmType": "way",
+      "osmId": "144480545",
+      "discoveryUrl": "https://mapcarta.com/W144480545",
+      "discoveryTitle": "Hotel Metropolitan Edmont Tokyo Map - Chiyoda, Tokyo, Japan"
+    },
+    {
+      "cityId": "tokyo",
+      "osmType": "node",
+      "osmId": "810644323",
+      "discoveryUrl": "https://mapcarta.com/29355404",
+      "discoveryTitle": "Hyatt Regency Tokyo Map - Hotel - Shinjuku, Tokyo, Japan"
+    },
+    {
+      "cityId": "sydney",
+      "osmType": "way",
+      "osmId": "173175334",
+      "discoveryUrl": "https://mapcarta.com/32834788",
+      "discoveryTitle": "Travelodge Sidney Map - Hotel building - Sydney, New South Wales, Australia"
+    },
+    {
+      "cityId": "sydney",
+      "osmType": "way",
+      "osmId": "548918508",
+      "discoveryUrl": "https://mapcarta.com/W548918508",
+      "discoveryTitle": "Caption By Hyatt Map - Hotel - Sydney, New South Wales, Australia"
+    },
+    {
+      "cityId": "sydney",
+      "osmType": "node",
+      "osmId": "4945164274",
+      "discoveryUrl": "https://mapcarta.com/N4945164274",
+      "discoveryTitle": "Siesta Sydney Map - Hotel - Sydney, New South Wales, Australia"
+    },
+    {
+      "cityId": "sydney",
+      "osmType": "way",
+      "osmId": "506610233",
+      "discoveryUrl": "https://mapcarta.com/W506610233",
+      "discoveryTitle": "View Sydney Map - Hotel - North Sydney Council, New South Wales, Australia"
+    },
+    {
+      "cityId": "sydney",
+      "osmType": "node",
+      "osmId": "4032643491",
+      "discoveryUrl": "https://mapcarta.com/N4032643491",
+      "discoveryTitle": "Hotel 57 Map - Sydney, New South Wales, Australia"
+    },
+    {
+      "cityId": "sydney",
+      "osmType": "way",
+      "osmId": "581013658",
+      "discoveryUrl": "https://mapcarta.com/W581013658",
+      "discoveryTitle": "Crown Sydney Map - Hotel - Sydney, New South Wales, Australia"
+    },
+    {
+      "cityId": "sydney",
+      "osmType": "way",
+      "osmId": "50540253",
+      "discoveryUrl": "https://mapcarta.com/W50540253",
+      "discoveryTitle": "Australian Hotel Map - Sydney, New South Wales, Australia"
+    },
+    {
+      "cityId": "sydney",
+      "osmType": "way",
+      "osmId": "541968516",
+      "discoveryUrl": "https://mapcarta.com/32115248",
+      "discoveryTitle": "Astral Tower Map - Hotel - Sydney, New South Wales, Australia"
+    },
+    {
+      "cityId": "sydney",
+      "osmType": "node",
+      "osmId": "20930153",
+      "discoveryUrl": "https://mapcarta.com/32116258",
+      "discoveryTitle": "Great Southern Map - Hotel - Sydney, New South Wales, Australia"
+    },
+    {
+      "cityId": "sydney",
+      "osmType": "node",
+      "osmId": "12635670903",
+      "discoveryUrl": "https://mapcarta.com/N12635670903",
+      "discoveryTitle": "YEHS Hotel CBD Map - Sydney, New South Wales, Australia"
+    },
+    {
+      "cityId": "auckland",
+      "osmType": "way",
+      "osmId": "331750515",
+      "discoveryUrl": "https://mapcarta.com/32119028",
+      "discoveryTitle": "Crowne Plaza Auckland Map - Hotel - Auckland, Auckland Region, New Zealand"
+    },
+    {
+      "cityId": "auckland",
+      "osmType": "way",
+      "osmId": "162651696",
+      "discoveryUrl": "https://mapcarta.com/W162651696",
+      "discoveryTitle": "Kiwi International Hotel Map - Auckland, Auckland Region, New Zealand"
+    },
+    {
+      "cityId": "auckland",
+      "osmType": "way",
+      "osmId": "260078291",
+      "discoveryUrl": "https://mapcarta.com/W260078291",
+      "discoveryTitle": "VR Auckland City Map - Hotel - Auckland, Auckland Region, New Zealand"
+    },
+    {
+      "cityId": "auckland",
+      "osmType": "way",
+      "osmId": "154260838",
+      "discoveryUrl": "https://mapcarta.com/25273188",
+      "discoveryTitle": "Hilton Auckland Map - Hotel - Auckland, Auckland Region, New Zealand"
+    },
+    {
+      "cityId": "auckland",
+      "osmType": "way",
+      "osmId": "839991359",
+      "discoveryUrl": "https://mapcarta.com/W839991359",
+      "discoveryTitle": "Voco Hotel & Holiday Inn Map - Auckland, Auckland Region, New Zealand"
+    },
+    {
+      "cityId": "auckland",
+      "osmType": "node",
+      "osmId": "3516937193",
+      "discoveryUrl": "https://mapcarta.com/N3516937193",
+      "discoveryTitle": "MGallery Map - Hotel - Auckland, Auckland Region, New Zealand"
+    },
+    {
+      "cityId": "tatvan",
+      "osmType": "way",
+      "osmId": "377114981",
+      "discoveryUrl": "https://mapcarta.com/W377114981",
+      "discoveryTitle": "The Crater Hotel Map - Tatvan, Turkey"
+    },
+    {
+      "cityId": "paris",
+      "osmType": "node",
+      "osmId": "940712742",
+      "discoveryUrl": "https://mapcarta.com/fr/26235488",
+      "discoveryTitle": "Color Design Hotel - Carte - Paris, Île-de-France, France"
+    },
+    {
+      "cityId": "paris",
+      "osmType": "way",
+      "osmId": "56046646",
+      "discoveryUrl": "https://mapcarta.com/fr/25326328",
+      "discoveryTitle": "Hotel Paris Rivoli - Carte - Paris, Île-de-France, France"
+    },
+    {
+      "cityId": "paris",
+      "osmType": "node",
+      "osmId": "5286157221",
+      "discoveryUrl": "https://mapcarta.com/fr/25302368",
+      "discoveryTitle": "Madison Hotel - Carte - Paris, Île-de-France, France"
+    },
+    {
+      "cityId": "paris",
+      "osmType": "node",
+      "osmId": "13175015040",
+      "discoveryUrl": "https://mapcarta.com/fr/26241632",
+      "discoveryTitle": "COMFORT HOTEL PARIS LA FAYETTE - Carte - Paris, Île-de-France, France"
+    },
+    {
+      "cityId": "paris",
+      "osmType": "node",
+      "osmId": "4684728472",
+      "discoveryUrl": "https://mapcarta.com/25373206",
+      "discoveryTitle": "Hotel Quartier Latin Map - Paris, Île-de-France, France"
+    },
+    {
+      "cityId": "paris",
+      "osmType": "node",
+      "osmId": "705211298",
+      "discoveryUrl": "https://mapcarta.com/fr/25384132",
+      "discoveryTitle": "Hotel Saint Louis Marais - Carte - Paris, Île-de-France, France"
+    },
+    {
+      "cityId": "moscow",
+      "osmType": "way",
+      "osmId": "42766205",
+      "discoveryUrl": "https://mapcarta.com/32287194",
+      "discoveryTitle": "President Hotel Map - Moscow Oblast, Russia"
+    },
+    {
+      "cityId": "moscow",
+      "osmType": "way",
+      "osmId": "52721035",
+      "discoveryUrl": "https://mapcarta.com/W52721035",
+      "discoveryTitle": "Лефортово Map - Hotel - Moscow Oblast, Russia"
+    },
+    {
+      "cityId": "moscow",
+      "osmType": "node",
+      "osmId": "4523489265",
+      "discoveryUrl": "https://mapcarta.com/32808654",
+      "discoveryTitle": "People Hostel & Hotel Map - Moscow Oblast, Russia"
+    },
+    {
+      "cityId": "moscow",
+      "osmType": "node",
+      "osmId": "3662375595",
+      "discoveryUrl": "https://mapcarta.com/25351724",
+      "discoveryTitle": "Novotel Moscow Centre Map - Hotel - Russia"
+    },
+    {
+      "cityId": "moscow",
+      "osmType": "node",
+      "osmId": "4386309397",
+      "discoveryUrl": "https://mapcarta.com/N4386309397",
+      "discoveryTitle": "Red Gate Map - Hotel - Moscow Oblast, Russia"
+    },
+    {
+      "cityId": "tatvan",
+      "osmType": "way",
+      "osmId": "377114981",
+      "discoveryUrl": "https://mapcarta.com/W377114981",
+      "discoveryTitle": "The Crater Hotel Map - Tatvan, Turkey"
+    },
+    {
+      "cityId": "tatvan",
+      "osmType": "node",
+      "osmId": "5973317289",
+      "discoveryUrl": "https://mapcarta.com/N5973317289",
+      "discoveryTitle": "caspian hotel Map - Van Province, Turkey"
+    },
+    {
+      "cityId": "bandar-abbas",
+      "osmType": "node",
+      "osmId": "10089737048",
+      "discoveryUrl": "https://mapcarta.com/N10089737048",
+      "discoveryTitle": "HOTEL statice Map - Hormozgan, Iran"
+    },
+    {
+      "cityId": "bandar-abbas",
+      "osmType": "node",
+      "osmId": "5820632657",
+      "discoveryUrl": "https://mapcarta.com/N5820632657",
+      "discoveryTitle": "خانه مس بندرعباس Map - Motel - Hormozgan, Iran"
+    },
+    {
+      "cityId": "bandar-abbas",
+      "osmType": "way",
+      "osmId": "476873510",
+      "discoveryUrl": "https://mapcarta.com/W476873510",
+      "discoveryTitle": "هتل و رستوران گلشهر Map - Hotel building - Hormozgan, Iran"
+    },
+    {
+      "cityId": "bandar-abbas",
+      "osmType": "way",
+      "osmId": "597393850",
+      "discoveryUrl": "https://mapcarta.com/W597393850",
+      "discoveryTitle": "هتل آپارتمان آیلار Map - Hotel - Hormozgan, Iran"
+    },
+    {
+      "cityId": "bandar-abbas",
+      "osmType": "node",
+      "osmId": "3792423737",
+      "discoveryUrl": "https://mapcarta.com/N3792423737",
+      "discoveryTitle": "هتل فروغ بندر Map - Hotel - Hormozgan, Iran"
+    },
+    {
+      "cityId": "bandar-abbas",
+      "osmType": "node",
+      "osmId": "4770061645",
+      "discoveryUrl": "https://mapcarta.com/N4770061645",
+      "discoveryTitle": "Hotel Darya Map - Hormozgan, Iran"
+    },
+    {
+      "cityId": "bandar-abbas",
+      "osmType": "node",
+      "osmId": "12805955764",
+      "discoveryUrl": "https://mapcarta.com/N12805955764",
+      "discoveryTitle": "مهمانپذیر ولی عصر Map - Motel - Hormozgan, Iran"
+    },
+    {
+      "cityId": "bandar-abbas",
+      "osmType": "way",
+      "osmId": "1112155437",
+      "discoveryUrl": "https://mapcarta.com/W1112155437",
+      "discoveryTitle": "هتل ایران Map - Hotel - Hormozgan, Iran"
+    },
+    {
+      "cityId": "bandar-abbas",
+      "osmType": "node",
+      "osmId": "5929060052",
+      "discoveryUrl": "https://mapcarta.com/N5929060052",
+      "discoveryTitle": "هتل آپارتمان آتیلار Map - Hotel - Hormozgan, Iran"
+    },
+    {
+      "cityId": "rasht",
+      "osmType": "way",
+      "osmId": "286589765",
+      "discoveryUrl": "https://mapcarta.com/W286589765",
+      "discoveryTitle": "Kadus Grand Hotel Map - Gilan Province, Iran"
+    },
+    {
+      "cityId": "rasht",
+      "osmType": "node",
+      "osmId": "5154759926",
+      "discoveryUrl": "https://mapcarta.com/N5154759926",
+      "discoveryTitle": "هتل کادوسان Map - Hotel - Gilan Province, Iran"
+    },
+    {
+      "cityId": "rasht",
+      "osmType": "node",
+      "osmId": "4557642336",
+      "discoveryUrl": "https://mapcarta.com/N4557642336",
+      "discoveryTitle": "هتل کویستان Map - Hotel - West Azerbaijan Province, Iran"
+    },
+    {
+      "cityId": "rasht",
+      "osmType": "node",
+      "osmId": "12508233540",
+      "discoveryUrl": "https://mapcarta.com/N12508233540",
+      "discoveryTitle": "اقامتگاه همنشین Map - Motel - Gilan Province, Iran"
+    },
+    {
+      "cityId": "rasht",
+      "osmType": "node",
+      "osmId": "9448586280",
+      "discoveryUrl": "https://mapcarta.com/N9448586280",
+      "discoveryTitle": "Sabuori Hotel Map - Gilan Province, Iran"
+    },
+    {
+      "cityId": "rasht",
+      "osmType": "node",
+      "osmId": "13114393152",
+      "discoveryUrl": "https://mapcarta.com/N13114393152",
+      "discoveryTitle": "هتل آپارتمان گیل Map - Hotel - Gilan Province, Iran"
+    },
+    {
+      "cityId": "rasht",
+      "osmType": "node",
+      "osmId": "12119542645",
+      "discoveryUrl": "https://mapcarta.com/N12119542645",
+      "discoveryTitle": "هتل شاه بلوط Map - Hotel - Gilan Province, Iran"
+    },
+    {
+      "cityId": "rasht",
+      "osmType": "node",
+      "osmId": "5304536021",
+      "discoveryUrl": "https://mapcarta.com/N5304536021",
+      "discoveryTitle": "هتل رستوران خزر Map - Hotel - Gilan Province, Iran"
+    },
+    {
+      "cityId": "hamadan",
+      "osmType": "way",
+      "osmId": "621381324",
+      "discoveryUrl": "https://mapcarta.com/W621381324",
+      "discoveryTitle": "Amiran Hotel, No. 2 Map - Central Western Iran, Iran"
+    },
+    {
+      "cityId": "hamadan",
+      "osmType": "node",
+      "osmId": "5418226657",
+      "discoveryUrl": "https://mapcarta.com/N5418226657",
+      "discoveryTitle": "Amiran Hotel Map - Central Western Iran, Iran"
+    },
+    {
+      "cityId": "hamadan",
+      "osmType": "way",
+      "osmId": "597719921",
+      "discoveryUrl": "https://mapcarta.com/W597719921",
+      "discoveryTitle": "هتل باباطاهر Map - Hotel - Central Western Iran, Iran"
+    },
+    {
+      "cityId": "hamadan",
+      "osmType": "node",
+      "osmId": "4400495391",
+      "discoveryUrl": "https://mapcarta.com/N4400495391",
+      "discoveryTitle": "hotel khatam Map - Central Western Iran, Iran"
+    },
+    {
+      "cityId": "hamadan",
+      "osmType": "way",
+      "osmId": "332445076",
+      "discoveryUrl": "https://mapcarta.com/W332445076",
+      "discoveryTitle": "Parsian BuAli Hotel Map - Central Western Iran, Iran"
+    },
+    {
+      "cityId": "istanbul",
+      "osmType": "node",
+      "osmId": "7589801815",
+      "discoveryUrl": "https://mapcarta.com/35338110",
+      "discoveryTitle": "Hampton by Hilton Istanbul Kurtkoy Map - Hotel - Pendik, Turkey"
+    },
+    {
+      "cityId": "istanbul",
+      "osmType": "way",
+      "osmId": "290804042",
+      "discoveryUrl": "https://mapcarta.com/32268456",
+      "discoveryTitle": "Hampton by Hilton Istanbul Kayasehir Map - Hotel - Başakşehir, Turkey"
+    },
+    {
+      "cityId": "istanbul",
+      "osmType": "way",
+      "osmId": "450954199",
+      "discoveryUrl": "https://mapcarta.com/34909818",
+      "discoveryTitle": "Hampton by Hilton Istanbul Zeytinburnu Map - Hotel - Zeytinburnu, Turkey"
+    },
+    {
+      "cityId": "istanbul",
+      "osmType": "node",
+      "osmId": "11816727569",
+      "discoveryUrl": "https://mapcarta.com/37963808",
+      "discoveryTitle": "Hampton by Hilton Istanbul Sirkeci Map - Hotel - Historical Peninsula, Turkey"
+    },
+    {
+      "cityId": "istanbul",
+      "osmType": "node",
+      "osmId": "14065082623",
+      "discoveryUrl": "https://mapcarta.com/39675680",
+      "discoveryTitle": "Hampton by Hilton Istanbul Old City Map - Hotel - Historical Peninsula, Turkey"
+    },
+    {
+      "cityId": "dubai",
+      "osmType": "way",
+      "osmId": "764131759",
+      "discoveryUrl": "https://mapcarta.com/W764131759",
+      "discoveryTitle": "Ibis Styles Dubai Airport Hotel Map - Dubai, United Arab Emirates"
+    },
+    {
+      "cityId": "doha",
+      "osmType": "way",
+      "osmId": "153989035",
+      "discoveryUrl": "https://mapcarta.com/39400254",
+      "discoveryTitle": "Hyatt Regency Oryx Doha Map - Hotel - Doha, Qatar"
+    },
+    {
+      "cityId": "doha",
+      "osmType": "node",
+      "osmId": "11626362759",
+      "discoveryUrl": "https://mapcarta.com/N11626362759",
+      "discoveryTitle": "Oryx Garden Hotel Map - Doha, Qatar"
+    },
+    {
+      "cityId": "doha",
+      "osmType": "node",
+      "osmId": "7161285151",
+      "discoveryUrl": "https://mapcarta.com/N7161285151",
+      "discoveryTitle": "Oryx Airport Hotel Map - Doha, Qatar"
+    },
+    {
+      "cityId": "muscat",
+      "osmType": "node",
+      "osmId": "11597418569",
+      "discoveryUrl": "https://mapcarta.com/N11597418569",
+      "discoveryTitle": "Novotel Muscat Airport Map - Hotel - Muscat Governorate, Oman"
+    },
+    {
+      "cityId": "muscat",
+      "osmType": "node",
+      "osmId": "1733186698",
+      "discoveryUrl": "https://mapcarta.com/N1733186698",
+      "discoveryTitle": "Golden Tulip Seeb Map - Hotel - Muscat Governorate, Oman"
+    },
+    {
+      "cityId": "muscat",
+      "osmType": "node",
+      "osmId": "3700225356",
+      "discoveryUrl": "https://mapcarta.com/N3700225356",
+      "discoveryTitle": "Muscat International Hotel Map - Dhofar, Oman"
+    },
+    {
+      "cityId": "muscat",
+      "osmType": "node",
+      "osmId": "11588942418",
+      "discoveryUrl": "https://mapcarta.com/N11588942418",
+      "discoveryTitle": "Aloft Muscat Map - Hotel - Muscat Governorate, Oman"
+    },
+    {
+      "cityId": "london",
+      "osmType": "way",
+      "osmId": "108056983",
+      "discoveryUrl": "https://mapcarta.com/32287282",
+      "discoveryTitle": "Sofitel London Heathrow Map - Hotel - Hillingdon, England, UK"
+    },
+    {
+      "cityId": "london",
+      "osmType": "way",
+      "osmId": "22889929",
+      "discoveryUrl": "https://mapcarta.com/25336490",
+      "discoveryTitle": "Hilton London Heathrow Airport Map - Hotel - Hillingdon, England, UK"
+    },
+    {
+      "cityId": "london",
+      "osmType": "way",
+      "osmId": "1170793039",
+      "discoveryUrl": "https://mapcarta.com/W1170793039",
+      "discoveryTitle": "Atrium Hotel Heathrow Map - Hillingdon, England, UK"
+    },
+    {
+      "cityId": "london",
+      "osmType": "way",
+      "osmId": "187395726",
+      "discoveryUrl": "https://mapcarta.com/32604460",
+      "discoveryTitle": "Hilton Garden Inn London Heathrow Airport Map - Hotel - Hillingdon, England, UK"
+    },
+    {
+      "cityId": "london",
+      "osmType": "way",
+      "osmId": "23140406",
+      "discoveryUrl": "https://mapcarta.com/W23140406",
+      "discoveryTitle": "London Heathrow Marriott Hotel Map - Hillingdon, England, UK"
+    },
+    {
+      "cityId": "london",
+      "osmType": "way",
+      "osmId": "1039003140",
+      "discoveryUrl": "https://mapcarta.com/W1039003140",
+      "discoveryTitle": "Ibis Styles - London Heathrow East Map - Hotel - Hounslow, England, UK"
+    },
+    {
+      "cityId": "frankfurt",
+      "osmType": "relation",
+      "osmId": "1397056",
+      "discoveryUrl": "https://mapcarta.com/Sheraton_Frankfurt_Airport_Hotel_R1397056",
+      "discoveryTitle": "Sheraton Frankfurt Airport Hotel Map - Frankfurt, Hesse, Germany"
+    },
+    {
+      "cityId": "frankfurt",
+      "osmType": "way",
+      "osmId": "1564778527",
+      "discoveryUrl": "https://mapcarta.com/de/30850864",
+      "discoveryTitle": "Hilton Garden Inn Frankfurt Airport Karte - Hotel - Frankfurt am Main, Hessen, Deutschland"
+    },
+    {
+      "cityId": "frankfurt",
+      "osmType": "way",
+      "osmId": "526107113",
+      "discoveryUrl": "https://mapcarta.com/de/30745350",
+      "discoveryTitle": "Hilton Frankfurt Airport Karte - Hotel - Frankfurt am Main, Hessen, Deutschland"
+    },
+    {
+      "cityId": "paris",
+      "osmType": "way",
+      "osmId": "510716283",
+      "discoveryUrl": "https://mapcarta.com/W510716283",
+      "discoveryTitle": "citizenM hotel Paris Charles de Gaulle Airport Map - Tremblay-en-France, Île-de-France, France"
+    },
+    {
+      "cityId": "paris",
+      "osmType": "way",
+      "osmId": "456096829",
+      "discoveryUrl": "https://mapcarta.com/W456096829",
+      "discoveryTitle": "ibis Styles Paris Charles de Gaulle Airport Map - Hotel - Tremblay-en-France, Île-de-France, France"
+    },
+    {
+      "cityId": "new-york",
+      "osmType": "node",
+      "osmId": "7799196913",
+      "discoveryUrl": "https://mapcarta.com/N7799196913",
+      "discoveryTitle": "Residence Inn New York JFK Airport Map - Hotel - Queens, New York, United States"
+    },
+    {
+      "cityId": "new-york",
+      "osmType": "node",
+      "osmId": "6227799210",
+      "discoveryUrl": "https://mapcarta.com/N6227799210",
+      "discoveryTitle": "TWA Hotel Map - Queens, New York, USA"
+    },
+    {
+      "cityId": "new-york",
+      "osmType": "way",
+      "osmId": "766219012",
+      "discoveryUrl": "https://mapcarta.com/W766219012",
+      "discoveryTitle": "Marriott New York JFK Airport Map - Hotel - Queens, New York, USA"
+    },
+    {
+      "cityId": "los-angeles",
+      "osmType": "way",
+      "osmId": "413226210",
+      "discoveryUrl": "https://mapcarta.com/W413226210",
+      "discoveryTitle": "Sonesta Los Angeles Airport LAX Map - Hotel - Los Angeles, California, USA"
+    },
+    {
+      "cityId": "los-angeles",
+      "osmType": "way",
+      "osmId": "420302769",
+      "discoveryUrl": "https://mapcarta.com/W420302769",
+      "discoveryTitle": "Hilton Garden Inn LAX Los Angeles Airport Map - Hotel - Los Angeles, California, United States"
+    },
+    {
+      "cityId": "los-angeles",
+      "osmType": "way",
+      "osmId": "413226259",
+      "discoveryUrl": "https://mapcarta.com/35924062",
+      "discoveryTitle": "Hyatt Regency Los Angeles International Airport Map - Hotel - Los Angeles, California, USA"
+    },
+    {
+      "cityId": "toronto",
+      "osmType": "way",
+      "osmId": "96773158",
+      "discoveryUrl": "https://mapcarta.com/25305950",
+      "discoveryTitle": "Sheraton Gateway Hotel in Toronto International Airport Map - Mississauga, Ontario, Canada"
+    },
+    {
+      "cityId": "singapore",
+      "osmType": "node",
+      "osmId": "4302905947",
+      "discoveryUrl": "https://mapcarta.com/N4302905947",
+      "discoveryTitle": "Crowne Plaza (Changi Airport) Map - Hotel - Singapore"
+    },
+    {
+      "cityId": "singapore",
+      "osmType": "way",
+      "osmId": "1547723395",
+      "discoveryUrl": "https://mapcarta.com/32111058",
+      "discoveryTitle": "Changi Cove Map - Hotel - Singapore"
+    },
+    {
+      "cityId": "singapore",
+      "osmType": "way",
+      "osmId": "173713400",
+      "discoveryUrl": "https://mapcarta.com/W173713400",
+      "discoveryTitle": "Village Hotel (Changi) Map - Singapore"
+    },
+    {
+      "cityId": "singapore",
+      "osmType": "node",
+      "osmId": "1846569486",
+      "discoveryUrl": "https://mapcarta.com/N1846569486",
+      "discoveryTitle": "Changi Village Hotel Map - Bus stop - Singapore"
+    },
+    {
+      "cityId": "singapore",
+      "osmType": "way",
+      "osmId": "1222960097",
+      "discoveryUrl": "https://mapcarta.com/W1222960097",
+      "discoveryTitle": "The Bus Collective Map - Hotel - Singapore"
+    },
+    {
+      "cityId": "bangkok",
+      "osmType": "node",
+      "osmId": "4249866390",
+      "discoveryUrl": "https://mapcarta.com/N4249866390",
+      "discoveryTitle": "Miracle Suvarnabhumi Airport hotel Map - Racha Thewa, Thailand"
+    },
+    {
+      "cityId": "bangkok",
+      "osmType": "way",
+      "osmId": "606251106",
+      "discoveryUrl": "https://mapcarta.com/W606251106",
+      "discoveryTitle": "Courtyard by Marriott Bangkok Suvarnabhumi Airport Map - Hotel - Lat Krabang, Thailand"
+    },
+    {
+      "cityId": "bangkok",
+      "osmType": "way",
+      "osmId": "329919874",
+      "discoveryUrl": "https://mapcarta.com/W329919874",
+      "discoveryTitle": "Novotel Bangkok Sukhumvit 20 Map - Hotel - Khlong Toei, Thailand"
+    },
+    {
+      "cityId": "bangkok",
+      "osmType": "way",
+      "osmId": "332658489",
+      "discoveryUrl": "https://mapcarta.com/W332658489",
+      "discoveryTitle": "Novotel Ploenchit Map - Hotel - Lumphini, Thailand"
+    },
+    {
+      "cityId": "bangkok",
+      "osmType": "node",
+      "osmId": "5655312739",
+      "discoveryUrl": "https://mapcarta.com/N5655312739",
+      "discoveryTitle": "Novotel Bali Ngurah Rai Airport Map - Hotel - Badung Regency, Bali, Indonesia"
+    },
+    {
+      "cityId": "bangkok",
+      "osmType": "way",
+      "osmId": "256942116",
+      "discoveryUrl": "https://mapcarta.com/W256942116",
+      "discoveryTitle": "Hyatt Regency Map - Hotel - Thiruvananthapuram, Kerala, India"
+    },
+    {
+      "cityId": "tokyo",
+      "osmType": "node",
+      "osmId": "1367460965",
+      "discoveryUrl": "https://mapcarta.com/N1367460965",
+      "discoveryTitle": "Hotel Villa Fontaine Map - Chuo, Tokyo, Japan"
+    },
+    {
+      "cityId": "tokyo",
+      "osmType": "way",
+      "osmId": "196318838",
+      "discoveryUrl": "https://mapcarta.com/32260408",
+      "discoveryTitle": "Hotel Villa Fontaine Map - Taito, Tokyo, Japan"
+    },
+    {
+      "cityId": "tokyo",
+      "osmType": "node",
+      "osmId": "5411177239",
+      "discoveryUrl": "https://mapcarta.com/29355410",
+      "discoveryTitle": "Hotel Villa Fontaine Shiodome Map - Minato, Tokyo, Japan"
+    },
+    {
+      "cityId": "tokyo",
+      "osmType": "way",
+      "osmId": "187797392",
+      "discoveryUrl": "https://mapcarta.com/32581086",
+      "discoveryTitle": "Hotel Villa Fontaine Tokyo-Hatchobori Map - Chuo, Tokyo, Japan"
+    },
+    {
+      "cityId": "sydney",
+      "osmType": "way",
+      "osmId": "1163508352",
+      "discoveryUrl": "https://mapcarta.com/W1163508352",
+      "discoveryTitle": "Nesuto Parramatta Map - Hotel - Parramatta, Sydney, New South Wales, Australia"
+    },
+    {
+      "cityId": "sydney",
+      "osmType": "way",
+      "osmId": "1126632187",
+      "discoveryUrl": "https://mapcarta.com/25342590",
+      "discoveryTitle": "Rydges Parramatta Map - Hotel - Parramatta, Sydney, New South Wales, Australia"
+    },
+    {
+      "cityId": "sydney",
+      "osmType": "way",
+      "osmId": "600225336",
+      "discoveryUrl": "https://mapcarta.com/25331992",
+      "discoveryTitle": "Rydges Camperdown Map - Hotel - Sydney, New South Wales, Australia"
+    },
+    {
+      "cityId": "sydney",
+      "osmType": "way",
+      "osmId": "540509392",
+      "discoveryUrl": "https://mapcarta.com/W540509392",
+      "discoveryTitle": "Rydges City Central Map - Hotel building - Sydney, New South Wales, Australia"
+    },
+    {
+      "cityId": "sydney",
+      "osmType": "way",
+      "osmId": "547858893",
+      "discoveryUrl": "https://mapcarta.com/W547858893",
+      "discoveryTitle": "Crowne Plaza Sydney Airport Map - Hotel - Bayside (NSW), New South Wales, Australia"
+    },
+    {
+      "cityId": "sydney",
+      "osmType": "way",
+      "osmId": "1062894322",
+      "discoveryUrl": "https://mapcarta.com/25269432",
+      "discoveryTitle": "Rydges Bankstown Map - Hotel - Canterbury-Bankstown, New South Wales, Australia"
+    },
+    {
+      "cityId": "sydney",
+      "osmType": "way",
+      "osmId": "182387059",
+      "discoveryUrl": "https://mapcarta.com/W182387059",
+      "discoveryTitle": "Rydges Map - Hotel - Greater Geelong, Victoria, Australia"
+    },
+    {
+      "cityId": "auckland",
+      "osmType": "way",
+      "osmId": "822146630",
+      "discoveryUrl": "https://mapcarta.com/W822146630",
+      "discoveryTitle": "Te Arikinui Pullman Hotel Map - Auckland, Auckland Region, New Zealand"
+    },
+    {
+      "cityId": "istanbul",
+      "osmType": "way",
+      "osmId": "290804042",
+      "discoveryUrl": "https://mapcarta.com/32268456",
+      "discoveryTitle": "Hampton by Hilton Istanbul Kayasehir Map - Hotel - Başakşehir, Turkey"
+    },
+    {
+      "cityId": "istanbul",
+      "osmType": "node",
+      "osmId": "7589801815",
+      "discoveryUrl": "https://mapcarta.com/35338110",
+      "discoveryTitle": "Hampton by Hilton Istanbul Kurtkoy Map - Hotel - Pendik, Turkey"
+    },
+    {
+      "cityId": "tatvan",
+      "osmType": "node",
+      "osmId": "7626731681",
+      "discoveryUrl": "https://www.openstreetmap.org/node/7626731681",
+      "discoveryTitle": "Tasar Royal Hotel"
+    },
+    {
+      "cityId": "tatvan",
+      "osmType": "node",
+      "osmId": "9798206209",
+      "discoveryUrl": "https://www.openstreetmap.org/node/9798206209",
+      "discoveryTitle": "Park Hotel"
+    },
+    {
+      "cityId": "tatvan",
+      "osmType": "node",
+      "osmId": "13076689616",
+      "discoveryUrl": "https://www.openstreetmap.org/node/13076689616",
+      "discoveryTitle": "Sahra Hotel - Tatvan"
+    },
+    {
+      "cityId": "tatvan",
+      "osmType": "node",
+      "osmId": "14115078002",
+      "discoveryUrl": "https://www.openstreetmap.org/node/14115078002",
+      "discoveryTitle": "Hanemir Otel"
+    },
+    {
+      "cityId": "tatvan",
+      "osmType": "way",
+      "osmId": "620299448",
+      "discoveryUrl": "https://www.openstreetmap.org/way/620299448",
+      "discoveryTitle": "Kardelen Otel"
+    },
+    {
+      "cityId": "istanbul",
+      "osmType": "node",
+      "osmId": "6153093769",
+      "discoveryUrl": "https://api.openstreetmap.org/api/0.6/map.json?bbox=28.735,41.255,28.748,41.266",
+      "discoveryTitle": "Yotel Istanbul Airport (Landside)"
+    },
+    {
+      "cityId": "istanbul",
+      "osmType": "node",
+      "osmId": "6313204370",
+      "discoveryUrl": "https://api.openstreetmap.org/api/0.6/map.json?bbox=28.735,41.255,28.748,41.266",
+      "discoveryTitle": "Yotelair Istanbul Airport (Airside)"
+    },
+    {
+      "cityId": "istanbul",
+      "osmType": "way",
+      "osmId": "1333488164",
+      "discoveryUrl": "https://api.openstreetmap.org/api/0.6/map.json?bbox=28.735,41.255,28.748,41.266",
+      "discoveryTitle": "Hilton Istanbul Airport"
+    },
+    {
+      "cityId": "tokyo",
+      "osmType": "way",
+      "osmId": "322819164",
+      "discoveryUrl": "https://api.openstreetmap.org/api/0.6/map.json?bbox=139.762,35.538,139.774,35.552",
+      "discoveryTitle": "ザ ロイヤルパークホテル 東京羽田"
+    },
+    {
+      "cityId": "sydney",
+      "osmType": "way",
+      "osmId": "384247253",
+      "discoveryUrl": "https://api.openstreetmap.org/api/0.6/map.json?bbox=151.160,-33.940,151.171,-33.929",
+      "discoveryTitle": "Rydges"
+    },
+    {
+      "cityId": "bangkok",
+      "osmType": "relation",
+      "osmId": "4819665",
+      "discoveryUrl": "https://api.openstreetmap.org/api/0.6/map.json?bbox=100.744,13.686,100.756,13.700",
+      "discoveryTitle": "โรงแรมไฮแอทรีเจนซี่ กรุงเทพ สุวรรณภูมิ แอร์พอร์ต"
+    }
+  ],
+  "audits": [
+    {
+      "cityId": "tabriz",
+      "query": "site:mapcarta.com \"Tabriz\" hotel latitude longitude",
+      "candidates": 5
+    },
+    {
+      "cityId": "rasht",
+      "query": "site:mapcarta.com \"Rasht\" hotel latitude longitude",
+      "candidates": 4
+    },
+    {
+      "cityId": "yazd",
+      "query": "site:mapcarta.com \"Yazd\" hotel latitude longitude",
+      "candidates": 10
+    },
+    {
+      "cityId": "ahvaz",
+      "query": "site:mapcarta.com \"Ahvaz\" hotel latitude longitude",
+      "candidates": 8
+    },
+    {
+      "cityId": "bandar-abbas",
+      "query": "site:mapcarta.com \"Bandar Abbas\" hotel latitude",
+      "candidates": 2
+    },
+    {
+      "cityId": "kerman",
+      "query": "site:mapcarta.com \"Kerman\" hotel latitude",
+      "candidates": 10
+    },
+    {
+      "cityId": "hamadan",
+      "query": "site:mapcarta.com \"Hamadan\" hotel latitude",
+      "candidates": 5
+    },
+    {
+      "cityId": "kermanshah",
+      "query": "site:mapcarta.com \"Kermanshah\" hotel latitude",
+      "candidates": 8
+    },
+    {
+      "cityId": "istanbul",
+      "query": "site:mapcarta.com Istanbul Turkey hotel latitude longitude",
+      "candidates": 6
+    },
+    {
+      "cityId": "van",
+      "query": "site:mapcarta.com Van Turkey hotel latitude longitude",
+      "candidates": 6
+    },
+    {
+      "cityId": "yerevan",
+      "query": "site:mapcarta.com Yerevan Armenia hotel latitude longitude",
+      "candidates": 12
+    },
+    {
+      "cityId": "dubai",
+      "query": "site:mapcarta.com Dubai UAE hotel latitude longitude",
+      "candidates": 9
+    },
+    {
+      "cityId": "tbilisi",
+      "query": "site:mapcarta.com Tbilisi Georgia hotel latitude longitude",
+      "candidates": 11
+    },
+    {
+      "cityId": "baku",
+      "query": "site:mapcarta.com Baku Azerbaijan hotel latitude longitude",
+      "candidates": 6
+    },
+    {
+      "cityId": "ankara",
+      "query": "site:mapcarta.com Ankara Turkey hotel latitude longitude",
+      "candidates": 4
+    },
+    {
+      "cityId": "doha",
+      "query": "site:mapcarta.com Doha Qatar hotel latitude longitude",
+      "candidates": 8
+    },
+    {
+      "cityId": "muscat",
+      "query": "site:mapcarta.com Muscat Oman hotel latitude longitude",
+      "candidates": 7
+    },
+    {
+      "cityId": "moscow",
+      "query": "site:mapcarta.com Moscow Russia hotel latitude longitude",
+      "candidates": 1
+    },
+    {
+      "cityId": "london",
+      "query": "site:mapcarta.com London UK hotel latitude longitude",
+      "candidates": 12
+    },
+    {
+      "cityId": "paris",
+      "query": "site:mapcarta.com Paris France hotel latitude longitude",
+      "candidates": 1
+    },
+    {
+      "cityId": "frankfurt",
+      "query": "site:mapcarta.com Frankfurt Germany hotel latitude",
+      "candidates": 8
+    },
+    {
+      "cityId": "new-york",
+      "query": "site:mapcarta.com New York United States hotel latitude",
+      "candidates": 7
+    },
+    {
+      "cityId": "los-angeles",
+      "query": "site:mapcarta.com Los Angeles California hotel latitude",
+      "candidates": 7
+    },
+    {
+      "cityId": "toronto",
+      "query": "site:mapcarta.com Toronto Canada hotel latitude",
+      "candidates": 8
+    },
+    {
+      "cityId": "singapore",
+      "query": "site:mapcarta.com Singapore hotel latitude longitude",
+      "candidates": 10
+    },
+    {
+      "cityId": "bangkok",
+      "query": "site:mapcarta.com Bangkok hotel latitude longitude",
+      "candidates": 6
+    },
+    {
+      "cityId": "tokyo",
+      "query": "site:mapcarta.com Tokyo hotel latitude longitude",
+      "candidates": 10
+    },
+    {
+      "cityId": "sydney",
+      "query": "site:mapcarta.com Sydney hotel latitude longitude",
+      "candidates": 10
+    },
+    {
+      "cityId": "auckland",
+      "query": "site:mapcarta.com Auckland New Zealand hotel latitude",
+      "candidates": 6
+    },
+    {
+      "cityId": "tatvan",
+      "query": "site:mapcarta.com Tatvan otel hotel latitude",
+      "candidates": 1
+    },
+    {
+      "cityId": "paris",
+      "query": "site:mapcarta.com Paris hotel latitude",
+      "candidates": 6
+    },
+    {
+      "cityId": "moscow",
+      "query": "site:mapcarta.com Moscow hotel latitude",
+      "candidates": 5
+    },
+    {
+      "cityId": "tatvan",
+      "query": "site:mapcarta.com Tatvan hotel otel",
+      "candidates": 2
+    },
+    {
+      "cityId": "bandar-abbas",
+      "query": "site:mapcarta.com Bandar Abbas hotel Homa Hormoz Atilar",
+      "candidates": 9
+    },
+    {
+      "cityId": "rasht",
+      "query": "site:mapcarta.com Rasht hotel Kadous Shabestan",
+      "candidates": 8
+    },
+    {
+      "cityId": "hamadan",
+      "query": "site:mapcarta.com Hamadan hotel Baba Taher Buali Amiran",
+      "candidates": 5
+    },
+    {
+      "cityId": "istanbul",
+      "query": "site:mapcarta.com Istanbul airport hotel Yotel Hampton",
+      "candidates": 5
+    },
+    {
+      "cityId": "dubai",
+      "query": "site:mapcarta.com Dubai airport hotel Premier Inn Le Meridien",
+      "candidates": 1
+    },
+    {
+      "cityId": "doha",
+      "query": "site:mapcarta.com Doha airport hotel Oryx Hyatt Regency",
+      "candidates": 3
+    },
+    {
+      "cityId": "muscat",
+      "query": "site:mapcarta.com Muscat airport hotel Aerotel Novotel",
+      "candidates": 4
+    },
+    {
+      "cityId": "london",
+      "query": "site:mapcarta.com Heathrow airport hotel Sofitel Hilton",
+      "candidates": 6
+    },
+    {
+      "cityId": "frankfurt",
+      "query": "site:mapcarta.com Frankfurt airport hotel Hilton Sheraton",
+      "candidates": 3
+    },
+    {
+      "cityId": "paris",
+      "query": "site:mapcarta.com Charles de Gaulle airport hotel citizenM Pullman",
+      "candidates": 2
+    },
+    {
+      "cityId": "new-york",
+      "query": "site:mapcarta.com JFK airport hotel TWA Hilton",
+      "candidates": 3
+    },
+    {
+      "cityId": "los-angeles",
+      "query": "site:mapcarta.com LAX airport hotel Hyatt Regency Sheraton",
+      "candidates": 3
+    },
+    {
+      "cityId": "toronto",
+      "query": "site:mapcarta.com Toronto Pearson airport hotel Sheraton Hilton",
+      "candidates": 1
+    },
+    {
+      "cityId": "singapore",
+      "query": "site:mapcarta.com Changi airport hotel Crowne Plaza Village Changi",
+      "candidates": 5
+    },
+    {
+      "cityId": "bangkok",
+      "query": "site:mapcarta.com Suvarnabhumi airport hotel Novotel Hyatt Regency",
+      "candidates": 6
+    },
+    {
+      "cityId": "tokyo",
+      "query": "site:mapcarta.com Haneda airport hotel Villa Fontaine",
+      "candidates": 4
+    },
+    {
+      "cityId": "sydney",
+      "query": "site:mapcarta.com Sydney airport hotel Rydges Pullman",
+      "candidates": 7
+    },
+    {
+      "cityId": "auckland",
+      "query": "site:mapcarta.com Auckland airport hotel Novotel Pullman",
+      "candidates": 1
+    },
+    {
+      "cityId": "istanbul",
+      "query": "site:mapcarta.com Istanbul Airport Arnavutkoy Hampton hotel",
+      "candidates": 2
+    },
+    {
+      "cityId": "tatvan",
+      "query": "https://api.openstreetmap.org/api/0.6/map.json?bbox=42.271,38.485,42.291,38.510",
+      "candidates": 5,
+      "areaScope": "one small city-centre block; only selected hotel facts retained"
+    },
+    {
+      "cityId": "istanbul",
+      "query": "https://api.openstreetmap.org/api/0.6/map.json?bbox=28.735,41.255,28.748,41.266",
+      "candidates": 3,
+      "responseElements": 18629,
+      "responseSha256": "5c1a5acc1e3e57879138c11d35fbfc824eb488ecd003e684577b29cdd2a04a72"
+    },
+    {
+      "cityId": "tokyo",
+      "query": "https://api.openstreetmap.org/api/0.6/map.json?bbox=139.762,35.538,139.774,35.552",
+      "candidates": 1,
+      "responseElements": 8151,
+      "responseSha256": "1df259129305bc6c57c3190348f429740d90bd1467f797cdb13ce4b317ac0fcc"
+    },
+    {
+      "cityId": "sydney",
+      "query": "https://api.openstreetmap.org/api/0.6/map.json?bbox=151.160,-33.940,151.171,-33.929",
+      "candidates": 1,
+      "responseElements": 12601,
+      "responseSha256": "059b9121096369376443f7921e3b840b911de435a1ca0acb0dd2379b0a0adf11"
+    },
+    {
+      "cityId": "bangkok",
+      "query": "https://api.openstreetmap.org/api/0.6/map.json?bbox=100.744,13.686,100.756,13.700",
+      "candidates": 1,
+      "responseElements": 3774,
+      "responseSha256": "33e83f9daba248b4cddb708fe48d1a7cda5de92380abb051775d78f3e74fae32"
+    }
+  ]
+}

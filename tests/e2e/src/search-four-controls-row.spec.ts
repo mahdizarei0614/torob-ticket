@@ -3,7 +3,7 @@ import { test, expect } from '../fixtures';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
-const evidence = resolve(process.env.FOUR_CONTROLS_EVIDENCE_DIR ?? 'docs/evidence/adjustments/search-four-controls-row/native');
+const evidence = resolve(process.env.FOUR_CONTROLS_EVIDENCE_DIR ?? '.local/evidence/adjustments/search-four-controls-row/native');
 const query = { mode: 'flight', scope: 'domestic', tripType: 'one-way', originCityId: 'tehran', destinationCityId: 'mashhad', departureDate: '2026-11-02', party: { adults: 1, children: 0, infants: 0 }, classCode: 'economy', filters: {}, sort: 'cheapest' };
 
 async function geometry(page: Page) {

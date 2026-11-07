@@ -15,12 +15,12 @@ participants and commercial outcomes are not asserted.
 | --- | --- | --- |
 | Turn a Torob-like ticket idea into a bounded product | Compared scope and architecture options, identified pricing/identity/recovery holes and produced a task plan. The owner selected Nx, comparison/referral only and Option A; quality took precedence over an artificial deadline. | [Specification](superpowers/specs/2026-10-24-torobticket-design.md), [master plan](superpowers/plans/2026-10-24-torobticket-master-plan.md), [foundation](decisions/0001-foundation.md) |
 | Normalize unlike provider offers without inventing terms | Implemented deterministic source dialects, runtime validation, namespace-aware aliases and raw-to-normalized traces. Unknown fees/conditions remain unknown. | [Normalization](decisions/T06-provider-normalization.md), [fare evidence](decisions/T07-comparison-and-fare-evidence.md) |
-| Make prices, dates and rankings describe the same trip | Implemented complete same-provider round trips, eligibility, stable grouping, linked date projections and factual sort explanations. Research showed fewest connections can differ from fastest, so that sort was retained with real authored trade-offs. | [Ranking](decisions/T08-ranking-facts-and-suggestions.md), [date authority](decisions/T10-date-price-projection-and-cache.md), [trade-off research](evidence/adjustments/ranking-tradeoffs/research.md), [decision 0063](decisions/0063-independent-duration-and-connection-tradeoffs.md) |
-| Build a compact Persian experience with expressive graphics | Implemented semantic RTL controls alongside WebGL/GLSL geography, GPU particle motion, route vehicles, theme transitions and flat authored illustrations. The owner repeatedly adjusted density, motion, labels and card layout. | [Graphics host](decisions/0013-shared-graphics-host.md), [map decisions](decisions/0032-atmospheric-selected-journey-map.md), [performance/visual evidence](evidence/T32/checkpoint.md) |
+| Make prices, dates and rankings describe the same trip | Implemented complete same-provider round trips, eligibility, stable grouping, linked date projections and factual sort explanations. Research showed fewest connections can differ from fastest, so that sort was retained with real authored trade-offs. | [Ranking](decisions/T08-ranking-facts-and-suggestions.md), [date authority](decisions/T10-date-price-projection-and-cache.md), [trade-off research](https://github.com/mahdizarei0614/torob-ticket/blob/226bd9d929a023d4060ba102602faad9fde97914/docs/evidence/adjustments/ranking-tradeoffs/research.md), [decision 0063](decisions/0063-independent-duration-and-connection-tradeoffs.md) |
+| Build a compact Persian experience with expressive graphics | Implemented semantic RTL controls alongside WebGL/GLSL geography, GPU particle motion, route vehicles, theme transitions and flat authored illustrations. The owner repeatedly adjusted density, motion, labels and card layout. | [Graphics host](decisions/0013-shared-graphics-host.md), [map decisions](decisions/0032-atmospheric-selected-journey-map.md), [performance/visual evidence](https://github.com/mahdizarei0614/torob-ticket/blob/226bd9d929a023d4060ba102602faad9fde97914/docs/evidence/T32/checkpoint.md) |
 | Make hotel discovery follow the journey | The owner chose the arriving facility, automatic arrival date and always one night. Research/curation added real OSM hotel geography while keeping room offers authored. The owner replaced key-dependent map options with a free street-map approach. | [Arrival-based discovery](decisions/0061-arrival-based-hotel-discovery.md), [real-property directory](../libs/fixtures/src/catalog/real-hotel-directory.README.md), [map/data notices](evidence/T34/submission-and-attribution.md) |
 | Keep handoff facts inspectable | Implemented quote versions, explicit changed-fare consent, idempotent confirmation and session-isolated admin trails. The owner chose an external placeholder for the visible handoff; no purchase is inferred. | [Referral rules](decisions/T11-referral-recheck-and-handoff.md), [handoff presentation](decisions/0067-modal-hotel-split-and-provider-handoff.md), [factual analytics](decisions/0026-factual-referral-analytics.md) |
-| Test behavior rather than polish alone | Separate author and reviewer roles inspected domain rules, browser behavior, accessibility, graphics resources and failure recovery; CLI/browser tools produced retained actual outputs. | [Behavioral acceptance](evidence/release/behavioral-matrix.md), [accessibility](evidence/release/accessibility.md), [graphics](evidence/release/performance.md), [T33 independent review](evidence/T33/review/actual-results-review.md) |
-| Package a reproducible reviewer handoff | Corrected the plain-pnpm host-dependency trap, preserved strict verification, rehearsed offline/restart/reset behavior and created bounded reports. T34 organizes the guide, script, current official requirements and attribution facts. | [T33 checkpoint](evidence/T33/checkpoint.md), [reviewer guide](reviewer-guide.md), [walkthrough](walkthrough.md), [submission facts](evidence/T34/submission-and-attribution.md) |
+| Test behavior rather than polish alone | Separate author and reviewer roles inspected domain rules, browser behavior, accessibility, graphics resources and failure recovery; CLI/browser tools produced retained actual outputs. | [Behavioral acceptance](evidence/release/behavioral-matrix.md), [accessibility](evidence/release/accessibility.md), [graphics](evidence/release/performance.md), [T33 independent review](https://github.com/mahdizarei0614/torob-ticket/blob/226bd9d929a023d4060ba102602faad9fde97914/docs/evidence/T33/review/actual-results-review.md) |
+| Package a reproducible reviewer handoff | Corrected the plain-pnpm host-dependency trap, preserved strict verification, rehearsed offline/restart/reset behavior and created bounded reports. T34 organizes the guide, script, current official requirements and attribution facts. | [T33 checkpoint](https://github.com/mahdizarei0614/torob-ticket/blob/226bd9d929a023d4060ba102602faad9fde97914/docs/evidence/T33/checkpoint.md), [reviewer guide](reviewer-guide.md), [walkthrough](walkthrough.md), [submission facts](evidence/T34/submission-and-attribution.md) |
 
 Independent AI review means a separate task role inspecting source and evidence;
 it is not an external human audit or a user study. Native subagents, actual
@@ -74,7 +74,7 @@ Their receipts, intentional holds and retained failed attempts belong with the
 walkthrough record rather than a claim of human usability testing or app latency.
 The final paced browser rehearsal passed at 4:30.006, with declared presentation
 holds and separately measured setup; it followed the actual fare version 1 → 2
-consent, receipt and admin trail. [Measured phases](evidence/T34/rehearsal-paced-002/artifacts/reviewer-walkthrough-T34-r-4c10b-handoff-and-source-evidence/walkthrough-measurement.json)
+consent, receipt and admin trail. [Measured phases](https://github.com/mahdizarei0614/torob-ticket/blob/226bd9d929a023d4060ba102602faad9fde97914/docs/evidence/T34/rehearsal-paced-002/artifacts/reviewer-walkthrough-T34-r-4c10b-handoff-and-source-evidence/walkthrough-measurement.json)
 keep this result distinct from spoken narration, a captured video or submission.
 
 The [walkthrough](walkthrough.md) distinguishes a script and measured rehearsal
@@ -137,7 +137,7 @@ in-frame fact. Earlier failures remain recorded rather than relabelled as passes
 dark normal-motion IFN120wait was separately inspected. A mistyped build-config
 recheck failed before building and the correct project config passed.
 [Decision0083](decisions/0083-route-aware-city-and-stop-labels.md) and the
-[checkpoint](evidence/adjustments/route-label-clearance/checkpoint.md) bind source,
+[checkpoint](https://github.com/mahdizarei0614/torob-ticket/blob/226bd9d929a023d4060ba102602faad9fde97914/docs/evidence/adjustments/route-label-clearance/checkpoint.md) bind source,
 actual checks, reviewer scope and limits; no full-release recertification is inferred.
 
 
@@ -148,7 +148,7 @@ retains the existing common lifecycle as curve/marker authority and fades only H
 metadata separately.31focused tests and2first-attempt Chrome cases pass, observing
 real computed pulse/entry values and exact API prices after a controlled response
 hold. [Decision0084](decisions/0084-date-price-loading-motion.md) and the
-[checkpoint](evidence/adjustments/date-loading-motion/checkpoint.md) distinguish
+[checkpoint](https://github.com/mahdizarei0614/torob-ticket/blob/226bd9d929a023d4060ba102602faad9fde97914/docs/evidence/adjustments/date-loading-motion/checkpoint.md) distinguish
 actual observations, static screenshots and the limits of shared lifecycle proof.
 
 
@@ -260,7 +260,7 @@ dependencies passed the actual packaged Docker startup and fresh-reviewer Chrome
 SSO journey, including created/existing account reuse and reviewer isolation.
 49PostgreSQL cases,29source units and38tools pass; existing reference/external
 browser regressions pass after a test-selector correction. Actual logs, initial
-failed checks, cleanup and scope review are kept in the [verification record](evidence/adjustments/reviewer-sso/verification.md). Current provider data survived
+failed checks, cleanup and scope review are kept in the [verification record](https://github.com/mahdizarei0614/torob-ticket/blob/226bd9d929a023d4060ba102602faad9fde97914/docs/evidence/adjustments/reviewer-sso/verification.md). Current provider data survived
 its entrypoint update byte-for-byte. No deployment or commercial verification is
 claimed.
 
@@ -280,7 +280,7 @@ Final source `2c311c835a5998d72250baa76d3dec621e884153` follows first layout5160
 lint/E2E types and actual cross-host browser0022/2 plus targeted0031/1 pass. The
 latter verifies same-origin links and retained ref before SSO. Native320 layout,
 48px details, local disclosures and viewport restoration were checked. Initial
-navigation captures and lint correction are retained in the [verification record](evidence/adjustments/provider-presentation/verification.md). No deployment.
+navigation captures and lint correction are retained in the [verification record](https://github.com/mahdizarei0614/torob-ticket/blob/226bd9d929a023d4060ba102602faad9fde97914/docs/evidence/adjustments/provider-presentation/verification.md). No deployment.
 
 
 ## Fresh reviewer passport SSO — 2026-11-06
@@ -300,7 +300,7 @@ The new passport cases perform all mutations through search/provider/form UI,
 cover created/existing same-account reuse and saved domestic profile completion,
 and assert actual provider JSON. Independent review corrected an intermediate
 phone-only editing guard before final approval. README now starts with the
-international walkthrough. [Verification](evidence/adjustments/sso-passport-review/verification.md)
+international walkthrough. [Verification](https://github.com/mahdizarei0614/torob-ticket/blob/226bd9d929a023d4060ba102602faad9fde97914/docs/evidence/adjustments/sso-passport-review/verification.md)
 retains initial failures, actual logs and screenshots. Fresh browser contexts
 used existing preserved Docker data; no cold-device/deployment claim.
 

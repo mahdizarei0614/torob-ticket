@@ -1,0 +1,12 @@
+{
+  "directorySha256": "6d67dfa88633e9c4882783b6a28d99c5d2c4cb0c15ad06836d9f3cb1b9e93bd0",
+  "checked": 301,
+  "coordinateMethods": {
+    "osm-node-exact": 152,
+    "osm-way-polygon-centroid": 23,
+    "osm-way-outer-bounds-center": 124,
+    "osm-relation-outer-bounds-center": 2
+  },
+  "errors": [],
+  "status": "pass"
+}

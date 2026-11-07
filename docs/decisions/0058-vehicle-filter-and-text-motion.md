@@ -34,4 +34,4 @@ Use theme tokens and existing flat motion. This is a presentation refinement;
 M7 remains partial29/35 and T30 active.
 
 Source/native verification, limitations and independent review are recorded in
-[the checkpoint](../evidence/adjustments/vehicle-filter-text-motion/checkpoint.md).
+[the checkpoint](https://github.com/mahdizarei0614/torob-ticket/blob/226bd9d929a023d4060ba102602faad9fde97914/docs/evidence/adjustments/vehicle-filter-text-motion/checkpoint.md).

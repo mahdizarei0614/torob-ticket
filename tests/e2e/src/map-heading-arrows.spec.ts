@@ -2,7 +2,7 @@ import { test, expect, type Page } from '@playwright/test';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
-const evidence = resolve(process.env.MAP_HEADING_EVIDENCE_DIR ?? 'docs/evidence/adjustments/map-heading-arrows/native');
+const evidence = resolve(process.env.MAP_HEADING_EVIDENCE_DIR ?? '.local/evidence/adjustments/map-heading-arrows/native');
 const query = { mode: 'flight', scope: 'domestic', tripType: 'one-way', originCityId: 'tehran', destinationCityId: 'mashhad', departureDate: '2026-11-02', party: { adults: 1, children: 0, infants: 0 }, classCode: 'economy', filters: {}, sort: 'cheapest' };
 type Frame = { time: number; sameLabels: boolean; minimumLabelOpacity: number; labelTops: number[]; labelLefts: number[]; arrowOpacities: number[]; headings: number };
 type Probe = { done: boolean; frames: Frame[] };

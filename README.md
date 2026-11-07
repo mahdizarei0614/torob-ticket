@@ -111,6 +111,10 @@ scenario controls. [Walkthrough](docs/walkthrough.md) contains the 4:30 script,
 reproducible preparation and passed **4:30.006 paced operator rehearsal**. Startup
 is separate from the presentation; no video was recorded by that rehearsal.
 
+Detailed guides and selected proof are indexed in [Documentation](docs/README.md).
+Historical captures remain available through immutable archive links; new raw
+verification output is written to ignored `.local/evidence`.
+
 ## What is implemented
 
 - Equivalent-journey grouping and same-price seller choices, complete
@@ -175,7 +179,7 @@ folder for each invocation:
 
 ```sh
 pnpm install --frozen-lockfile
-pnpm verify:release --base-url http://localhost:4300 --report-dir docs/evidence/release/local-quality-001 --profile quality --browser-channel chrome
+pnpm verify:release --base-url http://localhost:4300 --report-dir .local/evidence/release/local-quality-001 --profile quality --browser-channel chrome
 ```
 
 Omit `--profile quality` for the shorter health/assets/critical-browser profile.

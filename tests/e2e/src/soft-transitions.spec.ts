@@ -3,7 +3,7 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { CatalogSnapshotSchema, SearchRecoverySchema, type TransportSearchQuery } from '@torob-ticket/contracts';
 
-const out = resolve(process.env.SOFT_TRANSITIONS_EVIDENCE_DIR ?? 'docs/evidence/adjustments/soft-transitions/native');
+const out = resolve(process.env.SOFT_TRANSITIONS_EVIDENCE_DIR ?? '.local/evidence/adjustments/soft-transitions/native');
 const query: TransportSearchQuery = { mode: 'flight', scope: 'domestic', tripType: 'one-way', originCityId: 'tehran', destinationCityId: 'mashhad', departureDate: '2026-10-29', party: { adults: 1, children: 0, infants: 0 }, classCode: 'economy', filters: {}, sort: 'cheapest' };
 const results = (page: Page) => page.getByRole('region', { name: 'نتایج مقایسه سفر', exact: true });
 const save = (name: string, value: unknown) => writeFileSync(resolve(out, name + '.json'), JSON.stringify(value, null, 2) + '\n');

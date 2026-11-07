@@ -4,7 +4,7 @@ import {join} from 'node:path';
 import type {CatalogSnapshot,Itinerary,SearchRecovery,TransportSearchQuery} from '@torob-ticket/contracts';
 import {buildRouteGeometry,contextForPoints,projectPoint,presentationRoutePaths,offsetPresentationPath,type IllustrativePath,type RouteBounds} from '@torob-ticket/graphics/geometry';
 
-const evidence=process.env.ROUTE_LABEL_EVIDENCE_DIR??'docs/evidence/adjustments/route-label-clearance/browser';
+const evidence=process.env.ROUTE_LABEL_EVIDENCE_DIR??'.local/evidence/adjustments/route-label-clearance/browser';
 const base:TransportSearchQuery={mode:'flight',scope:'domestic',tripType:'one-way',originCityId:'tehran',destinationCityId:'mashhad',departureDate:'2026-11-08',party:{adults:1,children:0,infants:0},classCode:'economy',filters:{},sort:'cheapest'};
 const map=(page:Page)=>page.getByRole('complementary',{name:'نقشه سفر',exact:true});
 const results=(page:Page)=>page.getByRole('region',{name:'نتایج مقایسه سفر',exact:true});

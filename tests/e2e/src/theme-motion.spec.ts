@@ -1,7 +1,7 @@
 import {test,expect,type Page} from '@playwright/test';
 import {mkdirSync,writeFileSync} from 'node:fs';
 import {resolve} from 'node:path';
-const out=resolve(process.env.M6_EVIDENCE_DIR??'docs/evidence/M6/browser');mkdirSync(out,{recursive:true});
+const out=resolve(process.env.M6_EVIDENCE_DIR??'.local/evidence/M6/browser');mkdirSync(out,{recursive:true});
 const query={mode:'flight',scope:'domestic',tripType:'one-way',originCityId:'tehran',destinationCityId:'mashhad',departureDate:'2026-10-25',party:{adults:1,children:0,infants:0},classCode:'economy',filters:{},sort:'cheapest'};
 async function initialize(page:Page){await page.addInitScript(()=>{
  const data={draws:0,samples:[] as unknown[],programs:[] as {gl:WebGL2RenderingContext;program:WebGLProgram}[],last:undefined as undefined|{gl:WebGL2RenderingContext;program:WebGLProgram}};

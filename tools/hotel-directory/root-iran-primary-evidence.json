@@ -1,0 +1,2901 @@
+{
+  "retrievedAt": "2026-10-30",
+  "license": "ODbL-1.0",
+  "elements": [
+    {
+      "type": "node",
+      "id": 4379056993,
+      "version": 6,
+      "timestamp": "2019-02-23T17:09:52Z",
+      "tags": {
+        "addr:housenumber": "60",
+        "addr:street": "فتحی شقاقی",
+        "internet_access": "wlan",
+        "name": "هتل ساینا",
+        "name:en": "Saina Hotel",
+        "opening_hours": "24/7",
+        "phone": "+982188100042",
+        "tourism": "hotel"
+      },
+      "download": "torobticket-tehran-hotel-block.json",
+      "lat": 35.7237332,
+      "lon": 51.406314
+    },
+    {
+      "type": "node",
+      "id": 4411451291,
+      "version": 4,
+      "timestamp": "2019-08-24T07:06:11Z",
+      "tags": {
+        "addr:street": "شهید مطهری, motahary st",
+        "name": "هتل آراد",
+        "name:en": "Arad hotel",
+        "tourism": "hotel"
+      },
+      "download": "torobticket-tehran-hotel-block.json",
+      "lat": 35.7226596,
+      "lon": 51.4118077
+    },
+    {
+      "type": "node",
+      "id": 4625274089,
+      "version": 7,
+      "timestamp": "2023-10-01T08:27:27Z",
+      "tags": {
+        "addr:housenumber": "18",
+        "addr:street": "18, Ghafari Street",
+        "email": "karoonhotel@gmail.com",
+        "internet_access": "wlan",
+        "name": "هتل کارون",
+        "name:en": "Karoon Hotel",
+        "name:it": "hotel karun",
+        "name:ru": "Карун",
+        "phone": "+98 21 8880 60403",
+        "tourism": "hotel",
+        "website": "https://www.karoonhotel.com/"
+      },
+      "download": "torobticket-tehran-hotel-block.json",
+      "lat": 35.7184359,
+      "lon": 51.406859
+    },
+    {
+      "type": "node",
+      "id": 6923409885,
+      "version": 2,
+      "timestamp": "2025-02-04T05:25:33Z",
+      "tags": {
+        "addr:street": "ولی عصر",
+        "check_date": "2025-02-04",
+        "internet_access": "wlan",
+        "name": "هتل آپارتمان ایده آل",
+        "name:en": "Ideal Apt. Hotel",
+        "phone": "+98 21 8892 0840",
+        "tourism": "hotel",
+        "website": "http://www.hotelideal.ir/"
+      },
+      "download": "torobticket-tehran-hotel-block.json",
+      "lat": 35.7197252,
+      "lon": 51.4078838
+    },
+    {
+      "type": "node",
+      "id": 9360150155,
+      "version": 2,
+      "timestamp": "2021-12-23T11:29:55Z",
+      "tags": {
+        "addr:street": "شهید بهشتی",
+        "name": "هتل روما",
+        "phone": "+98 21 8604 6044",
+        "tourism": "hotel",
+        "website": "https://romacomplex.ir"
+      },
+      "download": "torobticket-tehran-hotel-block.json",
+      "lat": 35.7272604,
+      "lon": 51.4145684
+    },
+    {
+      "type": "way",
+      "id": 460351352,
+      "version": 10,
+      "timestamp": "2026-10-14T11:15:58Z",
+      "tags": {
+        "building": "yes",
+        "building:levels": "10",
+        "check_date": "2025-04-22",
+        "height": "30 m",
+        "name": "هتل بزرگ تهران",
+        "name:en": "Grand Hotel Tehran (1)",
+        "tourism": "hotel"
+      },
+      "download": "torobticket-tehran-hotel-block.json",
+      "nodes": [
+        4560228393,
+        5315305170,
+        5315305171,
+        14283210469,
+        5315305174,
+        5315305169,
+        5315305173,
+        14283210470,
+        4560228394,
+        14283210471,
+        14283210472,
+        14283210473,
+        14283210474,
+        14283210475,
+        14283210476,
+        14283210477,
+        14283210478,
+        14283210479,
+        14283210480,
+        14283210481,
+        14283210482,
+        14283210483,
+        4560228396,
+        14283210485,
+        14283210486,
+        14283210487,
+        14283210484,
+        14283210488,
+        14283210489,
+        14283210464,
+        4560228397,
+        14283210465,
+        14283210466,
+        14283210467,
+        14283210468,
+        4560228393
+      ],
+      "geometry": [
+        {
+          "id": 4560228393,
+          "lat": 35.7243211,
+          "lon": 51.4113269
+        },
+        {
+          "id": 5315305170,
+          "lat": 35.7242427,
+          "lon": 51.4110646
+        },
+        {
+          "id": 5315305171,
+          "lat": 35.7242228,
+          "lon": 51.4109889
+        },
+        {
+          "id": 14283210469,
+          "lat": 35.7241877,
+          "lon": 51.4108839
+        },
+        {
+          "id": 5315305174,
+          "lat": 35.7241751,
+          "lon": 51.4108919
+        },
+        {
+          "id": 5315305169,
+          "lat": 35.7241662,
+          "lon": 51.4108709
+        },
+        {
+          "id": 5315305173,
+          "lat": 35.7241478,
+          "lon": 51.4108192
+        },
+        {
+          "id": 14283210470,
+          "lat": 35.7241175,
+          "lon": 51.4108323
+        },
+        {
+          "id": 4560228394,
+          "lat": 35.7240955,
+          "lon": 51.4107852
+        },
+        {
+          "id": 14283210471,
+          "lat": 35.7240804,
+          "lon": 51.4107665
+        },
+        {
+          "id": 14283210472,
+          "lat": 35.724057,
+          "lon": 51.4107122
+        },
+        {
+          "id": 14283210473,
+          "lat": 35.7240304,
+          "lon": 51.4107196
+        },
+        {
+          "id": 14283210474,
+          "lat": 35.7240157,
+          "lon": 51.410666
+        },
+        {
+          "id": 14283210475,
+          "lat": 35.7240059,
+          "lon": 51.4106747
+        },
+        {
+          "id": 14283210476,
+          "lat": 35.7239917,
+          "lon": 51.4106318
+        },
+        {
+          "id": 14283210477,
+          "lat": 35.7239705,
+          "lon": 51.4105989
+        },
+        {
+          "id": 14283210478,
+          "lat": 35.7239345,
+          "lon": 51.4105372
+        },
+        {
+          "id": 14283210479,
+          "lat": 35.7238801,
+          "lon": 51.4104749
+        },
+        {
+          "id": 14283210480,
+          "lat": 35.7237467,
+          "lon": 51.4105902
+        },
+        {
+          "id": 14283210481,
+          "lat": 35.7237473,
+          "lon": 51.4107645
+        },
+        {
+          "id": 14283210482,
+          "lat": 35.7237816,
+          "lon": 51.4109402
+        },
+        {
+          "id": 14283210483,
+          "lat": 35.7238039,
+          "lon": 51.4109409
+        },
+        {
+          "id": 4560228396,
+          "lat": 35.723824,
+          "lon": 51.4109693
+        },
+        {
+          "id": 14283210485,
+          "lat": 35.7238496,
+          "lon": 51.4109831
+        },
+        {
+          "id": 14283210486,
+          "lat": 35.7238458,
+          "lon": 51.41101
+        },
+        {
+          "id": 14283210487,
+          "lat": 35.7238491,
+          "lon": 51.4110321
+        },
+        {
+          "id": 14283210484,
+          "lat": 35.7238589,
+          "lon": 51.4110535
+        },
+        {
+          "id": 14283210488,
+          "lat": 35.7238741,
+          "lon": 51.4110703
+        },
+        {
+          "id": 14283210489,
+          "lat": 35.7238572,
+          "lon": 51.4111099
+        },
+        {
+          "id": 14283210464,
+          "lat": 35.7238551,
+          "lon": 51.4111407
+        },
+        {
+          "id": 4560228397,
+          "lat": 35.723872,
+          "lon": 51.4112168
+        },
+        {
+          "id": 14283210465,
+          "lat": 35.7240881,
+          "lon": 51.4111219
+        },
+        {
+          "id": 14283210466,
+          "lat": 35.7241915,
+          "lon": 51.4114317
+        },
+        {
+          "id": 14283210467,
+          "lat": 35.7242568,
+          "lon": 51.4113995
+        },
+        {
+          "id": 14283210468,
+          "lat": 35.7242481,
+          "lon": 51.4113566
+        },
+        {
+          "id": 4560228393,
+          "lat": 35.7243211,
+          "lon": 51.4113269
+        }
+      ]
+    },
+    {
+      "type": "way",
+      "id": 600524273,
+      "version": 9,
+      "timestamp": "2022-07-02T20:03:58Z",
+      "tags": {
+        "addr:street": "سی‌ و سوم",
+        "building": "hotel",
+        "building:levels": "21",
+        "contact:email": "reservation.p@espinashotels.com",
+        "contact:phone": "+98 2175945",
+        "contact:website": "https://palace.espinashotels.com/fa/",
+        "height": "25",
+        "internet_access": "wlan",
+        "name": "هتل اسپیناس پالاس",
+        "name:en": "Espinas Palace Hotel",
+        "stars": "5",
+        "tourism": "hotel",
+        "wikidata": "Q49477261"
+      },
+      "download": "torobticket-tehran-palace-hotel-block.json",
+      "nodes": [
+        5710168085,
+        5710168068,
+        5710168088,
+        5710168089,
+        5710168092,
+        4282640713,
+        5710168081,
+        5710168100,
+        9862842247,
+        9862842246,
+        5710168080,
+        5710168082,
+        5710168084,
+        9862842245,
+        5710168090,
+        9862842244,
+        9862842249,
+        9862842248,
+        4282640708,
+        5710168061,
+        5710168078,
+        4282640720,
+        4282640712,
+        5710168085
+      ],
+      "geometry": [
+        {
+          "id": 5710168085,
+          "lat": 35.7926839,
+          "lon": 51.3565584
+        },
+        {
+          "id": 5710168068,
+          "lat": 35.7927224,
+          "lon": 51.3565566
+        },
+        {
+          "id": 5710168088,
+          "lat": 35.7927086,
+          "lon": 51.3567144
+        },
+        {
+          "id": 5710168089,
+          "lat": 35.7928259,
+          "lon": 51.3567226
+        },
+        {
+          "id": 5710168092,
+          "lat": 35.7928259,
+          "lon": 51.3567656
+        },
+        {
+          "id": 4282640713,
+          "lat": 35.7933609,
+          "lon": 51.3568487
+        },
+        {
+          "id": 5710168081,
+          "lat": 35.7933665,
+          "lon": 51.3567814
+        },
+        {
+          "id": 5710168100,
+          "lat": 35.793635,
+          "lon": 51.3568293
+        },
+        {
+          "id": 9862842247,
+          "lat": 35.793718,
+          "lon": 51.3568178
+        },
+        {
+          "id": 9862842246,
+          "lat": 35.7937476,
+          "lon": 51.356802
+        },
+        {
+          "id": 5710168080,
+          "lat": 35.7937805,
+          "lon": 51.3567655
+        },
+        {
+          "id": 5710168082,
+          "lat": 35.7937902,
+          "lon": 51.3567302
+        },
+        {
+          "id": 5710168084,
+          "lat": 35.7938317,
+          "lon": 51.3562391
+        },
+        {
+          "id": 9862842245,
+          "lat": 35.7938177,
+          "lon": 51.3562022
+        },
+        {
+          "id": 5710168090,
+          "lat": 35.7937777,
+          "lon": 51.3561545
+        },
+        {
+          "id": 9862842244,
+          "lat": 35.7937167,
+          "lon": 51.3561277
+        },
+        {
+          "id": 9862842249,
+          "lat": 35.7936103,
+          "lon": 51.3561073
+        },
+        {
+          "id": 9862842248,
+          "lat": 35.793433,
+          "lon": 51.3560855
+        },
+        {
+          "id": 4282640708,
+          "lat": 35.7934398,
+          "lon": 51.3560192
+        },
+        {
+          "id": 5710168061,
+          "lat": 35.7927841,
+          "lon": 51.3559365
+        },
+        {
+          "id": 5710168078,
+          "lat": 35.7927763,
+          "lon": 51.3560343
+        },
+        {
+          "id": 4282640720,
+          "lat": 35.7927375,
+          "lon": 51.3560554
+        },
+        {
+          "id": 4282640712,
+          "lat": 35.7926972,
+          "lon": 51.356395
+        },
+        {
+          "id": 5710168085,
+          "lat": 35.7926839,
+          "lon": 51.3565584
+        }
+      ]
+    },
+    {
+      "type": "node",
+      "id": 10594199175,
+      "version": 1,
+      "timestamp": "2023-01-30T13:58:15Z",
+      "tags": {
+        "name": "هتل رکسان",
+        "tourism": "hotel"
+      },
+      "download": "torobticket-tehran-airport-hotels.json",
+      "lat": 35.4062176,
+      "lon": 51.1550206
+    },
+    {
+      "type": "node",
+      "id": 3063991610,
+      "version": 7,
+      "timestamp": "2026-09-06T12:28:06Z",
+      "tags": {
+        "check_date": "2025-07-26",
+        "internet_access": "wlan",
+        "internet_access:fee": "no",
+        "name": "هتل اطلس",
+        "name:en": "Atlas Hotel",
+        "phone": "+98 21 8890 7475",
+        "stars": "3",
+        "tourism": "hotel",
+        "website": "http://atlas-hotel.com"
+      },
+      "download": "torobticket-tehran-centre-hotel-block.json",
+      "lat": 35.7070875,
+      "lon": 51.4182171
+    },
+    {
+      "type": "node",
+      "id": 4473353992,
+      "version": 3,
+      "timestamp": "2026-10-03T11:32:21Z",
+      "tags": {
+        "internet_access": "wlan",
+        "name": "هتل پامچال",
+        "name:en": "Pamchal Hotel",
+        "tourism": "hotel"
+      },
+      "download": "torobticket-tehran-centre-hotel-block.json",
+      "lat": 35.7043138,
+      "lon": 51.4238277
+    },
+    {
+      "type": "node",
+      "id": 8528218400,
+      "version": 2,
+      "timestamp": "2023-01-30T15:14:42Z",
+      "tags": {
+        "addr:city": "Tehran",
+        "addr:housenumber": "3",
+        "addr:street": "Neauphle-le-Château St., Hafez Ave , Lolagar Alley",
+        "air_conditioning": "yes",
+        "brand": "HANNA",
+        "internet_access": "wlan",
+        "internet_access:fee": "customers",
+        "name": "هتل حنا",
+        "name:en": "hanna boutique hotel",
+        "phone": "+9821 62 999 111",
+        "rooms": "7",
+        "tourism": "hotel",
+        "website": "https://hannaboutiquehotel.com/"
+      },
+      "download": "torobticket-tehran-centre-hotel-block.json",
+      "lat": 35.6966123,
+      "lon": 51.4113964
+    },
+    {
+      "type": "node",
+      "id": 5612094421,
+      "version": 4,
+      "timestamp": "2024-10-29T08:59:48Z",
+      "tags": {
+        "name": "هتل اسکان فرصت",
+        "name:en": "Escan Forsat Hotel",
+        "tourism": "hotel"
+      },
+      "download": "torobticket-tehran-centre-hotel-block.json",
+      "lat": 35.7040126,
+      "lon": 51.4214072
+    },
+    {
+      "type": "way",
+      "id": 445156158,
+      "version": 3,
+      "timestamp": "2024-11-20T22:31:31Z",
+      "tags": {
+        "internet_access": "yes",
+        "level": "10",
+        "name": "هتل هویزه",
+        "name:en": "Howeyzeh Hotel",
+        "rooms": "180",
+        "stars": "4",
+        "tourism": "hotel",
+        "wikidata": "Q111855533"
+      },
+      "download": "torobticket-tehran-centre-hotel-block.json",
+      "nodes": [
+        4426284071,
+        4426284072,
+        4426284069,
+        4426284068,
+        4426284070,
+        4426284071
+      ],
+      "geometry": [
+        {
+          "id": 4426284071,
+          "lat": 35.7072208,
+          "lon": 51.4154754
+        },
+        {
+          "id": 4426284072,
+          "lat": 35.7072494,
+          "lon": 51.4159767
+        },
+        {
+          "id": 4426284069,
+          "lat": 35.7068788,
+          "lon": 51.4160087
+        },
+        {
+          "id": 4426284068,
+          "lat": 35.7068655,
+          "lon": 51.4155503
+        },
+        {
+          "id": 4426284070,
+          "lat": 35.7068883,
+          "lon": 51.4155041
+        },
+        {
+          "id": 4426284071,
+          "lat": 35.7072208,
+          "lon": 51.4154754
+        }
+      ]
+    },
+    {
+      "type": "way",
+      "id": 1299522074,
+      "version": 2,
+      "timestamp": "2025-08-05T06:55:19Z",
+      "tags": {
+        "addr:city": "Tehran",
+        "addr:street": "آیت الله طالقانی",
+        "internet_access": "wlan",
+        "internet_access:fee": "no",
+        "name": "هتل پارسیان انقلاب",
+        "name:en": "Parsian Enghelab Hotel",
+        "phone": "+98 21 8893 7251",
+        "stars": "4",
+        "tourism": "hotel",
+        "website": "https://enghelab.pih.ir/"
+      },
+      "download": "torobticket-tehran-centre-hotel-block.json",
+      "nodes": [
+        4560245176,
+        13049537851,
+        13049537850,
+        13049537849,
+        13049537848,
+        13049537847,
+        13049537846,
+        13049537845,
+        4560245175,
+        11342973162,
+        11342973159,
+        12037711145,
+        12037711149,
+        11342973156,
+        4560245177,
+        13049537854,
+        13049537853,
+        13049537852,
+        4560245176
+      ],
+      "geometry": [
+        {
+          "id": 4560245176,
+          "lat": 35.7072714,
+          "lon": 51.4083758
+        },
+        {
+          "id": 13049537851,
+          "lat": 35.7072928,
+          "lon": 51.4083913
+        },
+        {
+          "id": 13049537850,
+          "lat": 35.7073136,
+          "lon": 51.4084146
+        },
+        {
+          "id": 13049537849,
+          "lat": 35.7073357,
+          "lon": 51.4084592
+        },
+        {
+          "id": 13049537848,
+          "lat": 35.7073409,
+          "lon": 51.4084914
+        },
+        {
+          "id": 13049537847,
+          "lat": 35.7073421,
+          "lon": 51.4085279
+        },
+        {
+          "id": 13049537846,
+          "lat": 35.7073369,
+          "lon": 51.4085548
+        },
+        {
+          "id": 13049537845,
+          "lat": 35.707327,
+          "lon": 51.4085867
+        },
+        {
+          "id": 4560245175,
+          "lat": 35.7073481,
+          "lon": 51.4088607
+        },
+        {
+          "id": 11342973162,
+          "lat": 35.7071304,
+          "lon": 51.4088848
+        },
+        {
+          "id": 11342973159,
+          "lat": 35.7070969,
+          "lon": 51.408887
+        },
+        {
+          "id": 12037711145,
+          "lat": 35.7067153,
+          "lon": 51.4089117
+        },
+        {
+          "id": 12037711149,
+          "lat": 35.7067134,
+          "lon": 51.4088311
+        },
+        {
+          "id": 11342973156,
+          "lat": 35.706709,
+          "lon": 51.4086447
+        },
+        {
+          "id": 4560245177,
+          "lat": 35.7067017,
+          "lon": 51.4084066
+        },
+        {
+          "id": 13049537854,
+          "lat": 35.7072023,
+          "lon": 51.4083533
+        },
+        {
+          "id": 13049537853,
+          "lat": 35.7072085,
+          "lon": 51.4083708
+        },
+        {
+          "id": 13049537852,
+          "lat": 35.7072429,
+          "lon": 51.4083675
+        },
+        {
+          "id": 4560245176,
+          "lat": 35.7072714,
+          "lon": 51.4083758
+        }
+      ]
+    },
+    {
+      "type": "way",
+      "id": 355154532,
+      "version": 6,
+      "timestamp": "2019-03-04T06:27:07Z",
+      "tags": {
+        "building": "yes",
+        "internet_access": "wlan",
+        "name": "هتل مجلل درویش",
+        "name:en": "Darvishi Royal Hotel",
+        "opening_hours": "24/7",
+        "tourism": "hotel",
+        "website": "https://darvishihotel.com/"
+      },
+      "download": "torobticket-mashhad-hotel-block.json",
+      "nodes": [
+        3607631168,
+        2447232697,
+        3607631170,
+        3607631171,
+        3607631168
+      ],
+      "geometry": [
+        {
+          "id": 3607631168,
+          "lat": 36.2757054,
+          "lon": 59.6055432
+        },
+        {
+          "id": 2447232697,
+          "lat": 36.2751833,
+          "lon": 59.6062453
+        },
+        {
+          "id": 3607631170,
+          "lat": 36.2749574,
+          "lon": 59.6059867
+        },
+        {
+          "id": 3607631171,
+          "lat": 36.2754795,
+          "lon": 59.6052847
+        },
+        {
+          "id": 3607631168,
+          "lat": 36.2757054,
+          "lon": 59.6055432
+        }
+      ]
+    },
+    {
+      "type": "way",
+      "id": 108487631,
+      "version": 8,
+      "timestamp": "2023-10-15T07:15:52Z",
+      "tags": {
+        "addr:city": "مشهد",
+        "addr:postcode": "9165673117",
+        "addr:street": "امام رضا ۳۴",
+        "brand": "Ghasr Talaee International Hotel",
+        "building": "residential",
+        "email": "info@ghasrtalaee.com",
+        "fax": "+98 5138037",
+        "height": "50",
+        "internet_access": "yes",
+        "internet_access:fee": "no",
+        "level": "20",
+        "name": "هتل بین‌المللی گلدن پالاس",
+        "operator": "Davoud Razavipanah",
+        "phone": "+98 5138038",
+        "rooms": "360",
+        "smoking": "isolated",
+        "stars": "5",
+        "tourism": "hotel",
+        "website": "https://www.ghasrtalaee.com",
+        "wheelchair": "yes"
+      },
+      "download": "torobticket-mashhad-hotel-block.json",
+      "nodes": [
+        1244649336,
+        1244649262,
+        1244649356,
+        1219618424,
+        1244649362,
+        1244649300,
+        4078834377,
+        4078834374,
+        4078834376,
+        4078834375,
+        4078834378,
+        4078834379,
+        4078834381,
+        4078834380,
+        4078834382,
+        4078834383,
+        4078834384,
+        1244649241,
+        4078834385,
+        1244649301,
+        4078834386,
+        4078834388,
+        4078834689,
+        4078834387,
+        1244649336
+      ],
+      "geometry": [
+        {
+          "id": 1244649336,
+          "lat": 36.2722639,
+          "lon": 59.6026624
+        },
+        {
+          "id": 1244649262,
+          "lat": 36.2721167,
+          "lon": 59.602527
+        },
+        {
+          "id": 1244649356,
+          "lat": 36.2720993,
+          "lon": 59.6024772
+        },
+        {
+          "id": 1219618424,
+          "lat": 36.272075,
+          "lon": 59.6024652
+        },
+        {
+          "id": 1244649362,
+          "lat": 36.2719185,
+          "lon": 59.6025584
+        },
+        {
+          "id": 1244649300,
+          "lat": 36.2718693,
+          "lon": 59.6026246
+        },
+        {
+          "id": 4078834377,
+          "lat": 36.2718513,
+          "lon": 59.6026279
+        },
+        {
+          "id": 4078834374,
+          "lat": 36.2717929,
+          "lon": 59.6027256
+        },
+        {
+          "id": 4078834376,
+          "lat": 36.2718364,
+          "lon": 59.6027656
+        },
+        {
+          "id": 4078834375,
+          "lat": 36.2718236,
+          "lon": 59.602793
+        },
+        {
+          "id": 4078834378,
+          "lat": 36.2719086,
+          "lon": 59.6028539
+        },
+        {
+          "id": 4078834379,
+          "lat": 36.2719214,
+          "lon": 59.6028265
+        },
+        {
+          "id": 4078834381,
+          "lat": 36.2719738,
+          "lon": 59.6028753
+        },
+        {
+          "id": 4078834380,
+          "lat": 36.2719435,
+          "lon": 59.6029252
+        },
+        {
+          "id": 4078834382,
+          "lat": 36.272058,
+          "lon": 59.6030319
+        },
+        {
+          "id": 4078834383,
+          "lat": 36.2720882,
+          "lon": 59.602982
+        },
+        {
+          "id": 4078834384,
+          "lat": 36.2721103,
+          "lon": 59.6030026
+        },
+        {
+          "id": 1244649241,
+          "lat": 36.2720942,
+          "lon": 59.6030338
+        },
+        {
+          "id": 4078834385,
+          "lat": 36.2722001,
+          "lon": 59.6031172
+        },
+        {
+          "id": 1244649301,
+          "lat": 36.2722512,
+          "lon": 59.6030204
+        },
+        {
+          "id": 4078834386,
+          "lat": 36.2723167,
+          "lon": 59.6029792
+        },
+        {
+          "id": 4078834388,
+          "lat": 36.2723418,
+          "lon": 59.6029247
+        },
+        {
+          "id": 4078834689,
+          "lat": 36.2723622,
+          "lon": 59.6026904
+        },
+        {
+          "id": 4078834387,
+          "lat": 36.2723293,
+          "lon": 59.6026609
+        },
+        {
+          "id": 1244649336,
+          "lat": 36.2722639,
+          "lon": 59.6026624
+        }
+      ]
+    },
+    {
+      "type": "way",
+      "id": 108487624,
+      "version": 2,
+      "timestamp": "2013-03-13T15:38:39Z",
+      "tags": {
+        "name": "هتل اترک",
+        "name:en": "Atrak hotel",
+        "phone": "+98-511-3642044-5",
+        "stars": "4",
+        "tourism": "hotel"
+      },
+      "download": "torobticket-mashhad-hotel-block.json",
+      "nodes": [
+        1244649323,
+        1244649281,
+        1244649278,
+        626935237,
+        1244649323
+      ],
+      "geometry": [
+        {
+          "id": 1244649323,
+          "lat": 36.2834191,
+          "lon": 59.6130007
+        },
+        {
+          "id": 1244649281,
+          "lat": 36.2830578,
+          "lon": 59.6129911
+        },
+        {
+          "id": 1244649278,
+          "lat": 36.2830541,
+          "lon": 59.6132091
+        },
+        {
+          "id": 626935237,
+          "lat": 36.2834153,
+          "lon": 59.6132187
+        },
+        {
+          "id": 1244649323,
+          "lat": 36.2834191,
+          "lon": 59.6130007
+        }
+      ]
+    },
+    {
+      "type": "way",
+      "id": 948340995,
+      "version": 3,
+      "timestamp": "2025-01-25T12:42:09Z",
+      "tags": {
+        "building": "yes",
+        "height": "40",
+        "name": "هتل جواد",
+        "name:ar": "الفندق الثاني",
+        "name:en": "Javad hotel",
+        "tourism": "hotel"
+      },
+      "download": "torobticket-mashhad-hotel-block.json",
+      "nodes": [
+        8778213766,
+        8778213776,
+        8778213763,
+        8778213783,
+        8778213771,
+        8778213764,
+        12531645779,
+        12531645778,
+        12531645776,
+        12531645777,
+        8778213780,
+        8778213777,
+        8778213772,
+        8778213785,
+        8778213770,
+        8778213769,
+        8778213766
+      ],
+      "geometry": [
+        {
+          "id": 8778213766,
+          "lat": 36.2824105,
+          "lon": 59.6106488
+        },
+        {
+          "id": 8778213776,
+          "lat": 36.2824557,
+          "lon": 59.610711
+        },
+        {
+          "id": 8778213763,
+          "lat": 36.282525,
+          "lon": 59.6107802
+        },
+        {
+          "id": 8778213783,
+          "lat": 36.282553,
+          "lon": 59.6107549
+        },
+        {
+          "id": 8778213771,
+          "lat": 36.2826207,
+          "lon": 59.6107753
+        },
+        {
+          "id": 8778213764,
+          "lat": 36.2826455,
+          "lon": 59.6107266
+        },
+        {
+          "id": 12531645779,
+          "lat": 36.2826035,
+          "lon": 59.6106805
+        },
+        {
+          "id": 12531645778,
+          "lat": 36.2826272,
+          "lon": 59.6106456
+        },
+        {
+          "id": 12531645776,
+          "lat": 36.2826413,
+          "lon": 59.6106148
+        },
+        {
+          "id": 12531645777,
+          "lat": 36.2825656,
+          "lon": 59.6105249
+        },
+        {
+          "id": 8778213780,
+          "lat": 36.2825264,
+          "lon": 59.610479
+        },
+        {
+          "id": 8778213777,
+          "lat": 36.2824813,
+          "lon": 59.6104169
+        },
+        {
+          "id": 8778213772,
+          "lat": 36.2823816,
+          "lon": 59.6105663
+        },
+        {
+          "id": 8778213785,
+          "lat": 36.2823905,
+          "lon": 59.610573
+        },
+        {
+          "id": 8778213770,
+          "lat": 36.2823418,
+          "lon": 59.6106454
+        },
+        {
+          "id": 8778213769,
+          "lat": 36.2823852,
+          "lon": 59.6106862
+        },
+        {
+          "id": 8778213766,
+          "lat": 36.2824105,
+          "lon": 59.6106488
+        }
+      ]
+    },
+    {
+      "type": "way",
+      "id": 1136412904,
+      "version": 2,
+      "timestamp": "2023-03-28T09:19:43Z",
+      "tags": {
+        "addr:city": "مشهد",
+        "addr:housenumber": "123",
+        "addr:postcode": "123456",
+        "addr:street": "امام رضا ۸",
+        "brand": "theran hotel",
+        "building": "residential",
+        "internet_access": "wlan",
+        "internet_access:fee": "customers",
+        "name": "هتل تهران",
+        "phone": "+98 51 3854 0091",
+        "tourism": "hotel",
+        "website": "https://tehranmhdhotel.com/"
+      },
+      "download": "torobticket-mashhad-hotel-block.json",
+      "nodes": [
+        10593758083,
+        10593758084,
+        10593758085,
+        8898195319,
+        10593758086,
+        10593758083
+      ],
+      "geometry": [
+        {
+          "id": 10593758083,
+          "lat": 36.280207,
+          "lon": 59.6103893
+        },
+        {
+          "id": 10593758084,
+          "lat": 36.2807911,
+          "lon": 59.6108278
+        },
+        {
+          "id": 10593758085,
+          "lat": 36.2810441,
+          "lon": 59.6100741
+        },
+        {
+          "id": 8898195319,
+          "lat": 36.2806726,
+          "lon": 59.6097065
+        },
+        {
+          "id": 10593758086,
+          "lat": 36.2805377,
+          "lon": 59.6099012
+        },
+        {
+          "id": 10593758083,
+          "lat": 36.280207,
+          "lon": 59.6103893
+        }
+      ]
+    },
+    {
+      "type": "node",
+      "id": 626935239,
+      "version": 4,
+      "timestamp": "2017-06-17T07:24:54Z",
+      "tags": {
+        "name": "هتل اطلس",
+        "name:en": "Atlas Hotel",
+        "phone": "+98-511-8545061-3",
+        "stars": "3",
+        "tourism": "hotel"
+      },
+      "download": "torobticket-mashhad-hotel-block.json",
+      "lat": 36.2830379,
+      "lon": 59.6123443
+    },
+    {
+      "type": "node",
+      "id": 626938281,
+      "version": 2,
+      "timestamp": "2014-12-08T23:32:05Z",
+      "tags": {
+        "name": "هتل بزرگ رضویه",
+        "name:en": "Razavieh Grand Hotel",
+        "phone": "+98 51 33653611",
+        "stars": "4",
+        "tourism": "hotel"
+      },
+      "download": "torobticket-mashhad-hotel-block.json",
+      "lat": 36.283078,
+      "lon": 59.6135186
+    },
+    {
+      "type": "node",
+      "id": 991253215,
+      "version": 2,
+      "timestamp": "2015-12-05T07:31:03Z",
+      "tags": {
+        "addr:city": "mashahd",
+        "addr:city_1": "مشهد",
+        "internet_access": "yes",
+        "name": "هتل جواهر شرق",
+        "name:en": "Hotel Javaher Shargh",
+        "stars": "4",
+        "tourism": "hotel"
+      },
+      "download": "torobticket-mashhad-hotel-block.json",
+      "lat": 36.2814623,
+      "lon": 59.6106466
+    },
+    {
+      "type": "node",
+      "id": 3690985772,
+      "version": 2,
+      "timestamp": "2015-12-24T06:49:30Z",
+      "tags": {
+        "name": "سی نور",
+        "name:en": "30 Noor",
+        "tourism": "hotel"
+      },
+      "download": "torobticket-mashhad-hotel-block.json",
+      "lat": 36.2761118,
+      "lon": 59.6118199
+    },
+    {
+      "type": "node",
+      "id": 3877611178,
+      "version": 2,
+      "timestamp": "2016-09-25T13:16:20Z",
+      "tags": {
+        "addr:city": "مشهد",
+        "name": "هتل مدائن",
+        "name:en": "Hotel Madaen",
+        "stars": "3",
+        "tourism": "hotel"
+      },
+      "download": "torobticket-mashhad-hotel-block.json",
+      "lat": 36.2813931,
+      "lon": 59.6096167
+    },
+    {
+      "type": "node",
+      "id": 3877611179,
+      "version": 1,
+      "timestamp": "2015-12-05T07:31:02Z",
+      "tags": {
+        "addr:city": "مشهد",
+        "addr:city_1": "Mashhad",
+        "name": "هتل فردوس",
+        "name:en": "Hotel Ferdous",
+        "stars": "4",
+        "tourism": "hotel"
+      },
+      "download": "torobticket-mashhad-hotel-block.json",
+      "lat": 36.280392,
+      "lon": 59.6097132
+    },
+    {
+      "type": "node",
+      "id": 3877611180,
+      "version": 1,
+      "timestamp": "2015-12-05T07:31:02Z",
+      "tags": {
+        "addr:city": "mashhad",
+        "addr:city_1": "مشهد",
+        "name": "هتل قصر",
+        "name:en": "Hotel Ghasr",
+        "tourism": "hotel"
+      },
+      "download": "torobticket-mashhad-hotel-block.json",
+      "lat": 36.2777584,
+      "lon": 59.6076747
+    },
+    {
+      "type": "node",
+      "id": 3877611183,
+      "version": 2,
+      "timestamp": "2026-08-02T09:18:41Z",
+      "tags": {
+        "addr:city": "mashhad",
+        "addr:city_1": "مشهد",
+        "name": "هتل آپارتمان ترنم",
+        "name:en": "Tarannom Hotel",
+        "stars": "3",
+        "tourism": "hotel"
+      },
+      "download": "torobticket-mashhad-hotel-block.json",
+      "lat": 36.2841304,
+      "lon": 59.6114459
+    },
+    {
+      "type": "node",
+      "id": 4470511598,
+      "version": 5,
+      "timestamp": "2023-03-28T03:15:51Z",
+      "tags": {
+        "addr:housenumber": "00985138058",
+        "addr:street": "خیابان امام رضا",
+        "email": "info@hotelalmas.com",
+        "internet_access": "wlan",
+        "name": "الماس ۱",
+        "name:en": "Almas 1",
+        "operator": "گروه هتل های الماس",
+        "operator:en": "Almas Hotel Group",
+        "phone": "+98 51 3805 7",
+        "tourism": "hotel",
+        "website": "https://www.hotelalmas.com/"
+      },
+      "download": "torobticket-mashhad-hotel-block.json",
+      "lat": 36.2819121,
+      "lon": 59.6109275
+    },
+    {
+      "type": "node",
+      "id": 413909056,
+      "version": 9,
+      "timestamp": "2025-03-28T14:57:33Z",
+      "tags": {
+        "air_conditioning": "yes",
+        "alt_name:en": "Alighapu Hotel",
+        "check_date": "2025-03-28",
+        "internet_access": "wlan",
+        "internet_access:fee": "no",
+        "name": "هتل پارسیان عالی‌قاپو",
+        "name:en": "Parsian Aliqapu Hotel",
+        "phone": "+98 31 3222 7929",
+        "stars": "4",
+        "tourism": "hotel",
+        "website": "https://aliqapuhotel.ir/"
+      },
+      "download": "torobticket-isfahan-hotel-block.json",
+      "lat": 32.6492778,
+      "lon": 51.6676484
+    },
+    {
+      "type": "way",
+      "id": 384856940,
+      "version": 4,
+      "timestamp": "2017-12-03T15:55:50Z",
+      "tags": {
+        "building": "yes",
+        "internet_access": "wlan",
+        "name": "هتل سفیر",
+        "name:de": "Safir Hotel",
+        "name:en": "Safir Hotel",
+        "source": "bing",
+        "tourism": "hotel"
+      },
+      "download": "torobticket-isfahan-hotel-block.json",
+      "nodes": [
+        3882117277,
+        3882117273,
+        3882117274,
+        5262140541,
+        5262140542,
+        3882117272,
+        3882117267,
+        3882117270,
+        3882117268,
+        5262140543,
+        5262140544,
+        3882117271,
+        3882117278,
+        3882117277
+      ],
+      "geometry": [
+        {
+          "id": 3882117277,
+          "lat": 32.6507526,
+          "lon": 51.6712276
+        },
+        {
+          "id": 3882117273,
+          "lat": 32.6507394,
+          "lon": 51.6712379
+        },
+        {
+          "id": 3882117274,
+          "lat": 32.6507254,
+          "lon": 51.6712374
+        },
+        {
+          "id": 5262140541,
+          "lat": 32.6506496,
+          "lon": 51.6711782
+        },
+        {
+          "id": 5262140542,
+          "lat": 32.6506448,
+          "lon": 51.6711889
+        },
+        {
+          "id": 3882117272,
+          "lat": 32.6506388,
+          "lon": 51.6711813
+        },
+        {
+          "id": 3882117267,
+          "lat": 32.650638,
+          "lon": 51.6711611
+        },
+        {
+          "id": 3882117270,
+          "lat": 32.6505246,
+          "lon": 51.6710712
+        },
+        {
+          "id": 3882117268,
+          "lat": 32.6505456,
+          "lon": 51.6710108
+        },
+        {
+          "id": 5262140543,
+          "lat": 32.6506002,
+          "lon": 51.6708831
+        },
+        {
+          "id": 5262140544,
+          "lat": 32.6506335,
+          "lon": 51.6708671
+        },
+        {
+          "id": 3882117271,
+          "lat": 32.6507809,
+          "lon": 51.6708892
+        },
+        {
+          "id": 3882117278,
+          "lat": 32.6507956,
+          "lon": 51.6709089
+        },
+        {
+          "id": 3882117277,
+          "lat": 32.6507526,
+          "lon": 51.6712276
+        }
+      ]
+    },
+    {
+      "type": "node",
+      "id": 4365700190,
+      "version": 5,
+      "timestamp": "2022-05-23T03:12:47Z",
+      "tags": {
+        "addr:street": "حافظ",
+        "email": "info@seratehhotel.ir",
+        "internet_access": "wlan",
+        "name": "هتل ستاره",
+        "name:en": "Satereh Hotel",
+        "opening_hours": "24/7",
+        "phone": "+983132207060",
+        "tourism": "hotel",
+        "website": "https://www.setarehhotel.ir/"
+      },
+      "download": "torobticket-isfahan-hotel-block.json",
+      "lat": 32.6598013,
+      "lon": 51.6822914
+    },
+    {
+      "type": "node",
+      "id": 4393108490,
+      "version": 3,
+      "timestamp": "2017-10-15T17:40:16Z",
+      "tags": {
+        "name": "هتل صفوی",
+        "name:en": "Safavi Hotel",
+        "tourism": "hotel"
+      },
+      "download": "torobticket-isfahan-hotel-block.json",
+      "lat": 32.6502829,
+      "lon": 51.6773604
+    },
+    {
+      "type": "node",
+      "id": 4417703889,
+      "version": 6,
+      "timestamp": "2020-08-18T01:06:23Z",
+      "tags": {
+        "internet_access": "wlan",
+        "name": "هتل پارت",
+        "name:en": "Part Hotel",
+        "tourism": "hotel",
+        "wheelchair": "yes"
+      },
+      "download": "torobticket-isfahan-hotel-block.json",
+      "lat": 32.6507551,
+      "lon": 51.6660773
+    },
+    {
+      "type": "node",
+      "id": 4830138311,
+      "version": 9,
+      "timestamp": "2023-03-28T03:26:39Z",
+      "tags": {
+        "addr:housenumber": "39",
+        "addr:street": "کوچه شهید عمرانی",
+        "brand": "اقامتگاه سنتی کریاس",
+        "capacity": "100",
+        "cuisine": "regional",
+        "delivery": "no",
+        "description": "هتل کریاس اصفهان خانه ای تاریخی است که قدمت آن به بیش از 150 سال پیش و دوره قاجار باز می گردد. این مجموعه در گذشته خانه تاریخی نظام الاسلام اصفهان نام داشته و در شهریور ماه سال 1390 در فهرست آثار ملی ایران به ثبت رسیده است. این خانه پس از انجام مرمت و باز",
+        "ele": "10",
+        "internet_access": "yes",
+        "internet_access:fee": "no",
+        "level": "0",
+        "name": "هتل کریاس",
+        "name:ar": "فندق کریاس",
+        "name:en": "Keryas Hotel",
+        "operator": "اتحاد میراث ایرانیان",
+        "outdoor_seating": "yes",
+        "phone": "+98 31 3131 3510",
+        "rooms": "15",
+        "smoking": "no",
+        "stars": "4",
+        "start_date": "2018",
+        "takeaway": "yes",
+        "tourism": "hotel",
+        "website": "http://www.keryas-isfahan.com",
+        "wheelchair": "limited",
+        "wikipedia": "fa:هتل کریاس"
+      },
+      "download": "torobticket-isfahan-hotel-block.json",
+      "lat": 32.653991,
+      "lon": 51.6771191
+    },
+    {
+      "type": "node",
+      "id": 6373463085,
+      "version": 2,
+      "timestamp": "2019-04-17T15:03:00Z",
+      "tags": {
+        "name": "هتل سنتی اصفهان",
+        "name:en": "Isfahan Traditional Hotel",
+        "tourism": "hotel"
+      },
+      "download": "torobticket-isfahan-hotel-block.json",
+      "lat": 32.6636945,
+      "lon": 51.6759135
+    },
+    {
+      "type": "node",
+      "id": 6447996186,
+      "version": 1,
+      "timestamp": "2019-05-04T15:09:28Z",
+      "tags": {
+        "addr:street": "شیخ بهایی",
+        "name": "هتل شیخ بهایی",
+        "name:en": "sheykh bahaei hotel",
+        "opening_hours": "24/7",
+        "tourism": "hotel"
+      },
+      "download": "torobticket-isfahan-hotel-block.json",
+      "lat": 32.6530322,
+      "lon": 51.6676876
+    },
+    {
+      "type": "node",
+      "id": 5139723522,
+      "version": 4,
+      "timestamp": "2020-08-18T01:11:05Z",
+      "tags": {
+        "internet_access": "wlan",
+        "name": "هتل زهره",
+        "name:de": "Hotel Zohreh",
+        "name:en": "Hotel Zohreh",
+        "tourism": "hotel",
+        "wheelchair": "yes"
+      },
+      "download": "torobticket-isfahan-hotel-block.json",
+      "lat": 32.6458523,
+      "lon": 51.6760093
+    },
+    {
+      "type": "node",
+      "id": 4791171825,
+      "version": 2,
+      "timestamp": "2019-05-24T12:03:30Z",
+      "tags": {
+        "addr:housenumber": "1",
+        "addr:street": "1, Masjed Ali Alley",
+        "name": "خانه دیبایی",
+        "tourism": "hotel",
+        "website": "http://www.dibaihouse.com"
+      },
+      "download": "torobticket-isfahan-hotel-block.json",
+      "lat": 32.6649793,
+      "lon": 51.6824557
+    },
+    {
+      "type": "way",
+      "id": 369626164,
+      "version": 4,
+      "timestamp": "2021-12-06T06:46:47Z",
+      "tags": {
+        "building": "yes",
+        "name": "هتل سپاهان",
+        "name:en": "Sepahan Hotel",
+        "tourism": "hotel"
+      },
+      "download": "torobticket-isfahan-hotel-block.json",
+      "nodes": [
+        3734062223,
+        3734062224,
+        3734062525,
+        3734062526,
+        9314455090,
+        3734062223
+      ],
+      "geometry": [
+        {
+          "id": 3734062223,
+          "lat": 32.6516405,
+          "lon": 51.6813952
+        },
+        {
+          "id": 3734062224,
+          "lat": 32.65146,
+          "lon": 51.6813439
+        },
+        {
+          "id": 3734062525,
+          "lat": 32.6514296,
+          "lon": 51.6815066
+        },
+        {
+          "id": 3734062526,
+          "lat": 32.6516304,
+          "lon": 51.6815673
+        },
+        {
+          "id": 9314455090,
+          "lat": 32.6516509,
+          "lon": 51.6814671
+        },
+        {
+          "id": 3734062223,
+          "lat": 32.6516405,
+          "lon": 51.6813952
+        }
+      ]
+    },
+    {
+      "type": "way",
+      "id": 369626905,
+      "version": 5,
+      "timestamp": "2020-08-18T01:09:52Z",
+      "tags": {
+        "building": "yes",
+        "internet_access": "wlan",
+        "name": "هتل ونوس",
+        "name:en": "Venus Hotel",
+        "tourism": "hotel",
+        "wheelchair": "yes"
+      },
+      "download": "torobticket-isfahan-hotel-block.json",
+      "nodes": [
+        3734070537,
+        3734070538,
+        3734070539,
+        3734070540,
+        3734070541,
+        3734070542,
+        3734070543,
+        3734070544,
+        3734070545,
+        3734070546,
+        3734070547,
+        3734070548,
+        3734070537
+      ],
+      "geometry": [
+        {
+          "id": 3734070537,
+          "lat": 32.6509417,
+          "lon": 51.6739625
+        },
+        {
+          "id": 3734070538,
+          "lat": 32.6509101,
+          "lon": 51.6739139
+        },
+        {
+          "id": 3734070539,
+          "lat": 32.6507483,
+          "lon": 51.6738322
+        },
+        {
+          "id": 3734070540,
+          "lat": 32.6507353,
+          "lon": 51.6739028
+        },
+        {
+          "id": 3734070541,
+          "lat": 32.6507148,
+          "lon": 51.6738984
+        },
+        {
+          "id": 3734070542,
+          "lat": 32.6507092,
+          "lon": 51.6739492
+        },
+        {
+          "id": 3734070543,
+          "lat": 32.6506125,
+          "lon": 51.673936
+        },
+        {
+          "id": 3734070544,
+          "lat": 32.6506013,
+          "lon": 51.6740243
+        },
+        {
+          "id": 3734070545,
+          "lat": 32.6507241,
+          "lon": 51.6740332
+        },
+        {
+          "id": 3734070546,
+          "lat": 32.6507167,
+          "lon": 51.6740884
+        },
+        {
+          "id": 3734070547,
+          "lat": 32.6508338,
+          "lon": 51.6741215
+        },
+        {
+          "id": 3734070548,
+          "lat": 32.650938,
+          "lon": 51.6740376
+        },
+        {
+          "id": 3734070537,
+          "lat": 32.6509417,
+          "lon": 51.6739625
+        }
+      ]
+    },
+    {
+      "type": "way",
+      "id": 552971946,
+      "version": 1,
+      "timestamp": "2018-01-14T06:24:50Z",
+      "tags": {
+        "building": "yes",
+        "name": "هتل قصر منشی",
+        "tourism": "hotel"
+      },
+      "download": "torobticket-isfahan-hotel-block.json",
+      "nodes": [
+        5338392343,
+        5338392344,
+        5338392345,
+        5338392346,
+        5338392343
+      ],
+      "geometry": [
+        {
+          "id": 5338392343,
+          "lat": 32.6522385,
+          "lon": 51.6815723
+        },
+        {
+          "id": 5338392344,
+          "lat": 32.6519741,
+          "lon": 51.6815091
+        },
+        {
+          "id": 5338392345,
+          "lat": 32.652009,
+          "lon": 51.6813029
+        },
+        {
+          "id": 5338392346,
+          "lat": 32.6522734,
+          "lon": 51.681366
+        },
+        {
+          "id": 5338392343,
+          "lat": 32.6522385,
+          "lon": 51.6815723
+        }
+      ]
+    },
+    {
+      "type": "way",
+      "id": 1370328124,
+      "version": 1,
+      "timestamp": "2025-03-22T14:01:10Z",
+      "tags": {
+        "addr:city": "اصفهان",
+        "addr:street": "پاسداران",
+        "air_conditioning": "yes",
+        "building": "yes",
+        "building:levels": "7",
+        "check_date": "2025-03-22",
+        "description": "هتل ویرا یک هتل پنج‌ستاره لوکس تمام هوشمند است که در قلب بخش تاریخی اصفهان قرار دارد. این هتل با معماری الهام گرفته از تاریخ دیرینه اصفهان و استفاده از بهترین و مدرن‌ترین فناوری‌ها و تجهیزات صنعت هتلداری، دنیای مدرن را با تاریخ کهن پیوند زده است.",
+        "email": "info@virahotels.com",
+        "internet_access": "yes",
+        "internet_access:fee": "customers",
+        "name": "هتل بین‌المللی ویرا",
+        "name:en": "VIRA Hotel",
+        "name:fa": "هتل بین‌المللی ویرا",
+        "phone": "+98311802",
+        "reservation": "yes",
+        "stars": "5",
+        "tourism": "hotel",
+        "website": "https://virahotels.com/",
+        "wheelchair": "yes"
+      },
+      "download": "torobticket-isfahan-hotel-block.json",
+      "nodes": [
+        12691019508,
+        12691019513,
+        12691019509,
+        12691019510,
+        12691019511,
+        12691019512,
+        12691019508
+      ],
+      "geometry": [
+        {
+          "id": 12691019508,
+          "lat": 32.6506723,
+          "lon": 51.6715067
+        },
+        {
+          "id": 12691019513,
+          "lat": 32.6506932,
+          "lon": 51.6714849
+        },
+        {
+          "id": 12691019509,
+          "lat": 32.650718,
+          "lon": 51.6713687
+        },
+        {
+          "id": 12691019510,
+          "lat": 32.6506972,
+          "lon": 51.6713298
+        },
+        {
+          "id": 12691019511,
+          "lat": 32.6504669,
+          "lon": 51.6711695
+        },
+        {
+          "id": 12691019512,
+          "lat": 32.6503954,
+          "lon": 51.6714442
+        },
+        {
+          "id": 12691019508,
+          "lat": 32.6506723,
+          "lon": 51.6715067
+        }
+      ]
+    },
+    {
+      "type": "way",
+      "id": 380807938,
+      "version": 9,
+      "timestamp": "2025-11-11T15:10:11Z",
+      "tags": {
+        "addr:street": "میدان قرآن",
+        "building": "yes",
+        "building:levels": "10",
+        "contact:tripadvisor": "4501385",
+        "email": "info@shiraz-hotel.com",
+        "fax": "+98 71 3227 4822",
+        "height": "40",
+        "name": "هتل بزرگ شیراز",
+        "name:de": "Schiras Hotel",
+        "name:en": "Shiraz Grand Hotel",
+        "phone": "+98 71 3227 4820",
+        "stars": "5",
+        "tourism": "hotel",
+        "website": "https://www.shiraz-hotel.com/",
+        "wikidata": "Q105069719",
+        "wikipedia": "fa:هتل بزرگ شیراز"
+      },
+      "download": "torobticket-shiraz-grand-hotel-block.json",
+      "nodes": [
+        3841171580,
+        3841171581,
+        3841171579,
+        12075522947,
+        3841171578,
+        3841171584,
+        3841171589,
+        3841171592,
+        3841171598,
+        3841171601,
+        3841171602,
+        3841171619,
+        3841171618,
+        3841171627,
+        3841171629,
+        3841171624,
+        3841171626,
+        3841171599,
+        3841171600,
+        3841171595,
+        3841171591,
+        3841171587,
+        3841171582,
+        3841171575,
+        3841171567,
+        3841171562,
+        3841171558,
+        3841171560,
+        3841171565,
+        3841171572,
+        3841171580
+      ],
+      "geometry": [
+        {
+          "id": 3841171580,
+          "lat": 29.6346548,
+          "lon": 52.5600659
+        },
+        {
+          "id": 3841171581,
+          "lat": 29.6346473,
+          "lon": 52.5602058
+        },
+        {
+          "id": 3841171579,
+          "lat": 29.6346103,
+          "lon": 52.5602014
+        },
+        {
+          "id": 12075522947,
+          "lat": 29.6346082,
+          "lon": 52.5602462
+        },
+        {
+          "id": 3841171578,
+          "lat": 29.6346053,
+          "lon": 52.5603083
+        },
+        {
+          "id": 3841171584,
+          "lat": 29.6346982,
+          "lon": 52.5603171
+        },
+        {
+          "id": 3841171589,
+          "lat": 29.6347151,
+          "lon": 52.5603484
+        },
+        {
+          "id": 3841171592,
+          "lat": 29.6347462,
+          "lon": 52.5603787
+        },
+        {
+          "id": 3841171598,
+          "lat": 29.6347727,
+          "lon": 52.560382
+        },
+        {
+          "id": 3841171601,
+          "lat": 29.634797,
+          "lon": 52.5603847
+        },
+        {
+          "id": 3841171602,
+          "lat": 29.6347986,
+          "lon": 52.5604768
+        },
+        {
+          "id": 3841171619,
+          "lat": 29.63498,
+          "lon": 52.5604892
+        },
+        {
+          "id": 3841171618,
+          "lat": 29.6349813,
+          "lon": 52.5604188
+        },
+        {
+          "id": 3841171627,
+          "lat": 29.6351056,
+          "lon": 52.5604208
+        },
+        {
+          "id": 3841171629,
+          "lat": 29.6351067,
+          "lon": 52.5599016
+        },
+        {
+          "id": 3841171624,
+          "lat": 29.6350701,
+          "lon": 52.5598986
+        },
+        {
+          "id": 3841171626,
+          "lat": 29.6350775,
+          "lon": 52.5597685
+        },
+        {
+          "id": 3841171599,
+          "lat": 29.6348323,
+          "lon": 52.5597443
+        },
+        {
+          "id": 3841171600,
+          "lat": 29.6348311,
+          "lon": 52.559787
+        },
+        {
+          "id": 3841171595,
+          "lat": 29.6347988,
+          "lon": 52.5597844
+        },
+        {
+          "id": 3841171591,
+          "lat": 29.6347889,
+          "lon": 52.5597835
+        },
+        {
+          "id": 3841171587,
+          "lat": 29.634744,
+          "lon": 52.5597441
+        },
+        {
+          "id": 3841171582,
+          "lat": 29.6346895,
+          "lon": 52.5597315
+        },
+        {
+          "id": 3841171575,
+          "lat": 29.6346333,
+          "lon": 52.559734
+        },
+        {
+          "id": 3841171567,
+          "lat": 29.6345836,
+          "lon": 52.559765
+        },
+        {
+          "id": 3841171562,
+          "lat": 29.6345475,
+          "lon": 52.5598151
+        },
+        {
+          "id": 3841171558,
+          "lat": 29.6345303,
+          "lon": 52.5598771
+        },
+        {
+          "id": 3841171560,
+          "lat": 29.6345345,
+          "lon": 52.5599419
+        },
+        {
+          "id": 3841171565,
+          "lat": 29.6345595,
+          "lon": 52.5600004
+        },
+        {
+          "id": 3841171572,
+          "lat": 29.6346016,
+          "lon": 52.5600438
+        },
+        {
+          "id": 3841171580,
+          "lat": 29.6346548,
+          "lon": 52.5600659
+        }
+      ]
+    },
+    {
+      "type": "way",
+      "id": 999233441,
+      "version": 3,
+      "timestamp": "2024-10-26T08:02:14Z",
+      "tags": {
+        "addr:street": "هجرت۹",
+        "building": "hotel",
+        "contact:instagram": "zandiyeh.hotel.shz",
+        "name": "هتل زندیه",
+        "name:en": "Zandiyeh Hotel",
+        "phone": "+98 71 3223 4234",
+        "tourism": "hotel",
+        "website": "https://www.zandiyehhotel.com"
+      },
+      "download": "torobticket-shiraz-hotel-block.json",
+      "nodes": [
+        9225042856,
+        11676611028,
+        11676611029,
+        11676611030,
+        11676611034,
+        11676611032,
+        11676611031,
+        11676611033,
+        9225042857,
+        11676611035,
+        11676611036,
+        9225042858,
+        11676611039,
+        11676611038,
+        11676611037,
+        11676611040,
+        9225042859,
+        9225042856
+      ],
+      "geometry": [
+        {
+          "id": 9225042856,
+          "lat": 29.6200874,
+          "lon": 52.5446782
+        },
+        {
+          "id": 11676611028,
+          "lat": 29.619883,
+          "lon": 52.5448767
+        },
+        {
+          "id": 11676611029,
+          "lat": 29.619854,
+          "lon": 52.5449257
+        },
+        {
+          "id": 11676611030,
+          "lat": 29.6198328,
+          "lon": 52.5448962
+        },
+        {
+          "id": 11676611034,
+          "lat": 29.6197844,
+          "lon": 52.5449396
+        },
+        {
+          "id": 11676611032,
+          "lat": 29.6197941,
+          "lon": 52.5449539
+        },
+        {
+          "id": 11676611031,
+          "lat": 29.6197609,
+          "lon": 52.5449835
+        },
+        {
+          "id": 11676611033,
+          "lat": 29.6197513,
+          "lon": 52.5449693
+        },
+        {
+          "id": 9225042857,
+          "lat": 29.6197391,
+          "lon": 52.5449802
+        },
+        {
+          "id": 11676611035,
+          "lat": 29.6196478,
+          "lon": 52.5448453
+        },
+        {
+          "id": 11676611036,
+          "lat": 29.6196637,
+          "lon": 52.544831
+        },
+        {
+          "id": 9225042858,
+          "lat": 29.6195846,
+          "lon": 52.544714
+        },
+        {
+          "id": 11676611039,
+          "lat": 29.6197514,
+          "lon": 52.5445647
+        },
+        {
+          "id": 11676611038,
+          "lat": 29.6197631,
+          "lon": 52.544582
+        },
+        {
+          "id": 11676611037,
+          "lat": 29.6197975,
+          "lon": 52.5445511
+        },
+        {
+          "id": 11676611040,
+          "lat": 29.6197858,
+          "lon": 52.5445338
+        },
+        {
+          "id": 9225042859,
+          "lat": 29.619913,
+          "lon": 52.5444199
+        },
+        {
+          "id": 9225042856,
+          "lat": 29.6200874,
+          "lon": 52.5446782
+        }
+      ]
+    },
+    {
+      "type": "way",
+      "id": 373883731,
+      "version": 2,
+      "timestamp": "2023-10-30T14:12:54Z",
+      "tags": {
+        "building": "hotel",
+        "building:levels": "6",
+        "contact:instagram": "aryobarzan.hotel.shz",
+        "name": "هتل آریو برزن",
+        "name:en": "Aryo Barzan Hotel",
+        "phone": "+98 71 3224 7182",
+        "tourism": "hotel",
+        "website": "https://aryohotel.com/"
+      },
+      "download": "torobticket-shiraz-hotel-block.json",
+      "nodes": [
+        3773128859,
+        3773128860,
+        3773128872,
+        3773128861,
+        3773128862,
+        11300068359,
+        3773128859
+      ],
+      "geometry": [
+        {
+          "id": 3773128859,
+          "lat": 29.6222863,
+          "lon": 52.5412129
+        },
+        {
+          "id": 3773128860,
+          "lat": 29.6221113,
+          "lon": 52.5411591
+        },
+        {
+          "id": 3773128872,
+          "lat": 29.6220751,
+          "lon": 52.5412214
+        },
+        {
+          "id": 3773128861,
+          "lat": 29.6220151,
+          "lon": 52.5413331
+        },
+        {
+          "id": 3773128862,
+          "lat": 29.6221586,
+          "lon": 52.5414266
+        },
+        {
+          "id": 11300068359,
+          "lat": 29.6222417,
+          "lon": 52.5412875
+        },
+        {
+          "id": 3773128859,
+          "lat": 29.6222863,
+          "lon": 52.5412129
+        }
+      ]
+    },
+    {
+      "type": "way",
+      "id": 373883732,
+      "version": 3,
+      "timestamp": "2024-02-29T11:37:54Z",
+      "tags": {
+        "building": "hotel",
+        "building:levels": "6",
+        "contact:instagram": "karimkhanhotel",
+        "name": "هتل کریمخان",
+        "name:en": "Karim Khan Hotel",
+        "phone": "+98 71 3223 5001",
+        "tourism": "hotel",
+        "website": "https://karimkhanhotel.com/"
+      },
+      "download": "torobticket-shiraz-hotel-block.json",
+      "nodes": [
+        3773128863,
+        11300036432,
+        11300068386,
+        3773128864,
+        3773128865,
+        3773128866,
+        3773128867,
+        3773128868,
+        3773128869,
+        11676453344,
+        3773128870,
+        11300036428,
+        11676453339,
+        11676453342,
+        11676453341,
+        11676453333,
+        3773128861,
+        3773128872,
+        3773128873,
+        3773128863
+      ],
+      "geometry": [
+        {
+          "id": 3773128863,
+          "lat": 29.6220228,
+          "lon": 52.5411729
+        },
+        {
+          "id": 11300036432,
+          "lat": 29.6220057,
+          "lon": 52.5411614
+        },
+        {
+          "id": 11300068386,
+          "lat": 29.6219817,
+          "lon": 52.5411452
+        },
+        {
+          "id": 3773128864,
+          "lat": 29.6219864,
+          "lon": 52.541136
+        },
+        {
+          "id": 3773128865,
+          "lat": 29.6219272,
+          "lon": 52.541096
+        },
+        {
+          "id": 3773128866,
+          "lat": 29.6219175,
+          "lon": 52.541115
+        },
+        {
+          "id": 3773128867,
+          "lat": 29.6218965,
+          "lon": 52.5411009
+        },
+        {
+          "id": 3773128868,
+          "lat": 29.6218891,
+          "lon": 52.5411155
+        },
+        {
+          "id": 3773128869,
+          "lat": 29.6218679,
+          "lon": 52.5411009
+        },
+        {
+          "id": 11676453344,
+          "lat": 29.6218345,
+          "lon": 52.5411663
+        },
+        {
+          "id": 3773128870,
+          "lat": 29.6218094,
+          "lon": 52.5412154
+        },
+        {
+          "id": 11300036428,
+          "lat": 29.6219204,
+          "lon": 52.5412903
+        },
+        {
+          "id": 11676453339,
+          "lat": 29.621884,
+          "lon": 52.5413575
+        },
+        {
+          "id": 11676453342,
+          "lat": 29.6218511,
+          "lon": 52.5414184
+        },
+        {
+          "id": 11676453341,
+          "lat": 29.6219377,
+          "lon": 52.5414761
+        },
+        {
+          "id": 11676453333,
+          "lat": 29.6219696,
+          "lon": 52.5414179
+        },
+        {
+          "id": 3773128861,
+          "lat": 29.6220151,
+          "lon": 52.5413331
+        },
+        {
+          "id": 3773128872,
+          "lat": 29.6220751,
+          "lon": 52.5412214
+        },
+        {
+          "id": 3773128873,
+          "lat": 29.6220178,
+          "lon": 52.5411827
+        },
+        {
+          "id": 3773128863,
+          "lat": 29.6220228,
+          "lon": 52.5411729
+        }
+      ]
+    },
+    {
+      "type": "way",
+      "id": 1219534373,
+      "version": 2,
+      "timestamp": "2024-02-29T11:37:55Z",
+      "tags": {
+        "building": "hotel",
+        "building:levels": "7",
+        "email": "info@shirazishotel.ir",
+        "name": "هتل شیرازیس",
+        "name:en": "Shirazis Hotel",
+        "phone": "+98 71 3224 4000",
+        "tourism": "hotel",
+        "website": "https://shirazishotel.ir/"
+      },
+      "download": "torobticket-shiraz-hotel-block.json",
+      "nodes": [
+        11300068311,
+        11676453338,
+        11300068353,
+        11676453336,
+        11300068375,
+        11300068415,
+        11676453244,
+        11300068311
+      ],
+      "geometry": [
+        {
+          "id": 11300068311,
+          "lat": 29.6216644,
+          "lon": 52.5414461
+        },
+        {
+          "id": 11676453338,
+          "lat": 29.6217932,
+          "lon": 52.5415393
+        },
+        {
+          "id": 11300068353,
+          "lat": 29.6218538,
+          "lon": 52.5415832
+        },
+        {
+          "id": 11676453336,
+          "lat": 29.6218319,
+          "lon": 52.5416232
+        },
+        {
+          "id": 11300068375,
+          "lat": 29.6217603,
+          "lon": 52.5417541
+        },
+        {
+          "id": 11300068415,
+          "lat": 29.6215709,
+          "lon": 52.5416169
+        },
+        {
+          "id": 11676453244,
+          "lat": 29.6215873,
+          "lon": 52.541587
+        },
+        {
+          "id": 11300068311,
+          "lat": 29.6216644,
+          "lon": 52.5414461
+        }
+      ]
+    },
+    {
+      "type": "way",
+      "id": 1219534401,
+      "version": 1,
+      "timestamp": "2023-10-30T14:12:54Z",
+      "tags": {
+        "building": "hotel",
+        "building:levels": "4",
+        "name": "هتل رودکی",
+        "name:en": "Roodaki Hotel",
+        "phone": "+98 71 3224 4361",
+        "tourism": "hotel",
+        "website": "https://roodakihotel.com/",
+        "wheelchair": "limited"
+      },
+      "download": "torobticket-shiraz-hotel-block.json",
+      "nodes": [
+        11300068310,
+        11300068390,
+        11300068317,
+        11300068319,
+        11300068421,
+        11300068327,
+        11300036465,
+        11300068310
+      ],
+      "geometry": [
+        {
+          "id": 11300068310,
+          "lat": 29.6209738,
+          "lon": 52.540841
+        },
+        {
+          "id": 11300068390,
+          "lat": 29.6208633,
+          "lon": 52.5408056
+        },
+        {
+          "id": 11300068317,
+          "lat": 29.6207775,
+          "lon": 52.540962
+        },
+        {
+          "id": 11300068319,
+          "lat": 29.6208454,
+          "lon": 52.5410074
+        },
+        {
+          "id": 11300068421,
+          "lat": 29.6209274,
+          "lon": 52.5410668
+        },
+        {
+          "id": 11300068327,
+          "lat": 29.620997,
+          "lon": 52.5409496
+        },
+        {
+          "id": 11300036465,
+          "lat": 29.6209393,
+          "lon": 52.5409114
+        },
+        {
+          "id": 11300068310,
+          "lat": 29.6209738,
+          "lon": 52.540841
+        }
+      ]
+    },
+    {
+      "type": "way",
+      "id": 1341914945,
+      "version": 1,
+      "timestamp": "2024-12-11T19:49:04Z",
+      "tags": {
+        "addr:city": "شیراز",
+        "addr:postcode": "71369-88399",
+        "addr:street": "کوچه سید ذوالفقار",
+        "contact:instagram": "darbeshazdeh",
+        "name": "هتل بوتیک درب شازده",
+        "name:en": "Darb-e Shazdeh Boutique Hotel",
+        "phone": "+98 71 3224 8304;+98 938 608 4859",
+        "tourism": "hotel",
+        "website": "https://www.darbeshazdeh.com"
+      },
+      "download": "torobticket-shiraz-hotel-block.json",
+      "nodes": [
+        12413421642,
+        12413421638,
+        12413421637,
+        12413421636,
+        12413421635,
+        12413421644,
+        12413421642
+      ],
+      "geometry": [
+        {
+          "id": 12413421642,
+          "lat": 29.6163781,
+          "lon": 52.5506078
+        },
+        {
+          "id": 12413421638,
+          "lat": 29.6164889,
+          "lon": 52.550415
+        },
+        {
+          "id": 12413421637,
+          "lat": 29.6166218,
+          "lon": 52.5505297
+        },
+        {
+          "id": 12413421636,
+          "lat": 29.6164959,
+          "lon": 52.5506886
+        },
+        {
+          "id": 12413421635,
+          "lat": 29.6164065,
+          "lon": 52.5506378
+        },
+        {
+          "id": 12413421644,
+          "lat": 29.6164111,
+          "lon": 52.5506274
+        },
+        {
+          "id": 12413421642,
+          "lat": 29.6163781,
+          "lon": 52.5506078
+        }
+      ]
+    },
+    {
+      "type": "way",
+      "id": 1341915048,
+      "version": 1,
+      "timestamp": "2024-12-11T19:49:04Z",
+      "tags": {
+        "addr:city": "شیراز",
+        "addr:housenumber": "۴",
+        "contact:instagram": "hashtganj",
+        "name": "هتل هشت گنج",
+        "name:en": "Hasht Ganj Hotel",
+        "phone": "+98 917 313 5359",
+        "tourism": "hotel",
+        "website": "https://hashtganj.com"
+      },
+      "download": "torobticket-shiraz-hotel-block.json",
+      "nodes": [
+        12413483448,
+        12413483446,
+        12413483445,
+        12413483447,
+        12413483443,
+        12413483442,
+        12413483441,
+        12413483406,
+        12413483448
+      ],
+      "geometry": [
+        {
+          "id": 12413483448,
+          "lat": 29.6155975,
+          "lon": 52.5507624
+        },
+        {
+          "id": 12413483446,
+          "lat": 29.615576,
+          "lon": 52.5508137
+        },
+        {
+          "id": 12413483445,
+          "lat": 29.61555,
+          "lon": 52.5508759
+        },
+        {
+          "id": 12413483447,
+          "lat": 29.6155291,
+          "lon": 52.5509257
+        },
+        {
+          "id": 12413483443,
+          "lat": 29.6156418,
+          "lon": 52.5509951
+        },
+        {
+          "id": 12413483442,
+          "lat": 29.6156669,
+          "lon": 52.5509991
+        },
+        {
+          "id": 12413483441,
+          "lat": 29.6157316,
+          "lon": 52.5508381
+        },
+        {
+          "id": 12413483406,
+          "lat": 29.6156733,
+          "lon": 52.5508052
+        },
+        {
+          "id": 12413483448,
+          "lat": 29.6155975,
+          "lon": 52.5507624
+        }
+      ]
+    },
+    {
+      "type": "way",
+      "id": 1341612455,
+      "version": 2,
+      "timestamp": "2024-12-11T19:49:04Z",
+      "tags": {
+        "addr:city": "شیراز",
+        "name": "هتل سنتی عمارت امیریه",
+        "name:en": "Emarat Amirieh Traditional Hotel",
+        "tourism": "hotel"
+      },
+      "download": "torobticket-shiraz-hotel-block.json",
+      "nodes": [
+        12410102876,
+        12410102873,
+        12410102874,
+        12410102875,
+        12410102814,
+        12410102876
+      ],
+      "geometry": [
+        {
+          "id": 12410102876,
+          "lat": 29.6148962,
+          "lon": 52.5497425
+        },
+        {
+          "id": 12410102873,
+          "lat": 29.6150639,
+          "lon": 52.5498372
+        },
+        {
+          "id": 12410102874,
+          "lat": 29.6149823,
+          "lon": 52.5500277
+        },
+        {
+          "id": 12410102875,
+          "lat": 29.6148179,
+          "lon": 52.549934
+        },
+        {
+          "id": 12410102814,
+          "lat": 29.6148412,
+          "lon": 52.5498771
+        },
+        {
+          "id": 12410102876,
+          "lat": 29.6148962,
+          "lon": 52.5497425
+        }
+      ]
+    },
+    {
+      "type": "node",
+      "id": 3064027980,
+      "version": 5,
+      "timestamp": "2024-10-28T20:03:14Z",
+      "tags": {
+        "internet_access": "wlan",
+        "internet_access:fee": "yes",
+        "name": "هتل بین‌المللی پارسه",
+        "name:en": "Shiraz International Parseh Hotel",
+        "name:fa": "هتل بین‌المللی پارسه,Shiraz International Parseh Hotel",
+        "tourism": "hotel"
+      },
+      "download": "torobticket-shiraz-hotel-block.json",
+      "lat": 29.6185587,
+      "lon": 52.5471119
+    },
+    {
+      "type": "node",
+      "id": 5654018521,
+      "version": 4,
+      "timestamp": "2024-10-25T20:00:51Z",
+      "tags": {
+        "name": "هتل حافظ",
+        "name:en": "Hafez Hotel",
+        "tourism": "hotel"
+      },
+      "download": "torobticket-shiraz-hotel-block.json",
+      "lat": 29.6198905,
+      "lon": 52.5464753
+    },
+    {
+      "type": "node",
+      "id": 8191667303,
+      "version": 3,
+      "timestamp": "2025-06-24T19:27:45Z",
+      "tags": {
+        "amenity": "restaurant",
+        "contact:facebook": "iranmehrhotel",
+        "contact:instagram": "iranmehrhotel",
+        "email": "iranmehrhotel@gmail.com",
+        "name": "اقامتگاه سنتی ایران مهر",
+        "name:en": "Iranmehr Boutique Hotel",
+        "phone": "+98 71 3222 0130;+98 917 924 8001",
+        "rooms": "14",
+        "tourism": "hotel",
+        "website": "https://iranmehrhotel.com/"
+      },
+      "download": "torobticket-shiraz-hotel-block.json",
+      "lat": 29.6142075,
+      "lon": 52.5468305
+    },
+    {
+      "type": "node",
+      "id": 10596175288,
+      "version": 1,
+      "timestamp": "2023-01-31T12:04:24Z",
+      "tags": {
+        "name": "هتل پارک",
+        "tourism": "hotel"
+      },
+      "download": "torobticket-shiraz-hotel-block.json",
+      "lat": 29.6191599,
+      "lon": 52.543273
+    },
+    {
+      "type": "node",
+      "id": 10596227206,
+      "version": 1,
+      "timestamp": "2023-01-31T12:39:57Z",
+      "tags": {
+        "name": "هتل قوام",
+        "tourism": "hotel"
+      },
+      "download": "torobticket-shiraz-hotel-block.json",
+      "lat": 29.6215522,
+      "lon": 52.5501448
+    }
+  ],
+  "note": "Selected public hotel objects only; unrelated map block objects are not retained. Closed building polygon centroid is derived from actual OSM vertices; no city-centre offsets. Remis node8384452435 excluded for conflicting primary name/name:fa/star tags. Rexan node10594199175 is a separate named hotel corroborated by operator; no inferred star rating."
+}

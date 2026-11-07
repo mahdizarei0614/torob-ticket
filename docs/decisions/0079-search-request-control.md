@@ -31,5 +31,5 @@ by this identifier reconciliation.
 
 No schema migration, new dependency, external integration, publication or
 market-build version change. See the original
-[checkpoint](../evidence/adjustments/search-request-control/checkpoint.md) and
-[independent review](../evidence/adjustments/search-request-control/independent-review.md).
+[checkpoint](https://github.com/mahdizarei0614/torob-ticket/blob/226bd9d929a023d4060ba102602faad9fde97914/docs/evidence/adjustments/search-request-control/checkpoint.md) and
+[independent review](https://github.com/mahdizarei0614/torob-ticket/blob/226bd9d929a023d4060ba102602faad9fde97914/docs/evidence/adjustments/search-request-control/independent-review.md).

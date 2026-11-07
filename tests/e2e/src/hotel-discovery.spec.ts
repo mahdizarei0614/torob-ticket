@@ -3,7 +3,7 @@ import {mkdirSync,writeFileSync} from 'node:fs';
 import {join} from 'node:path';
 import {HOTEL_DIRECTORY_SOURCE_REVISION,type CatalogSnapshot,type HotelSearchSnapshot,type SearchRecovery,type TransportSearchQuery} from '@torob-ticket/contracts';
 import {focusSnapshot,tabTo} from './a11y-helpers';
-const evidence=process.env.HOTEL_E2E_EVIDENCE_DIR??'docs/evidence/adjustments/arrival-hotel-discovery/native';
+const evidence=process.env.HOTEL_E2E_EVIDENCE_DIR??'.local/evidence/adjustments/arrival-hotel-discovery/native';
 function record(name:string,value:unknown){mkdirSync(evidence,{recursive:true});writeFileSync(join(evidence,name+'.json'),JSON.stringify(value,null,2)+'\n');}
 async function capture(page:Page,name:string){
  const panel=page.locator('[data-hotel-dialog]');

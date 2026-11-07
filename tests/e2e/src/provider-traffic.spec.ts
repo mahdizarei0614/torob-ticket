@@ -5,7 +5,7 @@ import type {BrowserContext,Page} from '@playwright/test';
 import {ProviderTrafficSchema,ProviderTariffSchema,ReferralReceiptSchema,RecheckResultSchema,type ReferralReceipt} from '@torob-ticket/contracts';
 import {test,expect,loadQuery,runSearch,queryFor,resultRegion} from '../fixtures';
 test.use({trace:'off'});
-const evidence=process.env.PROVIDER_TRAFFIC_EVIDENCE_DIR??'docs/evidence/adjustments/provider-traffic-revenue/browser';
+const evidence=process.env.PROVIDER_TRAFFIC_EVIDENCE_DIR??'.local/evidence/adjustments/provider-traffic-revenue/browser';
 const save=(name:string,value:unknown)=>{mkdirSync(evidence,{recursive:true});writeFileSync(join(evidence,name+'.json'),JSON.stringify(value,null,2)+'\n');};
 const capture=async(page:Page,name:string)=>{mkdirSync(evidence,{recursive:true});await page.screenshot({path:join(evidence,name+'.png')});};
 const traffic=async(context:BrowserContext,params:Record<string,string>={})=>{const response=await context.request.get('/api/v1/admin/traffic',{params});expect(response.status()).toBe(200);return ProviderTrafficSchema.parse(await response.json());};

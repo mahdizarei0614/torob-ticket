@@ -79,7 +79,7 @@ test('child environment cannot inherit an installed-state bypass, evidence root,
 
 test('owned report paths preserve existing files and reject broad or symlink targets', async t => {
   const root = await mkdtemp(join(tmpdir(), 'torobticket-report-path-')); t.after(() => rm(root, { recursive: true, force: true }));
-  for (const path of [root, tmpdir(), '/tmp']) await assert.rejects(createReportDirectory(path, root), /specific/);
+  for (const path of [root, tmpdir(), '/tmp', join(root,'.local'), join(root,'.local/evidence'), join(root,'.local/evidence/release')]) await assert.rejects(createReportDirectory(path, root), /specific/);
   const existing = join(root, 'previous'); await mkdir(existing); await writeFile(join(existing, 'evidence.json'), 'preserve');
   await assert.rejects(createReportDirectory(existing, root), /already exist/);
   const linked = join(root, 'linked'); await symlink(existing, linked, 'dir'); await assert.rejects(createReportDirectory(linked, root), /already exist/);

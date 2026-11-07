@@ -50,4 +50,4 @@ focus, grouped overview, true-pin selection, all three arrival modes, mobile,
 international stays, fallback and referral refresh/return. Record independent
 reviews, exact local commits, master/SDD and exports. No push or deployment.
 
-[Task and evidence](../evidence/adjustments/real-hotel-directory/task-brief.md).
+[Task and evidence](https://github.com/mahdizarei0614/torob-ticket/blob/226bd9d929a023d4060ba102602faad9fde97914/docs/evidence/adjustments/real-hotel-directory/task-brief.md).

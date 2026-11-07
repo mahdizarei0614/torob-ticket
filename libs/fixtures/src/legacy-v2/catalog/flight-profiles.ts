@@ -1,7 +1,7 @@
 /** Authored, reversible complete-provider itineraries, not operating flight schedules.
  * Airports: OurAirports snapshot; hub/service plausibility: primary airline research.
  * Durations/layovers are bounded mock choices, not published minimum-connect guarantees.
- * See docs/evidence/adjustments/realistic-travel-catalog/fixture-research.md.
+ * See https://github.com/mahdizarei0614/torob-ticket/blob/226bd9d929a023d4060ba102602faad9fde97914/docs/evidence/adjustments/realistic-travel-catalog/fixture-research.md.
  */
 export interface FlightPattern {
   airports: readonly string[];

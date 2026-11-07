@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-const out=resolve(process.env.HOTEL_OVERLAY_EVIDENCE_DIR??'docs/evidence/adjustments/continuous-dot-motion/hotel-overlay');
+const out=resolve(process.env.HOTEL_OVERLAY_EVIDENCE_DIR??'.local/evidence/adjustments/continuous-dot-motion/hotel-overlay');
 test.use({video:process.env.HOTEL_OVERLAY_VIDEO==='1'?{mode:'on',size:{width:1366,height:768}}:'off'});
 test('@hotel-overlay banner appearance and removal leave the map viewport fixed',async({page})=>{
   mkdirSync(out,{recursive:true});await page.setViewportSize({width:1366,height:768});

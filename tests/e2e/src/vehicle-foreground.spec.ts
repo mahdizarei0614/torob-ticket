@@ -2,7 +2,7 @@ import {test,expect,type Page} from '@playwright/test';
 import {mkdirSync,writeFileSync} from 'node:fs';
 import {join} from 'node:path';
 
-const out=process.env.VEHICLE_FOREGROUND_EVIDENCE_DIR??'docs/evidence/adjustments/route-direction-halo/vehicle-foreground-native';
+const out=process.env.VEHICLE_FOREGROUND_EVIDENCE_DIR??'.local/evidence/adjustments/route-direction-halo/vehicle-foreground-native';
 type Draw='route'|'bloom'|'vehicle';
 interface DrawReceipt {frame:number;viewport:number[];draws:Draw[];vehicleModes:number[];depthTests:boolean[];opacities:number[]}
 interface DrawProof {receipts:DrawReceipt[];pending?:DrawReceipt;offscreenVehicles:number;programs:string[];errors:string[]}

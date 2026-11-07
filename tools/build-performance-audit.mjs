@@ -4,7 +4,7 @@ import { resolve, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = resolve(fileURLToPath(new URL('..', import.meta.url)));
-const report = resolve(root, process.argv[2] ?? 'docs/evidence/T32/bundles/module-contributions.json');
+const report = resolve(root, process.argv[2] ?? '.local/evidence/T32/bundles/module-contributions.json');
 const outputs = {};
 for (const app of ['web', 'admin']) {
   const chunks = [];

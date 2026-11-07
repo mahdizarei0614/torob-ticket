@@ -1,5 +1,5 @@
 import {expect,it} from 'vitest';
-import {writeFileSync} from 'node:fs';
+import {mkdirSync,writeFileSync} from 'node:fs';
 import type {DatePriceQuery,TransportSearchQuery} from '@torob-ticket/contracts';
 import {catalog,fixtureIdentity,farePoliciesForFixture,heroSearches,DIRECTIONAL_TRANSPORT_SOURCE_REVISION,SCHEDULE_TRADEOFF_SOURCE_REVISION,fixtureSourceRevision} from '@torob-ticket/fixtures';
 import {groupOffers,rankGroups,projectDatePrices,localDateAt,type ComparisonContext} from '@torob-ticket/domain';
@@ -28,7 +28,7 @@ for(const tripType of ['one-way','round-trip'] as const)it(`ranks genuinely quic
   if(back){expect(localDateAt(back.segments[0]!.departureAt,back.segments[0]!.departureTimeZone)).toBe('2026-11-09');expect(Date.parse(back.segments[0]!.departureAt)).toBeGreaterThan(Date.parse(outbound.segments.at(-1)!.arrivalAt));}
  }
  expect(new Set(groups.map(g=>g.eligibleQuotes[0]!.total.amountRial))).toEqual(new Set(old.groups.map(g=>g.eligibleQuotes[0]!.total.amountRial)));
- if(process.env.TOROBTICKET_CAPTURE_RANKING_PROOF==='1')writeFileSync(`docs/evidence/adjustments/ranking-tradeoffs/v5-${tripType}.json`,JSON.stringify({query,fastest:fastest.map(g=>({groupId:g.groupId,duration:g.durationMinutes,connections:g.connectionCount,quote:g.eligibleQuotes[0],itinerary:g.itinerary})),fewest:fewest.map(g=>({groupId:g.groupId,duration:g.durationMinutes,connections:g.connectionCount}))},null,2)+'\n');
+ if(process.env.TOROBTICKET_CAPTURE_RANKING_PROOF==='1'){mkdirSync('.local/evidence/adjustments/ranking-tradeoffs',{recursive:true});writeFileSync(`.local/evidence/adjustments/ranking-tradeoffs/v5-${tripType}.json`,JSON.stringify({query,fastest:fastest.map(g=>({groupId:g.groupId,duration:g.durationMinutes,connections:g.connectionCount,quote:g.eligibleQuotes[0],itinerary:g.itinerary})),fewest:fewest.map(g=>({groupId:g.groupId,duration:g.durationMinutes,connections:g.connectionCount}))},null,2)+'\n');}
 });
 it('keeps legitimate same-count direct train ordering identical and retains all twelve services',async()=>{
  const query:TransportSearchQuery={...base,mode:'train',scope:'domestic',destinationCityId:'mashhad',classCode:'seat'};

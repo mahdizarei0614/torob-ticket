@@ -281,7 +281,7 @@ export async function currentDatePrices(reviewer: OwnedReviewer): Promise<DatePr
 }
 
 export function writeEvidence(info: TestInfo, name: string, value: unknown): void {
-  const directory = process.env.T30_EVIDENCE_DIR ?? resolve(process.env.E2E_EVIDENCE_DIR ?? 'docs/evidence/T30/resume-2026-11-01/native', 'acceptance');
+  const directory = process.env.T30_EVIDENCE_DIR ?? resolve(process.env.E2E_EVIDENCE_DIR ?? '.local/evidence/T30/resume-2026-11-01/native', 'acceptance');
   const caseName = info.titlePath.join('-').replace(/[^a-z0-9]+/gi, '-').slice(-150);
   mkdirSync(directory, { recursive: true });
   writeFileSync(resolve(directory, `${caseName}-${name}.json`), JSON.stringify(value, null, 2) + '\n');

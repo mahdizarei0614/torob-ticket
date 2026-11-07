@@ -3,7 +3,7 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import type { TransportSearchQuery } from '@torob-ticket/contracts';
 
-const evidence = resolve(process.env.COMPACT_JOURNEY_EVIDENCE_DIR ?? 'docs/evidence/adjustments/compact-journey/browser');
+const evidence = resolve(process.env.COMPACT_JOURNEY_EVIDENCE_DIR ?? '.local/evidence/adjustments/compact-journey/browser');
 const base: TransportSearchQuery = { mode: 'flight', scope: 'domestic', tripType: 'one-way', originCityId: 'tehran', destinationCityId: 'mashhad', departureDate: '2026-10-30', party: { adults: 1, children: 0, infants: 0 }, classCode: 'economy', filters: {}, sort: 'cheapest' };
 const save = (name: string, value: unknown) => writeFileSync(resolve(evidence, name + '.json'), JSON.stringify(value, null, 2) + '\n');
 const form = (page: Page) => page.getByRole('form', { name: 'جست‌وجوی سفر', exact: true });

@@ -1,7 +1,7 @@
 import { chromium } from '@playwright/test';
 import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
-import { readFile, stat, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, stat, writeFile } from 'node:fs/promises';
 import { resolve, extname } from 'node:path';
 const mime = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.woff2': 'font/woff2' };
 const server = createServer(async (request, response) => {
@@ -73,8 +73,9 @@ try {
   assert.equal(await page.evaluate(() => window.__transitionCalls), 0);
   assert.equal(await page.evaluate(() => document.documentElement.dataset.appearance), 'dark');
   await context.close();
+  await mkdir('.local/evidence/T12', { recursive: true });
   await writeFile(
-    'docs/evidence/T12/startup-audit.json',
+    '.local/evidence/T12/startup-audit.json',
     JSON.stringify(
       { browser: browser.version(), cases, reducedMotion: 'direct theme switch; zero transition calls' },
       null,

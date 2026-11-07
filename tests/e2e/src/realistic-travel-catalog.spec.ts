@@ -3,7 +3,7 @@ import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { HotelSearchSnapshotSchema, SearchRecoverySchema, type CatalogSnapshot, type ComparisonGroup, type Itinerary, type SearchRecovery, type TransportSearchQuery } from '@torob-ticket/contracts';
 
-const out = resolve(process.env.REALISTIC_CATALOG_EVIDENCE_DIR ?? 'docs/evidence/adjustments/realistic-travel-catalog/native-catalog');
+const out = resolve(process.env.REALISTIC_CATALOG_EVIDENCE_DIR ?? '.local/evidence/adjustments/realistic-travel-catalog/native-catalog');
 const query: TransportSearchQuery = { mode: 'flight', scope: 'international', tripType: 'one-way', originCityId: 'tehran', destinationCityId: 'los-angeles', departureDate: '2026-11-01', party: { adults: 1, children: 0, infants: 0 }, classCode: 'economy', filters: {}, sort: 'cheapest' };
 const results = (page: Page) => page.getByRole('region', { name: 'نتایج مقایسه سفر', exact: true });
 const map = (page: Page) => page.getByRole('complementary', { name: 'نقشه سفر', exact: true });

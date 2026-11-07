@@ -2,7 +2,7 @@ import { test, expect, type Page } from '@playwright/test';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
-const out = resolve(process.env.BRAND_EVIDENCE_DIR ?? 'docs/evidence/adjustments/compact-loop-brand/browser');
+const out = resolve(process.env.BRAND_EVIDENCE_DIR ?? '.local/evidence/adjustments/compact-loop-brand/browser');
 const brand = (page: Page) => page.locator('a[aria-label="ترب تیکت، خانه"]');
 async function palette(page: Page) {
   return page.locator('[data-brand-logo]').first().evaluate(svg => ({

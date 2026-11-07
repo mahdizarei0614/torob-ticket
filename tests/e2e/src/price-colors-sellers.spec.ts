@@ -6,7 +6,7 @@ import { test, expect, currentDatePrices, dateExplorer, loadQuery, readSearch, r
 import { exactReceipt, expectPlaceholder, interceptPlaceholder, localDate, scenarioQuote } from './acceptance/journey-helpers';
 
 test.use({ trace: 'off' });
-const evidence = resolve(process.env.PRICE_SELLERS_EVIDENCE_DIR ?? 'docs/evidence/adjustments/price-colors-sellers/native');
+const evidence = resolve(process.env.PRICE_SELLERS_EVIDENCE_DIR ?? '.local/evidence/adjustments/price-colors-sellers/native');
 const query: TransportSearchQuery = { mode: 'flight', scope: 'domestic', tripType: 'one-way', originCityId: 'tehran', destinationCityId: 'mashhad', departureDate: '2026-10-25', party: { adults: 1, children: 0, infants: 0 }, classCode: 'economy', filters: {}, sort: 'cheapest' };
 const reviewerOptions = (scenario: ReviewerOptions['scenario'] = 'normal'): ReviewerOptions => ({ seed: 3333, scenario, anchorInstant: '2026-10-25T06:00:00Z', viewport: { width: 1366, height: 768 }, reducedMotion: 'reduce' });
 const save = (name: string, value: unknown) => writeFileSync(resolve(evidence, name + '.json'), JSON.stringify(value, null, 2) + '\n');

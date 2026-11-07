@@ -3,7 +3,7 @@ import {mkdirSync,writeFileSync} from 'node:fs';
 import {join} from 'node:path';
 import type {SearchRecovery,TransportSearchQuery} from '@torob-ticket/contracts';
 
-const evidence=process.env.ROUTE_HALO_EVIDENCE_DIR??'docs/evidence/adjustments/route-direction-halo/native/halo';
+const evidence=process.env.ROUTE_HALO_EVIDENCE_DIR??'.local/evidence/adjustments/route-direction-halo/native/halo';
 const base:TransportSearchQuery={mode:'flight',scope:'domestic',tripType:'one-way',originCityId:'tehran',destinationCityId:'mashhad',departureDate:'2026-11-02',party:{adults:1,children:0,infants:0},classCode:'economy',filters:{},sort:'cheapest'};
 interface HaloSample {at:number;values:Record<string,number|number[]>}
 interface HaloProof {programs:{linked:boolean;compiled:boolean;logs:string[];attributes:string[]}[];latest:Record<string,number|number[]>;draws:number;samples:HaloSample[]}

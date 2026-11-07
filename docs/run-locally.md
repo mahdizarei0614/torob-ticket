@@ -169,35 +169,16 @@ OpenMapTiles. There is no tile proxy, background download,
 external OAuth/provider connection or runtime model dependency. A blocked map
 service produces an explicit unavailable state alongside local location controls.
 
-Behavior tests: `pnpm test:docker-runner`. Maintainers can run the actual HTTP
-packaging verifier only against an explicitly owned disposable T29 stack. The
-included override labels all four containers and its named volume:
+Behavior tests: `pnpm test:docker-runner`. Current packaged verification uses
+`pnpm verify:release`, documented below, against an explicitly selected running
+loopback stack. It checks HTTP/assets and selected browser behavior without
+resetting or replacing that stack's data.
 
-```sh
-export COMPOSE_PROJECT_NAME=torobticket-t29-m7
-export TOROBTICKET_PORT=4329
-export TOROBTICKET_VERIFY_OWNER=t29-m7
-export COMPOSE_FILE=compose.yaml:docs/evidence/T29/m7-completion/compose-owned.yaml
-pnpm docker:up
-node tools/verify-docker-foundation.mjs
-```
-
-The retained verifier filename is historical; it checks the current product:
-independent SPA/deep routes, real API status codes, cached hashed scripts,
-revalidated exact local assets, actual ordered SSE data/terminal replay, full
-search evidence and session-row persistence through container recreation, and
-all three completed migrations. It refuses unowned/default targets before Docker
-operations. It never prints opaque credentials. Full browser, offline-runtime,
-reset and restart rehearsal is recorded separately in T33.
-
-After inspection, remove only that disposable project/volume with the same shell
-overrides via `pnpm docker:reset`; never reuse this command against a project
-whose data you intend to preserve. Unset the four variables when returning to
-the default4300 project.
-
-Real database integration checks require an explicit owned disposable database
-ending in `_test`; see `tools/setup-test-database.mjs` and its ownership guards.
-Never point integration tests at the normal reviewer database.
+The older `tools/verify-docker-foundation.mjs` and T29 ownership override belong
+to the historical gateway-layout rehearsal. Its original commands and override
+are available in the [archived T29 snapshot](https://github.com/mahdizarei0614/torob-ticket/tree/226bd9d929a023d4060ba102602faad9fde97914/docs/evidence/T29).
+They are not the startup instructions for the current separate web/admin/provider
+layout. Use `pnpm docker:down` to stop current services while retaining data.
 
 ## Bounded release verification
 
@@ -205,8 +186,8 @@ With the packaged stack already ready, install the pinned host verification
 dependencies once using `pnpm install --frozen-lockfile`, then run:
 
 ```sh
-pnpm verify:release --base-url http://127.0.0.1:4300 --report-dir docs/evidence/release/local-smoke-001 --browser-channel chrome
-pnpm verify:release --base-url http://127.0.0.1:4300 --report-dir docs/evidence/release/local-quality-001 --profile quality --browser-channel chrome
+pnpm verify:release --base-url http://127.0.0.1:4300 --report-dir .local/evidence/release/local-smoke-001 --browser-channel chrome
+pnpm verify:release --base-url http://127.0.0.1:4300 --report-dir .local/evidence/release/local-quality-001 --profile quality --browser-channel chrome
 ```
 
 Each report directory must be new. Omit `--browser-channel` to use installed

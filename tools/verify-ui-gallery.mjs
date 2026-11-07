@@ -2,7 +2,7 @@ import { chromium } from '@playwright/test';
 import assert from 'node:assert/strict';
 import { writeFileSync } from 'node:fs';
 const base = process.env.GALLERY_URL ?? 'http://127.0.0.1:4400';
-const out = 'docs/evidence/T12';
+const out = '.local/evidence/T12';
 const browser = await chromium.launch({ channel: 'chrome', headless: true });
 const report = { browser: browser.version(), date: new Date().toISOString(), cases: [], interactions: [] };
 const names = [

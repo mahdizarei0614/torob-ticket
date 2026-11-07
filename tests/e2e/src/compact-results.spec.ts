@@ -4,7 +4,7 @@ import { resolve } from 'node:path';
 import { RecheckResultSchema, ReferralReceiptSchema, SearchRecoverySchema, type SearchRecovery, type TransportSearchQuery } from '@torob-ticket/contracts';
 import { exactReceipt, expectPlaceholder } from './acceptance/journey-helpers';
 
-const evidence = resolve(process.env.COMPACT_RESULTS_EVIDENCE_DIR ?? 'docs/evidence/adjustments/compact-results/native');
+const evidence = resolve(process.env.COMPACT_RESULTS_EVIDENCE_DIR ?? '.local/evidence/adjustments/compact-results/native');
 const query: TransportSearchQuery = { mode: 'flight', scope: 'domestic', tripType: 'one-way', originCityId: 'tehran', destinationCityId: 'mashhad', departureDate: '2026-10-25', party: { adults: 1, children: 0, infants: 0 }, classCode: 'economy', filters: {}, sort: 'cheapest' };
 const results = (page: Page) => page.getByRole('region', { name: 'نتایج مقایسه سفر', exact: true });
 const cards = (page: Page) => results(page).locator('article[data-group-id]');

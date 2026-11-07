@@ -3,7 +3,7 @@ import {mkdirSync,writeFileSync} from 'node:fs';
 import {join} from 'node:path';
 import type {CatalogSnapshot,DatePriceSnapshot,SearchRecovery,TransportSearchQuery} from '@torob-ticket/contracts';
 
-const evidence=process.env.ROUNDTRIP_FIX_EVIDENCE_DIR??'docs/evidence/adjustments/roundtrip-pricing-and-filter/native';
+const evidence=process.env.ROUNDTRIP_FIX_EVIDENCE_DIR??'.local/evidence/adjustments/roundtrip-pricing-and-filter/native';
 const base:TransportSearchQuery={mode:'flight',scope:'domestic',tripType:'round-trip',originCityId:'tehran',destinationCityId:'mashhad',departureDate:'2026-11-02',returnDate:'2026-11-06',party:{adults:1,children:0,infants:0},classCode:'economy',filters:{},sort:'cheapest'};
 const sourceRevision='source-v5-schedule-tradeoffs-2026-10-30';
 const region=(page:Page)=>page.getByRole('region',{name:'نتایج مقایسه سفر',exact:true});

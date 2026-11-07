@@ -3,7 +3,7 @@ import {mkdirSync,writeFileSync} from 'node:fs';
 import {join} from 'node:path';
 import type {TransportSearchQuery} from '@torob-ticket/contracts';
 
-const evidence=process.env.DATE_LOADING_EVIDENCE_DIR??'docs/evidence/adjustments/date-loading-motion/browser';
+const evidence=process.env.DATE_LOADING_EVIDENCE_DIR??'.local/evidence/adjustments/date-loading-motion/browser';
 const query:TransportSearchQuery={mode:'flight',scope:'domestic',tripType:'one-way',originCityId:'tehran',destinationCityId:'mashhad',departureDate:'2026-11-08',party:{adults:1,children:0,infants:0},classCode:'economy',filters:{},sort:'cheapest'};
 const save=(name:string,data:unknown)=>{mkdirSync(evidence,{recursive:true});writeFileSync(join(evidence,name+'.json'),JSON.stringify(data,null,2)+'\n');};
 const wave=(values:number[])=>values.some((low,index)=>low<.65&&values.slice(index+1).some((high,offset)=>high>.8&&values.slice(index+offset+2).some(next=>next<.65)));

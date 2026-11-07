@@ -1,6 +1,6 @@
 import { chromium } from '@playwright/test';
 import assert from 'node:assert/strict';
-import { writeFileSync } from 'node:fs';
+import { mkdirSync, writeFileSync } from 'node:fs';
 const browser = await chromium.launch({ channel: 'chrome', headless: true });
 const report = { browser: browser.version(), cases: [] };
 try {
@@ -53,7 +53,8 @@ try {
     report.cases.push({ width, ...result, errors });
     await context.close();
   }
-  writeFileSync('docs/evidence/T12/fix-1-browser-race.json', JSON.stringify(report, null, 2));
+  mkdirSync('.local/evidence/T12', { recursive: true });
+  writeFileSync('.local/evidence/T12/fix-1-browser-race.json', JSON.stringify(report, null, 2));
   console.log(
     `PASS: reported native deferred/skipped-transition race keeps system/light/context label/storage at 390px and1440px; Chrome${report.browser}.`,
   );

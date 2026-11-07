@@ -5,7 +5,7 @@ import { resolve } from 'node:path';
 // eslint-disable-next-line @nx/enforce-module-boundaries
 import { sampleLivingDotOffset, sampleLivingDotOpacity } from '../../../libs/graphics/src/scenes/living-dot-drift';
 
-const out = resolve(process.env.VISIBLE_DOT_EVIDENCE_DIR ?? 'docs/evidence/adjustments/visible-dot-motion/native');
+const out = resolve(process.env.VISIBLE_DOT_EVIDENCE_DIR ?? '.local/evidence/adjustments/visible-dot-motion/native');
 interface Dot { x: number; y: number; mass: number }
 interface Frame { seconds: number; wallSeconds: number; amplitude: number; unit: number; dpr: number; viewport: number[]; camera: number[]; dots: Dot[]; png: string }
 interface Proof { request: boolean; frames: Frame[]; frameWallTimes: number[]; linked: boolean; particleLifecycle: boolean; morphSeen: boolean; opacity: number; time: number; amplitude: number }

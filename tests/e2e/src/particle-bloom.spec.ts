@@ -2,7 +2,7 @@ import { test, expect, type Page } from '@playwright/test';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
-const out = resolve(process.env.PARTICLE_BLOOM_EVIDENCE_DIR ?? 'docs/evidence/adjustments/staggered-particles-bloom/native-bloom');
+const out = resolve(process.env.PARTICLE_BLOOM_EVIDENCE_DIR ?? '.local/evidence/adjustments/staggered-particles-bloom/native-bloom');
 const query = { mode: 'flight', scope: 'domestic', tripType: 'one-way', originCityId: 'tehran', destinationCityId: 'mashhad', departureDate: '2026-11-01', party: { adults: 1, children: 0, infants: 0 }, classCode: 'economy', filters: {}, sort: 'cheapest' };
 interface PixelReceipt { viewport: number[]; scissor: number[]; scissorEnabled: boolean; canvas: number[]; changedInside: number; changedOutside: number; changedRight: number; clearEdgePixels: number; edgePixels: number; beforeAfterStateEqual: boolean; maxChange: number; error: number }
 interface BloomProof { draws: number; ordinaryDraws: number; compositePrograms: number; floatAllocations: number; contextCanvases: number; pixel?: PixelReceipt; errors: string[]; gpuChecks: Record<string, unknown>[]; gpuLifecycle: Record<string, unknown>[] }

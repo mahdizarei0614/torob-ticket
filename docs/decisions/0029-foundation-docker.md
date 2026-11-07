@@ -12,7 +12,7 @@ The Docker daemon was stopped at this check. Starting Docker Desktop and running
 database, API and gateway to healthy status. Thirteen HTTP checks passed, and
 served HTML hashes matched `/srv/web/index.html` and `/srv/admin/index.html`
 inside Caddy. The original database container and volume were retained. See
-[the runtime checkpoint](../evidence/adjustments/docker-serving/checkpoint.md).
+[the runtime checkpoint](https://github.com/mahdizarei0614/torob-ticket/blob/226bd9d929a023d4060ba102602faad9fde97914/docs/evidence/adjustments/docker-serving/checkpoint.md).
 
 Date: 2026-10-24. Status: accepted implementation ruling within T29 early scope.
 

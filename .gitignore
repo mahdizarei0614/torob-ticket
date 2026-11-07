@@ -17,3 +17,15 @@ libs/data-access/src/generated/
 
 # Separate provider private credentials and account store
 .local/
+
+# Retain curated tracked proof; new generated evidence belongs in .local/evidence.
+docs/evidence/**/*.json
+docs/evidence/**/*.log
+docs/evidence/**/*.png
+docs/evidence/**/*.jpg
+docs/evidence/**/*.webm
+docs/evidence/**/*.gif
+docs/evidence/**/*.gz
+docs/evidence/**/*.zip
+docs/evidence/**/*.cpuprofile
+docs/evidence/**/artifacts/

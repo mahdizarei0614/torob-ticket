@@ -14,7 +14,7 @@ import {
 } from '../fixtures';
 import { exactReceipt, expectPlaceholder, interceptPlaceholder, localDate, nextDay, referralList, scenarioQuote } from './acceptance/journey-helpers';
 
-const evidence = resolve(process.env.M6_EVIDENCE_DIR ?? 'docs/evidence/M6/browser');
+const evidence = resolve(process.env.M6_EVIDENCE_DIR ?? '.local/evidence/M6/browser');
 mkdirSync(evidence, { recursive: true });
 const query: TransportSearchQuery = { mode: 'flight', scope: 'domestic', tripType: 'one-way', originCityId: 'tehran', destinationCityId: 'mashhad', departureDate: '2026-10-25', party: { adults: 1, children: 0, infants: 0 }, classCode: 'economy', filters: {}, sort: 'cheapest' };
 const test = ownedTest.extend<{ owner: OwnedReviewer }>({
@@ -193,7 +193,7 @@ test('@recovery another-tab configuration change preserves arrival-derived one-n
 
 function ownedApi() {
   const project = process.env.M6_STACK_PROJECT; if (project !== 'torobticket-m6') throw new Error('Requires exact root-owned M6 stack');
-  const args = ['compose', '-p', project, '-f', 'compose.yaml', '-f', 'docs/evidence/M6/packaged/compose-owned.yaml'];
+  const args = ['compose', '-p', project, '-f', 'compose.yaml', '-f', 'tests/e2e/fixtures/compose.m6-owned.yaml'];
   const id = execFileSync('docker', [...args, 'ps', '-q', 'api'], { encoding: 'utf8' }).trim();
   const rows = JSON.parse(execFileSync('docker', ['inspect', id], { encoding: 'utf8' }));
   if (rows[0]?.Config.Labels['torobticket.owner'] !== 'm6' || rows[0]?.Config.Labels['com.docker.compose.project'] !== project) throw new Error('Owned API identity mismatch');

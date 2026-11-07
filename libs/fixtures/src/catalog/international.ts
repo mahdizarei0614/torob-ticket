@@ -1,7 +1,7 @@
 import type { City, Place } from '@torob-ticket/contracts';
 // Airport identifiers/anchors: public-domain OurAirports snapshot 2026-10-29.
 // City anchors: bundled Natural Earth; Frankfurt center is an authored approximate map anchor.
-// Source hash/observations and IANA zones: docs/evidence/adjustments/realistic-travel-catalog/.
+// Source hash/observations and IANA zones: https://github.com/mahdizarei0614/torob-ticket/tree/226bd9d929a023d4060ba102602faad9fde97914/docs/evidence/adjustments/realistic-travel-catalog/
 export const researchedCities: City[] = [
   {
     "id": "london",

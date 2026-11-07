@@ -36,6 +36,6 @@ tasks across three1.8s traversals after date/chart/route completion. These are
 recorded-workload results, not physical display FPS or universal device claims.
 Earlier slow development and failed disclosure checkpoints remain retained.
 
-See the [checkpoint](../evidence/adjustments/results-scroll-performance/checkpoint.md)
-and [independent review](../evidence/adjustments/results-scroll-performance/review-independent.md).
+See the [checkpoint](https://github.com/mahdizarei0614/torob-ticket/blob/226bd9d929a023d4060ba102602faad9fde97914/docs/evidence/adjustments/results-scroll-performance/checkpoint.md)
+and [independent review](https://github.com/mahdizarei0614/torob-ticket/blob/226bd9d929a023d4060ba102602faad9fde97914/docs/evidence/adjustments/results-scroll-performance/review-independent.md).
 This adjustment does not complete T30 or the remaining T31–T33 audits.

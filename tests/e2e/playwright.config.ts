@@ -16,7 +16,7 @@ if (external) {
 }
 const webUrl = external ? new URL(external).origin : `http://127.0.0.1:${graphicsPort ?? '4300'}`;
 const workspace = resolve(typeof __dirname === 'string' ? __dirname : 'tests/e2e', '../..');
-const evidence = external ? evidenceRoots.evidenceRootPath(process.env.E2E_EVIDENCE_DIR ?? 'docs/evidence/T30/acceptance-current', workspace) : undefined;
+const evidence = external ? evidenceRoots.evidenceRootPath(process.env.E2E_EVIDENCE_DIR ?? '.local/evidence/T30/acceptance-current', workspace) : undefined;
 if (evidence) {
   // Discover literal feature evidence variables before test modules load, so a
   // new regression cannot overwrite an earlier task's captures during this run.

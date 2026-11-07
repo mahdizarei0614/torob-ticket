@@ -1,7 +1,7 @@
 import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { join } from 'node:path';
-const evidenceDirectory=process.env.BOUNDARY_EVIDENCE_DIR??'docs/evidence/T01';
+const evidenceDirectory=process.env.BOUNDARY_EVIDENCE_DIR??'.local/evidence/T01';
 const probes = [
   { file: 'apps/web/src/boundary-verification.ts', source: "import '@torob-ticket/data-access';\n", rejected: true, reason: 'scope:shared' },
   ...['contracts', 'domain'].flatMap(name => [

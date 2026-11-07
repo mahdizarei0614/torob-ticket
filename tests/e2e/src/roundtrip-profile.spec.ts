@@ -3,7 +3,7 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import type { TransportSearchQuery, SearchRecovery } from '@torob-ticket/contracts';
 
-const out = resolve(process.env.ROUNDTRIP_PROFILE_EVIDENCE_DIR ?? 'docs/evidence/adjustments/roundtrip-profile/native');
+const out = resolve(process.env.ROUNDTRIP_PROFILE_EVIDENCE_DIR ?? '.local/evidence/adjustments/roundtrip-profile/native');
 const base: TransportSearchQuery = { mode: 'flight', scope: 'domestic', tripType: 'one-way', originCityId: 'tehran', destinationCityId: 'mashhad', departureDate: '2026-10-29', party: { adults: 1, children: 0, infants: 0 }, classCode: 'economy', filters: {}, sort: 'fastest' };
 const results = (page: Page) => page.getByRole('region', { name: 'نتایج مقایسه سفر', exact: true });
 const profile = (page: Page) => page.getByRole('dialog', { name: 'حساب کاربری', exact: true });

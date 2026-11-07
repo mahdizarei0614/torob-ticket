@@ -1,0 +1,125 @@
+[
+  {
+    "osmType": "node",
+    "osmId": "6153093769",
+    "verifiedUrls": [
+      "https://helpcenter.yotel.com/hc/en-gb/articles/7189722926109-Which-YOTEL-Istanbul-Airport-hotel-should-I-book",
+      "https://www.yotel.com/en/hotels/yotel-istanbul-airport-landside"
+    ],
+    "fact": "Official operator distinguishes landside YOTEL before passport control from restricted airside YOTELAIR. Only the landside property is included."
+  },
+  {
+    "osmType": "way",
+    "osmId": "322819164",
+    "verifiedUrls": [
+      "https://www.royalparkhotels.co.jp/en/the/tokyohaneda/about/access/index.html"
+    ],
+    "fact": "Official hotel confirms The Royal Park Hotel Tokyo Haneda at Terminal 3 departure lobby; preserve exact OSM footprint coordinates."
+  },
+  {
+    "osmType": "way",
+    "osmId": "384247253",
+    "name": "Rydges Sydney Airport Hotel",
+    "address": "8 Arrivals Court, Sydney International Airport",
+    "website": "https://www.rydges.com/accommodation/sydney-nsw/sydney-airport/",
+    "verifiedUrls": [
+      "https://www.rydges.com/accommodation/sydney-nsw/sydney-airport/"
+    ],
+    "fact": "Official operator expands the abbreviated OSM name Rydges and confirms the airport hotel identity/address. Coordinate remains the OSM building centre."
+  },
+  {
+    "osmType": "relation",
+    "osmId": "4819665",
+    "address": "999 Suvarnabhumi Airport Hotel Building, Moo 1, Nong Prue, Bang Phli District, Samut Prakan 10540, Thailand",
+    "verifiedUrls": [
+      "https://www.hyatt.com/hyatt-regency/en-US/bkkrb-hyatt-regency-bangkok-suvarnabhumi-airport/hotel-info",
+      "https://newsroom.hyatt.com/news-releases?item=124596"
+    ],
+    "fact": "Official Hyatt property and 2025 opening announcement confirm the current Hyatt Regency name, replacing the former Novotel identity. No star rating is inferred from review scores."
+  },
+  {
+    "osmType": "way",
+    "osmId": "526107113",
+    "verifiedUrls": [
+      "https://www.hilton.com/en/hotels/frahahi-hilton-frankfurt-airport/"
+    ],
+    "fact": "Distinct co-located property in The Squaire. Official Hilton operator lists a separate hotel name and telephone; Hilton Garden Inn explicitly refers to the adjacent Hilton hotel. Retain both original OSM footprints."
+  },
+  {
+    "osmType": "way",
+    "osmId": "1564778527",
+    "verifiedUrls": [
+      "https://www.hilton.com/en/hotels/fraapgi-hilton-garden-inn-frankfurt-airport/"
+    ],
+    "fact": "Distinct co-located property in The Squaire. Official Hilton operator lists a separate hotel name and telephone; Hilton Garden Inn explicitly refers to the adjacent Hilton hotel. Retain both original OSM footprints."
+  },
+  {
+    "osmType": "node",
+    "osmId": "1733186698",
+    "excluded": true,
+    "verifiedUrls": [
+      "https://www.tradearabia.com/News/228003/Golden-Tulip-Seeb-ceases-operations"
+    ],
+    "fact": "2019-07-31 closure report identifies Golden Tulip Seeb as permanently closed; exclude its stale OSM hotel identity."
+  },
+  {
+    "osmType": "node",
+    "osmId": "3064973833",
+    "name": "HOTEL MYSTAYS Gotanda Station",
+    "address": "2-6-8 Nishigotanda, Shinagawa-ku, Tokyo 141-0031, Japan",
+    "website": "https://iconia.co.jp/en-us/location-hotel-mystays-gotanda-station-tokyo",
+    "verifiedUrls": [
+      "https://iconia.co.jp/en-us/location-hotel-mystays-gotanda-station-tokyo",
+      "https://corporate.iconia.co.jp/wp-content/uploads/2024/02/MS-Gtanda-station-20231206_pressrelease.pdf",
+      "https://shinagawa.keizai.biz/headline/2407/"
+    ],
+    "fact": "Current official ICONIA/MYSTAYS access page and operator release confirm the real Gotanda Station hotel at2-6-8Nishigotanda. The2015local opening report explicitly identifies formerTOKOHOTEL and rebrand. Correct stale2014OSMdisplay name; preserve original POI point, tags/version and stable ID. No room policy/rate/operating availability is inferred."
+  },
+  {
+    "osmType": "node",
+    "osmId": "6378160629",
+    "name": "QT Singapore",
+    "address": "35 Robinson Road, Singapore 068876",
+    "website": "https://www.qthotels.com/singapore/",
+    "verifiedUrls": [
+      "https://cdn.qthotels.com/wp-content/uploads/sites/89/2025/12/17144539/QT-Singapore-FactSheet-2026.pdf",
+      "https://www.qthotels.com/singapore/"
+    ],
+    "fact": "Current official2026QTfact sheet identifiesQTSingapore at35RobinsonRoad, the formerHotelTelegraph property. Update display identity/site while retaining primary OSMpoint/ID/tags; no live prices or availability."
+  },
+  {
+    "osmType": "way",
+    "osmId": "541968516",
+    "name": "The Star Grand Hotel and Residences Sydney",
+    "verifiedUrls": [
+      "https://www.star.com.au/sydney/hotels-and-spa/the-star-grand",
+      "https://www.starentertainmentgroup.com.au/wp-content/uploads/2020/10/2019-Annual-Report.pdf",
+      "https://www.sydney.com/destinations/sydney/sydney-city/pyrmont/food-and-drink/g-tea"
+    ],
+    "fact": "Official operator2019annual report explicitly confirms AstralTower rebrand to TheStarGrandHotelandResidencesSydney. Preserve primary building geometry/ID/version and raw formername tags.",
+    "website": "https://www.star.com.au/sydney/hotels-and-spa/the-star-grand",
+    "address": "80 Pyrmont Street, Pyrmont NSW 2009, Australia"
+  },
+  {
+    "osmType": "node",
+    "osmId": "3676888125",
+    "excluded": true,
+    "verifiedUrls": [
+      "https://unionsquareapartmentsnyc.com/",
+      "https://unionsquareapartmentsnyc.com/booking/",
+      "https://unionsquareapartmentsnyc.com/contact-us/"
+    ],
+    "fact": "Current official operator identifies extended-stayUnionSquareApartments with rentalapplication/income/lease requirements; do not offer formerUnionSquareInn as an ordinary automatic one-night hotel."
+  },
+  {
+    "osmType": "way",
+    "osmId": "265320185",
+    "excluded": true,
+    "verifiedUrls": [
+      "https://cbmanhattan.cityofnewyork.us/cb4/archives/2024-resolutions/",
+      "https://cbmanhattan.cityofnewyork.us/cb4/wp-content/uploads/sites/10/2024/02/01-HHHS-Letter-to-DHS-re-Continued-lack-of-coordination-and-communication-with-Manhattan-Community-Board-4-Regarding-Shelters.pdf",
+      "https://cbmanhattan.cityofnewyork.us/cb4/wp-content/uploads/sites/10/2024/02/02-HHHS-Letter-to-DHS-re-Project-Renewal-Temporary-Shelter-Relocation-at-343-West-44th-Street-%E2%80%93-Ramada-Inn.pdf"
+    ],
+    "fact": "NYC community-board January2024 resolutions identify343W44thformerRamada as multi-yearProjectRenewal women shelter. Exclude current ordinary hotel inventory conservatively."
+  }
+]

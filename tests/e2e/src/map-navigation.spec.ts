@@ -4,7 +4,7 @@ import { resolve } from 'node:path';
 import { RecheckResultSchema, ReferralReceiptSchema, SearchRecoverySchema, type SearchRecovery, type TransportSearchQuery } from '@torob-ticket/contracts';
 import { exactReceipt, expectPlaceholder } from './acceptance/journey-helpers';
 
-const evidence = resolve(process.env.MAP_NAVIGATION_EVIDENCE_DIR ?? 'docs/evidence/adjustments/map-navigation/browser');
+const evidence = resolve(process.env.MAP_NAVIGATION_EVIDENCE_DIR ?? '.local/evidence/adjustments/map-navigation/browser');
 const query: TransportSearchQuery = { mode: 'flight', scope: 'domestic', tripType: 'one-way', originCityId: 'tehran', destinationCityId: 'mashhad', departureDate: '2026-10-25', party: { adults: 1, children: 0, infants: 0 }, classCode: 'economy', filters: {}, sort: 'cheapest' };
 const map = (page: Page) => page.getByRole('complementary', { name: 'نقشه سفر', exact: true });
 const results = (page: Page) => page.getByRole('region', { name: 'نتایج مقایسه سفر', exact: true });

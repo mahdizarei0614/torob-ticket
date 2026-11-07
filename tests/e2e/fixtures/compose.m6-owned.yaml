@@ -1,0 +1,27 @@
+# Only for the root-owned M6 restart/expiry acceptance run.
+services:
+  database:
+    labels:
+      torobticket.owner: m6
+  api:
+    labels:
+      torobticket.owner: m6
+  initializer:
+    labels:
+      torobticket.owner: m6
+  web:
+    labels:
+      torobticket.owner: m6
+  admin:
+    labels:
+      torobticket.owner: m6
+  example-provider:
+    labels:
+      torobticket.owner: m6
+volumes:
+  database:
+    labels:
+      torobticket.owner: m6
+  example_provider:
+    labels:
+      torobticket.owner: m6
