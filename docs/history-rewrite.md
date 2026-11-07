@@ -26,7 +26,8 @@ startup/SSO evidence keeps its original run scope and source identifiers.
 
 The remote update is limited to main and guarded by the exact previous main ID
 using a force-with-lease. Integrity, reachable-object and clone-size receipts are
-recorded in the [rewrite verification](evidence/history-rewrite.md). Existing
+recorded in the [rewrite verification](evidence/history-rewrite.md) and
+[compact receipt](history-rewrite-receipt.json). Existing
 clones should be replaced with a fresh clone to avoid bringing the old history
 back. GitHub may retain old objects in caches or other references; this cleanup
 claims reduced reachable main history and fresh-clone size, not server-wide

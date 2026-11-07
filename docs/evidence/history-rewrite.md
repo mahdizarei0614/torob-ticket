@@ -31,3 +31,26 @@ The original working repository stays intact until the candidate is verified.
 A fresh remote clone and local unreachable-object cleanup complete the handoff.
 Only reachable main history/fresh-clone size is claimed; GitHub caches, forks or
 other references may retain old objects independently.
+
+
+## Verified replacement clone
+
+A fresh --no-local clone of candidate2d570d939c157dd9d9e12e1440013f3ef0e402ae
+passes full git fsck. Its packed database is15.52MiB; the full checkout occupies
+43,040KiB (about44.1decimal MB), including a16,192KiB Git directory. The reachable
+object audit checks7,532retired exclusive evidence blobs, representing713,033,372
+logical bytes, and finds zero reachable. Blobs shared with preserved source
+history or the selected current tip are deliberately retained. Exactly the43
+current evidence paths plus this verification record exist after restoration.
+These checks precede the final documentation-only publication commit and are
+not claimed as another browser/SSO execution.
+
+
+## Independent pre-publication review
+
+The separate reviewer independently passed full fsck in the verification clone,
+recomputed the7,532retired-blob set with zero reachable, checked all43selected
+proof paths and runtime-blob identity, and approved candidate2d570d9. The final
+receipt-only commit retains the same application data and is followed by a fresh
+clone-head/integrity check before exact-lease publication. Original main remained
+clean and untouched throughout candidate review.

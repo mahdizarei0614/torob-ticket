@@ -1,0 +1,19 @@
+{
+  "originalMain": "94459fea2c684b84b1a20e8e1ec03f4161550004",
+  "filteredSourceMain": "ff1a2374a3b3057a394d03402cf94078c1b94d07",
+  "verifiedCandidate": "2d570d939c157dd9d9e12e1440013f3ef0e402ae",
+  "mappedSourceTreesCompared": 259,
+  "artifactOnlyCommitsPruned": 47,
+  "completeRestoredOriginalTreeMatched": true,
+  "runtimeProductBlobsIdentical": true,
+  "freshCloneFsck": "pass",
+  "packMiB": 15.52,
+  "cloneDiskKiB": 43040,
+  "gitDiskKiB": 16192,
+  "retiredExclusiveBlobsChecked": 7532,
+  "retiredBlobsReachable": 0,
+  "restoredOriginalEvidencePaths": 43,
+  "officialFilterRepoCommit": "d7b75aca907380f608892cc289e616f195427b99",
+  "officialScriptSha256": "39d35fb2c35637a9d555353b6a8b53a223a227d3beb61a0ac7e1180bfa5572f1",
+  "scope": "History and documentation verification; no new application/SSO test run. Docker/private state untouched."
+}
